@@ -1,0 +1,16 @@
+[
+{
+  "modid": "betterquesting",
+  "name": "BetterQuesting",
+  "description": "A new and improved questing mod",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Funwayguy"],
+  "credits": "",
+  "logoFile": "title.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
