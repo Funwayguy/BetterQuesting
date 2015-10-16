@@ -7,9 +7,11 @@ import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.types.QuestBase;
-import betterquesting.rewards.RewardBase;
-import betterquesting.rewards.RewardRegistry;
+import betterquesting.quests.rewards.RewardBase;
+import betterquesting.quests.rewards.RewardRegistry;
+import betterquesting.quests.tasks.TaskBase;
+import betterquesting.quests.tasks.TaskRegistry;
+import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,31 +19,28 @@ import com.google.gson.JsonPrimitive;
 
 public class QuestInstance
 {
-	ArrayList<QuestBase> questTypes = new ArrayList<QuestBase>();
-	int questID;
+	public ArrayList<TaskBase> questTypes = new ArrayList<TaskBase>();
+	public int questID;
 	
 	JsonObject questSettings = new JsonObject();
-	ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
+	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
 	
 	public String name = "New Quest";
 	public String description = "No Description";
 	
-	ArrayList<UUID> claimed = new ArrayList<UUID>();
-	ArrayList<UUID> completeUsers = new ArrayList<UUID>();
-	ArrayList<Integer> preRequisites = new ArrayList<Integer>();
+	ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
+	public ArrayList<QuestInstance> preRequisites = new ArrayList<QuestInstance>();
 	
 	boolean globalQuest = false;
 	
-	public QuestInstance(JsonObject jObj)
+	public QuestInstance(int questID, boolean register)
 	{
-		this.readFromJSON(jObj);
-		QuestDatabase.questDB.put(this.questID, this);
-	}
-	
-	public QuestInstance()
-	{
-		this.questID = QuestDatabase.getUniqueID();
-		QuestDatabase.questDB.put(this.questID, this);
+		this.questID = questID;
+		
+		if(register)
+		{
+			QuestDatabase.questDB.put(this.questID, this);
+		}
 	}
 	
 	/**
@@ -50,11 +49,30 @@ public class QuestInstance
 	 */
 	public void Update(EntityPlayer player)
 	{
+		if(this.isComplete(player.getUniqueID()))
+		{
+			return;
+		}
+		
 		if(this.isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
 		{
-			for(QuestBase quest : questTypes)
+			boolean done = true;
+			
+			for(TaskBase quest : questTypes)
 			{
 				quest.Update(player);
+				
+				if(!quest.isComplete(player))
+				{
+					done = false;
+				}
+			}
+			
+			if(done)
+			{
+				UserEntry entry = new UserEntry(player.getUniqueID());
+				entry.timestamp = player.worldObj.getTotalWorldTime();
+				completeUsers.add(entry);
 			}
 		}
 	}
@@ -64,18 +82,37 @@ public class QuestInstance
 	 */
 	public void Detect(EntityPlayer player)
 	{
+		if(this.isComplete(player.getUniqueID()))
+		{
+			return;
+		}
+		
 		if(this.isUnlocked(player.getUniqueID()))
 		{
-			for(QuestBase quest : questTypes)
+			boolean done = true;
+			
+			for(TaskBase quest : questTypes)
 			{
 				quest.Detect(player);
+				
+				if(!quest.isComplete(player))
+				{
+					done = false;
+				}
+			}
+			
+			if(done)
+			{
+				completeUsers.add(new UserEntry(player));
 			}
 		}
 	}
 	
 	public boolean CanClaim(EntityPlayer player)
 	{
-		if(claimed.contains(player.getUniqueID()))
+		UserEntry entry = GetUserEntry(player.getUniqueID());
+		
+		if(entry == null || entry.claimed)
 		{
 			return false;
 		} else
@@ -100,7 +137,9 @@ public class QuestInstance
 			rew.Claim(player);
 		}
 		
-		claimed.add(player.getUniqueID());
+		UserEntry entry = GetUserEntry(player.getUniqueID());
+		entry.claimed = true;
+		entry.timestamp = player.worldObj.getTotalWorldTime();
 	}
 	
 	public void SetGlobal(boolean state)
@@ -110,10 +149,8 @@ public class QuestInstance
 	
 	public boolean isUnlocked(UUID uuid)
 	{
-		for(int id : preRequisites)
+		for(QuestInstance quest : preRequisites)
 		{
-			QuestInstance quest = QuestDatabase.getQuest(id);
-			
 			if(quest != null && !quest.isComplete(uuid))
 			{
 				return false;
@@ -130,46 +167,78 @@ public class QuestInstance
 			return completeUsers.size() > 0;
 		} else
 		{
-			return completeUsers.contains(uuid);
+			return GetUserEntry(uuid) != null;
 		}
+	}
+	
+	public void RemoveUserEntry(UUID... uuid)
+	{
+		for(int i = completeUsers.size() - 1; i >= 0; i--)
+		{
+			UserEntry entry = completeUsers.get(i);
+			
+			if(entry.uuid.equals(uuid))
+			{
+				completeUsers.remove(i);
+			}
+		}
+	}
+	
+	public UserEntry GetUserEntry(UUID uuid)
+	{
+		for(UserEntry entry : completeUsers)
+		{
+			if(entry.uuid.equals(uuid))
+			{
+				return entry;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
 	 * Sets the complete state of the quest
-	 * @param player
-	 * @param state
 	 */
-	public void setCompletion(UUID uuid, boolean state, boolean applyToParty)
+	public void setCompletion(UUID uuid, long timestamp, boolean state, boolean applyToParty)
 	{
 		if(state)
 		{
-			if(!completeUsers.contains(uuid)) // Skip duplicates
+			UserEntry entry = GetUserEntry(uuid);
+			
+			if(entry == null) // Skip duplicates
 			{
-				completeUsers.add(uuid);
+				completeUsers.add(new UserEntry(uuid));
 			}
 			
 			if(applyToParty)
 			{
-				for(PartyInstance party : PartyManager.GetParties(uuid))
+				PartyInstance party = PartyManager.GetParty(uuid);
+				
+				if(party != null)
 				{
 					for(UUID pId : party.GetMembers())
 					{
-						if(!completeUsers.contains(pId)) // Skip duplicates
+						UserEntry pEntry = GetUserEntry(pId);
+						
+						if(pEntry == null) // Skip duplicates
 						{
-							completeUsers.add(pId);
+							completeUsers.add(new UserEntry(pId));
 						}
 					}
 				}
 			}
 		} else
 		{
-			completeUsers.remove(uuid);
+			RemoveUserEntry(uuid);
 			
 			if(applyToParty)
 			{
-				for(PartyInstance party : PartyManager.GetParties(uuid))
+				PartyInstance party = PartyManager.GetParty(uuid);
+				
+				if(party != null)
 				{
-					completeUsers.removeAll(party.GetMembers());
+					RemoveUserEntry(party.GetMembers().toArray(new UUID[]{}));
 				}
 			}
 		}
@@ -180,7 +249,6 @@ public class QuestInstance
 	 */
 	public void ResetQuest()
 	{
-		this.claimed.clear();
 		this.completeUsers.clear();
 	}
 	
@@ -188,13 +256,13 @@ public class QuestInstance
 	{
 		if(!this.preRequisites.contains(quest.questID))
 		{
-			this.preRequisites.add(quest.questID);
+			this.preRequisites.add(quest);
 		}
 	}
 	
 	public void RemovePreRequisite(QuestInstance quest)
 	{
-		this.preRequisites.remove(quest.questID);
+		this.preRequisites.remove(quest);
 	}
 	
 	public JsonObject GetQuestSettings()
@@ -207,7 +275,7 @@ public class QuestInstance
 		this.questSettings = jObj;
 	}
 	
-	public ArrayList<QuestBase> getQuests()
+	public ArrayList<TaskBase> getQuests()
 	{
 		return questTypes;
 	}
@@ -217,11 +285,19 @@ public class QuestInstance
 		jObj.addProperty("questID", this.questID);
 		
 		JsonArray tskJson = new JsonArray();
-		for(QuestBase quest : questTypes)
+		for(TaskBase quest : questTypes)
 		{
+			String taskID = TaskRegistry.GetID(quest.getClass());
+			
+			if(taskID == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + quest.getClass().getName());
+				continue;
+			}
+			
 			JsonObject qJson = new JsonObject();
 			quest.writeToJson(qJson);
-			qJson.addProperty("questID", QuestRegistry.GetID(quest.getClass()));
+			qJson.addProperty("taskID", TaskRegistry.GetID(quest.getClass()));
 			tskJson.add(qJson);
 		}
 		jObj.add("tasks", tskJson);
@@ -241,83 +317,121 @@ public class QuestInstance
 		jObj.add("settings", this.questSettings);
 		
 		JsonArray comJson = new JsonArray();
-		for(UUID uuid : completeUsers)
+		for(UserEntry entry : completeUsers)
 		{
-			comJson.add(new JsonPrimitive(uuid.toString()));
+			comJson.add(entry.toJson());
 		}
 		jObj.add("completed", comJson);
 		
 		JsonArray reqJson = new JsonArray();
-		for(int id : preRequisites)
+		for(QuestInstance quest : preRequisites)
 		{
-			reqJson.add(new JsonPrimitive(id));
+			reqJson.add(new JsonPrimitive(quest.questID));
 		}
 		jObj.add("preRequisites", reqJson);
-		
-		JsonArray clmJson = new JsonArray();
-		for(UUID uuid : claimed)
-		{
-			clmJson.add(new JsonPrimitive(uuid.toString()));
-		}
-		jObj.add("claimed", clmJson);
 	}
 	
 	public void readFromJSON(JsonObject jObj)
 	{
-		this.questID = jObj.get("questID").getAsInt();
+		this.questID = JsonHelper.GetNumber(jObj, "questID", -1).intValue();
 		
 		this.questTypes.clear();
-		for(JsonElement entry : jObj.getAsJsonArray("tasks"))
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
 		{
-			try
+			if(entry == null || !entry.isJsonObject())
 			{
-				JsonObject jsonQuest = entry.getAsJsonObject();
-				QuestBase quest = QuestRegistry.InstatiateQuest(jsonQuest.get("questID").getAsString());
+				continue;
+			}
+			
+			JsonObject jsonQuest = entry.getAsJsonObject();
+			TaskBase quest = TaskRegistry.InstatiateQuest(JsonHelper.GetString(jsonQuest, "taskID", ""));
+			
+			if(quest != null)
+			{
 				quest.readFromJson(jsonQuest);
 				this.questTypes.add(quest);
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to parse quest from JSON", e);
-				continue;
 			}
 		}
 		
 		this.rewards.clear();
-		for(JsonElement entry : jObj.getAsJsonArray("rewards"))
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "rewards"))
 		{
-			try
+			if(entry == null || !entry.isJsonObject())
 			{
-				JsonObject jsonReward = entry.getAsJsonObject();
-				RewardBase reward = RewardRegistry.InstatiateReward(jsonReward.get("rewardID").getAsString());
+				continue;
+			}
+			
+			JsonObject jsonReward = entry.getAsJsonObject();
+			RewardBase reward = RewardRegistry.InstatiateReward(JsonHelper.GetString(jsonReward, "rewardID", ""));
+			
+			if(reward != null)
+			{
 				reward.readFromJson(jsonReward);
 				this.rewards.add(reward);
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to parse reward from JSON", e);
-				continue;
 			}
 		}
 		
-		this.name = jObj.get("name").getAsString();
-		this.description = jObj.get("description").getAsString();
-		this.questSettings = jObj.getAsJsonObject("settings");
+		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
+		this.description = JsonHelper.GetString(jObj, "description", "No Description");
+		this.questSettings = JsonHelper.GetObject(jObj, "settings");
 		
 		completeUsers.clear();
-		for(JsonElement entry : jObj.getAsJsonArray("completed"))
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "completed"))
 		{
-			completeUsers.add(UUID.fromString(entry.getAsString()));
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			try
+			{
+				UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
+				UserEntry user = new UserEntry(uuid);
+				user.fromJson(entry.getAsJsonObject());
+				completeUsers.add(user);
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID '" + entry.getAsString() + "' for quest", e);
+			}
 		}
 		
 		preRequisites.clear();
-		for(JsonElement entry : jObj.getAsJsonArray("preRequisites"))
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
 		{
-			preRequisites.add(entry.getAsInt());
+			preRequisites.add(QuestDatabase.getQuest(entry.getAsInt()));
+		}
+	}
+	
+	private class UserEntry
+	{
+		public final UUID uuid;
+		public long timestamp = 0;
+		public boolean claimed = false;
+		
+		public UserEntry(EntityPlayer player)
+		{
+			this.uuid = player.getUniqueID();
+			this.timestamp = player.worldObj.getTotalWorldTime();
 		}
 		
-		claimed.clear();
-		for(JsonElement entry : jObj.getAsJsonArray("claimed"))
+		public UserEntry(UUID uuid)
 		{
-			claimed.add(UUID.fromString(entry.getAsString()));
+			this.uuid = uuid;
+		}
+		
+		public JsonObject toJson()
+		{
+			JsonObject json = new JsonObject();
+			json.addProperty("uuid", uuid.toString());
+			json.addProperty("timestamp", timestamp);
+			json.addProperty("claimed", false);
+			return json;
+		}
+		
+		public void fromJson(JsonObject json)
+		{
+			timestamp = JsonHelper.GetNumber(json, "timestamp", 0).longValue();
+			claimed = JsonHelper.GetBoolean(json, "claimed", false);
 		}
 	}
 }

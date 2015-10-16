@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,11 +40,13 @@ public class JsonIO
 		try
 		{
 			FileReader fr = new FileReader(file);
-			return new Gson().fromJson(fr, JsonObject.class);
+			JsonObject json = new Gson().fromJson(fr, JsonObject.class);
+			fr.close();
+			return json;
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while loading JSON from file:", e);
-			return null;
+			return new JsonObject(); // Just a safety measure against NPEs
 		}
 	}
 	
@@ -51,8 +54,14 @@ public class JsonIO
 	{
 		try
 		{
+			if(!file.exists())
+			{
+				file.createNewFile();
+			}
+			
 			FileWriter fw = new FileWriter(file);
-			new Gson().toJson(jObj, fw);
+			new GsonBuilder().setPrettyPrinting().create().toJson(jObj, fw);
+			fw.close();
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while saving JSON to file:", e);

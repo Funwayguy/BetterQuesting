@@ -1,6 +1,7 @@
 package betterquesting.client;
 
 import java.awt.Color;
+import java.util.List;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.buttons.GuiButtonQuesting;
 import net.minecraft.client.Minecraft;
@@ -102,7 +103,18 @@ public class GuiQuesting extends GuiScreen
     
     public boolean isWithin(int mx, int my, int startX, int startY, int sizeX, int sizeY)
     {
-    	return mx - this.guiLeft >= startX && my - this.guiTop >= startY && mx - this.guiLeft < startX + sizeX && my - this.guiTop < startY + sizeY;
+    	return isWithin(mx, my, startX, startY, sizeX, sizeY, true);
+    }
+    
+    public boolean isWithin(int mx, int my, int startX, int startY, int sizeX, int sizeY, boolean relative)
+    {
+    	if(relative)
+    	{
+    		return mx - this.guiLeft >= startX && my - this.guiTop >= startY && mx - this.guiLeft < startX + sizeX && my - this.guiTop < startY + sizeY;
+    	} else
+    	{
+    		return mx >= startX && my >= startY && mx < startX + sizeX && my < startY + sizeY;
+    	}
     }
 	
     /**
@@ -113,4 +125,13 @@ public class GuiQuesting extends GuiScreen
     {
         return false;
     }
+	
+	/**
+	 * Used for rendering tool tips on this screen via external methods
+	 */
+	public final void DrawTooltip(List<?> list, int x, int y)
+	{
+		this.drawHoveringText(list, x, y, fontRendererObj);
+        GL11.glDisable(GL11.GL_LIGHTING); // Normally not enabled on Questing GUI
+	}
 }

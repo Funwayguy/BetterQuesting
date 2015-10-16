@@ -11,7 +11,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiButtonQuesting extends GuiButton
 {
-	
 	public GuiButtonQuesting(int id, int x, int y, String text)
 	{
 		super(id, x, y, text);

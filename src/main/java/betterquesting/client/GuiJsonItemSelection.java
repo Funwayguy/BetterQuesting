@@ -4,11 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
@@ -19,10 +17,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import betterquesting.client.buttons.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.NBTConverter;
+import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
 public class GuiJsonItemSelection extends GuiQuesting
@@ -47,6 +45,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 	{
 		super.initGui();
 		this.searchBox = new GuiTextField(this.fontRendererObj, -999, -999, 128, 16);
+		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 
 		Iterator<Item> iterator = Item.itemRegistry.iterator();
 		
@@ -98,7 +97,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 
 		this.mc.renderEngine.bindTexture(guiTexture);
 		this.drawTexturedModalRect(this.guiLeft + 16 , this.guiTop + 48, 0, 48, 18, 18);
-		this.RenderItemStack(this.stackSelect, this.guiLeft + 17, this.guiTop + 49, "", false);
+		RenderUtils.RenderItemStack(this.mc, this.stackSelect, this.guiLeft + 17, this.guiTop + 49, "", false);
 		
 		this.fontRendererObj.drawString("Selection", this.guiLeft + 16, this.guiTop + 32, Color.BLACK.getRGB(), false);
 		
@@ -132,7 +131,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				
 				if(stack != null)
 				{
-					this.RenderItemStack(stack, this.guiLeft + 17 + x, this.guiTop + 97 + y, "" + (stack.stackSize > 1? stack.stackSize : ""), false);
+					RenderUtils.RenderItemStack(this.mc, stack, this.guiLeft + 17 + x, this.guiTop + 97 + y, "" + (stack.stackSize > 1? stack.stackSize : ""), false);
 					
 					if(this.isWithin(mx, my, 17 + x, 97 + y, 16, 16))
 					{
@@ -174,7 +173,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(this.guiLeft + this.sizeX/2 + x , this.guiTop + 48 + y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				this.RenderItemStack(resultStack, this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, "", false);
+				RenderUtils.RenderItemStack(this.mc, resultStack, this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, "", false);
 				
 				if(this.isWithin(mx, my, this.sizeX/2 + x + 1, 49 + y, 16, 16))
 				{
@@ -331,7 +330,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		}
     }
 	
-	public void RenderItemStack(ItemStack stack, int x, int y, String text, boolean highlight)
+	/*public void RenderItemStack(ItemStack stack, int x, int y, String text, boolean highlight)
 	{
 		GL11.glPushMatrix();
         
@@ -358,5 +357,5 @@ public class GuiJsonItemSelection extends GuiQuesting
 		}
 		
         GL11.glPopMatrix();
-	}
+	}*/
 }

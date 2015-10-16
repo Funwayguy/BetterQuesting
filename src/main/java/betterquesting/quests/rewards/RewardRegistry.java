@@ -1,23 +1,26 @@
-package betterquesting.rewards;
+package betterquesting.quests.rewards;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 
 public class RewardRegistry
 {
 	static HashMap<String, Class <? extends RewardBase>> rewardRegistry = new HashMap<String, Class<? extends RewardBase>>();
 	
-	public static void RegisterReward(Class<? extends RewardBase> reward, Object mod, String idName)
+	public static void RegisterReward(Class<? extends RewardBase> reward, String idName)
 	{
+		ModContainer mod = Loader.instance().activeModContainer();
+		
 		try
 		{
 			if(reward == null)
 			{
 				throw new NullPointerException("Tried to register null reward");
-			} else if(Loader.instance().getReversedModObjectList().containsKey(mod))
+			} else if(mod == null)
 			{
 				throw new IllegalArgumentException("Tried to register a reward without a vialid mod instance");
 			}
@@ -27,10 +30,10 @@ public class RewardRegistry
 				reward.getDeclaredConstructor();
 			} catch(NoSuchMethodException e)
 			{
-				throw new NoSuchMethodException("Registered quest is missing a default constructor with 0 arguemnts");
+				throw new NoSuchMethodException("Reward is missing a default constructor with 0 arguemnts");
 			}
 			
-			String fullName = Loader.instance().getReversedModObjectList().get(mod).getModId() + ":" + idName;
+			String fullName = mod.getModId() + ":" + idName;
 			
 			if(rewardRegistry.containsKey(fullName))
 			{
@@ -40,7 +43,7 @@ public class RewardRegistry
 			rewardRegistry.put(fullName, reward);
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register reward type:", e);
+			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register reward", e);
 		}
 	}
 	

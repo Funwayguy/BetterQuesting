@@ -9,6 +9,7 @@ public class GuiNumberField extends GuiTextField
 	public GuiNumberField(FontRenderer renderer, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(renderer, posX, posY, sizeX, sizeY);
+		this.setMaxStringLength(Integer.MAX_VALUE);
 	}
 	
 	@Override

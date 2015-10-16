@@ -1,7 +1,9 @@
 package betterquesting.quests;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import net.minecraft.entity.player.EntityPlayer;
+import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,6 +11,7 @@ import com.google.gson.JsonObject;
 public class QuestDatabase
 {
 	static HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
+	public static ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
 	
 	/**
 	 * @return the next free ID within the quest database
@@ -38,28 +41,57 @@ public class QuestDatabase
 		return questDB.get(id);
 	}
 	
-	public static void writeToJSON(JsonObject jObj)
+	public static void writeToJSON(JsonObject json)
 	{
 		JsonArray dbJson = new JsonArray();
-		
 		for(QuestInstance quest : questDB.values())
 		{
 			JsonObject questJson = new JsonObject();
 			quest.writeToJSON(questJson);
 			dbJson.add(questJson);
 		}
+		json.add("questDatabase", dbJson);
 		
-		jObj.add("questDatabase", dbJson);
+		JsonArray jArray = new JsonArray();
+		for(QuestLine line : questLines)
+		{
+			JsonObject tmp = new JsonObject();
+			line.writeToJSON(tmp);
+			jArray.add(tmp);
+		}
+		json.add("questLines", jArray);
 	}
 	
-	public static void readFromJSON(JsonObject jObj)
+	public static void readFromJSON(JsonObject json)
 	{
 		questDB.clear();
-		
-		for(JsonElement entry : jObj.getAsJsonArray("questDatabase"))
+		for(JsonElement entry : JsonHelper.GetArray(json, "questDatabase"))
 		{
-			QuestInstance quest = new QuestInstance(entry.getAsJsonObject());
-			questDB.put(quest.questID, quest);
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			QuestInstance quest = new QuestInstance(-1, false);
+			quest.readFromJSON(entry.getAsJsonObject());
+			
+			if(quest.questID >= 0)
+			{
+				questDB.put(quest.questID, quest);
+			}
+		}
+		
+		questLines.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "questLines"))
+		{
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			QuestLine line = new QuestLine();
+			line.readFromJSON(entry.getAsJsonObject());
+			questLines.add(line);
 		}
 	}
 }

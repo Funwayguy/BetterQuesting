@@ -3,7 +3,10 @@ package betterquesting.party;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayer;
+import betterquesting.core.BetterQuesting;
+import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -37,7 +40,7 @@ public class PartyManager
 		partyList.remove(name);
 	}
 	
-	public static PartyInstance GetParty(String name)
+	public static PartyInstance GetPartyByName(String name)
 	{
 		return partyList.get(name);
 	}
@@ -62,19 +65,17 @@ public class PartyManager
 		return list;
 	}
 	
-	public static ArrayList<PartyInstance> GetParties(UUID uuid)
+	public static PartyInstance GetParty(UUID uuid)
 	{
-		ArrayList<PartyInstance> list = new ArrayList<PartyInstance>();
-		
 		for(PartyInstance party : partyList.values())
 		{
 			if(party.members.contains(uuid))
 			{
-				list.add(party);
+				return party;
 			}
 		}
 		
-		return list;
+		return null;
 	}
 	
 	public static void writeToJson(JsonObject jObj)
@@ -98,10 +99,30 @@ public class PartyManager
 	{
 		partyList.clear();
 		
-		for(JsonElement entry : jObj.getAsJsonArray("partyList"))
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "partyList"))
 		{
-			PartyInstance party = new PartyInstance(entry.getAsJsonObject());
-			partyList.put(party.name, party);
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			try
+			{
+				UUID host = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "host", ""));
+				String name = JsonHelper.GetString(entry.getAsJsonObject(), "name", "");
+				
+				if(name == null || name.length() <= 0)
+				{
+					BetterQuesting.logger.log(Level.WARN, "Tried to load party with invalid name! Skipping...");
+					continue;
+				}
+				
+				PartyInstance party = new PartyInstance(name, host);
+				partyList.put(party.name, party);
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load party instance", e);
+			}
 		}
 	}
 }

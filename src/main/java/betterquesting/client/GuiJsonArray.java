@@ -75,6 +75,7 @@ public class GuiJsonArray extends GuiQuesting
 				} else
 				{
 					txtBox = new GuiTextField(this.fontRendererObj, 32, -9999, 128, 16);
+					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
 				

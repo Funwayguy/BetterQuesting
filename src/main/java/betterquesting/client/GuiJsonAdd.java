@@ -49,6 +49,7 @@ public class GuiJsonAdd extends GuiQuesting
 		if(json.isJsonObject())
 		{
 			keyText = new GuiTextField(this.fontRendererObj, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 48, 200, 16);
+			keyText.setMaxStringLength(Integer.MAX_VALUE);
 			((GuiButton)this.buttonList.get(0)).enabled = false;
 		}
 		

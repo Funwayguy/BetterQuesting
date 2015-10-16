@@ -1,13 +1,19 @@
-package betterquesting.quests.types;
+package betterquesting.quests.tasks;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import net.minecraft.client.gui.GuiScreen;
+import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StatCollector;
+import betterquesting.client.GuiQuesting;
+import betterquesting.core.BetterQuesting;
+import betterquesting.utils.JsonHelper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
-public abstract class QuestBase
+public abstract class TaskBase
 {
 	/**
 	 * List of users that have completed this quest
@@ -63,9 +69,35 @@ public abstract class QuestBase
 		}
 	}
 	
-	public abstract void writeToJson(JsonObject json);
+	public void writeToJson(JsonObject json)
+	{
+		JsonArray jArray = new JsonArray();
+		for(UUID uuid : completeUsers)
+		{
+			jArray.add(new JsonPrimitive(uuid.toString()));
+		}
+		json.add("completeUsers", jArray);
+	}
 	
-	public abstract void readFromJson(JsonObject json);
+	public void readFromJson(JsonObject json)
+	{
+		completeUsers.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+		{
+			if(entry == null || !entry.isJsonPrimitive())
+			{
+				continue;
+			}
+			
+			try
+			{
+				completeUsers.add(UUID.fromString(entry.getAsString()));
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID '" + entry.getAsString() + "' for task", e);
+			}
+		}
+	}
 	
 	/**
 	 * Used to draw additional info about the quest's requirements. Objects drawn should be made to fit within the given dimensions
@@ -75,5 +107,5 @@ public abstract class QuestBase
 	 * @param sizeX
 	 * @param sizeY
 	 */
-	public void drawQuestInfo(GuiScreen screen, int posX, int posY, int sizeX, int sizeY){}
+	public abstract void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY);
 }
