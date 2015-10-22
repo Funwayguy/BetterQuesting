@@ -33,19 +33,6 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	{
 		super(id, x, y, width, height, quest.name);
 		this.quest = quest;
-		
-		if(Minecraft.getMinecraft().thePlayer == null)
-		{
-			this.enabled = false;
-			this.visible = true;
-		} else
-		{
-			if(parent != null)
-			{
-				this.visible = parent.quest.isUnlocked(Minecraft.getMinecraft().thePlayer.getUniqueID());
-			}
-			this.enabled = this.visible && quest.isUnlocked(Minecraft.getMinecraft().thePlayer.getUniqueID());
-		}
 	}
 
     /**
@@ -54,6 +41,22 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
+		if(mc.thePlayer == null)
+		{
+			this.enabled = false;
+			this.visible = true;
+		} else
+		{
+			if(parent != null)
+			{
+				this.visible = parent.quest.isUnlocked(mc.thePlayer.getUniqueID());
+			} else
+			{
+				this.visible = true;
+			}
+			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
+		}
+		
         if (this.visible)
         {
         	if(!enableClamp)
@@ -94,13 +97,19 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	        		
 	        		if(!enabled)
 	        		{
-	        			GL11.glColor4f(1F, 0F, 0F, 1F);
+	        			GL11.glColor4f(0.75F, 0F, 0F, 1F);
 	        		} else if(quest.isComplete(mc.thePlayer.getUniqueID()))
 	        		{
-	        			GL11.glColor4f(0F, 1F, 0F, 1F);
+        				GL11.glColor4f(0F, 1F, 0F, 1F);
 	        		} else
 	        		{
-	        			GL11.glColor4f(1F, 1F, 0F, 1F);
+	        			if((Minecraft.getSystemTime()/1000)%2 == 0)
+	        			{
+		        			GL11.glColor4f(0.5F, 0.5F, 0F, 1F);
+	        			} else
+	        			{
+		        			GL11.glColor4f(1F, 1F, 0F, 1F);
+	        			}
 	        		}
 	        		GL11.glLineWidth(4F);
 	        		GL11.glBegin(GL11.GL_LINES);

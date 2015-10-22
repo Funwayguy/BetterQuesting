@@ -3,8 +3,11 @@ package betterquesting.quests;
 import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketQuesting;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.rewards.RewardBase;
@@ -12,17 +15,18 @@ import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.TaskRegistry;
 import betterquesting.utils.JsonHelper;
+import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class QuestInstance
 {
-	public ArrayList<TaskBase> questTypes = new ArrayList<TaskBase>();
 	public int questID;
-	
-	JsonObject questSettings = new JsonObject();
+	public ArrayList<TaskBase> questTypes = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
 	
 	public String name = "New Quest";
@@ -73,6 +77,7 @@ public class QuestInstance
 				UserEntry entry = new UserEntry(player.getUniqueID());
 				entry.timestamp = player.worldObj.getTotalWorldTime();
 				completeUsers.add(entry);
+				UpdateClients();
 			}
 		}
 	}
@@ -105,10 +110,12 @@ public class QuestInstance
 			{
 				completeUsers.add(new UserEntry(player));
 			}
+			
+			UpdateClients(); // Even if not completed we still need to update progression for clients
 		}
 	}
 	
-	public boolean CanClaim(EntityPlayer player)
+	public boolean CanClaim(EntityPlayer player, NBTTagList choiceData)
 	{
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		
@@ -117,9 +124,12 @@ public class QuestInstance
 			return false;
 		} else
 		{
-			for(RewardBase rew : rewards)
+			for(int i = 0; i < rewards.size(); i++)
 			{
-				if(!rew.canClaim(player))
+				RewardBase rew = rewards.get(i);
+				NBTTagCompound cTag = choiceData.getCompoundTagAt(i);
+				
+				if(!rew.canClaim(player, cTag))
 				{
 					return false;
 				}
@@ -130,16 +140,45 @@ public class QuestInstance
 					
 	}
 	
-	public void Claim(EntityPlayer player)
+	public void Claim(EntityPlayer player, NBTTagList choiceData)
 	{
-		for(RewardBase rew : rewards)
+		for(int i = 0; i < rewards.size(); i++)
 		{
-			rew.Claim(player);
+			RewardBase rew = rewards.get(i);
+			NBTTagCompound cTag = choiceData.getCompoundTagAt(i);
+			
+			rew.Claim(player, cTag);
 		}
 		
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		entry.claimed = true;
 		entry.timestamp = player.worldObj.getTotalWorldTime();
+		
+		UpdateClients();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public NBTTagList GetChoiceData()
+	{
+		NBTTagList cList = new NBTTagList();
+		
+		for(RewardBase rew : rewards)
+		{
+			cList.appendTag(rew.GetChoiceData());
+		}
+		
+		return cList;
+	}
+	
+	public void UpdateClients()
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setInteger("ID", 1);
+		tags.setInteger("questID", this.questID);
+		JsonObject json = new JsonObject();
+		writeToJSON(json);
+		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
 	}
 	
 	public void SetGlobal(boolean state)
@@ -180,6 +219,7 @@ public class QuestInstance
 			if(entry.uuid.equals(uuid))
 			{
 				completeUsers.remove(i);
+				UpdateClients();
 			}
 		}
 	}
@@ -202,6 +242,8 @@ public class QuestInstance
 	 */
 	public void setCompletion(UUID uuid, long timestamp, boolean state, boolean applyToParty)
 	{
+		boolean flag = false;
+		
 		if(state)
 		{
 			UserEntry entry = GetUserEntry(uuid);
@@ -209,6 +251,7 @@ public class QuestInstance
 			if(entry == null) // Skip duplicates
 			{
 				completeUsers.add(new UserEntry(uuid));
+				flag = true;
 			}
 			
 			if(applyToParty)
@@ -224,6 +267,7 @@ public class QuestInstance
 						if(pEntry == null) // Skip duplicates
 						{
 							completeUsers.add(new UserEntry(pId));
+							flag = true;
 						}
 					}
 				}
@@ -241,6 +285,13 @@ public class QuestInstance
 					RemoveUserEntry(party.GetMembers().toArray(new UUID[]{}));
 				}
 			}
+			
+			flag = true;
+		}
+		
+		if(flag)
+		{
+			UpdateClients();
 		}
 	}
 	
@@ -263,16 +314,6 @@ public class QuestInstance
 	public void RemovePreRequisite(QuestInstance quest)
 	{
 		this.preRequisites.remove(quest);
-	}
-	
-	public JsonObject GetQuestSettings()
-	{
-		return this.questSettings;
-	}
-	
-	public void SetQuestSettings(JsonObject jObj)
-	{
-		this.questSettings = jObj;
 	}
 	
 	public ArrayList<TaskBase> getQuests()
@@ -314,7 +355,6 @@ public class QuestInstance
 		
 		jObj.addProperty("name", this.name);
 		jObj.addProperty("description", this.description);
-		jObj.add("settings", this.questSettings);
 		
 		JsonArray comJson = new JsonArray();
 		for(UserEntry entry : completeUsers)
@@ -326,6 +366,11 @@ public class QuestInstance
 		JsonArray reqJson = new JsonArray();
 		for(QuestInstance quest : preRequisites)
 		{
+			if(quest == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Quest had null prequisite!", new IllegalArgumentException());
+				continue;
+			}
 			reqJson.add(new JsonPrimitive(quest.questID));
 		}
 		jObj.add("preRequisites", reqJson);
@@ -373,7 +418,6 @@ public class QuestInstance
 		
 		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
-		this.questSettings = JsonHelper.GetObject(jObj, "settings");
 		
 		completeUsers.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "completed"))
@@ -424,7 +468,7 @@ public class QuestInstance
 			JsonObject json = new JsonObject();
 			json.addProperty("uuid", uuid.toString());
 			json.addProperty("timestamp", timestamp);
-			json.addProperty("claimed", false);
+			json.addProperty("claimed", claimed);
 			return json;
 		}
 		

@@ -5,14 +5,19 @@ import java.util.HashMap;
 import java.util.UUID;
 import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketQuesting;
 import betterquesting.utils.JsonHelper;
+import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class PartyManager
 {
+	public static boolean updateUI = true;
 	static HashMap<String, PartyInstance> partyList = new HashMap<String, PartyInstance>();
 	
 	/**
@@ -78,6 +83,26 @@ public class PartyManager
 		return null;
 	}
 	
+	public static void SendDatabase(EntityPlayerMP player)
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setInteger("ID", 2);
+		JsonObject json = new JsonObject();
+		writeToJson(json);
+		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
+	}
+	
+	public static void UpdateClients()
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setInteger("ID", 2);
+		JsonObject json = new JsonObject();
+		writeToJson(json);
+		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+	}
+	
 	public static void writeToJson(JsonObject jObj)
 	{
 		JsonArray ptyJson = new JsonArray();
@@ -97,6 +122,7 @@ public class PartyManager
 	
 	public static void readFromJson(JsonObject jObj)
 	{
+		updateUI = true;
 		partyList.clear();
 		
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "partyList"))

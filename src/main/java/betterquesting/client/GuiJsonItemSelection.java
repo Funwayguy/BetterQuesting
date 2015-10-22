@@ -125,7 +125,9 @@ public class GuiJsonItemSelection extends GuiQuesting
 				int y = (i - i%9)/9 * 18;
 				
 				this.mc.renderEngine.bindTexture(guiTexture);
+				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(this.guiLeft + 16 + x , this.guiTop + 96 + y, 0, 48, 18, 18);
+				GL11.glEnable(GL11.GL_DEPTH_TEST);
 				
 				ItemStack stack = invoStacks[i];
 				
@@ -220,8 +222,6 @@ public class GuiJsonItemSelection extends GuiQuesting
 			int sx = (mx - (this.guiLeft + 16))/18;
 			int sy = (my - (this.guiTop + 96))/18;
 			int index = sx + (sy * 9);
-			
-			System.out.println("Clicked slot " + index);
 			
 			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.length)
 			{

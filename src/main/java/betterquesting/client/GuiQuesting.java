@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.party.PartyManager;
+import betterquesting.quests.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -19,10 +21,10 @@ public class GuiQuesting extends GuiScreen
 	protected GuiScreen parent;
 	protected String title = "Better Questing";
 	
-	protected int guiLeft = 0;
-	protected int guiTop = 0;
-	protected int sizeX = 0;
-	protected int sizeY = 0;
+	public int guiLeft = 0;
+	public int guiTop = 0;
+	public int sizeX = 0;
+	public int sizeY = 0;
 	
 	public GuiQuesting(GuiScreen parent, String title)
 	{
@@ -37,6 +39,9 @@ public class GuiQuesting extends GuiScreen
 	public void initGui()
 	{
 		super.initGui();
+		
+		QuestDatabase.updateUI = false;
+		PartyManager.updateUI = false;
 		
 		int border = 8; // The minimum distance between the UI and the window edge
 		this.sizeX = this.width - border * 2;

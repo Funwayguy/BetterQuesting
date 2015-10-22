@@ -4,12 +4,18 @@ import java.awt.Color;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import betterquesting.client.GuiQuesting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class RenderUtils
 {
 	static RenderItem itemRender = new RenderItem();
@@ -109,5 +115,30 @@ public class RenderUtils
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		GL11.glPopMatrix();
+	}
+	
+	public static void DrawFakeButton(GuiQuesting screen, int x, int y, int width, int height, String text, int state)
+	{
+        FontRenderer fontrenderer = screen.mc.fontRenderer;
+        screen.mc.getTextureManager().bindTexture(new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glEnable(GL11.GL_BLEND);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        screen.drawTexturedModalRect(x, y, 48, state * 20, width / 2, height);
+        screen.drawTexturedModalRect(x + width / 2, y, 248 - width / 2, state * 20, width / 2, height);
+        int l = 14737632;
+
+        if (state == 0)
+        {
+            l = 10526880;
+        }
+        else if (state == 2)
+        {
+            l = 16777120;
+        }
+
+        screen.drawCenteredString(fontrenderer, text, x + width / 2, y + (height - 8) / 2, l);
+        GL11.glColor4f(1F, 1F, 1F, 1F);
 	}
 }

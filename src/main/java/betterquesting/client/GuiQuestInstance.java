@@ -3,13 +3,18 @@ package betterquesting.client;
 import java.awt.Color;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
-import com.google.gson.JsonObject;
 import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketQuesting;
+import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
+import com.google.gson.JsonObject;
 
 public class GuiQuestInstance extends GuiQuesting
 {
@@ -18,8 +23,11 @@ public class GuiQuestInstance extends GuiQuesting
 	String[] wrappedDesc = new String[]{};
 	int selTask = 0;
 	int selReward = 0;
-	GuiButtonQuesting btnLeft;
-	GuiButtonQuesting btnRight;
+	GuiButtonQuesting btnTLeft;
+	GuiButtonQuesting btnTRight;
+	GuiButtonQuesting btnRLeft;
+	GuiButtonQuesting btnRRight;
+	GuiButtonQuesting btnClaim;
 	
 	public GuiQuestInstance(GuiScreen parent, QuestInstance quest)
 	{
@@ -35,7 +43,12 @@ public class GuiQuestInstance extends GuiQuesting
 		
 		if(lastEdit != null)
 		{
-			quest.readFromJSON(lastEdit);
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("ID", 5);
+			tags.setInteger("action", 0); // Action: Update data
+			tags.setInteger("questID", quest.questID);
+			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(lastEdit, new NBTTagCompound()));
+			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 			lastEdit = null;
 		}
 		
@@ -49,21 +62,50 @@ public class GuiQuestInstance extends GuiQuesting
 		btnEdit.enabled = true;
 		this.buttonList.add(btnEdit);
 		
-		btnLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
-		btnLeft.enabled = selTask > 0;
-		btnRight = new GuiButtonQuesting(3, this.guiLeft + (sizeX/4)*3 + 50, this.guiTop + sizeY - 48, 20, 20, ">");
-		btnRight.enabled = selTask < quest.questTypes.size() - 1;
+		btnTLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
+		btnTLeft.enabled = selTask > 0;
+		btnTRight = new GuiButtonQuesting(3, this.guiLeft + (sizeX/4)*3 + 50, this.guiTop + sizeY - 48, 20, 20, ">");
+		btnTRight.enabled = selTask < quest.questTypes.size() - 1;
+
+		btnRLeft = new GuiButtonQuesting(6, this.guiLeft + (sizeX/4) - 70, this.guiTop + sizeY - 48, 20, 20, "<");
+		btnRLeft.enabled = selReward > 0;
+		btnRRight = new GuiButtonQuesting(7, this.guiLeft + (sizeX/4) + 50, this.guiTop + sizeY - 48, 20, 20, ">");
+		btnRRight.enabled = selReward < quest.rewards.size() - 1;
+		
 		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, "Detect/Submit");
 		btnDetect.enabled = !quest.isComplete(mc.thePlayer.getUniqueID());
-		this.buttonList.add(btnLeft);
-		this.buttonList.add(btnRight);
+		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, "Claim Rewards");
+		btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+		this.buttonList.add(btnTLeft);
+		this.buttonList.add(btnTRight);
+		this.buttonList.add(btnRLeft);
+		this.buttonList.add(btnRRight);
 		this.buttonList.add(btnDetect);
+		this.buttonList.add(btnClaim);
 	}
 	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
+		
+		if(QuestDatabase.updateUI)
+		{
+			QuestInstance nq = QuestDatabase.getQuest(quest.questID);
+			
+			if(nq == null)
+			{
+				mc.displayGuiScreen(parent);
+				return;
+			} else
+			{
+				quest = nq;
+				this.initGui();
+				QuestDatabase.updateUI = false;
+			}
+		}
+		
+		this.title = quest.name;
 		
 		for(int i = 0; i < wrappedDesc.length; i++)
 		{
@@ -85,7 +127,7 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
 			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, Color.BLACK.getRGB());
-			GL11.glPushMatrix();
+			GL11.glPushMatrix(); 
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			task.drawQuestInfo(this, mx, my, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
 			GL11.glPopMatrix();
@@ -97,7 +139,7 @@ public class GuiQuestInstance extends GuiQuesting
 		{
 			String tTitle = reward.getClass().getSimpleName();
 			
-			if(quest.questTypes.size() > 1)
+			if(quest.rewards.size() > 1)
 			{
 				tTitle = (selReward + 1) + "/" + quest.rewards.size() + " " + tTitle;
 			}
@@ -106,14 +148,6 @@ public class GuiQuestInstance extends GuiQuesting
 			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*1 - (nameWidth/2), this.guiTop + sizeY/2, Color.BLACK.getRGB());
 			GL11.glPushMatrix();
 			GL11.glColor4f(1F, 1F, 1F, 1F);
-			/*GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glBegin(GL11.GL_QUADS);
-		    GL11.glVertex2f(this.guiLeft + 16, this.guiTop + sizeY/2 + 8);
-		    GL11.glVertex2f(this.guiLeft + sizeX/2 - 8, this.guiTop + sizeY/2 + 8);
-		    GL11.glVertex2f(this.guiLeft + sizeX/2 - 8, this.guiTop + sizeY - 104);
-		    GL11.glVertex2f(this.guiLeft + 16, this.guiTop + sizeY - 104);
-			GL11.glEnd();*/
-			//GuiScreen.drawRect(this.guiLeft + 16, this.guiTop + sizeY/2 + 8, this.guiLeft + sizeX/2 - 8, this.guiTop + sizeY - 104, Color.BLACK.getRGB());
 			reward.drawReward(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 8, sizeX/2 - 8, sizeY - 104);
 			GL11.glPopMatrix();
 		}
@@ -127,26 +161,58 @@ public class GuiQuestInstance extends GuiQuesting
 		if(btn.id == 1) // Task left
 		{
 			selTask--;
-			btnLeft.enabled = selTask > 0;
-			btnRight.enabled = selTask < quest.questTypes.size() - 1;
+			btnTLeft.enabled = selTask > 0;
+			btnTRight.enabled = selTask < quest.questTypes.size() - 1;
 		} else if(btn.id == 2) // Manual detect
 		{
-			TaskBase task = selTask < quest.getQuests().size()? quest.getQuests().get(selTask) : null;
-			
-			if(task != null)
-			{
-				task.Detect(mc.thePlayer);
-			}
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("ID", 3);
+			tags.setInteger("questID", quest.questID);
+			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 		} else if(btn.id == 3) // Task right
 		{
 			selTask++;
-			btnLeft.enabled = selTask > 0;
-			btnRight.enabled = selTask < quest.questTypes.size() - 1;
+			btnTLeft.enabled = selTask > 0;
+			btnTRight.enabled = selTask < quest.questTypes.size() - 1;
 		} else if(btn.id == 4)
 		{
 			this.lastEdit = new JsonObject();
 			quest.writeToJSON(lastEdit);
 			mc.displayGuiScreen(new GuiJsonObject(this, lastEdit));
+		} else if(btn.id == 5) // Claim reward
+		{
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("ID", 4);
+			tags.setInteger("questID", quest.questID);
+			tags.setTag("ChoiceData", quest.GetChoiceData());
+			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		} else if(btn.id == 6)
+		{
+			selReward--;
+			btnRLeft.enabled = selReward > 0;
+			btnRRight.enabled = selReward < quest.rewards.size() - 1;
+		} else if(btn.id == 7)
+		{
+			selReward++;
+			btnRLeft.enabled = selReward > 0;
+			btnRRight.enabled = selReward < quest.rewards.size() - 1;
 		}
 	}
+	
+    /**
+     * Called when the mouse is clicked.
+     */
+	@Override
+    protected void mouseClicked(int mx, int my, int click)
+    {
+    	super.mouseClicked(mx, my, click);
+    	
+    	RewardBase reward = selReward < quest.rewards.size()? quest.rewards.get(selReward) : null;
+		
+		if(reward != null)
+		{
+			reward.MousePressed(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 8, sizeX/2 - 8, sizeY - 104, click);
+			btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+		}
+    }
 }

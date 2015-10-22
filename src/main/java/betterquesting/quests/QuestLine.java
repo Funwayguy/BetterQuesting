@@ -12,7 +12,6 @@ import com.google.gson.JsonPrimitive;
 public class QuestLine
 {
 	public String name = "New Quest Line";
-	public boolean mainQuest = false;
 	public ArrayList<QuestInstance> questList = new ArrayList<QuestInstance>();
 	public QuestNode questTree = new QuestNode(null);
 	
@@ -46,6 +45,11 @@ public class QuestLine
 		topLoop:
 		for(QuestInstance q : pool) // The quest line has only been permitted to show this set of quests
 		{
+			if(q == null)
+			{
+				continue;
+			}
+			
 			if(q.preRequisites.size() <= 0)
 			{
 				if(quest == null)

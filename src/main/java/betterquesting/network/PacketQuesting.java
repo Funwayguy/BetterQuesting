@@ -5,15 +5,19 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -43,9 +47,8 @@ public class PacketQuesting implements IMessage
 	{
 		if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().thePlayer != null)
 		{
-			EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-			tags.setString("Sender", player.getUniqueID().toString());
-			tags.setInteger("Dimension", player.dimension);
+			tags.setString("Sender", Minecraft.getMinecraft().thePlayer.getUniqueID().toString());
+			tags.setInteger("Dimension", Minecraft.getMinecraft().thePlayer.dimension);
 		}
 		
 		ByteBufUtils.writeTag(buf, tags);
@@ -78,16 +81,16 @@ public class PacketQuesting implements IMessage
 				}
 			}
 			
-			if(ID == 0) // Quest database synchronization request
+			if(ID == 0) // Quest database synchronization request (not normally required)
 			{
 				BetterQuesting.logger.log(Level.INFO, "Sending quest database...");
 				PacketQuesting packet = new PacketQuesting();
 				packet.tags.setInteger("ID", 0);
 				JsonObject json = new JsonObject();
-				QuestDatabase.writeToJSON(json);
+				QuestDatabase.writeToJson(json);
 				packet.tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 				return packet;
-			} else if(ID == 1) // Singular quest synchronization request
+			} else if(ID == 1) // Singular quest synchronization request (not normally required)
 			{
 				QuestInstance quest = QuestDatabase.getQuest(message.tags.getInteger("questID"));
 				
@@ -119,14 +122,75 @@ public class PacketQuesting implements IMessage
 			} else if(ID == 4 && player != null) // Reward claim attempt
 			{
 				QuestInstance quest = QuestDatabase.getQuest(message.tags.getInteger("questID"));
+				NBTTagList choiceData = message.tags.getTagList("ChoiceData", 10);
 				
-				if(quest != null && quest.CanClaim(player))
+				if(quest != null && quest.CanClaim(player, choiceData))
 				{
-					quest.Claim(player);
+					quest.Claim(player, choiceData);
 				}
-			} else if(ID == 5) // Reserved for something I can't remember
+			} else if(ID == 5 && player != null) // Edit quest entry
 			{
+				if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(player.getGameProfile()))
+				{
+					BetterQuesting.logger.log(Level.WARN, "Player " + player.getCommandSenderName() + " (UUID:" + player.getUniqueID() + ") tried to edit quests without OP permissions!");
+					player.addChatComponentMessage(new ChatComponentText(ChatFormatting.RED + "You need to be OP to edit quests!"));
+					return null; // Player is not operator. Do nothing
+				}
 				
+				int action = !message.tags.hasKey("action")? -1 : message.tags.getInteger("action");
+				int qID = !message.tags.hasKey("questID")? -1 : message.tags.getInteger("questID");
+				QuestInstance quest = QuestDatabase.getQuest(qID);
+				
+				if(action < 0)
+				{
+					BetterQuesting.logger.log(Level.ERROR, player.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
+					return null;
+				} else if(quest == null || qID < 0)
+				{
+					BetterQuesting.logger.log(Level.ERROR, player.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
+					return null;
+				}
+				
+				if(action == 0) // Update quest data
+				{
+					BetterQuesting.logger.log(Level.INFO, "Player " + player.getCommandSenderName() + " edited quest " + quest.name);
+					JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Data"), new JsonObject());
+					quest.readFromJSON(json);
+					quest.UpdateClients();
+				} else if(action == 1) // Delete quest
+				{
+					QuestDatabase.DeleteQuest(quest.questID);
+					QuestDatabase.UpdateClients();
+				}
+			} else if(ID == 6 && player != null)
+			{
+				if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(player.getGameProfile()))
+				{
+					BetterQuesting.logger.log(Level.WARN, "Player " + player.getCommandSenderName() + " (UUID:" + player.getUniqueID() + ") tried to edit quest lines without OP permissions!");
+					player.addChatComponentMessage(new ChatComponentText(ChatFormatting.RED + "You need to be OP to edit quests!"));
+					return null; // Player is not operator. Do nothing
+				}
+				
+				int action = !message.tags.hasKey("action")? -1 : message.tags.getInteger("action");
+				
+				if(action < 0)
+				{
+					BetterQuesting.logger.log(Level.ERROR, player.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
+					return null;
+				}
+				
+				if(action == 0) // Add new QuestLine
+				{
+					QuestDatabase.questLines.add(new QuestLine());
+				} else if(action == 1) // Add new QuestInstance
+				{
+					new QuestInstance(QuestDatabase.getUniqueID(), true);
+				} else if(action == 2) // Edit quest lines
+				{
+					QuestDatabase.readFromJson_Lines(NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Data"), new JsonObject()));
+				}
+				
+				QuestDatabase.UpdateClients(); // Update all clients with new quest data
 			}
 			
 			return null;
@@ -149,9 +213,8 @@ public class PacketQuesting implements IMessage
 			
 			if(ID == 0) // Quest database synchronization
 			{
-				BetterQuesting.logger.log(Level.INFO, "Updating local quest database...");
 				JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Database"), new JsonObject());
-				QuestDatabase.readFromJSON(json);
+				QuestDatabase.readFromJson(json);
 			} else if(ID == 1) // Singular quest synchronization
 			{
 				int questID = message.tags.getInteger("questID");
@@ -160,6 +223,13 @@ public class PacketQuesting implements IMessage
 				
 				JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Data"), new JsonObject());
 				quest.readFromJSON(json);
+				
+				for(QuestLine line : QuestDatabase.questLines)
+				{
+					line.BuildTree(); // If a prerequisite change was made, trees need updating
+				}
+				
+				QuestDatabase.updateUI = true; // Tell all UIs they need updating
 			} else if(ID == 2) // Party database synchronization
 			{
 				JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Parties"), new JsonObject());

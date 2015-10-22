@@ -17,8 +17,10 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -42,6 +44,27 @@ public class NBTConverter
 			return new JsonPrimitive(getNumber(tag));
 		} else if(tag instanceof NBTTagString)
 		{
+			NBTTagString sTag = (NBTTagString)tag;
+			
+			if(sTag.func_150285_a_().startsWith("raw_json:")) // Prefix format = "raw_json:#:" where # is the JsonElement ID
+			{
+				try
+				{
+					String jText = sTag.func_150285_a_().substring(11);
+					int rawID = Integer.parseInt(sTag.func_150285_a_().substring(9, 10));
+					Class<? extends JsonElement> rawClass = getJsonFallback(rawID);
+					JsonElement json = new Gson().fromJson(jText, rawClass);
+					
+					if(json != null)
+					{
+						return json;
+					}
+				} catch(Exception e)
+				{
+					BetterQuesting.logger.log(Level.ERROR, "Unable to parse raw json from NBT", e);
+				}
+			}
+			
 			return new JsonPrimitive(((NBTTagString)tag).func_150285_a_());
 		} else if(tag instanceof NBTTagCompound)
 		{
@@ -49,7 +72,6 @@ public class NBTConverter
 		} else if(tag instanceof NBTTagList)
 		{
 			JsonArray jAry = new JsonArray();
-			//jAry.add(new JsonPrimitive(((NBTTagList)tag).func_150303_d()));
 			
 			ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
 			
@@ -177,14 +199,21 @@ public class NBTConverter
 					try
 					{
 						array.get(0).getAsByte();
-						tagID = 7;
-					} catch(Exception e)
+						tagID = 7; // Can be used as byte
+					} catch(Exception e1)
 					{
-						tagID = 11;
+						try
+						{
+							array.get(0).getAsInt();
+							tagID = 11;
+						} catch(Exception e2)
+						{
+							tagID = -1; // No supported NBT representation, store as raw JSON
+						}
 					}
 				} else if(!entry.isJsonPrimitive())
 				{
-					tagID = 9;
+					tagID = 9; // Non primitive, NBT compound list
 					break;
 				}
 			}
@@ -240,6 +269,10 @@ public class NBTConverter
 				}
 				
 				return tList;
+			} else if(tagID == -1) // Emergency fall back for unknown/unsupported types
+			{
+				NBTTagString tag = new NBTTagString("raw_json:" + getFallbackID(jObj) + ":" + new Gson().toJson(jObj));
+				return tag;
 			}
 		} catch(Exception e)
 		{
@@ -304,5 +337,47 @@ public class NBTConverter
             default:
             	return new NBTTagByte(num.byteValue());
         }
+	}
+	
+	private static Class<? extends JsonElement> getJsonFallback(int id)
+	{
+		switch(id)
+		{
+			case 1:
+				return JsonObject.class;
+			case 2:
+				return JsonArray.class;
+			case 3:
+				return JsonNull.class; // Do not use unless absolutely necessary!
+			default:
+				return JsonPrimitive.class;
+		}
+	}
+	
+	private static int getFallbackID(JsonElement json)
+	{
+		if(json == null)
+		{
+			return 3;
+		}
+		
+		return getFallbackID(json.getClass());
+	}
+	
+	private static int getFallbackID(Class<? extends JsonElement> json)
+	{
+		if(json == JsonObject.class)
+		{
+			return 1;
+		} else if(json == JsonArray.class)
+		{
+			return 2;
+		} else if(json == JsonNull.class)
+		{
+			return 3;
+		} else
+		{
+			return 0;
+		}
 	}
 }
