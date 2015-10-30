@@ -14,7 +14,7 @@ public class TaskRegistry
 {
 	static HashMap<String, Class<? extends TaskBase>> questRegistry = new HashMap<String, Class<? extends TaskBase>>();
 	
-	public static void RegisterQuest(Class<? extends TaskBase> quest, String idName)
+	public static void RegisterTask(Class<? extends TaskBase> quest, String idName)
 	{
 		ModContainer mod = Loader.instance().activeModContainer();
 		
@@ -63,7 +63,7 @@ public class TaskRegistry
 		return null;
 	}
 	
-	public static Class<? extends TaskBase> GetQuest(String idName)
+	public static Class<? extends TaskBase> GetTask(String idName)
 	{
 		return questRegistry.get(idName);
 	}
@@ -73,10 +73,18 @@ public class TaskRegistry
 		return new ArrayList<String>(questRegistry.keySet());
 	}
 	
-	public static TaskBase InstatiateQuest(String idName)
+	public static TaskBase InstatiateTask(String idName)
 	{
 		try
 		{
+			Class<? extends TaskBase> task = questRegistry.get(idName);
+			
+			if(task == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Tried to load missing task type '" + idName + "'! Are you missing a task pack?");
+				return null;
+			}
+			
 			return questRegistry.get(idName).newInstance();
 		} catch(Exception e)
 		{

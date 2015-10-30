@@ -194,21 +194,35 @@ public class NBTConverter
 			
 			for(JsonElement entry : array)
 			{
-				if(entry.isJsonPrimitive() && tagID == 0) // Note: TagLists can only support Integers, Bytes and Compounds
+				if(entry.isJsonPrimitive() && tagID == 0) // Note: TagLists can only support Integers, Bytes and Compounds (Strings can be stored but require special handling)
 				{
 					try
 					{
-						array.get(0).getAsByte();
+						for(JsonElement element : array)
+						{
+							// Make sure all entries can be bytes
+							if(element.getAsLong() != element.getAsByte()) // In case casting works but overflows
+							{
+								throw new ClassCastException();
+							}
+						}
 						tagID = 7; // Can be used as byte
 					} catch(Exception e1)
 					{
 						try
 						{
-							array.get(0).getAsInt();
+							for(JsonElement element : array)
+							{
+								// Make sure all entries can be integers
+								if(element.getAsLong() != element.getAsInt()) // In case casting works but overflows
+								{
+									throw new ClassCastException();
+								}
+							}
 							tagID = 11;
 						} catch(Exception e2)
 						{
-							tagID = -1; // No supported NBT representation, store as raw JSON
+							tagID = 9; // Is primitive however requires TagList interpretation
 						}
 					}
 				} else if(!entry.isJsonPrimitive())

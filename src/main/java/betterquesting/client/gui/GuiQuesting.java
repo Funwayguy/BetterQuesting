@@ -1,9 +1,11 @@
-package betterquesting.client;
+package betterquesting.client.gui;
 
 import java.awt.Color;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import net.minecraft.client.Minecraft;
@@ -13,6 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 
+@SideOnly(Side.CLIENT)
 public class GuiQuesting extends GuiScreen
 {
 	public static final String numRegex = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable

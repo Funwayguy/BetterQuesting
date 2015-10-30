@@ -1,4 +1,4 @@
-package betterquesting.client;
+package betterquesting.client.gui.json;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -17,12 +17,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
+import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiJsonItemSelection extends GuiQuesting
 {
 	ItemStack stackSelect;
@@ -61,11 +66,11 @@ public class GuiJsonItemSelection extends GuiQuesting
 		
 		if(json != null)
 		{
-			stackSelect = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+			stackSelect = JsonHelper.JsonToItemStack(json);
 		} else if(stackSelect != null)
 		{
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.ItemStackToJson(stackSelect, json);
 		}
 		
 		if(stackSelect == null)
@@ -73,11 +78,11 @@ public class GuiJsonItemSelection extends GuiQuesting
 			BetterQuesting.logger.log(Level.ERROR, "The JSON editor was unable to parse item NBTs! Reverting to stone...");
 			stackSelect = new ItemStack(Blocks.stone);
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.ItemStackToJson(stackSelect, json);
 		} else // Ensure all necessary NBTs are present
 		{
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.ItemStackToJson(stackSelect, json);
 		}
 		
 		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<");

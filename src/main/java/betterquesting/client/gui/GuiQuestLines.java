@@ -1,5 +1,6 @@
-package betterquesting.client;
+package betterquesting.client.gui;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -7,12 +8,19 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.buttons.GuiButtonQuestInstance;
-import betterquesting.client.buttons.GuiButtonQuestLine;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.client.gui.misc.GuiButtonQuestInstance;
+import betterquesting.client.gui.misc.GuiButtonQuestLine;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
+import betterquesting.quests.tasks.TaskBase;
+import betterquesting.utils.RenderUtils;
+import com.mojang.realmsclient.gui.ChatFormatting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiQuestLines extends GuiQuesting
 {
 	GuiButtonQuestLine selected;
@@ -22,8 +30,9 @@ public class GuiQuestLines extends GuiQuesting
 	int maxRows = 0;
 	int boxScrollX = 0;
 	int boxScrollY = 0;
-	int maxScrollX = 128;
-	int maxScrollY = 128;
+	int maxScrollX = 0;
+	int maxScrollY = 0;
+	String[] lineDesc = new String[]{};
 	
 	public GuiQuestLines(GuiScreen parent)
 	{
@@ -37,9 +46,11 @@ public class GuiQuestLines extends GuiQuesting
 		super.initGui();
 		
 		qlBtns.clear();
-		selected = null;
+		
 		listScroll = 0;
 		maxRows = (sizeY - 64)/20;
+		lineDesc = new String[]{};
+		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
 		
@@ -47,20 +58,29 @@ public class GuiQuestLines extends GuiQuesting
 		btnEdit.enabled = true;
 		this.buttonList.add(btnEdit);
 		
+		boolean reset = true;
+		
 		int i = 0;
 		for(QuestLine line : QuestDatabase.questLines)
 		{
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = false;
+			btnLine.enabled = line.questList.size() <= 0;
+			
+			if(selected != null && selected.line == line)
+			{
+				reset = false;
+				selected = btnLine;
+			}
+			
 			for(GuiButtonQuestInstance btnQuest : btnLine.buttonTree)
 			{
-				btnQuest.SetClampingBounds(this.guiLeft + 175, this.guiTop + 32, this.sizeX - (34 + 150 + 8), this.sizeY - 64);
-				btnQuest.xPosition += this.guiLeft + 175;
-				btnQuest.yPosition += this.guiTop + 32;
+				btnQuest.SetClampingBounds(this.guiLeft + 174, this.guiTop + 32, this.sizeX - (32 + 150 + 8), this.sizeY - 64 - 32);
+				btnQuest.xPosition += this.guiLeft + 174 + (this.sizeX - (32 + 150 + 8))/2 - btnLine.treeW/2;
+				btnQuest.yPosition += this.guiTop + 32 + (this.sizeY - 64 - 32)/2 - btnLine.treeH/2;
 				
 				for(GuiButtonQuestInstance p : btnLine.buttonTree)
 				{
-					if(p.enabled && p.visible)
+					if(p.quest.isUnlocked(mc.thePlayer.getUniqueID()) && (selected == null || selected.line != line))
 					{
 						btnLine.enabled = true;
 					}
@@ -77,6 +97,14 @@ public class GuiQuestLines extends GuiQuesting
 			i += 20;
 		}
 		
+		if(reset || selected == null)
+		{
+			selected = null;
+		} else
+		{
+			lineDesc = RenderUtils.WordWrap(fontRendererObj, selected.line.description, this.sizeX - (32 + 150 + 8));
+		}
+		
 		UpdateScroll();
 	}
 	
@@ -85,16 +113,26 @@ public class GuiQuestLines extends GuiQuesting
 	{
 		super.drawScreen(mx, my, partialTick);
 		
+		if(QuestDatabase.updateUI)
+		{
+			QuestDatabase.updateUI = false;
+			this.initGui();
+		}
+		
 		this.mc.renderEngine.bindTexture(guiTexture);
 		
 		GL11.glPushMatrix();
 		int mapSX = this.sizeX - (32 + 150 + 8);
-		int mapSY = this.sizeY - 64;
-		float scaleX = mapSX/128F;
-		float scaleY = mapSY/128F;
-		GL11.glScalef(scaleX, scaleY, 1F);
-		this.drawTexturedModalRect(MathHelper.floor_float((this.guiLeft + 174)/scaleX), MathHelper.floor_float((this.guiTop + 32)/scaleY), 0, 128, 128, 128);
+		int mapSY = this.sizeY - 64 - 32;
+		double scaleX = mapSX/128D;
+		double scaleY = mapSY/128D;
+		GL11.glScaled(scaleX, scaleY, 1F);
+		this.drawTexturedModalRect(MathHelper.ceiling_double_int((this.guiLeft + 174)/scaleX), MathHelper.ceiling_double_int((this.guiTop + 32)/scaleY), 0, 128, 128, 128);
 		GL11.glPopMatrix();
+		
+		//Debug box bounds
+		//RenderUtils.DrawLine(this.guiLeft + 174, this.guiTop + 32, this.guiLeft + 174 + this.sizeX - (32 + 150 + 8), this.guiTop + 32 + this.sizeY - 64, 2, Color.BLACK);
+		//RenderUtils.DrawLine(this.guiLeft + 174 + this.sizeX - (32 + 150 + 8), this.guiTop + 32, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64, 2, Color.BLACK);
 		
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32, 248, 0, 8, 20);
 		int i = 20;
@@ -106,13 +144,65 @@ public class GuiQuestLines extends GuiQuesting
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
 		
+		QuestInstance qTooltip = null;
+		
 		if(selected != null)
 		{
 			for(GuiButtonQuestInstance btnQuest : selected.buttonTree)
 			{
 				btnQuest.SetScrollOffset(boxScrollX, boxScrollY);
 				btnQuest.drawButton(mc, mx, my);
+				
+				if(btnQuest.visible && this.isWithin(mx, my, btnQuest.xPosition + boxScrollX, btnQuest.yPosition + boxScrollY, btnQuest.width, btnQuest.height, false))
+				{
+					qTooltip = btnQuest.quest;
+				}
 			}
+			
+			for(int l = 0; l < Math.min(3, lineDesc.length); l++)
+			{
+				mc.fontRenderer.drawString(lineDesc[l], this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4 + (l * 10), Color.BLACK.getRGB(), false);
+			}
+		}
+		
+		if(qTooltip != null)
+		{
+			ArrayList<String> qInfo = new ArrayList<String>();
+			qInfo.add(qTooltip.name);
+			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
+			{
+				qInfo.add(ChatFormatting.GREEN + "COMPLETE");
+				
+				if(!qTooltip.HasClaimed(mc.thePlayer))
+				{
+					qInfo.add(ChatFormatting.GRAY + "Rewards pending...");
+				}
+			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
+			{
+				qInfo.add(ChatFormatting.RED + "" + ChatFormatting.UNDERLINE + "REQUIRES:");
+				
+				for(QuestInstance req : qTooltip.preRequisites)
+				{
+					if(!req.isComplete(mc.thePlayer.getUniqueID()))
+					{
+						qInfo.add(ChatFormatting.RED + "- " + req.name);
+					}
+				}
+			} else
+			{
+				int n = 0;
+				
+				for(TaskBase task : qTooltip.tasks)
+				{
+					if(task.isComplete(mc.thePlayer))
+					{
+						n++;
+					}
+				}
+				
+				qInfo.add(ChatFormatting.GRAY + "" + n + "/" + qTooltip.tasks.size() + " Tasks complete");
+			}
+			this.drawHoveringText(qInfo, mx, my, this.fontRendererObj);
 		}
 	}
 	
@@ -127,28 +217,24 @@ public class GuiQuestLines extends GuiQuesting
 		
 		if(button.id == 1)
 		{
-			mc.displayGuiScreen(new GuiQuestLineEditor(this));
+			mc.displayGuiScreen(new GuiQuestLineEditorA(this));
 			// Quest line editor
 		} else if(button instanceof GuiButtonQuestLine)
 		{
-			selected = (GuiButtonQuestLine)button;
-			boxScrollX = 0;
-			boxScrollY = 0;
-			maxScrollX = 0;
-			maxScrollY = 0;
-			
-			for(GuiButtonQuestInstance btnQuest : selected.buttonTree)
+			if(selected != null)
 			{
-				if(btnQuest.visible)
-				{
-					maxScrollX = maxScrollX < btnQuest.xPosition? btnQuest.xPosition : maxScrollX;
-					maxScrollY = maxScrollY < btnQuest.yPosition + btnQuest.height? btnQuest.yPosition + btnQuest.height : maxScrollY;
-				}
+				selected.enabled = true;
 			}
 			
-			maxScrollX -= this.guiLeft + 175;
-			//maxScrollY -= this.guiTop - this.sizeY + 256; // This needs fixing
-			maxScrollX -= this.sizeX - (34 + 150 + 8) - 100;
+			button.enabled = false;
+			
+			selected = (GuiButtonQuestLine)button;
+			maxScrollX = Math.abs((this.sizeX - (32 + 150 + 8))/2 - (selected.treeW + 32)/2);
+			maxScrollY = Math.abs((this.sizeY - 64 - 32)/2 - (selected.treeH + 32)/2);
+			boxScrollX = 0;
+			boxScrollY = maxScrollY;
+			
+			lineDesc = RenderUtils.WordWrap(fontRendererObj, selected.line.description, this.sizeX - (32 + 150 + 8));
 		}
 	}
 	
@@ -193,13 +279,15 @@ public class GuiQuestLines extends GuiQuesting
     	{
     		this.boxScrollX += Mouse.getEventDX() * this.width / this.mc.displayWidth;
     		this.boxScrollY -= Mouse.getEventDY() * this.height / this.mc.displayHeight;
-    		this.boxScrollX = -maxScrollX >= 0 ? MathHelper.clamp_int(this.boxScrollX, 0, -maxScrollX) : MathHelper.clamp_int(this.boxScrollX, -maxScrollX, 0);
-    		this.boxScrollY = maxScrollY <= 0 ? MathHelper.clamp_int(this.boxScrollY, maxScrollY, 0) : MathHelper.clamp_int(this.boxScrollY, 0, maxScrollY);
+    		this.boxScrollX = MathHelper.clamp_int(boxScrollX, -maxScrollX, maxScrollX);
+    		this.boxScrollY = MathHelper.clamp_int(boxScrollY, -maxScrollY, maxScrollY);
     	}
     }
 	
 	public void UpdateScroll()
 	{
+		// All buttons are required to be present due to the button trees
+		// These are hidden and moved as necessary
 		for(int i = 0; i < qlBtns.size(); i++)
 		{
 			GuiButtonQuestLine btn = qlBtns.get(i);

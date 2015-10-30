@@ -1,9 +1,13 @@
-package betterquesting.client;
+package betterquesting.client.gui.misc;
 
 import java.text.NumberFormat;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.client.gui.GuiQuesting;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 
+@SideOnly(Side.CLIENT)
 public class GuiNumberField extends GuiTextField
 {
 	public GuiNumberField(FontRenderer renderer, int posX, int posY, int sizeX, int sizeY)

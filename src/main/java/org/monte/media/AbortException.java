@@ -1,5 +1,5 @@
 /*
- * @(#)AbortException.java  
+ * @(#)AbortException.java
  *
  * Copyright (c) 1999-2012 Werner Randelshofer, Goldau, Switzerland.
  * All rights reserved.
@@ -18,22 +18,25 @@ package org.monte.media;
  *
  * @version  $Id: AbortException.java 299 2013-01-03 07:40:18Z werner $
  */
-public class AbortException extends Exception {
-
-    public static final long serialVersionUID = 1L;
-
-    /**
-    Creates a new exception.
-     */
-    public AbortException() {
-        super();
-    }
-
-    /**
-    Creates a new exception.
-    
-     */
-    public AbortException(String message) {
-        super(message);
-    }
+public class AbortException extends Exception
+{
+	
+	public static final long serialVersionUID = 1L;
+	
+	/**
+	Creates a new exception.
+	 */
+	public AbortException()
+	{
+		super();
+	}
+	
+	/**
+	Creates a new exception.
+	
+	 */
+	public AbortException(String message)
+	{
+		super(message);
+	}
 }

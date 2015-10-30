@@ -1,14 +1,18 @@
-package betterquesting.client.buttons;
+package betterquesting.client.gui.misc;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiButtonJson extends GuiButtonQuesting
 {
 	public JsonElement json;
@@ -30,7 +34,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 			JsonObject tmpObj = json.getAsJsonObject();
 			if(tmpObj.has("id") && tmpObj.has("Damage") && tmpObj.has("Count")) // Must have at least these 3 to be considered a valid 'item'
 			{
-				this.stack = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()));
+				this.stack = JsonHelper.JsonToItemStack(tmpObj);
 			}
 			
 			if(stack == null && tmpObj.has("id") && EntityList.stringToClassMapping.get(tmpObj.get("id").getAsString()) != null)

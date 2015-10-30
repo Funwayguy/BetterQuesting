@@ -1,13 +1,16 @@
-package betterquesting.client;
+package betterquesting.client.gui.json;
 
 import java.awt.Color;
 import java.util.List;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 
+@SideOnly(Side.CLIENT)
 public class JsonControlSet
 {
 	/**

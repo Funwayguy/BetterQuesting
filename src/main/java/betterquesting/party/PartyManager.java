@@ -120,12 +120,17 @@ public class PartyManager
 		jObj.add("partyList", ptyJson);
 	}
 	
-	public static void readFromJson(JsonObject jObj)
+	public static void readFromJson(JsonObject json)
 	{
+		if(json == null)
+		{
+			json = new JsonObject();
+		}
+		
 		updateUI = true;
 		partyList.clear();
 		
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "partyList"))
+		for(JsonElement entry : JsonHelper.GetArray(json, "partyList"))
 		{
 			if(entry == null || !entry.isJsonObject())
 			{

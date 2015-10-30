@@ -1,5 +1,5 @@
 /*
- * @(#)ParseException.java  
+ * @(#)ParseException.java
  *
  * Copyright (c) 1999-2012 Werner Randelshofer, Goldau, Switzerland.
  * All rights reserved.
@@ -16,15 +16,18 @@ package org.monte.media;
  * @author  Werner Randelshofer, Hausmatt 10, CH-6405 Goldau, Switzerland
  * @version  $Id: ParseException.java 299 2013-01-03 07:40:18Z werner $
  */
-public class ParseException extends Exception {
-
-    public static final long serialVersionUID = 1L;
-
-    public ParseException(String message) {
-        super(message);
-    }
-
-    public ParseException(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class ParseException extends Exception
+{
+	
+	public static final long serialVersionUID = 1L;
+	
+	public ParseException(String message)
+	{
+		super(message);
+	}
+	
+	public ParseException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
 }

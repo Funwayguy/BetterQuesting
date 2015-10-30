@@ -8,10 +8,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.GuiQuesting;
+import betterquesting.client.gui.GuiQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,14 +25,25 @@ public class RewardChoice extends RewardBase
 	public ArrayList<ItemStack> choices = new ArrayList<ItemStack>();
 	
 	@Override
+	public String getUnlocalisedName()
+	{
+		return "betterquesting.reward.choice";
+	}
+	
+	@Override
 	public boolean canClaim(EntityPlayer player, NBTTagCompound choiceData)
 	{
-		return !(selected < 0 || selected >= choices.size());
+		return choices.size() <= 0 || (selected >= 0 && selected < choices.size());
 	}
 
 	@Override
 	public void Claim(EntityPlayer player, NBTTagCompound choiceData)
 	{
+		if(choices.size() <= 0)
+		{
+			return;
+		}
+		
 		selected = choiceData.hasKey("selected")? choiceData.getInteger("selected") : -1;
 		
 		if(selected < 0 || selected >= choices.size())
@@ -77,7 +87,7 @@ public class RewardChoice extends RewardBase
 				continue;
 			}
 			
-			ItemStack item = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(entry.getAsJsonObject(), new NBTTagCompound()));
+			ItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
 			
 			if(item != null)
 			{
@@ -95,7 +105,7 @@ public class RewardChoice extends RewardBase
 		JsonArray rJson = new JsonArray();
 		for(ItemStack stack : choices)
 		{
-			rJson.add(NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), new JsonObject()));
+			rJson.add(JsonHelper.ItemStackToJson(stack, new JsonObject()));
 		}
 		json.add("choices", rJson);
 	}

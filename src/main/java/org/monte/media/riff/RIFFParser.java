@@ -10,9 +10,6 @@
  */
 package org.monte.media.riff;
 
-import org.monte.media.AbortException;
-import org.monte.media.ParseException;
-import org.monte.media.io.ImageInputStreamAdapter;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,8 +17,10 @@ import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.WeakHashMap;
 import javax.imageio.stream.ImageInputStream;
+import org.monte.media.AbortException;
+import org.monte.media.ParseException;
+import org.monte.media.io.ImageInputStreamAdapter;
 
 /**
  * Interprets Resource Interchange File Format (RIFF) streams.
@@ -180,662 +179,736 @@ import javax.imageio.stream.ImageInputStream;
  * stop chunks.
  * <br>1.0 2005-01-16 Created.
  */
-public class RIFFParser extends Object {
-private final static boolean DEBUG =false;
-    /** ID for FormGroupExpression. */
-    public final static int RIFF_ID = stringToID("RIFF");
-    /** ID for ListGroupExpression. */
-    public final static int LIST_ID = stringToID("LIST");
-    /** ID for NULL chunks. */
-    public final static int NULL_ID = stringToID("    ");
-    /** ID for NULL chunks. */
-    public final static int NULL_NUL_ID = stringToID("\0\0\0\0");
-    /** ID for JUNK chunks. */
-    public final static int JUNK_ID = stringToID("JUNK");
-    /** The visitor traverses the parse tree. */
-    private RIFFVisitor visitor;
-    /** List of data chunks the visitor is interested in. */
-    private HashSet<RIFFChunk> dataChunks;
-    /** List of property chunks the visitor is interested in. */
-    private HashSet<RIFFChunk> propertyChunks;
-    /** List of collection chunks the visitor is interested in. */
-    private HashSet<RIFFChunk> collectionChunks;
-    /** List of stop chunks the visitor is interested in. */
-    private HashSet<Integer> stopChunkTypes;
-    /** List of group chunks the visitor is interested in. */
-    private HashSet<RIFFChunk> groupChunks;
-    /** Reference to the input stream. */
-    private RIFFPrimitivesInputStream in;
-    /** Reference to the image input stream. */
-    private ImageInputStream iin;
-
-    /** Whether we stop at all chunks. */
-    private boolean isStopChunks;
-    
-    /** Stream offset. */
-    private long streamOffset;
-
-    /* ---- constructors ---- */
-    /**
-     * Constructs a new RIFF parser.
-     */
-    public RIFFParser() {
-    }
-
-    public long getStreamOffset() {
-        return streamOffset;
-    }
-
-    public void setStreamOffset(long offset) {
-        this.streamOffset = offset;
-    }
-    
-    
-
-    /* ---- accessor methods ---- */
-    /* ---- action methods ---- */
-    /**
-     * Interprets the RIFFFile expression located at the
-     * current position of the indicated InputStream.
-     * Lets the visitor traverse the RIFF parse tree during
-     * interpretation.
-     *
-     * <p>Pre condition
-     * <li>	Data-, property- and collection chunks must have been
-     * declared prior to this call.
-     * <li>	When the client never declared chunks, then all local
-     * chunks will be interpreted as data chunks.
-     * <li>	The stream must be positioned at the beginning of the
-     * RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	When no exception was thrown then the stream is positioned
-     * after the RIFFFile expression.
-     *
-     * <p>Obligation
-     * The visitor may throw an ParseException or an
-     * AbortException during tree traversal.
-     *
-     * @exception ParseException
-     * Is thrown when an interpretation error occured.
-     * The stream is positioned where the error occured.
-     * @exception	AbortException
-     * Is thrown when the visitor decided to abort the
-     * interpretation.
-     */
-    public long parse(InputStream in, RIFFVisitor v)
-            throws ParseException, AbortException, IOException {
-        this.in = new RIFFPrimitivesInputStream(in);
-        visitor = v;
-        parseFile();
-        return getScan(this.in);
-    }
-
-    public long parse(ImageInputStream in, RIFFVisitor v)
-            throws ParseException, AbortException, IOException {
-        return parse(new ImageInputStreamAdapter(in), v);
-    }
-
-    /**
-     * Parses a RIFF file.
-     *
-     * <pre>
-     * RIFF = 'RIFF' FormGroup
-     * </pre>
-     */
-    private void parseFile()
-            throws ParseException, AbortException, IOException {
-        int id = in.readFourCC();
-
-        if (id == RIFF_ID) {
-            parseFORM(null);
-        } else if (id == JUNK_ID) {
-            parseLocalChunk(null,id);
-        } else {
-            if (iin!=null) {
-            throw new ParseException("Invalid RIFF File ID: \"" + idToString(id) +" 0x"+Integer.toHexString(id)+" near "+iin.getStreamPosition()+" 0x"+Long.toHexString(iin.getStreamPosition()));
-            } else {
-            throw new ParseException("Invalid RIFF File ID: \"" + idToString(id) +" 0x"+Integer.toHexString(id));
-            }
-        }
-    }
-
-    private long getScan(RIFFPrimitivesInputStream in) {
-        return in.getScan()+streamOffset;
-    }
-    
-    /**
-     * Parses a FORM group.
-     * <pre>
-     * FormGroup ::= size GroupType { ChunkID LocalChunk [pad]
-     * | 'FORM' FormGroup  [pad] }
-     * | 'LIST' ListGroup  [pad] }
-     * </pre>
-     */
-    private void parseFORM(HashMap props)
-            throws ParseException, AbortException, IOException {
-        long size = in.readULONG();
-        long offset = getScan(in);
-        int type = in.readFourCC();
-if (DEBUG)System.out.println("RIFFParser.parseForm "+idToString(type));
-        if (!isGroupType(type)) {
-            throw new ParseException("Invalid FORM Type: \"" + idToString(type) + "\"");
-        }
-
-        RIFFChunk propGroup = (props == null) ? null : (RIFFChunk) props.get(type);
-        RIFFChunk chunk = new RIFFChunk(type, RIFF_ID, size, offset, propGroup);
-
-        boolean visitorWantsToEnterGroup = false;
-        if (isGroupChunk(chunk) && (visitorWantsToEnterGroup = visitor.enteringGroup(chunk))) {
-            visitor.enterGroup(chunk);
-        }
-
-        try {
-            long finish = offset + size;
-            while (getScan(in) < finish) {
-                long idscan = getScan(in);
-                int id = in.readFourCC();
-
-                if (id == RIFF_ID) {
-                    parseFORM(props);
-                } else if (id == LIST_ID) {
-                    parseLIST(props);
-                } else if (isLocalChunkID(id)) {
-                    parseLocalChunk(chunk, id);
-                } else {
-                    ParseException pex = new ParseException("Invalid Chunk: \"" + id + "\" at offset:" + idscan);
-                    chunk.setParserMessage(pex.getMessage());
-                    throw pex;
-                }
-
-                in.align();
-            }
-        } catch (EOFException e) {
-            e.printStackTrace();
-            chunk.setParserMessage(
-                    "Unexpected EOF after "
-                    + NumberFormat.getInstance().format(getScan(in) - offset)
-                    + " bytes");
-        } finally {
-            if (visitorWantsToEnterGroup) {
-                visitor.leaveGroup(chunk);
-            }
-        }
-    }
-
-    /**
-     * Parses a LIST group.
-     * <pre>
-     * ListGroup ::= size GroupType { ChunkID LocalChunk [pad] | 'LIST ' ListGroup  [pad] }
-     * </pre>
-     */
-    private void parseLIST(HashMap props)
-            throws ParseException, AbortException, IOException {
-        long size = in.readULONG();
-        long scan = getScan(in);
-        int type = in.readFourCC();
-if (DEBUG)System.out.println("RIFFParser.parseLIST "+idToString(type));
-
-        if (!isGroupType(type)) {
-            throw new ParseException("Invalid LIST Type: \"" + type + "\"");
-        }
-
-        RIFFChunk propGroup = (props == null) ? null : (RIFFChunk) props.get(type);
-        RIFFChunk chunk = new RIFFChunk(type, LIST_ID, size, scan, propGroup);
-
-        boolean visitorWantsToEnterGroup = false;
-        if (isGroupChunk(chunk) && (visitorWantsToEnterGroup = visitor.enteringGroup(chunk))) {
-            visitor.enterGroup(chunk);
-        }
-        try {
-            if (visitorWantsToEnterGroup) {
-            long finish = scan + size;
-            while (getScan(in) < finish) {
-                long idscan = getScan(in);
-                int id = in.readFourCC();
-                if (id == LIST_ID) {
-                    parseLIST(props);
-                } else if (isLocalChunkID(id)) {
-                    parseLocalChunk(chunk, id);
-                } else {
-                    parseGarbage(chunk, id, finish-getScan(in), getScan(in));
-                    ParseException pex = new ParseException("Invalid Chunk: \"" + id + "\" at offset:" + idscan);
-                    chunk.setParserMessage(pex.getMessage());
-                    //throw pex;
-                }
-
-                    in.align();
-                }
-            } else {
-                in.skipFully(size-4);
-                in.align();
-            }
-        } finally {
-            if (visitorWantsToEnterGroup) {
-                visitor.leaveGroup(chunk);
-            }
-        }
-    }
-
-    /**
-     * Parses a local chunk.
-     * <pre>
-     * LocalChunk  ::= size { DataChunk | PropertyChunk | CollectionChunk }
-     * DataChunk = PropertyChunk = CollectionChunk ::= { byte }...*size
-     * </pre>
-     */
-    private void parseLocalChunk(RIFFChunk parent, int id)
-            throws ParseException, AbortException, IOException {
-        long size = in.readULONG();
-        long scan = getScan(in);
-if (DEBUG)System.out.println("RIFFParser.parseLocalChunk "+idToString(id));
-        RIFFChunk chunk = new RIFFChunk(parent==null?0:parent.getType(), id, size, scan);
-
-        if (isDataChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            visitor.visitChunk(parent, chunk);
-        } else if (isPropertyChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            parent.putPropertyChunk(chunk);
-        } else if (isCollectionChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            parent.addCollectionChunk(chunk);
-        } else {
-            in.skipFully((int) size);
-            if (isStopChunks) {
-            visitor.visitChunk(parent, chunk);
-            }
-        }
-    }
-    /**
-     * This method is invoked when we encounter a parsing problem.
-     * <pre>
-     * LocalChunk  ::= size { DataChunk | PropertyChunk | CollectionChunk }
-     * DataChunk = PropertyChunk = CollectionChunk ::= { byte }...*size
-     * </pre>
-     */
-    private void parseGarbage(RIFFChunk parent, int id, long size, long scan)
-            throws ParseException, AbortException, IOException {
-        //long size = in.readULONG();
-        //long scan = getScan(in);
-
-        RIFFChunk chunk = new RIFFChunk(parent.getType(), id, size, scan);
-
-        if (isDataChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            visitor.visitChunk(parent, chunk);
-        } else if (isPropertyChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            parent.putPropertyChunk(chunk);
-        } else if (isCollectionChunk(chunk)) {
-            byte[] data = new byte[(int) size];
-            in.read(data, 0, (int) size);
-            chunk.setData(data);
-            parent.addCollectionChunk(chunk);
-        } else {
-            in.skipFully((int) size);
-            if (isStopChunk(chunk)) {
-                visitor.visitChunk(parent, chunk);
-            }
-        }
-    }
-
-    /**
-     * Checks whether the ID of the chunk has been declared as a
-     * data chunk.
-     *
-     * <p>Pre condition
-     * <li>	Data chunks must have been declared before the
-     * interpretation has been started.
-     * <li>	This method will always return true when neither
-     * data chunks, property chunks nor collection chunks
-     * have been declared,
-     *
-     * @param	chunk Chunk to be verified.
-     * @return True when the parameter is a data chunk.
-     */
-    protected boolean isDataChunk(RIFFChunk chunk) {
-        if (dataChunks == null) {
-            if (collectionChunks == null && propertyChunks == null && (stopChunkTypes==null||!stopChunkTypes.contains(chunk.getType()))) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return dataChunks.contains(chunk);
-        }
-    }
-
-    /**
-     * Checks whether the ID of the chunk has been declared as
-     * a group chunk.
-     *
-     * <p>Pre condition
-     * <li>	Group chunks must have been declared before the
-     * interpretation has been started.
-     * (Otherwise the response is always true).
-     *
-     * @param	chunk Chunk to be verified.
-     * @return True when the visitor is interested in this is a group chunk.
-     */
-    protected boolean isGroupChunk(RIFFChunk chunk) {
-        if (groupChunks == null) {
-            return true;
-        } else {
-            return groupChunks.contains(chunk);
-        }
-    }
-
-    /**
-     * Checks wether the ID of the chunk has been declared as a
-     * property chunk.
-     *
-     * <p>Pre condition
-     * <li>	Property chunks must have been declared before the
-     * interpretation has been started.
-     * <li>	This method will always return false when neither
-     * data chunks, property chunks nor collection chunks
-     * have been declared,
-     */
-    protected boolean isPropertyChunk(RIFFChunk chunk) {
-        if (propertyChunks == null) {
-            return false;
-        } else {
-            return propertyChunks.contains(chunk);
-        }
-    }
-
-    /**
-     * Checks wether the ID of the chunk has been declared as a
-     * collection chunk.
-     *
-     * <p>Pre condition
-     * <li>	Collection chunks must have been declared before the
-     * interpretation has been started.
-     * <li>	This method will always return true when neither
-     * data chunks, property chunks nor collection chunks
-     * have been declared,
-     *
-     * @param	chunk Chunk to be verified.
-     * @return True when the parameter is a collection chunk.
-     */
-    protected boolean isCollectionChunk(RIFFChunk chunk) {
-        if (collectionChunks == null) {
-            return false;
-        } else {
-            return collectionChunks.contains(chunk);
-        }
-    }
-
-    /**
-     * Declares a data chunk.
-     *
-     * <p>Pre condition
-     * <li>	The chunk must not have already been declared as of a
-     * different type.
-     * <li>	Declarations may not be done during interpretation
-     * of an RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	Data chunk declared
-     *
-     * @param	type
-     * Type of the chunk. Must be formulated as a TypeID conforming
-     * to the method #isFormType.
-     * @param	id
-     * ID of the chunk. Must be formulated as a ChunkID conforming
-     * to the method #isLocalChunkID.
-     */
-    public void declareDataChunk(int type, int id) {
-        RIFFChunk chunk = new RIFFChunk(type, id);
-        if (dataChunks == null) {
-            dataChunks = new HashSet<RIFFChunk>();
-        }
-        dataChunks.add(chunk);
-    }
-
-    /**
-     * Declares a FORM group chunk.
-     *
-     * <p>Pre condition
-     * <li>	The chunk must not have already been declared as of a
-     * different type.
-     * <li>	Declarations may not be done during interpretation
-     * of an RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	Group chunk declared
-     *
-     * @param	type
-     * Type of the chunk. Must be formulated as a TypeID conforming
-     * to the method #isFormType.
-     * @param	id
-     * ID of the chunk. Must be formulated as a ChunkID conforming
-     * to the method #isContentsType.
-     */
-    public void declareGroupChunk(int type, int id) {
-        RIFFChunk chunk = new RIFFChunk(type, id);
-        if (groupChunks == null) {
-            groupChunks = new HashSet<RIFFChunk>();
-        }
-        groupChunks.add(chunk);
-    }
-
-    /**
-     * Declares a property chunk.
-     *
-     * <p>Pre condition
-     * <li>	The chunk must not have already been declared as of a
-     * different type.
-     * <li>	Declarations may not be done during interpretation
-     * of an RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	Group chunk declared
-     *
-     *
-     * @param	type
-     * Type of the chunk. Must be formulated as a TypeID conforming
-     * to the method #isFormType.
-     * @param	id
-     * ID of the chunk. Must be formulated as a ChunkID conforming
-     * to the method #isLocalChunkID.
-     */
-    public void declarePropertyChunk(int type, int id) {
-        RIFFChunk chunk = new RIFFChunk(type, id);
-        if (propertyChunks == null) {
-            propertyChunks = new HashSet<RIFFChunk>();
-        }
-        propertyChunks.add(chunk);
-    }
-
-    /**
-     * Declares a collection chunk.
-     *
-     * <p>Pre condition
-     * <li>	The chunk must not have already been declared as of a
-     * different type.
-     * <li>	Declarations may not be done during interpretation
-     * of an RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	Collection chunk declared
-     *
-     * @param	type
-     * Type of the chunk. Must be formulated as a TypeID conforming
-     * to the method #isFormType.
-     * @param	id
-     * ID of the chunk. Must be formulated as a ChunkID conforming
-     * to the method #isLocalChunkID.
-     */
-    public void declareCollectionChunk(int type, int id) {
-        RIFFChunk chunk = new RIFFChunk(type, id);
-        if (collectionChunks == null) {
-            collectionChunks = new HashSet<RIFFChunk>();
-        }
-        collectionChunks.add(chunk);
-    }
-    
-    /**
-     * Declares a stop chunk.
-     *
-     * <p>Pre condition
-     * <li>	The chunk must not have already been declared as of a
-     * different type.
-     * <li>	Declarations may not be done during interpretation
-     * of an RIFFFileExpression.
-     *
-     * <p>Post condition
-     * <li>	Stop chunk declared
-     *
-     * @param	type
-     * Type of the chunk. Must be formulated as a TypeID conforming
-     * to the method #isFormType.
-     */
-    public void declareStopChunkType(int type) {
-        if (stopChunkTypes == null) {
-            stopChunkTypes = new HashSet<Integer>();
-        }
-        stopChunkTypes.add(type);
-    }
-
-    /** Whether the parse should stop at all chunks.
-     * <p>
-     * The parser does not read the data body of stop chunks.
-     *  <p>
-     * By declaring stop chunks, and not declaring any data, group or
-     * property chunks, the file structure of a RIFF file can be quickly
-     * scanned through.
-     */
-    public void declareStopChunks() {
-        isStopChunks = true;
-    }
-    
-    private boolean isStopChunk(RIFFChunk chunk) {
-        return isStopChunks||stopChunkTypes!=null&&stopChunkTypes.contains(chunk.getType());
-    }
-
-    /* ---- Class methods ---- */
-    /**
-     * Checks wether the argument represents a valid RIFF GroupID.
-     *
-     * <p>Validation
-     * <ul>
-     * <li>	Group ID must be one of RIFF_ID, LIST_ID.</li>
-     * </ul>
-     *
-     * @param	id Chunk ID to be checked.
-     * @return	True when the chunk ID is a valid Group ID.
-     */
-    public static boolean isGroupID(int id) {
-        return id == LIST_ID || id == RIFF_ID;
-    }
-
-    /**
-     * Checks wether the argument represents a valid RIFF Group Type.
-     *
-     * <p>Validation
-     * <ul>
-     * <li>	Must be a valid ID.</li>
-     * <li>	Must not be a group ID.</li>
-     * <li>	Must not be a NULL_ID.</li>
-     * </ul>
-     *
-     * @param	id Chunk ID to be checked.
-     * @return	True when the chunk ID is a valid Group ID.
-     */
-    public static boolean isGroupType(int id) {
-        return isID(id) && !isGroupID(id) && id != NULL_ID;
-    }
-
-    /**
-     * Checks if the argument represents a valid RIFF ID.
-     *
-     * <p>Validation
-     * <li>	Every byte of an ID must be in the range of 0x20..0x7e
-     * <li>	The id may not have leading spaces (unless the id is a NULL_ID).
-     *
-     * @param	id Chunk ID to be checked.
-     * @return	True when the ID is a valid IFF chunk ID.
-     */
-    public static boolean isID(int id) {
-        int c0 = id >> 24;
-        int c1 = (id >> 16) & 0xff;
-        int c2 = (id >> 8) & 0xff;
-        int c3 = id & 0xff;
-
-        return id == NULL_NUL_ID
-                || c0 >= 0x20 && c0 <= 0x7e
-                && c1 >= 0x20 && c1 <= 0x7e
-                && c2 >= 0x20 && c2 <= 0x7e
-                && c3 >= 0x20 && c3 <= 0x7e;
-    }
-
-    /**
-     * Returns whether the argument is a valid Local Chunk ID.
-     *
-     * <p>Validation
-     * <ud>
-     * <li>	Must be valid ID.</li>
-     * <li>	Local Chunk IDs may not collide with GroupIDs.</id>
-     * <li>	Must not be a NULL_ID.</li>
-     * </ud>
-     *
-     * @param	id Chunk ID to be checked.
-     * @return	True when the chunk ID is a Local Chunk ID.
-     */
-    public static boolean isLocalChunkID(int id) {
-        if (isGroupID(id)) {
-            return false;
-        }
-        return id != NULL_ID && isID(id);
-    }
-    private WeakHashMap<String, String> ids;
-
-    /**
-     * Convert an integer IFF identifier to String.
-     *
-     * @param	anInt ID to be converted.
-     * @return	String representation of the ID.
-     */
-    public static String idToString(int anInt) {
-        byte[] bytes = new byte[4];
-
-        bytes[0] = (byte) (anInt >>> 24);
-        bytes[1] = (byte) (anInt >>> 16);
-        bytes[2] = (byte) (anInt >>> 8);
-        bytes[3] = (byte) (anInt >>> 0);
-
-        try {
-            return new String(bytes, "ASCII");
-        } catch (UnsupportedEncodingException e) {
-            throw new InternalError(e.getMessage());
-        }
-    }
-
-    /**
-     * Converts the first four letters of the
-     * String into an IFF Identifier.
-     *
-     * @param	aString String to be converted.
-     * @return	ID representation of the String.
-     */
-    public static int stringToID(String aString) {
-        byte[] bytes = aString.getBytes();
-
-        return ((int) bytes[0]) << 24
-                | ((int) bytes[1]) << 16
-                | ((int) bytes[2]) << 8
-                | ((int) bytes[3]) << 0;
-    }
+public class RIFFParser extends Object
+{
+	private final static boolean DEBUG = false;
+	/** ID for FormGroupExpression. */
+	public final static int RIFF_ID = stringToID("RIFF");
+	/** ID for ListGroupExpression. */
+	public final static int LIST_ID = stringToID("LIST");
+	/** ID for NULL chunks. */
+	public final static int NULL_ID = stringToID("    ");
+	/** ID for NULL chunks. */
+	public final static int NULL_NUL_ID = stringToID("\0\0\0\0");
+	/** ID for JUNK chunks. */
+	public final static int JUNK_ID = stringToID("JUNK");
+	/** The visitor traverses the parse tree. */
+	private RIFFVisitor visitor;
+	/** List of data chunks the visitor is interested in. */
+	private HashSet<RIFFChunk> dataChunks;
+	/** List of property chunks the visitor is interested in. */
+	private HashSet<RIFFChunk> propertyChunks;
+	/** List of collection chunks the visitor is interested in. */
+	private HashSet<RIFFChunk> collectionChunks;
+	/** List of stop chunks the visitor is interested in. */
+	private HashSet<Integer> stopChunkTypes;
+	/** List of group chunks the visitor is interested in. */
+	private HashSet<RIFFChunk> groupChunks;
+	/** Reference to the input stream. */
+	private RIFFPrimitivesInputStream in;
+	/** Reference to the image input stream. */
+	private ImageInputStream iin;
+	
+	/** Whether we stop at all chunks. */
+	private boolean isStopChunks;
+	
+	/** Stream offset. */
+	private long streamOffset;
+	
+	/* ---- constructors ---- */
+	/**
+	 * Constructs a new RIFF parser.
+	 */
+	public RIFFParser()
+	{
+	}
+	
+	public long getStreamOffset()
+	{
+		return streamOffset;
+	}
+	
+	public void setStreamOffset(long offset)
+	{
+		streamOffset = offset;
+	}
+	
+	/* ---- accessor methods ---- */
+	/* ---- action methods ---- */
+	/**
+	 * Interprets the RIFFFile expression located at the
+	 * current position of the indicated InputStream.
+	 * Lets the visitor traverse the RIFF parse tree during
+	 * interpretation.
+	 *
+	 * <p>Pre condition
+	 * <li>	Data-, property- and collection chunks must have been
+	 * declared prior to this call.
+	 * <li>	When the client never declared chunks, then all local
+	 * chunks will be interpreted as data chunks.
+	 * <li>	The stream must be positioned at the beginning of the
+	 * RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	When no exception was thrown then the stream is positioned
+	 * after the RIFFFile expression.
+	 *
+	 * <p>Obligation
+	 * The visitor may throw an ParseException or an
+	 * AbortException during tree traversal.
+	 *
+	 * @exception ParseException
+	 * Is thrown when an interpretation error occured.
+	 * The stream is positioned where the error occured.
+	 * @exception	AbortException
+	 * Is thrown when the visitor decided to abort the
+	 * interpretation.
+	 */
+	public long parse(InputStream in, RIFFVisitor v) throws ParseException, AbortException, IOException
+	{
+		this.in = new RIFFPrimitivesInputStream(in);
+		visitor = v;
+		parseFile();
+		return getScan(this.in);
+	}
+	
+	public long parse(ImageInputStream in, RIFFVisitor v) throws ParseException, AbortException, IOException
+	{
+		return parse(new ImageInputStreamAdapter(in), v);
+	}
+	
+	/**
+	 * Parses a RIFF file.
+	 *
+	 * <pre>
+	 * RIFF = 'RIFF' FormGroup
+	 * </pre>
+	 */
+	private void parseFile() throws ParseException, AbortException, IOException
+	{
+		int id = in.readFourCC();
+		
+		if(id == RIFF_ID)
+		{
+			parseFORM(null);
+		} else if(id == JUNK_ID)
+		{
+			parseLocalChunk(null, id);
+		} else
+		{
+			if(iin != null)
+			{
+				throw new ParseException("Invalid RIFF File ID: \"" + idToString(id) + " 0x" + Integer.toHexString(id) + " near " + iin.getStreamPosition() + " 0x" + Long.toHexString(iin.getStreamPosition()));
+			} else
+			{
+				throw new ParseException("Invalid RIFF File ID: \"" + idToString(id) + " 0x" + Integer.toHexString(id));
+			}
+		}
+	}
+	
+	private long getScan(RIFFPrimitivesInputStream in)
+	{
+		return in.getScan() + streamOffset;
+	}
+	
+	/**
+	 * Parses a FORM group.
+	 * <pre>
+	 * FormGroup ::= size GroupType { ChunkID LocalChunk [pad]
+	 * | 'FORM' FormGroup  [pad] }
+	 * | 'LIST' ListGroup  [pad] }
+	 * </pre>
+	 */
+	private void parseFORM(HashMap props) throws ParseException, AbortException, IOException
+	{
+		long size = in.readULONG();
+		long offset = getScan(in);
+		int type = in.readFourCC();
+		if(DEBUG)
+		{
+			System.out.println("RIFFParser.parseForm " + idToString(type));
+		}
+		if(!isGroupType(type))
+		{
+			throw new ParseException("Invalid FORM Type: \"" + idToString(type) + "\"");
+		}
+		
+		RIFFChunk propGroup = (props == null) ? null : (RIFFChunk)props.get(type);
+		RIFFChunk chunk = new RIFFChunk(type, RIFF_ID, size, offset, propGroup);
+		
+		boolean visitorWantsToEnterGroup = false;
+		if(isGroupChunk(chunk) && (visitorWantsToEnterGroup = visitor.enteringGroup(chunk)))
+		{
+			visitor.enterGroup(chunk);
+		}
+		
+		try
+		{
+			long finish = offset + size;
+			while(getScan(in) < finish)
+			{
+				long idscan = getScan(in);
+				int id = in.readFourCC();
+				
+				if(id == RIFF_ID)
+				{
+					parseFORM(props);
+				} else if(id == LIST_ID)
+				{
+					parseLIST(props);
+				} else if(isLocalChunkID(id))
+				{
+					parseLocalChunk(chunk, id);
+				} else
+				{
+					ParseException pex = new ParseException("Invalid Chunk: \"" + id + "\" at offset:" + idscan);
+					chunk.setParserMessage(pex.getMessage());
+					throw pex;
+				}
+				
+				in.align();
+			}
+		} catch(EOFException e)
+		{
+			e.printStackTrace();
+			chunk.setParserMessage("Unexpected EOF after " + NumberFormat.getInstance().format(getScan(in) - offset) + " bytes");
+		} finally
+		{
+			if(visitorWantsToEnterGroup)
+			{
+				visitor.leaveGroup(chunk);
+			}
+		}
+	}
+	
+	/**
+	 * Parses a LIST group.
+	 * <pre>
+	 * ListGroup ::= size GroupType { ChunkID LocalChunk [pad] | 'LIST ' ListGroup  [pad] }
+	 * </pre>
+	 */
+	private void parseLIST(HashMap props) throws ParseException, AbortException, IOException
+	{
+		long size = in.readULONG();
+		long scan = getScan(in);
+		int type = in.readFourCC();
+		if(DEBUG)
+		{
+			System.out.println("RIFFParser.parseLIST " + idToString(type));
+		}
+		
+		if(!isGroupType(type))
+		{
+			throw new ParseException("Invalid LIST Type: \"" + type + "\"");
+		}
+		
+		RIFFChunk propGroup = (props == null) ? null : (RIFFChunk)props.get(type);
+		RIFFChunk chunk = new RIFFChunk(type, LIST_ID, size, scan, propGroup);
+		
+		boolean visitorWantsToEnterGroup = false;
+		if(isGroupChunk(chunk) && (visitorWantsToEnterGroup = visitor.enteringGroup(chunk)))
+		{
+			visitor.enterGroup(chunk);
+		}
+		try
+		{
+			if(visitorWantsToEnterGroup)
+			{
+				long finish = scan + size;
+				while(getScan(in) < finish)
+				{
+					long idscan = getScan(in);
+					int id = in.readFourCC();
+					if(id == LIST_ID)
+					{
+						parseLIST(props);
+					} else if(isLocalChunkID(id))
+					{
+						parseLocalChunk(chunk, id);
+					} else
+					{
+						parseGarbage(chunk, id, finish - getScan(in), getScan(in));
+						ParseException pex = new ParseException("Invalid Chunk: \"" + id + "\" at offset:" + idscan);
+						chunk.setParserMessage(pex.getMessage());
+						//throw pex;
+					}
+					
+					in.align();
+				}
+			} else
+			{
+				in.skipFully(size - 4);
+				in.align();
+			}
+		} finally
+		{
+			if(visitorWantsToEnterGroup)
+			{
+				visitor.leaveGroup(chunk);
+			}
+		}
+	}
+	
+	/**
+	 * Parses a local chunk.
+	 * <pre>
+	 * LocalChunk  ::= size { DataChunk | PropertyChunk | CollectionChunk }
+	 * DataChunk = PropertyChunk = CollectionChunk ::= { byte }...*size
+	 * </pre>
+	 */
+	private void parseLocalChunk(RIFFChunk parent, int id) throws ParseException, AbortException, IOException
+	{
+		long size = in.readULONG();
+		long scan = getScan(in);
+		if(DEBUG)
+		{
+			System.out.println("RIFFParser.parseLocalChunk " + idToString(id));
+		}
+		RIFFChunk chunk = new RIFFChunk(parent == null ? 0 : parent.getType(), id, size, scan);
+		
+		if(isDataChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			visitor.visitChunk(parent, chunk);
+		} else if(isPropertyChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			parent.putPropertyChunk(chunk);
+		} else if(isCollectionChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			parent.addCollectionChunk(chunk);
+		} else
+		{
+			in.skipFully((int)size);
+			if(isStopChunks)
+			{
+				visitor.visitChunk(parent, chunk);
+			}
+		}
+	}
+	
+	/**
+	 * This method is invoked when we encounter a parsing problem.
+	 * <pre>
+	 * LocalChunk  ::= size { DataChunk | PropertyChunk | CollectionChunk }
+	 * DataChunk = PropertyChunk = CollectionChunk ::= { byte }...*size
+	 * </pre>
+	 */
+	private void parseGarbage(RIFFChunk parent, int id, long size, long scan) throws ParseException, AbortException, IOException
+	{
+		//long size = in.readULONG();
+		//long scan = getScan(in);
+		
+		RIFFChunk chunk = new RIFFChunk(parent.getType(), id, size, scan);
+		
+		if(isDataChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			visitor.visitChunk(parent, chunk);
+		} else if(isPropertyChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			parent.putPropertyChunk(chunk);
+		} else if(isCollectionChunk(chunk))
+		{
+			byte[] data = new byte[(int)size];
+			in.read(data, 0, (int)size);
+			chunk.setData(data);
+			parent.addCollectionChunk(chunk);
+		} else
+		{
+			in.skipFully((int)size);
+			if(isStopChunk(chunk))
+			{
+				visitor.visitChunk(parent, chunk);
+			}
+		}
+	}
+	
+	/**
+	 * Checks whether the ID of the chunk has been declared as a
+	 * data chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	Data chunks must have been declared before the
+	 * interpretation has been started.
+	 * <li>	This method will always return true when neither
+	 * data chunks, property chunks nor collection chunks
+	 * have been declared,
+	 *
+	 * @param	chunk Chunk to be verified.
+	 * @return True when the parameter is a data chunk.
+	 */
+	protected boolean isDataChunk(RIFFChunk chunk)
+	{
+		if(dataChunks == null)
+		{
+			if(collectionChunks == null && propertyChunks == null && (stopChunkTypes == null || !stopChunkTypes.contains(chunk.getType())))
+			{
+				return true;
+			} else
+			{
+				return false;
+			}
+		} else
+		{
+			return dataChunks.contains(chunk);
+		}
+	}
+	
+	/**
+	 * Checks whether the ID of the chunk has been declared as
+	 * a group chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	Group chunks must have been declared before the
+	 * interpretation has been started.
+	 * (Otherwise the response is always true).
+	 *
+	 * @param	chunk Chunk to be verified.
+	 * @return True when the visitor is interested in this is a group chunk.
+	 */
+	protected boolean isGroupChunk(RIFFChunk chunk)
+	{
+		if(groupChunks == null)
+		{
+			return true;
+		} else
+		{
+			return groupChunks.contains(chunk);
+		}
+	}
+	
+	/**
+	 * Checks wether the ID of the chunk has been declared as a
+	 * property chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	Property chunks must have been declared before the
+	 * interpretation has been started.
+	 * <li>	This method will always return false when neither
+	 * data chunks, property chunks nor collection chunks
+	 * have been declared,
+	 */
+	protected boolean isPropertyChunk(RIFFChunk chunk)
+	{
+		if(propertyChunks == null)
+		{
+			return false;
+		} else
+		{
+			return propertyChunks.contains(chunk);
+		}
+	}
+	
+	/**
+	 * Checks wether the ID of the chunk has been declared as a
+	 * collection chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	Collection chunks must have been declared before the
+	 * interpretation has been started.
+	 * <li>	This method will always return true when neither
+	 * data chunks, property chunks nor collection chunks
+	 * have been declared,
+	 *
+	 * @param	chunk Chunk to be verified.
+	 * @return True when the parameter is a collection chunk.
+	 */
+	protected boolean isCollectionChunk(RIFFChunk chunk)
+	{
+		if(collectionChunks == null)
+		{
+			return false;
+		} else
+		{
+			return collectionChunks.contains(chunk);
+		}
+	}
+	
+	/**
+	 * Declares a data chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	The chunk must not have already been declared as of a
+	 * different type.
+	 * <li>	Declarations may not be done during interpretation
+	 * of an RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	Data chunk declared
+	 *
+	 * @param	type
+	 * Type of the chunk. Must be formulated as a TypeID conforming
+	 * to the method #isFormType.
+	 * @param	id
+	 * ID of the chunk. Must be formulated as a ChunkID conforming
+	 * to the method #isLocalChunkID.
+	 */
+	public void declareDataChunk(int type, int id)
+	{
+		RIFFChunk chunk = new RIFFChunk(type, id);
+		if(dataChunks == null)
+		{
+			dataChunks = new HashSet<RIFFChunk>();
+		}
+		dataChunks.add(chunk);
+	}
+	
+	/**
+	 * Declares a FORM group chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	The chunk must not have already been declared as of a
+	 * different type.
+	 * <li>	Declarations may not be done during interpretation
+	 * of an RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	Group chunk declared
+	 *
+	 * @param	type
+	 * Type of the chunk. Must be formulated as a TypeID conforming
+	 * to the method #isFormType.
+	 * @param	id
+	 * ID of the chunk. Must be formulated as a ChunkID conforming
+	 * to the method #isContentsType.
+	 */
+	public void declareGroupChunk(int type, int id)
+	{
+		RIFFChunk chunk = new RIFFChunk(type, id);
+		if(groupChunks == null)
+		{
+			groupChunks = new HashSet<RIFFChunk>();
+		}
+		groupChunks.add(chunk);
+	}
+	
+	/**
+	 * Declares a property chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	The chunk must not have already been declared as of a
+	 * different type.
+	 * <li>	Declarations may not be done during interpretation
+	 * of an RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	Group chunk declared
+	 *
+	 *
+	 * @param	type
+	 * Type of the chunk. Must be formulated as a TypeID conforming
+	 * to the method #isFormType.
+	 * @param	id
+	 * ID of the chunk. Must be formulated as a ChunkID conforming
+	 * to the method #isLocalChunkID.
+	 */
+	public void declarePropertyChunk(int type, int id)
+	{
+		RIFFChunk chunk = new RIFFChunk(type, id);
+		if(propertyChunks == null)
+		{
+			propertyChunks = new HashSet<RIFFChunk>();
+		}
+		propertyChunks.add(chunk);
+	}
+	
+	/**
+	 * Declares a collection chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	The chunk must not have already been declared as of a
+	 * different type.
+	 * <li>	Declarations may not be done during interpretation
+	 * of an RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	Collection chunk declared
+	 *
+	 * @param	type
+	 * Type of the chunk. Must be formulated as a TypeID conforming
+	 * to the method #isFormType.
+	 * @param	id
+	 * ID of the chunk. Must be formulated as a ChunkID conforming
+	 * to the method #isLocalChunkID.
+	 */
+	public void declareCollectionChunk(int type, int id)
+	{
+		RIFFChunk chunk = new RIFFChunk(type, id);
+		if(collectionChunks == null)
+		{
+			collectionChunks = new HashSet<RIFFChunk>();
+		}
+		collectionChunks.add(chunk);
+	}
+	
+	/**
+	 * Declares a stop chunk.
+	 *
+	 * <p>Pre condition
+	 * <li>	The chunk must not have already been declared as of a
+	 * different type.
+	 * <li>	Declarations may not be done during interpretation
+	 * of an RIFFFileExpression.
+	 *
+	 * <p>Post condition
+	 * <li>	Stop chunk declared
+	 *
+	 * @param	type
+	 * Type of the chunk. Must be formulated as a TypeID conforming
+	 * to the method #isFormType.
+	 */
+	public void declareStopChunkType(int type)
+	{
+		if(stopChunkTypes == null)
+		{
+			stopChunkTypes = new HashSet<Integer>();
+		}
+		stopChunkTypes.add(type);
+	}
+	
+	/** Whether the parse should stop at all chunks.
+	 * <p>
+	 * The parser does not read the data body of stop chunks.
+	 *  <p>
+	 * By declaring stop chunks, and not declaring any data, group or
+	 * property chunks, the file structure of a RIFF file can be quickly
+	 * scanned through.
+	 */
+	public void declareStopChunks()
+	{
+		isStopChunks = true;
+	}
+	
+	private boolean isStopChunk(RIFFChunk chunk)
+	{
+		return isStopChunks || stopChunkTypes != null && stopChunkTypes.contains(chunk.getType());
+	}
+	
+	/* ---- Class methods ---- */
+	/**
+	 * Checks wether the argument represents a valid RIFF GroupID.
+	 *
+	 * <p>Validation
+	 * <ul>
+	 * <li>	Group ID must be one of RIFF_ID, LIST_ID.</li>
+	 * </ul>
+	 *
+	 * @param	id Chunk ID to be checked.
+	 * @return	True when the chunk ID is a valid Group ID.
+	 */
+	public static boolean isGroupID(int id)
+	{
+		return id == LIST_ID || id == RIFF_ID;
+	}
+	
+	/**
+	 * Checks wether the argument represents a valid RIFF Group Type.
+	 *
+	 * <p>Validation
+	 * <ul>
+	 * <li>	Must be a valid ID.</li>
+	 * <li>	Must not be a group ID.</li>
+	 * <li>	Must not be a NULL_ID.</li>
+	 * </ul>
+	 *
+	 * @param	id Chunk ID to be checked.
+	 * @return	True when the chunk ID is a valid Group ID.
+	 */
+	public static boolean isGroupType(int id)
+	{
+		return isID(id) && !isGroupID(id) && id != NULL_ID;
+	}
+	
+	/**
+	 * Checks if the argument represents a valid RIFF ID.
+	 *
+	 * <p>Validation
+	 * <li>	Every byte of an ID must be in the range of 0x20..0x7e
+	 * <li>	The id may not have leading spaces (unless the id is a NULL_ID).
+	 *
+	 * @param	id Chunk ID to be checked.
+	 * @return	True when the ID is a valid IFF chunk ID.
+	 */
+	public static boolean isID(int id)
+	{
+		int c0 = id >> 24;
+				int c1 = (id >> 16) & 0xff;
+				int c2 = (id >> 8) & 0xff;
+				int c3 = id & 0xff;
+				
+				return id == NULL_NUL_ID || c0 >= 0x20 && c0 <= 0x7e && c1 >= 0x20 && c1 <= 0x7e && c2 >= 0x20 && c2 <= 0x7e && c3 >= 0x20 && c3 <= 0x7e;
+	}
+	
+	/**
+	 * Returns whether the argument is a valid Local Chunk ID.
+	 *
+	 * <p>Validation
+	 * <ud>
+	 * <li>	Must be valid ID.</li>
+	 * <li>	Local Chunk IDs may not collide with GroupIDs.</id>
+	 * <li>	Must not be a NULL_ID.</li>
+	 * </ud>
+	 *
+	 * @param	id Chunk ID to be checked.
+	 * @return	True when the chunk ID is a Local Chunk ID.
+	 */
+	public static boolean isLocalChunkID(int id)
+	{
+		if(isGroupID(id))
+		{
+			return false;
+		}
+		return id != NULL_ID && isID(id);
+	}
+	
+	/**
+	 * Convert an integer IFF identifier to String.
+	 *
+	 * @param	anInt ID to be converted.
+	 * @return	String representation of the ID.
+	 */
+	public static String idToString(int anInt)
+	{
+		byte[] bytes = new byte[4];
+		
+		bytes[0] = (byte)(anInt >>> 24);
+		bytes[1] = (byte)(anInt >>> 16);
+		bytes[2] = (byte)(anInt >>> 8);
+		bytes[3] = (byte)(anInt >>> 0);
+		
+		try
+		{
+			return new String(bytes, "ASCII");
+		} catch(UnsupportedEncodingException e)
+		{
+			throw new InternalError(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Converts the first four letters of the
+	 * String into an IFF Identifier.
+	 *
+	 * @param	aString String to be converted.
+	 * @return	ID representation of the String.
+	 */
+	public static int stringToID(String aString)
+	{
+		byte[] bytes = aString.getBytes();
+		
+		return (bytes[0]) << 24 | (bytes[1]) << 16 | (bytes[2]) << 8 | (bytes[3]) << 0;
+	}
 }

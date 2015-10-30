@@ -1,4 +1,4 @@
-package betterquesting.client;
+package betterquesting.client.gui.json;
 
 import java.awt.Color;
 import java.text.NumberFormat;
@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import betterquesting.client.buttons.GuiButtonJson;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonJson;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.utils.JsonIO;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiJsonArray extends GuiQuesting
 {
 	int scrollPos = 0;

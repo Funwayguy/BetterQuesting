@@ -12,27 +12,27 @@ import com.google.gson.JsonPrimitive;
 public class QuestLine
 {
 	public String name = "New Quest Line";
+	public String description = "No description";
 	public ArrayList<QuestInstance> questList = new ArrayList<QuestInstance>();
 	public QuestNode questTree = new QuestNode(null);
 	
 	public void BuildTree()
 	{
 		questTree = new QuestNode(null);
-		
-		BuildSubTree(questTree, questList);
+		ArrayList<QuestInstance> tmpList = new ArrayList<QuestInstance>(questList);
+		BuildSubTree(questTree, tmpList);
 	}
 	
 	private void BuildSubTree(QuestNode parent, ArrayList<QuestInstance> pool)
 	{
 		ArrayList<QuestInstance> dependents = GetDependents(parent.value, pool);
-		ArrayList<QuestInstance> remaining = new ArrayList<QuestInstance>(pool);
-		remaining.removeAll(dependents);
 		
 		for(QuestInstance quest : dependents)
 		{
+			pool.remove(quest);
 			QuestNode node = new QuestNode(quest);
 			parent.AddChild(node);
-			BuildSubTree(node, remaining);
+			BuildSubTree(node, pool);
 		}
 		
 		parent.RefreshSize();
@@ -45,7 +45,7 @@ public class QuestLine
 		topLoop:
 		for(QuestInstance q : pool) // The quest line has only been permitted to show this set of quests
 		{
-			if(q == null)
+			if(q == null || dependents.contains(q))
 			{
 				continue;
 			}
@@ -75,7 +75,7 @@ public class QuestLine
 				dependents.add(q);
 			}
 		}
-		
+		pool.removeAll(dependents);
 		return dependents;
 	}
 	
@@ -126,7 +126,10 @@ public class QuestLine
 			
 			if(depth == d)
 			{
-				list.add(this);
+				if(!list.contains(this))
+				{
+					list.add(this);
+				}
 			} else if(depth < d)
 			{
 				for(QuestNode node : children)
@@ -159,6 +162,7 @@ public class QuestLine
 	public void writeToJSON(JsonObject json)
 	{
 		json.addProperty("name", name);
+		json.addProperty("description", description);
 		
 		JsonArray jArr = new JsonArray();
 		
@@ -173,6 +177,7 @@ public class QuestLine
 	public void readFromJSON(JsonObject json)
 	{
 		name = JsonHelper.GetString(json, "name", "New Quest Line");
+		description = JsonHelper.GetString(json, "description", "No description");
 		
 		questList.clear();
 		for(JsonElement entry : JsonHelper.GetArray(json, "quests"))
@@ -182,14 +187,14 @@ public class QuestLine
 				continue;
 			}
 			
-			QuestInstance quest = QuestDatabase.getQuest(entry.getAsInt());
+			QuestInstance quest = QuestDatabase.getQuestByID(entry.getAsInt());
 			
 			if(quest != null)
 			{
 				questList.add(quest);
 			} else
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid quest ID: " + entry.getAsInt());
+				BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid quest ID: " + entry.getAsString(), new IllegalArgumentException());
 			}
 		}
 		

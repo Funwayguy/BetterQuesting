@@ -7,11 +7,13 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import betterquesting.client.GuiQuesting;
+import betterquesting.client.gui.GuiQuesting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -46,6 +48,31 @@ public class RenderUtils
 		
         GL11.glPopMatrix();
 	}
+
+    public static void RenderEntity(int posX, int posY, int scale, float rotation, float pitch, Entity entity)
+    {
+        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+        GL11.glPushMatrix();
+        GL11.glTranslatef((float)posX, (float)posY, 100.0F);
+        GL11.glScalef((float)(-scale), (float)scale, (float)scale);
+        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+        GL11.glRotatef(15F, 1F, 0F, 0F);
+        GL11.glRotatef(rotation, 0F, 1F, 0F);
+        float f3 = entity.rotationYaw;
+        float f4 = entity.rotationPitch;
+        RenderHelper.enableStandardItemLighting();
+        GL11.glTranslatef(0.0F, entity.yOffset, 0.0F);
+        RenderManager.instance.playerViewY = 180.0F;
+        RenderManager.instance.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+        entity.rotationYaw = f3;
+        entity.rotationPitch = f4;
+        GL11.glPopMatrix();
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    }
 	
 	public static String[] WordWrap(FontRenderer fontRenderer, String text, int width)
 	{

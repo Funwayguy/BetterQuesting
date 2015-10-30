@@ -1,5 +1,5 @@
 /*
- * @(#)MJPGImageReader.java  
+ * @(#)MJPGImageReader.java
  * 
  * Copyright (c) 2010-2011 Werner Randelshofer, Goldau, Switzerland.
  * All rights reserved.
@@ -10,8 +10,6 @@
  */
 package org.monte.media.jpeg;
 
-import org.monte.media.avi.AVIBMPDIB;
-import com.sun.imageio.plugins.jpeg.JPEGImageReader;
 import java.awt.image.BufferedImage;
 import java.awt.image.DirectColorModel;
 import java.io.IOException;
@@ -25,6 +23,8 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
+import org.monte.media.avi.AVIBMPDIB;
+import com.sun.imageio.plugins.jpeg.JPEGImageReader;
 
 /**
  * Reads an image in the Motion JPEG (MJPG) format.
@@ -40,80 +40,95 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
  * @author Werner Randelshofer
  * @version $Id: MJPGImageReader.java 299 2013-01-03 07:40:18Z werner $
  */
-public class MJPGImageReader extends ImageReader {
-
-    private static DirectColorModel RGB = new DirectColorModel(24, 0xff0000, 0xff00, 0xff, 0x0);
-    /** When we read the header, we read the whole image. */
-    private BufferedImage image;
-
-    public MJPGImageReader(ImageReaderSpi originatingProvider) {
-        super(originatingProvider);
-    }
-
-    @Override
-    public int getNumImages(boolean allowSearch) throws IOException {
-        return 1;
-    }
-
-    @Override
-    public int getWidth(int imageIndex) throws IOException {
-        readHeader();
-        return image.getWidth();
-    }
-
-    @Override
-    public int getHeight(int imageIndex) throws IOException {
-        readHeader();
-        return image.getHeight();
-    }
-
-    @Override
-    public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex) throws IOException {
-        readHeader();
-        LinkedList<ImageTypeSpecifier> l = new LinkedList<ImageTypeSpecifier>();
-        l.add(new ImageTypeSpecifier(RGB, RGB.createCompatibleSampleModel(image.getWidth(), image.getHeight())));
-        return l.iterator();
-    }
-
-    @Override
-    public IIOMetadata getStreamMetadata() throws IOException {
-        return null;
-    }
-
-    @Override
-    public IIOMetadata getImageMetadata(int imageIndex) throws IOException {
-        return null;
-    }
-
-    @Override
-    public BufferedImage read(int imageIndex, ImageReadParam param) throws IOException {
-        if (imageIndex > 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        readHeader();
-
-        return image;
-    }
-
-    /** Reads the image header.
-     * Does nothing if the header has already been loaded.
-     */
-    private void readHeader() throws IOException {
-        if (image == null) {
-            ImageReader r = new JPEGImageReader(getOriginatingProvider());
-            Object in = getInput();
-            /*if (in instanceof Buffer) {
-                Buffer buffer = (Buffer) in;
-                in=buffer.getData();
-            }*/
-            if (in instanceof byte[]) {
-                r.setInput(new MemoryCacheImageInputStream(AVIBMPDIB.prependDHTSeg((byte[]) in)));
-            } else if (in instanceof ImageInputStream) {
-                r.setInput(AVIBMPDIB.prependDHTSeg((ImageInputStream) in));
-            } else {
-                r.setInput(AVIBMPDIB.prependDHTSeg((InputStream) in));
-            }
-            image = r.read(0);
-        }
-    }
+public class MJPGImageReader extends ImageReader
+{
+	
+	private static DirectColorModel RGB = new DirectColorModel(24, 0xff0000, 0xff00, 0xff, 0x0);
+	/** When we read the header, we read the whole image. */
+	private BufferedImage image;
+	
+	public MJPGImageReader(ImageReaderSpi originatingProvider)
+	{
+		super(originatingProvider);
+	}
+	
+	@Override
+	public int getNumImages(boolean allowSearch) throws IOException
+	{
+		return 1;
+	}
+	
+	@Override
+	public int getWidth(int imageIndex) throws IOException
+	{
+		readHeader();
+		return image.getWidth();
+	}
+	
+	@Override
+	public int getHeight(int imageIndex) throws IOException
+	{
+		readHeader();
+		return image.getHeight();
+	}
+	
+	@Override
+	public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex) throws IOException
+	{
+		readHeader();
+		LinkedList<ImageTypeSpecifier> l = new LinkedList<ImageTypeSpecifier>();
+		l.add(new ImageTypeSpecifier(RGB, RGB.createCompatibleSampleModel(image.getWidth(), image.getHeight())));
+		return l.iterator();
+	}
+	
+	@Override
+	public IIOMetadata getStreamMetadata() throws IOException
+	{
+		return null;
+	}
+	
+	@Override
+	public IIOMetadata getImageMetadata(int imageIndex) throws IOException
+	{
+		return null;
+	}
+	
+	@Override
+	public BufferedImage read(int imageIndex, ImageReadParam param) throws IOException
+	{
+		if(imageIndex > 0)
+		{
+			throw new IndexOutOfBoundsException();
+		}
+		readHeader();
+		
+		return image;
+	}
+	
+	/** Reads the image header.
+	 * Does nothing if the header has already been loaded.
+	 */
+	private void readHeader() throws IOException
+	{
+		if(image == null)
+		{
+			ImageReader r = new JPEGImageReader(getOriginatingProvider());
+			Object in = getInput();
+			/*if (in instanceof Buffer) {
+			    Buffer buffer = (Buffer) in;
+			    in=buffer.getData();
+			}*/
+			if(in instanceof byte[])
+			{
+				r.setInput(new MemoryCacheImageInputStream(AVIBMPDIB.prependDHTSeg((byte[])in)));
+			} else if(in instanceof ImageInputStream)
+			{
+				r.setInput(AVIBMPDIB.prependDHTSeg((ImageInputStream)in));
+			} else
+			{
+				r.setInput(AVIBMPDIB.prependDHTSeg((InputStream)in));
+			}
+			image = r.read(0);
+		}
+	}
 }

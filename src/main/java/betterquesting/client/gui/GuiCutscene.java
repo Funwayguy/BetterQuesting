@@ -1,4 +1,4 @@
-package betterquesting.client;
+package betterquesting.client.gui;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,8 +14,11 @@ import org.monte.media.FormatKeys;
 import org.monte.media.FormatKeys.MediaType;
 import org.monte.media.VideoFormatKeys;
 import org.monte.media.avi.AVIReader;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 // An experimental GUI for AVI cutscenes
+@SideOnly(Side.CLIENT)
 public class GuiCutscene extends GuiScreen
 {
 	AVIReader avi;

@@ -8,10 +8,12 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.MathHelper;
+import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.GuiQuesting;
+import betterquesting.client.gui.GuiQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
@@ -27,18 +29,20 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class TaskRetrieval extends TaskBase
 {
+	public int scroll = 0;
 	public ArrayList<ItemStack> requiredItems = new ArrayList<ItemStack>();
+	public ArrayList<FluidStack> requiredFluids = new ArrayList<FluidStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
 	boolean partialMatch = true;
 	boolean ignoreNBT = false;
-	boolean consume = true;
+	public boolean consume = true;
 	
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.quest.retrieval.name";
+		return "betterquesting.task.retrieval";
 	}
-
+	
 	@Override
 	public void Update(EntityPlayer player)
 	{
@@ -71,7 +75,6 @@ public class TaskRetrieval extends TaskBase
 			}
 			
 			userProgress.put(player.getUniqueID(), progress);
-			System.out.println("Adding progress for " + player.getCommandSenderName());
 		}
 		
 		topLoop:
@@ -137,9 +140,16 @@ public class TaskRetrieval extends TaskBase
 		JsonArray itemArray = new JsonArray();
 		for(ItemStack stack : this.requiredItems)
 		{
-			itemArray.add(NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), new JsonObject()));
+			itemArray.add(JsonHelper.ItemStackToJson(stack, new JsonObject()));
 		}
 		json.add("requiredItems", itemArray);
+		
+		JsonArray fluidArray = new JsonArray();
+		for(FluidStack stack : this.requiredFluids)
+		{
+			itemArray.add(NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), new JsonObject()));
+		}
+		json.add("requiredFluids", fluidArray);
 		
 		JsonArray progArray = new JsonArray();
 		for(Entry<UUID,int[]> entry : userProgress.entrySet())
@@ -174,21 +184,27 @@ public class TaskRetrieval extends TaskBase
 				continue;
 			}
 			
-			try
+			ItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
+			
+			if(item != null)
 			{
-				ItemStack item = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(entry.getAsJsonObject(), new NBTTagCompound()));
-				
-				if(item != null)
-				{
-					requiredItems.add(item);
-				} else
-				{
-					continue;
-				}
-			} catch(Exception e)
+				requiredItems.add(item);
+			} else
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load quest item data", e);
+				continue;
 			}
+		}
+		
+		requiredFluids.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "requiredFluids"))
+		{
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			FluidStack stack = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(entry.getAsJsonObject(), new NBTTagCompound()));
+			requiredFluids.add(stack);
 		}
 		
 		userProgress.clear();
@@ -223,7 +239,6 @@ public class TaskRetrieval extends TaskBase
 			}
 			
 			userProgress.put(uuid, data);
-				
 		}
 	}
 
@@ -231,28 +246,42 @@ public class TaskRetrieval extends TaskBase
 	@SideOnly(Side.CLIENT)
 	public void drawQuestInfo(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY)
 	{
+		int rowLMax = (sizeX - 40)/18;
+		int rowL = Math.min(requiredItems.size(), rowLMax);
+		
+		if(rowLMax < requiredItems.size())
+		{
+			scroll = MathHelper.clamp_int(scroll, 0, requiredItems.size() - rowLMax);
+			RenderUtils.DrawFakeButton(screen, posX, posY, 20, 20, "<", screen.isWithin(mx, my, posX, posY, 20, 20, false)? 2 : 1);
+			RenderUtils.DrawFakeButton(screen, posX + 20 + 18*rowL, posY, 20, 20, ">", screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false)? 2 : 1);
+		} else
+		{
+			scroll = 0;
+		}
+		
 		ItemStack ttStack = null;
 		
 		int[] progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
 		progress = progress == null? new int[requiredItems.size()] : progress;
 		
-		for(int i = 0; i < requiredItems.size(); i++)
+		for(int i = 0; i < rowL; i++)
 		{
-			ItemStack stack = requiredItems.get(i);
+			ItemStack stack = requiredItems.get(i + scroll);
 			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			screen.drawTexturedModalRect(posX + (i * 18), posY, 0, 48, 18, 18);
+			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY, 0, 48, 18, 18);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			int count = stack.stackSize - progress[i];
+			int count = stack.stackSize - progress[i + scroll];
 			
-			RenderUtils.RenderItemStack(screen.mc, stack, posX + (i * 18) + 1, posY + 1, stack != null && stack.stackSize > 1? "" + count : "", false);
+			RenderUtils.RenderItemStack(screen.mc, stack, posX + (i * 18) + 21, posY + 1, stack != null && stack.stackSize > 1? "" + count : "", false);
 			
 			if(count <= 0 || this.isComplete(screen.mc.thePlayer))
 			{
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 6, posY + 6, Color.BLACK.getRGB(), false);
-				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 5, posY + 5, Color.GREEN.getRGB(), false);
+				// Shadows don't work on these symbols for some reason so we manually draw a shadow
+				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 26, posY + 6, Color.BLACK.getRGB(), false);
+				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 25, posY + 5, Color.GREEN.getRGB(), false);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
 			}
 			
@@ -273,6 +302,27 @@ public class TaskRetrieval extends TaskBase
 		if(ttStack != null)
 		{
 			screen.DrawTooltip(ttStack.getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
+		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void MousePressed(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY, int click)
+	{
+		if(click != 0)
+		{
+			return;
+		}
+		
+		int rowLMax = (sizeX - 40)/18;
+		int rowL = Math.min(requiredItems.size(), rowLMax);
+		
+		if(screen.isWithin(mx, my, posX, posY, 20, 20, false))
+		{
+			scroll = MathHelper.clamp_int(scroll - 1, 0, requiredItems.size() - rowLMax);
+		} else if(screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false))
+		{
+			scroll = MathHelper.clamp_int(scroll + 1, 0, requiredItems.size() - rowLMax);
 		}
 	}
 }

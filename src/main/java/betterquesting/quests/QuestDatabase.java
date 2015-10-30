@@ -46,14 +46,36 @@ public class QuestDatabase
 		}
 	}
 	
-	public static QuestInstance getQuest(int id)
+	public static QuestInstance GetOrRegisterQuest(int id)
+	{
+		QuestInstance quest = getQuestByID(id);
+		
+		if(quest == null)
+		{
+			quest = new QuestInstance(id, true);
+		}
+		
+		return quest;
+	}
+	
+	public static QuestInstance getQuestByID(int id)
 	{
 		return questDB.get(id);
+	}
+	
+	public static QuestInstance getQuestByOrder(int index)
+	{
+		if(index < 0 || index >= questDB.size())
+		{
+			return null;
+		}
+		
+		return questDB.values().toArray(new QuestInstance[0])[index];
 	}
 
 	public static void DeleteQuest(int id)
 	{
-		QuestInstance quest = getQuest(id);
+		QuestInstance quest = getQuestByID(id);
 		questDB.remove(id);
 		
 		// Remove quest from quest lines and rebuild their trees
@@ -61,6 +83,11 @@ public class QuestDatabase
 		{
 			line.questList.remove(quest);
 			line.BuildTree();
+		}
+		
+		for(QuestInstance qi : questDB.values())
+		{
+			qi.preRequisites.remove(quest);
 		}
 	}
 	
@@ -147,8 +174,14 @@ public class QuestDatabase
 	
 	public static void readFromJson_Quests(JsonObject json)
 	{
+		if(json == null)
+		{
+			json = new JsonObject();
+		}
+		
 		updateUI = true;
 		questDB.clear();
+		
 		for(JsonElement entry : JsonHelper.GetArray(json, "questDatabase"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -156,13 +189,15 @@ public class QuestDatabase
 				continue;
 			}
 			
-			QuestInstance quest = new QuestInstance(-1, false);
-			quest.readFromJSON(entry.getAsJsonObject());
+			int qID = JsonHelper.GetNumber(entry.getAsJsonObject(), "questID", -1).intValue();
 			
-			if(quest.questID >= 0)
+			if(qID < 0)
 			{
-				questDB.put(quest.questID, quest);
+				continue;
 			}
+			
+			QuestInstance quest = GetOrRegisterQuest(qID);
+			quest.readFromJSON(entry.getAsJsonObject());
 		}
 	}
 }

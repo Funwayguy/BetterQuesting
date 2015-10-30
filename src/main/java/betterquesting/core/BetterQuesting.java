@@ -1,9 +1,11 @@
 package betterquesting.core;
 
+import net.minecraft.item.Item;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
+import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.rewards.*;
 import betterquesting.quests.tasks.*;
@@ -16,6 +18,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
@@ -34,6 +37,8 @@ public class BetterQuesting
 	public static CommonProxy proxy;
 	public SimpleNetworkWrapper network;
 	public static Logger logger;
+	
+	public static Item placeholder = new ItemPlaceholder();
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -53,7 +58,14 @@ public class BetterQuesting
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-    	TaskRegistry.RegisterQuest(TaskRetrieval.class, "retrieval");
+    	GameRegistry.registerItem(placeholder, "placeholder");
+    	
+    	TaskRegistry.RegisterTask(TaskRetrieval.class, "retrieval");
+    	TaskRegistry.RegisterTask(TaskHunt.class, "hunt");
+    	TaskRegistry.RegisterTask(TaskLocation.class, "location");
+    	TaskRegistry.RegisterTask(TaskCrafting.class, "crafting");
+    	TaskRegistry.RegisterTask(TaskScoreboard.class, "scoreboard");
+    	
     	RewardRegistry.RegisterReward(RewardItem.class, "item");
     	RewardRegistry.RegisterReward(RewardChoice.class, "choice");
     }

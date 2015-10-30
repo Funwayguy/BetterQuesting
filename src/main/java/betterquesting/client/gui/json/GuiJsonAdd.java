@@ -1,14 +1,17 @@
-package betterquesting.client;
+package betterquesting.client.gui.json;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import betterquesting.client.buttons.GuiButtonQuesting;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.utils.JsonIO;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -16,6 +19,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+@SideOnly(Side.CLIENT)
 public class GuiJsonAdd extends GuiQuesting
 {
 	GuiTextField keyText;

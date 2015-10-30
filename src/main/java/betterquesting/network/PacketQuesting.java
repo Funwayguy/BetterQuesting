@@ -59,6 +59,12 @@ public class PacketQuesting implements IMessage
 		@Override
 		public IMessage onMessage(PacketQuesting message, MessageContext ctx)
 		{
+			if(message == null || message.tags == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack server side");
+				return null;
+			}
+			
 			int ID = !message.tags.hasKey("ID")? -1 : message.tags.getInteger("ID");
 			
 			if(ID < 0)
@@ -92,7 +98,7 @@ public class PacketQuesting implements IMessage
 				return packet;
 			} else if(ID == 1) // Singular quest synchronization request (not normally required)
 			{
-				QuestInstance quest = QuestDatabase.getQuest(message.tags.getInteger("questID"));
+				QuestInstance quest = QuestDatabase.getQuestByID(message.tags.getInteger("questID"));
 				
 				if(quest != null)
 				{
@@ -113,7 +119,7 @@ public class PacketQuesting implements IMessage
 				packet.tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 			} else if(ID == 3 && player != null) // Manual quest detect
 			{
-				QuestInstance quest = QuestDatabase.getQuest(message.tags.getInteger("questID"));
+				QuestInstance quest = QuestDatabase.getQuestByID(message.tags.getInteger("questID"));
 				
 				if(quest != null)
 				{
@@ -121,7 +127,7 @@ public class PacketQuesting implements IMessage
 				}
 			} else if(ID == 4 && player != null) // Reward claim attempt
 			{
-				QuestInstance quest = QuestDatabase.getQuest(message.tags.getInteger("questID"));
+				QuestInstance quest = QuestDatabase.getQuestByID(message.tags.getInteger("questID"));
 				NBTTagList choiceData = message.tags.getTagList("ChoiceData", 10);
 				
 				if(quest != null && quest.CanClaim(player, choiceData))
@@ -139,7 +145,7 @@ public class PacketQuesting implements IMessage
 				
 				int action = !message.tags.hasKey("action")? -1 : message.tags.getInteger("action");
 				int qID = !message.tags.hasKey("questID")? -1 : message.tags.getInteger("questID");
-				QuestInstance quest = QuestDatabase.getQuest(qID);
+				QuestInstance quest = QuestDatabase.getQuestByID(qID);
 				
 				if(action < 0)
 				{
@@ -202,6 +208,12 @@ public class PacketQuesting implements IMessage
 		@Override
 		public IMessage onMessage(PacketQuesting message, MessageContext ctx)
 		{
+			if(message == null || message.tags == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack client side");
+				return null;
+			}
+			
 			int ID = !message.tags.hasKey("ID")? -1 : message.tags.getInteger("ID");
 			
 			if(ID < 0)
@@ -218,7 +230,7 @@ public class PacketQuesting implements IMessage
 			} else if(ID == 1) // Singular quest synchronization
 			{
 				int questID = message.tags.getInteger("questID");
-				QuestInstance quest = QuestDatabase.getQuest(questID);
+				QuestInstance quest = QuestDatabase.getQuestByID(questID);
 				quest = quest != null? quest : new QuestInstance(questID, false); // Server says this exists so create it
 				
 				JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Data"), new JsonObject());

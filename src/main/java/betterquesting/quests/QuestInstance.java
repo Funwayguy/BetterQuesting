@@ -3,6 +3,8 @@ package betterquesting.quests;
 import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.apache.logging.log4j.Level;
@@ -26,7 +28,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class QuestInstance
 {
 	public int questID;
-	public ArrayList<TaskBase> questTypes = new ArrayList<TaskBase>();
+	public ItemStack itemIcon = new ItemStack(Items.nether_star);
+	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
 	
 	public String name = "New Quest";
@@ -62,7 +65,7 @@ public class QuestInstance
 		{
 			boolean done = true;
 			
-			for(TaskBase quest : questTypes)
+			for(TaskBase quest : tasks)
 			{
 				quest.Update(player);
 				
@@ -96,7 +99,7 @@ public class QuestInstance
 		{
 			boolean done = true;
 			
-			for(TaskBase quest : questTypes)
+			for(TaskBase quest : tasks)
 			{
 				quest.Detect(player);
 				
@@ -115,11 +118,28 @@ public class QuestInstance
 		}
 	}
 	
+	public boolean HasClaimed(EntityPlayer player)
+	{
+		if(rewards.size() <= 0)
+		{
+			return true;
+		}
+		
+		UserEntry entry = GetUserEntry(player.getUniqueID());
+		
+		if(entry == null)
+		{
+			return false;
+		}
+		
+		return entry.claimed;
+	}
+	
 	public boolean CanClaim(EntityPlayer player, NBTTagList choiceData)
 	{
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		
-		if(entry == null || entry.claimed)
+		if(entry == null || entry.claimed || rewards.size() <= 0)
 		{
 			return false;
 		} else
@@ -150,6 +170,7 @@ public class QuestInstance
 			rew.Claim(player, cTag);
 		}
 		
+		BetterQuesting.logger.log(Level.INFO, "Claiming reward for " + player.getUniqueID().toString());
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		entry.claimed = true;
 		entry.timestamp = player.worldObj.getTotalWorldTime();
@@ -316,17 +337,16 @@ public class QuestInstance
 		this.preRequisites.remove(quest);
 	}
 	
-	public ArrayList<TaskBase> getQuests()
-	{
-		return questTypes;
-	}
-	
 	public void writeToJSON(JsonObject jObj)
 	{
 		jObj.addProperty("questID", this.questID);
 		
+		jObj.addProperty("name", this.name);
+		jObj.addProperty("description", this.description);
+		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
+		
 		JsonArray tskJson = new JsonArray();
-		for(TaskBase quest : questTypes)
+		for(TaskBase quest : tasks)
 		{
 			String taskID = TaskRegistry.GetID(quest.getClass());
 			
@@ -353,9 +373,6 @@ public class QuestInstance
 		}
 		jObj.add("rewards", rwdJson);
 		
-		jObj.addProperty("name", this.name);
-		jObj.addProperty("description", this.description);
-		
 		JsonArray comJson = new JsonArray();
 		for(UserEntry entry : completeUsers)
 		{
@@ -368,7 +385,7 @@ public class QuestInstance
 		{
 			if(quest == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Quest had null prequisite!", new IllegalArgumentException());
+				BetterQuesting.logger.log(Level.ERROR, "Quest " + name + " had null prequisite!", new IllegalArgumentException());
 				continue;
 			}
 			reqJson.add(new JsonPrimitive(quest.questID));
@@ -380,7 +397,12 @@ public class QuestInstance
 	{
 		this.questID = JsonHelper.GetNumber(jObj, "questID", -1).intValue();
 		
-		this.questTypes.clear();
+		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
+		this.description = JsonHelper.GetString(jObj, "description", "No Description");
+		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
+		this.itemIcon = this.itemIcon != null? this.itemIcon : new ItemStack(Items.nether_star);
+		
+		this.tasks.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -389,12 +411,12 @@ public class QuestInstance
 			}
 			
 			JsonObject jsonQuest = entry.getAsJsonObject();
-			TaskBase quest = TaskRegistry.InstatiateQuest(JsonHelper.GetString(jsonQuest, "taskID", ""));
+			TaskBase quest = TaskRegistry.InstatiateTask(JsonHelper.GetString(jsonQuest, "taskID", ""));
 			
 			if(quest != null)
 			{
 				quest.readFromJson(jsonQuest);
-				this.questTypes.add(quest);
+				this.tasks.add(quest);
 			}
 		}
 		
@@ -415,9 +437,6 @@ public class QuestInstance
 				this.rewards.add(reward);
 			}
 		}
-		
-		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
-		this.description = JsonHelper.GetString(jObj, "description", "No Description");
 		
 		completeUsers.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "completed"))
@@ -442,7 +461,12 @@ public class QuestInstance
 		preRequisites.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
 		{
-			preRequisites.add(QuestDatabase.getQuest(entry.getAsInt()));
+			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())
+			{
+				continue;
+			}
+			
+			preRequisites.add(QuestDatabase.GetOrRegisterQuest(entry.getAsInt()));
 		}
 	}
 	

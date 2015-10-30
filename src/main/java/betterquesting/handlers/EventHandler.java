@@ -1,25 +1,20 @@
 package betterquesting.handlers;
 
 import java.io.File;
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import betterquesting.client.GuiQuestLines;
+import org.apache.logging.log4j.Level;
+import betterquesting.client.gui.GuiQuestLines;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.rewards.RewardItem;
-import betterquesting.quests.tasks.TaskRetrieval;
 import betterquesting.utils.JsonIO;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
@@ -36,9 +31,20 @@ public class EventHandler
 	public void onKey(InputEvent.KeyInputEvent event) // Currently for debugging purposes only. Replace with proper handler later
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		if(mc.gameSettings.keyBindJump.getIsKeyPressed() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() == Items.apple)
+		if(mc.gameSettings.keyBindJump.getIsKeyPressed() && mc.thePlayer.getHeldItem() != null)
 		{
-			mc.displayGuiScreen(new GuiQuestLines(mc.currentScreen));
+			ItemStack held = mc.thePlayer.getHeldItem();
+			
+			if(held != null)
+			{
+				if(mc.thePlayer.isSneaking() && held.hasTagCompound())
+				{
+					BetterQuesting.logger.log(Level.INFO, held.getTagCompound().toString());
+				} else if(held.getItem() == Items.apple)
+				{
+					mc.displayGuiScreen(new GuiQuestLines(mc.currentScreen));
+				}
+			}
 		}
 	}
 	
@@ -104,73 +110,28 @@ public class EventHandler
 			{
 				BQ_Settings.curWorldDir = server.getFile(server.getFolderName());
 			}
-			
-
-	    	boolean b = true; // Use JSON files? [ --- DEBUG STUFF --- ]
 	    	
-	    	if(b)
-	    	{
-			    QuestDatabase.readFromJson(JsonIO.ReadFromFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json")));
-			    PartyManager.readFromJson(JsonIO.ReadFromFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json")));
-			    
-			    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines");
-	    	} else
-	    	{
-		    	QuestInstance q1 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	QuestInstance q2 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	QuestInstance q3 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	QuestInstance q4 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	QuestInstance q5 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	QuestInstance q6 = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		    	q1.name = "In The Beginning...";
-		    	q2.name = "Quest 2";
-		    	q3.name = "Quest 3";
-		    	q4.name = "Quest 4";
-		    	q5.name = "Quest 5";
-		    	q6.name = "A Well Baked Lie";
-		    	q4.AddPreRequisite(q3);
-		    	q3.AddPreRequisite(q2);
-		    	q5.AddPreRequisite(q2);
-		    	q6.AddPreRequisite(q1);
-		    	QuestLine line = new QuestLine();
-		    	line.questList.add(q1);
-		    	line.questList.add(q2);
-		    	line.questList.add(q3);
-		    	line.questList.add(q4);
-		    	line.questList.add(q5);
-		    	line.questList.add(q6);
-		    	line.BuildTree();
-		    	QuestDatabase.questLines.add(line);
-		    	
-		    	TaskRetrieval qb = new TaskRetrieval();
-		    	qb.requiredItems.add(new ItemStack(Items.egg, 1));
-		    	q1.questTypes.add(qb);
-		    	qb = new TaskRetrieval();
-		    	qb.requiredItems.add(new ItemStack(Items.milk_bucket, 3));
-		    	q1.questTypes.add(qb);
-		    	qb = new TaskRetrieval();
-		    	qb.requiredItems.add(new ItemStack(Items.wheat, 3));
-		    	q1.questTypes.add(qb);
-		    	qb = new TaskRetrieval();
-		    	qb.requiredItems.add(new ItemStack(Items.sugar, 2));
-		    	q1.questTypes.add(qb);
-		    	
-		    	qb = new TaskRetrieval();
-		    	qb.requiredItems.add(new ItemStack(Items.cake, 1));
-		    	qb.requiredItems.add(new ItemStack(Blocks.torch));
-		    	qb.requiredItems.add(new ItemStack(Items.potionitem));
-		    	q6.questTypes.add(qb);
-		    	
-		    	RewardItem rb = new RewardItem();
-		    	rb.rewards.add(new ItemStack(Items.diamond, 4));
-		    	rb.rewards.add(new ItemStack(Items.emerald, 1));
-		    	q6.rewards.add(rb);
-		    	
-				q1.description = "Gather these ingredients. Why? FOR SCIENCE!";
-				
-				q6.description = "Mix all your ingredients together on a crafting table "
-						+ "and watch the MAGIC happen";
-	    	}
+	    	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
+    		JsonObject j1 = new JsonObject();
+    		
+    		if(f1.exists())
+    		{
+    			j1 = JsonIO.ReadFromFile(f1);
+    		}
+    		
+    		QuestDatabase.readFromJson(j1);
+    		
+		    File f2 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
+		    JsonObject j2 = new JsonObject();
+		    
+		    if(f2.exists())
+		    {
+		    	j2 = JsonIO.ReadFromFile(f2);
+		    }
+		    
+		    PartyManager.readFromJson(j2);
+		    
+		    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines");
 		}
 	}
 	

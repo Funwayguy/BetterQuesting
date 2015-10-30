@@ -1,6 +1,9 @@
-package betterquesting.client.buttons;
+package betterquesting.client.gui.misc;
 
 import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.client.gui.GuiQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -9,6 +12,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 
+@SideOnly(Side.CLIENT)
 public class GuiButtonQuesting extends GuiButton
 {
 	public GuiButtonQuesting(int id, int x, int y, String text)
@@ -29,7 +33,7 @@ public class GuiButtonQuesting extends GuiButton
         if (this.visible)
         {
             FontRenderer fontrenderer = p_146112_1_.fontRenderer;
-            p_146112_1_.getTextureManager().bindTexture(new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
+            p_146112_1_.getTextureManager().bindTexture(GuiQuesting.guiTexture);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.field_146123_n = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
             int k = this.getHoverState(this.field_146123_n);
@@ -53,8 +57,16 @@ public class GuiButtonQuesting extends GuiButton
             {
                 l = 16777120;
             }
-
-            this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
+            
+            String txt = this.displayString;
+            
+            if(fontrenderer.getStringWidth(txt) > width) // Auto crop text to keep things tidy
+            {
+            	int dotWidth = fontrenderer.getStringWidth("...");
+            	txt = fontrenderer.trimStringToWidth(txt, width - dotWidth) + "...";
+            }
+            
+            this.drawCenteredString(fontrenderer, txt, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
         }
     }
 	

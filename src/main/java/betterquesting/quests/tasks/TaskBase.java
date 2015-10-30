@@ -3,15 +3,19 @@ package betterquesting.quests.tasks;
 import java.util.ArrayList;
 import java.util.UUID;
 import org.apache.logging.log4j.Level;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StatCollector;
-import betterquesting.client.GuiQuesting;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.json.GuiJsonObject;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class TaskBase
 {
@@ -107,5 +111,20 @@ public abstract class TaskBase
 	 * @param sizeX
 	 * @param sizeY
 	 */
+	@SideOnly(Side.CLIENT)
 	public abstract void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY);
+	
+	@SideOnly(Side.CLIENT)
+	public void MousePressed(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY, int click)
+	{
+	}
+	
+	/**
+	 * Returns a new editor screen for this Reward type to edit the given data
+	 */
+	@SideOnly(Side.CLIENT)
+	public GuiScreen GetEditor(GuiScreen parent, JsonObject data)
+	{
+		return new GuiJsonObject(parent, data);
+	}
 }

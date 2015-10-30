@@ -1,6 +1,6 @@
 package betterquesting.handlers;
 
-import betterquesting.client.GuiBQConfig;
+import betterquesting.client.gui.GuiBQConfig;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

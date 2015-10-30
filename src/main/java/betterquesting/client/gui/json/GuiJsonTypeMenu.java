@@ -1,4 +1,4 @@
-package betterquesting.client;
+package betterquesting.client.gui.json;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -9,10 +9,15 @@ import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.client.buttons.GuiButtonJson;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonJson;
+import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class GuiJsonTypeMenu extends GuiQuesting
 {
 	JsonObject json;
@@ -34,11 +39,9 @@ public class GuiJsonTypeMenu extends GuiQuesting
 		
 		if(json != null)
 		{
-			stack = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-			
 			if(json.has("id") && json.has("Damage") && json.has("Count")) // Must have at least these 3 to be considered a valid 'item'
 			{
-				stack = ItemStack.loadItemStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+				stack = JsonHelper.JsonToItemStack(json);
 			}
 			
 			if(json.has("id") && EntityList.stringToClassMapping.get(json.get("id").getAsString()) != null)
@@ -64,7 +67,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 		if(lastType == EditType.ITEM)
 		{
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.ItemStackToJson(stack, json);
 		} else if(lastType == EditType.ENTITY)
 		{
 			try
@@ -99,7 +102,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 		{
 			this.lastType = EditType.ITEM;
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.ItemStackToJson(stack, json);
 			
 			this.mc.displayGuiScreen(new GuiJsonItemSelection(this, json));
 		} else if(button.id == 2)
