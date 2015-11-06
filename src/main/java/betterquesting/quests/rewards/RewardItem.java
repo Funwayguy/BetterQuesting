@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.core.BetterQuesting;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
@@ -20,7 +21,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class RewardItem extends RewardBase
 {
 	public int scroll = 0;
-	public ArrayList<ItemStack> rewards = new ArrayList<ItemStack>();
+	public ArrayList<BigItemStack> rewards = new ArrayList<BigItemStack>();
 	
 	@Override
 	public String getUnlocalisedName()
@@ -37,13 +38,16 @@ public class RewardItem extends RewardBase
 	@Override
 	public void Claim(EntityPlayer player, NBTTagCompound choiceData)
 	{
-		for(ItemStack r : rewards)
+		for(BigItemStack r : rewards)
 		{
-			ItemStack stack = r.copy();
+			BigItemStack stack = r.copy();
 			
-			if(!player.inventory.addItemStackToInventory(stack))
+			for(ItemStack s : stack.getCombinedStacks())
 			{
-				player.dropPlayerItemWithRandomChoice(stack, false);
+				if(!player.inventory.addItemStackToInventory(s))
+				{
+					player.dropPlayerItemWithRandomChoice(s, false);
+				}
 			}
 		}
 	}
@@ -61,7 +65,7 @@ public class RewardItem extends RewardBase
 			
 			try
 			{
-				ItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
+				BigItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
 				
 				if(item != null)
 				{
@@ -81,7 +85,7 @@ public class RewardItem extends RewardBase
 	public void writeToJson(JsonObject json)
 	{
 		JsonArray rJson = new JsonArray();
-		for(ItemStack stack : rewards)
+		for(BigItemStack stack : rewards)
 		{
 			rJson.add(JsonHelper.ItemStackToJson(stack, new JsonObject()));
 		}
@@ -105,16 +109,16 @@ public class RewardItem extends RewardBase
 			scroll = 0;
 		}
 		
-		ItemStack ttStack = null; // Reset
+		BigItemStack ttStack = null; // Reset
 		
 		for(int i = 0; i < rowL; i++)
 		{
-			ItemStack stack = rewards.get(i + scroll);
+			BigItemStack stack = rewards.get(i + scroll);
 			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY + 1, 0, 48, 18, 18);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			RenderUtils.RenderItemStack(screen.mc, stack, posX + (i * 18) + 21, posY + 2, stack != null && stack.stackSize > 1? "" + stack.stackSize : "", false);
+			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 21, posY + 2, stack != null && stack.stackSize > 1? "" + stack.stackSize : "");
 			
 			if(screen.isWithin(mx, my, posX + (i * 18) + 20, posY + 1, 16, 16, false))
 			{
@@ -124,7 +128,7 @@ public class RewardItem extends RewardBase
 		
 		if(ttStack != null)
 		{
-			screen.DrawTooltip(ttStack.getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
+			screen.DrawTooltip(ttStack.getBaseStack().getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
 		}
 	}
 	

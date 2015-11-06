@@ -1,4 +1,4 @@
-package betterquesting.client.gui;
+package betterquesting.client.gui.editors;
 
 import java.awt.Color;
 import java.util.List;
@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.importer.hqm.HQMImporter;

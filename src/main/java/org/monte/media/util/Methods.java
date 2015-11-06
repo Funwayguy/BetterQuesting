@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
  * @version $Id: Methods.java 299 2013-01-03 07:40:18Z werner $
  */
 
-@SuppressWarnings("unchecked")
 public class Methods
 {
 	/**
@@ -92,7 +91,7 @@ public class Methods
 	 * @return The return value of the method or METHOD_NOT_FOUND.
 	 * @return NoSuchMethodException if the method does not exist or is not accessible.
 	 */
-	public static Object invokeStatic(Class clazz, String methodName) throws NoSuchMethodException
+	public static Object invokeStatic(Class<?> clazz, String methodName) throws NoSuchMethodException
 	{
 		try
 		{
@@ -138,7 +137,7 @@ public class Methods
 	 * @return The return value of the method.
 	 * @return NoSuchMethodException if the method does not exist or is not accessible.
 	 */
-	public static Object invokeStatic(Class clazz, String methodName, Class type, Object value) throws NoSuchMethodException
+	public static Object invokeStatic(Class<?> clazz, String methodName, Class<?> type, Object value) throws NoSuchMethodException
 	{
 		return invokeStatic(clazz, methodName, new Class[]{type}, new Object[]{value});
 	}
@@ -153,7 +152,7 @@ public class Methods
 	 * @return The return value of the method.
 	 * @return NoSuchMethodException if the method does not exist or is not accessible.
 	 */
-	public static Object invokeStatic(Class clazz, String methodName, Class[] types, Object[] values) throws NoSuchMethodException
+	public static Object invokeStatic(Class<?> clazz, String methodName, Class<?>[] types, Object[] values) throws NoSuchMethodException
 	{
 		try
 		{
@@ -180,7 +179,7 @@ public class Methods
 	 * @return The return value of the method.
 	 * @return NoSuchMethodException if the method does not exist or is not accessible.
 	 */
-	public static Object invokeStatic(String clazz, String methodName, Class[] types, Object[] values) throws NoSuchMethodException
+	public static Object invokeStatic(String clazz, String methodName, Class<?>[] types, Object[] values) throws NoSuchMethodException
 	{
 		try
 		{
@@ -202,7 +201,7 @@ public class Methods
 	 * @return The return value of the method or the default value if the method
 	 * does not exist or is not accessible.
 	 */
-	public static Object invokeStatic(String clazz, String methodName, Class[] types, Object[] values, Object defaultValue)
+	public static Object invokeStatic(String clazz, String methodName, Class<?>[] types, Object[] values, Object defaultValue)
 	{
 		try
 		{
@@ -332,7 +331,7 @@ public class Methods
 	 * @param defaultValue This value is returned, if the method does not exist.
 	 * @return The value returned by the getter method or the default value.
 	 */
-	public static boolean invokeStaticGetter(Class clazz, String methodName, boolean defaultValue)
+	public static boolean invokeStaticGetter(Class<?> clazz, String methodName, boolean defaultValue)
 	{
 		try
 		{
@@ -423,7 +422,7 @@ public class Methods
 	 * @param obj The object on which to invoke the method.
 	 * @param methodName The name of the method.
 	 */
-	public static Object invoke(Object obj, String methodName, Class clazz, Object newValue) throws NoSuchMethodException
+	public static Object invoke(Object obj, String methodName, Class<?> clazz, Object newValue) throws NoSuchMethodException
 	{
 		try
 		{
@@ -445,7 +444,7 @@ public class Methods
 	 * @param obj The object on which to invoke the method.
 	 * @param methodName The name of the method.
 	 */
-	public static Object invoke(Object obj, String methodName, Class[] clazz, Object... newValue) throws NoSuchMethodException
+	public static Object invoke(Object obj, String methodName, Class<?>[] clazz, Object... newValue) throws NoSuchMethodException
 	{
 		try
 		{
@@ -520,7 +519,7 @@ public class Methods
 	 * @param obj The object on which to invoke the method.
 	 * @param methodName The name of the method.
 	 */
-	public static void invokeIfExists(Object obj, String methodName, Class clazz, Object newValue)
+	public static void invokeIfExists(Object obj, String methodName, Class<?> clazz, Object newValue)
 	{
 		try
 		{
@@ -541,7 +540,7 @@ public class Methods
 	{
 		try
 		{
-			Class enumClass = Class.forName(enumClassName);
+			Class<?> enumClass = Class.forName(enumClassName);
 			Object enumValue = invokeStatic("java.lang.Enum", "valueOf", new Class[]{Class.class, String.class}, new Object[]{enumClass, enumValueName});
 			invoke(obj, methodName, enumClass, enumValue);
 		} catch(ClassNotFoundException e)

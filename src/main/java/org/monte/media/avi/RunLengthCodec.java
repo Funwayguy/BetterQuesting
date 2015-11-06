@@ -198,6 +198,7 @@ public class RunLengthCodec extends AbstractVideoCodec
 			byte[] pixels = getIndexed8(in);
 			if(pixels == null)
 			{
+				tmp.close();
 				return CODEC_FAILED;
 			}
 			if(isKeyframe)
@@ -220,6 +221,7 @@ public class RunLengthCodec extends AbstractVideoCodec
 			{
 				System.arraycopy(pixels, 0, previousPixels, 0, pixels.length);
 			}
+			tmp.close();
 			return CODEC_OK;
 		} catch(IOException ex)
 		{

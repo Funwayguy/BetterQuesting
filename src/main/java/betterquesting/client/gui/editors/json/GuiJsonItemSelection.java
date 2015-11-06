@@ -1,4 +1,4 @@
-package betterquesting.client.gui.json;
+package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
@@ -30,7 +31,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiJsonItemSelection extends GuiQuesting
 {
-	ItemStack stackSelect;
+	BigItemStack stackSelect;
 	JsonObject json;
 	GuiTextField searchBox;
 	ArrayList<ItemStack> searchResults = new ArrayList<ItemStack>();
@@ -76,7 +77,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		if(stackSelect == null)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "The JSON editor was unable to parse item NBTs! Reverting to stone...");
-			stackSelect = new ItemStack(Blocks.stone);
+			stackSelect = new BigItemStack(Blocks.stone);
 			json.entrySet().clear();
 			JsonHelper.ItemStackToJson(stackSelect, json);
 		} else // Ensure all necessary NBTs are present
@@ -96,19 +97,19 @@ public class GuiJsonItemSelection extends GuiQuesting
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		ItemStack ttStack = null;
+		BigItemStack ttStack = null;
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 
 		this.mc.renderEngine.bindTexture(guiTexture);
 		this.drawTexturedModalRect(this.guiLeft + 16 , this.guiTop + 48, 0, 48, 18, 18);
-		RenderUtils.RenderItemStack(this.mc, this.stackSelect, this.guiLeft + 17, this.guiTop + 49, "", false);
+		RenderUtils.RenderItemStack(this.mc, this.stackSelect.getBaseStack(), this.guiLeft + 17, this.guiTop + 49, "");
 		
 		this.fontRendererObj.drawString("Selection", this.guiLeft + 16, this.guiTop + 32, Color.BLACK.getRGB(), false);
 		
 		if(this.stackSelect != null)
 		{
-			this.fontRendererObj.drawString(this.stackSelect.getDisplayName() + " x " + this.stackSelect.stackSize, this.guiLeft + 36, this.guiTop + 52, Color.BLACK.getRGB(), false);
+			this.fontRendererObj.drawString(this.stackSelect.getBaseStack().getDisplayName() + " x " + this.stackSelect.stackSize, this.guiLeft + 36, this.guiTop + 52, Color.BLACK.getRGB(), false);
 			
 			if(this.isWithin(mx, my, 16, 48, 16, 16))
 			{
@@ -138,11 +139,11 @@ public class GuiJsonItemSelection extends GuiQuesting
 				
 				if(stack != null)
 				{
-					RenderUtils.RenderItemStack(this.mc, stack, this.guiLeft + 17 + x, this.guiTop + 97 + y, "" + (stack.stackSize > 1? stack.stackSize : ""), false);
+					RenderUtils.RenderItemStack(this.mc, stack, this.guiLeft + 17 + x, this.guiTop + 97 + y, "" + (stack.stackSize > 1? stack.stackSize : ""));
 					
 					if(this.isWithin(mx, my, 17 + x, 97 + y, 16, 16))
 					{
-						ttStack = stack;
+						ttStack = new BigItemStack(stack);
 					}
 				}
 			}
@@ -180,11 +181,11 @@ public class GuiJsonItemSelection extends GuiQuesting
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(this.guiLeft + this.sizeX/2 + x , this.guiTop + 48 + y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				RenderUtils.RenderItemStack(this.mc, resultStack, this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, "", false);
+				RenderUtils.RenderItemStack(this.mc, resultStack, this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, "");
 				
 				if(this.isWithin(mx, my, this.sizeX/2 + x + 1, 49 + y, 16, 16))
 				{
-					ttStack = resultStack;
+					ttStack = new BigItemStack(resultStack);
 				}
 			}
 		}
@@ -192,7 +193,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		if(ttStack != null)
 		{
 			GL11.glPushMatrix();
-			this.drawHoveringText(ttStack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
+			this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
 			GL11.glColor4f(1f, 1f, 1f, 1f);
 		    GL11.glDisable(GL11.GL_LIGHTING);
 			GL11.glPopMatrix();
@@ -234,7 +235,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				
 				if(invoStack != null)
 				{
-					this.stackSelect = invoStack.copy();
+					this.stackSelect = new BigItemStack(invoStack.copy());
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}
@@ -252,7 +253,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				
 				if(searchItem != null)
 				{
-					this.stackSelect = searchItem.copy();
+					this.stackSelect = new BigItemStack(searchItem.copy());
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}

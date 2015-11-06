@@ -1,7 +1,6 @@
 package betterquesting.utils;
 
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
@@ -117,11 +116,11 @@ public class JsonHelper
 	 * Converts a JsonObject to an ItemStack. May return a placeholder if the correct mods are not installed</br>
 	 * This should be the standard way to load items into quests in order to retain all potential data
 	 */
-	public static ItemStack JsonToItemStack(JsonObject json)
+	public static BigItemStack JsonToItemStack(JsonObject json)
 	{
 		if(json == null || !json.has("id") || !json.get("id").isJsonPrimitive())
 		{
-			return new ItemStack(BetterQuesting.placeholder);
+			return new BigItemStack(BetterQuesting.placeholder);
 		}
 		
 		JsonPrimitive jID = json.get("id").getAsJsonPrimitive();
@@ -147,12 +146,12 @@ public class JsonHelper
 		if(item == null)
 		{
 			BetterQuesting.logger.log(Level.WARN, "Unable to locate item " + jID.toString() + ". This has been converter to a placeholder to prevent data loss");
-			ItemStack stack = new ItemStack(BetterQuesting.placeholder);
-			stack.stackTagCompound = new NBTTagCompound();
-			stack.stackTagCompound.setString("orig_id", jID.getAsString());
+			BigItemStack stack = new BigItemStack(BetterQuesting.placeholder, count, damage);
+			stack.SetTagCompound(new NBTTagCompound());
+			stack.GetTagCompound().setString("orig_id", jID.getAsString());
 			if(tags != null)
 			{
-				stack.stackTagCompound.setTag("orig_tag", tags);
+				stack.GetTagCompound().setTag("orig_tag", tags);
 			}
 			return stack;
 		} else if(item == BetterQuesting.placeholder)
@@ -163,11 +162,11 @@ public class JsonHelper
 				
 				if(restored != null)
 				{
-					ItemStack stack = new ItemStack(restored, count, damage);
+					BigItemStack stack = new BigItemStack(restored, count, damage);
 					
 					if(tags.hasKey("orig_tag"))
 					{
-						stack.stackTagCompound = tags.getCompoundTag("orig_tag");
+						stack.SetTagCompound(tags.getCompoundTag("orig_tag"));
 					}
 					
 					return stack;
@@ -175,11 +174,11 @@ public class JsonHelper
 			}
 		}
 		
-		ItemStack stack = new ItemStack(item, count, damage);
+		BigItemStack stack = new BigItemStack(item, count, damage);
 		
 		if(tags != null)
 		{
-			stack.stackTagCompound = tags;
+			stack.SetTagCompound(tags);
 		}
 		
 		return stack;
@@ -188,14 +187,14 @@ public class JsonHelper
 	/**
 	 * Use this for quests instead of converter NBT because this doesn't use ID numbers
 	 */
-	public static JsonObject ItemStackToJson(ItemStack stack, JsonObject json)
+	public static JsonObject ItemStackToJson(BigItemStack stack, JsonObject json)
 	{
-		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getItem()));
+		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()));
 		json.addProperty("Count", stack.stackSize);
-		json.addProperty("Damage", stack.getItemDamage());
-		if(stack.hasTagCompound())
+		json.addProperty("Damage", stack.getBaseStack().getItemDamage());
+		if(stack.HasTagCompound())
 		{
-			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.getTagCompound(), new JsonObject()));
+			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.GetTagCompound(), new JsonObject()));
 		}
 		return json;
 	}

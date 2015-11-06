@@ -163,6 +163,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public int decode(Buffer in, Buffer out)
 	{
 		out.setMetaTo(in);
@@ -362,6 +363,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					
@@ -394,6 +396,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					
@@ -425,6 +428,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					
@@ -455,6 +459,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 				default:
 				{
 					out.setFlag(DISCARD);
+					tmp.close();
 					return CODEC_FAILED;
 				}
 			}
@@ -464,6 +469,7 @@ public class TechSmithCodec extends AbstractVideoCodec
 			out.offset = 0;
 			out.sampleCount = 1;
 			out.length = tmp.size();
+			tmp.close();
 			return CODEC_OK;
 		} catch(IOException ex)
 		{

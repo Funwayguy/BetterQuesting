@@ -319,7 +319,7 @@ public class RIFFParser extends Object
 	 * | 'LIST' ListGroup  [pad] }
 	 * </pre>
 	 */
-	private void parseFORM(HashMap props) throws ParseException, AbortException, IOException
+	private void parseFORM(HashMap<Integer, RIFFChunk> props) throws ParseException, AbortException, IOException
 	{
 		long size = in.readULONG();
 		long offset = getScan(in);
@@ -387,7 +387,7 @@ public class RIFFParser extends Object
 	 * ListGroup ::= size GroupType { ChunkID LocalChunk [pad] | 'LIST ' ListGroup  [pad] }
 	 * </pre>
 	 */
-	private void parseLIST(HashMap props) throws ParseException, AbortException, IOException
+	private void parseLIST(HashMap<Integer, RIFFChunk> props) throws ParseException, AbortException, IOException
 	{
 		long size = in.readULONG();
 		long scan = getScan(in);

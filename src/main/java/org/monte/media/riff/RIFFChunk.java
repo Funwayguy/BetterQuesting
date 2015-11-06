@@ -122,7 +122,7 @@ public class RIFFChunk
 		return propertyChunks.get(chunk);
 	}
 	
-	public Enumeration propertyChunks()
+	public Enumeration<RIFFChunk> propertyChunks()
 	{
 		if(propertyChunks == null)
 		{
@@ -170,7 +170,7 @@ public class RIFFChunk
 		return array;
 	}
 	
-	public Iterator collectionChunks()
+	public Iterator<RIFFChunk> collectionChunks()
 	{
 		if(collectionChunks == null)
 		{

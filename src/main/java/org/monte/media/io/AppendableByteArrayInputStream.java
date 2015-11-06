@@ -179,5 +179,12 @@ public class AppendableByteArrayInputStream extends ByteArrayInputStream
 		{
 			System.out.println(d);
 		}
+		try
+		{
+			in.close();
+		} catch(Exception e)
+		{
+			
+		}
 	}
 }

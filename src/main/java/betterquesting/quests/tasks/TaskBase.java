@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StatCollector;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
@@ -22,7 +22,7 @@ public abstract class TaskBase
 	/**
 	 * List of users that have completed this quest
 	 */
-	ArrayList<UUID> completeUsers = new ArrayList<UUID>();
+	protected ArrayList<UUID> completeUsers = new ArrayList<UUID>();
 	
 	/**
 	 * Default unlocalised name for this quest type
@@ -45,14 +45,19 @@ public abstract class TaskBase
 	 * @param player
 	 * @param quest
 	 */
-	public abstract void Update(EntityPlayer player);
+	public void Update(EntityPlayer player){}
 
 	/**
-	 * Fired when someone presses the detect button for the quest. Use this for item submissions or manual updates
+	 * Fired when someone presses the detect button for the quest (can be used occasionally in Update to auto-detect). Use this for item submissions or manual updates
 	 * @param player
 	 * @param quest
 	 */
-	public abstract void Detect(EntityPlayer player);
+	public void Detect(EntityPlayer player){}
+	
+	/**
+	 * Called by repeatable quests to reset progress for the next attempt
+	 */
+	public void ResetProgress(EntityPlayer player){}
 	
 	public boolean isComplete(EntityPlayer player)
 	{

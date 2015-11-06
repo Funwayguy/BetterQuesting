@@ -2,6 +2,7 @@ package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.handlers.EventHandler;
+import betterquesting.quests.tasks.advanced.AdvancedEventHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 
 public class CommonProxy
@@ -17,5 +18,9 @@ public class CommonProxy
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
 		FMLCommonHandler.instance().bus().register(handler);
+		AdvancedEventHandler advHandle = new AdvancedEventHandler();
+		MinecraftForge.EVENT_BUS.register(advHandle);
+		MinecraftForge.TERRAIN_GEN_BUS.register(advHandle);
+		FMLCommonHandler.instance().bus().register(advHandle);
 	}
 }

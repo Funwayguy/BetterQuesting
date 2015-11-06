@@ -1,4 +1,4 @@
-package betterquesting.client.gui;
+package betterquesting.client.gui.editors;
 
 import java.awt.Color;
 import java.util.List;
@@ -6,13 +6,17 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.client.gui.GuiQuestInstance;
+import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -21,17 +25,19 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiPrerequisiteEditor extends GuiQuesting
+public class GuiQuestLineEditorB extends GuiQuesting
 {
-	QuestInstance quest;
+	int selIndex = -1;
+	QuestLine line;
 	int leftScroll = 0;
 	int rightScroll = 0;
 	int maxRows = 0;
 	
-	public GuiPrerequisiteEditor(GuiScreen parent, QuestInstance quest)
+	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
 	{
-		super(parent, "Edit Pre-requisites");
-		this.quest = quest;
+		super(parent, "Edit Quest Line");
+		this.line = line;
+		selIndex = QuestDatabase.questLines.indexOf(line);
 	}
 	
 	@Override
@@ -108,7 +114,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + (int)Math.max(0, s * (float)leftScroll/(quest == null? 1 : quest.preRequisites.size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + (int)Math.max(0, s * (float)leftScroll/(line == null? 1 : line.questList.size() - maxRows)), 248, 60, 8, 20);
 		
 		// Right scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48, 248, 0, 8, 20);
@@ -135,12 +141,13 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1)
+		if(button.id == 0)
 		{
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("ID", 6);
-			tags.setInteger("action", 1);
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+			SendChanges(2); // We do this upon exiting because the screen relies on this instance of the quest line and cannot recover if it is update early
+			BetterQuesting.logger.log(Level.INFO, "Sending quest line changes to server...");
+		} else if(button.id == 1)
+		{
+			SendChanges(1);
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -150,16 +157,16 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 			
 			if(n2 == 0) // Edit quest
 			{
-				if(quest != null && n3 >= 0 && n3 < quest.preRequisites.size())
+				if(line != null && n3 >= 0 && n3 < line.questList.size())
 				{
-					mc.displayGuiScreen(new GuiQuestInstance(this, quest.preRequisites.get(n3)));
+					mc.displayGuiScreen(new GuiQuestInstance(this, line.questList.get(n3)));
 				}
 			} else if(n2 == 1) // Remove quest
 			{
-				if(!(quest == null || n3 < 0 || n3 >= quest.preRequisites.size()))
+				if(!(line == null || n3 < 0 || n3 >= line.questList.size()))
 				{
-					quest.preRequisites.remove(n3);
-					SendChanges();
+					line.questList.remove(n3);
+					RefreshColumns();
 				}
 			} else if(n2 == 2) // Edit quest
 			{
@@ -179,10 +186,10 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				}
 			} else if(n2 == 4) // Add quest
 			{
-				if(!(quest == null || n4 < 0 || n4 >= QuestDatabase.questDB.size()))
+				if(!(line == null || n4 < 0 || n4 >= QuestDatabase.questDB.size()))
 				{
-					quest.preRequisites.add(QuestDatabase.getQuestByOrder(n4));
-					SendChanges();
+					line.questList.add(QuestDatabase.getQuestByOrder(n4));
+					RefreshColumns();
 				}
 			}
 		}
@@ -202,7 +209,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, quest.preRequisites.size() - maxRows));
+    		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, line.questList.size() - maxRows));
     		RefreshColumns();
         }
         
@@ -213,28 +220,38 @@ public class GuiPrerequisiteEditor extends GuiQuesting
         }
     }
 	
-	public void SendChanges()
+	public void SendChanges(int action)
 	{
-		JsonObject json = new JsonObject();
-		quest.writeToJSON(json);
+		if(action < 0 || action > 2)
+		{
+			return;
+		}
+		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 5);
-		tags.setInteger("action", 0); // Action: Update data
-		tags.setInteger("questID", quest.questID);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		tags.setInteger("ID", 6);
+		tags.setInteger("action", action);
+		
+		if(action == 2)
+		{
+			JsonObject json = new JsonObject();
+			QuestDatabase.writeToJson_Lines(json);
+			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		}
+		
 		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 	}
 	
 	public void RefreshColumns()
 	{
-		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.preRequisites.size() - maxRows));
+		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, line.questList.size() - maxRows));
     	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, QuestDatabase.questDB.size() - maxRows));
     	
-    	if(quest != null && !QuestDatabase.questDB.containsValue(quest))
+    	if(line != null && !QuestDatabase.questLines.contains(line))
 		{
-    		quest = QuestDatabase.getQuestByID(quest.questID);
-    		
-			if(quest == null)
+			if(selIndex >= 0 && selIndex < QuestDatabase.questLines.size())
+			{
+				line = QuestDatabase.questLines.get(selIndex);
+			} else
 			{
 				mc.displayGuiScreen(parent);
 			}
@@ -253,18 +270,18 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 			
 			if(n2 == 0) // Edit quest
 			{
-				if(quest == null || n3 < 0 || n3 >= quest.preRequisites.size())
+				if(line == null || n3 < 0 || n3 >= line.questList.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = quest.preRequisites.get(n3).name;
+					btn.displayString = line.questList.get(n3).name;
 				}
 			} else if(n2 == 1) // Remove quest
 			{
-				btn.visible = btn.enabled = quest != null && !(n3 < 0 || n3 >= quest.preRequisites.size());
+				btn.visible = btn.enabled = line != null && !(n3 < 0 || n3 >= line.questList.size());
 			} else if(n2 == 2) // Edit quest
 			{
 				if(n4 < 0 || n4 >= QuestDatabase.questDB.size())
@@ -289,7 +306,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				{
 					QuestInstance q = QuestDatabase.getQuestByOrder(n4);
 					btn.visible = true;
-					btn.enabled = quest != null && !quest.preRequisites.contains(q);
+					btn.enabled = line != null && !line.questList.contains(q);
 				}
 			}
 		}

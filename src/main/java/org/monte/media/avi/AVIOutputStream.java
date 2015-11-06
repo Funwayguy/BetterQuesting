@@ -779,7 +779,7 @@ public class AVIOutputStream extends AbstractAVIStream
 			long moviListOffset = moviChunk.offset + 8 + 8;
 			
 			{
-				int nTracks = tracks.size();
+				//int nTracks = tracks.size();
 				for(Sample s : idx1)
 				{
 					d.setByteOrder(ByteOrder.BIG_ENDIAN);
@@ -820,6 +820,7 @@ public class AVIOutputStream extends AbstractAVIStream
 			}
 			
 			idx1Chunk.finish();
+			d.close();
 		}
 		
 		/* Write Data into AVI Main Header Chunk
@@ -956,6 +957,7 @@ public class AVIOutputStream extends AbstractAVIStream
 			d.writeInt(0); // dwReserved[2]
 			d.writeInt(0); // dwReserved[3]
 			// Reserved. Set this array to zero.
+			d.close();
 		}
 		
 		for(Track tr : tracks)
@@ -1099,6 +1101,7 @@ public class AVIOutputStream extends AbstractAVIStream
 				 } BITMAPINFOHEADER;
 				 */
 				tr.strfChunk.seekToStartOfData();
+				d.close();
 				d = tr.strfChunk.getOutputStream();
 				d.writeInt(40); // biSize: number of bytes required by the structure.
 				d.writeInt(vf.get(WidthKey)); // width
@@ -1169,6 +1172,7 @@ public class AVIOutputStream extends AbstractAVIStream
 						d.write(0);
 					}
 				}
+				d.close();
 			} else if(tr instanceof AudioTrack)
 			{
 				AudioTrack at = (AudioTrack)tr;
@@ -1187,6 +1191,7 @@ public class AVIOutputStream extends AbstractAVIStream
 				 } WAVEFORMATEX;
 				 */
 				tr.strfChunk.seekToStartOfData();
+				d.close();
 				d = tr.strfChunk.getOutputStream();
 				
 				d.writeShort(at.wFormatTag); // wFormatTag: WAVE_FORMAT_PCM=0x0001
@@ -1205,6 +1210,7 @@ public class AVIOutputStream extends AbstractAVIStream
 				// 22, the format is most likely described using the
 				// WAVEFORMATEXTENSIBLE structure, of which WAVEFORMATEX is the
 				// first member.
+				d.close();
 			}
 		}
 		

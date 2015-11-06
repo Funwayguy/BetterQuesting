@@ -204,6 +204,7 @@ public class DIBCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					writeKey4(tmp, pixels, r.width, r.height, r.x + r.y * scanlineStride, scanlineStride);
@@ -215,6 +216,7 @@ public class DIBCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					writeKey8(tmp, pixels, r.width, r.height, r.x + r.y * scanlineStride, scanlineStride);
@@ -226,6 +228,7 @@ public class DIBCodec extends AbstractVideoCodec
 					if(pixels == null)
 					{
 						out.setFlag(DISCARD);
+						tmp.close();
 						return CODEC_OK;
 					}
 					writeKey24(tmp, pixels, r.width, r.height, r.x + r.y * scanlineStride, scanlineStride);
@@ -233,6 +236,7 @@ public class DIBCodec extends AbstractVideoCodec
 				}
 				default:
 					out.setFlag(DISCARD);
+					tmp.close();
 					return CODEC_OK;
 			}
 			
@@ -241,6 +245,7 @@ public class DIBCodec extends AbstractVideoCodec
 			out.sampleCount = 1;
 			out.offset = 0;
 			out.length = (int)tmp.getStreamPosition();
+			tmp.close();
 			return CODEC_OK;
 		} catch(IOException ex)
 		{

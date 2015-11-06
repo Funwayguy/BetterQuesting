@@ -1,37 +1,38 @@
-package betterquesting.client.gui.json;
+package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import org.lwjgl.input.Keyboard;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
-import betterquesting.utils.JsonIO;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiQuesting
+public class GuiJsonObject extends GuiQuesting
 {
 	int scrollPos = 0;
-	JsonArray settings;
+	JsonObject settings;
 	boolean allowEdit = true;
 	
 	/**
 	 * List of GuiTextFields and GuiButtons
 	 */
-	ArrayList<JsonControlSet> editables = new ArrayList<JsonControlSet>();
+	HashMap<String, JsonControlSet> editables = new HashMap<String, JsonControlSet>();
 	
-	public GuiJsonArray(GuiScreen parent, JsonArray settings)
+	public GuiJsonObject(GuiScreen parent, JsonObject settings)
 	{
-		super(parent, "Editor - JSON Array");
+		super(parent, "Editor - JSON Object");
 		this.settings = settings;
 	}
 	
@@ -40,7 +41,7 @@ public class GuiJsonArray extends GuiQuesting
 	 * @param state
 	 * @return
 	 */
-	public GuiJsonArray SetEditMode(boolean state)
+	public GuiJsonObject SetEditMode(boolean state)
 	{
 		this.allowEdit = state;
 		return this;
@@ -52,7 +53,7 @@ public class GuiJsonArray extends GuiQuesting
 	{
 		super.initGui();
 		
-		editables = new ArrayList<JsonControlSet>();;
+		editables = new HashMap<String, JsonControlSet>();
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
@@ -60,12 +61,13 @@ public class GuiJsonArray extends GuiQuesting
 		this.buttonList.add(new GuiButtonQuesting(2, this.width/2, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, "<"));
 		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + this.sizeX - 36, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, ">"));
 		
-        for(int i = 0; i < settings.size(); i++)
+        Keyboard.enableRepeatEvents(true);
+        
+		for(Entry<String,JsonElement> entry : settings.entrySet())
 		{
-			JsonElement entry = settings.get(i);
-			if(entry.isJsonPrimitive())
+			if(entry.getValue().isJsonPrimitive())
 			{
-				JsonPrimitive jPrim = entry.getAsJsonPrimitive();
+				JsonPrimitive jPrim = entry.getValue().getAsJsonPrimitive();
 				GuiTextField txtBox;
 				if(jPrim.isNumber())
 				{
@@ -74,8 +76,8 @@ public class GuiJsonArray extends GuiQuesting
 				} else if(jPrim.isBoolean())
 				{
 					GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, jPrim);
-					editables.add(new JsonControlSet(this.buttonList, button, true, true));
 					this.buttonList.add(button);
+					editables.put(entry.getKey(), new JsonControlSet(this.buttonList, button, false, allowEdit));
 					continue;
 				} else
 				{
@@ -83,13 +85,13 @@ public class GuiJsonArray extends GuiQuesting
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
-				
-				editables.add(new JsonControlSet(this.buttonList, txtBox, true, true));
+
+				editables.put(entry.getKey(), new JsonControlSet(this.buttonList, txtBox, false, allowEdit));
 			} else
 			{
-				GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, entry);
-				editables.add(new JsonControlSet(this.buttonList, button, true, true));
+				GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, entry.getValue());
 				this.buttonList.add(button);
+				editables.put(entry.getKey(), new JsonControlSet(this.buttonList, button, false, allowEdit));
 			}
 		}
 	}
@@ -108,7 +110,7 @@ public class GuiJsonArray extends GuiQuesting
 			this.mc.displayGuiScreen(parent);
 		} else if(button.id == 1)
 		{
-			this.mc.displayGuiScreen(new GuiJsonAdd(this, this.settings, this.settings.size()));
+			this.mc.displayGuiScreen(new GuiJsonAdd(this, this.settings));
 		} else if(button.id == 2)
 		{
 			if(scrollPos > 0)
@@ -127,7 +129,7 @@ public class GuiJsonArray extends GuiQuesting
 			}
 		} else
 		{
-			for(int key = 0; key < editables.size(); key++)
+			for(String key : editables.keySet())
 			{
 				JsonControlSet controls = editables.get(key);
 				
@@ -136,17 +138,12 @@ public class GuiJsonArray extends GuiQuesting
 					continue;
 				}
 				
-				if(button == controls.addButton)
+				if(button == controls.removeButton)
 				{
-					this.mc.displayGuiScreen(new GuiJsonAdd(this, this.settings, key));
-					break;
-				} else if(button == controls.removeButton)
-				{
-					ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(this.settings);
-					list.remove(key);
+					settings.remove(key);
+					this.buttonList.remove(controls.jsonDisplay);
 					this.buttonList.remove(controls.addButton);
 					this.buttonList.remove(controls.removeButton);
-					this.buttonList.remove(controls.jsonDisplay);
 					editables.remove(key);
 					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
@@ -168,20 +165,7 @@ public class GuiJsonArray extends GuiQuesting
 						if(element.getAsJsonPrimitive().isBoolean())
 						{
 							JsonPrimitive jBool = new JsonPrimitive(!element.getAsBoolean());
-							
-							// Make shift 'put' method for out dated GSON library
-							
-							ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
-							
-							if(list != null)
-							{
-								list.set(key, jBool);
-							} else
-							{
-								break;
-							}
-							
-							
+							settings.add(key, jBool);
 							jsonButton.displayString = "" + jBool.getAsBoolean();
 							jsonButton.json = jBool;
 						}
@@ -199,27 +183,32 @@ public class GuiJsonArray extends GuiQuesting
 		
 		int maxRows = (this.sizeY - 84)/20;
 		
-		for(int i = 0; i < editables.size(); i++)
+		String[] keys = editables.keySet().toArray(new String[]{});
+		
+		for(int i = 0; i < keys.length; i++)
 		{
-			JsonControlSet controls = editables.get(i);
+			JsonControlSet controls = editables.get(keys[i]);
+			
+			if(controls == null)
+			{
+				continue;
+			}
 			
 			int n = i - (scrollPos * maxRows);
+			
 			int posX = this.guiLeft + (sizeX/2);
 			int posY = -9999;
 			
 			if(n >= 0 && n < maxRows)
 			{
 				posY = this.guiTop + 30 + (n * 20);
-				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, Color.BLACK.getRGB(), false);
-				
-				if(controls != null)
-				{
-					controls.drawControls(this, posX, posY, sizeX/2 - 16, 20, mx, my, partialTick);
-				}
+				controls.drawControls(this, posX, posY, sizeX/2 - 16, 20, mx, my, partialTick);
 			} else
 			{
 				controls.Disable();
 			}
+			
+			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, Color.BLACK.getRGB(), false);
 		}
 	}
 	
@@ -228,14 +217,9 @@ public class GuiJsonArray extends GuiQuesting
 	{
 		super.mouseClicked(x, y, type);
 		
-		for(JsonControlSet control : editables)
+		for(JsonControlSet controls : editables.values())
 		{
-			if(control == null)
-			{
-				continue;
-			}
-			
-			control.mouseClick(this, x, y, type);
+			controls.mouseClick(this, x, y, type);
 		}
 	}
 	
@@ -247,34 +231,27 @@ public class GuiJsonArray extends GuiQuesting
     {
 		super.keyTyped(character, num);
 		
-		ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
-		
-		if(list == null)
+		for(Entry<String, JsonControlSet> entry : editables.entrySet())
 		{
-			return;
-		}
-		
-		for(int i = 0; i < editables.size(); i++)
-		{
-			JsonControlSet controls = editables.get(i);
-			
-			if(controls.jsonDisplay instanceof GuiTextField)
+			if(entry.getValue().jsonDisplay instanceof GuiTextField)
 			{
-				GuiTextField textField = (GuiTextField)controls.jsonDisplay;
+				GuiTextField textField = (GuiTextField)entry.getValue().jsonDisplay;
 				textField.textboxKeyTyped(character, num);
 				
-				if(list.get(i).getAsJsonPrimitive().isNumber())
+				if(settings.getAsJsonPrimitive(entry.getKey()).isNumber())
 				{
 					try
 					{
-						list.set(i, new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
+						settings.add(entry.getKey(), new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
 					} catch(Exception e)
 					{
-						list.set(i, new JsonPrimitive(textField.getText()));
+						System.out.println("ERROR"); // NOT SETTING VALUE. PLEASE FIX
+						e.printStackTrace();
+						settings.add(entry.getKey(), new JsonPrimitive(textField.getText()));
 					}
 				} else
 				{
-					list.set(i, new JsonPrimitive(textField.getText()));
+					settings.add(entry.getKey(), new JsonPrimitive(textField.getText()));
 				}
 			}
 		}

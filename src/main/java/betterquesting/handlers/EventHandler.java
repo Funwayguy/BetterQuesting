@@ -24,6 +24,9 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+/**
+ * Event handling for standard quests and core BetterQuesting functionality
+ */
 public class EventHandler
 {
 	@SubscribeEvent

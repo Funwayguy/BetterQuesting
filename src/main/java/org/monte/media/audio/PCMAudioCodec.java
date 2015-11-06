@@ -155,12 +155,16 @@ public class PCMAudioCodec extends AbstractAudioCodec
 					case (16 << 16) | 8:
 						if(inSigned == outSigned)
 						{
+							inStream.close();
+							outStream.close();
 							throw new UnsupportedOperationException("Unsupported sample size. in:" + inFormat + ", out:" + outFormat);
 						} else if(inSigned)
 						{
 							write16STo8U(inStream, outStream);
 						} else
 						{
+							inStream.close();
+							outStream.close();
 							throw new UnsupportedOperationException("Unsupported sample size. in:" + inFormat + ", out:" + outFormat);
 						}
 					break;
@@ -179,6 +183,8 @@ public class PCMAudioCodec extends AbstractAudioCodec
 					default:
 						// FIXME - The PCM Audio Codec should handle unsupported
 						//         sample size when the output format is set.
+						inStream.close();
+						outStream.close();
 						throw new UnsupportedOperationException("Unsupported sample size. in:" + inFormat + ", out:" + outFormat);
 						//out.setFlag(Buffer.FLAG_DISCARD);
 						//return BUFFER_PROCESSED_FAILED;

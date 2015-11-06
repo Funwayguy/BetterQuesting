@@ -3,6 +3,7 @@ package betterquesting.importer.hqm.converters;
 import java.util.ArrayList;
 import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.quests.tasks.TaskFluid;
 import betterquesting.quests.tasks.TaskRetrieval;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonElement;
@@ -21,10 +22,10 @@ public class HQMTaskDetect extends HQMTask
 	public ArrayList<TaskBase> Convert(JsonObject json)
 	{
 		ArrayList<TaskBase> tList = new ArrayList<TaskBase>();
-		TaskRetrieval task = new TaskRetrieval();
-		tList.add(task);
+		TaskRetrieval retTask = new TaskRetrieval();
+		TaskFluid fluTask = new TaskFluid();
 		
-		task.consume = this.consume;
+		retTask.consume = this.consume;
 		
 		for(JsonElement je : JsonHelper.GetArray(json, "items"))
 		{
@@ -37,11 +38,21 @@ public class HQMTaskDetect extends HQMTask
 			
 			if(ji.has("fluid"))
 			{
-				task.requiredFluids.add(HQMImporter.HQMStackT3(ji));
+				fluTask.requiredFluids.add(HQMImporter.HQMStackT3(ji));
 			} else
 			{
-				task.requiredItems.addAll(HQMImporter.HQMStackT2(ji));
+				retTask.requiredItems.add(HQMImporter.HQMStackT2(ji));
 			}
+		}
+		
+		if(retTask.requiredItems.size() > 0)
+		{
+			tList.add(retTask);
+		}
+		
+		if(fluTask.requiredFluids.size() > 0)
+		{
+			tList.add(fluTask);
 		}
 		
 		return tList;

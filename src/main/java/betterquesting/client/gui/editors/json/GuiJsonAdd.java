@@ -1,4 +1,4 @@
-package betterquesting.client.gui.json;
+package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.ArrayList;

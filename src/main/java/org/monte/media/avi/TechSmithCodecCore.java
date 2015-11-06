@@ -211,6 +211,7 @@ public class TechSmithCodecCore extends AbstractVideoCodecCore
 		in.readUnsignedShort();
 		if(firstEntry + numEntries > 256)
 		{
+			in.close();
 			throw new IOException("Illegal headers in pc chunk. firstEntry=" + firstEntry + ", numEntries=" + numEntries);
 		}
 		in.setByteOrder(ByteOrder.BIG_ENDIAN);
@@ -219,6 +220,7 @@ public class TechSmithCodecCore extends AbstractVideoCodecCore
 			int rgbf = in.readInt();
 			palette[i + firstEntry] = rgbf >> 8;
 		}
+		in.close();
 	}
 	
 	/** Decodes to 8-bit palettised.
@@ -1502,7 +1504,7 @@ public class TechSmithCodecCore extends AbstractVideoCodecCore
 		
 		// Encode each scanline
 		int verticalOffset = 0;
-		ScanlineLoop: for(int y = offset; y < ymax; y += scanlineStride)
+		for(int y = offset; y < ymax; y += scanlineStride)
 		{
 			int xy = upsideDown - y;
 			int xymax = xy + width;

@@ -72,6 +72,7 @@ public class ZMBVCodec extends AbstractVideoCodec
 		return decode(in, out);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public int decode(Buffer in, Buffer out)
 	{
 		out.setMetaTo(in);

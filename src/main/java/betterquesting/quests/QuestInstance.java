@@ -3,19 +3,21 @@ package betterquesting.quests;
 import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.party.PartyInstance;
+import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.TaskRegistry;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -28,7 +30,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class QuestInstance
 {
 	public int questID;
-	public ItemStack itemIcon = new ItemStack(Items.nether_star);
+	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
 	
@@ -38,7 +40,10 @@ public class QuestInstance
 	ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
 	public ArrayList<QuestInstance> preRequisites = new ArrayList<QuestInstance>();
 	
-	boolean globalQuest = false;
+	public QuestLogic logic = QuestLogic.AND;
+	public boolean globalQuest = false;
+	public boolean autoClaim = false;
+	public int repeatTime = -1;
 	
 	public QuestInstance(int questID, boolean register)
 	{
@@ -56,12 +61,17 @@ public class QuestInstance
 	 */
 	public void Update(EntityPlayer player)
 	{
-		if(this.isComplete(player.getUniqueID()))
+		if(isComplete(player.getUniqueID()))
 		{
+			if(autoClaim && player.ticksExisted%20 == 0 && !HasClaimed(player) && CanClaim(player, GetChoiceData()))
+			{
+				Claim(player, GetChoiceData());
+			}
+			
 			return;
 		}
 		
-		if(this.isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
+		if(isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
 		{
 			boolean done = true;
 			
@@ -81,6 +91,20 @@ public class QuestInstance
 				entry.timestamp = player.worldObj.getTotalWorldTime();
 				completeUsers.add(entry);
 				UpdateClients();
+				
+				System.out.println("Quest complete");
+				
+				if(player instanceof EntityPlayerMP)
+				{
+					System.out.println("Sending...");
+					NBTTagCompound tags = new NBTTagCompound();
+					tags.setInteger("ID", 3);
+					tags.setString("Main", "betterquesting.notice.complete");
+					tags.setString("Sub", name);
+					tags.setInteger("Sound", 2);
+					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), (EntityPlayerMP)player);
+				}
 			}
 		}
 	}
@@ -267,13 +291,16 @@ public class QuestInstance
 		
 		if(state)
 		{
+			flag = true; // Because we're updating completion timestamps, this will always be true
 			UserEntry entry = GetUserEntry(uuid);
 			
-			if(entry == null) // Skip duplicates
+			if(entry == null)
 			{
-				completeUsers.add(new UserEntry(uuid));
-				flag = true;
+				entry = new UserEntry(uuid);
+				completeUsers.add(entry);
 			}
+			
+			entry.timestamp = timestamp;
 			
 			if(applyToParty)
 			{
@@ -281,15 +308,16 @@ public class QuestInstance
 				
 				if(party != null)
 				{
-					for(UUID pId : party.GetMembers())
+					for(PartyMember mem : party.GetMembers())
 					{
-						UserEntry pEntry = GetUserEntry(pId);
+						UserEntry pEntry = GetUserEntry(mem.userID);
 						
-						if(pEntry == null) // Skip duplicates
+						if(pEntry == null)
 						{
-							completeUsers.add(new UserEntry(pId));
-							flag = true;
+							completeUsers.add(new UserEntry(mem.userID));
 						}
+						
+						pEntry.timestamp = timestamp;
 					}
 				}
 			}
@@ -303,7 +331,10 @@ public class QuestInstance
 				
 				if(party != null)
 				{
-					RemoveUserEntry(party.GetMembers().toArray(new UUID[]{}));
+					for(PartyMember mem : party.GetMembers())
+					{
+						RemoveUserEntry(mem.userID);
+					}
 				}
 			}
 			
@@ -339,10 +370,14 @@ public class QuestInstance
 	
 	public void writeToJSON(JsonObject jObj)
 	{
-		jObj.addProperty("questID", this.questID);
+		jObj.addProperty("questID", questID);
 		
-		jObj.addProperty("name", this.name);
-		jObj.addProperty("description", this.description);
+		jObj.addProperty("name", name);
+		jObj.addProperty("description", description);
+		jObj.addProperty("globalQuest", globalQuest);
+		jObj.addProperty("autoClaim", autoClaim);
+		jObj.addProperty("repeatTime", repeatTime);
+		jObj.addProperty("logic", logic.toString());
 		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
 		
 		JsonArray tskJson = new JsonArray();
@@ -399,8 +434,12 @@ public class QuestInstance
 		
 		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
+		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
+		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
+		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
+		this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND"));
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
-		this.itemIcon = this.itemIcon != null? this.itemIcon : new ItemStack(Items.nether_star);
+		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
 		
 		this.tasks.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
@@ -500,6 +539,38 @@ public class QuestInstance
 		{
 			timestamp = JsonHelper.GetNumber(json, "timestamp", 0).longValue();
 			claimed = JsonHelper.GetBoolean(json, "claimed", false);
+		}
+	}
+	
+	public enum QuestLogic
+	{
+		AND, // All complete
+		NAND, // Any incomplete
+		OR, // Any complete
+		NOR, // All incomplete
+		XOR, // Only one complete
+		XNOR; // Only one incomplete
+		
+		public boolean GetResult(int inputs, int total)
+		{
+			switch(this)
+			{
+				case AND:
+					return inputs == total;
+				case NAND:
+					return inputs < total;
+				case NOR:
+					return inputs == 0; 
+				case OR:
+					return inputs > 0;
+				case XNOR:
+					return inputs == total - 1;
+				case XOR:
+					return inputs == 1;
+				default:
+					return false;
+				
+			}
 		}
 	}
 }

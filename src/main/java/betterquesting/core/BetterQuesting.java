@@ -65,6 +65,7 @@ public class BetterQuesting
     	TaskRegistry.RegisterTask(TaskLocation.class, "location");
     	TaskRegistry.RegisterTask(TaskCrafting.class, "crafting");
     	TaskRegistry.RegisterTask(TaskScoreboard.class, "scoreboard");
+    	TaskRegistry.RegisterTask(TaskFluid.class, "fluid");
     	
     	RewardRegistry.RegisterReward(RewardItem.class, "item");
     	RewardRegistry.RegisterReward(RewardChoice.class, "choice");

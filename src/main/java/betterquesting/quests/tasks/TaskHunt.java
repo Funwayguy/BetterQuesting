@@ -2,26 +2,34 @@ package betterquesting.quests.tasks;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.UUID;
-import org.lwjgl.opengl.GL11;
-import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
+import org.apache.logging.log4j.Level;
+import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.core.BetterQuesting;
+import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.RenderUtils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
-public class TaskHunt extends TaskBase
+public class TaskHunt extends AdvancedTaskBase
 {
 	HashMap<UUID, Integer> userProgress = new HashMap<UUID, Integer>();
 	public String idName = "Zombie";
 	public int required = 1;
-	Entity target;
+	Entity target; // This is only used for display purposes
 	
 	@Override
 	public String getUnlocalisedName()
@@ -30,13 +38,29 @@ public class TaskHunt extends TaskBase
 	}
 	
 	@Override
-	public void Update(EntityPlayer player)
+	public void onKilledByPlayer(EntityLivingBase entity, DamageSource source)
 	{
-	}
-	
-	@Override
-	public void Detect(EntityPlayer player)
-	{
+		EntityPlayer player = (EntityPlayer)source.getEntity();
+		
+		if(player == null || this.isComplete(player))
+		{
+			return;
+		}
+		
+		Integer progress = userProgress.get(player.getUniqueID());
+		progress = progress == null? 0 : progress;
+		
+		if(EntityList.getEntityString(entity).equals(idName))
+		{
+			progress++;
+			
+			userProgress.put(player.getUniqueID(), progress);
+			
+			if(progress >= required)
+			{
+				this.completeUsers.add(player.getUniqueID());
+			}
+		}
 	}
 	
 	public void AddKill(EntityPlayer player, int count)
@@ -57,6 +81,16 @@ public class TaskHunt extends TaskBase
 		
 		json.addProperty("target", idName);
 		json.addProperty("required", required);
+		
+		JsonArray progArray = new JsonArray();
+		for(Entry<UUID,Integer> entry : userProgress.entrySet())
+		{
+			JsonObject pJson = new JsonObject();
+			pJson.addProperty("uuid", entry.getKey().toString());
+			pJson.addProperty("value", entry.getValue());
+			progArray.add(pJson);
+		}
+		json.add("userProgress", progArray);
 	}
 	
 	@Override
@@ -66,13 +100,36 @@ public class TaskHunt extends TaskBase
 		
 		idName = JsonHelper.GetString(json, "target", "Zombie");
 		required = JsonHelper.GetNumber(json, "required", 1).intValue();
+		
+		userProgress.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "userProgress"))
+		{
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			UUID uuid;
+			try
+			{
+				uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load user progress for task", e);
+				continue;
+			}
+			
+			userProgress.put(uuid, JsonHelper.GetNumber(entry.getAsJsonObject(), "value", 0).intValue());
+		}
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY)
 	{
-		String txt = "Kill " + idName + " x" + required;
+		Integer progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
+		progress = progress == null? 0 : progress;
+		String txt = "Kill " + idName + " " + progress + "/" + required;
 		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY, Color.BLACK.getRGB());
 		if(target != null)
 		{
@@ -83,7 +140,7 @@ public class TaskHunt extends TaskBase
 			float angle = ((float)Minecraft.getSystemTime()%30000F)/30000F * 360F;
 			float scale = 64F;
 			
-			//if(target.height * scale > (sizeY - 48))
+			if(target.height * scale > (sizeY - 48))
 			{
 				scale = (sizeY - 48)/target.height;
 			}

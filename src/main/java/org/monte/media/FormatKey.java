@@ -21,7 +21,7 @@ import java.io.Serializable;
  * @author Werner Randelshofer
  * @version $Id: FormatKey.java 299 2013-01-03 07:40:18Z werner $
  */
-public class FormatKey<T> implements Serializable, Comparable
+public class FormatKey<T> implements Serializable, Comparable<T>
 {
 	
 	public static final long serialVersionUID = 1L;
@@ -106,7 +106,7 @@ public class FormatKey<T> implements Serializable, Comparable
 		return comment;
 	}
 	
-	public Class getValueClass()
+	public Class<?> getValueClass()
 	{
 		return clazz;
 	}
@@ -114,10 +114,10 @@ public class FormatKey<T> implements Serializable, Comparable
 	@Override
 	public int compareTo(Object o)
 	{
-		return compareTo((FormatKey)o);
+		return compareTo((FormatKey<?>)o);
 	}
 	
-	public int compareTo(FormatKey that)
+	public int compareTo(FormatKey<?> that)
 	{
 		return this.key.compareTo(that.key);
 	}

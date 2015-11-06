@@ -5,16 +5,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.BigItemStack;
-import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
+import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -24,19 +28,17 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class TaskRetrieval extends TaskBase
+public class TaskFluid extends TaskBase
 {
 	public int scroll = 0;
-	public ArrayList<BigItemStack> requiredItems = new ArrayList<BigItemStack>();
+	public ArrayList<FluidStack> requiredFluids = new ArrayList<FluidStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
-	boolean partialMatch = true;
-	boolean ignoreNBT = false;
 	public boolean consume = true;
 	
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.retrieval";
+		return "betterquesting.task.fluid";
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public class TaskRetrieval extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player) || requiredItems.size() <= 0)
+		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player) || requiredFluids.size() <= 0)
 		{
 			return;
 		}
@@ -59,47 +61,48 @@ public class TaskRetrieval extends TaskBase
 		boolean flag = true;
 		
 		int[] progress = userProgress.get(player.getUniqueID());
-		progress = progress == null || progress.length != requiredItems.size()? new int[requiredItems.size()] : progress;
+		progress = progress == null || progress.length != requiredFluids.size()? new int[requiredFluids.size()] : progress;
 		
 		for(int i = 0; i < player.inventory.getSizeInventory(); i++)
 		{
-			for(int j = 0; j < requiredItems.size(); j++)
+			for(int j = 0; j < requiredFluids.size(); j++)
 			{
 				ItemStack stack = player.inventory.getStackInSlot(i);
 				
-				if(stack == null)
+				if(stack == null || FluidContainerRegistry.isEmptyContainer(stack))
 				{
 					break;
 				}
 				
-				BigItemStack rStack = requiredItems.get(j);
+				FluidStack rStack = requiredFluids.get(j);
 				
-				if(rStack == null || progress[j] >= rStack.stackSize)
+				if(rStack == null || progress[j] >= rStack.amount)
 				{
 					continue;
 				}
-
-				int remaining = rStack.stackSize - progress[j];
 				
-				if(ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch))
+				int remaining = rStack.amount - progress[j];
+				
+				if(rStack.isFluidEqual(stack))
 				{
 					if(consume)
 					{
-						ItemStack removed = player.inventory.decrStackSize(i, remaining);
-						progress[j] += removed.stackSize;
+						FluidStack fluid = this.getFluid(player, i, true, remaining);
+						progress[j] += Math.min(remaining, fluid == null? 0 : fluid.amount);
 					} else
 					{
-						progress[j] += Math.min(remaining, stack.stackSize);
+						FluidStack fluid = this.getFluid(player, i, false, remaining);
+						progress[j] += Math.min(remaining, fluid == null? 0 : fluid.amount);
 					}
 				}
 			}
 		}
 		
-		for(int j = 0; j < requiredItems.size(); j++)
+		for(int j = 0; j < requiredFluids.size(); j++)
 		{
-			BigItemStack rStack = requiredItems.get(j);
+			FluidStack rStack = requiredFluids.get(j);
 			
-			if(rStack == null || progress[j] >= rStack.stackSize)
+			if(rStack == null || progress[j] >= rStack.amount)
 			{
 				continue;
 			}
@@ -118,22 +121,67 @@ public class TaskRetrieval extends TaskBase
 			this.completeUsers.add(player.getUniqueID());
 		}
 	}
-
+	
+	/**
+	 * Returns the fluid drained (or can be drained) up to the specified amount
+	 */
+	public FluidStack getFluid(EntityPlayer player, int slot, boolean drain, int amount)
+	{
+		ItemStack stack = player.inventory.getStackInSlot(slot);
+		
+		if(stack == null || amount <= 0)
+		{
+			return null;
+		}
+		
+		if(stack.getItem() instanceof IFluidContainerItem)
+		{
+			IFluidContainerItem container = (IFluidContainerItem)stack.getItem();
+			
+			return container.drain(stack, amount, drain);
+			
+		} else
+		{
+			FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(stack);
+			int tmp1 = fluid.amount;
+			int tmp2 = 1;
+			while(fluid.amount < amount && tmp2 < stack.stackSize)
+			{
+				tmp2++;
+				fluid.amount += tmp1;
+			}
+			
+			if(drain)
+			{
+				for(; tmp2 > 0; tmp2--)
+				{
+					ItemStack empty = FluidContainerRegistry.drainFluidContainer(stack);
+					player.inventory.decrStackSize(slot, 1);
+					
+					if(!player.inventory.addItemStackToInventory(empty))
+					{
+						player.dropPlayerItemWithRandomChoice(empty, false);
+					}
+				}
+			}
+			
+			return fluid;
+		}
+	}
+	
 	@Override
 	public void writeToJson(JsonObject json)
 	{
 		super.writeToJson(json);
 		
-		json.addProperty("partialMatch", partialMatch);
-		json.addProperty("ignoreNBT", ignoreNBT);
 		json.addProperty("consume", consume);
 		
 		JsonArray itemArray = new JsonArray();
-		for(BigItemStack stack : this.requiredItems)
+		for(FluidStack stack : this.requiredFluids)
 		{
-			itemArray.add(JsonHelper.ItemStackToJson(stack, new JsonObject()));
+			itemArray.add(NBTConverter.NBTtoJSON_Compound(stack.writeToNBT(new NBTTagCompound()), new JsonObject()));
 		}
-		json.add("requiredItems", itemArray);
+		json.add("requiredFluids", itemArray);
 		
 		JsonArray progArray = new JsonArray();
 		for(Entry<UUID,int[]> entry : userProgress.entrySet())
@@ -156,23 +204,21 @@ public class TaskRetrieval extends TaskBase
 	{
 		super.readFromJson(json);
 		
-		partialMatch = JsonHelper.GetBoolean(json, "partialMatch", partialMatch);
-		ignoreNBT = JsonHelper.GetBoolean(json, "ignoreNBT", ignoreNBT);
 		consume = JsonHelper.GetBoolean(json, "consume", true);
 		
-		requiredItems.clear();
-		for(JsonElement entry : JsonHelper.GetArray(json, "requiredItems"))
+		requiredFluids.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "requiredFluids"))
 		{
 			if(entry == null || !entry.isJsonObject())
 			{
 				continue;
 			}
 			
-			BigItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
+			FluidStack fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(entry.getAsJsonObject(), new NBTTagCompound()));
 			
-			if(item != null)
+			if(fluid != null)
 			{
-				requiredItems.add(item);
+				requiredFluids.add(fluid);
 			} else
 			{
 				continue;
@@ -197,7 +243,7 @@ public class TaskRetrieval extends TaskBase
 				continue;
 			}
 			
-			int[] data = new int[requiredItems.size()];
+			int[] data = new int[requiredFluids.size()];
 			JsonArray dJson = JsonHelper.GetArray(entry.getAsJsonObject(), "data");
 			for(int i = 0; i < data.length && i < dJson.size(); i++)
 			{
@@ -219,11 +265,11 @@ public class TaskRetrieval extends TaskBase
 	public void drawQuestInfo(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY)
 	{
 		int rowLMax = (sizeX - 40)/18;
-		int rowL = Math.min(requiredItems.size(), rowLMax);
+		int rowL = Math.min(requiredFluids.size(), rowLMax);
 		
-		if(rowLMax < requiredItems.size())
+		if(rowLMax < requiredFluids.size())
 		{
-			scroll = MathHelper.clamp_int(scroll, 0, requiredItems.size() - rowLMax);
+			scroll = MathHelper.clamp_int(scroll, 0, requiredFluids.size() - rowLMax);
 			RenderUtils.DrawFakeButton(screen, posX, posY, 20, 20, "<", screen.isWithin(mx, my, posX, posY, 20, 20, false)? 2 : 1);
 			RenderUtils.DrawFakeButton(screen, posX + 20 + 18*rowL, posY, 20, 20, ">", screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false)? 2 : 1);
 		} else
@@ -231,22 +277,37 @@ public class TaskRetrieval extends TaskBase
 			scroll = 0;
 		}
 		
-		BigItemStack ttStack = null;
+		FluidStack ttStack = null;
+		String ttAmount = "0/0 mB";
 		
 		int[] progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
-		progress = progress == null? new int[requiredItems.size()] : progress;
+		progress = progress == null? new int[requiredFluids.size()] : progress;
 		
 		for(int i = 0; i < rowL; i++)
 		{
-			BigItemStack stack = requiredItems.get(i + scroll);
+			FluidStack stack = requiredFluids.get(i + scroll);
 			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY, 0, 48, 18, 18);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			int count = stack.stackSize - progress[i + scroll];
+			int count = stack.amount - progress[i + scroll];
 			
-			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 21, posY + 1, stack != null && stack.stackSize > 1? "" + count : "");
+			if(stack != null)
+			{
+				screen.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+				if(progress[i] >= stack.amount)
+				{
+					GL11.glColor4f(1F, 1F, 1F, 1F);
+					RenderUtils.itemRender.renderIcon(posX + (i * 18) + 21, posY + 1, stack.getFluid().getIcon(), 16, 16);
+				} else
+				{
+					GL11.glColor4f(1F, 1F, 1F, 0.25F);
+					RenderUtils.itemRender.renderIcon(posX + (i * 18) + 21, posY + 1, stack.getFluid().getIcon(), 16, 16);
+					GL11.glColor4f(1F, 1F, 1F, 1F);
+					RenderUtils.itemRender.renderIcon(posX + (i * 18) + 21, posY + 1 - MathHelper.floor_float(16 * (progress[i]/(float)stack.amount) - 16), stack.getFluid().getIcon(), 16, MathHelper.floor_float(16 * (progress[i]/(float)stack.amount)));
+				}
+			}
 			
 			if(count <= 0 || this.isComplete(screen.mc.thePlayer))
 			{
@@ -260,6 +321,7 @@ public class TaskRetrieval extends TaskBase
 			if(screen.isWithin(mx, my, posX + (i * 18) + 21, posY, 16, 16, false))
 			{
 				ttStack = stack;
+				ttAmount = progress[i] + "/" + stack.amount + " mB";
 			}
 		}
 		
@@ -273,7 +335,10 @@ public class TaskRetrieval extends TaskBase
 		
 		if(ttStack != null)
 		{
-			screen.DrawTooltip(ttStack.getBaseStack().getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
+			ArrayList<String> tTip = new ArrayList<String>();
+			tTip.add(ttStack.getLocalizedName());
+			tTip.add(ChatFormatting.GRAY + ttAmount);
+			screen.DrawTooltip(tTip, mx, my);
 		}
 	}
 	
@@ -287,14 +352,14 @@ public class TaskRetrieval extends TaskBase
 		}
 		
 		int rowLMax = (sizeX - 40)/18;
-		int rowL = Math.min(requiredItems.size(), rowLMax);
+		int rowL = Math.min(requiredFluids.size(), rowLMax);
 		
 		if(screen.isWithin(mx, my, posX, posY, 20, 20, false))
 		{
-			scroll = MathHelper.clamp_int(scroll - 1, 0, requiredItems.size() - rowLMax);
+			scroll = MathHelper.clamp_int(scroll - 1, 0, requiredFluids.size() - rowLMax);
 		} else if(screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false))
 		{
-			scroll = MathHelper.clamp_int(scroll + 1, 0, requiredItems.size() - rowLMax);
+			scroll = MathHelper.clamp_int(scroll + 1, 0, requiredFluids.size() - rowLMax);
 		}
 	}
 }

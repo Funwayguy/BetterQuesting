@@ -50,14 +50,14 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 			this.visible = true;
 		} else
 		{
-			if(parent != null)
+			/*if(parent != null)
 			{
 				this.visible = parent.quest.isUnlocked(mc.thePlayer.getUniqueID());
 			} else
 			{
 				this.visible = true;
 			}
-			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
+			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());*/
 		}
 		
         if (this.visible)
@@ -174,9 +174,9 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             		itemIcon = eItem;
             	}
             	
-            	if(cw >= width/2 && ch >= height/2)
+            	if(cw >= width/2 && ch >= height/2 && quest.itemIcon != null)
             	{
-            		RenderUtils.RenderItemStack(mc, quest.itemIcon, xPosition + offX + 4, yPosition + offY + 4, "", false);
+            		RenderUtils.RenderItemStack(mc, quest.itemIcon.getBaseStack(), xPosition + offX + 4, yPosition + offY + 4, "");
             	}
             	
             	this.mouseDragged(mc, mx, my);

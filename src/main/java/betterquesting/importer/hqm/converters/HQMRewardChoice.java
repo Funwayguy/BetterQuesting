@@ -28,7 +28,7 @@ public class HQMRewardChoice extends HQMReward
 				continue;
 			}
 			
-			reward.choices.addAll(HQMImporter.HQMStackT1(je.getAsJsonObject()));
+			reward.choices.add(HQMImporter.HQMStackT1(je.getAsJsonObject()));
 		}
 		
 		return rList;

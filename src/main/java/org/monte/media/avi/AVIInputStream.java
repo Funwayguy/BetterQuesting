@@ -434,6 +434,7 @@ public class AVIInputStream extends AbstractAVIStream
 		mh.suggestedBufferSize = in.readUnsignedInt();
 		
 		mh.size = new Dimension(in.readInt(), in.readInt());
+		in.close();
 		return mh;
 	}
 	
@@ -483,6 +484,7 @@ public class AVIInputStream extends AbstractAVIStream
 			tr = new TextTrack(tracks.size(), handler);
 		} else
 		{
+			in.close();
 			throw new ParseException("Unknown track type " + type);
 		}
 		
@@ -504,6 +506,7 @@ public class AVIInputStream extends AbstractAVIStream
 		tr.frameRight = in.readShort();
 		tr.frameBottom = in.readShort();
 		
+		in.close();
 		return tr;
 	}
 	
@@ -565,6 +568,9 @@ public class AVIInputStream extends AbstractAVIStream
 		tr.yPelsPerMeter = in.readUnsignedInt();
 		tr.clrUsed = in.readUnsignedInt();
 		tr.clrImportant = in.readUnsignedInt();
+		
+		in.close();
+		
 		if(tr.bitCount == 0)
 		{
 			tr.bitCount = (int)(imageSizeInBytes / tr.width / tr.height * 8);
@@ -621,6 +627,9 @@ public class AVIInputStream extends AbstractAVIStream
 		tr.avgBytesPerSec = in.readUnsignedInt();
 		tr.blockAlign = in.readUnsignedShort();
 		tr.bitsPerSample = in.readUnsignedShort();
+		
+		in.close();
+		
 		if(data.length > 16)
 		{
 			in.readUnsignedShort();
@@ -689,6 +698,7 @@ public class AVIInputStream extends AbstractAVIStream
 			int flags = in.readInt();
 			long offset = in.readUnsignedInt();
 			long size = in.readUnsignedInt();
+			in.close();
 			Track tr = tracks.get(track);
 			int duration = ((flags & 0x100) != 0) ? 0 : 1;
 			if(tr.mediaType == AVIMediaType.AUDIO)

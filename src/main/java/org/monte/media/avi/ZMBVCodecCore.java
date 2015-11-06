@@ -178,6 +178,7 @@ public class ZMBVCodecCore
 			if(onlyDecodeIfKeyframe && !isKeyframe)
 			{
 				System.out.println("ZMBVCodec cannot decode delta without preceeding keyframe.");
+				in.close();
 				return false;
 			}
 			
@@ -195,6 +196,7 @@ public class ZMBVCodecCore
 			if(majorVersion != 0 || minorVersion != 1)
 			{
 				System.err.println("unsupported version " + majorVersion + "." + minorVersion);
+				in.close();
 				return isKeyframe;
 			}
 			
@@ -225,6 +227,7 @@ public class ZMBVCodecCore
 						}
 						inflaterInputStream = new InflaterInputStream(byteArrayInputStream);
 					}
+					in.close();
 					in = new UncachedImageInputStream(inflaterInputStream, ByteOrder.LITTLE_ENDIAN);
 					break;
 				case COMPRESSION_NONE:
@@ -253,6 +256,7 @@ public class ZMBVCodecCore
 					break;
 					
 				default:
+					in.close();
 					throw new UnsupportedOperationException("Unsupported video format " + videoFormat);
 			}
 		} catch(IOException ex)
@@ -280,6 +284,7 @@ public class ZMBVCodecCore
 			if(onlyDecodeIfKeyframe && !isKeyframe)
 			{
 				System.out.println("ZMBVCodec cannot decode delta without preceeding keyframe.");
+				in.close();
 				return false;
 			}
 			
@@ -297,6 +302,7 @@ public class ZMBVCodecCore
 			if(majorVersion != 0 || minorVersion != 1)
 			{
 				System.err.println("unsupported version " + majorVersion + "." + minorVersion);
+				in.close();
 				return isKeyframe;
 			}
 			
@@ -327,6 +333,7 @@ public class ZMBVCodecCore
 						}
 						inflaterInputStream = new InflaterInputStream(byteArrayInputStream);
 					}
+					in.close();
 					in = new UncachedImageInputStream(inflaterInputStream, ByteOrder.LITTLE_ENDIAN);
 					break;
 				case COMPRESSION_NONE:
@@ -355,6 +362,7 @@ public class ZMBVCodecCore
 				break;
 					 * */
 				default:
+					in.close();
 					throw new UnsupportedOperationException("Unsupported video format " + videoFormat);
 			}
 		} catch(IOException ex)
@@ -385,6 +393,7 @@ public class ZMBVCodecCore
 			if(onlyDecodeIfKeyframe && !isKeyframe)
 			{
 				System.err.println("ZMBVCodec cannot decode delta without preceeding keyframe.");
+				in.close();
 				return 0;
 			}
 			
@@ -402,6 +411,7 @@ public class ZMBVCodecCore
 			if(majorVersion != 0 || minorVersion != 1)
 			{
 				System.err.println("unsupported version " + majorVersion + "." + minorVersion);
+				in.close();
 				return 0;
 			}
 			
@@ -432,6 +442,7 @@ public class ZMBVCodecCore
 						}
 						inflaterInputStream = new InflaterInputStream(byteArrayInputStream);
 					}
+					in.close();
 					in = new UncachedImageInputStream(inflaterInputStream, ByteOrder.LITTLE_ENDIAN);
 					break;
 				case COMPRESSION_NONE:
@@ -496,6 +507,7 @@ public class ZMBVCodecCore
 					break;
 					
 				default:
+					in.close();
 					throw new UnsupportedOperationException("Unsupported video format " + videoFormat);
 			}
 		} catch(IOException ex)

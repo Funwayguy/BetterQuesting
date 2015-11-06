@@ -8,6 +8,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -64,7 +65,7 @@ public class GuiQuestLines extends GuiQuesting
 		for(QuestLine line : QuestDatabase.questLines)
 		{
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = line.questList.size() <= 0;
+			//btnLine.enabled = line.questList.size() <= 0;
 			
 			if(selected != null && selected.line == line)
 			{
@@ -159,10 +160,17 @@ public class GuiQuestLines extends GuiQuesting
 				}
 			}
 			
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			for(int l = 0; l < Math.min(3, lineDesc.length); l++)
 			{
 				mc.fontRenderer.drawString(lineDesc[l], this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4 + (l * 10), Color.BLACK.getRGB(), false);
 			}
+			
+			GL11.glPushMatrix();
+			float scale = sizeX > 600? 1.5F : 1F;
+			GL11.glScalef(scale, scale, scale);
+			mc.fontRenderer.drawString(ChatFormatting.BOLD + selected.line.name, MathHelper.ceiling_float_int((this.guiLeft + 180)/scale), MathHelper.ceiling_float_int((this.guiTop + 38)/scale), Color.BLACK.getRGB(), false);
+			GL11.glPopMatrix();
 		}
 		
 		if(qTooltip != null)

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -116,7 +115,7 @@ public class AVIOutputStreamOLD
 	/**
 	 * Creation time of the movie output stream.
 	 */
-	private Date creationTime;
+	//private Date creationTime;
 	/**
 	 * Width of the video frames. All frames must have the same width.
 	 * The value -1 is used to mark unspecified width.
@@ -183,7 +182,7 @@ public class AVIOutputStreamOLD
 		/**
 		 * The duration of the sample in time scale units.
 		 */
-		int duration;
+		//int duration;
 		/** Whether the sample is a sync-sample. */
 		boolean isSync;
 		
@@ -196,7 +195,7 @@ public class AVIOutputStreamOLD
 		public Sample(String chunkId, int duration, long offset, long length, boolean isSync)
 		{
 			chunkType = chunkId;
-			this.duration = duration;
+			//this.duration = duration;
 			this.offset = offset;
 			this.length = length;
 			this.isSync = isSync;
@@ -326,6 +325,7 @@ public class AVIOutputStreamOLD
 				headerData.writeType(compositeType);
 				headerData.writeUInt(size() - 8);
 				headerData.writeType(chunkType);
+				headerData.close();
 				for(Chunk child : children)
 				{
 					child.finish();
@@ -399,6 +399,7 @@ public class AVIOutputStreamOLD
 				DataChunkOutputStream headerData = new DataChunkOutputStream(new ImageOutputStreamAdapter(out), false);
 				headerData.writeType(chunkType);
 				headerData.writeUInt(size() - 8);
+				headerData.close();
 				seekRelative(pointer);
 				if(size() % 2 == 1)
 				{
@@ -718,7 +719,7 @@ public class AVIOutputStreamOLD
 	{
 		if(state != States.STARTED)
 		{
-			creationTime = new Date();
+			//creationTime = new Date();
 			writeProlog();
 			state = States.STARTED;
 		}
@@ -1269,9 +1270,6 @@ public class AVIOutputStreamOLD
 	
 	private void writeEpilog() throws IOException
 	{
-		for(Sample s : videoFrames)
-		{
-		}
 		long bufferSize = 0;
 		for(Sample s : videoFrames)
 		{

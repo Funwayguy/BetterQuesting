@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.GuiJsonObject;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

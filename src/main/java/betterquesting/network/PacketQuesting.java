@@ -4,12 +4,14 @@ import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Level;
+import betterquesting.client.QuestNotification;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
@@ -246,6 +248,13 @@ public class PacketQuesting implements IMessage
 			{
 				JsonObject json = NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Parties"), new JsonObject());
 				PartyManager.readFromJson(json);
+			} else if(ID == 3) // Screen notification
+			{
+				ItemStack stack = ItemStack.loadItemStackFromNBT(message.tags.getCompoundTag("Icon"));
+				String mainTxt = message.tags.getString("Main");
+				String subTxt = message.tags.getString("Sub");
+				int sound = message.tags.getInteger("Sound");
+				QuestNotification.ScheduleNotice(mainTxt, subTxt, stack, sound);
 			}
 			
 			return null;

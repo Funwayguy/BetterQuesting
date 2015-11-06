@@ -18,12 +18,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.core.BetterQuesting;
+import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
+import betterquesting.utils.BigItemStack;
+import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.RenderUtils;
 
-public class TaskCrafting extends TaskBase
+public class TaskCrafting extends AdvancedTaskBase
 {
-	public ArrayList<ItemStack> requiredItems = new ArrayList<ItemStack>();
+	public ArrayList<BigItemStack> requiredItems = new ArrayList<BigItemStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
 	boolean partialMatch = true;
 	boolean ignoreNBT = false;
@@ -35,27 +38,59 @@ public class TaskCrafting extends TaskBase
 	}
 	
 	@Override
-	public void Update(EntityPlayer player)
+	public void onItemCrafted(EntityPlayer player, ItemStack stack)
 	{
+		int[] progress = userProgress.get(player.getUniqueID());
+		progress = progress == null || progress.length != requiredItems.size()? new int[requiredItems.size()] : progress;
+		
+		boolean flag = true;
+		
+		for(int i = 0; i < requiredItems.size(); i++)
+		{
+			BigItemStack rStack = requiredItems.get(i);
+			
+			if(progress[i] >= rStack.stackSize)
+			{
+				continue;
+			}
+			
+			if(ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch))
+			{
+				progress[i] += stack.stackSize;
+			}
+			
+			if(progress[i] < rStack.stackSize)
+			{
+				flag = false;
+			}
+		}
+		
+		userProgress.put(player.getUniqueID(), progress);
+		
+		if(flag)
+		{
+			this.completeUsers.add(player.getUniqueID());
+		}
 	}
 	
 	@Override
-	public void Detect(EntityPlayer player)
+	public void onItemSmelted(EntityPlayer player, ItemStack stack)
 	{
+		
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void drawQuestInfo(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY)
 	{
-		ItemStack ttStack = null;
+		BigItemStack ttStack = null;
 		
 		int[] progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
 		progress = progress == null? new int[requiredItems.size()] : progress;
 		
 		for(int i = 0; i < requiredItems.size(); i++)
 		{
-			ItemStack stack = requiredItems.get(i);
+			BigItemStack stack = requiredItems.get(i);
 			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -63,7 +98,7 @@ public class TaskCrafting extends TaskBase
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 			int count = stack.stackSize - progress[i];
 			
-			RenderUtils.RenderItemStack(screen.mc, stack, posX + (i * 18) + 1, posY + 1, stack != null && stack.stackSize > 1? "" + count : "", false);
+			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 1, posY + 1, stack != null && stack.stackSize > 1? "" + count : "");
 			
 			if(count <= 0 || this.isComplete(screen.mc.thePlayer))
 			{
@@ -89,7 +124,7 @@ public class TaskCrafting extends TaskBase
 		
 		if(ttStack != null)
 		{
-			screen.DrawTooltip(ttStack.getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
+			screen.DrawTooltip(ttStack.getBaseStack().getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
 		}
 	}
 	
@@ -102,7 +137,7 @@ public class TaskCrafting extends TaskBase
 		json.addProperty("ignoreNBT", ignoreNBT);
 		
 		JsonArray itemArray = new JsonArray();
-		for(ItemStack stack : this.requiredItems)
+		for(BigItemStack stack : this.requiredItems)
 		{
 			itemArray.add(JsonHelper.ItemStackToJson(stack, new JsonObject()));
 		}
@@ -142,7 +177,7 @@ public class TaskCrafting extends TaskBase
 			
 			try
 			{
-				ItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
+				BigItemStack item = JsonHelper.JsonToItemStack(entry.getAsJsonObject());
 				
 				if(item != null)
 				{

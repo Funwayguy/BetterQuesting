@@ -5,6 +5,7 @@ import java.io.File;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import org.lwjgl.opengl.GL11;
@@ -14,13 +15,17 @@ import org.monte.media.FormatKeys;
 import org.monte.media.FormatKeys.MediaType;
 import org.monte.media.VideoFormatKeys;
 import org.monte.media.avi.AVIReader;
+import org.monte.media.math.Rational;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-// An experimental GUI for AVI cutscenes
+/**
+ * An experimental GUI for AVI cut scenes. Audio is a bit choppy but otherwise works fairly well despite limited codec support
+ */
 @SideOnly(Side.CLIENT)
 public class GuiCutscene extends GuiScreen
 {
+	File file;
 	AVIReader avi;
 	BufferedImage frame;
 	Buffer aBuff;
@@ -29,14 +34,19 @@ public class GuiCutscene extends GuiScreen
 	int vTrack = 0;
 	int aTrack = 0;
 	
+	public GuiCutscene(File file)
+	{
+		this.file = file;
+	}
+	
 	@Override
 	public void initGui()
 	{
 		super.initGui();
-		
+		startTime = -1;
 		try
 		{
-			avi = new AVIReader(new File("test.avi"));
+			avi = new AVIReader(file);
 			
 			int t = 0;
 			boolean vid = false;
@@ -67,57 +77,77 @@ public class GuiCutscene extends GuiScreen
 		}
 	}
 	
+	int glID = -1;
+	
+	long startTime = -1;
+	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
+		if(startTime < 0)
+		{
+			startTime = Minecraft.getSystemTime();
+		}
+		
 		if(avi != null)
 		{
 			GL11.glPushMatrix();
 			
 			try
 			{
-				if(avi.getReadTime(vTrack).doubleValue() >= avi.getReadTime(aTrack).doubleValue())
+				Rational curTime = new Rational(Minecraft.getSystemTime() - startTime, 1000L);
+				
+				if(curTime.compareTo(avi.getDuration()) >= 0)
 				{
-					if(aBuff == null)
-					{
-						aBuff = new Buffer();
-					}
-					
-					if(aClip == null)
-					{
-						aClip = AudioSystem.getClip();
-					}
-					
-					if(!aClip.isActive())
-					{
-						avi.read(aTrack, aBuff);
-					}
-					
-					if(aForm == null)
-					{
-						if(aBuff.format.get(AudioFormatKeys.SampleSizeInBitsKey, 16) <= 0)
-						{
-							aBuff.format.properties.put(AudioFormatKeys.SampleSizeInBitsKey, 16); // Force non 0 bitrate
-						}
-						aForm = AudioFormatKeys.toAudioFormat(aBuff.format);
-					}
-					
-					if(!aClip.isActive())
+					if(aClip != null)
 					{
 						aClip.close();
-						aClip.open(aForm, (byte[])aBuff.data, 0, aBuff.length);
-						aClip.start();
 					}
+					avi.close();
+					this.mc.displayGuiScreen(null);
+					return;
 				}
 				
-				if(avi.getReadTime(vTrack).doubleValue() <= avi.getReadTime(aTrack).doubleValue())
+				avi.setMovieReadTime(curTime);
+					
+				if(aBuff == null)
 				{
-					frame = avi.read(vTrack, frame);
+					aBuff = new Buffer();
 				}
+				
+				if(aClip == null)
+				{
+					aClip = AudioSystem.getClip();
+				}
+				
+				avi.read(aTrack, aBuff);
+				
+				if(aForm == null)
+				{
+					if(aBuff.format.get(AudioFormatKeys.SampleSizeInBitsKey, 16) <= 0)
+					{
+						aBuff.format.properties.put(AudioFormatKeys.SampleSizeInBitsKey, 16); // Force non 0 bitrate
+					}
+					aForm = AudioFormatKeys.toAudioFormat(aBuff.format);
+				}
+				
+				if(!aClip.isActive())
+				{
+					aClip.flush();
+					aClip.close();
+					aClip.open(aForm, (byte[])aBuff.data, 0, aBuff.length);
+					aClip.start();
+				}
+				
+				frame = avi.read(vTrack, frame);
 				
 				if(frame != null)
 				{
-					int glID = TextureUtil.uploadTextureImage(TextureUtil.glGenTextures(), frame);
+					if(glID < 0)
+					{
+						glID = TextureUtil.glGenTextures();
+					}
+					TextureUtil.uploadTextureImage(glID, frame);
 					GL11.glBindTexture(GL11.GL_TEXTURE_2D, glID);
 					double scaleX = this.width/Math.min(256D, (double)frame.getWidth());
 					double scaleY = this.height/Math.min(256D, (double)frame.getHeight()); 

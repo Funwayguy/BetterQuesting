@@ -3,12 +3,13 @@ package betterquesting.party;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
-import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
+import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -19,6 +20,7 @@ public class PartyManager
 {
 	public static boolean updateUI = true;
 	static HashMap<String, PartyInstance> partyList = new HashMap<String, PartyInstance>();
+	static HashMap<UUID, String> nameCache = new HashMap<UUID, String>(); // Used for display purposes only
 	
 	/**
 	 * Creates a new party with the given player as host and adds it to the list of active parties
@@ -27,7 +29,8 @@ public class PartyManager
 	 */
 	public static boolean CreateParty(EntityPlayer player, String name)
 	{
-		if(partyList.containsKey(name))
+		nameCache.put(player.getUniqueID(), player.getCommandSenderName());
+		if(partyList.containsKey(name) || GetParty(player.getUniqueID()) != null)
 		{
 			return false;
 		}
@@ -61,7 +64,9 @@ public class PartyManager
 		
 		for(PartyInstance party : partyList.values())
 		{
-			if(party.invites.contains(player.getUniqueID()))
+			PartyMember mem = party.GetMemberData(player.getUniqueID());
+			
+			if(mem != null && mem.GetPrivilege() == 0)
 			{
 				list.add(party);
 			}

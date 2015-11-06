@@ -1,4 +1,4 @@
-package betterquesting.client.gui.json;
+package betterquesting.client.gui.editors.json;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -7,10 +7,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonJson;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiJsonTypeMenu extends GuiQuesting
 {
 	JsonObject json;
-	ItemStack stack;
+	BigItemStack stack;
 	Entity entity;
 	EditType lastType = EditType.NONE;
 	
@@ -56,7 +56,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 		
 		if(stack == null)
 		{
-			stack = new ItemStack(Blocks.stone);
+			stack = new BigItemStack(Blocks.stone);
 		}
 		
 		if(entity == null)

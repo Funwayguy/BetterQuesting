@@ -550,7 +550,6 @@ public class StreamPosTokenizer
 	 * @see        java.io.StreamTokenizer#sval
 	 * @see        java.io.StreamTokenizer#ttype
 	 */
-	@SuppressWarnings("empty-statement")
 	public int nextToken() throws IOException
 	{
 		if(pushedBack)
@@ -642,7 +641,7 @@ public class StreamPosTokenizer
 		startpos = readpos - 1;
 		
 		// rlw hexadecimal
-		hex: if(((ctype & CT_DIGIT) != 0) && c == '0' && isParseHexNumbers)
+		if(((ctype & CT_DIGIT) != 0) && c == '0' && isParseHexNumbers)
 		{
 			c = read();
 			if(c == 'x')
@@ -704,11 +703,11 @@ public class StreamPosTokenizer
 						unread(c);
 						c = '-';
 						break digit;
-					} else
+					}/* else
 					{
 						endpos = readpos - 1;
 						return ttype = '-';
-					}
+					}*/
 				}
 				neg = true;
 			} else if(c == '+')
@@ -718,12 +717,12 @@ public class StreamPosTokenizer
 				{
 					peekc = c;
 					// rlw
-					if(('+' & CT_ALPHA) != 0)
+					/*if(('+' & CT_ALPHA) != 0)
 					{
 						unread(c);
 						c = '+';
 						break digit;
-					} else
+					} else*/
 					{
 						endpos = readpos - 1;
 						return ttype = '-';
@@ -782,10 +781,10 @@ public class StreamPosTokenizer
 						c = '.';
 					}
 					break digit;
-				} else
+				}/* else
 				{
 					return ttype = '.';
-				}
+				}*/
 			} else
 			{
 				if(isParseExponents)

@@ -31,9 +31,9 @@ public class TaskLocation extends TaskBase
 	@Override
 	public void Update(EntityPlayer player)
 	{
-		if(player.ticksExisted%20 != 0)
+		if(player.ticksExisted%60 != 0) // Only auto-detect every 3 seconds
 		{
-			return; // Keeps ray casting calls to a minimum
+			return;
 		}
 		
 		Detect(player);

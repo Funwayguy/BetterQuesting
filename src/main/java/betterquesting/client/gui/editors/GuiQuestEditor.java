@@ -1,11 +1,12 @@
-package betterquesting.client.gui;
+package betterquesting.client.gui.editors;
 
 import java.awt.Color;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.client.gui.json.GuiJsonObject;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
@@ -56,7 +57,7 @@ public class GuiQuestEditor extends GuiQuesting
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 200, 20, "Edit Prerequisites");
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, "Edit Raw JSON");
+		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, "Advanced Editor");
 		this.buttonList.add(btn);
 	}
 	
@@ -67,8 +68,8 @@ public class GuiQuestEditor extends GuiQuesting
 		
 		titleField.drawTextBox();
 		descField.drawTextBox();
-		
-		mc.fontRenderer.drawString("Name: ", width/2 - 100, height/2 - 80, Color.BLACK.getRGB(), false);
+
+		mc.fontRenderer.drawString("Name:", width/2 - 100, height/2 - 80, Color.BLACK.getRGB(), false);
 		mc.fontRenderer.drawString("Description: ", width/2 - 100, height/2 - 40, Color.BLACK.getRGB(), false);
 	}
 	

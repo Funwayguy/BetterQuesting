@@ -26,7 +26,7 @@ public class TaskScoreboard extends TaskBase
 	@Override
 	public void Update(EntityPlayer player)
 	{
-		if(player.ticksExisted%20 == 0)
+		if(player.ticksExisted%20 == 0) // Auto-detect once per second
 		{
 			Detect(player);
 		}

@@ -24,7 +24,7 @@ public class HQMTaskCraft extends HQMTask
 				continue;
 			}
 			
-			task.requiredItems.addAll(HQMImporter.HQMStackT2(element.getAsJsonObject()));
+			task.requiredItems.add(HQMImporter.HQMStackT2(element.getAsJsonObject()));
 		}
 		
 		tList.add(task);

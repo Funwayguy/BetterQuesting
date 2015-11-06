@@ -27,12 +27,12 @@ public class Format
 	/**
 	 * Holds the properties of the format.
 	 */
-	public HashMap<FormatKey,Object> properties;
+	public HashMap<FormatKey<?>,Object> properties;
 	
 	/**
 	 * Creates a new format onlyWith the specified properties.
 	 */
-	public Format(Map<FormatKey,Object> properties)
+	public Format(Map<FormatKey<?>,Object> properties)
 	{
 		this(properties, true);
 	}
@@ -40,21 +40,21 @@ public class Format
 	/**
 	 * Creates a new format onlyWith the specified properties.
 	 */
-	private Format(Map<FormatKey,Object> properties, boolean copy)
+	private Format(Map<FormatKey<?>,Object> properties, boolean copy)
 	{
 		if(copy || !(properties instanceof HashMap))
 		{
-			for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+			for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 			{
 				if(!e.getKey().isAssignable(e.getValue()))
 				{
 					throw new ClassCastException(e.getValue() + " must be of type " + e.getKey().getValueClass());
 				}
 			}
-			this.properties = new HashMap<FormatKey,Object>(properties);
+			this.properties = new HashMap<FormatKey<?>,Object>(properties);
 		} else
 		{
-			this.properties = (HashMap<FormatKey,Object>)properties;
+			this.properties = (HashMap<FormatKey<?>,Object>)properties;
 		}
 	}
 	
@@ -64,10 +64,10 @@ public class Format
 	 */
 	public Format(Object... p)
 	{
-		properties = new HashMap<FormatKey,Object>();
+		properties = new HashMap<FormatKey<?>,Object>();
 		for(int i = 0; i < p.length; i += 2)
 		{
-			FormatKey key = (FormatKey)p[i];
+			FormatKey<?> key = (FormatKey<?>)p[i];
 			if(!key.isAssignable(p[i + 1]))
 			{
 				throw new ClassCastException(key + ": " + p[i + 1] + " must be of type " + key.getValueClass());
@@ -88,7 +88,7 @@ public class Format
 		return (properties.containsKey(key)) ? (T)properties.get(key) : defaultValue;
 	}
 	
-	public boolean containsKey(FormatKey key)
+	public boolean containsKey(FormatKey<?> key)
 	{
 		return properties.containsKey(key);
 	}
@@ -96,7 +96,7 @@ public class Format
 	/**
 	 * Gets the properties of the format as an unmodifiable map.
 	 */
-	public Map<FormatKey,Object> getProperties()
+	public Map<FormatKey<?>,Object> getProperties()
 	{
 		return Collections.unmodifiableMap(properties);
 	}
@@ -104,7 +104,7 @@ public class Format
 	/**
 	 * Gets the keys of the format as an unmodifiable set.
 	 */
-	public Set<FormatKey> getKeys()
+	public Set<FormatKey<?>> getKeys()
 	{
 		return Collections.unmodifiableSet(properties.keySet());
 	}
@@ -119,7 +119,7 @@ public class Format
 	 */
 	public boolean matches(Format that)
 	{
-		for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+		for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 		{
 			if(!e.getKey().isComment())
 			{
@@ -138,11 +138,11 @@ public class Format
 		return true;
 	}
 	
-	public boolean matchesWithout(Format that, FormatKey... without)
+	public boolean matchesWithout(Format that, FormatKey<?>... without)
 	{
-		OuterLoop: for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+		OuterLoop: for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 		{
-			FormatKey k = e.getKey();
+			FormatKey<?> k = e.getKey();
 			if(!e.getKey().isComment())
 			{
 				if(that.properties.containsKey(k))
@@ -179,8 +179,8 @@ public class Format
 	 */
 	public Format append(Format that)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>(properties);
-		for(Map.Entry<FormatKey,Object> e : that.properties.entrySet())
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>(properties);
+		for(Map.Entry<FormatKey<?>,Object> e : that.properties.entrySet())
 		{
 			if(!m.containsKey(e.getKey()))
 			{
@@ -202,10 +202,10 @@ public class Format
 	 */
 	public Format append(Object... p)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>(properties);
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>(properties);
 		for(int i = 0; i < p.length; i += 2)
 		{
-			FormatKey key = (FormatKey)p[i];
+			FormatKey<?> key = (FormatKey<?>)p[i];
 			if(!key.isAssignable(p[i + 1]))
 			{
 				throw new ClassCastException(key + ": " + p[i + 1] + " must be of type " + key.getValueClass());
@@ -228,8 +228,8 @@ public class Format
 	 */
 	public Format prepend(Format that)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>(that.properties);
-		for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>(that.properties);
+		for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 		{
 			if(!m.containsKey(e.getKey()))
 			{
@@ -252,17 +252,17 @@ public class Format
 	 */
 	public Format prepend(Object... p)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>();
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>();
 		for(int i = 0; i < p.length; i += 2)
 		{
-			FormatKey key = (FormatKey)p[i];
+			FormatKey<?> key = (FormatKey<?>)p[i];
 			if(!key.isAssignable(p[i + 1]))
 			{
 				throw new ClassCastException(key + ": " + p[i + 1] + " must be of type " + key.getValueClass());
 			}
 			m.put(key, p[i + 1]);
 		}
-		for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+		for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 		{
 			if(!m.containsKey(e.getKey()))
 			{
@@ -277,10 +277,10 @@ public class Format
 	 * the keys are reduced, then the new format is less specific than this
 	 * format.
 	 */
-	public Format intersectKeys(FormatKey... keys)
+	public Format intersectKeys(FormatKey<?>... keys)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>();
-		for(FormatKey k : keys)
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>();
+		for(FormatKey<?> k : keys)
 		{
 			if(properties.containsKey(k))
 			{
@@ -294,10 +294,10 @@ public class Format
 	 * Creates a new format without the specified keys. <p> If the keys are
 	 * reduced, then the new format is less specific than this format.
 	 */
-	public Format removeKeys(FormatKey... keys)
+	public Format removeKeys(FormatKey<?>... keys)
 	{
 		boolean needsRemoval = false;
-		for(FormatKey k : keys)
+		for(FormatKey<?> k : keys)
 		{
 			if(properties.containsKey(k))
 			{
@@ -310,8 +310,8 @@ public class Format
 			return this;
 		}
 		
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>(properties);
-		for(FormatKey k : keys)
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>(properties);
+		for(FormatKey<?> k : keys)
 		{
 			m.remove(k);
 		}
@@ -321,10 +321,10 @@ public class Format
 	/**
 	 * Returns true if the format has the specified keys.
 	 */
-	public Format containsKeys(FormatKey... keys)
+	public Format containsKeys(FormatKey<?>... keys)
 	{
-		HashMap<FormatKey,Object> m = new HashMap<FormatKey,Object>(properties);
-		for(FormatKey k : keys)
+		HashMap<FormatKey<?>,Object> m = new HashMap<FormatKey<?>,Object>(properties);
+		for(FormatKey<?> k : keys)
 		{
 			m.remove(k);
 		}
@@ -336,7 +336,7 @@ public class Format
 	{
 		StringBuilder buf = new StringBuilder("Format{");
 		boolean isFirst = true;
-		for(Map.Entry<FormatKey,Object> e : properties.entrySet())
+		for(Map.Entry<FormatKey<?>,Object> e : properties.entrySet())
 		{
 			if(isFirst)
 			{

@@ -9,7 +9,6 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,12 +17,20 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.importer.hqm.converters.*;
+import betterquesting.importer.hqm.converters.HQMReward;
+import betterquesting.importer.hqm.converters.HQMRewardChoice;
+import betterquesting.importer.hqm.converters.HQMRewardStandard;
+import betterquesting.importer.hqm.converters.HQMTask;
+import betterquesting.importer.hqm.converters.HQMTaskCraft;
+import betterquesting.importer.hqm.converters.HQMTaskDetect;
+import betterquesting.importer.hqm.converters.HQMTaskKill;
+import betterquesting.importer.hqm.converters.HQMTaskLocation;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -141,14 +148,14 @@ public class HQMImporter
 			
 			quest.name = name;
 			quest.description = JsonHelper.GetString(jQuest, "description", "No Description");
-			ArrayList<ItemStack> tmp = HQMStackT1(JsonHelper.GetObject(jQuest, "icon"));
+			BigItemStack tmp = HQMStackT1(JsonHelper.GetObject(jQuest, "icon"));
 			
-			if(tmp.size() > 0)
+			if(tmp != null)
 			{
-				quest.itemIcon = tmp.get(0);
+				quest.itemIcon = tmp;
 			} else
 			{
-				quest.itemIcon = new ItemStack(Items.nether_star);
+				quest.itemIcon = new BigItemStack(Items.nether_star);
 			}
 			
 			for(JsonElement er : JsonHelper.GetArray(jQuest, "prerequisites"))
@@ -234,10 +241,8 @@ public class HQMImporter
 	/**
 	 * Get HQM formatted item, Type 1
 	 */
-	public static ArrayList<ItemStack> HQMStackT1(JsonObject json) // This can return multiple stacks in the event the stack size exceeds 127
+	public static BigItemStack HQMStackT1(JsonObject json) // This can return multiple stacks in the event the stack size exceeds 127
 	{
-		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
-		
 		String iID = JsonHelper.GetString(json, "id", "minecraft:stone");
 		Item item = (Item)Item.itemRegistry.getObject(iID);
 		int amount = JsonHelper.GetNumber(json, "amount", 1).intValue();
@@ -284,31 +289,22 @@ public class HQMImporter
 			tags = tmp;
 		}
 		
-		while(amount > 0)
+		BigItemStack stack = new BigItemStack(item, amount, damage);
+		
+		if(tags != null)
 		{
-			int cur = Math.min(amount, 127);
-			amount -= cur;
-			ItemStack stack = new ItemStack(item, cur, damage);
-			
-			if(tags != null)
-			{
-				stack.stackTagCompound = (NBTTagCompound)tags.copy();
-			}
-			
-			list.add(stack);
+			stack.SetTagCompound(tags);
 		}
 		
-		return list;
+		return stack;
 	}
 	
 	/**
 	 * Get HQM formatted item, Type 2
 	 */
-	public static ArrayList<ItemStack> HQMStackT2(JsonObject rJson) // This can return multiple stacks in the event the stack size exceeds 127
+	public static BigItemStack HQMStackT2(JsonObject rJson) // This can return multiple stacks in the event the stack size exceeds 127
 	{
 		JsonObject json = JsonHelper.GetObject(rJson, "item");
-		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
-		
 		String iID = JsonHelper.GetString(json, "id", "minecraft:stone");
 		Item item = (Item)Item.itemRegistry.getObject(iID);
 		int amount = JsonHelper.GetNumber(rJson, "required", 1).intValue();
@@ -355,21 +351,14 @@ public class HQMImporter
 			tags = tmp;
 		}
 		
-		while(amount > 0)
+		BigItemStack stack = new BigItemStack(item, amount, damage);
+		
+		if(tags != null)
 		{
-			int cur = Math.min(amount, 127);
-			amount -= cur;
-			ItemStack stack = new ItemStack(item, cur, damage);
-			
-			if(tags != null)
-			{
-				stack.stackTagCompound = (NBTTagCompound)tags.copy();
-			}
-			
-			list.add(stack);
+			stack.SetTagCompound(tags);
 		}
 		
-		return list;
+		return stack;
 	}
 	
 	public static FluidStack HQMStackT3(JsonObject json)

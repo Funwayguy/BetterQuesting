@@ -20,15 +20,29 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderUtils
 {
-	static RenderItem itemRender = new RenderItem();
+	public static RenderItem itemRender = new RenderItem();
 	
-	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, boolean highlight)
+	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text)
+	{
+		RenderItemStack(mc, stack, x, y, text, Color.WHITE);
+	}
+	
+	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
+	{
+		float r = (float)(color >> 16 & 255) / 255.0F;
+        float g = (float)(color >> 8 & 255) / 255.0F;
+        float b = (float)(color & 255) / 255.0F;
+        float a = (float)(color >> 24 & 255) / 255.0F;
+		RenderItemStack(mc, stack, x, y, text, new Color(r, g, b, a));
+	}
+	
+	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
 		GL11.glPushMatrix();
         
 		try
 		{
-		    GL11.glColor4f(1F, 1F, 1F, 1F);
+		    GL11.glColor4b((byte)color.getRed(), (byte)color.getGreen(), (byte)color.getBlue(), (byte)color.getAlpha());
 			RenderHelper.enableGUIStandardItemLighting();
 		    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 			

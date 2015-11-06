@@ -3,8 +3,8 @@ package betterquesting.client.gui.misc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonElement;
@@ -16,7 +16,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiButtonJson extends GuiButtonQuesting
 {
 	public JsonElement json;
-	public ItemStack stack;
+	public BigItemStack stack;
 	public Entity entity;
 	
 	public GuiButtonJson(int index, int posX, int posY, JsonElement json)
@@ -48,7 +48,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 			this.displayString = "Entity: " + entity.getCommandSenderName();
 		} else if(this.stack != null)
 		{
-			this.displayString = "Item: " + stack.getDisplayName();
+			this.displayString = "Item: " + stack.getBaseStack().getDisplayName();
 		} else if(json.isJsonPrimitive())
 		{
 			this.displayString = json.getAsJsonPrimitive().getAsString();

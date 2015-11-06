@@ -8,37 +8,36 @@ import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
+/**
+ * Piggybacks off vanilla Team system
+ */
 public class PartyInstance
 {
 	String name = "New Party";
-	UUID host;
-	ArrayList<UUID> members = new ArrayList<UUID>();
-	ArrayList<UUID> invites = new ArrayList<UUID>();
+	ArrayList<PartyMember> members = new ArrayList<PartyMember>();
+	
+	public boolean lifeShare = false;
+	public boolean lootShare = false;
 	
 	public PartyInstance(String name, UUID host)
 	{
 		this.name = name;
-		this.host = host;
-		
-		members.add(host);
-	}
-	
-	public boolean isInParty(UUID uuid)
-	{
-		return members.contains(uuid);
 	}
 	
 	public void InvitePlayer(UUID uuid)
 	{
-		if(!invites.contains(uuid))
+		PartyMember mem = GetMemberData(uuid);
+		
+		if(mem == null)
 		{
-			invites.add(uuid);
+			mem = new PartyMember(uuid);
+			mem.privilege = 0;
+			members.add(mem);
 		}
 	}
 	
-	public ArrayList<UUID> GetMembers()
+	public ArrayList<PartyMember> GetMembers()
 	{
 		return members;
 	}
@@ -50,13 +49,12 @@ public class PartyInstance
 	 */
 	public boolean JoinParty(UUID uuid)
 	{
-		if(PartyManager.GetParty(uuid) != null)
+		PartyMember mem = GetMemberData(uuid);
+		
+		if(mem != null && mem.privilege == 0)
 		{
-			return false; // Already part of another party
-		} else if(invites.contains(uuid) && !members.contains(uuid))
-		{
-			invites.remove(uuid);
-			return members.add(uuid);
+			mem.privilege = 1;
+			return true;
 		} else
 		{
 			return false;
@@ -69,37 +67,60 @@ public class PartyInstance
 	 */
 	public void LeaveParty(UUID uuid)
 	{
-		invites.remove(uuid);
-		members.remove(uuid);
+		PartyMember mem = GetMemberData(uuid);
 		
-		if(members.size() <= 0 || this.host.equals(uuid)) // Cannot have a party without a host or no members so we disband this party
+		if(mem == null)
+		{
+			return;
+		}
+		
+		members.remove(mem);
+		
+		if(members.size() <= 0) // Cannot have a party without any members so we disband this party
 		{
 			PartyManager.Disband(this.name);
+		} else if(mem.privilege >= 2)
+		{
+			members.get(0).privilege = 2; // Host migration
 		}
+	}
+	
+	public boolean isHost(UUID uuid)
+	{
+		PartyMember mem = GetMemberData(uuid);
+		
+		return mem != null && mem.privilege >= 2;
+	}
+	
+	/**
+	 * @param uuid
+	 * @return Party membership data or null if player is not a member of this party
+	 */
+	public PartyMember GetMemberData(UUID uuid)
+	{
+		for(PartyMember mem : members)
+		{
+			if(mem.userID.equals(uuid))
+			{
+				return mem;
+			}
+		}
+		
+		return null;
 	}
 	
 	public void writeToJson(JsonObject jObj)
 	{
 		jObj.addProperty("name", this.name);
-		jObj.addProperty("host", this.host.toString());
 		
 		JsonArray memJson = new JsonArray();
 		
-		for(UUID uuid : members)
+		for(PartyMember mem : members)
 		{
-			memJson.add(new JsonPrimitive(uuid.toString()));
+			memJson.add(mem.getJson());
 		}
 		
 		jObj.add("members", memJson);
-		
-		JsonArray invJson = new JsonArray();
-		
-		for(UUID uuid : invites)
-		{
-			invJson.add(new JsonPrimitive(uuid.toString()));
-		}
-		
-		jObj.add("invites", invJson);
 	}
 	
 	public void readFromJson(JsonObject jObj)
@@ -108,38 +129,58 @@ public class PartyInstance
 		//this.name = jObj.get("name").getAsString();
 		//this.host = UUID.fromString(jObj.get("host").getAsString());
 		
-		invites.clear();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "memebers"))
+		members.clear();
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
 		{
-			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
+			if(entry == null || !entry.isJsonObject())
 			{
 				continue;
 			}
 			
 			try
 			{
-				invites.add(UUID.fromString(entry.getAsString()));
+				PartyMember pMem = new PartyMember(UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "userID", "")));
+				pMem.readJson(entry.getAsJsonObject());
+				members.add(pMem);
 			} catch(Exception e)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Failed to load party member for party '" + this.name + "'");
 			}
 		}
+	}
+	
+	public static class PartyMember
+	{
+		public final UUID userID;
+		/**
+		 * Ch-ch-check your privilege!</br>
+		 * 0 = invited, 1 = member, 2 = host</br>
+		 * Operators may not be able to forcibly join parties however they can kick any user without the hosts consent!
+		 * This power is intentionally reserved for situations such as forcing a host migration when the user has been offline for an extended period of time. 
+		 */
+		private int privilege = 0; // Ch-ch-check your privilege!
 		
-		members.clear();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "invites"))
+		public PartyMember(UUID uuid)
 		{
-			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
-			{
-				continue;
-			}
-			
-			try
-			{
-				members.add(UUID.fromString(entry.getAsString()));
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Failed to load party invite for party '" + this.name + "'");
-			}
+			this.userID = uuid;
+		}
+		
+		public int GetPrivilege()
+		{
+			return privilege;
+		}
+		
+		public JsonObject getJson()
+		{
+			JsonObject json = new JsonObject();
+			json.addProperty("userID", userID.toString());
+			json.addProperty("privilege", privilege);
+			return json;
+		}
+		
+		public void readJson(JsonObject json)
+		{
+			privilege = JsonHelper.GetNumber(json, "privilege", 0).intValue();
 		}
 	}
 }

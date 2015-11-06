@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
+import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -71,6 +72,34 @@ public class QuestDatabase
 		}
 		
 		return questDB.values().toArray(new QuestInstance[0])[index];
+	}
+	
+	/**
+	 * Gets the active quests this player currently has or all quests if player is null
+	 */
+	public static ArrayList<TaskBase> getActiveTasks(EntityPlayer player)
+	{
+		ArrayList<TaskBase> taskList = new ArrayList<TaskBase>();
+		
+		for(QuestInstance quest : questDB.values())
+		{
+			if(player != null && !quest.isUnlocked(player.getUniqueID()) || quest.isComplete(player.getUniqueID()))
+			{
+				continue;
+			}
+			
+			for(TaskBase task : quest.tasks)
+			{
+				if(player != null && task.isComplete(player))
+				{
+					continue;
+				}
+				
+				taskList.add(task);
+			}
+		}
+		
+		return taskList;
 	}
 
 	public static void DeleteQuest(int id)
