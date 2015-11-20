@@ -7,8 +7,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -54,8 +56,24 @@ public class GuiButtonJson extends GuiButtonQuesting
 			this.displayString = json.getAsJsonPrimitive().getAsString();
 		} else
 		{
-			this.displayString = json.getClass().getSimpleName();
+			this.displayString = GetJsonName(json.getClass()) + "...";
 		}
+	}
+	
+	static String GetJsonName(Class<? extends JsonElement> c)
+	{
+		if(c == JsonObject.class)
+		{
+			return "Object";
+		} else if(c == JsonArray.class)
+		{
+			return "List";
+		} else if(c == JsonPrimitive.class)
+		{
+			return "Value"; // This should not normally be seen
+		}
+		
+		return c.getSimpleName();
 	}
 	
 	public boolean isItemStack()

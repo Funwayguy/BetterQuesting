@@ -2,16 +2,22 @@ package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
+import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -19,7 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonObject extends GuiQuesting
+public class GuiJsonObject extends GuiQuesting implements ITextEditor
 {
 	int scrollPos = 0;
 	JsonObject settings;
@@ -32,7 +38,7 @@ public class GuiJsonObject extends GuiQuesting
 	
 	public GuiJsonObject(GuiScreen parent, JsonObject settings)
 	{
-		super(parent, "Editor - JSON Object");
+		super(parent, "Editor - Object");
 		this.settings = settings;
 	}
 	
@@ -63,8 +69,10 @@ public class GuiJsonObject extends GuiQuesting
 		
         Keyboard.enableRepeatEvents(true);
         
+        int i = -1;
 		for(Entry<String,JsonElement> entry : settings.entrySet())
 		{
+			i++;
 			if(entry.getValue().isJsonPrimitive())
 			{
 				JsonPrimitive jPrim = entry.getValue().getAsJsonPrimitive();
@@ -81,7 +89,7 @@ public class GuiJsonObject extends GuiQuesting
 					continue;
 				} else
 				{
-					txtBox = new GuiTextField(this.fontRendererObj, 32, -9999, 128, 16);
+					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(this, i);
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -240,14 +248,19 @@ public class GuiJsonObject extends GuiQuesting
 				
 				if(settings.getAsJsonPrimitive(entry.getKey()).isNumber())
 				{
-					try
+					if(textField instanceof GuiNumberField)
 					{
-						settings.add(entry.getKey(), new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
-					} catch(Exception e)
+						settings.add(entry.getKey(), new JsonPrimitive(((GuiNumberField)textField).getNumber()));
+					} else
 					{
-						System.out.println("ERROR"); // NOT SETTING VALUE. PLEASE FIX
-						e.printStackTrace();
-						settings.add(entry.getKey(), new JsonPrimitive(textField.getText()));
+						try
+						{
+							settings.add(entry.getKey(), new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
+						} catch(Exception e)
+						{
+							BetterQuesting.logger.log(Level.ERROR, "Unable to parse number format for JsonObject!", e);
+							settings.add(entry.getKey(), new JsonPrimitive(textField.getText()));
+						}
 					}
 				} else
 				{
@@ -256,4 +269,19 @@ public class GuiJsonObject extends GuiQuesting
 			}
 		}
     }
+
+	@Override
+	public void setText(int id, String text)
+	{
+		if(settings == null || id < 0 || id >= settings.entrySet().size())
+		{
+			return;
+		}
+		
+		Set<Entry<String,JsonElement>> jSet = settings.entrySet();
+		
+		Entry<String,JsonElement> entry = new ArrayList<Entry<String,JsonElement>>(jSet).get(id);
+		
+		settings.addProperty(entry.getKey(), text);
+	}
 }

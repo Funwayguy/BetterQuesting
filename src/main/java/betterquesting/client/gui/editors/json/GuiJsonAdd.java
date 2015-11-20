@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.utils.JsonIO;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -84,7 +85,7 @@ public class GuiJsonAdd extends GuiQuesting
 		
 		if(keyText != null)
 		{
-			this.drawString(this.fontRendererObj, "Key", this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth("Key")/2, this.guiTop + 52, Color.WHITE.getRGB());
+			this.drawString(this.fontRendererObj, "Key", this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth("Key")/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB());
 			
 			if(keyText.getText().length() <= 0)
 			{

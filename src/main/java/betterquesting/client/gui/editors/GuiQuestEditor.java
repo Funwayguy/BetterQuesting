@@ -1,15 +1,18 @@
 package betterquesting.client.gui.editors;
 
-import java.awt.Color;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
+import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
@@ -17,17 +20,17 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestEditor extends GuiQuesting
+public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 {
 	JsonObject lastEdit;
 	QuestInstance quest;
 	
 	GuiTextField titleField;
-	GuiTextField descField;
+	GuiBigTextField descField;
 	
 	public GuiQuestEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, "Quest Editor");
+		super(parent, "Quest Editor - " + quest.name);
 		this.quest = quest;
 	}
 	
@@ -36,6 +39,8 @@ public class GuiQuestEditor extends GuiQuesting
 	public void initGui()
 	{
 		super.initGui();
+		
+		this.title = "Quest Editor - " + quest.name;
 		
 		if(lastEdit != null)
 		{
@@ -47,7 +52,8 @@ public class GuiQuestEditor extends GuiQuesting
 		titleField = new GuiTextField(this.fontRendererObj, width/2 - 99, height/2 - 68 + 1, 198, 18);
 		titleField.setMaxStringLength(Integer.MAX_VALUE);
 		titleField.setText(quest.name);
-		descField = new GuiTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18);
+		
+		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this, 0);
 		descField.setMaxStringLength(Integer.MAX_VALUE);
 		descField.setText(quest.description);
 		
@@ -66,11 +72,18 @@ public class GuiQuestEditor extends GuiQuesting
 	{
 		super.drawScreen(mx, my, partialTick);
 		
+		if(QuestDatabase.updateUI)
+		{
+			QuestDatabase.updateUI = false;
+			lastEdit = null;
+			initGui();
+		}
+		
 		titleField.drawTextBox();
 		descField.drawTextBox();
 
-		mc.fontRenderer.drawString("Name:", width/2 - 100, height/2 - 80, Color.BLACK.getRGB(), false);
-		mc.fontRenderer.drawString("Description: ", width/2 - 100, height/2 - 40, Color.BLACK.getRGB(), false);
+		mc.fontRenderer.drawString("Name:", width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString("Description: ", width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
 	@Override
@@ -106,6 +119,7 @@ public class GuiQuestEditor extends GuiQuesting
         titleField.textboxKeyTyped(character, keyCode);
         descField.textboxKeyTyped(character, keyCode);
     }
+	
     /**
      * Called when the mouse is clicked.
      */
@@ -150,5 +164,20 @@ public class GuiQuestEditor extends GuiQuesting
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+	}
+
+	@Override
+	public void setText(int id, String text)
+	{
+		if(id == 0)
+		{
+			if(descField != null)
+			{
+				descField.setText(text);
+			}
+			
+			quest.description = text;
+			SendChanges();
+		}
 	}
 }

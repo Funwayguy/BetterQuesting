@@ -50,14 +50,14 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 			this.visible = true;
 		} else
 		{
-			/*if(parent != null)
+			if(parent != null)
 			{
 				this.visible = parent.quest.isUnlocked(mc.thePlayer.getUniqueID());
 			} else
 			{
 				this.visible = true;
 			}
-			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());*/
+			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
 		}
 		
         if (this.visible)

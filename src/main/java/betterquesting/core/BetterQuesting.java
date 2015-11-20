@@ -7,8 +7,16 @@ import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
-import betterquesting.quests.rewards.*;
-import betterquesting.quests.tasks.*;
+import betterquesting.quests.rewards.RewardChoice;
+import betterquesting.quests.rewards.RewardItem;
+import betterquesting.quests.rewards.RewardRegistry;
+import betterquesting.quests.tasks.TaskCrafting;
+import betterquesting.quests.tasks.TaskFluid;
+import betterquesting.quests.tasks.TaskHunt;
+import betterquesting.quests.tasks.TaskLocation;
+import betterquesting.quests.tasks.TaskRegistry;
+import betterquesting.quests.tasks.TaskRetrieval;
+import betterquesting.quests.tasks.TaskScoreboard;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -69,6 +77,8 @@ public class BetterQuesting
     	
     	RewardRegistry.RegisterReward(RewardItem.class, "item");
     	RewardRegistry.RegisterReward(RewardChoice.class, "choice");
+    	
+    	proxy.registerThemes();
     }
     
     @EventHandler

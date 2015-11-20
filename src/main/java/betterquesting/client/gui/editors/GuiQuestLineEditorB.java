@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors;
 
-import java.awt.Color;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -12,6 +11,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.QuestDatabase;
@@ -35,9 +35,9 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	
 	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
 	{
-		super(parent, "Edit Quest Line");
+		super(parent, "Line Editor - " + (line == null? "None" : line.name));
 		this.line = line;
-		selIndex = QuestDatabase.questLines.indexOf(line);
+		selIndex = line == null? -1 : QuestDatabase.questLines.indexOf(line);
 	}
 	
 	@Override
@@ -45,6 +45,8 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	public void initGui()
 	{
 		super.initGui();
+		
+		this.title = "Line Editor - " + (line == null? "None" : line.name);
 		
 		maxRows = (sizeY - 96)/20;
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
@@ -101,7 +103,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(guiTexture);
+		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
@@ -128,12 +130,12 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(QuestDatabase.questDB.size() - maxRows + 1F)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, Color.BLACK);
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		String txt = "Quest Line";
-		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, Color.BLACK.getRGB(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		txt = "Database";
-		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, Color.BLACK.getRGB(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
 	@Override

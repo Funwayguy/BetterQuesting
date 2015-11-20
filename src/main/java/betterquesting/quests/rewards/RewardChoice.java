@@ -1,6 +1,5 @@
 package betterquesting.quests.rewards;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -9,6 +8,7 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
@@ -136,7 +136,7 @@ public class RewardChoice extends RewardBase
 		for(int i = 0; i < rowL; i++)
 		{
 			BigItemStack stack = choices.get(i + scroll);
-			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
+			screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY + 1, 0, 48, 18, 18);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -148,9 +148,9 @@ public class RewardChoice extends RewardBase
 			}
 		}
 		
-		screen.mc.fontRenderer.drawString("Selected:", posX, posY + 32, Color.BLACK.getRGB(), false);
+		screen.mc.fontRenderer.drawString("Selected:", posX, posY + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
+		screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		screen.drawTexturedModalRect(posX + 50, posY + 28, 0, 48, 18, 18);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

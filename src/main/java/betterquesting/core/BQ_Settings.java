@@ -15,4 +15,5 @@ public class BQ_Settings
 	public static String noticeUnlock = "random.levelup";
 	public static String noticeUpdate = "random.levelup";
 	public static String noticeComplete = "random.levelup";
+	public static String curTheme = "betterquesting:light";
 }

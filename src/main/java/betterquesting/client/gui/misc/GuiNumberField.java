@@ -68,4 +68,15 @@ public class GuiNumberField extends GuiTextField
 	{
 		super.setText(text.replaceAll(GuiQuesting.numRegex, ""));
 	}
+	
+	public Number getNumber()
+	{
+		try
+		{
+			return NumberFormat.getInstance().parse(getText());
+		} catch(Exception e)
+		{
+			return 0;
+		}
+	}
 }

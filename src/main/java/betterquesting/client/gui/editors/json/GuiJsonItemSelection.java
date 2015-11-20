@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors.json;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +18,7 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
@@ -101,15 +101,15 @@ public class GuiJsonItemSelection extends GuiQuesting
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 
-		this.mc.renderEngine.bindTexture(guiTexture);
+		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		this.drawTexturedModalRect(this.guiLeft + 16 , this.guiTop + 48, 0, 48, 18, 18);
 		RenderUtils.RenderItemStack(this.mc, this.stackSelect.getBaseStack(), this.guiLeft + 17, this.guiTop + 49, "");
 		
-		this.fontRendererObj.drawString("Selection", this.guiLeft + 16, this.guiTop + 32, Color.BLACK.getRGB(), false);
+		this.fontRendererObj.drawString("Selection", this.guiLeft + 16, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		if(this.stackSelect != null)
 		{
-			this.fontRendererObj.drawString(this.stackSelect.getBaseStack().getDisplayName() + " x " + this.stackSelect.stackSize, this.guiLeft + 36, this.guiTop + 52, Color.BLACK.getRGB(), false);
+			this.fontRendererObj.drawString(this.stackSelect.getBaseStack().getDisplayName() + " x " + this.stackSelect.stackSize, this.guiLeft + 36, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			if(this.isWithin(mx, my, 16, 48, 16, 16))
 			{
@@ -117,7 +117,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 			}
 		}
 		
-		this.fontRendererObj.drawString("Inventory", this.guiLeft + 16, this.guiTop + 80, Color.BLACK.getRGB(), false);
+		this.fontRendererObj.drawString("Inventory", this.guiLeft + 16, this.guiTop + 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
@@ -130,7 +130,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
 				
-				this.mc.renderEngine.bindTexture(guiTexture);
+				this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(this.guiLeft + 16 + x , this.guiTop + 96 + y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -149,7 +149,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 			}
 		}
 
-		this.fontRendererObj.drawString("Search: ", this.guiLeft + this.sizeX/2, this.guiTop + 32, Color.BLACK.getRGB(), false);
+		this.fontRendererObj.drawString("Search: ", this.guiLeft + this.sizeX/2, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.searchBox.xPosition = this.guiLeft + this.width/2 + this.fontRendererObj.getStringWidth("Search: ");
 		this.searchBox.yPosition = this.guiTop + 28;
 		this.searchBox.drawTextBox();
@@ -172,7 +172,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				break;
 			}
 			
-			this.mc.renderEngine.bindTexture(guiTexture);
+			this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 			
 			ItemStack resultStack = searchResults.get(i);
 			

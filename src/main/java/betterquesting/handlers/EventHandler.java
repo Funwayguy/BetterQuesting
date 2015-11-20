@@ -4,13 +4,13 @@ import java.io.File;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
+import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiQuestLines;
+import betterquesting.client.gui.GuiThemeSelect;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
@@ -34,20 +34,13 @@ public class EventHandler
 	public void onKey(InputEvent.KeyInputEvent event) // Currently for debugging purposes only. Replace with proper handler later
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		if(mc.gameSettings.keyBindJump.getIsKeyPressed() && mc.thePlayer.getHeldItem() != null)
+		
+		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			ItemStack held = mc.thePlayer.getHeldItem();
-			
-			if(held != null)
-			{
-				if(mc.thePlayer.isSneaking() && held.hasTagCompound())
-				{
-					BetterQuesting.logger.log(Level.INFO, held.getTagCompound().toString());
-				} else if(held.getItem() == Items.apple)
-				{
-					mc.displayGuiScreen(new GuiQuestLines(mc.currentScreen));
-				}
-			}
+			mc.displayGuiScreen(new GuiQuestLines(mc.currentScreen));
+		} else if(BQ_Keybindings.openThemes.isPressed())
+		{
+			mc.displayGuiScreen(new GuiThemeSelect(mc.currentScreen));
 		}
 	}
 	

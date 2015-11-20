@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors;
 
-import java.awt.Color;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -10,6 +9,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.QuestDatabase;
@@ -102,7 +102,7 @@ public class GuiRewardEditor extends GuiQuesting
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(guiTexture);
+		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
@@ -128,7 +128,7 @@ public class GuiRewardEditor extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 32 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(RewardRegistry.GetTypeList().size() - maxRows + 1F)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, Color.BLACK);
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 	}
 	
 	@Override

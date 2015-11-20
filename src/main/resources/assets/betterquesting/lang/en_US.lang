@@ -8,3 +8,7 @@ betterquesting.reward.choice=Choice Reward
 betterquesting.reward.item=Item Reward
 
 item.betterquesting.placeholder.name=Item Placeholder
+
+key.betterquesting.quests=Open Quests
+key.betterquesting.party=Party Manager
+key.betterquesting.themes=Change Theme

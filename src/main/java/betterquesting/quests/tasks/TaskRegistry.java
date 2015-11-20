@@ -12,15 +12,20 @@ import cpw.mods.fml.common.ModContainer;
  */
 public class TaskRegistry
 {
-	static HashMap<String, Class<? extends TaskBase>> questRegistry = new HashMap<String, Class<? extends TaskBase>>();
+	static HashMap<String, Class<? extends TaskBase>> taskRegistry = new HashMap<String, Class<? extends TaskBase>>();
 	
-	public static void RegisterTask(Class<? extends TaskBase> quest, String idName)
+	public static void RegisterTask(Class<? extends TaskBase> task, String idName)
 	{
-		ModContainer mod = Loader.instance().activeModContainer();
-		
 		try
 		{
-			if(quest == null)
+			ModContainer mod = Loader.instance().activeModContainer();
+			
+			if(idName.contains(":"))
+			{
+				throw new IllegalArgumentException("Illegal character(s) used in task ID name");
+			}
+			
+			if(task == null)
 			{
 				throw new NullPointerException("Tried to register null task");
 			} else if(mod == null)
@@ -30,7 +35,7 @@ public class TaskRegistry
 			
 			try
 			{
-				quest.getDeclaredConstructor();
+				task.getDeclaredConstructor();
 			} catch(NoSuchMethodException e)
 			{
 				throw new NoSuchMethodException("Task is missing a default constructor with 0 arguemnts");
@@ -38,23 +43,23 @@ public class TaskRegistry
 			
 			String fullName = mod.getModId() + ":" + idName;
 			
-			if(questRegistry.containsKey(fullName))
+			if(taskRegistry.containsKey(fullName) || taskRegistry.containsValue(task))
 			{
 				throw new IllegalStateException("Cannot register dupliate task type '" + fullName + "'");
 			}
 			
-			questRegistry.put(fullName, quest);
+			taskRegistry.put(fullName, task);
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register task", e);
 		}
 	}
 	
-	public static String GetID(Class<? extends TaskBase> quest)
+	public static String GetID(Class<? extends TaskBase> task)
 	{
-		for(String idName : questRegistry.keySet())
+		for(String idName : taskRegistry.keySet())
 		{
-			if(questRegistry.get(idName) == quest)
+			if(taskRegistry.get(idName) == task)
 			{
 				return idName;
 			}
@@ -65,19 +70,19 @@ public class TaskRegistry
 	
 	public static Class<? extends TaskBase> GetTask(String idName)
 	{
-		return questRegistry.get(idName);
+		return taskRegistry.get(idName);
 	}
 	
 	public static ArrayList<String> GetTypeList()
 	{
-		return new ArrayList<String>(questRegistry.keySet());
+		return new ArrayList<String>(taskRegistry.keySet());
 	}
 	
 	public static TaskBase InstatiateTask(String idName)
 	{
 		try
 		{
-			Class<? extends TaskBase> task = questRegistry.get(idName);
+			Class<? extends TaskBase> task = taskRegistry.get(idName);
 			
 			if(task == null)
 			{
@@ -85,7 +90,7 @@ public class TaskRegistry
 				return null;
 			}
 			
-			return questRegistry.get(idName).newInstance();
+			return taskRegistry.get(idName).newInstance();
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate quest: " + idName, e);

@@ -1,25 +1,23 @@
 package betterquesting.client.gui;
 
-import java.awt.Color;
 import java.util.List;
-import org.lwjgl.opengl.GL11;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.party.PartyManager;
+import betterquesting.quests.QuestDatabase;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuesting extends GuiScreen
 {
 	public static final String numRegex = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
-	public static final ResourceLocation guiTexture = new ResourceLocation("betterquesting", "textures/gui/editor_gui.png");
 	
 	protected GuiScreen parent;
 	protected String title = "Better Questing";
@@ -72,7 +70,7 @@ public class GuiQuesting extends GuiScreen
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
-		this.mc.renderEngine.bindTexture(guiTexture);
+		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		for(int i = 0; i < this.sizeX; i += 16)
 		{
@@ -101,11 +99,11 @@ public class GuiQuesting extends GuiScreen
 			}
 		}
 		
-		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + title, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(title)/2, this.guiTop + 16, Color.BLACK.getRGB(), false);
+		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + title, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(title)/2, this.guiTop + 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		super.drawScreen(mx, my, partialTick);
 		
-		this.mc.renderEngine.bindTexture(guiTexture);
+		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 	}
     

@@ -16,6 +16,7 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -286,7 +287,7 @@ public class TaskFluid extends TaskBase
 		for(int i = 0; i < rowL; i++)
 		{
 			FluidStack stack = requiredFluids.get(i + scroll);
-			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
+			screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY, 0, 48, 18, 18);

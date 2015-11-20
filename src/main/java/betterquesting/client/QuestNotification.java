@@ -92,8 +92,9 @@ public class QuestNotification
 		{
 			RenderUtils.RenderItemStack(mc, notice.icon, width/2 - 8, height/4 - 20, "",  new Color(1F, 1F, 1F, alpha));
 		}
-		
+
 		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
 		String tmp = ChatFormatting.UNDERLINE + "" + ChatFormatting.BOLD + notice.mainTxt;
 		int txtW = mc.fontRenderer.getStringWidth(tmp);

@@ -23,4 +23,8 @@ public class CommonProxy
 		MinecraftForge.TERRAIN_GEN_BUS.register(advHandle);
 		FMLCommonHandler.instance().bus().register(advHandle);
 	}
+
+	public void registerThemes()
+	{
+	}
 }

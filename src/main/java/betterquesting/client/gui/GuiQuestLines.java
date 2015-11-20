@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.tasks.TaskBase;
-import betterquesting.utils.RenderUtils;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -25,7 +24,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiQuestLines extends GuiQuesting
 {
 	GuiButtonQuestLine selected;
-	ResourceLocation mapTex = new ResourceLocation("textures/map/map_background.png");
 	ArrayList<GuiButtonQuestLine> qlBtns = new ArrayList<GuiButtonQuestLine>();
 	int listScroll = 0;
 	int maxRows = 0;
@@ -33,7 +31,6 @@ public class GuiQuestLines extends GuiQuesting
 	int boxScrollY = 0;
 	int maxScrollX = 0;
 	int maxScrollY = 0;
-	String[] lineDesc = new String[]{};
 	
 	public GuiQuestLines(GuiScreen parent)
 	{
@@ -50,7 +47,6 @@ public class GuiQuestLines extends GuiQuesting
 		
 		listScroll = 0;
 		maxRows = (sizeY - 64)/20;
-		lineDesc = new String[]{};
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
@@ -65,7 +61,7 @@ public class GuiQuestLines extends GuiQuesting
 		for(QuestLine line : QuestDatabase.questLines)
 		{
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			//btnLine.enabled = line.questList.size() <= 0;
+			btnLine.enabled = line.questList.size() <= 0;
 			
 			if(selected != null && selected.line == line)
 			{
@@ -103,7 +99,10 @@ public class GuiQuestLines extends GuiQuesting
 			selected = null;
 		} else
 		{
-			lineDesc = RenderUtils.WordWrap(fontRendererObj, selected.line.description, this.sizeX - (32 + 150 + 8));
+			maxScrollX = Math.abs((this.sizeX - (32 + 150 + 8))/2 - (selected.treeW + 32)/2);
+			maxScrollY = Math.abs((this.sizeY - 64 - 32)/2 - (selected.treeH + 32)/2);
+			boxScrollX = 0;
+			boxScrollY = maxScrollY;
 		}
 		
 		UpdateScroll();
@@ -120,7 +119,7 @@ public class GuiQuestLines extends GuiQuesting
 			this.initGui();
 		}
 		
-		this.mc.renderEngine.bindTexture(guiTexture);
+		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		GL11.glPushMatrix();
 		int mapSX = this.sizeX - (32 + 150 + 8);
@@ -128,12 +127,8 @@ public class GuiQuestLines extends GuiQuesting
 		double scaleX = mapSX/128D;
 		double scaleY = mapSY/128D;
 		GL11.glScaled(scaleX, scaleY, 1F);
-		this.drawTexturedModalRect(MathHelper.ceiling_double_int((this.guiLeft + 174)/scaleX), MathHelper.ceiling_double_int((this.guiTop + 32)/scaleY), 0, 128, 128, 128);
+		this.drawTexturedModalRect((int)Math.round((this.guiLeft + 174)/scaleX), (int)Math.round((this.guiTop + 32)/scaleY), 0, 128, 128, 128);
 		GL11.glPopMatrix();
-		
-		//Debug box bounds
-		//RenderUtils.DrawLine(this.guiLeft + 174, this.guiTop + 32, this.guiLeft + 174 + this.sizeX - (32 + 150 + 8), this.guiTop + 32 + this.sizeY - 64, 2, Color.BLACK);
-		//RenderUtils.DrawLine(this.guiLeft + 174 + this.sizeX - (32 + 150 + 8), this.guiTop + 32, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64, 2, Color.BLACK);
 		
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32, 248, 0, 8, 20);
 		int i = 20;
@@ -161,10 +156,8 @@ public class GuiQuestLines extends GuiQuesting
 			}
 			
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			for(int l = 0; l < Math.min(3, lineDesc.length); l++)
-			{
-				mc.fontRenderer.drawString(lineDesc[l], this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4 + (l * 10), Color.BLACK.getRGB(), false);
-			}
+			
+			mc.fontRenderer.drawSplitString(selected.line.description, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB());
 			
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
@@ -241,8 +234,6 @@ public class GuiQuestLines extends GuiQuesting
 			maxScrollY = Math.abs((this.sizeY - 64 - 32)/2 - (selected.treeH + 32)/2);
 			boxScrollX = 0;
 			boxScrollY = maxScrollY;
-			
-			lineDesc = RenderUtils.WordWrap(fontRendererObj, selected.line.description, this.sizeX - (32 + 150 + 8));
 		}
 	}
 	

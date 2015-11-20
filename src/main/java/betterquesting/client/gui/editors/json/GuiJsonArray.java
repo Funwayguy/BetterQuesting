@@ -1,15 +1,19 @@
 package betterquesting.client.gui.editors.json;
 
-import java.awt.Color;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
+import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonIO;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -18,7 +22,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiQuesting
+public class GuiJsonArray extends GuiQuesting implements ITextEditor
 {
 	int scrollPos = 0;
 	JsonArray settings;
@@ -79,7 +83,7 @@ public class GuiJsonArray extends GuiQuesting
 					continue;
 				} else
 				{
-					txtBox = new GuiTextField(this.fontRendererObj, 32, -9999, 128, 16);
+					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(this, i);
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -92,12 +96,6 @@ public class GuiJsonArray extends GuiQuesting
 				this.buttonList.add(button);
 			}
 		}
-	}
-	
-	@Override
-	public void onGuiClosed()
-	{
-		// >> Send new settings to the server here <<
 	}
 	
 	@Override
@@ -210,7 +208,7 @@ public class GuiJsonArray extends GuiQuesting
 			if(n >= 0 && n < maxRows)
 			{
 				posY = this.guiTop + 30 + (n * 20);
-				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, Color.BLACK.getRGB(), false);
+				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 				
 				if(controls != null)
 				{
@@ -265,12 +263,19 @@ public class GuiJsonArray extends GuiQuesting
 				
 				if(list.get(i).getAsJsonPrimitive().isNumber())
 				{
-					try
+					if(textField instanceof GuiNumberField)
 					{
-						list.set(i, new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
-					} catch(Exception e)
+						list.add(i, new JsonPrimitive(((GuiNumberField)textField).getNumber()));
+					} else
 					{
-						list.set(i, new JsonPrimitive(textField.getText()));
+						try
+						{
+							list.set(i, new JsonPrimitive(NumberFormat.getInstance().parse(textField.getText())));
+						} catch(Exception e)
+						{
+							BetterQuesting.logger.log(Level.ERROR, "Unable to parse number format for JsonArray!", e);
+							list.set(i, new JsonPrimitive(textField.getText()));
+						}
 					}
 				} else
 				{
@@ -279,4 +284,18 @@ public class GuiJsonArray extends GuiQuesting
 			}
 		}
     }
+
+	@Override
+	public void setText(int id, String text)
+	{
+		ArrayList<JsonElement> list = settings == null? null : JsonIO.GetUnderlyingArray(settings);
+		
+		if(list == null || id < 0 || id >= list.size())
+		{
+			return;
+		}
+		
+		list.set(id, new JsonPrimitive(text));
+		this.initGui(); // Refresh the listing
+	}
 }

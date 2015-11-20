@@ -17,6 +17,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.BigItemStack;
@@ -91,7 +92,7 @@ public class TaskCrafting extends AdvancedTaskBase
 		for(int i = 0; i < requiredItems.size(); i++)
 		{
 			BigItemStack stack = requiredItems.get(i);
-			screen.mc.renderEngine.bindTexture(GuiQuesting.guiTexture);
+			screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			screen.drawTexturedModalRect(posX + (i * 18), posY, 0, 48, 18, 18);

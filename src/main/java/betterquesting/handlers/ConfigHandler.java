@@ -3,6 +3,7 @@ package betterquesting.handlers;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
+import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 
 public class ConfigHandler
@@ -18,6 +19,8 @@ public class ConfigHandler
 		}
 		
 		config.load();
+		
+		BQ_Settings.curTheme = config.getString("Theme", Configuration.CATEGORY_GENERAL, "betterquesting:light", "The current questing theme");
 		
 		config.save();
 		

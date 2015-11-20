@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors;
 
-import java.awt.Color;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -10,7 +9,10 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.network.PacketQuesting;
@@ -24,10 +26,10 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorA extends GuiQuesting
+public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 {
 	GuiTextField lineTitle;
-	GuiTextField lineDesc;
+	GuiBigTextField lineDesc;
 	QuestLine selected;
 	int selIndex = -1;
 	int leftScroll = 0;
@@ -47,9 +49,13 @@ public class GuiQuestLineEditorA extends GuiQuesting
 		maxRows = (sizeY - 80)/20;
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
-		lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 59, btnWidth + 8 - 2, 18);
-		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
-		lineDesc = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 19, btnWidth + 8 - 2, 18);
+		if(lineTitle == null)
+		{
+			lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 59, btnWidth + 8 - 2, 18);
+			lineTitle.setMaxStringLength(Integer.MAX_VALUE);
+		}
+		
+		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 19, btnWidth + 8 - 2, 18).enableBigEdit(this, 0);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
 		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + sizeY - 48, btnWidth/2, 20, "Add New"));
@@ -85,7 +91,7 @@ public class GuiQuestLineEditorA extends GuiQuesting
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(guiTexture);
+		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
@@ -100,10 +106,10 @@ public class GuiQuestLineEditorA extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(QuestDatabase.questLines.size() - maxRows)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, Color.BLACK);
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
 		
-		mc.fontRenderer.drawString("Name:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 72, Color.BLACK.getRGB(), false);
-		mc.fontRenderer.drawString("Description:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 32, Color.BLACK.getRGB(), false);
+		mc.fontRenderer.drawString("Name:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString("Description:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		lineTitle.drawTextBox();
 		lineDesc.drawTextBox();
@@ -309,6 +315,24 @@ public class GuiQuestLineEditorA extends GuiQuesting
 			lineTitle.setEnabled(true);
 			lineDesc.setText(selected.description);
 			lineDesc.setEnabled(true);
+		}
+	}
+
+	@Override
+	public void setText(int id, String text)
+	{
+		if(id == 0)
+		{
+			if(lineDesc != null)
+			{
+				lineDesc.setText(text);
+			}
+			
+			if(selected != null)
+			{
+				selected.description = text;
+				SendChanges(2);
+			}
 		}
 	}
 }

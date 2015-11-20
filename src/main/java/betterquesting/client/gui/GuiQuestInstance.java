@@ -1,15 +1,12 @@
 package betterquesting.client.gui;
 
-import java.awt.Color;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
-import com.mojang.realmsclient.gui.ChatFormatting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.QuestDatabase;
@@ -17,12 +14,14 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.RenderUtils;
+import com.mojang.realmsclient.gui.ChatFormatting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestInstance extends GuiQuesting
 {
 	QuestInstance quest;
-	String[] wrappedDesc = new String[]{};
 	int selTask = 0;
 	int selReward = 0;
 	GuiButtonQuesting btnTLeft;
@@ -46,7 +45,6 @@ public class GuiQuestInstance extends GuiQuesting
 		this.title = quest.name;
 		this.selReward = 0;
 		this.selTask = 0;
-		wrappedDesc = RenderUtils.WordWrap(fontRendererObj, quest.description, sizeX/2 - 16);
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
@@ -98,12 +96,9 @@ public class GuiQuestInstance extends GuiQuesting
 			}
 		}
 		
-		for(int i = 0; i < wrappedDesc.length; i++)
-		{
-			this.fontRendererObj.drawString(wrappedDesc[i], this.guiLeft + 16, this.guiTop + 32 + (i * 10), Color.BLACK.getRGB(), false);
-		}
+		this.fontRendererObj.drawSplitString(quest.description, this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB());
 		
-		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, Color.BLACK);
+		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, ThemeRegistry.curTheme().textColor());
 		
 		TaskBase task = selTask < quest.tasks.size()? quest.tasks.get(selTask) : null;
 		
@@ -119,7 +114,7 @@ public class GuiQuestInstance extends GuiQuesting
 			tTitle = ChatFormatting.UNDERLINE + tTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
-			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, Color.BLACK.getRGB());
+			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			GL11.glPushMatrix(); 
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			task.drawQuestInfo(this, mx, my, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
@@ -140,7 +135,7 @@ public class GuiQuestInstance extends GuiQuesting
 			rTitle = ChatFormatting.UNDERLINE + rTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
-			this.fontRendererObj.drawString(rTitle, this.guiLeft + (sizeX/4)*1 - (nameWidth/2), this.guiTop + sizeY/2, Color.BLACK.getRGB());
+			this.fontRendererObj.drawString(rTitle, this.guiLeft + (sizeX/4)*1 - (nameWidth/2), this.guiTop + sizeY/2, ThemeRegistry.curTheme().textColor().getRGB());
 			GL11.glPushMatrix();
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			reward.drawReward(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 12, sizeX/2 - 8, sizeY - 104);

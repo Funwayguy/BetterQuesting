@@ -1,10 +1,10 @@
 package betterquesting.quests.tasks;
 
-import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -14,6 +14,8 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.editors.tasks.GuiHuntEditor;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.JsonHelper;
@@ -130,7 +132,7 @@ public class TaskHunt extends AdvancedTaskBase
 		Integer progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
 		progress = progress == null? 0 : progress;
 		String txt = "Kill " + idName + " " + progress + "/" + required;
-		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY, Color.BLACK.getRGB());
+		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY, ThemeRegistry.curTheme().textColor().getRGB());
 		if(target != null)
 		{
 			GL11.glPushMatrix();
@@ -165,5 +167,15 @@ public class TaskHunt extends AdvancedTaskBase
 				target = EntityList.createEntityByName(idName, screen.mc.theWorld);
 			}
 		}
+	}
+	
+	/**
+	 * Returns a new editor screen for this Reward type to edit the given data
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public GuiScreen GetEditor(GuiScreen parent, JsonObject data)
+	{
+		return new GuiHuntEditor(parent, data);
 	}
 }

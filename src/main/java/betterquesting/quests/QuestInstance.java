@@ -233,15 +233,18 @@ public class QuestInstance
 	
 	public boolean isUnlocked(UUID uuid)
 	{
+		int A = 0;
+		int B = preRequisites.size();
+		
 		for(QuestInstance quest : preRequisites)
 		{
 			if(quest != null && !quest.isComplete(uuid))
 			{
-				return false;
+				A++;
 			}
 		}
 		
-		return true;
+		return logic.GetResult(A, B);
 	}
 	
 	public boolean isComplete(UUID uuid)
@@ -437,7 +440,8 @@ public class QuestInstance
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
-		this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND"));
+		this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
+		this.logic = logic == null? QuestLogic.AND : logic;
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
 		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
 		

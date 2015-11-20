@@ -13,10 +13,15 @@ public class RewardRegistry
 	
 	public static void RegisterReward(Class<? extends RewardBase> reward, String idName)
 	{
-		ModContainer mod = Loader.instance().activeModContainer();
-		
 		try
 		{
+			ModContainer mod = Loader.instance().activeModContainer();
+			
+			if(idName.contains(":"))
+			{
+				throw new IllegalArgumentException("Illegal character(s) used in reward ID name");
+			}
+			
 			if(reward == null)
 			{
 				throw new NullPointerException("Tried to register null reward");
@@ -35,7 +40,7 @@ public class RewardRegistry
 			
 			String fullName = mod.getModId() + ":" + idName;
 			
-			if(rewardRegistry.containsKey(fullName))
+			if(rewardRegistry.containsKey(fullName) || rewardRegistry.containsValue(reward))
 			{
 				throw new IllegalStateException("Cannot register dupliate reward type '" + fullName + "'");
 			}
