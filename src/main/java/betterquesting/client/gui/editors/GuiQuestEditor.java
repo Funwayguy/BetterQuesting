@@ -14,6 +14,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestInstance.QuestLogic;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -57,13 +58,17 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		descField.setMaxStringLength(Integer.MAX_VALUE);
 		descField.setText(quest.description);
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(1, width/2 - 100, height/2 + 8, 200, 20, "Edit Rewards");
+		GuiButtonQuesting btn = new GuiButtonQuesting(1, width/2, height/2 + 28, 100, 20, "Rewards");
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, width/2 - 100, height/2 + 28, 200, 20, "Edit Tasks");
+		btn = new GuiButtonQuesting(2, width/2 - 100, height/2 + 28, 100, 20, "Tasks");
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 200, 20, "Edit Prerequisites");
+		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 100, 20, "Requirements");
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, "Advanced Editor");
+		this.buttonList.add(btn);
+		btn = new GuiButtonQuesting(5, width/2 - 100, height/2 + 8, 200, 20, "Is Main Quest: " + quest.isMain);
+		this.buttonList.add(btn);
+		btn = new GuiButtonQuesting(6, width/2, height/2 + 48, 100, 20, "Logic: " + quest.logic);
 		this.buttonList.add(btn);
 	}
 	
@@ -105,6 +110,17 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 			this.lastEdit = new JsonObject();
 			quest.writeToJSON(lastEdit);
 			mc.displayGuiScreen(new GuiJsonObject(this, lastEdit));
+		} else if(button.id == 5)
+		{
+			quest.isMain = !quest.isMain;
+			button.displayString = "Is Main Quest: " + quest.isMain;
+			SendChanges();
+		} else if(button.id == 6)
+		{
+			QuestLogic[] logic = QuestLogic.values();
+			quest.logic = logic[(quest.logic.ordinal() + 1)%logic.length];
+			button.displayString = "Logic: " + quest.logic;
+			SendChanges();
 		}
 	}
 

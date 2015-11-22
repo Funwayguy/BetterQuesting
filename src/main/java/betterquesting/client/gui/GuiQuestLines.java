@@ -16,6 +16,7 @@ import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.utils.RenderUtils;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -157,7 +158,7 @@ public class GuiQuestLines extends GuiQuesting
 			
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			
-			mc.fontRenderer.drawSplitString(selected.line.description, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB());
+			RenderUtils.drawSplitString(fontRendererObj, selected.line.description, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;

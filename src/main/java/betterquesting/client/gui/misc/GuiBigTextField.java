@@ -6,6 +6,7 @@ import betterquesting.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.EnumChatFormatting;
 
 public class GuiBigTextField extends GuiTextField
 {
@@ -50,7 +51,7 @@ public class GuiBigTextField extends GuiTextField
 		
 		if(mc.currentScreen instanceof GuiQuesting && host != null)
 		{
-			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width, yPosition, 20, height, "...", 1);
+			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width + 1, yPosition - 1, 20, height + 2, EnumChatFormatting.BOLD + "A" + EnumChatFormatting.RESET + "a", 1);
 		}
 		
 		super.drawTextBox();

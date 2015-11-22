@@ -1,6 +1,5 @@
 package betterquesting.client.themes;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -21,7 +20,7 @@ public class ThemeRegistry
 	/**
 	 * In the event the player's theme is invalid or no longer available, the UI will use this one instead (DO NOT REGISTER THIS THEME)
 	 */
-	static ThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"), Color.BLACK);
+	static ThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
 	static HashMap<String,ThemeBase> themeList = new HashMap<String,ThemeBase>();
 	
 	public static void RegisterTheme(ThemeBase theme, String idName)

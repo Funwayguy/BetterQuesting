@@ -96,7 +96,7 @@ public class GuiQuestInstance extends GuiQuesting
 			}
 		}
 		
-		this.fontRendererObj.drawSplitString(quest.description, this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB());
+		RenderUtils.drawSplitString(fontRendererObj, quest.description, this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, ThemeRegistry.curTheme().textColor());
 		

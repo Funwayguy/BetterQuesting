@@ -1,5 +1,6 @@
 package betterquesting.client.gui.misc;
 
+import java.awt.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
@@ -11,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.RenderUtils;
 
@@ -82,6 +84,8 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             int cy = MathHelper.clamp_int(yPosition + offY, clampMinY, clampMaxY);
             int cw = MathHelper.clamp_int(xPosition + offX + width, clampMinX, clampMaxX) - cx;
             int ch = MathHelper.clamp_int(yPosition + offY + height, clampMinY, clampMaxY) - cy;
+
+        	int questState = !quest.isUnlocked(mc.thePlayer.getUniqueID())? 0 : (!quest.isComplete(mc.thePlayer.getUniqueID())? 1 : (!quest.HasClaimed(mc.thePlayer)? 2 : 3));
         	
         	if(parent != null)
         	{
@@ -95,24 +99,11 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	        		GL11.glPushMatrix();
 	        		
 	        		GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+	            	Color ci = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int(questState, 0, 2), quest.isMain);
+	            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
 	        		
-	        		if(!enabled)
-	        		{
-	        			GL11.glColor4f(0.75F, 0F, 0F, 1F);
-	        		} else if(quest.isComplete(mc.thePlayer.getUniqueID()))
-	        		{
-        				GL11.glColor4f(0F, 1F, 0F, 1F);
-	        		} else
-	        		{
-	        			if((Minecraft.getSystemTime()/1000)%2 == 0)
-	        			{
-		        			GL11.glColor4f(0.5F, 0.5F, 0F, 1F);
-	        			} else
-	        			{
-		        			GL11.glColor4f(1F, 1F, 0F, 1F);
-	        			}
-	        		}
-	        		GL11.glLineWidth(4F);
+	        		GL11.glLineWidth(quest.isMain? 12F : 3F);
 	        		GL11.glBegin(GL11.GL_LINES);
 	        		
 	        		
@@ -129,42 +120,10 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             
             if(cw > 0 && ch > 0)
             {
-            	if(state == 0)
-        		{
-        			GL11.glColor4f(0.5F, 0.5F, 0.5F, 1F);
-        		} else if(quest.isComplete(mc.thePlayer.getUniqueID()))
-        		{
-        			if(quest.HasClaimed(mc.thePlayer))
-        			{
-	        			if(state == 1)
-	        			{
-	        				GL11.glColor4f(0F, 0.75F, 0F, 1F);
-	        			} else
-	        			{
-	        				GL11.glColor4f(0F, 1F, 0F, 1F);
-	        			}
-        			} else
-        			{
-	        			if(state == 1)
-	        			{
-	        				GL11.glColor4f(0F, 0.75F, 0.75F, 1F);
-	        			} else
-	        			{
-	        				GL11.glColor4f(0F, 1F, 1F, 1F);
-	        			}
-        			}
-        		} else
-        		{
-        			if(state == 1)
-        			{
-	        			GL11.glColor4f(0.5F, 0F, 0F, 1F);
-        			} else
-        			{
-	        			GL11.glColor4f(0.75F, 0F, 0F, 1F);
-        			}
-        		}
+            	Color ci = ThemeRegistry.curTheme().getIconColor(state, questState, quest.isMain);
+            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
             	
-            	this.drawTexturedModalRect(cx, cy, Math.max(0, cx - (xPosition + offX)), 104 + Math.max(0, cy - (yPosition + offY)), cw, ch);
+            	this.drawTexturedModalRect(cx, cy, (quest.isMain? 24 : 0) + Math.max(0, cx - (xPosition + offX)), 104 + Math.max(0, cy - (yPosition + offY)), cw, ch);
             	
             	if(itemIcon == null)
             	{

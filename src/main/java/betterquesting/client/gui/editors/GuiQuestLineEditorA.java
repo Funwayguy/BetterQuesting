@@ -49,11 +49,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		maxRows = (sizeY - 80)/20;
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
-		if(lineTitle == null)
-		{
-			lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 59, btnWidth + 8 - 2, 18);
-			lineTitle.setMaxStringLength(Integer.MAX_VALUE);
-		}
+		lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 59, btnWidth + 8 - 2, 18);
+		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
 		
 		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 19, btnWidth + 8 - 2, 18).enableBigEdit(this, 0);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);

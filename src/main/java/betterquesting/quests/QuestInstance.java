@@ -30,6 +30,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class QuestInstance
 {
 	public int questID;
+	public boolean isMain = false;
 	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
@@ -238,7 +239,7 @@ public class QuestInstance
 		
 		for(QuestInstance quest : preRequisites)
 		{
-			if(quest != null && !quest.isComplete(uuid))
+			if(quest != null && quest.isComplete(uuid))
 			{
 				A++;
 			}
@@ -377,6 +378,7 @@ public class QuestInstance
 		
 		jObj.addProperty("name", name);
 		jObj.addProperty("description", description);
+		jObj.addProperty("isMain", isMain);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("autoClaim", autoClaim);
 		jObj.addProperty("repeatTime", repeatTime);
@@ -437,6 +439,7 @@ public class QuestInstance
 		
 		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
+		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
