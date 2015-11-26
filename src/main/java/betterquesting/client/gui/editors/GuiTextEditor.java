@@ -1,4 +1,4 @@
-package betterquesting.client.gui;
+package betterquesting.client.gui.editors;
 
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -10,6 +10,7 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.client.themes.ThemeRegistry;
@@ -54,7 +55,7 @@ public class GuiTextEditor extends GuiQuesting
 		
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(i + 1, guiLeft + 8, guiTop + 32 + (i*20), 100, 20, "NULL");
+			GuiButtonQuesting btn = new GuiButtonQuesting(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL");
 			this.buttonList.add(btn);
 		}
 		
@@ -135,7 +136,7 @@ public class GuiTextEditor extends GuiQuesting
     {
         String s1 = text;
         String s2 = s1 + string;
-        int i = this.fontRendererObj.splitStringWidth(s2 + "" + EnumChatFormatting.BLACK + "_", sizeX - 132);
+        int i = this.fontRendererObj.splitStringWidth(s2 + "" + EnumChatFormatting.BLACK + "_", sizeX - 140);
 
         if (i <= sizeX - 32)
         {
@@ -152,15 +153,15 @@ public class GuiTextEditor extends GuiQuesting
         
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         
-		this.drawTexturedModalRect(guiLeft + 108, this.guiTop + 32, 248, 0, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32, 248, 0, 8, 20);
 		int s = 20;
 		while(s < (maxRows - 1) * 20)
 		{
-			this.drawTexturedModalRect(guiLeft + 108, this.guiTop + 32 + s, 248, 20, 8, 20);
+			this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + s, 248, 20, 8, 20);
 			s += 20;
 		}
-		this.drawTexturedModalRect(guiLeft + 108, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 108, this.guiTop + 32 + (int)Math.max(0, s * (float)listScroll/(EnumChatFormatting.values().length - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + s, 248, 40, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + (int)Math.max(0, s * (float)listScroll/(EnumChatFormatting.values().length - maxRows)), 248, 60, 8, 20);
         
         String s1 = text;
 
@@ -180,7 +181,7 @@ public class GuiTextEditor extends GuiQuesting
         // Left margin (8 + 100 + 8 + 8) = 124
         // Right margin = 8
         // Total writable space (124 + 8) = 132
-        RenderUtils.drawSplitString(fontRendererObj, s1, this.guiLeft + 124, this.guiTop + 32, this.sizeX - 132, ThemeRegistry.curTheme().textColor().getRGB(), false);
+        RenderUtils.drawSplitString(fontRendererObj, s1, this.guiLeft + 132, this.guiTop + 32, this.sizeX - 140, ThemeRegistry.curTheme().textColor().getRGB(), false);
     }
 	
     /**

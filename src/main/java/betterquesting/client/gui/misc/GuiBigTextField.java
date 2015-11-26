@@ -1,7 +1,7 @@
 package betterquesting.client.gui.misc;
 
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.GuiTextEditor;
+import betterquesting.client.gui.editors.GuiTextEditor;
 import betterquesting.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

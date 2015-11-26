@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors.json;
 
-import java.awt.Color;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -216,7 +216,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 				controls.Disable();
 			}
 			
-			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, Color.BLACK.getRGB(), false);
+			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 	}
 	

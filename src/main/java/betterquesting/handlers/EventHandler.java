@@ -11,8 +11,11 @@ import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiQuestLines;
 import betterquesting.client.gui.GuiThemeSelect;
+import betterquesting.client.gui.party.GuiManageParty;
+import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
+import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.JsonIO;
@@ -41,6 +44,17 @@ public class EventHandler
 		} else if(BQ_Keybindings.openThemes.isPressed())
 		{
 			mc.displayGuiScreen(new GuiThemeSelect(mc.currentScreen));
+		} else if(BQ_Keybindings.openParty.isPressed())
+		{
+			PartyInstance party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
+			
+			if(party != null)
+			{
+				mc.displayGuiScreen(new GuiManageParty(mc.currentScreen, party));
+			} else
+			{
+				mc.displayGuiScreen(new GuiNoParty(mc.currentScreen));
+			}
 		}
 	}
 	

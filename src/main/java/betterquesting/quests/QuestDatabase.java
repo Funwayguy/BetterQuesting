@@ -21,6 +21,13 @@ public class QuestDatabase
 	 * Set to false on UI init and when refreshed. It will be reset to true when required
 	 */
 	public static boolean updateUI = true;
+	
+	/**
+	 * Allows quests to be edited by moderators. Once disabled it can only be re-enabled via editing the JSON file.
+	 * Use this to lock down the quest lines before publishing them. This can safely be left on if moderators are
+	 * required to edit/maintain quests during use, normal users will have the buttons disabled and any forced edits ignored.
+	 */
+	public static boolean editMode = true;
 	public static HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
 	public static ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
 	
@@ -191,6 +198,8 @@ public class QuestDatabase
 	
 	public static void writeToJson_Quests(JsonObject json)
 	{
+		json.addProperty("editMode", editMode);
+		
 		JsonArray dbJson = new JsonArray();
 		for(QuestInstance quest : questDB.values())
 		{
@@ -208,6 +217,7 @@ public class QuestDatabase
 			json = new JsonObject();
 		}
 		
+		editMode = JsonHelper.GetBoolean(json, "editMode", true);
 		updateUI = true;
 		questDB.clear();
 		

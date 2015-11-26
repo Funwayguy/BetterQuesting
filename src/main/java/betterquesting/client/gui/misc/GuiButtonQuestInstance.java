@@ -8,13 +8,12 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.RenderUtils;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonQuestInstance extends GuiButtonQuesting
@@ -72,7 +71,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         		this.clampMaxY = mc.displayHeight;
         	}
         	
-            mc.getTextureManager().bindTexture(new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
+            mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.field_146123_n = this.mousePressed(mc, mx, my);
             int state = this.getHoverState(this.field_146123_n);
@@ -103,7 +102,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	            	Color ci = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int(questState, 0, 2), quest.isMain);
 	            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
 	        		
-	        		GL11.glLineWidth(quest.isMain? 12F : 3F);
+	        		GL11.glLineWidth(quest.isMain? 16F : 4F);
 	        		GL11.glBegin(GL11.GL_LINES);
 	        		
 	        		

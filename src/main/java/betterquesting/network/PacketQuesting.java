@@ -13,6 +13,8 @@ import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.QuestNotification;
 import betterquesting.core.BetterQuesting;
+import betterquesting.party.PartyInstance;
+import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -119,6 +121,7 @@ public class PacketQuesting implements IMessage
 				PacketQuesting packet = new PacketQuesting();
 				packet.tags.setInteger("ID", 2);
 				packet.tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+				return packet;
 			} else if(ID == 3 && player != null) // Manual quest detect
 			{
 				QuestInstance quest = QuestDatabase.getQuestByID(message.tags.getInteger("questID"));
@@ -199,6 +202,92 @@ public class PacketQuesting implements IMessage
 				}
 				
 				QuestDatabase.UpdateClients(); // Update all clients with new quest data
+			} else if(ID == 7 && player != null) // Edit parties
+			{
+				int action = !message.tags.hasKey("action")? -1 : message.tags.getInteger("action");
+				String name = message.tags.getString("Party");
+				
+				if(action == 0) // Create New Party (name is ignored)
+				{
+					if(PartyManager.GetPartyByName(name) != null) // This should probably be handled client side before it gets to this point
+					{
+						int i = 0;
+						while(PartyManager.GetPartyByName(name + " (" + i + ")") != null)
+						{
+							i++;
+						}
+						name = name + " (" + i + ")";
+					}
+					
+					PartyManager.CreateParty(player, name);
+					PartyManager.UpdateClients();
+				} else if(action == 1) // Kick/leave party
+				{
+					PartyInstance party = PartyManager.GetPartyByName(name);
+					PartyMember member = party == null? null : party.GetMemberData(player.getUniqueID());
+					
+					if(member == null)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + player.getUniqueID().toString() + " in party " + name, new Exception());
+						return null;
+					}
+					
+					UUID uuid;
+					
+					try
+					{
+						uuid = UUID.fromString(message.tags.getString("Member"));
+						if(uuid == null)
+						{
+							throw new NullPointerException();
+						}
+					} catch(Exception e)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Unabled to remove user from pary", e);
+						return null;
+					}
+					
+					if(!uuid.equals(player.getUniqueID()) && member.GetPrivilege() != 2)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to kick user");
+						return null;
+					} 
+					
+					party.LeaveParty(uuid);
+					PartyManager.UpdateClients();
+				} else if(action == 2) // Edit party
+				{
+					PartyInstance party = PartyManager.GetPartyByName(name);
+					PartyMember member = party == null? null : party.GetMemberData(player.getUniqueID());
+					
+					if(member == null)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + player.getUniqueID().toString() + " in party " + name, new Exception());
+						return null;
+					} else if(member.GetPrivilege() != 2)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to edit party");
+						return null;
+					}
+					
+					party.readFromJson(NBTConverter.NBTtoJSON_Compound(message.tags.getCompoundTag("Data"), new JsonObject()));
+					PartyManager.ApplyNameChange(party);
+					PartyManager.UpdateClients();
+				} else if(action == 3) // Join party
+				{
+					PartyInstance party = PartyManager.GetPartyByName(name);
+					
+					if(party != null)
+					{
+						if(!party.JoinParty(player.getUniqueID()))
+						{
+							BetterQuesting.logger.log(Level.ERROR, "Player " + player.getCommandSenderName() + " was unable to join party " + name);
+						}
+					} else
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Player " + player.getCommandSenderName() + " was unable to join party " + name);
+					}
+				}
 			}
 			
 			return null;

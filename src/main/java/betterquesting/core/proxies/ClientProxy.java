@@ -29,5 +29,6 @@ public class ClientProxy extends CommonProxy
 	{
 		ThemeRegistry.RegisterTheme(new ThemeStandard("Standard Light", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png")), "light");
 		ThemeRegistry.RegisterTheme(new ThemeStandard("Standard Dark", new ResourceLocation("betterquesting", "textures/gui/editor_gui_dark.png")).setTextColor(Color.WHITE), "dark");
+		ThemeRegistry.RegisterTheme(new ThemeStandard("Stronghold", new ResourceLocation("betterquesting", "textures/gui/editor_gui_stronghold.png")).setTextColor(Color.WHITE), "stronghold");
 	}
 }

@@ -14,13 +14,13 @@ import com.google.gson.JsonObject;
  */
 public class PartyInstance
 {
-	String name = "New Party";
+	public String name = "New Party";
 	ArrayList<PartyMember> members = new ArrayList<PartyMember>();
 	
 	public boolean lifeShare = false;
 	public boolean lootShare = false;
 	
-	public PartyInstance(String name, UUID host)
+	public PartyInstance(String name)
 	{
 		this.name = name;
 	}
@@ -55,6 +55,12 @@ public class PartyInstance
 		{
 			mem.privilege = 1;
 			return true;
+		} else if(members.size() <= 0)
+		{
+			mem = new PartyMember(uuid);
+			mem.privilege = 2;
+			members.add(mem);
+			return true;
 		} else
 		{
 			return false;
@@ -78,10 +84,29 @@ public class PartyInstance
 		
 		if(members.size() <= 0) // Cannot have a party without any members so we disband this party
 		{
-			PartyManager.Disband(this.name);
-		} else if(mem.privilege >= 2)
+			PartyManager.Disband(name);
+		} else if(mem.privilege >= 2) // Try host migration
 		{
-			members.get(0).privilege = 2; // Host migration
+			PartyMember nHost = null;
+			
+			for(PartyMember m : members)
+			{
+				if(m.privilege == 2) // There's another host?
+				{
+					return;
+				} else if(m.privilege == 1 && nHost != null) // Only members that have previously accepted their invites can be hosts
+				{
+					nHost = m; // We don't break in case there is another host
+				}
+			}
+			
+			if(nHost == null)
+			{
+				PartyManager.Disband(name);
+			} else
+			{
+				nHost.privilege = 2;
+			}
 		}
 	}
 	
@@ -112,6 +137,8 @@ public class PartyInstance
 	public void writeToJson(JsonObject jObj)
 	{
 		jObj.addProperty("name", this.name);
+		jObj.addProperty("lifeShare", lifeShare);
+		jObj.addProperty("lootShare", lootShare);
 		
 		JsonArray memJson = new JsonArray();
 		
@@ -127,7 +154,9 @@ public class PartyInstance
 	{
 		// These are read out before instantiation by the party manager
 		//this.name = jObj.get("name").getAsString();
-		//this.host = UUID.fromString(jObj.get("host").getAsString());
+		
+		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
+		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
 		
 		members.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
@@ -164,7 +193,9 @@ public class PartyInstance
 		{
 			this.userID = uuid;
 		}
-		
+		/**
+		 * 0 = invited, 1 = member, 2 = host</br>
+		 */
 		public int GetPrivilege()
 		{
 			return privilege;

@@ -1,6 +1,5 @@
 package betterquesting.client.gui;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -163,7 +162,7 @@ public class GuiQuestLines extends GuiQuesting
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRenderer.drawString(ChatFormatting.BOLD + selected.line.name, MathHelper.ceiling_float_int((this.guiLeft + 180)/scale), MathHelper.ceiling_float_int((this.guiTop + 38)/scale), Color.BLACK.getRGB(), false);
+			mc.fontRenderer.drawString(ChatFormatting.BOLD + selected.line.name, MathHelper.ceiling_float_int((this.guiLeft + 180)/scale), MathHelper.ceiling_float_int((this.guiTop + 38)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
 		

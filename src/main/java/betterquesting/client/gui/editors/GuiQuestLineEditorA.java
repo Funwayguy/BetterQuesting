@@ -204,6 +204,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
         	lineTitle.textboxKeyTyped(character, keyCode);
         }
     }
+	
     /**
      * Called when the mouse is clicked.
      */
