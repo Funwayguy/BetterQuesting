@@ -124,7 +124,7 @@ public class GuiPartyInvite extends GuiQuesting
 					btn.displayString = playerList.get(n3).name;
 				} else
 				{
-					btn.visible = btn.enabled = true;
+					btn.visible = btn.enabled = false;
 					btn.displayString = "#" + n3;
 				}
 			}
