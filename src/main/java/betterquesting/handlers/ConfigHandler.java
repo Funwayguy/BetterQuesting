@@ -21,6 +21,9 @@ public class ConfigHandler
 		config.load();
 		
 		BQ_Settings.curTheme = config.getString("Theme", Configuration.CATEGORY_GENERAL, "betterquesting:light", "The current questing theme");
+		BQ_Settings.noticeComplete = config.getString("Sound Complete", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");
+		BQ_Settings.noticeUpdate = config.getString("Sound Update", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");
+		BQ_Settings.noticeUnlock = config.getString("Sound Unlock", Configuration.CATEGORY_GENERAL, "random.click", "Sound that plays when a quest is completed");
 		
 		config.save();
 		

@@ -188,6 +188,7 @@ public class GuiNoParty extends GuiQuesting
         if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
     		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, invites.size() - maxRows));
+    		RefreshColumns();
         }
 	}
 	

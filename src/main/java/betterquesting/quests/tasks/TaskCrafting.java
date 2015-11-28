@@ -227,4 +227,18 @@ public class TaskCrafting extends AdvancedTaskBase
 			userProgress.put(uuid, data);
 		}
 	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+		userProgress.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
+		userProgress.clear();
+	}
 }

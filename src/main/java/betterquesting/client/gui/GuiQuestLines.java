@@ -174,7 +174,7 @@ public class GuiQuestLines extends GuiQuesting
 			{
 				qInfo.add(ChatFormatting.GREEN + "COMPLETE");
 				
-				if(!qTooltip.HasClaimed(mc.thePlayer))
+				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
 				{
 					qInfo.add(ChatFormatting.GRAY + "Rewards pending...");
 				}

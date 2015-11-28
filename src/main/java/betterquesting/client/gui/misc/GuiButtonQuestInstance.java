@@ -84,7 +84,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             int cw = MathHelper.clamp_int(xPosition + offX + width, clampMinX, clampMaxX) - cx;
             int ch = MathHelper.clamp_int(yPosition + offY + height, clampMinY, clampMaxY) - cy;
 
-        	int questState = !quest.isUnlocked(mc.thePlayer.getUniqueID())? 0 : (!quest.isComplete(mc.thePlayer.getUniqueID())? 1 : (!quest.HasClaimed(mc.thePlayer)? 2 : 3));
+        	int questState = !quest.isUnlocked(mc.thePlayer.getUniqueID())? 0 : (!quest.isComplete(mc.thePlayer.getUniqueID())? 1 : (!quest.HasClaimed(mc.thePlayer.getUniqueID())? 2 : 3));
         	
         	if(parent != null)
         	{

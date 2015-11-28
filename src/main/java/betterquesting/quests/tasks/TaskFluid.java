@@ -363,4 +363,18 @@ public class TaskFluid extends TaskBase
 			scroll = MathHelper.clamp_int(scroll + 1, 0, requiredFluids.size() - rowLMax);
 		}
 	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+		userProgress.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
+		userProgress.clear();
+	}
 }

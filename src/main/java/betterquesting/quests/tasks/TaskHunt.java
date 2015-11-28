@@ -178,4 +178,18 @@ public class TaskHunt extends AdvancedTaskBase
 	{
 		return new GuiHuntEditor(parent, data);
 	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+		userProgress.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
+		userProgress.clear();
+	}
 }

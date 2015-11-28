@@ -1,6 +1,7 @@
 package betterquesting.quests.tasks;
 
 import java.awt.Color;
+import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -128,5 +129,17 @@ public class TaskLocation extends TaskBase
 		range = JsonHelper.GetNumber(json, "range", -1).intValue();
 		visible = JsonHelper.GetBoolean(json, "visible", false);
 		hideInfo = JsonHelper.GetBoolean(json, "hideInfo", false);
+	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
 	}
 }

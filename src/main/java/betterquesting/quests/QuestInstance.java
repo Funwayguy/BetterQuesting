@@ -64,12 +64,25 @@ public class QuestInstance
 	{
 		if(isComplete(player.getUniqueID()))
 		{
-			if(autoClaim && player.ticksExisted%20 == 0 && !HasClaimed(player) && CanClaim(player, GetChoiceData()))
-			{
-				Claim(player, GetChoiceData());
-			}
+			UserEntry entry = GetUserEntry(player.getUniqueID());
 			
-			return;
+			if(!HasClaimed(player.getUniqueID()))
+			{
+				if(autoClaim && player.ticksExisted%20 == 0 && CanClaim(player, GetChoiceData()))
+				{
+					Claim(player, GetChoiceData());
+					return;
+				} else if(repeatTime < 0)
+				{
+					
+				}
+			} else if(repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
+			{
+				ResetProgress(player.getUniqueID());
+			} else
+			{
+				return;
+			}
 		}
 		
 		if(isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
@@ -88,16 +101,12 @@ public class QuestInstance
 			
 			if(done)
 			{
-				UserEntry entry = new UserEntry(player.getUniqueID());
-				entry.timestamp = player.worldObj.getTotalWorldTime();
-				completeUsers.add(entry);
-				UpdateClients();
+				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
-				System.out.println("Quest complete");
+				UpdateClients();
 				
 				if(player instanceof EntityPlayerMP)
 				{
-					System.out.println("Sending...");
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("ID", 3);
 					tags.setString("Main", "betterquesting.notice.complete");
@@ -115,7 +124,7 @@ public class QuestInstance
 	 */
 	public void Detect(EntityPlayer player)
 	{
-		if(this.isComplete(player.getUniqueID()))
+		if(this.isComplete(player.getUniqueID()) && repeatTime < 0)
 		{
 			return;
 		}
@@ -136,21 +145,21 @@ public class QuestInstance
 			
 			if(done)
 			{
-				completeUsers.add(new UserEntry(player));
+				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 			}
 			
 			UpdateClients(); // Even if not completed we still need to update progression for clients
 		}
 	}
 	
-	public boolean HasClaimed(EntityPlayer player)
+	public boolean HasClaimed(UUID uuid)
 	{
 		if(rewards.size() <= 0)
 		{
 			return true;
 		}
 		
-		UserEntry entry = GetUserEntry(player.getUniqueID());
+		UserEntry entry = GetUserEntry(uuid);
 		
 		if(entry == null)
 		{
@@ -248,6 +257,45 @@ public class QuestInstance
 		return logic.GetResult(A, B);
 	}
 	
+	public void setComplete(UUID uuid, long timestamp)
+	{
+		PartyInstance party = PartyManager.GetParty(uuid);
+		
+		if(party == null)
+		{
+			UserEntry entry = this.GetUserEntry(uuid);
+			
+			if(entry != null)
+			{
+				entry.claimed = false;
+				entry.timestamp = timestamp;
+			} else
+			{
+				completeUsers.add(new UserEntry(uuid, timestamp));
+			}
+		} else
+		{
+			for(PartyMember mem : party.GetMembers())
+			{
+				UserEntry entry = this.GetUserEntry(mem.userID);
+				
+				if(entry != null)
+				{
+					entry.claimed = false;
+					entry.timestamp = timestamp;
+				} else
+				{
+					completeUsers.add(new UserEntry(mem.userID, timestamp));
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Returns true if the quest has been completed at least once
+	 * @param uuid
+	 * @return
+	 */
 	public boolean isComplete(UUID uuid)
 	{
 		if(this.globalQuest)
@@ -287,76 +335,55 @@ public class QuestInstance
 	}
 	
 	/**
-	 * Sets the complete state of the quest
-	 */
-	public void setCompletion(UUID uuid, long timestamp, boolean state, boolean applyToParty)
-	{
-		boolean flag = false;
-		
-		if(state)
-		{
-			flag = true; // Because we're updating completion timestamps, this will always be true
-			UserEntry entry = GetUserEntry(uuid);
-			
-			if(entry == null)
-			{
-				entry = new UserEntry(uuid);
-				completeUsers.add(entry);
-			}
-			
-			entry.timestamp = timestamp;
-			
-			if(applyToParty)
-			{
-				PartyInstance party = PartyManager.GetParty(uuid);
-				
-				if(party != null)
-				{
-					for(PartyMember mem : party.GetMembers())
-					{
-						UserEntry pEntry = GetUserEntry(mem.userID);
-						
-						if(pEntry == null)
-						{
-							completeUsers.add(new UserEntry(mem.userID));
-						}
-						
-						pEntry.timestamp = timestamp;
-					}
-				}
-			}
-		} else
-		{
-			RemoveUserEntry(uuid);
-			
-			if(applyToParty)
-			{
-				PartyInstance party = PartyManager.GetParty(uuid);
-				
-				if(party != null)
-				{
-					for(PartyMember mem : party.GetMembers())
-					{
-						RemoveUserEntry(mem.userID);
-					}
-				}
-			}
-			
-			flag = true;
-		}
-		
-		if(flag)
-		{
-			UpdateClients();
-		}
-	}
-	
-	/**
 	 * Clears all quest data and completion states
 	 */
 	public void ResetQuest()
 	{
 		this.completeUsers.clear();
+		
+		for(TaskBase t : tasks)
+		{
+			t.ResetAllProgress();
+		}
+	}
+	
+	/**
+	 * Resets task progress and claim status but does not reset completion status (applies to party members too)
+	 */
+	public void ResetProgress(UUID uuid)
+	{
+		PartyInstance party = PartyManager.GetParty(uuid);
+		
+		if(party == null)
+		{
+			UserEntry entry = GetUserEntry(uuid);
+			
+			if(entry != null)
+			{
+				entry.claimed = false;
+			}
+			
+			for(TaskBase t : tasks)
+			{
+				t.ResetProgress(uuid);
+			}
+		} else
+		{
+			for(PartyMember mem : party.GetMembers())
+			{
+				UserEntry entry = GetUserEntry(mem.userID);
+				
+				if(entry != null)
+				{
+					entry.claimed = false;
+				}
+				
+				for(TaskBase t : tasks)
+				{
+					t.ResetProgress(mem.userID);
+				}
+			}
+		}
 	}
 	
 	public void AddPreRequisite(QuestInstance quest)
@@ -522,10 +549,10 @@ public class QuestInstance
 		public long timestamp = 0;
 		public boolean claimed = false;
 		
-		public UserEntry(EntityPlayer player)
+		public UserEntry(UUID uuid, long timestamp)
 		{
-			this.uuid = player.getUniqueID();
-			this.timestamp = player.worldObj.getTotalWorldTime();
+			this(uuid);
+			this.timestamp = timestamp;
 		}
 		
 		public UserEntry(UUID uuid)

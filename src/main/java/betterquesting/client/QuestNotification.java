@@ -8,6 +8,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.lwjgl.opengl.GL11;
 import betterquesting.core.BQ_Settings;
@@ -29,11 +30,11 @@ public class QuestNotification
 			case 0:
 				sndName = BQ_Settings.noticeUnlock;
 				break;
-			case 1:
-				sndName = BQ_Settings.noticeUpdate;
-				break;
 			case 2:
 				sndName = BQ_Settings.noticeComplete;
+				break;
+			default:
+				sndName = BQ_Settings.noticeUpdate;
 				break;
 		}
 		
@@ -96,12 +97,13 @@ public class QuestNotification
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
-		String tmp = ChatFormatting.UNDERLINE + "" + ChatFormatting.BOLD + notice.mainTxt;
+		String tmp = ChatFormatting.UNDERLINE + "" + ChatFormatting.BOLD + StatCollector.translateToLocal(notice.mainTxt);
 		int txtW = mc.fontRenderer.getStringWidth(tmp);
 		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
-		txtW = mc.fontRenderer.getStringWidth(notice.subTxt);
-		mc.fontRenderer.drawString(notice.subTxt, width/2 - txtW/2, height/4 + 12, color, false);
+		tmp = StatCollector.translateToLocal(notice.subTxt);
+		txtW = mc.fontRenderer.getStringWidth(tmp);
+		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();

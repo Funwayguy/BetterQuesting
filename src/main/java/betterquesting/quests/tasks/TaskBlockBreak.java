@@ -72,4 +72,18 @@ public class TaskBlockBreak extends AdvancedTaskBase
 		targetMeta = JsonHelper.GetNumber(json, "blockMeta", 0).intValue();
 		targetNum = JsonHelper.GetNumber(json, "amount", 1).intValue();
 	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+		userProgress.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
+		userProgress.clear();
+	}
 }

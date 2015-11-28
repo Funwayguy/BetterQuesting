@@ -1,6 +1,7 @@
 package betterquesting.quests.tasks;
 
 import java.awt.Color;
+import java.util.UUID;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -136,5 +137,17 @@ public class TaskScoreboard extends TaskBase
 		{
 			return text;
 		}
+	}
+
+	@Override
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+	}
+
+	@Override
+	public void ResetAllProgress()
+	{
+		completeUsers.clear();
 	}
 }

@@ -40,7 +40,6 @@ public class GuiManageParty extends GuiQuesting
 	{
 		super.initGui();
 		
-		title = "Party - " + party.name;
 		party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
 		member = party == null? null : party.GetMemberData(mc.thePlayer.getUniqueID());
 		
@@ -49,6 +48,8 @@ public class GuiManageParty extends GuiQuesting
 			mc.displayGuiScreen(new GuiNoParty(parent));
 			return;
 		}
+		
+		title = "Party - " + party.name;
 		
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
@@ -231,6 +232,7 @@ public class GuiManageParty extends GuiQuesting
         if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
     		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, party.GetMembers().size() - maxRows));
+    		RefreshColumns();
         }
 	}
 	public void SendChanges()

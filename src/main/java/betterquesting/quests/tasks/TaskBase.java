@@ -57,7 +57,12 @@ public abstract class TaskBase
 	/**
 	 * Called by repeatable quests to reset progress for the next attempt
 	 */
-	public void ResetProgress(EntityPlayer player){}
+	public abstract void ResetProgress(UUID uuid);
+	
+	/**
+	 * Clear all progress for all users
+	 */
+	public abstract void ResetAllProgress();
 	
 	public boolean isComplete(EntityPlayer player)
 	{

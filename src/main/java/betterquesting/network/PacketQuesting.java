@@ -287,6 +287,32 @@ public class PacketQuesting implements IMessage
 					{
 						BetterQuesting.logger.log(Level.ERROR, "Player " + player.getCommandSenderName() + " was unable to join party " + name);
 					}
+				} else if(action == 4) // Invite to party
+				{
+					PartyInstance party = PartyManager.GetPartyByName(name);
+					PartyMember member = party == null? null : party.GetMemberData(player.getUniqueID());
+					
+					if(member == null)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + player.getUniqueID().toString() + " in party " + name, new Exception());
+						return null;
+					} else if(member.GetPrivilege() != 2)
+					{
+						BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to invite to party");
+						return null;
+					}
+					
+					String username = message.tags.getString("Member");
+					EntityPlayer inviteUser = MinecraftServer.getServer().getConfigurationManager().func_152612_a(username);
+					System.out.println("Inviting player " + username);
+					
+					if(inviteUser != null)
+					{
+						party.InvitePlayer(inviteUser.getUniqueID());
+					} else
+					{
+						party.InvitePlayer(UUID.randomUUID());
+					}
 				}
 			}
 			
