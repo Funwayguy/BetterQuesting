@@ -11,7 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -159,21 +159,23 @@ public class PartyManager
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 2);
+		//tags.setInteger("ID", 2);
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
+		//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
+		BetterQuesting.instance.network.sendTo(PacketDataType.PARTY_DATABASE.makePacket(tags), player);
 	}
 	
 	public static void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 2);
+		//tags.setInteger("ID", 2);
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToAll(PacketDataType.PARTY_DATABASE.makePacket(tags));
 	}
 	
 	public static void writeToJson(JsonObject jObj)

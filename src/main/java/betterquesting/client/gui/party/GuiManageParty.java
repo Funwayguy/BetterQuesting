@@ -12,7 +12,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
@@ -146,11 +146,12 @@ public class GuiManageParty extends GuiQuesting
 		if(button.id == 1) // Leave party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("ID", 7);
+			//tags.setInteger("ID", 7);
 			tags.setInteger("action", 1);
 			tags.setString("Party", party.name);
 			tags.setString("Member", member.userID.toString());
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+			BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
 		} else if(button.id == 2 && member.GetPrivilege() == 2) // Share loot
 		{
 			party.lootShare = !party.lootShare;
@@ -175,11 +176,12 @@ public class GuiManageParty extends GuiQuesting
 					PartyMember pMem = party.GetMembers().get(n3);
 					System.out.println("Kicking user " + pMem.userID.toString() + " from party " + party.name);
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("ID", 7);
+					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 1);
 					tags.setString("Party", party.name);
 					tags.setString("Member", pMem.userID.toString());
-					BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
 				}
 			}
 		}
@@ -248,14 +250,15 @@ public class GuiManageParty extends GuiQuesting
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 7);
+		//tags.setInteger("ID", 7);
 		tags.setInteger("action", 2);
 		tags.setString("Party", name);
 		tags.setString("Member", member.userID.toString());
 		JsonObject pJson = new JsonObject();
 		party.writeToJson(pJson);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(pJson, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
 	}
 	
 	public void RefreshColumns()

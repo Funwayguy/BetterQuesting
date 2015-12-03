@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
@@ -108,12 +108,13 @@ public class QuestInstance
 				if(player instanceof EntityPlayerMP)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("ID", 3);
+					//tags.setInteger("ID", 3);
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", name);
 					tags.setInteger("Sound", 2);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
-					BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), (EntityPlayerMP)player);
+					//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), (EntityPlayerMP)player);
+					BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
 				}
 			}
 		}
@@ -228,12 +229,13 @@ public class QuestInstance
 	public void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 1);
+		//tags.setInteger("ID", 1);
 		tags.setInteger("questID", this.questID);
 		JsonObject json = new JsonObject();
 		writeToJSON(json);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_SYNC.makePacket(tags));
 	}
 	
 	public void SetGlobal(boolean state)

@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -28,6 +28,10 @@ public class QuestDatabase
 	 * required to edit/maintain quests during use, normal users will have the buttons disabled and any forced edits ignored.
 	 */
 	public static boolean editMode = true;
+	/**
+	 * Turns on the hardcore life system
+	 */
+	public static boolean bqHardcore = false;
 	public static HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
 	public static ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
 	
@@ -134,11 +138,12 @@ public class QuestDatabase
 	public static void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 0);
+		//tags.setInteger("ID", 0);
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_DATABASE.makePacket(tags));
 	}
 	
 	/**
@@ -148,11 +153,12 @@ public class QuestDatabase
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 0);
+		//tags.setInteger("ID", 0);
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
+		//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
+		BetterQuesting.instance.network.sendTo(PacketDataType.QUEST_DATABASE.makePacket(tags), player);
 	}
 	
 	public static void writeToJson(JsonObject json)
@@ -199,6 +205,7 @@ public class QuestDatabase
 	public static void writeToJson_Quests(JsonObject json)
 	{
 		json.addProperty("editMode", editMode);
+		json.addProperty("hardcore", bqHardcore);
 		
 		JsonArray dbJson = new JsonArray();
 		for(QuestInstance quest : questDB.values())
@@ -218,6 +225,7 @@ public class QuestDatabase
 		}
 		
 		editMode = JsonHelper.GetBoolean(json, "editMode", true);
+		bqHardcore = JsonHelper.GetBoolean(json, "hardcore", false);
 		updateUI = true;
 		questDB.clear();
 		

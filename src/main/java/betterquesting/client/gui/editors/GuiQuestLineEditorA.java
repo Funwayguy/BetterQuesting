@@ -15,7 +15,7 @@ import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.importer.hqm.HQMImporter;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
@@ -115,10 +115,11 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 	public void DeleteQuest(int id)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 5);
+		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 1);
 		tags.setInteger("questID", id);
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 	}
 	
 	public void SendChanges(int action)
@@ -129,7 +130,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 6);
+		//tags.setInteger("ID", 6);
 		tags.setInteger("action", action);
 		
 		if(action == 2)
@@ -139,7 +140,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		}
 		
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.LINE_EDIT.makePacket(tags));
 	}
 	
 	@Override

@@ -11,7 +11,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
@@ -197,11 +197,12 @@ public class GuiTaskEditor extends GuiQuesting
 		JsonObject json = new JsonObject();
 		quest.writeToJSON(json);
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 5);
+		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 	}
 	
 	public void RefreshColumns()

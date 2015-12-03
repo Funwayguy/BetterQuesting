@@ -17,6 +17,7 @@ public class PartyInstance
 	public String name = "New Party";
 	ArrayList<PartyMember> members = new ArrayList<PartyMember>();
 	
+	public int lives = 1;
 	public boolean lifeShare = false;
 	public boolean lootShare = false;
 	
@@ -136,9 +137,10 @@ public class PartyInstance
 	
 	public void writeToJson(JsonObject jObj)
 	{
-		jObj.addProperty("name", this.name);
+		jObj.addProperty("name", name);
 		jObj.addProperty("lifeShare", lifeShare);
 		jObj.addProperty("lootShare", lootShare);
+		jObj.addProperty("lives", lives);
 		
 		JsonArray memJson = new JsonArray();
 		
@@ -157,6 +159,7 @@ public class PartyInstance
 		
 		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
 		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
+		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();
 		
 		members.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))

@@ -1,17 +1,17 @@
 package betterquesting.client.gui.party;
 
 import java.util.List;
-import org.lwjgl.input.Mouse;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPlayerInfo;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance;
 
 public class GuiPartyInvite extends GuiQuesting
@@ -50,17 +50,6 @@ public class GuiPartyInvite extends GuiQuesting
 		super.drawScreen(mx, my, partialTick);
 	}
 	
-	/*                      Invite Members
-	 * 
-	 * Username [Invite] | Username [Invite] | Username [Invite]
-	 * Username [Invite] | Username [Invite] | Username [Invite]
-	 * Username [Invite] | Username [Invite] | Username [Invite]
-	 * Username [Invite] | Username [Invite] | Username [Invite]
-	 * Username [Invite] | Username [Invite] | Username [Invite]
-	 * 
-	 *                          [Done]
-	 */
-	
 	public void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
@@ -76,11 +65,12 @@ public class GuiPartyInvite extends GuiQuesting
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("ID", 7);
+					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 4);
 					tags.setString("Party", party.name);
 					tags.setString("Member", button.displayString);
-					BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
 				}
 			}
 		}

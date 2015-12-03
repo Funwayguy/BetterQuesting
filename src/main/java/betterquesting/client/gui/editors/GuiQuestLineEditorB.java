@@ -13,7 +13,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
@@ -181,10 +181,11 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				if(!(n4 < 0 || n4 >= QuestDatabase.questDB.size()))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("ID", 5);
+					//tags.setInteger("ID", 5);
 					tags.setInteger("action", 1); // Delete quest
 					tags.setInteger("questID", QuestDatabase.getQuestByOrder(n4).questID);
-					BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 				}
 			} else if(n2 == 4) // Add quest
 			{
@@ -230,7 +231,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 6);
+		//tags.setInteger("ID", 6);
 		tags.setInteger("action", action);
 		
 		if(action == 2)
@@ -240,7 +241,8 @@ public class GuiQuestLineEditorB extends GuiQuesting
 			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		}
 		
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.LINE_EDIT.makePacket(tags));
 	}
 	
 	public void RefreshColumns()

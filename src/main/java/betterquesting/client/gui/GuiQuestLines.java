@@ -48,11 +48,14 @@ public class GuiQuestLines extends GuiQuesting
 		listScroll = 0;
 		maxRows = (sizeY - 64)/20;
 		
-		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
-		((GuiButton)this.buttonList.get(0)).width = 100;
+		if(QuestDatabase.editMode)
+		{
+			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
+			((GuiButton)this.buttonList.get(0)).width = 100;
+		}
 		
 		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, "Edit");
-		btnEdit.enabled = true;
+		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
 		boolean reset = true;

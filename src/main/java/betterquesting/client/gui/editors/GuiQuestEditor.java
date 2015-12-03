@@ -11,7 +11,7 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestInstance.QuestLogic;
@@ -175,11 +175,12 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		JsonObject json = new JsonObject();
 		quest.writeToJSON(json);
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 5);
+		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 	}
 
 	@Override

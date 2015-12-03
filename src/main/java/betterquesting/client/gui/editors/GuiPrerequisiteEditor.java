@@ -12,7 +12,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.NBTConverter;
@@ -140,9 +140,10 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		if(button.id == 1)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("ID", 6);
+			//tags.setInteger("ID", 6);
 			tags.setInteger("action", 1);
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+			BetterQuesting.instance.network.sendToServer(PacketDataType.LINE_EDIT.makePacket(tags));
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -174,10 +175,11 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				if(!(n4 < 0 || n4 >= QuestDatabase.questDB.size()))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("ID", 5);
+					//tags.setInteger("ID", 5);
 					tags.setInteger("action", 1); // Delete quest
 					tags.setInteger("questID", QuestDatabase.getQuestByOrder(n4).questID);
-					BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+					BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 				}
 			} else if(n2 == 4) // Add quest
 			{
@@ -220,11 +222,12 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		JsonObject json = new JsonObject();
 		quest.writeToJSON(json);
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("ID", 5);
+		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
+		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 	}
 	
 	public void RefreshColumns()

@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
@@ -109,40 +110,42 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event)
 	{
-		if(!event.world.isRemote && BQ_Settings.curWorldDir == null)
+		if(event.world.isRemote || BQ_Settings.curWorldDir != null)
 		{
-			MinecraftServer server = MinecraftServer.getServer();
-			
-			if(BetterQuesting.proxy.isClient())
-			{
-				BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName());
-			} else
-			{
-				BQ_Settings.curWorldDir = server.getFile(server.getFolderName());
-			}
-	    	
-	    	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
-    		JsonObject j1 = new JsonObject();
-    		
-    		if(f1.exists())
-    		{
-    			j1 = JsonIO.ReadFromFile(f1);
-    		}
-    		
-    		QuestDatabase.readFromJson(j1);
-    		
-		    File f2 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
-		    JsonObject j2 = new JsonObject();
-		    
-		    if(f2.exists())
-		    {
-		    	j2 = JsonIO.ReadFromFile(f2);
-		    }
-		    
-		    PartyManager.readFromJson(j2);
-		    
-		    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines");
+			return;
 		}
+		
+		MinecraftServer server = MinecraftServer.getServer();
+		
+		if(BetterQuesting.proxy.isClient())
+		{
+			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName());
+		} else
+		{
+			BQ_Settings.curWorldDir = server.getFile(server.getFolderName());
+		}
+    	
+    	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
+		JsonObject j1 = new JsonObject();
+		
+		if(f1.exists())
+		{
+			j1 = JsonIO.ReadFromFile(f1);
+		}
+		
+		QuestDatabase.readFromJson(j1);
+		
+	    File f2 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
+	    JsonObject j2 = new JsonObject();
+	    
+	    if(f2.exists())
+	    {
+	    	j2 = JsonIO.ReadFromFile(f2);
+	    }
+	    
+	    PartyManager.readFromJson(j2);
+	    
+	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines");
 	}
 	
 	@SubscribeEvent
@@ -152,6 +155,15 @@ public class EventHandler
 		{
 			QuestDatabase.SendDatabase((EntityPlayerMP)event.player);
 			PartyManager.SendDatabase((EntityPlayerMP)event.player);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onLivingDeath(LivingDeathEvent event)
+	{
+		if(event.entityLiving.worldObj.isRemote)
+		{
+			return;
 		}
 	}
 }
