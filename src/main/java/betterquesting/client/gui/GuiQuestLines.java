@@ -64,7 +64,7 @@ public class GuiQuestLines extends GuiQuesting
 		for(QuestLine line : QuestDatabase.questLines)
 		{
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = line.questList.size() <= 0;
+			btnLine.enabled = line.questList.size() <= 0 || QuestDatabase.editMode;
 			
 			if(selected != null && selected.line == line)
 			{
@@ -247,7 +247,7 @@ public class GuiQuestLines extends GuiQuesting
 		
 		super.mouseClicked(mx, my, type);
 		
-		if(!flag && selected != null)
+		if(!flag && selected != null && type == 0)
 		{
 			for(GuiButtonQuestInstance btnQuest : selected.buttonTree)
 			{
@@ -277,7 +277,7 @@ public class GuiQuestLines extends GuiQuesting
     		UpdateScroll();
         }
         
-    	if(!flag && Mouse.isButtonDown(0))
+    	if(!flag && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
     	{
     		this.boxScrollX += Mouse.getEventDX() * this.width / this.mc.displayWidth;
     		this.boxScrollY -= Mouse.getEventDY() * this.height / this.mc.displayHeight;

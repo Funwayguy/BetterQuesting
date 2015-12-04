@@ -52,7 +52,10 @@ public class QuestDatabase
 	
 	public static void UpdateTasks(EntityPlayer player)
 	{
-		for(QuestInstance quest : questDB.values())
+		// Prevents concurrent modification crash when network packets are being parsed
+		ArrayList<QuestInstance> updateList = new ArrayList<QuestInstance>(questDB.values());
+		
+		for(QuestInstance quest : updateList)
 		{
 			quest.Update(player);
 		}

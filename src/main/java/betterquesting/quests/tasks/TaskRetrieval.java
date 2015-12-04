@@ -1,33 +1,26 @@
 package betterquesting.quests.tasks;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.tasks.GuiTaskRetrieval;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import com.mojang.realmsclient.gui.ChatFormatting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TaskRetrieval extends TaskBase
 {
-	public int scroll = 0;
 	public ArrayList<BigItemStack> requiredItems = new ArrayList<BigItemStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
 	boolean partialMatch = true;
@@ -216,90 +209,6 @@ public class TaskRetrieval extends TaskBase
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void drawQuestInfo(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY)
-	{
-		int rowLMax = (sizeX - 40)/18;
-		int rowL = Math.min(requiredItems.size(), rowLMax);
-		
-		if(rowLMax < requiredItems.size())
-		{
-			scroll = MathHelper.clamp_int(scroll, 0, requiredItems.size() - rowLMax);
-			RenderUtils.DrawFakeButton(screen, posX, posY, 20, 20, "<", screen.isWithin(mx, my, posX, posY, 20, 20, false)? 2 : 1);
-			RenderUtils.DrawFakeButton(screen, posX + 20 + 18*rowL, posY, 20, 20, ">", screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false)? 2 : 1);
-		} else
-		{
-			scroll = 0;
-		}
-		
-		BigItemStack ttStack = null;
-		
-		int[] progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
-		progress = progress == null? new int[requiredItems.size()] : progress;
-		
-		for(int i = 0; i < rowL; i++)
-		{
-			BigItemStack stack = requiredItems.get(i + scroll);
-			screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-			GL11.glColor4f(1F, 1F, 1F, 1F);
-			GL11.glDisable(GL11.GL_DEPTH_TEST);
-			screen.drawTexturedModalRect(posX + (i * 18) + 20, posY, 0, 48, 18, 18);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			int count = stack.stackSize - progress[i + scroll];
-			
-			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 21, posY + 1, stack != null && stack.stackSize > 1? "" + count : "");
-			
-			if(count <= 0 || this.isComplete(screen.mc.thePlayer))
-			{
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				// Shadows don't work on these symbols for some reason so we manually draw a shadow
-				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 26, posY + 6, Color.BLACK.getRGB(), false);
-				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 25, posY + 5, Color.GREEN.getRGB(), false);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
-			}
-			
-			if(screen.isWithin(mx, my, posX + (i * 18) + 21, posY, 16, 16, false))
-			{
-				ttStack = stack;
-			}
-		}
-		
-		if(this.isComplete(screen.mc.thePlayer))
-		{
-			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "COMPLETE", posX, posY + 24, Color.GREEN.getRGB(), false);
-		} else
-		{
-			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "INCOMPLETE", posX, posY + 24, Color.RED.getRGB(), false);
-		}
-		
-		if(ttStack != null)
-		{
-			screen.DrawTooltip(ttStack.getBaseStack().getTooltip(screen.mc.thePlayer, screen.mc.gameSettings.advancedItemTooltips), mx, my);
-		}
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void MousePressed(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY, int click)
-	{
-		if(click != 0)
-		{
-			return;
-		}
-		
-		int rowLMax = (sizeX - 40)/18;
-		int rowL = Math.min(requiredItems.size(), rowLMax);
-		
-		if(screen.isWithin(mx, my, posX, posY, 20, 20, false))
-		{
-			scroll = MathHelper.clamp_int(scroll - 1, 0, requiredItems.size() - rowLMax);
-		} else if(screen.isWithin(mx, my, posX + 20 + 18*rowL, posY, 20, 20, false))
-		{
-			scroll = MathHelper.clamp_int(scroll + 1, 0, requiredItems.size() - rowLMax);
-		}
-	}
-
-	@Override
 	public void ResetProgress(UUID uuid)
 	{
 		completeUsers.remove(uuid);
@@ -311,5 +220,11 @@ public class TaskRetrieval extends TaskBase
 	{
 		completeUsers.clear();
 		userProgress.clear();
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiTaskRetrieval(this, screen, posX, posY, sizeX, sizeY);
 	}
 }

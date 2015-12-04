@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.RenderUtils;
 import cpw.mods.fml.relauncher.Side;
@@ -45,7 +46,10 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
-		if(mc.thePlayer == null)
+		if(QuestDatabase.editMode)
+		{
+			this.enabled = this.visible = true;
+		} else if(mc.thePlayer == null)
 		{
 			this.enabled = false;
 			this.visible = true;

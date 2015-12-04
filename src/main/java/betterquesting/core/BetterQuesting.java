@@ -14,6 +14,7 @@ import betterquesting.network.PacketQuesting;
 import betterquesting.quests.rewards.RewardChoice;
 import betterquesting.quests.rewards.RewardItem;
 import betterquesting.quests.rewards.RewardRegistry;
+import betterquesting.quests.rewards.RewardScoreboard;
 import betterquesting.quests.tasks.TaskCrafting;
 import betterquesting.quests.tasks.TaskFluid;
 import betterquesting.quests.tasks.TaskHunt;
@@ -82,6 +83,7 @@ public class BetterQuesting
     	
     	RewardRegistry.RegisterReward(RewardItem.class, "item");
     	RewardRegistry.RegisterReward(RewardChoice.class, "choice");
+    	RewardRegistry.RegisterReward(RewardScoreboard.class, "scoreboard");
     	
     	proxy.registerThemes();
     }

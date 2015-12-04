@@ -53,7 +53,7 @@ public class PacketQuesting implements IMessage
 		{
 			if(message == null || message.tags == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack server side");
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack server side", new NullPointerException());
 				return null;
 			}
 			
@@ -100,7 +100,7 @@ public class PacketQuesting implements IMessage
 		{
 			if(message == null || message.tags == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack client side");
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack client side", new NullPointerException());
 				return null;
 			}
 			

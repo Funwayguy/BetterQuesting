@@ -1,22 +1,21 @@
 package betterquesting.quests.tasks;
 
-import java.awt.Color;
 import java.util.UUID;
-import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.tasks.GuiTaskScoreboard;
 import betterquesting.utils.JsonHelper;
+import com.google.gson.JsonObject;
 
 public class TaskScoreboard extends TaskBase
 {
-	String scoreName = "Score";
-	int target = 1;
-	ScoreOperation operation = ScoreOperation.MORE_OR_EQUAL;
+	public String scoreName = "Score";
+	public int target = 1;
+	public ScoreOperation operation = ScoreOperation.MORE_OR_EQUAL;
 	
 	@Override
 	public String getUnlocalisedName()
@@ -80,25 +79,6 @@ public class TaskScoreboard extends TaskBase
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY)
-	{
-		screen.mc.fontRenderer.drawString("Scoreboard: " + scoreName, posX, posY, Color.BLACK.getRGB(), false);
-		
-		Scoreboard board = screen.mc.thePlayer.getWorldScoreboard();
-		ScoreObjective scoreObj = board == null? null : board.getObjective(scoreName);
-		Score score = scoreObj == null? null : board.func_96529_a(screen.mc.thePlayer.getCommandSenderName(), scoreObj);
-		
-		if(score == null)
-		{
-			screen.mc.fontRenderer.drawString("Value: NULL", posX, posY + 12, Color.BLACK.getRGB(), false);
-		} else
-		{
-			screen.mc.fontRenderer.drawString("Condition: " + score.getScorePoints() + " " + operation.GetText() + " " + target, posX, posY + 12, Color.BLACK.getRGB(), false);
-		}
-	}
-	
-	@Override
 	public void writeToJson(JsonObject json)
 	{
 		json.addProperty("scoreName", scoreName);
@@ -149,5 +129,11 @@ public class TaskScoreboard extends TaskBase
 	public void ResetAllProgress()
 	{
 		completeUsers.clear();
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiTaskScoreboard(this, screen, posX, posY, sizeX, sizeY);
 	}
 }

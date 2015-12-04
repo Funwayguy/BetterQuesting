@@ -41,12 +41,12 @@ public class GuiButtonQuestLine extends GuiButtonQuesting
 		{
 			ArrayList<QuestNode> nodeList = line.questTree.GetDepth(i);
 			
-			int n = (nodeList.size() * 48 - 24)/2;
+			int n = (nodeList.size() * 32 - 24)/2;
 			
 			for(int j = 0; j < nodeList.size(); j++)
 			{
 				QuestNode node = nodeList.get(j);
-				GuiButtonQuestInstance btnQuest = new GuiButtonQuestInstance(0, j * 48 - n, (i - 1) * 50, node.value);
+				GuiButtonQuestInstance btnQuest = new GuiButtonQuestInstance(0, j * 32 - n, (i - 1) * 50, node.value);
 				if(btnQuest.xPosition < leftSide)
 				{
 					leftSide = btnQuest.xPosition;

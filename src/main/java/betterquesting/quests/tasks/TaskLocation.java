@@ -1,16 +1,15 @@
 package betterquesting.quests.tasks;
 
-import java.awt.Color;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.tasks.GuiTaskLocation;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class TaskLocation extends TaskBase
 {
@@ -72,38 +71,6 @@ public class TaskLocation extends TaskBase
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY)
-	{
-		int i = 0;
-
-		screen.mc.fontRenderer.drawString(name, posX, posY + i, Color.BLACK.getRGB(), false);
-		i += 12;
-		
-		if(!hideInfo)
-		{
-			if(range >= 0)
-			{
-				screen.mc.fontRenderer.drawString("Location: " + x + "," + y + "," + z, posX, posY + i, Color.BLACK.getRGB(), false);
-				i += 12;
-				screen.mc.fontRenderer.drawString("Range: " + range, posX, posY + i, Color.BLACK.getRGB(), false);
-				i += 12;
-			}
-			
-			screen.mc.fontRenderer.drawString("Dimension: " + dim, posX, posY + i, Color.BLACK.getRGB(), false);
-			i += 12;
-		}
-		
-		if(this.isComplete(screen.mc.thePlayer))
-		{
-			screen.mc.fontRenderer.drawString("Found!", posX, posY + i, Color.GREEN.getRGB(), false);
-		} else
-		{
-			screen.mc.fontRenderer.drawString("Undiscovered", posX, posY + i, Color.RED.getRGB(), false);
-		}
-	}
-	
-	@Override
 	public void writeToJson(JsonObject json)
 	{
 		json.addProperty("name", name);
@@ -141,5 +108,11 @@ public class TaskLocation extends TaskBase
 	public void ResetAllProgress()
 	{
 		completeUsers.clear();
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiTaskLocation(this, screen, posX, posY, sizeX, sizeY);
 	}
 }

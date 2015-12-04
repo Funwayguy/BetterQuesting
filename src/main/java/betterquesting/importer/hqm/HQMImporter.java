@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.importer.hqm.converters.HQMReward;
 import betterquesting.importer.hqm.converters.HQMRewardChoice;
+import betterquesting.importer.hqm.converters.HQMRewardReputation;
 import betterquesting.importer.hqm.converters.HQMRewardStandard;
 import betterquesting.importer.hqm.converters.HQMTask;
 import betterquesting.importer.hqm.converters.HQMTaskCraft;
@@ -91,6 +92,35 @@ public class HQMImporter
 		}
 	}
 	
+	public static HashMap<Integer, String> reputations = new HashMap<Integer, String>();
+	
+	public static void LoadReputations(JsonObject jsonRoot)
+	{
+		reputations.clear();
+		
+		int i = -1;
+		
+		for(JsonElement e : JsonHelper.GetArray(jsonRoot, "reputation"))
+		{
+			i++;
+			
+			if(e == null || !e.isJsonObject())
+			{
+				continue;
+			}
+			
+			JsonObject jRep = e.getAsJsonObject();
+			
+			if(!jRep.has("name"))
+			{
+				continue;
+			} else
+			{
+				reputations.put(i, JsonHelper.GetString(jRep, "name", "Reputation(" + i + ")"));
+			}
+		}
+	}
+	
 	public static HashMap<String, QuestInstance> idMap = new HashMap<String, QuestInstance>(); // Use this to remap old IDs to new ones
 	
 	public static QuestInstance GetNewQuest(String oldID)
@@ -113,6 +143,8 @@ public class HQMImporter
 		QuestLine questLine = new QuestLine();
 		questLine.name = JsonHelper.GetString(json, "name", "HQM Quest Line");
 		questLine.description = JsonHelper.GetString(json, "description", "No description");
+		
+		LoadReputations(json);
 		
 		JsonArray qlJson = JsonHelper.GetArray(json, "quests");
 		
@@ -380,6 +412,7 @@ public class HQMImporter
 		taskConverters.put("CRAFT", new HQMTaskCraft());
 		
 		rewardConverters.put("reward", new HQMRewardStandard());
-		rewardConverters.put("rewardChoice", new HQMRewardChoice());
+		rewardConverters.put("rewardchoice", new HQMRewardChoice());
+		rewardConverters.put("reputationrewards", new HQMRewardReputation());
 	}
 }

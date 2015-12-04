@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
@@ -23,7 +24,9 @@ public class GuiQuestInstance extends GuiQuesting
 {
 	QuestInstance quest;
 	int selTask = 0;
+	GuiEmbedded taskRender = null;
 	int selReward = 0;
+	GuiEmbedded rewardRender = null;
 	GuiButtonQuesting btnTLeft;
 	GuiButtonQuesting btnTRight;
 	GuiButtonQuesting btnRLeft;
@@ -44,7 +47,9 @@ public class GuiQuestInstance extends GuiQuesting
 		
 		this.title = quest.name;
 		this.selReward = 0;
+		this.taskRender = null;
 		this.selTask = 0;
+		this.rewardRender = null;
 		
 		if(QuestDatabase.editMode)
 		{
@@ -118,10 +123,22 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
 			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
-			GL11.glPushMatrix(); 
-			GL11.glColor4f(1F, 1F, 1F, 1F);
-			task.drawQuestInfo(this, mx, my, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
-			GL11.glPopMatrix();
+			
+			if(taskRender == null)
+			{
+				taskRender = task.getGui(this, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
+			}
+			
+			if(taskRender != null)
+			{
+				GL11.glPushMatrix(); 
+				GL11.glColor4f(1F, 1F, 1F, 1F);
+				taskRender.drawTask(mx, my, partialTick);
+				GL11.glPopMatrix();
+			}
+		} else
+		{
+			taskRender = null;
 		}
 		
 		RewardBase reward = selReward < quest.rewards.size()? quest.rewards.get(selReward) : null;
@@ -139,10 +156,27 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
 			this.fontRendererObj.drawString(rTitle, this.guiLeft + (sizeX/4)*1 - (nameWidth/2), this.guiTop + sizeY/2, ThemeRegistry.curTheme().textColor().getRGB());
-			GL11.glPushMatrix();
+			
+			if(rewardRender == null)
+			{
+				rewardRender = reward.getGui(this, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
+			}
+			
+			if(rewardRender != null)
+			{
+				GL11.glPushMatrix(); 
+				GL11.glColor4f(1F, 1F, 1F, 1F);
+				rewardRender.drawTask(mx, my, partialTick);
+				GL11.glPopMatrix();
+			}
+			
+			/*GL11.glPushMatrix();
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			reward.drawReward(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 12, sizeX/2 - 8, sizeY - 104);
-			GL11.glPopMatrix();
+			GL11.glPopMatrix();*/
+		} else
+		{
+			rewardRender = null;
 		}
 	}
 	
@@ -156,6 +190,7 @@ public class GuiQuestInstance extends GuiQuesting
 			selTask--;
 			btnTLeft.enabled = selTask > 0;
 			btnTRight.enabled = selTask < quest.tasks.size() - 1;
+			taskRender = null;
 		} else if(btn.id == 2) // Manual detect
 		{
 			NBTTagCompound tags = new NBTTagCompound();
@@ -168,6 +203,7 @@ public class GuiQuestInstance extends GuiQuesting
 			selTask++;
 			btnTLeft.enabled = selTask > 0;
 			btnTRight.enabled = selTask < quest.tasks.size() - 1;
+			taskRender = null;
 		} else if(btn.id == 4) // Edit Quest
 		{
 			mc.displayGuiScreen(new GuiQuestEditor(this, quest));
@@ -184,35 +220,31 @@ public class GuiQuestInstance extends GuiQuesting
 			selReward--;
 			btnRLeft.enabled = selReward > 0;
 			btnRRight.enabled = selReward < quest.rewards.size() - 1;
+			rewardRender = null;
 		} else if(btn.id == 7)
 		{
 			selReward++;
 			btnRLeft.enabled = selReward > 0;
 			btnRRight.enabled = selReward < quest.rewards.size() - 1;
+			rewardRender = null;
 		}
 	}
 	
-    /**
-     * Called when the mouse is clicked.
-     */
 	@Override
-    protected void mouseClicked(int mx, int my, int click)
-    {
-    	super.mouseClicked(mx, my, click);
-    	
-    	RewardBase reward = selReward < quest.rewards.size()? quest.rewards.get(selReward) : null;
-		
-		if(reward != null)
+	public void handleMouseInput()
+	{
+		if(taskRender != null)
 		{
-			reward.MousePressed(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 8, sizeX/2 - 8, sizeY - 104, click);
-			btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+			taskRender.handleMouse();
 		}
 		
-		TaskBase task = selTask < quest.tasks.size()? quest.tasks.get(selTask) : null;
-		
-		if(task != null)
+		if(rewardRender != null)
 		{
-			task.MousePressed(this, mx, my, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104, click);
+			rewardRender.handleMouse();
 		}
-    }
+		
+		super.handleMouseInput();
+		
+		btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+	}
 }

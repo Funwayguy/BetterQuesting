@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.misc.GuiEmbedded;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -34,16 +35,7 @@ public abstract class RewardBase
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract void drawReward(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY);
-	
-	/**
-	 * Used to manipulate the reward based on mouse actions. Can be used for things like choices
-	 * @param click 
-	 */
-	@SideOnly(Side.CLIENT)
-	public void MousePressed(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY, int click)
-	{
-	}
+	public abstract GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY);
 	
 	/**
 	 * Returns a new editor screen for this Reward type to edit the given data

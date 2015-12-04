@@ -3,23 +3,20 @@ package betterquesting.quests.tasks;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.tasks.GuiHuntEditor;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.tasks.GuiTaskHunt;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,10 +25,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class TaskHunt extends AdvancedTaskBase
 {
-	HashMap<UUID, Integer> userProgress = new HashMap<UUID, Integer>();
+	public HashMap<UUID, Integer> userProgress = new HashMap<UUID, Integer>();
 	public String idName = "Zombie";
 	public int required = 1;
-	Entity target; // This is only used for display purposes
+	public Entity target; // This is only used for display purposes
 	
 	@Override
 	public String getUnlocalisedName()
@@ -125,50 +122,6 @@ public class TaskHunt extends AdvancedTaskBase
 		}
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY)
-	{
-		Integer progress = userProgress.get(screen.mc.thePlayer.getUniqueID());
-		progress = progress == null? 0 : progress;
-		String txt = "Kill " + idName + " " + progress + "/" + required;
-		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY, ThemeRegistry.curTheme().textColor().getRGB());
-		if(target != null)
-		{
-			GL11.glPushMatrix();
-			
-			GL11.glColor4f(1F, 1F, 1F, 1F);
-			
-			float angle = ((float)Minecraft.getSystemTime()%30000F)/30000F * 360F;
-			float scale = 64F;
-			
-			if(target.height * scale > (sizeY - 48))
-			{
-				scale = (sizeY - 48)/target.height;
-			}
-			
-			if(target.width * scale > sizeX)
-			{
-				scale = sizeX/target.width;
-			}
-			
-			try
-			{
-				RenderUtils.RenderEntity(posX + sizeX/2, posY + sizeY/2 + MathHelper.ceiling_float_int(target.height/2F*scale) + 8, (int)scale, angle, 0F, target);
-			} catch(Exception e)
-			{
-			}
-			
-			GL11.glPopMatrix();
-		} else
-		{
-			if(EntityList.stringToClassMapping.containsKey(idName))
-			{
-				target = EntityList.createEntityByName(idName, screen.mc.theWorld);
-			}
-		}
-	}
-	
 	/**
 	 * Returns a new editor screen for this Reward type to edit the given data
 	 */
@@ -191,5 +144,11 @@ public class TaskHunt extends AdvancedTaskBase
 	{
 		completeUsers.clear();
 		userProgress.clear();
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiTaskHunt(this, screen, posX, posY, sizeX, sizeY);
 	}
 }

@@ -2,12 +2,13 @@ package betterquesting.quests.tasks;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StatCollector;
+import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
@@ -113,21 +114,8 @@ public abstract class TaskBase
 		}
 	}
 	
-	/**
-	 * Used to draw additional info about the quest's requirements. Objects drawn should be made to fit within the given dimensions
-	 * @param screen
-	 * @param posX
-	 * @param posY
-	 * @param sizeX
-	 * @param sizeY
-	 */
 	@SideOnly(Side.CLIENT)
-	public abstract void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY);
-	
-	@SideOnly(Side.CLIENT)
-	public void MousePressed(GuiQuesting screen, int mx, int my, int posX, int posY, int sizeX, int sizeY, int click)
-	{
-	}
+	public abstract GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY);
 	
 	/**
 	 * Returns a new editor screen for this Reward type to edit the given data

@@ -6,20 +6,19 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.tasks.GuiTaskBlock;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
-import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
 public class TaskBlockBreak extends AdvancedTaskBase
 {
 	HashMap<UUID, Integer> userProgress = new HashMap<UUID, Integer>();
-	Block targetBlock = Blocks.stone;
-	int targetMeta = 0;
-	int targetNum = 1;
-	
-	BigItemStack dispStack;
+	public Block targetBlock = Blocks.log;
+	public int targetMeta = -1;
+	public int targetNum = 1;
+	public boolean oreDict = true;
 	
 	@Override
 	public String getUnlocalisedName()
@@ -46,17 +45,6 @@ public class TaskBlockBreak extends AdvancedTaskBase
 	}
 	
 	@Override
-	public void drawQuestInfo(GuiQuesting screen, int mouseX, int mouseY, int posX, int posY, int sizeX, int sizeY)
-	{
-		if(dispStack == null)
-		{
-			dispStack = new BigItemStack(targetBlock, 1, targetMeta);
-		}
-		
-		RenderUtils.RenderItemStack(screen.mc, dispStack.getBaseStack(), posX, posY, dispStack.stackSize > 0? "" : "" + dispStack.stackSize);
-	}
-	
-	@Override
 	public void writeToJson(JsonObject json)
 	{
 		json.addProperty("blockID", Block.blockRegistry.getNameForObject(targetBlock));
@@ -67,9 +55,9 @@ public class TaskBlockBreak extends AdvancedTaskBase
 	@Override
 	public void readFromJson(JsonObject json)
 	{
-		dispStack = null;
-		targetBlock = (Block)Block.blockRegistry.getObject(JsonHelper.GetString(json, "blockID", "minecraft:stone"));
-		targetMeta = JsonHelper.GetNumber(json, "blockMeta", 0).intValue();
+		targetBlock = (Block)Block.blockRegistry.getObject(JsonHelper.GetString(json, "blockID", "minecraft:log"));
+		targetBlock = targetBlock != null? targetBlock : Blocks.log;
+		targetMeta = JsonHelper.GetNumber(json, "blockMeta", -1).intValue();
 		targetNum = JsonHelper.GetNumber(json, "amount", 1).intValue();
 	}
 
@@ -85,5 +73,11 @@ public class TaskBlockBreak extends AdvancedTaskBase
 	{
 		completeUsers.clear();
 		userProgress.clear();
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiTaskBlock(this, screen, posX, posY, sizeX, sizeY);
 	}
 }
