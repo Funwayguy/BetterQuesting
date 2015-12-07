@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
@@ -28,7 +29,7 @@ public class GuiNoParty extends GuiQuesting
 	
 	public GuiNoParty(GuiScreen parent)
 	{
-		super(parent, "Questing Party");
+		super(parent, "betterquesting.title.party_none");
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ public class GuiNoParty extends GuiQuesting
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
 		
-		btnCreate = new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, "Create Party");
+		btnCreate = new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, I18n.format("betterquesting.btn.party_new"));
 		this.buttonList.add(btnCreate);
 		
 		fieldName = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4 - 74, height/2 - 19, 148, 18);
@@ -58,7 +59,7 @@ public class GuiNoParty extends GuiQuesting
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, "Join");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_join"));
 			this.buttonList.add(btn);
 		}
 		
@@ -89,7 +90,7 @@ public class GuiNoParty extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(invites.size() - maxRows)), 248, 60, 8, 20);
 		
-		String memTitle = EnumChatFormatting.UNDERLINE + "Party Invites";
+		String memTitle = EnumChatFormatting.UNDERLINE + I18n.format("betterquesting.gui.party_invites");
 		mc.fontRenderer.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		int dotL = mc.fontRenderer.getStringWidth("...");
@@ -113,7 +114,7 @@ public class GuiNoParty extends GuiQuesting
 			mc.fontRenderer.drawString(name, guiLeft + sizeX - 82 - mc.fontRenderer.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
-		mc.fontRenderer.drawString("Name:", guiLeft + sizeX/4 - 75, height/2 - 30, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 30, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		fieldName.drawTextBox();
 		

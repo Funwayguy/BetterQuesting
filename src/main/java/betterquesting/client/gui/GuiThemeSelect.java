@@ -3,6 +3,7 @@ package betterquesting.client.gui;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -21,7 +22,7 @@ public class GuiThemeSelect extends GuiQuesting
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
-		super(parent, "Theme Select");
+		super(parent, I18n.format("betterquesting.title.select_theme"));
 	}
 	
 	@SuppressWarnings("unchecked")

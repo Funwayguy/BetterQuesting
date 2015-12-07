@@ -3,6 +3,7 @@ package betterquesting.client.gui.editors;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -35,7 +36,7 @@ public class GuiTaskEditor extends GuiQuesting
 	
 	public GuiTaskEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, "Task Editor - " + quest.name);
+		super(parent, I18n.format("betterquesting.title.edit_tasks", I18n.format(quest.name)));
 		this.quest = quest;
 	}
 	

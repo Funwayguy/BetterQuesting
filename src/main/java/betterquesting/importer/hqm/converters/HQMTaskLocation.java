@@ -2,8 +2,8 @@ package betterquesting.importer.hqm.converters;
 
 import java.util.ArrayList;
 import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.TaskLocation;
 import betterquesting.utils.JsonHelper;
+import bq_standard.tasks.TaskLocation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

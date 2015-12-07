@@ -11,17 +11,6 @@ import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
-import betterquesting.quests.rewards.RewardChoice;
-import betterquesting.quests.rewards.RewardItem;
-import betterquesting.quests.rewards.RewardRegistry;
-import betterquesting.quests.rewards.RewardScoreboard;
-import betterquesting.quests.tasks.TaskCrafting;
-import betterquesting.quests.tasks.TaskFluid;
-import betterquesting.quests.tasks.TaskHunt;
-import betterquesting.quests.tasks.TaskLocation;
-import betterquesting.quests.tasks.TaskRegistry;
-import betterquesting.quests.tasks.TaskRetrieval;
-import betterquesting.quests.tasks.TaskScoreboard;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -73,19 +62,6 @@ public class BetterQuesting
     public void init(FMLInitializationEvent event)
     {
     	GameRegistry.registerItem(placeholder, "placeholder");
-    	
-    	TaskRegistry.RegisterTask(TaskRetrieval.class, "retrieval");
-    	TaskRegistry.RegisterTask(TaskHunt.class, "hunt");
-    	TaskRegistry.RegisterTask(TaskLocation.class, "location");
-    	TaskRegistry.RegisterTask(TaskCrafting.class, "crafting");
-    	TaskRegistry.RegisterTask(TaskScoreboard.class, "scoreboard");
-    	TaskRegistry.RegisterTask(TaskFluid.class, "fluid");
-    	
-    	RewardRegistry.RegisterReward(RewardItem.class, "item");
-    	RewardRegistry.RegisterReward(RewardChoice.class, "choice");
-    	RewardRegistry.RegisterReward(RewardScoreboard.class, "scoreboard");
-    	
-    	proxy.registerThemes();
     }
     
     @EventHandler

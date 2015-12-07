@@ -3,7 +3,7 @@ package betterquesting.importer.hqm.converters;
 import java.util.ArrayList;
 import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.rewards.RewardItem;
+import bq_standard.rewards.RewardItem;
 import com.google.gson.JsonElement;
 
 public class HQMRewardStandard extends HQMReward

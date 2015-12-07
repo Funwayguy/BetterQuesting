@@ -20,7 +20,7 @@ public abstract class GuiEmbedded
 		this.sizeY = sizeY;
 	}
 	
-	public abstract void drawTask(int mx, int my, float partialTick);
+	public abstract void drawGui(int mx, int my, float partialTick);
 	
 	public void handleMouse()
 	{

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiBigTextField;
@@ -35,7 +36,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 	
 	public GuiJsonArray(GuiScreen parent, JsonArray settings)
 	{
-		super(parent, "Editor - JSON Array");
+		super(parent, "betterquesting.title.json_array");
 		this.settings = settings;
 	}
 	
@@ -60,7 +61,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, "Add"));
+		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
 		this.buttonList.add(new GuiButtonQuesting(2, this.width/2, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, "<"));
 		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + this.sizeX - 36, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, ">"));
 		
@@ -152,7 +153,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 					GuiButtonJson jsonButton = (GuiButtonJson)button;
 					JsonElement element = jsonButton.json;
 					
-					if(jsonButton.isItemStack() || jsonButton.isEntity())
+					if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
 					{
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())

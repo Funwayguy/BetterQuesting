@@ -88,14 +88,20 @@ public class QuestInstance
 		if(isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
 		{
 			boolean done = true;
+			boolean update = false;
 			
-			for(TaskBase quest : tasks)
+			for(TaskBase tsk : tasks)
 			{
-				quest.Update(player);
+				boolean flag = !tsk.isComplete(player);
 				
-				if(!quest.isComplete(player))
+				tsk.Update(player);
+				
+				if(!tsk.isComplete(player))
 				{
 					done = false;
+				} else if(flag)
+				{
+					update = true;
 				}
 			}
 			
@@ -105,15 +111,26 @@ public class QuestInstance
 				
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP)
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					//tags.setInteger("ID", 3);
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", name);
 					tags.setInteger("Sound", 2);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
-					//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), (EntityPlayerMP)player);
+					BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+				}
+			} else if(update)
+			{
+				UpdateClients();
+				
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode)
+				{
+					NBTTagCompound tags = new NBTTagCompound();
+					tags.setString("Main", "betterquesting.notice.update");
+					tags.setString("Sub", name);
+					tags.setInteger("Sound", 1);
+					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
 					BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
 				}
 			}
@@ -605,7 +622,6 @@ public class QuestInstance
 					return inputs == 1;
 				default:
 					return false;
-				
 			}
 		}
 	}

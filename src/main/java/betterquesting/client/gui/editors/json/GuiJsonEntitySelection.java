@@ -27,7 +27,7 @@ public class GuiJsonEntitySelection extends GuiQuesting
 	
 	public GuiJsonEntitySelection(GuiScreen parent, JsonObject json)
 	{
-		super(parent, "Editor - Entity");
+		super(parent, "betterquesting.title.select_entity");
 		this.json = json;
 	}
 	

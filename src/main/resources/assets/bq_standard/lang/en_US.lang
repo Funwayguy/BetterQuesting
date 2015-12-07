@@ -1,0 +1,12 @@
+betterquesting.task.retrieval=Retrieval Task
+betterquesting.task.crafting=Crafting Task
+betterquesting.task.hunt=Mob Hunt Task
+betterquesting.task.scoreboard=Scoreboard Task
+betterquesting.task.location=Location Task
+betterquesting.task.fluid=Fluid Task
+
+betterquesting.reward.choice=Choice Reward
+betterquesting.reward.item=Item Reward
+betterquesting.reward.scoreboard=Scoreboard Reward
+
+item.betterquesting.placeholder.name=Item Placeholder

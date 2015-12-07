@@ -120,7 +120,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         
         if(QuestDatabase.bqHardcore)
         {
-        	this.drawCenteredString(this.fontRendererObj, "Remaning Lives: " + LifeManager.getLives(mc.thePlayer), this.width / 2, 112, 16777215);
+        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives") + LifeManager.getLives(mc.thePlayer), this.width / 2, 112, 16777215);
         }
 
         int k;

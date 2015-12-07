@@ -3,9 +3,9 @@ package betterquesting.client.gui.editors;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuestInstance;
@@ -35,7 +35,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	
 	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
 	{
-		super(parent, "Line Editor - " + (line == null? "None" : line.name));
+		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name)));
 		this.line = line;
 		selIndex = line == null? -1 : QuestDatabase.questLines.indexOf(line);
 	}
@@ -46,12 +46,12 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	{
 		super.initGui();
 		
-		this.title = "Line Editor - " + (line == null? "None" : line.name);
+		this.title = I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name));
 		
 		maxRows = (sizeY - 96)/20;
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4*3 - 50, guiTop + sizeY - 48, 100, 20, "Add New"));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRows; i++)
@@ -132,9 +132,9 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
-		String txt = "Quest Line";
+		String txt = I18n.format("betterquesting.gui.quest_line");
 		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = "Database";
+		txt = I18n.format("betterquesting.gui.database");
 		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
@@ -146,7 +146,6 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		if(button.id == 0)
 		{
 			SendChanges(2); // We do this upon exiting because the screen relies on this instance of the quest line and cannot recover if it is update early
-			BetterQuesting.logger.log(Level.INFO, "Sending quest line changes to server...");
 		} else if(button.id == 1)
 		{
 			SendChanges(1);
@@ -281,7 +280,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = line.questList.get(n3).name;
+					btn.displayString = I18n.format(line.questList.get(n3).name);
 				}
 			} else if(n2 == 1) // Remove quest
 			{
@@ -296,7 +295,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				{
 					QuestInstance q = QuestDatabase.getQuestByOrder(n4);
 					btn.visible = btn.enabled = true;
-					btn.displayString = q.name;
+					btn.displayString = I18n.format(q.name);
 				}
 			} else if(n2 == 3) // Delete quest
 			{

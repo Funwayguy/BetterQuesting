@@ -3,11 +3,14 @@ package betterquesting.client.gui.editors.json;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.utils.BigItemStack;
@@ -21,13 +24,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiJsonTypeMenu extends GuiQuesting
 {
 	JsonObject json;
+	FluidStack fluid;
 	BigItemStack stack;
 	Entity entity;
 	EditType lastType = EditType.NONE;
 	
 	public GuiJsonTypeMenu(GuiScreen parent, JsonObject json)
 	{
-		super(parent, "Editor - Object");
+		super(parent, "betterquesting.title.json_object");
 		this.json = json;
 	}
 	
@@ -48,6 +52,11 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			{
 				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
+			
+			if(json.has("FluidName") && json.has("Amount"))
+			{
+				fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+			}
 		} else // JSON cannot be null!
 		{
 			this.mc.displayGuiScreen(parent);
@@ -64,10 +73,19 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			entity = new EntityPig(Minecraft.getMinecraft().theWorld);
 		}
 		
+		if(fluid == null)
+		{
+			fluid = new FluidStack(FluidRegistry.WATER, 1000);
+		}
+		
 		if(lastType == EditType.ITEM)
 		{
 			json.entrySet().clear();
 			JsonHelper.ItemStackToJson(stack, json);
+		} else if(lastType == EditType.FLUID)
+		{
+			json.entrySet().clear();
+			NBTConverter.NBTtoJSON_Compound(fluid.writeToNBT(new NBTTagCompound()), json);
 		} else if(lastType == EditType.ENTITY)
 		{
 			try
@@ -81,18 +99,21 @@ public class GuiJsonTypeMenu extends GuiQuesting
 				e.printStackTrace();
 			}
 		}
+
+		GuiButtonJson editButton = new GuiButtonJson(3, this.width/2 - 100, this.height/2 - 40, 200, 20, json); // JSON Editor
+		GuiButtonJson itemButton = new GuiButtonJson(1, this.width/2 - 100, this.height/2 - 20, 200, 20, json); // Item Selector
+		GuiButtonJson fluidButton = new GuiButtonJson(4, this.width/2 - 100, this.height/2 + 00, 200, 20, json); // Fluid Editor
+		GuiButtonJson entityButton = new GuiButtonJson(2, this.width/2 - 100, this.height/2 + 20, 200, 20, json); // Entity Selector
 		
-		GuiButtonJson itemButton = new GuiButtonJson(1, this.width/2 - 100, this.height/2 - 30, 100, 20, json); // Item Selector
-		GuiButtonJson entityButton = new GuiButtonJson(2, this.width/2, this.height/2 - 30, 100, 20, json); // Entity Selector
-		GuiButtonJson editButton = new GuiButtonJson(3, this.width/2 - 100, this.height/2 + 10, 200, 20, json); // JSON Editor
-		
-		itemButton.displayString = "Item";
-		entityButton.displayString = "Entity";
-		editButton.displayString = "Edit Raw NBT";
+		itemButton.displayString = I18n.format("betterquesting.btn.item");
+		entityButton.displayString = I18n.format("betterquesting.btn.entity");
+		editButton.displayString = I18n.format("betterquesting.btn.raw_nbt");
+		fluidButton.displayString = I18n.format("betterquesting.btn.fluid");
 		
 		this.buttonList.add(itemButton);
 		this.buttonList.add(entityButton);
 		this.buttonList.add(editButton);
+		this.buttonList.add(fluidButton);
 	}
 	
 	@Override
@@ -118,6 +139,13 @@ public class GuiJsonTypeMenu extends GuiQuesting
 		{
 			this.lastType = EditType.NONE;
 			this.mc.displayGuiScreen(new GuiJsonObject(this, json));
+		} else if(button.id == 4)
+		{
+			this.lastType = EditType.FLUID;
+			json.entrySet().clear();
+			NBTConverter.NBTtoJSON_Compound(fluid.writeToNBT(new NBTTagCompound()), json);
+			
+			this.mc.displayGuiScreen(new GuiJsonFluidSelection(this, json));
 		} else
 		{
 			this.lastType = EditType.NONE;
@@ -129,6 +157,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 	{
 		NONE,
 		ITEM,
-		ENTITY
+		ENTITY,
+		FLUID;
 	}
 }

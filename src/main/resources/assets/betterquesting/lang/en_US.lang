@@ -1,14 +1,69 @@
-betterquesting.task.retrieval=Retrieval Task
-betterquesting.task.crafting=Crafting Task
-betterquesting.task.hunt=Mob Hunt Task
-betterquesting.task.scoreboard=Scoreboard Task
-betterquesting.task.location=Location Task
+betterquesting.title.quest_lines=Quest Lines
+betterquesting.title.edit_line1=Edit Quest Lines
+betterquesting.title.edit_line2=Edit Quest Line - %s
+betterquesting.title.edit_quest=Edit Quest
+betterquesting.title.edit_tasks=Edit Tasks
+betterquesting.title.edit_rewards=Edit Rewards
+betterquesting.title.edit_text=Text Editor
+betterquesting.title.pre_requisites=Edit Pre-Requisites
+betterquesting.title.json_object=Object
+betterquesting.title.json_array=List
+betterquesting.title.select_item=Select Item
+betterquesting.title.select_fluid=Select Fluid
+betterquesting.title.select_entity=Select Entity
+betterquesting.title.party_none=Questing Party
+betterquesting.title.party=Manage Party - %s
+betterquesting.title.party_invite=Invite Users
+betterquesting.title.select_theme=Select Theme
 
-betterquesting.reward.choice=Choice Reward
-betterquesting.reward.item=Item Reward
+betterquesting.btn.rewards=Rewards
+betterquesting.btn.tasks=Tasks
+betterquesting.btn.advanced=Advanced
+betterquesting.btn.is_main=Is Main
+betterquesting.btn.requirements=Requirements
+betterquesting.btn.edit=Edit
+betterquesting.btn.new=Add New
+betterquesting.btn.import=Import
+betterquesting.btn.logic=Logic
+betterquesting.btn.claim=Claim
+betterquesting.btn.detect_submit=Detect/Submit
+betterquesting.btn.add_remove_quests=Add/Remove Quests
+betterquesting.btn.item=Item
+betterquesting.btn.list=List
+betterquesting.btn.fluid=Fluid
+betterquesting.btn.entity=Entity
+betterquesting.btn.text=Text
+betterquesting.btn.object=Object
+betterquesting.btn.raw_nbt=Raw NBT
+betterquesting.btn.party_new=Create Party
+betterquesting.btn.party_leave=Leave
+betterquesting.btn.party_invite=Invite
+betterquesting.btn.party_kick=Kick
+betterquesting.btn.party_share_lives=Share Lives
+betterquesting.btn.party_share_loot=Share Loot
 
-item.betterquesting.placeholder.name=Item Placeholder
+betterquesting.gui.name=Name
+betterquesting.gui.description=Description
+betterquesting.gui.quest_line=Quest Line
+betterquesting.gui.database=Database
+betterquesting.gui.selection=Selection
+betterquesting.gui.search=Search
+betterquesting.gui.party_invites=Invites
+betterquesting.gui.party_members=Members
+
+betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
+betterquesting.tooltip.complete=Complete
+betterquesting.tooltip.requires=Requires:
+
+betterquesting.notice.complete=Quest Complete
+betterquesting.notice.update=Quest Updated
+betterquesting.notice.unlock=Quest Unlocked
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
 key.betterquesting.themes=Change Theme
+
+quest.name=Localised Quest Name
+quest.description=If you can read this, localisation is working
+quest_line.name=Localised Line Name
+quest_line.description=Localised quest line description

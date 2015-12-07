@@ -3,6 +3,7 @@ package betterquesting.client.gui;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -34,7 +35,7 @@ public class GuiQuestLines extends GuiQuesting
 	
 	public GuiQuestLines(GuiScreen parent)
 	{
-		super(parent, "Quest Lines");
+		super(parent, I18n.format("betterquesting.title.quest_lines"));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -54,7 +55,7 @@ public class GuiQuestLines extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, "Edit");
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
@@ -160,36 +161,36 @@ public class GuiQuestLines extends GuiQuesting
 			
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			
-			RenderUtils.drawSplitString(fontRendererObj, selected.line.description, this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			RenderUtils.drawSplitString(fontRendererObj, I18n.format(selected.line.description), this.guiLeft + 174, this.guiTop + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRenderer.drawString(ChatFormatting.BOLD + selected.line.name, MathHelper.ceiling_float_int((this.guiLeft + 180)/scale), MathHelper.ceiling_float_int((this.guiTop + 38)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(ChatFormatting.BOLD + I18n.format(selected.line.name), MathHelper.ceiling_float_int((this.guiLeft + 180)/scale), MathHelper.ceiling_float_int((this.guiTop + 38)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
 		
 		if(qTooltip != null)
 		{
 			ArrayList<String> qInfo = new ArrayList<String>();
-			qInfo.add(qTooltip.name);
+			qInfo.add(I18n.format(qTooltip.name));
 			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(ChatFormatting.GREEN + "COMPLETE");
+				qInfo.add(ChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
 				
 				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
 				{
-					qInfo.add(ChatFormatting.GRAY + "Rewards pending...");
+					qInfo.add(ChatFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
 				}
 			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(ChatFormatting.RED + "" + ChatFormatting.UNDERLINE + "REQUIRES:");
+				qInfo.add(ChatFormatting.RED + "" + ChatFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires"));
 				
 				for(QuestInstance req : qTooltip.preRequisites)
 				{
 					if(!req.isComplete(mc.thePlayer.getUniqueID()))
 					{
-						qInfo.add(ChatFormatting.RED + "- " + req.name);
+						qInfo.add(ChatFormatting.RED + "- " + I18n.format(req.name));
 					}
 				}
 			} else
@@ -204,7 +205,7 @@ public class GuiQuestLines extends GuiQuesting
 					}
 				}
 				
-				qInfo.add(ChatFormatting.GRAY + "" + n + "/" + qTooltip.tasks.size() + " Tasks complete");
+				qInfo.add(ChatFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
 			}
 			this.drawHoveringText(qInfo, mx, my, this.fontRendererObj);
 		}

@@ -55,7 +55,7 @@ public class GuiQuesting extends GuiScreen
 		this.guiTop = (this.height - this.sizeY)/2;
 		
 		this.buttonList.clear();
-        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.format("gui.done", new Object[0])));
+        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.format("gui.done")));
 	}
 	
 	@Override
@@ -99,7 +99,8 @@ public class GuiQuesting extends GuiScreen
 			}
 		}
 		
-		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + title, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(title)/2, this.guiTop + 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		String tmp = I18n.format(title);
+		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		super.drawScreen(mx, my, partialTick);
 		

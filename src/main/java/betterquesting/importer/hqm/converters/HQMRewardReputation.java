@@ -3,8 +3,8 @@ package betterquesting.importer.hqm.converters;
 import java.util.ArrayList;
 import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.rewards.RewardScoreboard;
 import betterquesting.utils.JsonHelper;
+import bq_standard.rewards.RewardScoreboard;
 import com.google.gson.JsonElement;
 
 public class HQMRewardReputation extends HQMReward

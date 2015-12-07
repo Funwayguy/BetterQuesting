@@ -2,6 +2,7 @@ package betterquesting.client.gui;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
@@ -35,7 +36,7 @@ public class GuiQuestInstance extends GuiQuesting
 	
 	public GuiQuestInstance(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, quest.name);
+		super(parent, I18n.format(quest.name));
 		this.quest = quest;
 	}
 	
@@ -45,7 +46,7 @@ public class GuiQuestInstance extends GuiQuesting
 	{
 		super.initGui();
 		
-		this.title = quest.name;
+		this.title = I18n.format(quest.name);
 		this.selReward = 0;
 		this.taskRender = null;
 		this.selTask = 0;
@@ -57,7 +58,7 @@ public class GuiQuestInstance extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, "Edit");
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
@@ -71,9 +72,9 @@ public class GuiQuestInstance extends GuiQuesting
 		btnRRight = new GuiButtonQuesting(7, this.guiLeft + (sizeX/4) + 50, this.guiTop + sizeY - 48, 20, 20, ">");
 		btnRRight.enabled = selReward < quest.rewards.size() - 1;
 		
-		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, "Detect/Submit");
+		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"));
 		btnDetect.enabled = !quest.isComplete(mc.thePlayer.getUniqueID());
-		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, "Claim Rewards");
+		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"));
 		btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
 		this.buttonList.add(btnTLeft);
 		this.buttonList.add(btnTRight);
@@ -104,7 +105,7 @@ public class GuiQuestInstance extends GuiQuesting
 			}
 		}
 		
-		RenderUtils.drawSplitString(fontRendererObj, quest.description, this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		RenderUtils.drawSplitString(fontRendererObj, I18n.format(quest.description), this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, ThemeRegistry.curTheme().textColor());
 		
@@ -133,7 +134,7 @@ public class GuiQuestInstance extends GuiQuesting
 			{
 				GL11.glPushMatrix(); 
 				GL11.glColor4f(1F, 1F, 1F, 1F);
-				taskRender.drawTask(mx, my, partialTick);
+				taskRender.drawGui(mx, my, partialTick);
 				GL11.glPopMatrix();
 			}
 		} else
@@ -166,14 +167,9 @@ public class GuiQuestInstance extends GuiQuesting
 			{
 				GL11.glPushMatrix(); 
 				GL11.glColor4f(1F, 1F, 1F, 1F);
-				rewardRender.drawTask(mx, my, partialTick);
+				rewardRender.drawGui(mx, my, partialTick);
 				GL11.glPopMatrix();
 			}
-			
-			/*GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1F);
-			reward.drawReward(this, mx, my, this.guiLeft + 16, this.guiTop + sizeY/2 + 12, sizeX/2 - 8, sizeY - 104);
-			GL11.glPopMatrix();*/
 		} else
 		{
 			rewardRender = null;

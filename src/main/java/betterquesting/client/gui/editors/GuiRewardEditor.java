@@ -3,6 +3,7 @@ package betterquesting.client.gui.editors;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -35,7 +36,7 @@ public class GuiRewardEditor extends GuiQuesting
 	
 	public GuiRewardEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, "Reward Editor - " + quest.name);
+		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.name)));
 		this.quest = quest;
 	}
 	

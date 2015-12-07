@@ -76,7 +76,7 @@ public class ThemeRegistry
 		
 		if(ConfigHandler.config != null)
 		{
-			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "betterquesting:light").set(id);
+			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(id);
 			ConfigHandler.config.save();
 		} else
 		{

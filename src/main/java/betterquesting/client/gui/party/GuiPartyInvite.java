@@ -23,7 +23,7 @@ public class GuiPartyInvite extends GuiQuesting
 	
 	public GuiPartyInvite(GuiScreen parent, PartyInstance party)
 	{
-		super(parent, "Invite To Party");
+		super(parent, "betterquesting.title.party_invite");
 		this.party = party;
 	}
 	

@@ -3,9 +3,9 @@ package betterquesting.importer.hqm.converters;
 import java.util.ArrayList;
 import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.TaskFluid;
-import betterquesting.quests.tasks.TaskRetrieval;
 import betterquesting.utils.JsonHelper;
+import bq_standard.tasks.TaskFluid;
+import bq_standard.tasks.TaskRetrieval;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

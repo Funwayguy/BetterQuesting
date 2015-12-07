@@ -1,9 +1,11 @@
 package betterquesting.client.gui.misc;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fluids.FluidStack;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -20,6 +22,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 	public JsonElement json;
 	public BigItemStack stack;
 	public Entity entity;
+	public FluidStack fluid;
 	
 	public GuiButtonJson(int index, int posX, int posY, JsonElement json)
 	{
@@ -43,14 +46,22 @@ public class GuiButtonJson extends GuiButtonQuesting
 			{
 				this.entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
+			
+			if(tmpObj.has("FluidName") && tmpObj.has("Amount"))
+			{
+				fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(tmpObj, new NBTTagCompound()));
+			}
 		}
 		
 		if(this.entity != null)
 		{
-			this.displayString = "Entity: " + entity.getCommandSenderName();
+			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getCommandSenderName();
 		} else if(this.stack != null)
 		{
-			this.displayString = "Item: " + stack.getBaseStack().getDisplayName();
+			this.displayString = I18n.format("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
+		} else if(this.fluid != null)
+		{
+			this.displayString = I18n.format("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
 		} else if(json.isJsonPrimitive())
 		{
 			this.displayString = json.getAsJsonPrimitive().getAsString();
@@ -64,13 +75,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 	{
 		if(c == JsonObject.class)
 		{
-			return "Object";
+			return I18n.format("betterquesting.btn.object");
 		} else if(c == JsonArray.class)
 		{
-			return "List";
+			return I18n.format("betterquesting.btn.list");
 		} else if(c == JsonPrimitive.class)
 		{
-			return "Value"; // This should not normally be seen
+			return I18n.format("betterquesting.btn.text"); // This should not normally be seen
 		}
 		
 		return c.getSimpleName();
@@ -84,5 +95,10 @@ public class GuiButtonJson extends GuiButtonQuesting
 	public boolean isEntity()
 	{
 		return entity != null;
+	}
+
+	public boolean isFluid()
+	{
+		return fluid != null;
 	}
 }

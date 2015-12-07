@@ -4,6 +4,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -14,7 +15,6 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
@@ -37,7 +37,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 	
 	public GuiQuestLineEditorA(GuiScreen parent)
 	{
-		super(parent, "Quest Line Editor");
+		super(parent, "betterquesting.title.edit_line1");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -55,9 +55,9 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 1, height/2 - 19, btnWidth + 8 - 2, 18).enableBigEdit(this, 0);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + sizeY - 48, btnWidth/2, 20, "Add New"));
-		this.buttonList.add(new GuiButtonQuesting(3, guiLeft + sizeX/4 - 4, guiTop + sizeY - 48, btnWidth/2, 20, "Import"));
-		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + sizeX/4*3 - 75, height/2 + 20, 150, 20, "Add/Remove Quests"));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + sizeY - 48, btnWidth/2, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(3, guiLeft + sizeX/4 - 4, guiTop + sizeY - 48, btnWidth/2, 20, I18n.format("betterquesting.btn.import")));
+		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + sizeX/4*3 - 75, height/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests")));
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
@@ -105,8 +105,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
 		
-		mc.fontRenderer.drawString("Name:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRenderer.drawString("Description:", guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/4*3 - (btnWidth/2 + 4), height/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		lineTitle.drawTextBox();
 		lineDesc.drawTextBox();
@@ -161,7 +161,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		} else if(btn.id == 3)
 		{
 			// Changes this to import screen
-			HQMImporter.StartImport();
+			mc.displayGuiScreen(new GuiImporters(this));
 		} else if(btn.id > 3)
 		{
 			int n1 = btn.id - 4; // Line index
@@ -290,7 +290,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 			{
 				if(n3 >= 0 && n3 < QuestDatabase.questLines.size())
 				{
-					btn.displayString = QuestDatabase.questLines.get(n3).name;
+					btn.displayString = I18n.format(QuestDatabase.questLines.get(n3).name);
 					btn.enabled = btn.visible = true;
 				} else
 				{

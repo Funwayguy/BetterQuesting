@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
@@ -41,7 +42,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 	
 	public GuiJsonItemSelection(GuiScreen parent, JsonObject json)
 	{
-		super(parent, "Select Item");
+		super(parent, "betterquesting.title.select_item");
 		this.json = json;
 	}
 	
@@ -103,12 +104,13 @@ public class GuiJsonItemSelection extends GuiQuesting
 
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		this.drawTexturedModalRect(this.guiLeft + 16 , this.guiTop + 48, 0, 48, 18, 18);
-		RenderUtils.RenderItemStack(this.mc, this.stackSelect.getBaseStack(), this.guiLeft + 17, this.guiTop + 49, "");
 		
-		this.fontRendererObj.drawString("Selection", this.guiLeft + 16, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), this.guiLeft + 16, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		if(this.stackSelect != null)
 		{
+			RenderUtils.RenderItemStack(this.mc, this.stackSelect.getBaseStack(), this.guiLeft + 17, this.guiTop + 49, "");
+			
 			this.fontRendererObj.drawString(this.stackSelect.getBaseStack().getDisplayName() + " x " + this.stackSelect.stackSize, this.guiLeft + 36, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			if(this.isWithin(mx, my, 16, 48, 16, 16))
@@ -117,7 +119,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 			}
 		}
 		
-		this.fontRendererObj.drawString("Inventory", this.guiLeft + 16, this.guiTop + 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 16, this.guiTop + 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
@@ -149,7 +151,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 			}
 		}
 
-		this.fontRendererObj.drawString("Search: ", this.guiLeft + this.sizeX/2, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.search"), this.guiLeft + this.sizeX/2, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.searchBox.xPosition = this.guiLeft + this.width/2 + this.fontRendererObj.getStringWidth("Search: ");
 		this.searchBox.yPosition = this.guiTop + 28;
 		this.searchBox.drawTextBox();
@@ -335,33 +337,4 @@ public class GuiJsonItemSelection extends GuiQuesting
 			}
 		}
     }
-	
-	/*public void RenderItemStack(ItemStack stack, int x, int y, String text, boolean highlight)
-	{
-		GL11.glPushMatrix();
-        
-		try
-		{
-		    GL11.glColor4f(1F, 1F, 1F, 1F);
-			RenderHelper.enableGUIStandardItemLighting();
-		    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-			
-		    GL11.glTranslatef(0.0F, 0.0F, 32.0F);
-		    this.zLevel = 200.0F;
-		    itemRender.zLevel = 200.0F;
-		    FontRenderer font = null;
-		    if (stack != null) font = stack.getItem().getFontRenderer(stack);
-		    if (font == null) font = fontRendererObj;
-		    itemRender.renderItemAndEffectIntoGUI(font, this.mc.getTextureManager(), stack, x, y);
-		    itemRender.renderItemOverlayIntoGUI(font, this.mc.getTextureManager(), stack, x, y, text);
-		    this.zLevel = 0.0F;
-		    itemRender.zLevel = 0.0F;
-		    
-		    GL11.glDisable(GL11.GL_LIGHTING);
-		} catch(Exception e)
-		{
-		}
-		
-        GL11.glPopMatrix();
-	}*/
 }

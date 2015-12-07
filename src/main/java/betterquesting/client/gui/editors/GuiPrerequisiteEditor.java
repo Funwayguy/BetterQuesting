@@ -3,6 +3,7 @@ package betterquesting.client.gui.editors;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -32,7 +33,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	
 	public GuiPrerequisiteEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, "Edit Pre-requisites");
+		super(parent, "betterquesting.title.pre_requisites");
 		this.quest = quest;
 	}
 	
@@ -45,7 +46,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		maxRows = (sizeY - 96)/20;
 		int btnWidth = Math.min(sizeX/2 - 24, 198);
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4*3 - 50, guiTop + sizeY - 48, 100, 20, "Add New"));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRows; i++)
@@ -126,9 +127,9 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
-		String txt = "Quest Line";
+		String txt = I18n.format("betterquesting.gui.quest_line");
 		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = "Database";
+		txt = I18n.format("betterquesting.gui.database");
 		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	

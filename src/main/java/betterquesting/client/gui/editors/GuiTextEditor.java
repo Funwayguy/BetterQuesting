@@ -29,7 +29,7 @@ public class GuiTextEditor extends GuiQuesting
 	
     public GuiTextEditor(GuiScreen parent, String text)
     {
-    	super(parent, "Text Editor");
+    	super(parent, "betterquesting.title.edit_text");
     	
     	this.text = text;
     }
