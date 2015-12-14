@@ -21,7 +21,7 @@ public class TaskScoreboard extends TaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.scoreboard";
+		return "bq_standard.task.scoreboard";
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class TaskScoreboard extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(isComplete(player))
+		if(isComplete(player.getUniqueID()))
 		{
 			return;
 		}

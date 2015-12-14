@@ -2,6 +2,7 @@ package betterquesting.quests;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -89,22 +90,41 @@ public class QuestDatabase
 	}
 	
 	/**
-	 * Gets the active quests this player currently has or all quests if player is null
+	 * Gets the active quests this UUID currently has or all if UUID is null
 	 */
-	public static ArrayList<TaskBase> getActiveTasks(EntityPlayer player)
+	public static ArrayList<QuestInstance> getActiveQuests(UUID uuid)
+	{
+		ArrayList<QuestInstance> questList = new ArrayList<QuestInstance>();
+		
+		if(uuid != null)
+		{
+			for(QuestInstance quest : questDB.values())
+			{
+				if(quest != null && quest.isUnlocked(uuid) && (!quest.isComplete(uuid) || !quest.HasClaimed(uuid)))
+				{
+					questList.add(quest);
+				}
+			}
+		} else
+		{
+			questList.addAll(questDB.values());
+		}
+		
+		return questList;
+	}
+	
+	/**
+	 * Gets the active tasks this UUID currently has or all tasks if UUID is null
+	 */
+	public static ArrayList<TaskBase> getActiveTasks(UUID uuid)
 	{
 		ArrayList<TaskBase> taskList = new ArrayList<TaskBase>();
 		
-		for(QuestInstance quest : questDB.values())
+		for(QuestInstance quest : getActiveQuests(uuid))
 		{
-			if(player != null && !quest.isUnlocked(player.getUniqueID()) || quest.isComplete(player.getUniqueID()))
-			{
-				continue;
-			}
-			
 			for(TaskBase task : quest.tasks)
 			{
-				if(player != null && task.isComplete(player))
+				if(uuid != null && task.isComplete(uuid))
 				{
 					continue;
 				}

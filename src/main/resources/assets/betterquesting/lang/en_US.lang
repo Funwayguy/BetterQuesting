@@ -15,6 +15,8 @@ betterquesting.title.party_none=Questing Party
 betterquesting.title.party=Manage Party - %s
 betterquesting.title.party_invite=Invite Users
 betterquesting.title.select_theme=Select Theme
+betterquesting.title.importers=Importers
+betterquesting.title.submit_station=Submit Station
 
 betterquesting.btn.rewards=Rewards
 betterquesting.btn.tasks=Tasks
@@ -33,6 +35,7 @@ betterquesting.btn.list=List
 betterquesting.btn.fluid=Fluid
 betterquesting.btn.entity=Entity
 betterquesting.btn.text=Text
+betterquesting.btn.number=Number
 betterquesting.btn.object=Object
 betterquesting.btn.raw_nbt=Raw NBT
 betterquesting.btn.party_new=Create Party
@@ -50,20 +53,30 @@ betterquesting.gui.selection=Selection
 betterquesting.gui.search=Search
 betterquesting.gui.party_invites=Invites
 betterquesting.gui.party_members=Members
+betterquesting.gui.remaining_lives=Remaining Lives: %s
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
-betterquesting.tooltip.complete=Complete
+betterquesting.tooltip.complete=COMPLETE
+betterquesting.tooltip.incomplete=INCOMPLETE
 betterquesting.tooltip.requires=Requires:
 
 betterquesting.notice.complete=Quest Complete
 betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
+betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq hardcore" to toggle it
+
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
 key.betterquesting.themes=Change Theme
 
-quest.name=Localised Quest Name
-quest.description=If you can read this, localisation is working
-quest_line.name=Localised Line Name
-quest_line.description=Localised quest line description
+itemGroup.betterquesting=Better Questing
+
+fluid.betterquesting.placeholder=Placeholder
+
+item.betterquesting.placeholder.name=Item Placeholder
+item.betterquesting.extra_life.full.name=Extra Life
+item.betterquesting.extra_life.half.name=Half Heart
+item.betterquesting.extra_life.quarter.name=Quarter Heart
+
+tile.betterquesting.submit_station.name=Object Submission Station (OSS)

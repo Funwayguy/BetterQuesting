@@ -1,9 +1,9 @@
-package betterquesting.importer.hqm.converters;
+package bq_standard.importers.hqm.converters.tasks;
 
 import java.util.ArrayList;
-import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
+import bq_standard.importers.hqm.HQMUtilities;
 import bq_standard.tasks.TaskFluid;
 import bq_standard.tasks.TaskRetrieval;
 import com.google.gson.JsonElement;
@@ -38,10 +38,10 @@ public class HQMTaskDetect extends HQMTask
 			
 			if(ji.has("fluid"))
 			{
-				fluTask.requiredFluids.add(HQMImporter.HQMStackT3(ji));
+				fluTask.requiredFluids.add(HQMUtilities.HQMStackT3(ji));
 			} else
 			{
-				retTask.requiredItems.add(HQMImporter.HQMStackT2(ji));
+				retTask.requiredItems.add(HQMUtilities.HQMStackT2(ji));
 			}
 		}
 		

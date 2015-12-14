@@ -26,7 +26,7 @@ public class TaskLocation extends TaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.location";
+		return "bq_standard.task.location";
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class TaskLocation extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(isComplete(player))
+		if(isComplete(player.getUniqueID()))
 		{
 			return; // Keeps ray casting calls to a minimum
 		}

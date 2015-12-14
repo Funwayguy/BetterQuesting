@@ -160,7 +160,7 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			if(rewardRender == null)
 			{
-				rewardRender = reward.getGui(this, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
+				rewardRender = reward.getGui(this, this.guiLeft + 16, this.guiTop + sizeY/2 + 12, sizeX/2 - 8, sizeY - 104);
 			}
 			
 			if(rewardRender != null)

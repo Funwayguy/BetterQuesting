@@ -2,10 +2,13 @@ package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.client.UpdateNotification;
+import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.EventHandler;
+import betterquesting.handlers.GuiHandler;
 import betterquesting.lives.LifeManager;
 import betterquesting.quests.tasks.advanced.AdvancedEventHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.NetworkRegistry;
 
 public class CommonProxy
 {
@@ -31,5 +34,7 @@ public class CommonProxy
 		FMLCommonHandler.instance().bus().register(lifeManager);
 		
 		FMLCommonHandler.instance().bus().register(new UpdateNotification());
+		
+		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}
 }

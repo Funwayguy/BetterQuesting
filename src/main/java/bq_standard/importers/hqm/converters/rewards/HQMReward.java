@@ -1,4 +1,4 @@
-package betterquesting.importer.hqm.converters;
+package bq_standard.importers.hqm.converters.rewards;
 
 import java.util.ArrayList;
 import betterquesting.quests.rewards.RewardBase;

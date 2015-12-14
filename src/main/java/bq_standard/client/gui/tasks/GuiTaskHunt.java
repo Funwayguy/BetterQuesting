@@ -1,6 +1,7 @@
 package bq_standard.client.gui.tasks;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityList;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
@@ -25,7 +26,7 @@ public class GuiTaskHunt extends GuiEmbedded
 	{
 		Integer progress = task.userProgress.get(screen.mc.thePlayer.getUniqueID());
 		progress = progress == null? 0 : progress;
-		String txt = "Kill " + task.idName + " " + progress + "/" + task.required;
+		String txt = I18n.format("bq_standard.gui.kill", task.idName) + " " + progress + "/" + task.required;
 		screen.mc.fontRenderer.drawString(txt, posX + sizeX/2 - screen.mc.fontRenderer.getStringWidth(txt)/2, posY, ThemeRegistry.curTheme().textColor().getRGB());
 		if(task.target != null)
 		{

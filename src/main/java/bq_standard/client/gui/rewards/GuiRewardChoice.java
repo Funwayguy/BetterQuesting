@@ -1,5 +1,6 @@
 package bq_standard.client.gui.rewards;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -53,7 +54,7 @@ public class GuiRewardChoice extends GuiEmbedded
 			}
 		}
 		
-		screen.mc.fontRenderer.drawString("Selected:", posX, posY + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		screen.mc.fontRenderer.drawString(I18n.format("betterquesting.gui.selection"), posX, posY + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GL11.glDisable(GL11.GL_DEPTH_TEST);

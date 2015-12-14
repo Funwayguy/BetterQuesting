@@ -1,8 +1,10 @@
 package bq_standard.client.gui.tasks;
 
 import java.awt.Color;
+import net.minecraft.client.resources.I18n;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.themes.ThemeRegistry;
 import bq_standard.tasks.TaskLocation;
 
 public class GuiTaskLocation extends GuiEmbedded
@@ -27,22 +29,22 @@ public class GuiTaskLocation extends GuiEmbedded
 		{
 			if(task.range >= 0)
 			{
-				screen.mc.fontRenderer.drawString("Location: " + task.x + "," + task.y + "," + task.z, posX, posY + i, Color.BLACK.getRGB(), false);
+				screen.mc.fontRenderer.drawString(I18n.format("bq_standard.gui.location", "(" + task.x + ", " + task.y + ", " + task.z + ")"), posX, posY + i, ThemeRegistry.curTheme().textColor().getRGB(), false);
 				i += 12;
-				screen.mc.fontRenderer.drawString("Range: " + task.range, posX, posY + i, Color.BLACK.getRGB(), false);
+				screen.mc.fontRenderer.drawString(I18n.format("bq_standard.gui.range", task.range), posX, posY + i, ThemeRegistry.curTheme().textColor().getRGB(), false);
 				i += 12;
 			}
 			
-			screen.mc.fontRenderer.drawString("Dimension: " + task.dim, posX, posY + i, Color.BLACK.getRGB(), false);
+			screen.mc.fontRenderer.drawString(I18n.format("bq_standard.gui.dimension", task.dim), posX, posY + i, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			i += 12;
 		}
 		
-		if(task.isComplete(screen.mc.thePlayer))
+		if(task.isComplete(screen.mc.thePlayer.getUniqueID()))
 		{
-			screen.mc.fontRenderer.drawString("Found!", posX, posY + i, Color.GREEN.getRGB(), false);
+			screen.mc.fontRenderer.drawString(I18n.format("bq_standard.gui.found"), posX, posY + i, Color.GREEN.getRGB(), false);
 		} else
 		{
-			screen.mc.fontRenderer.drawString("Undiscovered", posX, posY + i, Color.RED.getRGB(), false);
+			screen.mc.fontRenderer.drawString(I18n.format("bq_standard.gui.undiscovered"), posX, posY + i, Color.RED.getRGB(), false);
 		}
 	}
 	

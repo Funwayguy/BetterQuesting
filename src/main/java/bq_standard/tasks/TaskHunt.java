@@ -12,11 +12,11 @@ import net.minecraft.util.DamageSource;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.JsonHelper;
 import bq_standard.client.gui.editors.GuiHuntEditor;
 import bq_standard.client.gui.tasks.GuiTaskHunt;
+import bq_standard.core.BQ_Standard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,7 +33,7 @@ public class TaskHunt extends AdvancedTaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.hunt";
+		return "bq_standard.task.hunt";
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class TaskHunt extends AdvancedTaskBase
 	{
 		EntityPlayer player = (EntityPlayer)source.getEntity();
 		
-		if(player == null || this.isComplete(player))
+		if(player == null || this.isComplete(player.getUniqueID()))
 		{
 			return;
 		}
@@ -114,7 +114,7 @@ public class TaskHunt extends AdvancedTaskBase
 				uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load user progress for task", e);
+				BQ_Standard.logger.log(Level.ERROR, "Unable to load user progress for task", e);
 				continue;
 			}
 			

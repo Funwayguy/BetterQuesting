@@ -65,22 +65,22 @@ public abstract class TaskBase
 	 */
 	public abstract void ResetAllProgress();
 	
-	public boolean isComplete(EntityPlayer player)
+	public boolean isComplete(UUID uuid)
 	{
-		return completeUsers.contains(player.getUniqueID());
+		return completeUsers.contains(uuid);
 	}
 	
-	public void setCompletion(EntityPlayer player, boolean state)
+	public void setCompletion(UUID uuid, boolean state)
 	{
 		if(state)
 		{
-			if(!completeUsers.contains(player.getUniqueID()))
+			if(!completeUsers.contains(uuid))
 			{
-				completeUsers.add(player.getUniqueID());
+				completeUsers.add(uuid);
 			}
 		} else
 		{
-			completeUsers.remove(player.getUniqueID());
+			completeUsers.remove(uuid);
 		}
 	}
 	

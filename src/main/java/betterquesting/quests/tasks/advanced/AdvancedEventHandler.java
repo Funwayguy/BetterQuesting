@@ -37,7 +37,7 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -50,7 +50,7 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.source.getEntity();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -74,7 +74,7 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -87,7 +87,7 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.source.getEntity();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -109,7 +109,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.entityLiving;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -130,7 +130,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.entityLiving;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -151,7 +151,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.entity;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -172,7 +172,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -193,7 +193,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -214,7 +214,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -226,7 +226,7 @@ public class AdvancedEventHandler
 	}
 	
 	@SubscribeEvent
-	public void onItemUse(PlayerUseItemEvent event)
+	public void onItemUseStart(PlayerUseItemEvent.Start event)
 	{
 		if(event.entity.worldObj.isRemote)
 		{
@@ -235,14 +235,35 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.entityPlayer;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onItemUse(player, event.item, event.duration);
+			((AdvancedTaskBase)task).onItemUseStart(player, event.item, event.duration);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onItemUseEnd(PlayerUseItemEvent.Finish event)
+	{
+		if(event.entity.worldObj.isRemote)
+		{
+			return;
+		}
+		
+		EntityPlayer player = event.entityPlayer;
+		
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		{
+			if(!(task instanceof AdvancedTaskBase))
+			{
+				continue;
+			}
+			
+			((AdvancedTaskBase)task).onItemUseEnd(player, event.item, event.duration);
 		}
 	}
 	
@@ -256,7 +277,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -277,7 +298,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -298,7 +319,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -321,7 +342,7 @@ public class AdvancedEventHandler
 		
 		if(event.action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
 		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -332,7 +353,7 @@ public class AdvancedEventHandler
 			}
 		} else if(event.action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR)
 		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{
@@ -354,7 +375,7 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.entityPlayer;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player))
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
 			if(!(task instanceof AdvancedTaskBase))
 			{
@@ -377,7 +398,7 @@ public class AdvancedEventHandler
 		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(event.x, event.y, event.z, event.x + 1D, event.y + 1D, event.z + 1D).expand(64D, 64D, 64D));
 		for(EntityPlayer player : pList)
 		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player))
+			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
 				if(!(task instanceof AdvancedTaskBase))
 				{

@@ -5,25 +5,28 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.quests.tasks.advanced.IContainerTask;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import bq_standard.client.gui.tasks.GuiTaskFluid;
+import bq_standard.core.BQ_Standard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class TaskFluid extends TaskBase
+public class TaskFluid extends TaskBase implements IContainerTask
 {
 	public ArrayList<FluidStack> requiredFluids = new ArrayList<FluidStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
@@ -32,7 +35,7 @@ public class TaskFluid extends TaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.fluid";
+		return "bq_standard.task.fluid";
 	}
 	
 	@Override
@@ -47,7 +50,7 @@ public class TaskFluid extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player) || requiredFluids.size() <= 0)
+		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player.getUniqueID()) || requiredFluids.size() <= 0)
 		{
 			return;
 		}
@@ -133,7 +136,6 @@ public class TaskFluid extends TaskBase
 			IFluidContainerItem container = (IFluidContainerItem)stack.getItem();
 			
 			return container.drain(stack, amount, drain);
-			
 		} else
 		{
 			FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(stack);
@@ -160,6 +162,71 @@ public class TaskFluid extends TaskBase
 			}
 			
 			return fluid;
+		}
+	}
+	
+	public DrainData drainFluidContents(ItemStack container, int amount, boolean doDrain)
+	{
+		if(container == null || amount <= 0)
+		{
+			return new DrainData(null, container, null);
+		}
+		
+		if(container.getItem() instanceof IFluidContainerItem)
+		{
+			IFluidContainerItem fCon = (IFluidContainerItem)container.getItem();
+			
+			return new DrainData(fCon.drain(container, amount, doDrain), container, null);
+		} else
+		{
+			FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(container);
+			ItemStack empty = FluidContainerRegistry.drainFluidContainer(container);
+			int tmp1 = fluid.amount;
+			int tmp2 = 1;
+			
+			while(fluid.amount < amount && tmp2 < (empty == null? container.stackSize : Math.min(container.stackSize, empty.getMaxStackSize())));
+			{
+				tmp2++;
+				fluid.amount += tmp1;
+			}
+			
+			if(!doDrain)
+			{
+				container = container.copy();
+			}
+			
+			container.stackSize -= tmp2;
+			empty.stackSize = tmp2;
+			
+			return new DrainData(fluid, container, empty);
+		}
+	}
+	
+	/**
+	 * Helper data container for draining containers
+	 */
+	static class DrainData
+	{
+		/**
+		 * The fluid drained from the container
+		 */
+		public final FluidStack fluid;
+		
+		/**
+		 * The resulting container (if any) post drain
+		 */
+		public final ItemStack filled;
+		
+		/**
+		 * The leftover emptied containers (if any)
+		 */
+		public final ItemStack emptied;
+		
+		public DrainData(FluidStack fluid, ItemStack container, ItemStack emptied)
+		{
+			this.fluid = fluid;
+			this.filled = container;
+			this.emptied = emptied;
 		}
 	}
 	
@@ -208,7 +275,7 @@ public class TaskFluid extends TaskBase
 				continue;
 			}
 			
-			FluidStack fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(entry.getAsJsonObject(), new NBTTagCompound()));
+			FluidStack fluid = JsonHelper.JsonToFluidStack(entry.getAsJsonObject());
 			
 			if(fluid != null)
 			{
@@ -233,7 +300,7 @@ public class TaskFluid extends TaskBase
 				uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load user progress for task", e);
+				BQ_Standard.logger.log(Level.ERROR, "Unable to load user progress for task", e);
 				continue;
 			}
 			
@@ -246,7 +313,7 @@ public class TaskFluid extends TaskBase
 					data[i] = dJson.get(i).getAsInt();
 				} catch(Exception e)
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Incorrect task progress format", e);
+					BQ_Standard.logger.log(Level.ERROR, "Incorrect task progress format", e);
 				}
 			}
 			
@@ -272,5 +339,158 @@ public class TaskFluid extends TaskBase
 	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		return new GuiTaskFluid(this, screen, posX, posY, sizeX, sizeY);
+	}
+
+	@Override
+	public boolean canAcceptFluid(UUID owner, Fluid fluid)
+	{
+		if(owner == null || fluid == null || !consume || isComplete(owner) || requiredFluids.size() <= 0)
+		{
+			return false;
+		}
+		
+		int[] progress = userProgress.get(owner);
+		progress = progress == null || progress.length != requiredFluids.size()? new int[requiredFluids.size()] : progress;
+		
+		for(int j = 0; j < requiredFluids.size(); j++)
+		{
+			FluidStack rStack = requiredFluids.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.amount)
+			{
+				continue;
+			}
+			
+			if(rStack.getFluid().equals(fluid))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean canAcceptItem(UUID owner, ItemStack item)
+	{
+		if(owner == null || item == null || !consume || isComplete(owner) || requiredFluids.size() <= 0)
+		{
+			return false;
+		}
+		
+		if(item.getItem() instanceof IFluidContainerItem)
+		{
+			FluidStack contents = ((IFluidContainerItem)item.getItem()).getFluid(item);
+			
+			return contents != null && this.canAcceptFluid(owner, contents.getFluid());
+		} else if(FluidContainerRegistry.isFilledContainer(item))
+		{
+			FluidStack contents = FluidContainerRegistry.getFluidForFilledItem(item);
+			
+			return contents != null && this.canAcceptFluid(owner, contents.getFluid());
+		}
+		
+		return false;
+	}
+
+	@Override
+	public FluidStack submitFluid(UUID owner, FluidStack fluid)
+	{
+		if(owner == null || fluid == null || fluid.amount <= 0 || !consume || isComplete(owner) || requiredFluids.size() <= 0)
+		{
+			return fluid;
+		}
+		
+		int[] progress = userProgress.get(owner);
+		progress = progress == null || progress.length != requiredFluids.size()? new int[requiredFluids.size()] : progress;
+		
+		for(int j = 0; j < requiredFluids.size(); j++)
+		{
+			FluidStack rStack = requiredFluids.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.amount)
+			{
+				continue;
+			}
+			
+			int remaining = rStack.amount - progress[j];
+			
+			if(rStack.isFluidEqual(fluid))
+			{
+				int removed = Math.min(fluid.amount, remaining);
+				progress[j] += removed;
+				fluid.amount -= removed;
+				
+				if(fluid.amount <= 0)
+				{
+					fluid = null;
+					break;
+				}
+			}
+		}
+		
+		if(consume)
+		{
+			userProgress.put(owner, progress);
+		}
+		
+		boolean flag = true;
+		
+		for(int j = 0; j < requiredFluids.size(); j++)
+		{
+			FluidStack rStack = requiredFluids.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.amount)
+			{
+				continue;
+			}
+			
+			flag = false;
+			break;
+		}
+		
+		if(flag)
+		{
+			this.completeUsers.add(owner);
+		}
+		
+		return fluid;
+	}
+
+	@Override
+	public void submitItem(UUID owner, Slot input, Slot output)
+	{
+		ItemStack item = input.getStack();
+		
+		if(item == null)
+		{
+			return;
+		}
+		
+		item = item.copy(); // Prevents issues with stack filling/draining
+		item.stackSize = 1; // Decrease input stack by 1 when drain has been confirmed
+		
+		if(item.getItem() instanceof IFluidContainerItem)
+		{
+			IFluidContainerItem container = (IFluidContainerItem)item.getItem();
+			FluidStack fluid = container.getFluid(item);
+			int amount = fluid.amount;
+			fluid = submitFluid(owner, fluid);
+			container.drain(item, fluid == null? amount : amount - fluid.amount, true);
+			input.decrStackSize(1);
+			output.putStack(item);
+			return;
+			
+		} else
+		{
+			FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(item);
+			
+			if(fluid != null)
+			{
+				submitFluid(owner, fluid);
+				output.putStack(FluidContainerRegistry.drainFluidContainer(item));
+				input.decrStackSize(1);
+			}
+		}
 	}
 }

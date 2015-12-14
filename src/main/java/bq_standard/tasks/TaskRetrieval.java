@@ -5,22 +5,26 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.TaskBase;
+import betterquesting.quests.tasks.advanced.IContainerTask;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
 import bq_standard.client.gui.tasks.GuiTaskRetrieval;
+import bq_standard.core.BQ_Standard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class TaskRetrieval extends TaskBase
+public class TaskRetrieval extends TaskBase implements IContainerTask
 {
 	public ArrayList<BigItemStack> requiredItems = new ArrayList<BigItemStack>();
 	public HashMap<UUID, int[]> userProgress = new HashMap<UUID, int[]>();
@@ -31,7 +35,7 @@ public class TaskRetrieval extends TaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.retrieval";
+		return "bq_standard.task.retrieval";
 	}
 	
 	@Override
@@ -46,7 +50,7 @@ public class TaskRetrieval extends TaskBase
 	@Override
 	public void Detect(EntityPlayer player)
 	{
-		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player) || requiredItems.size() <= 0)
+		if(!player.isEntityAlive() || player.inventory == null || this.isComplete(player.getUniqueID()) || requiredItems.size() <= 0)
 		{
 			return;
 		}
@@ -188,7 +192,7 @@ public class TaskRetrieval extends TaskBase
 				uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load user progress for task", e);
+				BQ_Standard.logger.log(Level.ERROR, "Unable to load user progress for task", e);
 				continue;
 			}
 			
@@ -201,7 +205,7 @@ public class TaskRetrieval extends TaskBase
 					data[i] = dJson.get(i).getAsInt();
 				} catch(Exception e)
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Incorrect task progress format", e);
+					BQ_Standard.logger.log(Level.ERROR, "Incorrect task progress format", e);
 				}
 			}
 			
@@ -227,5 +231,119 @@ public class TaskRetrieval extends TaskBase
 	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		return new GuiTaskRetrieval(this, screen, posX, posY, sizeX, sizeY);
+	}
+
+	@Override
+	public boolean canAcceptFluid(UUID owner, Fluid fluid)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canAcceptItem(UUID owner, ItemStack stack)
+	{
+		if(owner == null || stack == null || !consume || isComplete(owner) || requiredItems.size() <= 0)
+		{
+			return false;
+		}
+		
+		int[] progress = userProgress.get(owner);
+		progress = progress == null || progress.length != requiredItems.size()? new int[requiredItems.size()] : progress;
+		
+		for(int j = 0; j < requiredItems.size(); j++)
+		{
+			BigItemStack rStack = requiredItems.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.stackSize)
+			{
+				continue;
+			}
+			
+			if(ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public FluidStack submitFluid(UUID owner, FluidStack fluid)
+	{
+		return fluid;
+	}
+
+	@Override
+	public void submitItem(UUID owner, Slot input, Slot output)
+	{
+		ItemStack stack = input.getStack();
+		
+		if(owner == null || stack == null || !consume || isComplete(owner))
+		{
+			return;
+		}
+		
+		int[] progress = userProgress.get(owner);
+		progress = progress == null || progress.length != requiredItems.size()? new int[requiredItems.size()] : progress;
+		
+		for(int j = 0; j < requiredItems.size(); j++)
+		{
+			if(stack == null)
+			{
+				break;
+			}
+			
+			BigItemStack rStack = requiredItems.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.stackSize)
+			{
+				continue;
+			}
+
+			int remaining = rStack.stackSize - progress[j];
+			
+			if(ItemComparison.StackMatch(rStack.getBaseStack(), stack, !ignoreNBT, partialMatch))
+			{
+				int removed = Math.min(stack.stackSize, remaining);
+				stack.stackSize -= removed;
+				progress[j] += removed;
+				
+				if(stack.stackSize <= 0)
+				{
+					break;
+				}
+			}
+		}
+		
+		userProgress.put(owner, progress);
+		
+		boolean flag = true;
+		
+		for(int j = 0; j < requiredItems.size(); j++)
+		{
+			BigItemStack rStack = requiredItems.get(j);
+			
+			if(rStack == null || progress[j] >= rStack.stackSize)
+			{
+				continue;
+			}
+			
+			flag = false;
+			break;
+		}
+		
+		if(flag)
+		{
+			completeUsers.add(owner);
+		}
+		
+		if(stack == null || stack.stackSize <= 0)
+		{
+			input.putStack(null);
+		} else
+		{
+			input.putStack(stack);
+		}
 	}
 }

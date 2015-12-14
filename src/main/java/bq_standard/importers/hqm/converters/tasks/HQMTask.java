@@ -1,4 +1,4 @@
-package betterquesting.importer.hqm.converters;
+package bq_standard.importers.hqm.converters.tasks;
 
 import java.util.ArrayList;
 import betterquesting.quests.tasks.TaskBase;

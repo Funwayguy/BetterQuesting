@@ -3,6 +3,7 @@ package bq_standard.client.gui.tasks;
 import java.awt.Color;
 import org.lwjgl.opengl.GL11;
 import com.mojang.realmsclient.gui.ChatFormatting;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
@@ -55,7 +56,7 @@ public class GuiTaskRetrieval extends GuiEmbedded
 			
 			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 21, posY + 1, stack != null && stack.stackSize > 1? "" + count : "");
 			
-			if(count <= 0 || task.isComplete(screen.mc.thePlayer))
+			if(count <= 0 || task.isComplete(screen.mc.thePlayer.getUniqueID()))
 			{
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				// Shadows don't work on these symbols for some reason so we manually draw a shadow
@@ -70,12 +71,12 @@ public class GuiTaskRetrieval extends GuiEmbedded
 			}
 		}
 		
-		if(task.isComplete(screen.mc.thePlayer))
+		if(task.isComplete(screen.mc.thePlayer.getUniqueID()))
 		{
-			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "COMPLETE", posX, posY + 24, Color.GREEN.getRGB(), false);
+			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + I18n.format("betterquesting.tooltip.complete"), posX, posY + 24, Color.GREEN.getRGB(), false);
 		} else
 		{
-			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "INCOMPLETE", posX, posY + 24, Color.RED.getRGB(), false);
+			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + I18n.format("betterquesting.tooltip.incomplete"), posX, posY + 24, Color.RED.getRGB(), false);
 		}
 		
 		if(ttStack != null)

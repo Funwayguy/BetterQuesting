@@ -1,9 +1,9 @@
-package betterquesting.importer.hqm.converters;
+package bq_standard.importers.hqm.converters.tasks;
 
 import java.util.ArrayList;
-import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
+import bq_standard.importers.hqm.HQMUtilities;
 import bq_standard.tasks.TaskCrafting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,7 +24,7 @@ public class HQMTaskCraft extends HQMTask
 				continue;
 			}
 			
-			task.requiredItems.add(HQMImporter.HQMStackT2(element.getAsJsonObject()));
+			task.requiredItems.add(HQMUtilities.HQMStackT2(element.getAsJsonObject()));
 		}
 		
 		tList.add(task);

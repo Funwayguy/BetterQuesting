@@ -37,7 +37,9 @@ public abstract class AdvancedTaskBase extends TaskBase
 	
 	public void onItemPickup(EntityPlayer player, EntityItem item){}
 	
-	public void onItemUse(EntityPlayer player, ItemStack stack, int duration){}
+	public void onItemUseStart(EntityPlayer player, ItemStack stack, int duration){}
+	
+	public void onItemUseEnd(EntityPlayer player, ItemStack stack, int duration){}
 	
 	public void onBlockBreak(EntityPlayer player, Block block, int meta, int x, int y, int z){}
 	

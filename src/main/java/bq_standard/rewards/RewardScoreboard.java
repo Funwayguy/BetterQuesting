@@ -21,7 +21,7 @@ public class RewardScoreboard extends RewardBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.reward.scoreboard";
+		return "bq_standard.reward.scoreboard";
 	}
 	
 	@Override

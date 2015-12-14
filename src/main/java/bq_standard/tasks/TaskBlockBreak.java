@@ -23,7 +23,7 @@ public class TaskBlockBreak extends AdvancedTaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.block.break";
+		return "bq_standard.task.block.break";
 	}
 	
 	@Override

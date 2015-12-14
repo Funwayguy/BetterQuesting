@@ -59,7 +59,7 @@ public class GuiTaskFluid extends GuiEmbedded
 			if(stack != null)
 			{
 				screen.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-				if(progress[i] >= stack.amount || task.isComplete(screen.mc.thePlayer))
+				if(progress[i] >= stack.amount || task.isComplete(screen.mc.thePlayer.getUniqueID()))
 				{
 					GL11.glColor4f(1F, 1F, 1F, 1F);
 					RenderUtils.itemRender.renderIcon(posX + (i * 18) + 21, posY + 1, stack.getFluid().getIcon(), 16, 16);
@@ -72,7 +72,7 @@ public class GuiTaskFluid extends GuiEmbedded
 				}
 			}
 			
-			if(count <= 0 || task.isComplete(screen.mc.thePlayer))
+			if(count <= 0 || task.isComplete(screen.mc.thePlayer.getUniqueID()))
 			{
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				// Shadows don't work on these symbols for some reason so we manually draw a shadow
@@ -85,7 +85,7 @@ public class GuiTaskFluid extends GuiEmbedded
 			{
 				ttStack = stack;
 				
-				if(task.isComplete(screen.mc.thePlayer))
+				if(task.isComplete(screen.mc.thePlayer.getUniqueID()))
 				{
 					ttAmount = stack.amount + "/" + stack.amount + " mB";
 				} else
@@ -95,7 +95,7 @@ public class GuiTaskFluid extends GuiEmbedded
 			}
 		}
 		
-		if(task.isComplete(screen.mc.thePlayer))
+		if(task.isComplete(screen.mc.thePlayer.getUniqueID()))
 		{
 			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "COMPLETE", posX, posY + 24, Color.GREEN.getRGB(), false);
 		} else

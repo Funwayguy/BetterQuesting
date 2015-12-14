@@ -27,6 +27,9 @@ public class GuiQuesting extends GuiScreen
 	public int sizeX = 0;
 	public int sizeY = 0;
 	
+	int mxX = -1;
+	int mxY = -1;
+	
 	public GuiQuesting(GuiScreen parent, String title)
 	{
 		this.mc = Minecraft.getMinecraft();
@@ -48,6 +51,9 @@ public class GuiQuesting extends GuiScreen
 		this.sizeX = this.width - border * 2;
 		this.sizeY = this.height - border * 2;
 		
+		this.sizeX = mxX <= 0? sizeX : Math.min(mxX, sizeX);
+		this.sizeY = mxY <= 0? sizeY : Math.min(mxY, sizeY);
+		
 		this.sizeX = this.sizeX - (this.sizeX%16);
 		this.sizeY = this.sizeY - (this.sizeY%16);
 		
@@ -56,6 +62,15 @@ public class GuiQuesting extends GuiScreen
 		
 		this.buttonList.clear();
         this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.format("gui.done")));
+	}
+	
+	/**
+	 * Sets the maximum size of the tiled UI. Use negatives or 0 to disable
+	 */
+	public void setMaxSize(int maxX, int maxY)
+	{
+		this.mxX = maxX;
+		this.mxY = maxY;
 	}
 	
 	@Override
@@ -70,6 +85,8 @@ public class GuiQuesting extends GuiScreen
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
+		this.drawDefaultBackground();
+		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		for(int i = 0; i < this.sizeX; i += 16)

@@ -2,6 +2,9 @@ package betterquesting.utils;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
@@ -195,6 +198,68 @@ public class JsonHelper
 		if(stack.HasTagCompound())
 		{
 			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.GetTagCompound(), new JsonObject()));
+		}
+		return json;
+	}
+	
+	public static FluidStack JsonToFluidStack(JsonObject json)
+	{
+		String name = GetString(json, "FluidName", "water");
+		int amount = GetNumber(json, "Amount", 1000).intValue();
+		NBTTagCompound tags = null;
+		
+		if(json.has("Tag"))
+		{
+			tags = NBTConverter.JSONtoNBT_Object(GetObject(json, "Tag"), new NBTTagCompound());
+		}
+		
+		Fluid fluid = FluidRegistry.getFluid(name);
+		
+		if(fluid == null)
+		{
+			FluidStack stack = new FluidStack(BetterQuesting.fluidPlaceholder, amount);
+			NBTTagCompound orig = new NBTTagCompound();
+			orig.setString("orig_id", name);
+			if(tags != null)
+			{
+				orig.setTag("orig_tag", tags);
+			}
+			stack.tag = orig;
+			return stack;
+		} else if(fluid == BetterQuesting.fluidPlaceholder && tags != null)
+		{
+			Fluid restored = FluidRegistry.getFluid(tags.getString("orig_id"));
+			
+			if(restored != null)
+			{
+				FluidStack stack = new FluidStack(restored, amount);
+				
+				if(tags.hasKey("orig_tag"))
+				{
+					stack.tag = tags.getCompoundTag("orig_tag");
+				}
+				
+				return stack;
+			}
+		}
+		
+		FluidStack stack = new FluidStack(fluid, amount);
+		
+		if(tags != null)
+		{
+			stack.tag = tags;
+		}
+		
+		return stack;
+	}
+	
+	public static JsonObject FluidStackToJson(FluidStack stack, JsonObject json)
+	{
+		json.addProperty("FluidName", FluidRegistry.getFluidName(stack));
+		json.addProperty("Amount", stack.amount);
+		if(stack.tag != null)
+		{
+			json.add("Tag", NBTConverter.NBTtoJSON_Compound(stack.tag, new JsonObject()));
 		}
 		return json;
 	}

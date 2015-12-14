@@ -4,6 +4,7 @@ import java.awt.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.monster.EntityZombie;
@@ -31,7 +32,7 @@ public class GuiHuntEditor extends GuiQuesting
 	
 	public GuiHuntEditor(GuiScreen parent, JsonObject data)
 	{
-		super(parent, "Edit Task Hunt");
+		super(parent, "bq_standard.title.edit_hunt");
 		this.data = data;
 		idName = JsonHelper.GetString(data, "target", "Zombie");
 	}
@@ -60,8 +61,8 @@ public class GuiHuntEditor extends GuiQuesting
 		
 		numField = new GuiNumberField(mc.fontRenderer, guiLeft + sizeX/2 + 1, guiTop + sizeY/2 + 1, 98, 18);
 		numField.setText("" + JsonHelper.GetNumber(data, "required", 1).intValue());
-		this.buttonList.add(new GuiButtonQuesting(buttonList.size(), guiLeft + sizeX/2 - 100, guiTop + sizeY/2 + 20, 200, 20, "Select Mob"));
-		this.buttonList.add(new GuiButtonQuesting(buttonList.size(), guiLeft + sizeX/2 - 100, guiTop + sizeY/2 + 40, 200, 20, "Advanced"));
+		this.buttonList.add(new GuiButtonQuesting(buttonList.size(), guiLeft + sizeX/2 - 100, guiTop + sizeY/2 + 20, 200, 20, I18n.format("bq_standard.btn.select_mob")));
+		this.buttonList.add(new GuiButtonQuesting(buttonList.size(), guiLeft + sizeX/2 - 100, guiTop + sizeY/2 + 40, 200, 20, I18n.format("betterquesting.btn.advanced")));
 	}
 	
 	@Override
@@ -106,8 +107,8 @@ public class GuiHuntEditor extends GuiQuesting
 		
 		GL11.glPopMatrix();
 		
-		String txt = "Amount: ";
-		mc.fontRenderer.drawString("Amount:", guiLeft + sizeX/2 - mc.fontRenderer.getStringWidth(txt), guiTop + sizeY/2 + 6, Color.BLACK.getRGB());
+		String txt = I18n.format("bq_standard.gui.amount") + ": ";
+		mc.fontRenderer.drawString(txt, guiLeft + sizeX/2 - mc.fontRenderer.getStringWidth(txt), guiTop + sizeY/2 + 6, Color.BLACK.getRGB());
 		numField.drawTextBox();
 	}
 	

@@ -140,6 +140,7 @@ public class PacketQuesting implements IMessage
 		pktHandlers.put(PacketDataType.PARTY_ACTION, 	new PktHandlerPartyAction());
 		pktHandlers.put(PacketDataType.LIFE_SYNC, 		new PktHandlerLives());
 		pktHandlers.put(PacketDataType.NOTIFICATION, 	new PktHandlerNotification());
+		pktHandlers.put(PacketDataType.EDIT_STATION, 	new PktHandlerTileEdit());
 	}
 	
 	public enum PacketDataType
@@ -153,6 +154,7 @@ public class PacketQuesting implements IMessage
 		CLAIM,
 		PARTY_ACTION,
 		LIFE_SYNC,
+		EDIT_STATION,
 		NOTIFICATION;
 		
 		public PacketQuesting makePacket(NBTTagCompound payload)

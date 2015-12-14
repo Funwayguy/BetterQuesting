@@ -9,12 +9,12 @@ import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.core.BetterQuesting;
 import betterquesting.quests.tasks.advanced.AdvancedTaskBase;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.ItemComparison;
 import betterquesting.utils.JsonHelper;
 import bq_standard.client.gui.tasks.GuiTaskCrafting;
+import bq_standard.core.BQ_Standard;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,7 +30,7 @@ public class TaskCrafting extends AdvancedTaskBase
 	@Override
 	public String getUnlocalisedName()
 	{
-		return "betterquesting.task.crafting";
+		return "bq_standard.task.crafting";
 	}
 	
 	@Override
@@ -135,7 +135,7 @@ public class TaskCrafting extends AdvancedTaskBase
 				}
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load quest item data", e);
+				BQ_Standard.logger.log(Level.ERROR, "Unable to load quest item data", e);
 			}
 		}
 		
@@ -153,7 +153,7 @@ public class TaskCrafting extends AdvancedTaskBase
 				uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load user progress for task", e);
+				BQ_Standard.logger.log(Level.ERROR, "Unable to load user progress for task", e);
 				continue;
 			}
 			
@@ -166,7 +166,7 @@ public class TaskCrafting extends AdvancedTaskBase
 					data[i] = dJson.get(i).getAsInt();
 				} catch(Exception e)
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Incorrect task progress format", e);
+					BQ_Standard.logger.log(Level.ERROR, "Incorrect task progress format", e);
 				}
 			}
 			

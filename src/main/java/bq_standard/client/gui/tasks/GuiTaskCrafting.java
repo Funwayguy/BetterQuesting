@@ -40,7 +40,7 @@ public class GuiTaskCrafting extends GuiEmbedded
 			
 			RenderUtils.RenderItemStack(screen.mc, stack.getBaseStack(), posX + (i * 18) + 1, posY + 1, stack != null && stack.stackSize > 1? "" + count : "");
 			
-			if(count <= 0 || task.isComplete(screen.mc.thePlayer))
+			if(count <= 0 || task.isComplete(screen.mc.thePlayer.getUniqueID()))
 			{
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				screen.mc.fontRenderer.drawString("\u2714", posX + (i * 18) + 6, posY + 6, Color.BLACK.getRGB(), false);
@@ -54,7 +54,7 @@ public class GuiTaskCrafting extends GuiEmbedded
 			}
 		}
 		
-		if(task.isComplete(screen.mc.thePlayer))
+		if(task.isComplete(screen.mc.thePlayer.getUniqueID()))
 		{
 			screen.mc.fontRenderer.drawString(ChatFormatting.BOLD + "COMPLETE", posX, posY + 24, Color.GREEN.getRGB(), false);
 		} else

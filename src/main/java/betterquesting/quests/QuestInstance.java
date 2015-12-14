@@ -72,13 +72,32 @@ public class QuestInstance
 				{
 					Claim(player, GetChoiceData());
 					return;
-				} else if(repeatTime < 0)
+				} else if(repeatTime < 0 && rewards.size() > 0)
 				{
+					return;
+				} else
+				{
+					boolean flag = false;
 					
+					for(TaskBase t : tasks)
+					{
+						if(!t.isComplete(player.getUniqueID()))
+						{
+							flag = true;
+							break;
+						}
+					}
+					
+					if(!flag)
+					{
+						return;
+					}
 				}
-			} else if(repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
+			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
 			{
 				ResetProgress(player.getUniqueID());
+				UpdateClients();
+				return;
 			} else
 			{
 				return;
@@ -92,11 +111,11 @@ public class QuestInstance
 			
 			for(TaskBase tsk : tasks)
 			{
-				boolean flag = !tsk.isComplete(player);
+				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
 				tsk.Update(player);
 				
-				if(!tsk.isComplete(player))
+				if(!tsk.isComplete(player.getUniqueID()))
 				{
 					done = false;
 				} else if(flag)
@@ -142,7 +161,7 @@ public class QuestInstance
 	 */
 	public void Detect(EntityPlayer player)
 	{
-		if(this.isComplete(player.getUniqueID()) && repeatTime < 0)
+		if(this.isComplete(player.getUniqueID()) && (repeatTime < 0 || rewards.size() <= 0))
 		{
 			return;
 		}
@@ -155,7 +174,7 @@ public class QuestInstance
 			{
 				quest.Detect(player);
 				
-				if(!quest.isComplete(player))
+				if(!quest.isComplete(player.getUniqueID()))
 				{
 					done = false;
 				}

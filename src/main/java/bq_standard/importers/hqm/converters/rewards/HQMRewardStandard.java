@@ -1,12 +1,12 @@
-package betterquesting.importer.hqm.converters;
+package bq_standard.importers.hqm.converters.rewards;
 
 import java.util.ArrayList;
-import betterquesting.importer.hqm.HQMImporter;
 import betterquesting.quests.rewards.RewardBase;
-import bq_standard.rewards.RewardChoice;
+import bq_standard.importers.hqm.HQMUtilities;
+import bq_standard.rewards.RewardItem;
 import com.google.gson.JsonElement;
 
-public class HQMRewardChoice extends HQMReward
+public class HQMRewardStandard extends HQMReward
 {
 	@Override
 	public ArrayList<RewardBase> Convert(JsonElement json)
@@ -15,10 +15,10 @@ public class HQMRewardChoice extends HQMReward
 		
 		if(json == null || !json.isJsonArray())
 		{
-			return rList;
+			return null;
 		}
 		
-		RewardChoice reward = new RewardChoice();
+		RewardItem reward = new RewardItem();
 		rList.add(reward);
 		
 		for(JsonElement je : json.getAsJsonArray())
@@ -28,7 +28,7 @@ public class HQMRewardChoice extends HQMReward
 				continue;
 			}
 			
-			reward.choices.add(HQMImporter.HQMStackT1(je.getAsJsonObject()));
+			reward.items.add(HQMUtilities.HQMStackT1(je.getAsJsonObject()));
 		}
 		
 		return rList;

@@ -1,9 +1,15 @@
 package bq_standard.core;
 
+import net.minecraft.item.Item;
 import org.apache.logging.log4j.Logger;
+import betterquesting.importers.ImporterRegistry;
 import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskRegistry;
 import bq_standard.core.proxies.CommonProxy;
+import bq_standard.importers.hqm.HQMBagImporter;
+import bq_standard.importers.hqm.HQMQuestImporter;
+import bq_standard.items.ItemLootChest;
+import bq_standard.network.PacketStandard;
 import bq_standard.rewards.RewardChoice;
 import bq_standard.rewards.RewardItem;
 import bq_standard.rewards.RewardScoreboard;
@@ -22,6 +28,8 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = BQ_Standard.MODID, version = BQ_Standard.VERSION, name = BQ_Standard.NAME)
 public class BQ_Standard
@@ -39,6 +47,8 @@ public class BQ_Standard
 	public static CommonProxy proxy;
 	public SimpleNetworkWrapper network;
 	public static Logger logger;
+	
+	public static Item lootChest = new ItemLootChest();
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -46,12 +56,17 @@ public class BQ_Standard
     	logger = event.getModLog();
     	network = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
     	
+    	network.registerMessage(PacketStandard.HandlerClient.class, PacketStandard.class, 0, Side.CLIENT);
+    	network.registerMessage(PacketStandard.HandlerServer.class, PacketStandard.class, 1, Side.SERVER);
+    	
     	proxy.registerHandlers();
     }
     
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	GameRegistry.registerItem(lootChest, "loot_chest");
+    	
     	TaskRegistry.RegisterTask(TaskRetrieval.class, "retrieval");
     	TaskRegistry.RegisterTask(TaskHunt.class, "hunt");
     	TaskRegistry.RegisterTask(TaskLocation.class, "location");
@@ -62,6 +77,9 @@ public class BQ_Standard
     	RewardRegistry.RegisterReward(RewardItem.class, "item");
     	RewardRegistry.RegisterReward(RewardChoice.class, "choice");
     	RewardRegistry.RegisterReward(RewardScoreboard.class, "scoreboard");
+    	
+    	ImporterRegistry.registerImporter(new HQMQuestImporter());
+    	ImporterRegistry.registerImporter(new HQMBagImporter());
     	
     	proxy.registerThemes();
     }

@@ -1,4 +1,4 @@
-package betterquesting.importer;
+package betterquesting.importers;
 
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;

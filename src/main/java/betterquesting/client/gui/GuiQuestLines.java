@@ -199,7 +199,7 @@ public class GuiQuestLines extends GuiQuesting
 				
 				for(TaskBase task : qTooltip.tasks)
 				{
-					if(task.isComplete(mc.thePlayer))
+					if(task.isComplete(mc.thePlayer.getUniqueID()))
 					{
 						n++;
 					}

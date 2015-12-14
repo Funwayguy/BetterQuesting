@@ -5,6 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.IIcon;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -86,7 +88,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
-		if(!event.world.isRemote && BQ_Settings.curWorldDir != null)
+		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.dimensionId == 0)
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
@@ -131,6 +133,14 @@ public class EventHandler
 		if(f1.exists())
 		{
 			j1 = JsonIO.ReadFromFile(f1);
+		} else
+		{
+			f1 = server.getFile(BQ_Settings.defaultDir + "DefaultQuests.json");
+			
+			if(f1.exists())
+			{
+				j1 = JsonIO.ReadFromFile(f1);
+			}
 		}
 		
 		QuestDatabase.readFromJson(j1);
@@ -164,6 +174,17 @@ public class EventHandler
 		if(event.entityLiving.worldObj.isRemote)
 		{
 			return;
+		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onTextureStitch(TextureStitchEvent.Pre event)
+	{
+		if(event.map.getTextureType() == 0)
+		{
+			IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
+			BetterQuesting.fluidPlaceholder.setIcons(icon);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package betterquesting.importer.hqm;
+package bq_standard.importers.hqm;
 
 import java.io.File;
 import java.io.FileReader;
@@ -8,24 +8,10 @@ import java.util.Map.Entry;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
-import betterquesting.importer.hqm.converters.HQMReward;
-import betterquesting.importer.hqm.converters.HQMRewardChoice;
-import betterquesting.importer.hqm.converters.HQMRewardReputation;
-import betterquesting.importer.hqm.converters.HQMRewardStandard;
-import betterquesting.importer.hqm.converters.HQMTask;
-import betterquesting.importer.hqm.converters.HQMTaskCraft;
-import betterquesting.importer.hqm.converters.HQMTaskDetect;
-import betterquesting.importer.hqm.converters.HQMTaskKill;
-import betterquesting.importer.hqm.converters.HQMTaskLocation;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.importers.ImporterBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
@@ -33,6 +19,17 @@ import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
+import bq_standard.client.gui.importers.GuiHQMQuestImporter;
+import bq_standard.core.BQ_Standard;
+import bq_standard.importers.hqm.converters.rewards.HQMReward;
+import bq_standard.importers.hqm.converters.rewards.HQMRewardChoice;
+import bq_standard.importers.hqm.converters.rewards.HQMRewardReputation;
+import bq_standard.importers.hqm.converters.rewards.HQMRewardStandard;
+import bq_standard.importers.hqm.converters.tasks.HQMTask;
+import bq_standard.importers.hqm.converters.tasks.HQMTaskCraft;
+import bq_standard.importers.hqm.converters.tasks.HQMTaskDetect;
+import bq_standard.importers.hqm.converters.tasks.HQMTaskKill;
+import bq_standard.importers.hqm.converters.tasks.HQMTaskLocation;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -41,7 +38,7 @@ import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class HQMImporter
+public class HQMQuestImporter extends ImporterBase
 {
 	// Commence project middle finger!
 	
@@ -80,7 +77,7 @@ public class HQMImporter
 					fr.close();
 				} catch(Exception e)
 				{
-					BetterQuesting.logger.log(Level.ERROR, "An error occured during import", e);
+					BQ_Standard.logger.log(Level.ERROR, "An error occured during import", e);
 					continue;
 				}
 				
@@ -138,7 +135,7 @@ public class HQMImporter
 	
 	public static void ImportQuestLine(JsonObject json)
 	{
-		BetterQuesting.logger.log(Level.INFO, "Beginning import...");
+		BQ_Standard.logger.log(Level.INFO, "Beginning import...");
 		
 		QuestLine questLine = new QuestLine();
 		questLine.name = JsonHelper.GetString(json, "name", "HQM Quest Line");
@@ -171,7 +168,7 @@ public class HQMImporter
 				{
 					n++;
 				}
-				BetterQuesting.logger.log(Level.WARN, "Found duplicate named quest " + name + ". Any quests with this pre-requisite will need repair!");
+				BQ_Standard.logger.log(Level.WARN, "Found duplicate named quest " + name + ". Any quests with this pre-requisite will need repair!");
 				idName = name + " (" + n + ")";
 			}
 			
@@ -180,7 +177,7 @@ public class HQMImporter
 			
 			quest.name = name;
 			quest.description = JsonHelper.GetString(jQuest, "description", "No Description");
-			BigItemStack tmp = HQMStackT1(JsonHelper.GetObject(jQuest, "icon"));
+			BigItemStack tmp = HQMUtilities.HQMStackT1(JsonHelper.GetObject(jQuest, "icon"));
 			
 			if(tmp != null)
 			{
@@ -229,7 +226,7 @@ public class HQMImporter
 					continue;
 				} else if(!taskConverters.containsKey(tType))
 				{
-					BetterQuesting.logger.log(Level.WARN, "Unidentified HQM task '" + tType + "'! Please report this so that it can be supported in future builds");
+					BQ_Standard.logger.log(Level.WARN, "Unidentified HQM task '" + tType + "'! Please report this so that it can be supported in future builds");
 					continue;
 				}
 				
@@ -258,7 +255,7 @@ public class HQMImporter
 			
 			if(questLine.questList.contains(quest))
 			{
-				BetterQuesting.logger.log(Level.WARN, "Tried to add duplicate quest " + quest + " to quest line " + questLine.name);
+				BQ_Standard.logger.log(Level.WARN, "Tried to add duplicate quest " + quest + " to quest line " + questLine.name);
 			} else
 			{
 				questLine.questList.add(quest);
@@ -268,138 +265,6 @@ public class HQMImporter
 		questLine.BuildTree();
 		QuestDatabase.questLines.add(questLine);
 		QuestDatabase.UpdateClients();
-	}
-	
-	/**
-	 * Get HQM formatted item, Type 1
-	 */
-	public static BigItemStack HQMStackT1(JsonObject json) // This can return multiple stacks in the event the stack size exceeds 127
-	{
-		String iID = JsonHelper.GetString(json, "id", "minecraft:stone");
-		Item item = (Item)Item.itemRegistry.getObject(iID);
-		int amount = JsonHelper.GetNumber(json, "amount", 1).intValue();
-		int damage = JsonHelper.GetNumber(json, "damage", 0).intValue();
-		NBTTagCompound tags = null;
-		
-		if(json.has("nbt"))
-		{
-			try
-			{
-				String rawNbt = json.get("nbt").toString(); // Must use this method. Gson formatting will damage it otherwise
-				
-				// Hack job to fix backslashes (why are 2 Json formats being used in HQM?!)
-				rawNbt = rawNbt.replaceFirst("\"", ""); // Delete first quote
-				rawNbt = rawNbt.substring(0, rawNbt.length() - 1); // Delete last quote
-				rawNbt = rawNbt.replace(":\\\"", ":\""); // Fix start of strings
-				rawNbt = rawNbt.replace("\\\",", "\","); // Fix middle of lists
-				rawNbt = rawNbt.replace("\\\"}", "\"}"); // Fix end of strings
-				rawNbt = rawNbt.replace("\\\"]", "\"]"); // Fix end of lists
-				rawNbt = rawNbt.replace("[\\\"", "[\""); // Fix start of lists
-				rawNbt = rawNbt.replace("\\n", "\n");
-				
-				NBTBase nbt = JsonToNBT.func_150315_a(rawNbt);
-				
-				if(nbt != null && nbt instanceof NBTTagCompound)
-				{
-					tags = (NBTTagCompound)nbt;
-				}
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to convert HQM NBT data. This is likely a HQM Gson/Json formatting issue", e);
-			}
-		}
-		
-		if(item == null)
-		{
-			item = BetterQuesting.placeholder;
-			NBTTagCompound tmp = new NBTTagCompound();
-			if(tags != null)
-			{
-				tmp.setTag("orig_tag", tags);
-			}
-			tmp.setString("orig_id", iID);
-			tags = tmp;
-		}
-		
-		BigItemStack stack = new BigItemStack(item, amount, damage);
-		
-		if(tags != null)
-		{
-			stack.SetTagCompound(tags);
-		}
-		
-		return stack;
-	}
-	
-	/**
-	 * Get HQM formatted item, Type 2
-	 */
-	public static BigItemStack HQMStackT2(JsonObject rJson) // This can return multiple stacks in the event the stack size exceeds 127
-	{
-		JsonObject json = JsonHelper.GetObject(rJson, "item");
-		String iID = JsonHelper.GetString(json, "id", "minecraft:stone");
-		Item item = (Item)Item.itemRegistry.getObject(iID);
-		int amount = JsonHelper.GetNumber(rJson, "required", 1).intValue();
-		int damage = JsonHelper.GetNumber(json, "damage", 0).intValue();
-		NBTTagCompound tags = null;
-		
-		if(json.has("nbt"))
-		{
-			try
-			{
-				String rawNbt = json.get("nbt").toString(); // Must use this method. Gson formatting will damage it otherwise
-				
-				// Hack job to fix backslashes (why are 2 Json formats being used in HQM?!)
-				rawNbt = rawNbt.replaceFirst("\"", ""); // Delete first quote
-				rawNbt = rawNbt.substring(0, rawNbt.length() - 1); // Delete last quote
-				rawNbt = rawNbt.replace(":\\\"", ":\""); // Fix start of strings
-				rawNbt = rawNbt.replace("\\\",", "\","); // Fix middle of lists
-				rawNbt = rawNbt.replace("\\\"}", "\"}"); // Fix end of strings
-				rawNbt = rawNbt.replace("\\\"]", "\"]"); // Fix end of lists
-				rawNbt = rawNbt.replace("[\\\"", "[\""); // Fix start of lists
-				rawNbt = rawNbt.replace("\\n", "\n");
-				
-				NBTBase nbt = JsonToNBT.func_150315_a(rawNbt);
-				
-				if(nbt != null && nbt instanceof NBTTagCompound)
-				{
-					tags = (NBTTagCompound)nbt;
-				}
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to convert HQM NBT data. This is likely a HQM Gson/Json formatting issue", e);
-			}
-		}
-		
-		if(item == null)
-		{
-			item = BetterQuesting.placeholder;
-			NBTTagCompound tmp = new NBTTagCompound();
-			if(tags != null)
-			{
-				tmp.setTag("orig_tag", tags);
-			}
-			tmp.setString("orig_id", iID);
-			tags = tmp;
-		}
-		
-		BigItemStack stack = new BigItemStack(item, amount, damage);
-		
-		if(tags != null)
-		{
-			stack.SetTagCompound(tags);
-		}
-		
-		return stack;
-	}
-	
-	public static FluidStack HQMStackT3(JsonObject json)
-	{
-		Fluid fluid = FluidRegistry.getFluid(JsonHelper.GetString(json, "fluid", "water"));
-		fluid = fluid != null? fluid : FluidRegistry.WATER;
-		int amount = JsonHelper.GetNumber(json, "required", 1000).intValue();
-		
-		return new FluidStack(fluid, amount);
 	}
 	
 	static
@@ -414,5 +279,17 @@ public class HQMImporter
 		rewardConverters.put("reward", new HQMRewardStandard());
 		rewardConverters.put("rewardchoice", new HQMRewardChoice());
 		rewardConverters.put("reputationrewards", new HQMRewardReputation());
+	}
+
+	@Override
+	public String getUnlocalisedName()
+	{
+		return "bq_standard.importer.hqm_quest.name";
+	}
+
+	@Override
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return new GuiHQMQuestImporter(screen, posX, posY, sizeX, sizeY);
 	}
 }

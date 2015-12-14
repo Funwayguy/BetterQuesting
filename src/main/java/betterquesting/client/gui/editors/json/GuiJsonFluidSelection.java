@@ -20,6 +20,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -66,7 +67,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		
 		if(json != null)
 		{
-			stackSelect = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+			stackSelect = JsonHelper.JsonToFluidStack(json);
 		} else if(stackSelect != null)
 		{
 			json.entrySet().clear();

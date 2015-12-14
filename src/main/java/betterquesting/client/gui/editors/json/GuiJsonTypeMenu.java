@@ -55,7 +55,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			
 			if(json.has("FluidName") && json.has("Amount"))
 			{
-				fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+				fluid = JsonHelper.JsonToFluidStack(json);
 			}
 		} else // JSON cannot be null!
 		{

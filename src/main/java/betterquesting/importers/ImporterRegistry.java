@@ -1,4 +1,4 @@
-package betterquesting.importer;
+package betterquesting.importers;
 
 import java.util.ArrayList;
 

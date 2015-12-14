@@ -49,7 +49,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 			
 			if(tmpObj.has("FluidName") && tmpObj.has("Amount"))
 			{
-				fluid = FluidStack.loadFluidStackFromNBT(NBTConverter.JSONtoNBT_Object(tmpObj, new NBTTagCompound()));
+				fluid = JsonHelper.JsonToFluidStack(tmpObj);
 			}
 		}
 		

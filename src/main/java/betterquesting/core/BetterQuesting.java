@@ -1,14 +1,26 @@
 package betterquesting.core;
 
+import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.logging.log4j.Logger;
+import betterquesting.blocks.BlockSubmitStation;
+import betterquesting.blocks.FluidPlaceholder;
+import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.CreativeTabQuesting;
 import betterquesting.commands.BQ_Commands;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
+import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
 import cpw.mods.fml.common.Mod;
@@ -41,7 +53,14 @@ public class BetterQuesting
 	public SimpleNetworkWrapper network;
 	public static Logger logger;
 	
+	public static CreativeTabs tabQuesting = new CreativeTabQuesting();
+	
 	public static Item placeholder = new ItemPlaceholder();
+	public static Item extraLife = new ItemExtraLife();
+	
+	public static Block submitStation = new BlockSubmitStation();
+	
+	public static Fluid fluidPlaceholder = new FluidPlaceholder();
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -61,7 +80,26 @@ public class BetterQuesting
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	FluidRegistry.registerFluid(fluidPlaceholder);
+    	
     	GameRegistry.registerItem(placeholder, "placeholder");
+    	GameRegistry.registerItem(extraLife, "extra_life");
+    	
+    	GameRegistry.registerBlock(submitStation, "submit_station");
+    	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
+    	
+    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.glass), new ItemStack(Blocks.chest));
+    	
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 1));
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 1));
+    	
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 1), new ItemStack(extraLife, 1, 0));
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
+    	
+    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 2), new ItemStack(extraLife, 1, 1));
+    	
+    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.chest), new ItemStack(Blocks.glass));
     }
     
     @EventHandler

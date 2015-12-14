@@ -1,17 +1,26 @@
 package betterquesting.client.gui.editors;
 
 import java.util.ArrayList;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.importer.ImporterBase;
-import betterquesting.importer.ImporterRegistry;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.importers.ImporterBase;
+import betterquesting.importers.ImporterRegistry;
+import betterquesting.utils.RenderUtils;
 
 public class GuiImporters extends GuiQuesting
 {
 	ArrayList<ImporterBase> cachedImporters = new ArrayList<ImporterBase>();
-	GuiEmbedded guiLeft = null;
-	GuiEmbedded guiRight = null;
+	ImporterBase leftImp = null;
+	GuiEmbedded leftGui = null;
+	ImporterBase rightImp = null;
+	GuiEmbedded rightGui = null;
 	int scroll = 0;
 	
 	public GuiImporters(GuiScreen parent)
@@ -19,6 +28,7 @@ public class GuiImporters extends GuiQuesting
 		super(parent, "betterquesting.title.importers");
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -26,6 +36,15 @@ public class GuiImporters extends GuiQuesting
 		
 		scroll = 0;
 		cachedImporters = ImporterRegistry.getImporters();
+		
+		GuiButtonQuesting btn = new GuiButtonQuesting(1, guiLeft - 4, height/2 - 10, 20, 20, "<");
+		btn.enabled = false;
+		this.buttonList.add(btn);
+		btn = new GuiButtonQuesting(2, guiLeft + sizeX - 16, height/2 - 10, 20, 20, ">");
+		btn.enabled = cachedImporters.size() > 2;
+		this.buttonList.add(btn);
+		
+		UpdateScroll();
 	}
 	
 	@Override
@@ -33,14 +52,39 @@ public class GuiImporters extends GuiQuesting
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(guiLeft != null)
+		if(leftGui != null && rightImp != null)
 		{
-			guiLeft.drawGui(mx, my, partialTick);
+			String txt = EnumChatFormatting.UNDERLINE + I18n.format(leftImp.getUnlocalisedName());
+			mc.fontRenderer.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
+			leftGui.drawGui(mx, my, partialTick);
 		}
 		
-		if(guiRight != null)
+		if(rightGui != null && rightImp != null)
 		{
-			guiRight.drawGui(mx, my, partialTick);
+			String txt = EnumChatFormatting.UNDERLINE + I18n.format(rightImp.getUnlocalisedName());
+			mc.fontRenderer.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
+			rightGui.drawGui(mx, my, partialTick);
+		}
+		
+		RenderUtils.DrawLine(width/2, this.guiTop + 32, width/2, this.guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+	}
+	
+	@Override
+	public void actionPerformed(GuiButton button)
+	{
+		super.actionPerformed(button);
+		
+		if(button.id == 1)
+		{
+			scroll--;
+			UpdateScroll();
+			
+			button.enabled = scroll > 0;
+		} else if(button.id == 2)
+		{
+			scroll++;
+			UpdateScroll();
+			button.enabled = scroll + 2 < cachedImporters.size();
 		}
 	}
 	
@@ -49,14 +93,36 @@ public class GuiImporters extends GuiQuesting
 	{
 		super.handleMouseInput();
 		
-		if(guiLeft != null)
+		if(leftGui != null)
 		{
-			guiLeft.handleMouse();
+			leftGui.handleMouse();
 		}
 		
-		if(guiRight != null)
+		if(rightGui != null)
 		{
-			guiRight.handleMouse();
+			rightGui.handleMouse();
+		}
+	}
+	
+	public void UpdateScroll()
+	{
+		scroll = MathHelper.clamp_int(scroll, 0, Math.max(0, cachedImporters.size() - 2));
+		
+		leftImp = null;
+		leftGui = null;
+		rightImp = null;
+		rightGui = null;
+		
+		if(scroll < cachedImporters.size())
+		{
+			leftImp = cachedImporters.get(scroll);
+			leftGui = leftImp.getGui(this, guiLeft + 16, guiTop + 48, sizeX/2 - 24, sizeY - 80);
+		}
+		
+		if(scroll + 1 < cachedImporters.size())
+		{
+			rightImp = cachedImporters.get(scroll + 1);
+			rightGui = rightImp.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
 		}
 	}
 }
