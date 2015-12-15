@@ -24,7 +24,7 @@ public class UpdateNotification
 		
 		hasChecked = true;
 		
-		if(BetterQuesting.VERSION == "BQ_VER_" + "KEY")
+		if(BetterQuesting.VERSION == "BQS_VER_" + "KEY")
 		{
 			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THIS COPY OF " + BetterQuesting.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
 			return;

@@ -20,6 +20,7 @@ public class ConfigHandler
 		
 		config.load();
 		
+		BQ_Settings.hideUpdates = config.getBoolean("Hide Updates", Configuration.CATEGORY_GENERAL, false, "Hide update notifications");
 		BQ_Settings.curTheme = config.getString("Theme", Configuration.CATEGORY_GENERAL, "betterquesting:light", "The current questing theme");
 		BQ_Settings.noticeComplete = config.getString("Sound Complete", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");
 		BQ_Settings.noticeUpdate = config.getString("Sound Update", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");

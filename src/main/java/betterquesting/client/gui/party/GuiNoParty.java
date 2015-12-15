@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
@@ -14,13 +15,18 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.lives.LifeManager;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
+import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.RenderUtils;
 
 public class GuiNoParty extends GuiQuesting
 {
+	ItemStack heart;
+	int lives = 1;
+	
 	int rightScroll = 0; // Invite list
 	int maxRows = 0;
 	ArrayList<PartyInstance> invites = new ArrayList<PartyInstance>();
@@ -44,6 +50,9 @@ public class GuiNoParty extends GuiQuesting
 			mc.displayGuiScreen(new GuiManageParty(parent, party));
 			return;
 		}
+		
+		heart = new ItemStack(BetterQuesting.extraLife);
+		lives = LifeManager.getLives(mc.thePlayer);
 		
 		invites = PartyManager.getInvites(mc.thePlayer.getUniqueID());
 		
@@ -76,6 +85,12 @@ public class GuiNoParty extends GuiQuesting
 			PartyManager.updateUI = false;
 			this.initGui();
 			return;
+		}
+		
+		if(QuestDatabase.bqHardcore)
+		{
+			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
+			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
 		}
 		
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());

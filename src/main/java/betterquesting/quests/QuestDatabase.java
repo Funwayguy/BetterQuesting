@@ -161,11 +161,9 @@ public class QuestDatabase
 	public static void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 0);
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
 		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_DATABASE.makePacket(tags));
 	}
 	
@@ -176,11 +174,9 @@ public class QuestDatabase
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 0);
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
 		BetterQuesting.instance.network.sendTo(PacketDataType.QUEST_DATABASE.makePacket(tags), player);
 	}
 	

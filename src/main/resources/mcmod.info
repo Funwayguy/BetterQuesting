@@ -2,27 +2,14 @@
 {
   "modid": "betterquesting",
   "name": "Better Questing",
-  "description": "A new and improved questing mod for mod pack developers",
+  "description": "A new and improved questing mod for Minecraft pack creators",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["Funwayguy"],
-  "credits": "",
+  "credits": "Thank you Patreons for all your support <3",
   "logoFile": "title.png",
-  "screenshots": [],
-  "dependencies": []
-},
-{
-  "modid": "bq_standard",
-  "name": "Standard Questing Pack",
-  "description": "Contains all the standard tasks, rewards, importers and themes for Better Questing",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["Funwayguy"],
-  "credits": "",
   "screenshots": [],
   "dependencies": []
 }

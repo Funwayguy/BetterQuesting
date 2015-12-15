@@ -53,7 +53,7 @@ public class PacketQuesting implements IMessage
 		{
 			if(message == null || message.tags == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack server side", new NullPointerException());
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting packet server side", new NullPointerException());
 				return null;
 			}
 			
@@ -61,7 +61,7 @@ public class PacketQuesting implements IMessage
 			
 			if(ID < 0 || ID >= PacketDataType.values().length)
 			{
-				BetterQuesting.logger.log(Level.WARN, "Recieved a packet serverside with an invalid ID");
+				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID");
 				return null;
 			}
 			
@@ -100,7 +100,7 @@ public class PacketQuesting implements IMessage
 		{
 			if(message == null || message.tags == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting pack client side", new NullPointerException());
+				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting packet client side", new NullPointerException());
 				return null;
 			}
 			
@@ -108,7 +108,7 @@ public class PacketQuesting implements IMessage
 			
 			if(ID < 0 || ID >= PacketDataType.values().length)
 			{
-				BetterQuesting.logger.log(Level.WARN, "Recieved a packet clientside with an invalid ID");
+				BetterQuesting.logger.log(Level.WARN, "Recieved a packet client side with an invalid ID");
 				return null;
 			}
 			
