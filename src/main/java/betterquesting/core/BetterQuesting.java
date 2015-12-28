@@ -21,6 +21,7 @@ import betterquesting.commands.BQ_Commands;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemExtraLife;
+import betterquesting.items.ItemGuideBook;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
 import cpw.mods.fml.common.Mod;
@@ -57,6 +58,7 @@ public class BetterQuesting
 	
 	public static Item placeholder = new ItemPlaceholder();
 	public static Item extraLife = new ItemExtraLife();
+	public static Item guideBook = new ItemGuideBook();
 	
 	public static Block submitStation = new BlockSubmitStation();
 	
@@ -84,6 +86,7 @@ public class BetterQuesting
     	
     	GameRegistry.registerItem(placeholder, "placeholder");
     	GameRegistry.registerItem(extraLife, "extra_life");
+    	GameRegistry.registerItem(guideBook, "guide_book");
     	
     	GameRegistry.registerBlock(submitStation, "submit_station");
     	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
@@ -115,5 +118,6 @@ public class BetterQuesting
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
 		manager.registerCommand(new BQ_Commands());
+		//manager.registerCommand(new BQ_CommandsHelp());
 	}
 }

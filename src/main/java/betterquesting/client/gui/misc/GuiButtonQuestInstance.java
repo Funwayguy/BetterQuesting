@@ -1,6 +1,7 @@
 package betterquesting.client.gui.misc;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
@@ -21,7 +22,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 {
 	Entity itemIcon;
 	public QuestInstance quest;
-	public GuiButtonQuestInstance parent;
+	public ArrayList<GuiButtonQuestInstance> parents = new ArrayList<GuiButtonQuestInstance>();;
 	
 	// Clamping bounds
 	boolean enableClamp = false;
@@ -55,13 +56,18 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 			this.visible = true;
 		} else
 		{
-			if(parent != null)
+			boolean flag = true;
+			
+			for(GuiButtonQuestInstance p : parents)
 			{
-				this.visible = parent.quest.isUnlocked(mc.thePlayer.getUniqueID());
-			} else
-			{
-				this.visible = true;
+				if(!p.quest.isUnlocked(mc.thePlayer.getUniqueID()))
+				{
+					flag = false;
+					break;
+				}
 			}
+			
+			this.visible = flag;
 			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
 		}
 		
@@ -90,12 +96,29 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 
         	int questState = !quest.isUnlocked(mc.thePlayer.getUniqueID())? 0 : (!quest.isComplete(mc.thePlayer.getUniqueID())? 1 : (!quest.HasClaimed(mc.thePlayer.getUniqueID())? 2 : 3));
         	
-        	if(parent != null)
+        	for(GuiButtonQuestInstance p : parents)
         	{
-        		float lsx = MathHelper.clamp_float(parent.offX + parent.xPosition + parent.width/2F, clampMinX, clampMaxX);
-        		float lsy = MathHelper.clamp_float(parent.offY + parent.yPosition + parent.height, clampMinY, clampMaxY);
-        		float lex = MathHelper.clamp_float(offX + xPosition + width/2F, clampMinX, clampMaxX);
-        		float ley = MathHelper.clamp_float(offY + yPosition, clampMinY, clampMaxY);
+        		float lsx = p.offX + p.xPosition + p.width/2F;
+        		float lsy = p.offY + p.yPosition + p.height/2F;
+        		float lex = offX + xPosition + width/2F;
+        		float ley = offY + yPosition + height/2F;
+        		
+        		double la = Math.atan2(ley - lsy, lex - lsx);
+        		double dx = Math.cos(la) * 16;
+        		double dy = Math.sin(la) * 16;
+        		lsx += MathHelper.clamp_float((float)dx, -12, 12);
+        		lsy += MathHelper.clamp_float((float)dy, -12, 12);
+        		
+        		la = Math.atan2(lsy - ley, lsx - lex);
+        		dx = Math.cos(la) * 16;
+        		dy = Math.sin(la) * 16;
+        		lex += MathHelper.clamp_float((float)dx, -12, 12);
+        		ley += MathHelper.clamp_float((float)dy, -12, 12);
+        		
+        		lsx = MathHelper.clamp_float(lsx, clampMinX, clampMaxX);
+        		lsy = MathHelper.clamp_float(lsy, clampMinY, clampMaxY);
+        		lex = MathHelper.clamp_float(lex, clampMinX, clampMaxX);
+        		ley = MathHelper.clamp_float(ley, clampMinY, clampMaxY);
         		
         		if(!(lsx == lex && (lsx == clampMinX || lex == clampMaxX)) && !(lsy == ley))
         		{

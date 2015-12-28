@@ -3,7 +3,6 @@ package betterquesting.utils;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -149,14 +148,21 @@ public class RenderUtils
 	static Field ry;
 	
 	/**
-	 * Fixed version of the one in FontRenderer that supports color formatting and shadows (lots of reflection hacking involved!)
+	 * Fixed version of the one in FontRenderer. Supports multi-line color formatting (lots of reflection hacking involved!)
 	 */
-	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean unknown)
+	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean isShadow)
+	{
+		drawSplitString(renderer, string, x, y, width, color, isShadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1);
+	}
+	
+	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean isShadow, int start, int end)
 	{
 		if(renderer == null || string == null || string.length() <= 0)
 		{
 			return;
 		}
+		
+		string = string.replaceAll("\r", ""); //Line endings from localisation break things so we remove them
 		
 		// Pre-render setup
 		if(bidiReorder == null || stringAtPos == null || resetStyle == null || textColor == null || red == null || green == null || blue == null || alpha == null || rx == null || ry == null)
@@ -203,7 +209,7 @@ public class RenderUtils
         
         while (string != null && string.endsWith("\n"))
         {
-            string = string.substring(0, string.length() - 1);
+            string = string.substring(0, string.length() - 1); // Remove trailing new lines
         }
         
 		// Render split
@@ -211,9 +217,9 @@ public class RenderUtils
         @SuppressWarnings("unchecked")
 		List<String> list = renderer.listFormattedStringToWidth(string, width);
 
-        for (Iterator<String> iterator = list.iterator(); iterator.hasNext(); y += renderer.FONT_HEIGHT)
+        for (int i = 0; i < list.size() && i <= end; i++)
         {
-            String s1 = iterator.next();
+            String s1 = list.get(i);
             
             // Render aligned
             if (renderer.getBidiFlag())
@@ -247,7 +253,7 @@ public class RenderUtils
                 color |= -16777216;
             }
 
-            if (unknown)
+            if (isShadow)
             {
                 color = (color & 16579836) >> 2 | color & -16777216;
             }
@@ -266,7 +272,12 @@ public class RenderUtils
 	            GL11.glColor4f(r, g, b, a);
 	            rx.set(renderer, x);
 	            ry.set(renderer, y);
-	            stringAtPos.invoke(renderer, s1, unknown);
+	            
+	            if(i >= start) // We check here instead to preserve prior formatting
+	            {
+		            stringAtPos.invoke(renderer, s1, isShadow);
+		            y += renderer.FONT_HEIGHT;
+	            }
             } catch(Exception e)
             {
     			BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);

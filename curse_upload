@@ -12,7 +12,7 @@ echo
 RESPONSE=`curl -H "X-Api-Token: $CURSE_API_KEY" -X POST  -F metadata="$JSON"  -F file="@$FILE_LOCATION" https://minecraft.curseforge.com/api/projects/238856/upload-file`
 echo
 FID=${RESPONSE:6}
-FID=${FID: -1}
+FID=${FID:0:${#FID}-1}
 echo $FID
 
 FILE_NAME=`echo "BetterQuesting-deobf-BQ_VER_KEY.jar"`

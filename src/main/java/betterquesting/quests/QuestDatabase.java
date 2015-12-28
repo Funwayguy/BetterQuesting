@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.quests.designers.QDesignTree;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -141,16 +142,19 @@ public class QuestDatabase
 		QuestInstance quest = getQuestByID(id);
 		questDB.remove(id);
 		
-		// Remove quest from quest lines and rebuild their trees
-		for(QuestLine line : questLines)
-		{
-			line.questList.remove(quest);
-			line.BuildTree();
-		}
-		
+		// Remove the prerequisites first so the quest redesign doesn't break;
 		for(QuestInstance qi : questDB.values())
 		{
 			qi.preRequisites.remove(quest);
+		}
+		
+		// Remove quest from quest lines and rebuild their trees
+		for(QuestLine line : questLines)
+		{
+			if(line.questList.remove(quest))
+			{
+				QDesignTree.instance.arrangeQuests(line);
+			}
 		}
 	}
 	
@@ -264,6 +268,12 @@ public class QuestDatabase
 			
 			QuestInstance quest = GetOrRegisterQuest(qID);
 			quest.readFromJSON(entry.getAsJsonObject());
+		}
+		
+		// TODO: Remove this later
+		for(QuestLine ql : questLines)
+		{
+			QDesignTree.instance.arrangeQuests(ql);
 		}
 	}
 }

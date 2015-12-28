@@ -14,7 +14,6 @@ import com.google.gson.JsonObject;
 
 public class BQ_Commands extends CommandBase
 {
-
 	@Override
 	public String getCommandName()
 	{

@@ -12,7 +12,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
-import betterquesting.client.gui.GuiQuestLines;
+import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.client.gui.GuiThemeSelect;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
@@ -43,7 +43,7 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiQuestLines(mc.currentScreen));
+			mc.displayGuiScreen(new GuiQuestLinesMain(mc.currentScreen));
 		} else if(BQ_Keybindings.openThemes.isPressed())
 		{
 			mc.displayGuiScreen(new GuiThemeSelect(mc.currentScreen));

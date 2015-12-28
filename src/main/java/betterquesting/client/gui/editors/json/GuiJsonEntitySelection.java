@@ -138,7 +138,6 @@ public class GuiJsonEntitySelection extends GuiQuesting
 						this.json.entrySet().clear();
 						NBTConverter.NBTtoJSON_Compound(eTags, json);
 						entity = tmpE;
-						System.out.println("Wrote " + eTags.getString("id"));
 					} catch(Exception e)
 					{
 						e.printStackTrace();

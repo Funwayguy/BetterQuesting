@@ -267,14 +267,12 @@ public class GuiManageParty extends GuiQuesting
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 7);
 		tags.setInteger("action", 2);
 		tags.setString("Party", name);
 		tags.setString("Member", member.userID.toString());
 		JsonObject pJson = new JsonObject();
 		party.writeToJson(pJson);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(pJson, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 		BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
 	}
 	

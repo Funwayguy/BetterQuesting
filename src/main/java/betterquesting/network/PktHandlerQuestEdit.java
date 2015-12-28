@@ -4,6 +4,8 @@ import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestLine;
+import betterquesting.quests.designers.QDesignTree;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -46,13 +48,35 @@ public class PktHandlerQuestEdit extends PktHandler
 		
 		if(action == 0) // Update quest data
 		{
+			int ps = quest.preRequisites.size();
+			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " edited quest " + quest.name);
 			JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
 			quest.readFromJSON(json);
-			quest.UpdateClients();
+			
+			if(ps != quest.preRequisites.size())
+			{
+				// TODO: Remove this later
+				for(QuestLine ql : QuestDatabase.questLines)
+				{
+					QDesignTree.instance.arrangeQuests(ql);
+				}
+				
+				QuestDatabase.UpdateClients();
+			} else
+			{
+				quest.UpdateClients();
+			}
 		} else if(action == 1) // Delete quest
 		{
 			QuestDatabase.DeleteQuest(quest.questID);
+			
+			// TODO: Remove this later
+			for(QuestLine ql : QuestDatabase.questLines)
+			{
+				QDesignTree.instance.arrangeQuests(ql);
+			}
+			
 			QuestDatabase.UpdateClients();
 		}
 		return null;

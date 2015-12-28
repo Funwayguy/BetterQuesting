@@ -12,9 +12,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.RenderUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -26,6 +25,7 @@ public class GuiTextEditor extends GuiQuesting
 	public String text = "";
 	int listScroll = 0;
 	int maxRows = 0;
+	GuiScrollingText scrollingText;
 	
     public GuiTextEditor(GuiScreen parent, String text)
     {
@@ -51,13 +51,16 @@ public class GuiTextEditor extends GuiQuesting
     	
         Keyboard.enableRepeatEvents(true);
 
-		maxRows = (sizeY - 80)/20;
+		maxRows = (sizeY - 48)/20;
 		
 		for(int i = 0; i < maxRows; i++)
 		{
 			GuiButtonQuesting btn = new GuiButtonQuesting(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL");
 			this.buttonList.add(btn);
 		}
+		
+		scrollingText = new GuiScrollingText(this, sizeX - 148, sizeY - 64, guiTop + 32, guiLeft + 132);
+		scrollingText.SetText(text);
 		
 		RefreshColumns();
     }
@@ -117,7 +120,8 @@ public class GuiTextEditor extends GuiQuesting
                         {
                             text = text.substring(0, text.length() - 1);
                         }
-
+                        scrollingText.SetText(text + "_");
+                        scrollingText.SetScroll(1F);
                         return;
                     case 28:
                     case 156: // New line
@@ -136,12 +140,9 @@ public class GuiTextEditor extends GuiQuesting
     {
         String s1 = text;
         String s2 = s1 + string;
-        int i = this.fontRendererObj.splitStringWidth(s2 + "" + EnumChatFormatting.BLACK + "_", sizeX - 140);
-
-        if (i <= sizeX - 32)
-        {
-            text = s2;
-        }
+        text = s2;
+        scrollingText.SetText(text + "_");
+        scrollingText.SetScroll(1F);
     }
 
     /**
@@ -178,10 +179,9 @@ public class GuiTextEditor extends GuiQuesting
             s1 = s1 + "" + EnumChatFormatting.WHITE + "_";
         }
         
-        // Left margin (8 + 100 + 8 + 8) = 124
-        // Right margin = 8
-        // Total writable space (124 + 8) = 132
-        RenderUtils.drawSplitString(fontRendererObj, s1, this.guiLeft + 132, this.guiTop + 32, this.sizeX - 140, ThemeRegistry.curTheme().textColor().getRGB(), false);
+        scrollingText.SetText(s1);
+        scrollingText.drawScreen(mx, my, partialTick);
+        //RenderUtils.drawSplitString(fontRendererObj, s1, this.guiLeft + 132, this.guiTop + 32, this.sizeX - 140, ThemeRegistry.curTheme().textColor().getRGB(), false);
     }
 	
     /**

@@ -5,6 +5,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
+import betterquesting.quests.designers.QDesignTree;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -48,6 +49,12 @@ public class PktHandlerLineEdit extends PktHandler
 		} else if(action == 2) // Edit quest lines
 		{
 			QuestDatabase.readFromJson_Lines(NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject()));
+			
+			// TODO: Swap this out for a menu later
+			for(QuestLine ql : QuestDatabase.questLines)
+			{
+				QDesignTree.instance.arrangeQuests(ql);
+			}
 		}
 		
 		QuestDatabase.UpdateClients(); // Update all clients with new quest data

@@ -1,13 +1,12 @@
 package betterquesting.network;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerQuestSync extends PktHandler
@@ -40,11 +39,6 @@ public class PktHandlerQuestSync extends PktHandler
 		
 		JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
 		quest.readFromJSON(json);
-		
-		for(QuestLine line : QuestDatabase.questLines)
-		{
-			line.BuildTree(); // If a prerequisite change was made, trees need updating
-		}
 		
 		QuestDatabase.updateUI = true; // Tell all UIs they need updating
 		return null;

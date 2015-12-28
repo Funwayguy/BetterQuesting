@@ -31,6 +31,7 @@ public class QuestInstance
 {
 	public int questID;
 	public boolean isMain = false;
+	public boolean isSilent = false;
 	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
@@ -130,7 +131,7 @@ public class QuestInstance
 				
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode)
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
@@ -143,7 +144,7 @@ public class QuestInstance
 			{
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode)
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
@@ -444,6 +445,7 @@ public class QuestInstance
 		jObj.addProperty("name", name);
 		jObj.addProperty("description", description);
 		jObj.addProperty("isMain", isMain);
+		jObj.addProperty("isSlient", isSilent);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("autoClaim", autoClaim);
 		jObj.addProperty("repeatTime", repeatTime);
@@ -505,6 +507,7 @@ public class QuestInstance
 		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
 		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
+		this.isSilent = JsonHelper.GetBoolean(jObj, "isSilent", false);
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();

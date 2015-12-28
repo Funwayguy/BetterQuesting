@@ -17,6 +17,7 @@ import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
+import betterquesting.quests.QuestLine.QuestLineEntry;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -160,7 +161,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 			{
 				if(line != null && n3 >= 0 && n3 < line.questList.size())
 				{
-					mc.displayGuiScreen(new GuiQuestInstance(this, line.questList.get(n3)));
+					mc.displayGuiScreen(new GuiQuestInstance(this, line.questList.get(n3).quest));
 				}
 			} else if(n2 == 1) // Remove quest
 			{
@@ -190,8 +191,13 @@ public class GuiQuestLineEditorB extends GuiQuesting
 			{
 				if(!(line == null || n4 < 0 || n4 >= QuestDatabase.questDB.size()))
 				{
-					line.questList.add(QuestDatabase.getQuestByOrder(n4));
-					RefreshColumns();
+					QuestLineEntry qe = new QuestLineEntry(QuestDatabase.getQuestByOrder(n4), 0, 0);
+					
+					if(qe.quest != null)
+					{
+						line.questList.add(qe);
+						RefreshColumns();
+					}
 				}
 			}
 		}
@@ -280,7 +286,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(line.questList.get(n3).name);
+					btn.displayString = I18n.format(line.questList.get(n3).quest.name);
 				}
 			} else if(n2 == 1) // Remove quest
 			{

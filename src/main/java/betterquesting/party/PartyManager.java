@@ -74,7 +74,7 @@ public class PartyManager
 	 */
 	public static void ApplyNameChange(PartyInstance party)
 	{
-		if(partyList.containsKey(party.name))
+		if(partyList.get(party.name) != party)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "");
 			int i = 0;

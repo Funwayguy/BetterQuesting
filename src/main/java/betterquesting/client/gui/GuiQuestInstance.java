@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
@@ -28,6 +29,7 @@ public class GuiQuestInstance extends GuiQuesting
 	GuiEmbedded taskRender = null;
 	int selReward = 0;
 	GuiEmbedded rewardRender = null;
+	GuiScrollingText desc;
 	GuiButtonQuesting btnTLeft;
 	GuiButtonQuesting btnTRight;
 	GuiButtonQuesting btnRLeft;
@@ -61,6 +63,8 @@ public class GuiQuestInstance extends GuiQuesting
 		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
+		
+		desc = new GuiScrollingText(this, sizeX/2 - 24, sizeY/2 - 48, this.guiTop + 32, this.guiLeft + 16, I18n.format(quest.description));
 		
 		btnTLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
 		btnTLeft.enabled = selTask > 0;
@@ -105,9 +109,20 @@ public class GuiQuestInstance extends GuiQuesting
 			}
 		}
 		
-		RenderUtils.drawSplitString(fontRendererObj, I18n.format(quest.description), this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 16, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		desc.drawScreen(mx, my, partialTick);
 		
 		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, ThemeRegistry.curTheme().textColor());
+		
+		/*int tx1 = guiLeft + sizeX/2 + 8;
+		int ty1 = guiTop + 48;
+		int tw = sizeX/2 - 24;
+		int th = sizeY - 96;
+		int tx2 = tx1 + tw;
+		int ty2 = ty1 + th;
+		RenderUtils.DrawLine(tx1, ty1, tx2, ty2, 2, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(tx1, ty1, tx2, ty1, 2, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(tx1, ty2, tx2, ty2, 2, ThemeRegistry.curTheme().textColor());
+		this.fontRendererObj.drawString("| TEXT |", this.guiLeft + (sizeX/4)*3, this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());*/
 		
 		TaskBase task = selTask < quest.tasks.size()? quest.tasks.get(selTask) : null;
 		
@@ -127,7 +142,7 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			if(taskRender == null)
 			{
-				taskRender = task.getGui(this, this.guiLeft + this.sizeX/2 + 8, this.guiTop + 48, sizeX/2 - 24, sizeY - 104);
+				taskRender = task.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 104);
 			}
 			
 			if(taskRender != null)
@@ -141,6 +156,17 @@ public class GuiQuestInstance extends GuiQuesting
 		{
 			taskRender = null;
 		}
+		
+		/*int rx1 = guiLeft + 16;
+		int ry1 = guiTop + sizeY/2;
+		int rw = sizeX/2 - 24;
+		int rh = sizeY/2 - 48;
+		int rx2 = rx1 + rw;
+		int ry2 = ry1 + rh;
+		RenderUtils.DrawLine(rx1, ry1, rx2, ry2, 2, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(rx1, ry1, rx2, ry1, 2, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(rx1, ry2, rx2, ry2, 2, ThemeRegistry.curTheme().textColor());
+		this.fontRendererObj.drawString("| TEXT |", guiLeft + (sizeX/4)*1, guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB());*/
 		
 		RewardBase reward = selReward < quest.rewards.size()? quest.rewards.get(selReward) : null;
 		
@@ -156,11 +182,11 @@ public class GuiQuestInstance extends GuiQuesting
 			rTitle = ChatFormatting.UNDERLINE + rTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
-			this.fontRendererObj.drawString(rTitle, this.guiLeft + (sizeX/4)*1 - (nameWidth/2), this.guiTop + sizeY/2, ThemeRegistry.curTheme().textColor().getRGB());
+			this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB());
 			
 			if(rewardRender == null)
 			{
-				rewardRender = reward.getGui(this, this.guiLeft + 16, this.guiTop + sizeY/2 + 12, sizeX/2 - 8, sizeY - 104);
+				rewardRender = reward.getGui(this, guiLeft + 16, guiTop + sizeY/2, sizeX/2 - 24, sizeY/2 - 48);
 			}
 			
 			if(rewardRender != null)
