@@ -191,8 +191,33 @@ public class RenderUtils
 				ry.setAccessible(true);
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-				return;
+				try
+				{
+					bidiReorder = FontRenderer.class.getDeclaredMethod("func_147647_b", String.class);
+					bidiReorder.setAccessible(true);
+					stringAtPos = FontRenderer.class.getDeclaredMethod("func_78255_a", String.class, boolean.class);
+					stringAtPos.setAccessible(true);
+					resetStyle = FontRenderer.class.getDeclaredMethod("func_78265_b");
+					resetStyle.setAccessible(true);
+					textColor = FontRenderer.class.getDeclaredField("field_78304_r");
+					textColor.setAccessible(true);
+					red = FontRenderer.class.getDeclaredField("field_78291_n");
+					red.setAccessible(true);
+					green = FontRenderer.class.getDeclaredField("field_78306_p");
+					green.setAccessible(true);
+					blue = FontRenderer.class.getDeclaredField("field_78292_o");
+					blue.setAccessible(true);
+					alpha = FontRenderer.class.getDeclaredField("field_78305_q");
+					alpha.setAccessible(true);
+					rx = FontRenderer.class.getDeclaredField("field_78295_j");
+					rx.setAccessible(true);
+					ry = FontRenderer.class.getDeclaredField("field_78296_k");
+					ry.setAccessible(true);
+				} catch(Exception e2)
+				{
+					BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
+					return;
+				}
 			}
 		}
 		
