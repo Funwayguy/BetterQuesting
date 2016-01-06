@@ -79,7 +79,7 @@ public abstract class GuiBQScrolling
 
     protected abstract void drawBackground();
 
-    protected abstract void drawSlot(int var1, int var2, int var3, int var4, Tessellator var5);
+    protected abstract void drawSlot(int index, int var2, int posY, int var4, Tessellator var5);
 
     protected void func_27260_a(int p_27260_1_, int p_27260_2_, Tessellator p_27260_3_) {}
 

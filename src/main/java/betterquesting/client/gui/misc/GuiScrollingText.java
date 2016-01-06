@@ -68,12 +68,6 @@ public class GuiScrollingText extends GuiBQScrolling
 	}
 	
 	@Override
-    protected void drawGradientRect(int par1, int par2, int par3, int par4, int par5, int par6)
-    {
-		// Disabled for themes that are too dark
-    }
-	
-	@Override
 	protected void drawSlot(int index, int var2, int posY, int var4, Tessellator var5)
 	{
 		if(posY + 1 < top || posY + slotHeight - 1 > bottom)

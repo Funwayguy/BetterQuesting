@@ -46,4 +46,9 @@ public abstract class GuiEmbedded
 	{
 		
 	}
+	
+	public void keyTyped(char character, int keyCode)
+	{
+		
+	}
 }

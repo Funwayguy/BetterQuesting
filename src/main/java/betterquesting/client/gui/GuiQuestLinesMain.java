@@ -165,7 +165,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(selected != null)
 			{
-				qlDesc.SetText(selected.line.description);
+				qlDesc.SetText(I18n.format(selected.line.description));
 				qlGui.setQuestLine(selected);
 			}
 		}

@@ -142,6 +142,17 @@ public class GuiSubmitStation extends GuiQuestingContainer
 	}
 	
 	@Override
+	public void keyTyped(char character, int keyCode)
+	{
+		super.keyTyped(character, keyCode);
+		
+		if(taskUI != null)
+		{
+			taskUI.keyTyped(character, keyCode);
+		}
+	}
+	
+	@Override
 	public void handleMouseInput()
 	{
 		super.handleMouseInput();

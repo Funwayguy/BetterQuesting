@@ -89,6 +89,22 @@ public class GuiImporters extends GuiQuesting
 	}
 	
 	@Override
+    protected void keyTyped(char character, int keyCode)
+    {
+        super.keyTyped(character, keyCode);
+		
+		if(leftGui != null)
+		{
+			leftGui.keyTyped(character, keyCode);;
+		}
+		
+		if(rightGui != null)
+		{
+			rightGui.keyTyped(character, keyCode);;
+		}
+    }
+	
+	@Override
 	public void handleMouseInput()
 	{
 		super.handleMouseInput();

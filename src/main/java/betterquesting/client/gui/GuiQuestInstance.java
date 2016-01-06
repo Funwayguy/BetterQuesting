@@ -253,6 +253,22 @@ public class GuiQuestInstance extends GuiQuesting
 	}
 	
 	@Override
+    protected void keyTyped(char character, int keyCode)
+    {
+        super.keyTyped(character, keyCode);
+        
+		if(taskRender != null)
+		{
+			taskRender.keyTyped(character, keyCode);
+		}
+		
+		if(rewardRender != null)
+		{
+			rewardRender.keyTyped(character, keyCode);
+		}
+    }
+	
+	@Override
 	public void handleMouseInput()
 	{
 		if(taskRender != null)
