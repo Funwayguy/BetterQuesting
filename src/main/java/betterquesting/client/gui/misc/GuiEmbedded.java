@@ -27,7 +27,7 @@ public abstract class GuiEmbedded
         int i = Mouse.getEventX() * screen.width / screen.mc.displayWidth;
         int j = screen.height - Mouse.getEventY() * screen.height / screen.mc.displayHeight - 1;
         int k = Mouse.getEventButton();
-        int SDX = (int)-Math.signum(Mouse.getDWheel());
+        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
         if (Mouse.getEventButtonState())
         {

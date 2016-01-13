@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
@@ -38,10 +37,8 @@ public class GuiImporters extends GuiQuesting
 		cachedImporters = ImporterRegistry.getImporters();
 		
 		GuiButtonQuesting btn = new GuiButtonQuesting(1, guiLeft - 4, height/2 - 10, 20, 20, "<");
-		btn.enabled = false;
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(2, guiLeft + sizeX - 16, height/2 - 10, 20, 20, ">");
-		btn.enabled = cachedImporters.size() > 2;
 		this.buttonList.add(btn);
 		
 		UpdateScroll();
@@ -78,13 +75,10 @@ public class GuiImporters extends GuiQuesting
 		{
 			scroll--;
 			UpdateScroll();
-			
-			button.enabled = scroll > 0;
 		} else if(button.id == 2)
 		{
 			scroll++;
 			UpdateScroll();
-			button.enabled = scroll + 2 < cachedImporters.size();
 		}
 	}
 	
@@ -122,7 +116,8 @@ public class GuiImporters extends GuiQuesting
 	
 	public void UpdateScroll()
 	{
-		scroll = MathHelper.clamp_int(scroll, 0, Math.max(0, cachedImporters.size() - 2));
+		scroll = scroll%Math.max(1, cachedImporters.size());
+		int s2 = (scroll + 1)%Math.max(1, cachedImporters.size());
 		
 		leftImp = null;
 		leftGui = null;
@@ -135,9 +130,9 @@ public class GuiImporters extends GuiQuesting
 			leftGui = leftImp.getGui(this, guiLeft + 16, guiTop + 48, sizeX/2 - 24, sizeY - 80);
 		}
 		
-		if(scroll + 1 < cachedImporters.size())
+		if(scroll != s2 && s2 < cachedImporters.size())
 		{
-			rightImp = cachedImporters.get(scroll + 1);
+			rightImp = cachedImporters.get(s2);
 			rightGui = rightImp.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
 		}
 	}

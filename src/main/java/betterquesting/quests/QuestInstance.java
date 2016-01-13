@@ -511,8 +511,14 @@ public class QuestInstance
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
-		this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
-		this.logic = logic == null? QuestLogic.AND : logic;
+		try
+		{
+			this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
+			this.logic = logic == null? QuestLogic.AND : logic;
+		} catch(Exception e)
+		{
+			this.logic = QuestLogic.AND;
+		}
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
 		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
 		

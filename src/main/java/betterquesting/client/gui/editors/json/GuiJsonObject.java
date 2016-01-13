@@ -1,10 +1,8 @@
 package betterquesting.client.gui.editors.json;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Set;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -28,6 +26,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiJsonObject extends GuiQuesting implements ITextEditor
 {
+	HashMap<Integer,String> idMap = new HashMap<Integer,String>();
 	int scrollPos = 0;
 	JsonObject settings;
 	boolean allowEdit = true;
@@ -60,6 +59,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 	{
 		super.initGui();
 		
+		idMap = new HashMap<Integer,String>();
 		editables = new HashMap<String, JsonControlSet>();
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
@@ -74,6 +74,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 		for(Entry<String,JsonElement> entry : settings.entrySet())
 		{
 			i++;
+			idMap.put(i, entry.getKey());
 			if(entry.getValue().isJsonPrimitive())
 			{
 				JsonPrimitive jPrim = entry.getValue().getAsJsonPrimitive();
@@ -275,15 +276,13 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 	@Override
 	public void setText(int id, String text)
 	{
-		if(settings == null || id < 0 || id >= settings.entrySet().size())
+		if(settings == null || !idMap.containsKey(id))
 		{
 			return;
 		}
 		
-		Set<Entry<String,JsonElement>> jSet = settings.entrySet();
+		String key = idMap.get(id);
 		
-		Entry<String,JsonElement> entry = new ArrayList<Entry<String,JsonElement>>(jSet).get(id);
-		
-		settings.addProperty(entry.getKey(), text);
+		settings.addProperty(key, text);
 	}
 }

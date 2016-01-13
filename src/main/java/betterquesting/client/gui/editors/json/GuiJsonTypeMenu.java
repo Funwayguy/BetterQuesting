@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
+import org.apache.logging.log4j.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -13,6 +14,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonJson;
+import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -96,7 +98,7 @@ public class GuiJsonTypeMenu extends GuiQuesting
 				NBTConverter.NBTtoJSON_Compound(eTags, json);
 			} catch(Exception e)
 			{
-				e.printStackTrace();
+				BetterQuesting.logger.log(Level.ERROR, "An error occured while reading JSON entity", e);
 			}
 		}
 

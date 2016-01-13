@@ -99,3 +99,9 @@ betterquesting.help.page6=§l§nImporting%n§r%nIf you're someone who prefers a 
 betterquesting.help.page7=§l§nLocalization%n§r%nBetter Questing supports full localization of quest names and descriptions so that if you wanted to release your pack to users of all nationalities now you now can! In order to begin localizing your quests you'll need to use unique keys such as "§omypack.quest1.name§r" instead of plain text. You can then create a standard vanilla resource pack containing only .lang files for all the language specific translations.
 
 betterquesting.design.tree=Tree Design
+
+betterquesting.tool.select=Select
+betterquesting.tool.grab=Grab
+betterquesting.tool.link=Link
+betterquesting.tool.snap=Snap: %s
+betterquesting.tool.auto=Auto

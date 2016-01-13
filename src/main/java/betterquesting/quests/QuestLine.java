@@ -3,7 +3,6 @@ package betterquesting.quests;
 import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.quests.designers.QDesignTree;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,6 +24,19 @@ public class QuestLine
 		}
 		
 		return list;
+	}
+	
+	public QuestLineEntry getEntryByID(int id)
+	{
+		for(QuestLineEntry entry : questList)
+		{
+			if(entry != null && entry.quest != null && entry.quest.questID == id)
+			{
+				return entry;
+			}
+		}
+		
+		return null;
 	}
 	
 	public void writeToJSON(JsonObject json)
@@ -65,12 +77,11 @@ public class QuestLine
 				
 				if(quest != null)
 				{
-					//remap = true;
 					QuestLineEntry qe = new QuestLineEntry(quest, 0, 0);
 					questList.add(qe);
 				} else
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.getAsString(), new IllegalArgumentException());
+					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString(), new IllegalArgumentException());
 				}
 			} else if(entry.isJsonObject())
 			{
@@ -82,14 +93,9 @@ public class QuestLine
 					questList.add(qe);
 				} else
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.getAsString(), new IllegalArgumentException());
+					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString(), new IllegalArgumentException());
 				}
 			}
-		}
-		
-		//if(remap)
-		{
-			QDesignTree.instance.arrangeQuests(this);
 		}
 	}
 	

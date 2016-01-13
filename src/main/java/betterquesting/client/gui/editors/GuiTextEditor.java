@@ -96,7 +96,7 @@ public class GuiTextEditor extends GuiQuesting
         
         if(host != null)
         {
-        	host.setText(0, text);
+        	host.setText(hostID, text);
         }
     }
 
@@ -194,7 +194,7 @@ public class GuiTextEditor extends GuiQuesting
 		
         int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getDWheel());
+        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 116, sizeY))
         {

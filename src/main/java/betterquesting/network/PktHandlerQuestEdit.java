@@ -1,18 +1,16 @@
 package betterquesting.network;
 
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.designers.QDesignTree;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonObject;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
+import org.apache.logging.log4j.Level;
+import betterquesting.core.BetterQuesting;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
+import betterquesting.utils.NBTConverter;
+import com.google.gson.JsonObject;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerQuestEdit extends PktHandler
@@ -56,12 +54,6 @@ public class PktHandlerQuestEdit extends PktHandler
 			
 			if(ps != quest.preRequisites.size())
 			{
-				// TODO: Remove this later
-				for(QuestLine ql : QuestDatabase.questLines)
-				{
-					QDesignTree.instance.arrangeQuests(ql);
-				}
-				
 				QuestDatabase.UpdateClients();
 			} else
 			{
@@ -70,13 +62,6 @@ public class PktHandlerQuestEdit extends PktHandler
 		} else if(action == 1) // Delete quest
 		{
 			QuestDatabase.DeleteQuest(quest.questID);
-			
-			// TODO: Remove this later
-			for(QuestLine ql : QuestDatabase.questLines)
-			{
-				QDesignTree.instance.arrangeQuests(ql);
-			}
-			
 			QuestDatabase.UpdateClients();
 		}
 		return null;

@@ -3,6 +3,7 @@ package betterquesting.client;
 import java.io.BufferedInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.apache.logging.log4j.Level;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import betterquesting.core.BQ_Settings;
@@ -75,7 +76,7 @@ public class UpdateNotification
 		} catch(Exception e)
 		{
 			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
-			e.printStackTrace();
+			BetterQuesting.logger.log(Level.ERROR, "An error has occured while checking " + BetterQuesting.NAME + " version!", e);
 			return;
 		}
 	}

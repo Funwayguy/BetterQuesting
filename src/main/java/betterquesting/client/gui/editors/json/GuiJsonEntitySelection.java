@@ -1,6 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
-import java.util.Set;
+import java.util.Collection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -9,9 +9,11 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.core.BetterQuesting;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -61,7 +63,7 @@ public class GuiJsonEntitySelection extends GuiQuesting
 		this.buttonList.add(rightBtn);
 		
 		int i = 0;
-		for(String key : (Set<String>)EntityList.func_151515_b())
+		for(String key : (Collection<String>)EntityList.stringToClassMapping.keySet())
 		{
 			this.buttonList.add(new GuiButtonQuesting(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key));
 			i++;
@@ -113,7 +115,7 @@ public class GuiJsonEntitySelection extends GuiQuesting
 		} else if(button.id == 2)
 		{
 			int maxRows = (this.sizeY - 80)/20;
-			int maxPages = MathHelper.ceiling_float_int(EntityList.func_151515_b().size()/(float)maxRows);
+			int maxPages = MathHelper.ceiling_float_int(EntityList.stringToClassMapping.size()/(float)maxRows);
 			
 			if(scrollPos + 1 < maxPages)
 			{
@@ -122,26 +124,23 @@ public class GuiJsonEntitySelection extends GuiQuesting
 			}
 		} else if(button.id >= 3)
 		{
-			if(EntityList.stringToClassMapping.containsKey(button.displayString))
+			Entity tmpE = EntityList.createEntityByName(button.displayString, this.mc.theWorld);
+			
+			if(tmpE != null)
 			{
-				Entity tmpE = EntityList.createEntityByName(button.displayString, this.mc.theWorld);
-				
-				if(tmpE != null)
+				try
 				{
-					try
-					{
-						tmpE.readFromNBT(new NBTTagCompound()); // Solves some instantiation issues
-						tmpE.isDead = false; // Some entities instantiate dead or die when ticked
-						NBTTagCompound eTags = new NBTTagCompound();
-						tmpE.writeToNBTOptional(eTags);
-						eTags.setString("id", EntityList.getEntityString(tmpE)); // Some entities don't write this to file in certain cases
-						this.json.entrySet().clear();
-						NBTConverter.NBTtoJSON_Compound(eTags, json);
-						entity = tmpE;
-					} catch(Exception e)
-					{
-						e.printStackTrace();
-					}
+					tmpE.readFromNBT(new NBTTagCompound()); // Solves some instantiation issues
+					tmpE.isDead = false; // Some entities instantiate dead or die when ticked
+					NBTTagCompound eTags = new NBTTagCompound();
+					tmpE.writeToNBTOptional(eTags);
+					eTags.setString("id", EntityList.getEntityString(tmpE)); // Some entities don't write this to file in certain cases
+					this.json.entrySet().clear();
+					NBTConverter.NBTtoJSON_Compound(eTags, json);
+					entity = tmpE;
+				} catch(Exception e)
+				{
+					BetterQuesting.logger.log(Level.ERROR, "Failed to init selected entity", e);
 				}
 			}
 		}

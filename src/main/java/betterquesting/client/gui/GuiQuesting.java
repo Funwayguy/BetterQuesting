@@ -1,5 +1,6 @@
 package betterquesting.client.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -8,6 +9,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
@@ -19,6 +21,7 @@ public class GuiQuesting extends GuiScreen
 {
 	public static final String numRegex = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
 	
+	protected ArrayList<GuiEmbedded> embedded = new ArrayList<GuiEmbedded>();
 	protected GuiScreen parent;
 	protected String title = "Better Questing";
 	
@@ -124,6 +127,17 @@ public class GuiQuesting extends GuiScreen
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 	}
+	
+	/**
+	 * Must be called manually when the UI is ready for this layer
+	 */
+	public void drawEmbedded(int mx, int my, float partialTick)
+	{
+		for(GuiEmbedded gui : embedded)
+		{
+			gui.drawGui(mx, my, partialTick);
+		}
+	}
     
     public boolean isWithin(int mx, int my, int startX, int startY, int sizeX, int sizeY)
     {
@@ -157,5 +171,27 @@ public class GuiQuesting extends GuiScreen
 	{
 		this.drawHoveringText(list, x, y, fontRendererObj);
         GL11.glDisable(GL11.GL_LIGHTING); // Normally not enabled on Questing GUI
+	}
+	
+	@Override
+	public void handleMouseInput()
+	{
+		super.handleMouseInput();
+		
+		for(GuiEmbedded gui : embedded)
+		{
+			gui.handleMouse();
+		}
+	}
+	
+	@Override
+	protected void keyTyped(char character, int keyCode)
+	{
+		super.keyTyped(character, keyCode);
+		
+		for(GuiEmbedded gui : embedded)
+		{
+			gui.keyTyped(character, keyCode);;
+		}
 	}
 }

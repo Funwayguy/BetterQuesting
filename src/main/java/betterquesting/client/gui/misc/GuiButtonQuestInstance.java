@@ -120,7 +120,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         		lex = MathHelper.clamp_float(lex, clampMinX, clampMaxX);
         		ley = MathHelper.clamp_float(ley, clampMinY, clampMaxY);
         		
-        		if(!(lsx == lex && (lsx == clampMinX || lex == clampMaxX)) && !(lsy == ley))
+        		if(!(lsx == lex && (lsx == clampMinX || lex == clampMaxX)) && !(lsy == ley && (lsy == clampMinY || ley == clampMaxY)))
         		{
 	        		GL11.glPushMatrix();
 	        		
@@ -159,7 +159,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             		itemIcon = eItem;
             	}
             	
-            	if(cw >= width/2 && ch >= height/2 && quest.itemIcon != null)
+            	if(cw >= width * 0.66F && ch >= height * 0.66F && quest.itemIcon != null)
             	{
             		RenderUtils.RenderItemStack(mc, quest.itemIcon.getBaseStack(), xPosition + offX + 4, yPosition + offY + 4, "");
             	}

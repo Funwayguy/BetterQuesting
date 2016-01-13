@@ -1,12 +1,17 @@
 package betterquesting.client.gui;
 
+import java.awt.Color;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeBase;
 import betterquesting.client.themes.ThemeRegistry;
@@ -66,6 +71,37 @@ public class GuiThemeSelect extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(ThemeRegistry.GetAllThemes().size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
+		
+		GL11.glPushMatrix();
+		float scale = ((sizeX - 32)/2)/128F;
+		scale = Math.min(scale, (sizeY - 64)/128F);
+		
+		GL11.glScalef(scale, scale, 1F);
+		
+		int cx = (int)((guiLeft + sizeX/4 * 3)/scale);
+		int cy = (int)((guiTop + sizeY/2)/scale);
+		
+		this.drawTexturedModalRect(cx - 64, cy - 64, 0, 128, 128, 128);
+		
+		this.drawTexturedModalRect(cx - 9, cy - 24, 0, 48, 18, 18);
+		
+    	Color ci = ThemeRegistry.curTheme().getIconColor((int)(Minecraft.getSystemTime()/1000)%2 + 1, (int)(Minecraft.getSystemTime()/2000)%4, (Minecraft.getSystemTime()/8000)%2 == 0);
+    	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
+    	
+		this.drawTexturedModalRect(cx + 16, cy + 8, 0, 104, 24, 24);
+		this.drawTexturedModalRect(cx - 40, cy + 8, 24, 104, 24, 24);
+		
+    	Color cl = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int((int)(Minecraft.getSystemTime()/2000)%4, 0, 2), (Minecraft.getSystemTime()/8000)%2 == 0);
+    	RenderUtils.DrawLine(cx - 16, cy + 20, cx + 16, cy + 20, 4, cl);
+    	
+    	GL11.glColor4f(1F, 1F, 1F, 1F);
+    	
+    	String txt = ChatFormatting.BOLD + "EXAMPLE";
+    	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
+    	
+    	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");
+		
+		GL11.glPopMatrix();
 	}
 	
 	@Override
@@ -97,7 +133,7 @@ public class GuiThemeSelect extends GuiQuesting
 		
         int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getDWheel());
+        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {

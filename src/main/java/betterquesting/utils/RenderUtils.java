@@ -69,27 +69,34 @@ public class RenderUtils
 
     public static void RenderEntity(int posX, int posY, int scale, float rotation, float pitch, Entity entity)
     {
-        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-        GL11.glPushMatrix();
-        GL11.glTranslatef((float)posX, (float)posY, 100.0F);
-        GL11.glScalef((float)(scale), (float)scale, (float)scale);
-        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-        GL11.glRotatef(15F, 1F, 0F, 0F);
-        GL11.glRotatef(rotation, 0F, 1F, 0F);
-        float f3 = entity.rotationYaw;
-        float f4 = entity.rotationPitch;
-        RenderHelper.enableStandardItemLighting();
-        GL11.glTranslatef(0.0F, entity.yOffset, 0.0F);
-        RenderManager.instance.playerViewY = 180.0F;
-        RenderManager.instance.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
-        entity.rotationYaw = f3;
-        entity.rotationPitch = f4;
-        GL11.glPopMatrix();
-        RenderHelper.disableStandardItemLighting();
-        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    	try
+    	{
+	        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+	        GL11.glPushMatrix();
+	        GL11.glEnable(GL11.GL_DEPTH_TEST);
+	        GL11.glTranslatef((float)posX, (float)posY, 100.0F);
+	        GL11.glScalef((float)(scale), (float)scale, (float)scale);
+	        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+	        GL11.glRotatef(15F, 1F, 0F, 0F);
+	        GL11.glRotatef(rotation, 0F, 1F, 0F);
+	        float f3 = entity.rotationYaw;
+	        float f4 = entity.rotationPitch;
+	        RenderHelper.enableStandardItemLighting();
+	        GL11.glTranslatef(0.0F, entity.yOffset, 0.0F);
+	        RenderManager.instance.playerViewY = 180.0F;
+	        RenderManager.instance.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        entity.rotationYaw = f3;
+	        entity.rotationPitch = f4;
+	        GL11.glPopMatrix();
+	        RenderHelper.disableStandardItemLighting();
+	        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+	        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+	        GL11.glDisable(GL11.GL_TEXTURE_2D);
+	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+    	} catch(Exception e)
+    	{
+    		// Hides rendering errors with entities which are common for invalid/technical entities
+    	}
     }
 	
 	public static void DrawLine(int x1, int y1, int x2, int y2, float width, Color color)

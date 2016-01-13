@@ -18,7 +18,6 @@ public class QDesignTree extends QDesign
 	@Override
 	public void arrangeQuests(QuestLine line)
 	{
-		System.out.println("Arranging " + line.name);
 		QuestNode questTree = new QuestNode(null);
 		BuildSubTree(questTree, new ArrayList<QuestLineEntry>(line.questList));
 		
@@ -36,7 +35,7 @@ public class QDesignTree extends QDesign
 				QuestNode node = nodeList.get(j);
 				
 				node.value.posX = j * 32 - n;
-				node.value.posY = (i - 1) * 50;
+				node.value.posY = (i - 1) * 48;
 				
 				if(node.value.posX < leftSide)
 				{

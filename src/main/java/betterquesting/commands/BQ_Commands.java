@@ -74,12 +74,14 @@ public class BQ_Commands extends CommandBase
 			}
 			
 			QuestDatabase.UpdateClients();
+			sender.addChatMessage(new ChatComponentText("All questing cleared"));
 			
 		} else if(entries[0].equalsIgnoreCase("make_default")) // Save currently loaded questline as the default
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
 			JsonIO.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
+			sender.addChatMessage(new ChatComponentText("Quest database set as global default"));
 		} else
 		{
 			this.ShowUsage(sender);

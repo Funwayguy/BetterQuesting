@@ -56,6 +56,10 @@ public class JsonIO
 		{
 			if(!file.exists())
 			{
+				if(file.getParentFile() != null)
+				{
+					file.getParentFile().mkdirs();
+				}
 				file.createNewFile();
 			}
 			

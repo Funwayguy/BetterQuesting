@@ -203,7 +203,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		
         int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getDWheel());
+        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
@@ -223,11 +223,9 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		JsonObject json = new JsonObject();
 		quest.writeToJSON(json);
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 	}
 	

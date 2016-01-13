@@ -28,6 +28,8 @@ public class GuiQuestLinesMain extends GuiQuesting
 	GuiQuestLinesEmbedded qlGui;
 	GuiScrollingText qlDesc;
 	
+	// TODO: Embed context menu for moving quest lines
+	
 	public GuiQuestLinesMain(GuiScreen parent)
 	{
 		super(parent, I18n.format("betterquesting.title.quest_lines"));
@@ -54,8 +56,19 @@ public class GuiQuestLinesMain extends GuiQuesting
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
+		GuiQuestLinesEmbedded oldGui = qlGui;
 		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
 		qlDesc = new GuiScrollingText(this, sizeX - (32 + 150 + 8), 48, guiTop + 32 + sizeY - 64 - 32, guiLeft + 174);
+		
+		if(oldGui != null) // Preserve old settings
+		{
+			qlGui.zoom = oldGui.zoom;
+			qlGui.scrollX = oldGui.scrollX;
+			qlGui.scrollY = oldGui.scrollY;
+			qlGui.toolType = oldGui.toolType;
+			qlGui.dragSnap = oldGui.dragSnap;
+			qlGui.refreshToolButtons();
+		}
 		
 		boolean reset = true;
 		
@@ -65,26 +78,24 @@ public class GuiQuestLinesMain extends GuiQuesting
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
 			btnLine.enabled = line.questList.size() <= 0 || QuestDatabase.editMode;
 			
-			if(selected != null && selected.line == line)
+			if(selected != null && selected.line.name.equals(line.name))
 			{
 				reset = false;
 				selected = btnLine;
 			}
 			
-			for(GuiButtonQuestInstance btnQuest : btnLine.buttonTree)
+			if(!btnLine.enabled)
 			{
-				btnQuest.SetClampingBounds(this.guiLeft + 174, this.guiTop + 32, this.sizeX - (32 + 150 + 8), this.sizeY - 64 - 32);
-				btnQuest.xPosition += this.guiLeft + 174 + (this.sizeX - (32 + 150 + 8))/2 - btnLine.treeW/2;
-				btnQuest.yPosition += this.guiTop + 32 + (this.sizeY - 64 - 32)/2 - btnLine.treeH/2;
-				
 				for(GuiButtonQuestInstance p : btnLine.buttonTree)
 				{
 					if(p.quest.isUnlocked(mc.thePlayer.getUniqueID()) && (selected == null || selected.line != line))
 					{
 						btnLine.enabled = true;
+						break;
 					}
 				}
 			}
+			
 			buttonList.add(btnLine);
 			qlBtns.add(btnLine);
 			i += 20;
@@ -139,13 +150,9 @@ public class GuiQuestLinesMain extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
 	}
 	
-	boolean flag = false;
-	
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		flag = true;
-		
 		super.actionPerformed(button);
 		
 		if(button.id == 1)
@@ -174,21 +181,16 @@ public class GuiQuestLinesMain extends GuiQuesting
 	@Override
     protected void mouseClicked(int mx, int my, int type)
     {
-		flag = false;
-		
 		super.mouseClicked(mx, my, type);
 		
-		if(!flag && selected != null && type == 0)
+		if(qlGui != null && type == 0)
 		{
-			for(GuiButtonQuestInstance btnQuest : selected.buttonTree)
+			GuiButtonQuestInstance qBtn = qlGui.getClickedQuest(mx, my);
+			
+			if(qBtn != null)
 			{
-				if(btnQuest.mousePressed(mc, mx, my))
-				{
-					flag = true;
-					btnQuest.func_146113_a(this.mc.getSoundHandler());
-					mc.displayGuiScreen(new GuiQuestInstance(this, btnQuest.quest));
-					break;
-				}
+				qBtn.func_146113_a(this.mc.getSoundHandler());
+				mc.displayGuiScreen(new GuiQuestInstance(this, qBtn.quest));
 			}
 		}
     }
@@ -200,7 +202,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 		
         int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getDWheel());
+        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 166, sizeY))
         {
