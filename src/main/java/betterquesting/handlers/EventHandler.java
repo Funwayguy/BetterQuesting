@@ -135,7 +135,7 @@ public class EventHandler
 			j1 = JsonIO.ReadFromFile(f1);
 		} else
 		{
-			f1 = server.getFile(BQ_Settings.defaultDir + "DefaultQuests.json");
+			f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 			
 			if(f1.exists())
 			{

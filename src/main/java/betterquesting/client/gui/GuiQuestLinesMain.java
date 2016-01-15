@@ -73,8 +73,9 @@ public class GuiQuestLinesMain extends GuiQuesting
 		boolean reset = true;
 		
 		int i = 0;
-		for(QuestLine line : QuestDatabase.questLines)
+		for(int j = QuestDatabase.questLines.size() - 1; j >= 0; j--)
 		{
+			QuestLine line = QuestDatabase.questLines.get(j);
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
 			btnLine.enabled = line.questList.size() <= 0 || QuestDatabase.editMode;
 			

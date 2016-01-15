@@ -75,7 +75,7 @@ public class RenderUtils
 	        GL11.glPushMatrix();
 	        GL11.glEnable(GL11.GL_DEPTH_TEST);
 	        GL11.glTranslatef((float)posX, (float)posY, 100.0F);
-	        GL11.glScalef((float)(scale), (float)scale, (float)scale);
+	        GL11.glScalef((float)(-scale), (float)scale, (float)scale);
 	        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
 	        GL11.glRotatef(15F, 1F, 0F, 0F);
 	        GL11.glRotatef(rotation, 0F, 1F, 0F);

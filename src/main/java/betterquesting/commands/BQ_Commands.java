@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
+import betterquesting.core.BQ_Settings;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.JsonIO;
@@ -23,7 +25,7 @@ public class BQ_Commands extends CommandBase
 	@Override
 	public String getCommandUsage(ICommandSender sender)
 	{
-		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default";
+		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default, /bq load_default";
 	}
 
     /**
@@ -35,7 +37,7 @@ public class BQ_Commands extends CommandBase
     {
 		if(strings.length == 1)
 		{
-        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default"});
+        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default", "load_default"});
 		}
 		
 		return new ArrayList<String>();
@@ -52,8 +54,7 @@ public class BQ_Commands extends CommandBase
 	{
 		if(entries.length != 1)
 		{
-			this.ShowUsage(sender);
-			return;
+			throw new WrongUsageException(this.getCommandUsage(sender));
 		}
 		
 		if(entries[0].equalsIgnoreCase("edit")) // Missed a spot?
@@ -68,7 +69,7 @@ public class BQ_Commands extends CommandBase
 			sender.addChatMessage(new ChatComponentText("Hardcore mode " + (QuestDatabase.bqHardcore? "enabled" : "disabled")));
 		} else if(entries[0].equalsIgnoreCase("reset_all")) // Recommended command before publishing
 		{
-			for(QuestInstance quest : QuestDatabase.questDB.values())
+			for(QuestInstance quest : new ArrayList<QuestInstance>(QuestDatabase.questDB.values()))
 			{
 				quest.ResetQuest();
 			}
@@ -82,9 +83,23 @@ public class BQ_Commands extends CommandBase
 			QuestDatabase.writeToJson(jsonQ);
 			JsonIO.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
 			sender.addChatMessage(new ChatComponentText("Quest database set as global default"));
+		} else if(entries[0].equalsIgnoreCase("load_default"))
+		{
+	    	File f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+			JsonObject j1 = new JsonObject();
+			
+			if(f1.exists())
+			{
+				j1 = JsonIO.ReadFromFile(f1);
+				QuestDatabase.readFromJson(j1);
+				sender.addChatMessage(new ChatComponentText("Reloaded default quest database"));
+			} else
+			{
+				sender.addChatMessage(new ChatComponentText("No default currently set"));
+			}
 		} else
 		{
-			this.ShowUsage(sender);
+			throw new WrongUsageException(this.getCommandUsage(sender));
 		}
 	}
 	
