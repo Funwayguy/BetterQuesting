@@ -1,5 +1,6 @@
 package betterquesting.utils;
 
+import java.util.ArrayList;
 import java.util.Set;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -67,7 +68,7 @@ public class ItemComparison
     	
     	if(tag1 instanceof NBTTagCompound)
     	{
-    		return CompareNBTTagCompound((NBTTagCompound)tag1, (NBTTagCompound)tag2);
+    		return CompareNBTTagCompound((NBTTagCompound)tag1, (NBTTagCompound)tag2, partial);
     	} else if(tag1 instanceof NBTTagList)
     	{
     		NBTTagList list1 = (NBTTagList)tag1;
@@ -128,13 +129,19 @@ public class ItemComparison
     			return false; // Sample is missing requested tags
     		}
     		
+    		ArrayList<Integer> usedIdxs = new ArrayList<Integer>(); // Duplicate control
+    		
     		topLoop:
     		for(int i = 0; i < list1.func_150292_c().length; i++)
     		{
     			for(int j = 0; j < list2.func_150292_c().length; j++)
     			{
-    				if(list1.func_150292_c()[i] == list2.func_150292_c()[j])
+    				if(usedIdxs.contains(j))
     				{
+    					continue;
+    				} else if(list1.func_150292_c()[i] == list2.func_150292_c()[j])
+    				{
+    					usedIdxs.add(j);
     					continue topLoop;
     				}
     			}
@@ -145,18 +152,22 @@ public class ItemComparison
     		return false;
     	} else
     	{
-    		return false;
+    		return tag1.equals(tag2);
     	}
     	
     	return true;
     }
     
     @SuppressWarnings("unchecked")
-	private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample)
+	private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample, boolean partial)
     {
     	for(String key : (Set<String>)reqTags.func_150296_c())
     	{
-    		if(!sample.hasKey(key) || !CompareNBTTag(reqTags.getTag(key), sample.getTag(key), true))
+    		if(!sample.hasKey(key))
+    		{
+    			System.out.println("Missing necessary key: " + key);
+    			return false;
+    		} else if(!CompareNBTTag(reqTags.getTag(key), sample.getTag(key), partial))
     		{
     			return false;
     		}

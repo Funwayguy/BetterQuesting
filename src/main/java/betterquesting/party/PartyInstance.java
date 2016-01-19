@@ -161,7 +161,7 @@ public class PartyInstance
 		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
 		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();
 		
-		members.clear();
+		members = new ArrayList<PartyMember>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
 		{
 			if(entry == null || !entry.isJsonObject())

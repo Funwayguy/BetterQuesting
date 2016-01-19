@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors.json;
 
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -12,8 +11,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonJson;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
@@ -102,15 +102,15 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			}
 		}
 
-		GuiButtonJson editButton = new GuiButtonJson(3, this.width/2 - 100, this.height/2 - 40, 200, 20, json); // JSON Editor
-		GuiButtonJson itemButton = new GuiButtonJson(1, this.width/2 - 100, this.height/2 - 20, 200, 20, json); // Item Selector
-		GuiButtonJson fluidButton = new GuiButtonJson(4, this.width/2 - 100, this.height/2 + 00, 200, 20, json); // Fluid Editor
-		GuiButtonJson entityButton = new GuiButtonJson(2, this.width/2 - 100, this.height/2 + 20, 200, 20, json); // Entity Selector
+		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt")); // JSON Editor
+		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item")); // Item Selector
+		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid")); // Fluid Editor
+		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity")); // Entity Selector
 		
-		itemButton.displayString = I18n.format("betterquesting.btn.item");
-		entityButton.displayString = I18n.format("betterquesting.btn.entity");
-		editButton.displayString = I18n.format("betterquesting.btn.raw_nbt");
-		fluidButton.displayString = I18n.format("betterquesting.btn.fluid");
+		//itemButton.displayString = I18n.format("betterquesting.btn.item");
+		//entityButton.displayString = I18n.format("betterquesting.btn.entity");
+		//editButton.displayString = I18n.format("betterquesting.btn.raw_nbt");
+		//fluidButton.displayString = I18n.format("betterquesting.btn.fluid");
 		
 		this.buttonList.add(itemButton);
 		this.buttonList.add(entityButton);

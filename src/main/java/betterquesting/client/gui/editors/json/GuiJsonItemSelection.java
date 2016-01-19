@@ -62,7 +62,13 @@ public class GuiJsonItemSelection extends GuiQuesting
 			
 			if(item != null)
 			{
-				item.getSubItems(item, CreativeTabs.tabAllSearch, searchResults);
+				try
+				{
+					item.getSubItems(item, CreativeTabs.tabAllSearch, searchResults);
+				} catch(Exception e)
+				{
+					searchResults.add(new ItemStack(item));
+				}
 			}
 		}
 		
@@ -305,7 +311,13 @@ public class GuiJsonItemSelection extends GuiQuesting
 					}
 				} else
 				{
-					baseItem.getSubItems(baseItem, CreativeTabs.tabAllSearch, subList);
+					try
+					{
+						baseItem.getSubItems(baseItem, CreativeTabs.tabAllSearch, subList);
+					} catch(Exception e)
+					{
+						subList.add(new ItemStack(baseItem));
+					}
 				}
 				
 				if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.itemRegistry.getNameForObject(baseItem).toLowerCase().contains(searchTxt))

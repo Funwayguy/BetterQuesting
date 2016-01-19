@@ -96,7 +96,7 @@ public abstract class TaskBase
 	
 	public void readFromJson(JsonObject json)
 	{
-		completeUsers.clear();
+		completeUsers = new ArrayList<UUID>();
 		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
 		{
 			if(entry == null || !entry.isJsonPrimitive())

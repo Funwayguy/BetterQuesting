@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonJson;
@@ -116,6 +117,9 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
+        int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
+        int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
+        
 		if(button.id == 0)
 		{
 			this.mc.displayGuiScreen(parent);
@@ -156,13 +160,17 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 					this.buttonList.remove(controls.addButton);
 					this.buttonList.remove(controls.removeButton);
 					editables.remove(key);
-					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
 				{
 					GuiButtonJson jsonButton = (GuiButtonJson)button;
 					JsonElement element = jsonButton.json;
 					
-					if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
+					GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
+					
+					if(jGui != null)
+					{
+						this.mc.displayGuiScreen(jGui);
+					} else if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
 					{
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())
@@ -181,8 +189,9 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 							jsonButton.json = jBool;
 						}
 					}
-					break;
 				}
+				
+				break;
 			}
 		}
 	}

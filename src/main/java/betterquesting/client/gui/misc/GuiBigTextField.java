@@ -1,5 +1,6 @@
 package betterquesting.client.gui.misc;
 
+import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.GuiTextEditor;
 import betterquesting.utils.RenderUtils;
@@ -21,7 +22,6 @@ public class GuiBigTextField extends GuiTextField
 	
 	public GuiBigTextField enableBigEdit(ITextEditor host, int id)
 	{
-		this.width -= 20;
 		this.host = host;
 		this.hostID = id;
 		return this;
@@ -33,11 +33,16 @@ public class GuiBigTextField extends GuiTextField
 	@Override
     public void mouseClicked(int mx, int my, int p_146192_3_)
     {
-        if(host != null && mx >= xPosition + width && mx < xPosition + width + 20 && my >= yPosition && my < yPosition + height)
+        if(host != null && mx >= xPosition + width - 20 && mx < xPosition + width && my >= yPosition && my < yPosition + height)
         {
         	editor = new GuiTextEditor(Minecraft.getMinecraft().currentScreen, getText()).setHost(host, hostID);
         	Minecraft.getMinecraft().displayGuiScreen(editor);
         	return;
+        } else if(host != null)
+        {
+        	width -= 20;
+        	super.mouseClicked(mx, my, p_146192_3_);
+        	width += 20;
         } else
         {
         	super.mouseClicked(mx, my, p_146192_3_);
@@ -51,9 +56,20 @@ public class GuiBigTextField extends GuiTextField
 		
 		if(mc.currentScreen instanceof GuiQuesting && host != null)
 		{
-			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width + 1, yPosition - 1, 20, height + 2, EnumChatFormatting.BOLD + "A" + EnumChatFormatting.RESET + "a", 1);
+	        int i = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
+	        int j = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
+	        int bs = ((GuiQuesting)mc.currentScreen).isWithin(i, j, xPosition + width - 19, yPosition - 1, 20, height + 2, false)? 2 : 1;
+			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width - 19, yPosition - 1, 20, height + 2, EnumChatFormatting.BOLD + "A" + EnumChatFormatting.RESET + "a", bs);
 		}
 		
-		super.drawTextBox();
+		if(host != null)
+		{
+			width -= 20;
+			super.drawTextBox();
+			width += 20;
+		} else
+		{
+			super.drawTextBox();
+		}
 	}
 }

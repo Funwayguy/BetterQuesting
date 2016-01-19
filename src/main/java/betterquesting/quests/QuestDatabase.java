@@ -33,8 +33,8 @@ public class QuestDatabase
 	 * Turns on the hardcore life system
 	 */
 	public static boolean bqHardcore = false;
-	public static HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
-	public static ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
+	public static volatile HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
+	public static volatile ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
 	
 	/**
 	 * @return the next free ID within the quest database
@@ -53,10 +53,7 @@ public class QuestDatabase
 	
 	public static void UpdateTasks(EntityPlayer player)
 	{
-		// Prevents concurrent modification crash when network packets are being parsed
-		ArrayList<QuestInstance> updateList = new ArrayList<QuestInstance>(questDB.values());
-		
-		for(QuestInstance quest : updateList)
+		for(QuestInstance quest : new ArrayList<QuestInstance>(questDB.values()))
 		{
 			quest.Update(player);
 		}
@@ -207,7 +204,7 @@ public class QuestDatabase
 	public static void readFromJson_Lines(JsonObject json)
 	{
 		updateUI = true;
-		questLines.clear();
+		questLines = new ArrayList<QuestLine>();
 		for(JsonElement entry : JsonHelper.GetArray(json, "questLines"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -246,7 +243,7 @@ public class QuestDatabase
 		editMode = JsonHelper.GetBoolean(json, "editMode", true);
 		bqHardcore = JsonHelper.GetBoolean(json, "hardcore", false);
 		updateUI = true;
-		questDB.clear();
+		questDB = new HashMap<Integer, QuestInstance>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "questDatabase"))
 		{

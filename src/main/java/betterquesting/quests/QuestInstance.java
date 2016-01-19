@@ -378,7 +378,7 @@ public class QuestInstance
 	 */
 	public void ResetQuest()
 	{
-		this.completeUsers.clear();
+		this.completeUsers = new ArrayList<UserEntry>();
 		
 		for(TaskBase t : tasks)
 		{
@@ -522,7 +522,7 @@ public class QuestInstance
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
 		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
 		
-		this.tasks.clear();
+		this.tasks = new ArrayList<TaskBase>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -540,7 +540,7 @@ public class QuestInstance
 			}
 		}
 		
-		this.rewards.clear();
+		this.rewards = new ArrayList<RewardBase>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "rewards"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -558,7 +558,7 @@ public class QuestInstance
 			}
 		}
 		
-		completeUsers.clear();
+		completeUsers = new ArrayList<UserEntry>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "completed"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -578,7 +578,7 @@ public class QuestInstance
 			}
 		}
 		
-		preRequisites.clear();
+		preRequisites = new ArrayList<QuestInstance>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
 		{
 			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())

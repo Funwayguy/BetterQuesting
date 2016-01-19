@@ -6,7 +6,6 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -130,12 +129,6 @@ public class JsonControlSet
 			textField.xPosition = posX + 1;
 			textField.yPosition = posY + 1;
 			textField.width = Math.min(396, sizeX - ctrlSpace) - 2;
-			
-			if(textField instanceof GuiBigTextField)
-			{
-				textField.width -= 20;
-			}
-			
 			textField.height = 18;
 			textField.drawTextBox();
 		} else if(this.jsonDisplay instanceof GuiButton)

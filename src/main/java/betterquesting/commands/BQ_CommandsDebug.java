@@ -2,23 +2,21 @@ package betterquesting.commands;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import betterquesting.core.BetterQuesting;
 
-public class BQ_CommandsHelp extends CommandBase
+public class BQ_CommandsDebug extends CommandBase
 {
+	// Used purely for testing stuffs
 	
 	@Override
 	public String getCommandName()
 	{
-		return "bq_help";
+		return "bq_debug";
 	}
 	
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_)
 	{
-		return "/bq_help";
+		return "/bq_debug";
 	}
 
     /**
@@ -32,9 +30,5 @@ public class BQ_CommandsHelp extends CommandBase
 	@Override
 	public void processCommand(ICommandSender sender, String[] args)
 	{
-		if(sender instanceof EntityPlayer)
-		{
-			((EntityPlayer)sender).inventory.addItemStackToInventory(new ItemStack(BetterQuesting.guideBook));
-		}
 	}
 }

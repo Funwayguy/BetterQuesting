@@ -63,7 +63,7 @@ public class QuestLine
 		
 		//boolean remap = false;
 		
-		questList.clear();
+		questList = new ArrayList<QuestLineEntry>();
 		for(JsonElement entry : JsonHelper.GetArray(json, "quests"))
 		{
 			if(entry == null)

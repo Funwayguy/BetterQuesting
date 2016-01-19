@@ -261,7 +261,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			dragSnap = (dragSnap + 1)%snaps.length;
 			btnSnp.displayString = I18n.format("betterquesting.tool.snap", dragSnap + 1);
 			btnSnp.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
-		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my))
+		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my) && qLine != null)
 		{
 			QDesignTree.instance.arrangeQuests(qLine);
 			

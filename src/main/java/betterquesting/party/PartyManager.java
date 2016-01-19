@@ -212,7 +212,7 @@ public class PartyManager
 		}
 		
 		updateUI = true;
-		partyList.clear();
+		partyList = new HashMap<String, PartyInstance>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "partyList"))
 		{
@@ -234,7 +234,7 @@ public class PartyManager
 			partyList.put(party.name, party);
 		}
 		
-		nameCache.clear();
+		nameCache = new HashMap<UUID, String>();
 		
 		for(Entry<String,JsonElement> entry : JsonHelper.GetObject(json, "nameCache").entrySet())
 		{

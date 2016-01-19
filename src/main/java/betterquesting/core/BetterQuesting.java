@@ -118,6 +118,6 @@ public class BetterQuesting
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
 		manager.registerCommand(new BQ_Commands());
-		//manager.registerCommand(new BQ_CommandsHelp());
+		//manager.registerCommand(new BQ_CommandsDebug());
 	}
 }
