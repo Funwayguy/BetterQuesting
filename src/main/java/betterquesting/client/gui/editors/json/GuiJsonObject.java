@@ -160,6 +160,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 					this.buttonList.remove(controls.addButton);
 					this.buttonList.remove(controls.removeButton);
 					editables.remove(key);
+					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
 				{
 					GuiButtonJson jsonButton = (GuiButtonJson)button;
@@ -189,9 +190,8 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 							jsonButton.json = jBool;
 						}
 					}
+					break;
 				}
-				
-				break;
 			}
 		}
 	}
