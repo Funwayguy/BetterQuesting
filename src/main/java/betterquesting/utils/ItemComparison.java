@@ -175,9 +175,9 @@ public class ItemComparison
     	return true;
     }
     
-    public static boolean OreDictionaryMatch(ItemStack stack, String name)
+    public static boolean OreDictionaryMatch(String name, ItemStack stack)
     {
-    	return OreDictionaryMatch(stack, name, new NBTTagCompound(), false, false);
+    	return OreDictionaryMatch(name, new NBTTagCompound(), stack, false, false);
     }
     
     /**
@@ -186,14 +186,14 @@ public class ItemComparison
      * @param name
      * @return
      */
-    public static boolean OreDictionaryMatch(ItemStack stack, String name, NBTTagCompound tags, boolean nbtCheck, boolean partialNBT)
+    public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
     {
     	for(ItemStack oreStack : OreDictionary.getOres(name))
     	{
     		ItemStack tmp = oreStack.copy();
     		tmp.setTagCompound(tags);
     		
-    		if(StackMatch(stack, tmp, nbtCheck, partialNBT))
+    		if(StackMatch(tmp, stack, nbtCheck, partialNBT))
     		{
     			return true;
     		}
@@ -217,7 +217,7 @@ public class ItemComparison
     	
     	for(int id : OreDictionary.getOreIDs(stack1)) // Search all ore dictionary listings for matches
     	{
-    		if(OreDictionaryMatch(stack2, OreDictionary.getOreName(id)))
+    		if(OreDictionaryMatch(OreDictionary.getOreName(id), stack2))
     		{
     			return true;
     		}

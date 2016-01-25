@@ -285,6 +285,11 @@ public class QuestInstance
 		int A = 0;
 		int B = preRequisites.size();
 		
+		if(B <= 0)
+		{
+			return true;
+		}
+		
 		for(QuestInstance quest : preRequisites)
 		{
 			if(quest != null && quest.isComplete(uuid))
