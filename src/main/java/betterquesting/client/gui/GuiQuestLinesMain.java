@@ -139,13 +139,17 @@ public class GuiQuestLinesMain extends GuiQuesting
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
 		
-		GL11.glColor4f(1F, 1F, 1F, 1f);
 		
 		if(qlGui != null && qlDesc != null)
 		{
+			GL11.glPushMatrix();
+			GL11.glColor4f(1F, 1F, 1F, 1f);
 			qlDesc.drawScreen(mx, my, partialTick);
+			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
+			GL11.glColor4f(1F, 1F, 1F, 1f);
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
 			qlGui.drawGui(mx, my, partialTick);
 			GL11.glPopMatrix();
 		}

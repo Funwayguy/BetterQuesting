@@ -101,6 +101,11 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         	
         	for(GuiButtonQuestInstance p : parents)
         	{
+        		if(!p.visible)
+        		{
+        			continue;
+        		}
+        		
         		float lsx = p.offX + p.xPosition + p.width/2F;
         		float lsy = p.offY + p.yPosition + p.height/2F;
         		float lex = offX + xPosition + width/2F;
