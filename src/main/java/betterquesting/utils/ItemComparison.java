@@ -16,7 +16,7 @@ import net.minecraftforge.oredict.OreDictionary;
 public class ItemComparison
 {
     /**
-     * Check whether two stacks match with optional NBT checks
+     * Check whether two stacks match with optional NBT and Ore Dictionary checks
      * @param stack1
      * @param stack2
      * @return
@@ -165,7 +165,6 @@ public class ItemComparison
     	{
     		if(!sample.hasKey(key))
     		{
-    			System.out.println("Missing necessary key: " + key);
     			return false;
     		} else if(!CompareNBTTag(reqTags.getTag(key), sample.getTag(key), partial))
     		{
@@ -176,17 +175,25 @@ public class ItemComparison
     	return true;
     }
     
+    public static boolean OreDictionaryMatch(ItemStack stack, String name)
+    {
+    	return OreDictionaryMatch(stack, name, new NBTTagCompound(), false, false);
+    }
+    
     /**
      * Check if the item stack is part of the ore dictionary listing with the given name (NBT ignored)
      * @param stack
      * @param name
      * @return
      */
-    public static boolean OreDictionaryMatch(ItemStack stack, String name)
+    public static boolean OreDictionaryMatch(ItemStack stack, String name, NBTTagCompound tags, boolean nbtCheck, boolean partialNBT)
     {
     	for(ItemStack oreStack : OreDictionary.getOres(name))
     	{
-    		if(StackMatch(stack, oreStack, false, false))
+    		ItemStack tmp = oreStack.copy();
+    		tmp.setTagCompound(tags);
+    		
+    		if(StackMatch(stack, tmp, nbtCheck, partialNBT))
     		{
     			return true;
     		}

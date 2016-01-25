@@ -13,7 +13,8 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class BigItemStack
 {
-	public int stackSize = 0; 
+	public int stackSize = 0;
+	public String oreDict = "";
 	ItemStack baseStack = new ItemStack(Blocks.stone); // Ensures that this base stack is never null
 	
 	public BigItemStack(ItemStack stack)
@@ -128,15 +129,18 @@ public class BigItemStack
 	public static BigItemStack loadItemStackFromNBT(NBTTagCompound tags)
 	{
 		int count = tags.getInteger("Count");
+		String dict = tags.getString("OreDict");
 		ItemStack miniStack = ItemStack.loadItemStackFromNBT(tags);
 		BigItemStack bigStack = new BigItemStack(miniStack);
 		bigStack.stackSize = count;
+		bigStack.oreDict = dict;
 		return bigStack;
 	}
 	
 	public void readFromNBT(NBTTagCompound tags)
 	{
 		stackSize = tags.getInteger("Count");
+		oreDict = tags.getString("OreDict");
 		baseStack.readFromNBT(tags);
 	}
 	
@@ -144,6 +148,7 @@ public class BigItemStack
 	{
 		baseStack.writeToNBT(tags);
 		tags.setInteger("Count", stackSize);
+		tags.setString("OreDict", oreDict);
 		return tags;
 	}
 }

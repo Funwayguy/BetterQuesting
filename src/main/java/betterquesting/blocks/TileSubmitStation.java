@@ -47,7 +47,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		QuestInstance q = getQuest();
 		
-		if(q == null || taskID < 0 || taskID > q.tasks.size())
+		if(q == null || taskID < 0 || taskID >= q.tasks.size())
 		{
 			return null;
 		} else

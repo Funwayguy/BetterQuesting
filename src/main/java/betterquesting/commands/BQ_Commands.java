@@ -2,6 +2,7 @@ package betterquesting.commands;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -11,6 +12,7 @@ import net.minecraft.util.ChatComponentText;
 import betterquesting.core.BQ_Settings;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestLine;
 import betterquesting.utils.JsonIO;
 import com.google.gson.JsonObject;
 
@@ -25,7 +27,7 @@ public class BQ_Commands extends CommandBase
 	@Override
 	public String getCommandUsage(ICommandSender sender)
 	{
-		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default, /bq load_default";
+		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default, /bq load_default, /bq delete_all";
 	}
 
     /**
@@ -37,7 +39,7 @@ public class BQ_Commands extends CommandBase
     {
 		if(strings.length == 1)
 		{
-        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default", "load_default"});
+        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default", "load_default", "delete_all"});
 		}
 		
 		return new ArrayList<String>();
@@ -97,6 +99,11 @@ public class BQ_Commands extends CommandBase
 			{
 				sender.addChatMessage(new ChatComponentText("No default currently set"));
 			}
+		} else if(entries[0].equalsIgnoreCase("delete_all"))
+		{
+			QuestDatabase.questDB = new HashMap<Integer,QuestInstance>();
+			QuestDatabase.questLines = new ArrayList<QuestLine>();
+			QuestDatabase.UpdateClients();
 		} else
 		{
 			throw new WrongUsageException(this.getCommandUsage(sender));
