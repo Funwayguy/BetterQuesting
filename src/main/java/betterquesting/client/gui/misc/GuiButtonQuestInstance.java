@@ -58,12 +58,15 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 		{
 			boolean flag = true;
 			
-			for(GuiButtonQuestInstance p : parents)
+			if(!quest.isComplete(mc.thePlayer.getUniqueID()))
 			{
-				if(!p.quest.isUnlocked(mc.thePlayer.getUniqueID()))
+				for(GuiButtonQuestInstance p : parents)
 				{
-					flag = false;
-					break;
+					if(!p.quest.isUnlocked(mc.thePlayer.getUniqueID()))
+					{
+						flag = false;
+						break;
+					}
 				}
 			}
 			

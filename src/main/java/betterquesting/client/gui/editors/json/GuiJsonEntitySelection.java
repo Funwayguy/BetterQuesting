@@ -1,6 +1,8 @@
 package betterquesting.client.gui.editors.json;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -63,7 +65,12 @@ public class GuiJsonEntitySelection extends GuiQuesting
 		this.buttonList.add(rightBtn);
 		
 		int i = 0;
-		for(String key : (Collection<String>)EntityList.stringToClassMapping.keySet())
+		
+		ArrayList<String> sortedNames = new ArrayList<String>((Collection<String>)EntityList.stringToClassMapping.keySet());
+		
+		Collections.sort(sortedNames);
+		
+		for(String key : sortedNames)
 		{
 			this.buttonList.add(new GuiButtonQuesting(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key));
 			i++;

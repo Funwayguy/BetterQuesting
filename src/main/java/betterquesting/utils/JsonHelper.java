@@ -128,6 +128,7 @@ public class JsonHelper
 		
 		JsonPrimitive jID = json.get("id").getAsJsonPrimitive();
 		int count = JsonHelper.GetNumber(json, "Count", 1).intValue();
+		String oreDict = JsonHelper.GetString(json, "OreDict", "");
 		int damage = JsonHelper.GetNumber(json, "Damage", 0).intValue();
 		
 		Item item;
@@ -150,6 +151,7 @@ public class JsonHelper
 		{
 			BetterQuesting.logger.log(Level.WARN, "Unable to locate item " + jID.toString() + ". This has been converter to a placeholder to prevent data loss");
 			BigItemStack stack = new BigItemStack(BetterQuesting.placeholder, count, damage);
+			stack.oreDict = oreDict;
 			stack.SetTagCompound(new NBTTagCompound());
 			stack.GetTagCompound().setString("orig_id", jID.getAsString());
 			if(tags != null)
@@ -166,6 +168,7 @@ public class JsonHelper
 				if(restored != null)
 				{
 					BigItemStack stack = new BigItemStack(restored, count, damage);
+					stack.oreDict = oreDict;
 					
 					if(tags.hasKey("orig_tag"))
 					{
@@ -178,6 +181,7 @@ public class JsonHelper
 		}
 		
 		BigItemStack stack = new BigItemStack(item, count, damage);
+		stack.oreDict = oreDict;
 		
 		if(tags != null)
 		{
@@ -194,6 +198,7 @@ public class JsonHelper
 	{
 		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()));
 		json.addProperty("Count", stack.stackSize);
+		json.addProperty("OreDict", stack.oreDict);
 		json.addProperty("Damage", stack.getBaseStack().getItemDamage());
 		if(stack.HasTagCompound())
 		{
