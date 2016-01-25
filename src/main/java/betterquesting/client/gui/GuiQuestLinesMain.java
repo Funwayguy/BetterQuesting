@@ -89,7 +89,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			{
 				for(GuiButtonQuestInstance p : btnLine.buttonTree)
 				{
-					if(p.quest.isUnlocked(mc.thePlayer.getUniqueID()) && (selected == null || selected.line != line))
+					if((p.quest.isComplete(mc.thePlayer.getUniqueID()) || p.quest.isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.line != line))
 					{
 						btnLine.enabled = true;
 						break;
@@ -125,17 +125,6 @@ public class GuiQuestLinesMain extends GuiQuesting
 			this.initGui();
 		}
 		
-		GL11.glColor4f(1F, 1F, 1F, 1f);
-		
-		if(qlGui != null && qlDesc != null)
-		{
-			GL11.glPushMatrix();
-			qlGui.drawGui(mx, my, partialTick);
-			GL11.glPopMatrix();
-			
-			qlDesc.drawScreen(mx, my, partialTick);
-		}
-		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
@@ -149,6 +138,17 @@ public class GuiQuestLinesMain extends GuiQuesting
 		}
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
+		
+		GL11.glColor4f(1F, 1F, 1F, 1f);
+		
+		if(qlGui != null && qlDesc != null)
+		{
+			qlDesc.drawScreen(mx, my, partialTick);
+			
+			GL11.glPushMatrix();
+			qlGui.drawGui(mx, my, partialTick);
+			GL11.glPopMatrix();
+		}
 	}
 	
 	@Override

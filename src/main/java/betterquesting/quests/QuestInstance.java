@@ -44,6 +44,7 @@ public class QuestInstance
 	
 	public QuestLogic logic = QuestLogic.AND;
 	public boolean globalQuest = false;
+	public boolean globalShare = true;
 	public boolean autoClaim = false;
 	public int repeatTime = -1;
 	
@@ -197,6 +198,19 @@ public class QuestInstance
 			return true;
 		}
 		
+		if(globalQuest && !globalShare)
+		{
+			for(UserEntry entry : completeUsers)
+			{
+				if(entry.claimed)
+				{
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
 		UserEntry entry = GetUserEntry(uuid);
 		
 		if(entry == null)
@@ -211,7 +225,7 @@ public class QuestInstance
 	{
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		
-		if(entry == null || entry.claimed || rewards.size() <= 0)
+		if(entry == null || HasClaimed(player.getUniqueID()))
 		{
 			return false;
 		} else
@@ -452,6 +466,7 @@ public class QuestInstance
 		jObj.addProperty("isMain", isMain);
 		jObj.addProperty("isSlient", isSilent);
 		jObj.addProperty("globalQuest", globalQuest);
+		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
 		jObj.addProperty("repeatTime", repeatTime);
 		jObj.addProperty("logic", logic.toString());
@@ -514,6 +529,7 @@ public class QuestInstance
 		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
 		this.isSilent = JsonHelper.GetBoolean(jObj, "isSilent", false);
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
+		this.globalShare = JsonHelper.GetBoolean(jObj, "globalShare", true);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
 		try

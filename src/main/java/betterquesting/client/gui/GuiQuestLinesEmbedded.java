@@ -137,7 +137,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 				btnQuest.SetScrollOffset(scrollX, scrollY);
 				btnQuest.drawButton(mc, rmx, rmy);
 				
-				if(btnQuest.visible && btnQuest != dragging && screen.isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height, false))
+				if(btnQuest.visible && btnQuest != dragging && screen.isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height, false) && screen.isWithin(mx, my, posX, posY, sx2, sizeY, false))
 				{
 					qTooltip = btnQuest.quest;
 				}
