@@ -15,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -244,6 +245,14 @@ public class GuiJsonItemSelection extends GuiQuesting
 				if(invoStack != null)
 				{
 					this.stackSelect = new BigItemStack(invoStack.copy());
+					
+					int[] oreId = OreDictionary.getOreIDs(stackSelect.getBaseStack());
+					
+					if(oreId.length > 0)
+					{
+						stackSelect.oreDict = OreDictionary.getOreName(oreId[0]);
+					}
+					
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}
@@ -262,6 +271,14 @@ public class GuiJsonItemSelection extends GuiQuesting
 				if(searchItem != null)
 				{
 					this.stackSelect = new BigItemStack(searchItem.copy());
+					
+					int[] oreId = OreDictionary.getOreIDs(stackSelect.getBaseStack());
+					
+					if(oreId.length > 0)
+					{
+						stackSelect.oreDict = OreDictionary.getOreName(oreId[0]);
+					}
+					
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}
@@ -327,22 +344,28 @@ public class GuiJsonItemSelection extends GuiQuesting
 				{
 					for(ItemStack subItem : subList)
 					{
-						if(subItem != null && (subItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || subItem.getDisplayName().toLowerCase().contains(searchTxt)))
+						try
 						{
-							searchResults.add(subItem);
-						} else
-						{
-							@SuppressWarnings("unchecked")
-							List<String> toolTips = subItem.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
-							
-							for(String line : toolTips)
+							if(subItem != null && (subItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || subItem.getDisplayName().toLowerCase().contains(searchTxt)))
 							{
-								if(line.toLowerCase().contains(searchTxt))
+								searchResults.add(subItem);
+							} else
+							{
+								@SuppressWarnings("unchecked")
+								List<String> toolTips = subItem.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
+								
+								for(String line : toolTips)
 								{
-									searchResults.add(subItem);
-									break;
+									if(line.toLowerCase().contains(searchTxt))
+									{
+										searchResults.add(subItem);
+										break;
+									}
 								}
 							}
+						} catch(Exception e)
+						{
+							continue;
 						}
 					}
 				}

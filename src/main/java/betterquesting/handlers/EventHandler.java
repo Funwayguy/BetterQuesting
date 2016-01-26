@@ -43,7 +43,13 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiQuestLinesMain(mc.currentScreen));
+			if(GuiQuestLinesMain.bookmarked != null)
+			{
+				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+			} else
+			{
+				mc.displayGuiScreen(new GuiQuestLinesMain(mc.currentScreen));
+			}
 		} else if(BQ_Keybindings.openThemes.isPressed())
 		{
 			mc.displayGuiScreen(new GuiThemeSelect(mc.currentScreen));
@@ -105,6 +111,7 @@ public class EventHandler
 	{
 		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
 		{
+			GuiQuestLinesMain.bookmarked = null;
 			BQ_Settings.curWorldDir = null;
 		}
 	}

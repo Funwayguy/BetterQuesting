@@ -58,7 +58,7 @@ betterquesting.gui.remaining_lives=Remaining Lives: %s
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE
 betterquesting.tooltip.incomplete=INCOMPLETE
-betterquesting.tooltip.reward_pending=Unclaimed
+betterquesting.tooltip.rewards_pending=Unclaimed rewards
 betterquesting.tooltip.requires=Requires:
 
 betterquesting.notice.complete=Quest Complete

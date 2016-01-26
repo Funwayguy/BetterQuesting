@@ -71,13 +71,18 @@ public class GuiImporters extends GuiQuesting
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1)
+		if(button.id >= 1 && button.id <= 2)
 		{
-			scroll--;
-			UpdateScroll();
-		} else if(button.id == 2)
-		{
-			scroll++;
+			if(button.id == 1)
+			{
+				scroll--;
+			} else if(button.id == 2)
+			{
+				scroll++;
+			}
+			
+			int size = Math.max(1, cachedImporters.size());
+			scroll = (scroll%size + size)%size; // Fixes negative scroll
 			UpdateScroll();
 		}
 	}

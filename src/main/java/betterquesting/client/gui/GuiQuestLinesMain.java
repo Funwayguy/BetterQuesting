@@ -21,6 +21,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiQuestLinesMain extends GuiQuesting
 {
+	/**
+	 * Last opened quest screen from here
+	 */
+	public static GuiQuestInstance bookmarked;
+	
 	GuiButtonQuestLine selected;
 	ArrayList<GuiButtonQuestLine> qlBtns = new ArrayList<GuiButtonQuestLine>();
 	int listScroll = 0;
@@ -41,6 +46,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 	{
 		super.initGui();
 		
+		bookmarked = null;
 		qlBtns.clear();
 		
 		listScroll = 0;
@@ -195,7 +201,8 @@ public class GuiQuestLinesMain extends GuiQuesting
 			if(qBtn != null)
 			{
 				qBtn.func_146113_a(this.mc.getSoundHandler());
-				mc.displayGuiScreen(new GuiQuestInstance(this, qBtn.quest));
+				bookmarked = new GuiQuestInstance(this, qBtn.quest);
+				mc.displayGuiScreen(bookmarked);
 			}
 		}
     }
