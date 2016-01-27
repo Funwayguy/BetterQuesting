@@ -4,12 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.logging.log4j.Level;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import betterquesting.core.BQ_Settings;
+import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
@@ -27,7 +29,7 @@ public class BQ_Commands extends CommandBase
 	@Override
 	public String getCommandUsage(ICommandSender sender)
 	{
-		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default, /bq load_default, /bq delete_all";
+		return "/bq edit, /bq hardcore, /bq reset_all, /bq make_default, /bq load_default, /bq delete_all, /bq reload";
 	}
 
     /**
@@ -39,7 +41,7 @@ public class BQ_Commands extends CommandBase
     {
 		if(strings.length == 1)
 		{
-        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default", "load_default", "delete_all"});
+        	return getListOfStringsMatchingLastWord(strings, new String[]{"edit", "hardcore", "reset_all", "make_default", "load_default", "delete_all", "reload"});
 		}
 		
 		return new ArrayList<String>();
@@ -104,14 +106,36 @@ public class BQ_Commands extends CommandBase
 			QuestDatabase.questDB = new HashMap<Integer,QuestInstance>();
 			QuestDatabase.questLines = new ArrayList<QuestLine>();
 			QuestDatabase.UpdateClients();
+		} else if(entries[0].equalsIgnoreCase("reload"))
+		{
+			if(BQ_Settings.curWorldDir == null)
+			{
+				sender.addChatMessage(new ChatComponentText("ERROR: Save directory isn't initialised"));
+				return;
+			}
+	    	
+	    	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
+			JsonObject j1 = new JsonObject();
+			
+			if(f1.exists())
+			{
+				j1 = JsonIO.ReadFromFile(f1);
+			} else
+			{
+				f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+				
+				if(f1.exists())
+				{
+					j1 = JsonIO.ReadFromFile(f1);
+				}
+			}
+			
+			QuestDatabase.readFromJson(j1);
+		    
+		    BetterQuesting.logger.log(Level.INFO, "Reloaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines from file");
 		} else
 		{
 			throw new WrongUsageException(this.getCommandUsage(sender));
 		}
-	}
-	
-	public void ShowUsage(ICommandSender sender)
-	{
-		sender.addChatMessage(new ChatComponentText(getCommandUsage(sender)));
 	}
 }

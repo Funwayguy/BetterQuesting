@@ -464,7 +464,7 @@ public class QuestInstance
 		jObj.addProperty("name", name);
 		jObj.addProperty("description", description);
 		jObj.addProperty("isMain", isMain);
-		jObj.addProperty("isSlient", isSilent);
+		jObj.addProperty("isSilent", isSilent);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
