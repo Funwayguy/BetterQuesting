@@ -29,7 +29,7 @@ public class GuiQuestingHelp extends GuiQuesting
 	{
 		super.initGui();
 		
-		maxRows = (sizeY - 80)/20;
+		maxRows = (sizeY - 64)/20;
 		
 		for(int i = 0; i < maxRows; i++)
 		{

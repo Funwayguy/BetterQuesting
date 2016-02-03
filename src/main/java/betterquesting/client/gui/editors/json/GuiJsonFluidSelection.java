@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -106,7 +107,18 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		{
 			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			GL11.glColor4f(1F, 1F, 1F, 1F);
-			RenderUtils.itemRender.renderIcon(this.guiLeft + 17, this.guiTop + 49, stackSelect.getFluid().getIcon(), 16, 16);
+			
+			try
+			{
+				if(stackSelect.getFluid().getIcon() != null)
+				{
+					RenderUtils.itemRender.renderIcon(this.guiLeft + 17, this.guiTop + 49, stackSelect.getFluid().getIcon(), 16, 16);
+				} else
+				{
+		            IIcon missing = ((TextureMap)mc.renderEngine.getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
+					RenderUtils.itemRender.renderIcon(this.guiLeft + 17, this.guiTop + 49, missing, 16, 16);
+				}
+			} catch(Exception e){}
 			
 			this.fontRendererObj.drawString(this.stackSelect.getLocalizedName() + " x " + this.stackSelect.amount + "mB", this.guiLeft + 36, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
@@ -183,7 +195,18 @@ public class GuiJsonFluidSelection extends GuiQuesting
 				
 				mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 				GL11.glColor4f(1F, 1F, 1F, 1F);
-				RenderUtils.itemRender.renderIcon(this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, resultStack.getFluid().getIcon(), 16, 16);
+				
+				try
+				{
+					if(resultStack.getFluid().getIcon() != null)
+					{
+						RenderUtils.itemRender.renderIcon(this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, resultStack.getFluid().getIcon(), 16, 16);
+					} else
+					{
+			            IIcon missing = ((TextureMap)mc.renderEngine.getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
+						RenderUtils.itemRender.renderIcon(this.guiLeft + this.sizeX/2 + 1 + x, this.guiTop + 49 + y, missing, 16, 16);
+					}
+				} catch(Exception e){}
 				
 				if(this.isWithin(mx, my, this.sizeX/2 + x + 1, 49 + y, 16, 16))
 				{

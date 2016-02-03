@@ -4,14 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.logging.log4j.Level;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import betterquesting.core.BQ_Settings;
-import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
@@ -106,6 +104,8 @@ public class BQ_Commands extends CommandBase
 			QuestDatabase.questDB = new HashMap<Integer,QuestInstance>();
 			QuestDatabase.questLines = new ArrayList<QuestLine>();
 			QuestDatabase.UpdateClients();
+		    
+			sender.addChatMessage(new ChatComponentText("Deleted all quests and quest lines"));
 		} else if(entries[0].equalsIgnoreCase("reload"))
 		{
 			if(BQ_Settings.curWorldDir == null)
@@ -131,8 +131,9 @@ public class BQ_Commands extends CommandBase
 			}
 			
 			QuestDatabase.readFromJson(j1);
+			QuestDatabase.UpdateClients();
 		    
-		    BetterQuesting.logger.log(Level.INFO, "Reloaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines from file");
+			sender.addChatMessage(new ChatComponentText("Reloaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines from file"));
 		} else
 		{
 			throw new WrongUsageException(this.getCommandUsage(sender));
