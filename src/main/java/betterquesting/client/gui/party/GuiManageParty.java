@@ -191,7 +191,6 @@ public class GuiManageParty extends GuiQuesting
 				if(n3 >= 0 && n3 < party.GetMembers().size())
 				{
 					PartyMember pMem = party.GetMembers().get(n3);
-					System.out.println("Kicking user " + pMem.userID.toString() + " from party " + party.name);
 					NBTTagCompound tags = new NBTTagCompound();
 					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 1);

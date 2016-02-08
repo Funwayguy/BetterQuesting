@@ -102,6 +102,9 @@ public class PktHandlerPartyAction extends PktHandler
 				if(!party.JoinParty(sender.getUniqueID()))
 				{
 					BetterQuesting.logger.log(Level.ERROR, "Player " + sender.getCommandSenderName() + " was unable to join party " + name);
+				} else
+				{
+					PartyManager.UpdateClients();
 				}
 			} else
 			{
@@ -124,14 +127,11 @@ public class PktHandlerPartyAction extends PktHandler
 			
 			String username = data.getString("Member");
 			EntityPlayer inviteUser = MinecraftServer.getServer().getConfigurationManager().func_152612_a(username);
-			System.out.println("Inviting player " + username);
 			
 			if(inviteUser != null)
 			{
 				party.InvitePlayer(inviteUser.getUniqueID());
-			} else
-			{
-				party.InvitePlayer(UUID.randomUUID());
+				PartyManager.UpdateClients();
 			}
 		}
 		

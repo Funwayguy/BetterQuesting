@@ -49,8 +49,14 @@ public class PartyManager
 			return false;
 		}
 		
-		PartyInstance p = new PartyInstance(name);
-		p.JoinParty(host);
+		PartyInstance p = new PartyInstance();
+		p.name = name;
+		
+		if(!p.JoinParty(host))
+		{
+			return false;
+		}
+		
 		partyList.put(name, p);
 		return true;
 	}
@@ -74,9 +80,10 @@ public class PartyManager
 	 */
 	public static void ApplyNameChange(PartyInstance party)
 	{
-		if(partyList.get(party.name) != party)
+		PartyInstance tmp = partyList.get(party.name);
+		if(tmp != null && tmp != party)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "");
+			BetterQuesting.logger.log(Level.WARN, "Another party has the name '" + party.name + "'! Adjusting...");
 			int i = 0;
 			while(partyList.containsKey(party.name + " #" + i))
 			{
@@ -221,15 +228,7 @@ public class PartyManager
 				continue;
 			}
 			
-			String name = JsonHelper.GetString(entry.getAsJsonObject(), "name", "");
-			
-			if(name == null || name.length() <= 0)
-			{
-				BetterQuesting.logger.log(Level.WARN, "Tried to load party with invalid name! Skipping...");
-				continue;
-			}
-			
-			PartyInstance party = new PartyInstance(name);
+			PartyInstance party = new PartyInstance();
 			party.readFromJson(entry.getAsJsonObject());
 			partyList.put(party.name, party);
 		}

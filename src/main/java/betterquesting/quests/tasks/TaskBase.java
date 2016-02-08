@@ -58,12 +58,18 @@ public abstract class TaskBase
 	/**
 	 * Called by repeatable quests to reset progress for the next attempt
 	 */
-	public abstract void ResetProgress(UUID uuid);
+	public void ResetProgress(UUID uuid)
+	{
+		completeUsers.remove(uuid);
+	}
 	
 	/**
 	 * Clear all progress for all users
 	 */
-	public abstract void ResetAllProgress();
+	public void ResetAllProgress()
+	{
+		completeUsers = new ArrayList<UUID>();
+	}
 	
 	public boolean isComplete(UUID uuid)
 	{

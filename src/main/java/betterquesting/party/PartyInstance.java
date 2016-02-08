@@ -21,11 +21,6 @@ public class PartyInstance
 	public boolean lifeShare = false;
 	public boolean lootShare = false;
 	
-	public PartyInstance(String name)
-	{
-		this.name = name;
-	}
-	
 	public void InvitePlayer(UUID uuid)
 	{
 		PartyMember mem = GetMemberData(uuid);
@@ -154,9 +149,7 @@ public class PartyInstance
 	
 	public void readFromJson(JsonObject jObj)
 	{
-		// These are read out before instantiation by the party manager
-		//this.name = jObj.get("name").getAsString();
-		
+		name = jObj.get("name").getAsString();
 		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
 		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
 		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();
