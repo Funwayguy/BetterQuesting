@@ -17,6 +17,6 @@ public class BQ_Settings
 	public static String noticeUpdate = "random.levelup";
 	public static String noticeComplete = "random.levelup";
 	public static String curTheme = "betterquesting:light";
-
+	
 	public static boolean hideUpdates = false;
 }

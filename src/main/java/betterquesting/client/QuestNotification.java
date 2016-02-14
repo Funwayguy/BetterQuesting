@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
@@ -13,7 +14,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.lwjgl.opengl.GL11;
 import betterquesting.core.BQ_Settings;
 import betterquesting.utils.RenderUtils;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -97,7 +97,7 @@ public class QuestNotification
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
-		String tmp = ChatFormatting.UNDERLINE + "" + ChatFormatting.BOLD + StatCollector.translateToLocal(notice.mainTxt);
+		String tmp = EnumChatFormatting.UNDERLINE + "" + EnumChatFormatting.BOLD + StatCollector.translateToLocal(notice.mainTxt);
 		int txtW = mc.fontRenderer.getStringWidth(tmp);
 		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		

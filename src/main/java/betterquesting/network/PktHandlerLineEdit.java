@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
@@ -11,7 +12,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerLineEdit extends PktHandler
@@ -27,7 +27,7 @@ public class PktHandlerLineEdit extends PktHandler
 		if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile()))
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quest lines without OP permissions!");
-			sender.addChatComponentMessage(new ChatComponentText(ChatFormatting.RED + "You need to be OP to edit quests!"));
+			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
 			return null; // Player is not operator. Do nothing
 		}
 		

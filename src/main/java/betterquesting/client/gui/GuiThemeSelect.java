@@ -8,10 +8,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeBase;
 import betterquesting.client.themes.ThemeRegistry;
@@ -96,7 +96,7 @@ public class GuiThemeSelect extends GuiQuesting
     	
     	GL11.glColor4f(1F, 1F, 1F, 1F);
     	
-    	String txt = ChatFormatting.BOLD + "EXAMPLE";
+    	String txt = EnumChatFormatting.BOLD + "EXAMPLE";
     	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
     	
     	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");

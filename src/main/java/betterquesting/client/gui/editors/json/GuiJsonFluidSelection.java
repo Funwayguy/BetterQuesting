@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.Fluid;
@@ -25,7 +26,6 @@ import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -219,7 +219,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		{
 			ArrayList<String> tTip = new ArrayList<String>();
 			tTip.add(ttStack.getLocalizedName());
-			tTip.add(ChatFormatting.GRAY + "" + ttStack.amount + " mB");
+			tTip.add(EnumChatFormatting.GRAY + "" + ttStack.amount + " mB");
 			this.DrawTooltip(tTip, mx, my);
 		}
 	}

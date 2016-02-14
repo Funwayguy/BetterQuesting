@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +21,6 @@ import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -71,7 +71,7 @@ public class GuiRewardEditor extends GuiQuesting
 		// Left delete buttons
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + 32 + (i*20), 20, 20, "" + ChatFormatting.RED + ChatFormatting.BOLD + "x");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + 32 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
 			this.buttonList.add(btn);
 		}
 		
@@ -127,7 +127,7 @@ public class GuiRewardEditor extends GuiQuesting
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(RewardRegistry.GetTypeList().size() - maxRows + 1F)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(RewardRegistry.GetTypeList().size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 	}

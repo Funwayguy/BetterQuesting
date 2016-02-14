@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -17,7 +18,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.RenderUtils;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -135,7 +135,7 @@ public class GuiQuestInstance extends GuiQuesting
 				tTitle = (selTask + 1) + "/" + quest.tasks.size() + " " + tTitle;
 			}
 			
-			tTitle = ChatFormatting.UNDERLINE + tTitle;
+			tTitle = EnumChatFormatting.UNDERLINE + tTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
 			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
@@ -179,7 +179,7 @@ public class GuiQuestInstance extends GuiQuesting
 				rTitle = (selReward + 1) + "/" + quest.rewards.size() + " " + rTitle;
 			}
 			
-			rTitle = ChatFormatting.UNDERLINE + rTitle;
+			rTitle = EnumChatFormatting.UNDERLINE + rTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
 			this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB());

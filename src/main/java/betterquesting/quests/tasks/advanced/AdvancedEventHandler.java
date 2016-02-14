@@ -2,6 +2,9 @@ package betterquesting.quests.tasks.advanced;
 
 import java.util.ArrayList;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
@@ -165,12 +168,20 @@ public class AdvancedEventHandler
 	@SubscribeEvent
 	public void onItemCrafted(PlayerEvent.ItemCraftedEvent event)
 	{
-		if(event.player.worldObj.isRemote)
+		if(event.player.worldObj.isRemote || event.player == null)
 		{
 			return;
 		}
 		
 		EntityPlayer player = event.player;
+		
+		// Because this is horribly broken with shift-clicking for some stupid reason we have to perform this hack job of code to get the true stack size
+		ItemStack actStack = event.crafting.copy();
+		
+		if(event.craftMatrix instanceof InventoryCrafting)
+		{
+			actStack = CraftingManager.getInstance().findMatchingRecipe((InventoryCrafting)event.craftMatrix, player.worldObj);
+		}
 		
 		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
@@ -179,7 +190,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onItemCrafted(player, event.crafting);
+			((AdvancedTaskBase)task).onItemCrafted(player, actStack);
 		}
 	}
 	
@@ -326,7 +337,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onBlockBreak(player, event.block, event.blockMetadata, event.x, event.y, event.z);
+			((AdvancedTaskBase)task).onBlockPlace(player, event.block, event.blockMetadata, event.x, event.y, event.z);
 		}
 	}
 	

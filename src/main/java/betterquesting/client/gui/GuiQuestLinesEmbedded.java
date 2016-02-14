@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -23,7 +24,6 @@ import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.gui.ChatFormatting;
 
 public class GuiQuestLinesEmbedded extends GuiEmbedded
 {
@@ -159,8 +159,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRenderer.drawString(ChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			mc.fontRenderer.drawString(ChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(EnumChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(EnumChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
 		
@@ -170,21 +170,21 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			qInfo.add(I18n.format(qTooltip.name));
 			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(ChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
+				qInfo.add(EnumChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
 				
 				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
 				{
-					qInfo.add(ChatFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
+					qInfo.add(EnumChatFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
 				}
 			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(ChatFormatting.RED + "" + ChatFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
+				qInfo.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
 				
 				for(QuestInstance req : qTooltip.preRequisites)
 				{
 					if(!req.isComplete(mc.thePlayer.getUniqueID()))
 					{
-						qInfo.add(ChatFormatting.RED + "- " + I18n.format(req.name));
+						qInfo.add(EnumChatFormatting.RED + "- " + I18n.format(req.name));
 					}
 				}
 			} else
@@ -199,7 +199,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 					}
 				}
 				
-				qInfo.add(ChatFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
+				qInfo.add(EnumChatFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
 			}
 			screen.DrawTooltip(qInfo, mx, my);
 		}

@@ -196,6 +196,11 @@ public class JsonHelper
 	 */
 	public static JsonObject ItemStackToJson(BigItemStack stack, JsonObject json)
 	{
+		if(stack == null)
+		{
+			return json;
+		}
+		
 		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()));
 		json.addProperty("Count", stack.stackSize);
 		json.addProperty("OreDict", stack.oreDict);
@@ -260,6 +265,11 @@ public class JsonHelper
 	
 	public static JsonObject FluidStackToJson(FluidStack stack, JsonObject json)
 	{
+		if(stack == null)
+		{
+			return json;
+		}
+		
 		json.addProperty("FluidName", FluidRegistry.getFluidName(stack));
 		json.addProperty("Amount", stack.amount);
 		if(stack.tag != null)
