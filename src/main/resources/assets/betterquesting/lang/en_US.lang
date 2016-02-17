@@ -46,6 +46,11 @@ betterquesting.btn.party_join=Join
 betterquesting.btn.party_share_lives=Share Lives
 betterquesting.btn.party_share_loot=Share Loot
 
+betterquesting.home.exit=Exit
+betterquesting.home.quests=Quests
+betterquesting.home.party=Party
+betterquesting.home.theme=Theme
+
 betterquesting.gui.name=Name
 betterquesting.gui.description=Description
 betterquesting.gui.quest_line=Quest Line

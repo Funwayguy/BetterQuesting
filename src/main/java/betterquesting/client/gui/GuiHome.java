@@ -9,6 +9,7 @@ import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiHome extends GuiQuesting
@@ -29,13 +30,13 @@ public class GuiHome extends GuiQuesting
 		
 		int bw = (sizeX - 32)/4;
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, "Exit");
+		GuiButtonQuesting btn = new GuiButtonQuesting(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.exit"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, "Quests");
+		btn = new GuiButtonQuesting(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.quests"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, "Party");
+		btn = new GuiButtonQuesting(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.party"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, "Theme");
+		btn = new GuiButtonQuesting(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.theme"));
 		this.buttonList.add(btn);
 	}
 	
