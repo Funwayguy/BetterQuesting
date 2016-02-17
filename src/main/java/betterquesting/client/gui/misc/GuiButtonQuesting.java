@@ -40,8 +40,23 @@ public class GuiButtonQuesting extends GuiButton
             GL11.glEnable(GL11.GL_BLEND);
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, 48, k * 20, this.width / 2, this.height);
-            this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 248 - this.width / 2, k * 20, this.width / 2, this.height);
+            
+            GL11.glPushMatrix();
+            float sh = height/20F;
+            float sw = width >= 196? width/200F : 1F;
+            int py = (int)(yPosition/sh);
+            int px = (int)(xPosition/sw);
+            GL11.glScalef(sw, sh, 1F);
+            
+            if(width >= 196)
+            {
+            	this.drawTexturedModalRect(px, py, 48, k * 20, 200, 20);
+            } else
+            {
+            	this.drawTexturedModalRect(this.xPosition, py, 48, k * 20, this.width / 2, 20);
+            	this.drawTexturedModalRect(this.xPosition + this.width / 2, py, 248 - this.width / 2, k * 20, this.width / 2, 20);
+            }
+            GL11.glPopMatrix();
             this.mouseDragged(p_146112_1_, p_146112_2_, p_146112_3_);
             int l = 14737632;
 

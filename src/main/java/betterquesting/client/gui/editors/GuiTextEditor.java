@@ -27,6 +27,8 @@ public class GuiTextEditor extends GuiQuesting
 	int maxRows = 0;
 	GuiScrollingText scrollingText;
 	
+    private int cursorPosition;
+	
     public GuiTextEditor(GuiScreen parent, String text)
     {
     	super(parent, "betterquesting.title.edit_text");
@@ -101,48 +103,188 @@ public class GuiTextEditor extends GuiQuesting
     }
 
     /**
-     * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
+     * Moves the text cursor by a specified number of characters and clears the selection
      */
-    protected void keyTyped(char c, int num)
+    public void moveCursorBy(int p_146182_1_)
     {
-        super.keyTyped(c, num);
-        
-        switch (c)
+        this.setCursorPosition(this.cursorPosition + p_146182_1_);
+    }
+
+    /**
+     * sets the position of the cursor to the provided index
+     */
+    public void setCursorPosition(int p_146190_1_)
+    {
+        this.cursorPosition = p_146190_1_;
+        int j = this.text.length();
+
+        if (this.cursorPosition < 0)
         {
-            case 22: // Paste
-                this.writeText(GuiScreen.getClipboardString());
-                return;
-            default:
-                switch (num)
-                {
-                    case 14: // Backspace
-                        if (text.length() > 0)
-                        {
-                            text = text.substring(0, text.length() - 1);
-                        }
-                        scrollingText.SetText(text + "_");
-                        scrollingText.SetScroll(1F);
-                        return;
-                    case 28:
-                    case 156: // New line
-                        this.writeText("\n");
-                        return;
-                    default:
-                        if (ChatAllowedCharacters.isAllowedCharacter(c))
-                        {
-                            this.writeText(Character.toString(c));
-                        }
-                }
+            this.cursorPosition = 0;
+        }
+
+        if (this.cursorPosition > j)
+        {
+            this.cursorPosition = j;
+        }
+
+        this.setSelectionPos(this.cursorPosition);
+    }
+
+    /**
+     * sets the cursors position to the beginning
+     */
+    public void setCursorPositionZero()
+    {
+        this.setCursorPosition(0);
+    }
+
+    /**
+     * sets the cursors position to after the text
+     */
+    public void setCursorPositionEnd()
+    {
+        this.setCursorPosition(this.text.length());
+    }
+
+    /**
+     * returns the current position of the cursor
+     */
+    public int getCursorPosition()
+    {
+        return this.cursorPosition;
+    }
+
+    /**
+     * Sets the position of the selection anchor (i.e. position the selection was started at)
+     */
+    public void setSelectionPos(int p_146199_1_)
+    {
+        int j = this.text.length();
+
+        if (p_146199_1_ > j)
+        {
+            p_146199_1_ = j;
+        }
+
+        if (p_146199_1_ < 0)
+        {
+            p_146199_1_ = 0;
         }
     }
 
-    private void writeText(String string)
+    /**
+     * delete the selected text, otherwsie deletes characters from either side of the cursor. params: delete num
+     */
+    public void deleteFromCursor(int p_146175_1_)
     {
-        String s1 = text;
-        String s2 = s1 + string;
-        text = s2;
-        scrollingText.SetText(text + "_");
-        scrollingText.SetScroll(1F);
+        if (this.text.length() != 0)
+        {
+            boolean flag = p_146175_1_ < 0;
+            int j = flag ? this.cursorPosition + p_146175_1_ : this.cursorPosition;
+            int k = flag ? this.cursorPosition : this.cursorPosition + p_146175_1_;
+            String s = "";
+
+            if (j >= 0)
+            {
+                s = this.text.substring(0, j);
+            }
+
+            if (k < this.text.length())
+            {
+                s = s + this.text.substring(k);
+            }
+
+            this.text = s;
+
+            if (flag)
+            {
+                this.moveCursorBy(p_146175_1_);
+            }
+        }
+    }
+    
+    @Override
+    public void keyTyped(char p_146201_1_, int p_146201_2_)
+    {
+            switch (p_146201_1_)
+            {
+                case 1:
+                    this.setCursorPositionEnd();
+                    this.setSelectionPos(0);
+                    return;
+                case 22:
+                    this.writeText(GuiScreen.getClipboardString());
+                    return;
+                default:
+                    switch (p_146201_2_)
+                    {
+                        case 14:
+                            this.deleteFromCursor(-1);
+                            return;
+                        case 199:
+                            if (GuiScreen.isShiftKeyDown())
+                            {
+                                this.setSelectionPos(0);
+                            }
+                            else
+                            {
+                                this.setCursorPositionZero();
+                            }
+
+                            return;
+                        case 203:
+                            this.moveCursorBy(-1);
+                            return;
+                        case 205:
+                           this.moveCursorBy(1);
+                            return;
+                        case 207:
+                            if (GuiScreen.isShiftKeyDown())
+                            {
+                                this.setSelectionPos(this.text.length());
+                            }
+                            else
+                            {
+                                this.setCursorPositionEnd();
+                            }
+
+                            return;
+                        case 211:
+                            this.deleteFromCursor(1);
+                            return;
+                        default:
+                            if (ChatAllowedCharacters.isAllowedCharacter(p_146201_1_))
+                            {
+                                this.writeText(Character.toString(p_146201_1_));
+                                return;
+                            }
+                    }
+            }
+    }
+    
+    public void writeText(String p_146191_1_)
+    {
+        String s1 = "";
+        String s2 = ChatAllowedCharacters.filerAllowedCharacters(p_146191_1_);
+        int i = this.cursorPosition;
+
+        if (this.text.length() > 0)
+        {
+            s1 = s1 + this.text.substring(0, i);
+        }
+
+        int l;
+        s1 = s1 + s2;
+        l = s2.length();
+
+        if (this.text.length() > 0 && i < this.text.length())
+        {
+            s1 = s1 + this.text.substring(i);
+        }
+
+        this.text = s1;
+        this.moveCursorBy(l);
     }
 
     /**
@@ -164,7 +306,8 @@ public class GuiTextEditor extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + (int)Math.max(0, s * (float)listScroll/(EnumChatFormatting.values().length - maxRows)), 248, 60, 8, 20);
         
-        String s1 = text;
+        String s1 = text.substring(0, cursorPosition);
+        String s2 = text.substring(cursorPosition);
 
         if (this.fontRendererObj.getBidiFlag())
         {
@@ -172,16 +315,16 @@ public class GuiTextEditor extends GuiQuesting
         }
         else if((Minecraft.getSystemTime()/500)%2 == 0)
         {
-            s1 = s1 + "" + EnumChatFormatting.BLACK + "_";
+        	s1.substring(0, cursorPosition);
+            s1 = s1 + "_";
         }
         else
         {
-            s1 = s1 + "" + EnumChatFormatting.WHITE + "_";
+            s1 = s1 + " ";
         }
         
-        scrollingText.SetText(s1);
+        scrollingText.SetText(s1 + s2);
         scrollingText.drawScreen(mx, my, partialTick);
-        //RenderUtils.drawSplitString(fontRendererObj, s1, this.guiLeft + 132, this.guiTop + 32, this.sizeX - 140, ThemeRegistry.curTheme().textColor().getRGB(), false);
     }
 	
     /**

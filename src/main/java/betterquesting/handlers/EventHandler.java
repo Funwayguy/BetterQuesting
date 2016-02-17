@@ -12,13 +12,10 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.gui.GuiHome;
 import betterquesting.client.gui.GuiQuestLinesMain;
-import betterquesting.client.gui.GuiThemeSelect;
-import betterquesting.client.gui.party.GuiManageParty;
-import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
-import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.JsonIO;
@@ -43,27 +40,7 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			if(GuiQuestLinesMain.bookmarked != null)
-			{
-				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
-			} else
-			{
-				mc.displayGuiScreen(new GuiQuestLinesMain(mc.currentScreen));
-			}
-		} else if(BQ_Keybindings.openThemes.isPressed())
-		{
-			mc.displayGuiScreen(new GuiThemeSelect(mc.currentScreen));
-		} else if(BQ_Keybindings.openParty.isPressed())
-		{
-			PartyInstance party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
-			
-			if(party != null)
-			{
-				mc.displayGuiScreen(new GuiManageParty(mc.currentScreen, party));
-			} else
-			{
-				mc.displayGuiScreen(new GuiNoParty(mc.currentScreen));
-			}
+			mc.displayGuiScreen(new GuiHome(mc.currentScreen));
 		}
 	}
 	

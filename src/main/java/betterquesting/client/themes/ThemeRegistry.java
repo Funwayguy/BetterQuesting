@@ -23,6 +23,35 @@ public class ThemeRegistry
 	static ThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
 	static HashMap<String,ThemeBase> themeList = new HashMap<String,ThemeBase>();
 	
+	public static void RegisterThemeManual(ThemeBase theme, String domain, String idName)
+	{
+		try
+		{
+			if(idName.contains(":"))
+			{
+				throw new IllegalArgumentException("Illegal character(s) used in theme ID name");
+			}
+			
+			if(theme == null)
+			{
+				throw new NullPointerException("Tried to register null theme");
+			}
+			
+			String fullName = domain + ":" + idName;
+			
+			if(themeList.containsKey(fullName) || themeList.containsValue(theme))
+			{
+				throw new IllegalArgumentException("Cannot register dupliate theme '" + fullName + "'");
+			}
+			
+			themeList.put(fullName, theme);
+        	BetterQuesting.logger.log(Level.INFO, "Registered theme '" + theme.GetName() + "' (" + fullName + ")");
+		} catch(Exception e)
+		{
+			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register theme", e);
+		}
+	}
+	
 	public static void RegisterTheme(ThemeBase theme, String idName)
 	{
 		try
@@ -50,6 +79,7 @@ public class ThemeRegistry
 			}
 			
 			themeList.put(fullName, theme);
+        	BetterQuesting.logger.log(Level.INFO, "Registered theme '" + theme.GetName() + "' (" + fullName + ")");
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register theme", e);
@@ -68,6 +98,11 @@ public class ThemeRegistry
 	{
 		ThemeBase tmp = themeList.get(id);
 		return tmp != null? tmp : fallbackTheme;
+	}
+	
+	public static boolean themeExists(String id)
+	{
+		return themeList.get(id) != null;
 	}
 	
 	public static void setTheme(String id)

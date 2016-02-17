@@ -37,12 +37,12 @@ public class GuiThemeSelect extends GuiQuesting
 		super.initGui();
 		
 		maxRows = (sizeY - 80)/20;
-		int btnWidth = Math.min(sizeX/2 - 24, 198);
+		int btnWidth = sizeX/2 - 32;
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + 32 + (i*20), btnWidth, 20, "NULL");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), btnWidth, 20, "NULL");
 			this.buttonList.add(btn);
 		}
 		
@@ -57,18 +57,18 @@ public class GuiThemeSelect extends GuiQuesting
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		int btnWidth = Math.min(sizeX/2 - 24, 198);
+		int btnWidth = sizeX/2 - 32;
 		
 		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32, 248, 0, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32, 248, 0, 8, 20);
 		int s = 20;
 		while(s < (maxRows - 1) * 20)
 		{
-			this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + s, 248, 20, 8, 20);
+			this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 20, 8, 20);
 			s += 20;
 		}
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(ThemeRegistry.GetAllThemes().size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 40, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(ThemeRegistry.GetAllThemes().size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
 		

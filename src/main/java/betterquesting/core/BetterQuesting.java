@@ -108,6 +108,7 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+    	proxy.registerThemes();
     }
 	
 	@EventHandler
