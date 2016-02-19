@@ -13,7 +13,6 @@ import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
-import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
@@ -88,7 +87,6 @@ public class EventHandler
 	{
 		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
 		{
-			GuiQuestLinesMain.bookmarked = null;
 			BQ_Settings.curWorldDir = null;
 		}
 	}

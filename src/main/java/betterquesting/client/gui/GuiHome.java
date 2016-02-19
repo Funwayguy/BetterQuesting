@@ -7,6 +7,7 @@ import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
+import betterquesting.quests.QuestDatabase;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -67,7 +68,7 @@ public class GuiHome extends GuiQuesting
 		
 		if(button.id == 1)
 		{
-			if(GuiQuestLinesMain.bookmarked != null)
+			if(GuiQuestLinesMain.bookmarked != null && QuestDatabase.questDB.containsValue(GuiQuestLinesMain.bookmarked))
 			{
 				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
 			} else
