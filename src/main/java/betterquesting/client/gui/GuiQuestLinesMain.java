@@ -66,16 +66,6 @@ public class GuiQuestLinesMain extends GuiQuesting
 		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
 		qlDesc = new GuiScrollingText(this, sizeX - (32 + 150 + 8), 48, guiTop + 32 + sizeY - 64 - 32, guiLeft + 174);
 		
-		if(oldGui != null) // Preserve old settings
-		{
-			qlGui.zoom = oldGui.zoom;
-			qlGui.scrollX = oldGui.scrollX;
-			qlGui.scrollY = oldGui.scrollY;
-			qlGui.toolType = oldGui.toolType;
-			qlGui.dragSnap = oldGui.dragSnap;
-			qlGui.refreshToolButtons();
-		}
-		
 		boolean reset = true;
 		
 		int i = 0;
@@ -115,6 +105,16 @@ public class GuiQuestLinesMain extends GuiQuesting
 		{
 			qlDesc.SetText(selected.line.description);
 			qlGui.setQuestLine(selected);
+		}
+		
+		if(oldGui != null) // Preserve old settings
+		{
+			qlGui.zoom = oldGui.zoom;
+			qlGui.scrollX = oldGui.scrollX;
+			qlGui.scrollY = oldGui.scrollY;
+			qlGui.toolType = oldGui.toolType;
+			qlGui.dragSnap = oldGui.dragSnap;
+			qlGui.refreshToolButtons();
 		}
 		
 		UpdateScroll();

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
@@ -58,13 +59,14 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 	{
 		super.initGui();
 		
-		editables = new ArrayList<JsonControlSet>();;
+		editables = new ArrayList<JsonControlSet>();
+		int maxRows = (this.sizeY - 84)/20;
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
-		this.buttonList.add(new GuiButtonQuesting(2, this.width/2, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, "<"));
-		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + this.sizeX - 36, this.guiTop + (this.sizeY - 84)/20 * 20 + 30, 20, 20, ">"));
+		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
+		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
 		
         for(int i = 0; i < settings.size(); i++)
 		{
@@ -217,7 +219,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 			
 			if(n >= 0 && n < maxRows)
 			{
-				posY = this.guiTop + 30 + (n * 20);
+				posY = this.guiTop + 32 + (n * 20);
 				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 				
 				if(controls != null)
@@ -229,6 +231,10 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor
 				controls.Disable();
 			}
 		}
+		
+		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
+		String txt = (scrollPos + 1) + "/" + mxPage;
+		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, ThemeRegistry.curTheme().textColor().getRGB());
 	}
 	
 	@Override

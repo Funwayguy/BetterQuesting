@@ -44,19 +44,22 @@ public class GuiButtonQuesting extends GuiButton
             GL11.glPushMatrix();
             float sh = height/20F;
             float sw = width >= 196? width/200F : 1F;
-            int py = (int)(yPosition/sh);
-            int px = (int)(xPosition/sw);
+            float py = yPosition/sh;
+            float px = xPosition/sw;
             GL11.glScalef(sw, sh, 1F);
             
-            if(width >= 196)
+            if(width > 200) // Could use 396 but limiting it to 200 this makes things look nicer
             {
-            	this.drawTexturedModalRect(px, py, 48, k * 20, 200, 20);
+                GL11.glTranslatef(px, py, 0F); // Fixes floating point errors related to position
+            	this.drawTexturedModalRect(0, 0, 48, k * 20, 200, 20);
             } else
             {
-            	this.drawTexturedModalRect(this.xPosition, py, 48, k * 20, this.width / 2, 20);
-            	this.drawTexturedModalRect(this.xPosition + this.width / 2, py, 248 - this.width / 2, k * 20, this.width / 2, 20);
+            	this.drawTexturedModalRect((int)px, (int)py, 48, k * 20, this.width / 2, 20);
+            	this.drawTexturedModalRect((int)px + width / 2, (int)py, 248 - this.width / 2, k * 20, this.width / 2, 20);
             }
+            
             GL11.glPopMatrix();
+            
             this.mouseDragged(p_146112_1_, p_146112_2_, p_146112_3_);
             int l = 14737632;
 

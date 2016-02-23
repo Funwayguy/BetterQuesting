@@ -86,7 +86,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		int sx2 = QuestDatabase.editMode? sizeX - 42 : sizeX;
+		int sx2 = QuestDatabase.editMode? sizeX - 40 : sizeX;
 		
 		if(QuestDatabase.editMode)
 		{
@@ -104,7 +104,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		double scaleX = sx2/128D;
 		double scaleY = sizeY/128D;
 		GL11.glScaled(scaleX, scaleY, 1F);
-		screen.drawTexturedModalRect((int)Math.round((posX)/scaleX), (int)Math.round((posY)/scaleY), 0, 128, 128, 128);
+		GL11.glTranslated(posX/scaleX, posY/scaleY, 0);
+		screen.drawTexturedModalRect(0, 0, 0, 128, 128, 128);
 		GL11.glPopMatrix();
 		
 		QuestInstance qTooltip = null;
@@ -495,7 +496,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	public void clampScroll()
 	{
 		float zs = zoom/100F;
-		int sx2 = QuestDatabase.editMode? sizeX - 42 : sizeX;
+		int sx2 = QuestDatabase.editMode? sizeX - 40 : sizeX;
 		sx2 /= zs;
 		int sy2 = (int)(sizeY/zs);
 		int zmx = (int)Math.abs(sx2/2 - (maxX + 32)/2);

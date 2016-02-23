@@ -65,7 +65,7 @@ public class GuiNoParty extends GuiQuesting
 		fieldName = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4 - 74, height/2 - 19, 148, 18);
 		fieldName.setText("New Party");
 		
-		// Quest Line - Main
+		// Party Invites
 		for(int i = 0; i < maxRows; i++)
 		{
 			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_join"));

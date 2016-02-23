@@ -63,6 +63,7 @@ public class GuiTextEditor extends GuiQuesting
 		
 		scrollingText = new GuiScrollingText(this, sizeX - 148, sizeY - 64, guiTop + 32, guiLeft + 132);
 		scrollingText.SetText(text);
+    	cursorPosition = text.length();
 		
 		RefreshColumns();
     }

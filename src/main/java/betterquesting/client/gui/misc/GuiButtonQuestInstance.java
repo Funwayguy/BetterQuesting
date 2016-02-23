@@ -128,6 +128,8 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         		lex = MathHelper.clamp_float(lex, clampMinX, clampMaxX);
         		ley = MathHelper.clamp_float(ley, clampMinY, clampMaxY);
         		
+        		
+        		
         		if(!(lsx == lex && (lsx == clampMinX || lex == clampMaxX)) && !(lsy == ley && (lsy == clampMinY || ley == clampMaxY)))
         		{
 	        		GL11.glPushMatrix();

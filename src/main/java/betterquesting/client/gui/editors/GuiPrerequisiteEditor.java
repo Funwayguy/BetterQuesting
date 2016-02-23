@@ -1,8 +1,10 @@
 package betterquesting.client.gui.editors;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
@@ -29,7 +31,10 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	QuestInstance quest;
 	int leftScroll = 0;
 	int rightScroll = 0;
-	int maxRows = 0;
+	int maxRowsL = 0;
+	int maxRowsR = 0;
+	GuiTextField searchBox;
+	ArrayList<QuestInstance> searchResults = new ArrayList<QuestInstance>();
 	
 	public GuiPrerequisiteEditor(GuiScreen parent, QuestInstance quest)
 	{
@@ -43,46 +48,50 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	{
 		super.initGui();
 		
-		maxRows = (sizeY - 96)/20;
-		int btnWidth = Math.min(sizeX/2 - 24, 198);
+		maxRowsL = (sizeY - 80)/20;
+		maxRowsR = (sizeY - 116)/20;
+		int btnWidth = sizeX/2 - 16;
+		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.searchBox = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons
-		for(int i = 0; i < maxRows; i++)
+		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4 - (btnWidth/2 + 4) + 20, guiTop + 48 + (i*20), btnWidth - 20, 20, "NULL");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL");
 			this.buttonList.add(btn);
 		}
 		
 		// Left delete buttons
-		for(int i = 0; i < maxRows; i++)
+		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4 - (btnWidth/2 + 4), guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "-");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + ">");
 			this.buttonList.add(btn);
 		}
 		
 		// Right main buttons
-		for(int i = 0; i < maxRows; i++)
+		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 40, guiTop + 48 + (i*20), btnWidth - 40, 20, "NULL");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft +  + sizeX/2 + 28, guiTop + 68 + (i*20), btnWidth - 56, 20, "NULL");
 			this.buttonList.add(btn);
 		}
 		
 		// Right delete buttons
-		for(int i = 0; i < maxRows; i++)
+		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4*3 - (btnWidth/2 + 4) + 20, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28 + btnWidth - 56, guiTop + 68 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
 			this.buttonList.add(btn);
 		}
 		
 		// Right add buttons
-		for(int i = 0; i < maxRows; i++)
+		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/4*3 - (btnWidth/2 + 4), guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "+");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 68 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "<");
 			this.buttonList.add(btn);
 		}
 		
+		searchResults.addAll(QuestDatabase.questDB.values());
 		RefreshColumns();
 	}
 	
@@ -100,37 +109,38 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		int btnWidth = Math.min(sizeX/2 - 24, 198);
-		
 		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48, 248, 0, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48, 248, 0, 8, 20);
 		int s = 20;
-		while(s < (maxRows - 1) * 20)
+		while(s < (maxRowsL - 1) * 20)
 		{
-			this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 20, 8, 20);
+			this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + s, 248, 20, 8, 20);
 			s += 20;
 		}
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/4 - 4 + btnWidth/2, this.guiTop + 48 + (int)Math.max(0, s * (float)leftScroll/(quest == null? 1 : quest.preRequisites.size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + s, 248, 40, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + (int)Math.max(0, s * (float)leftScroll/(quest == null? 1 : quest.preRequisites.size() - maxRowsL)), 248, 60, 8, 20);
 		
 		// Right scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48, 248, 0, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68, 248, 0, 8, 20);
 		s = 20;
-		while(s < (maxRows - 1) * 20)
+		while(s < (maxRowsR - 1) * 20)
 		{
-			this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 20, 8, 20);
+			this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + s, 248, 20, 8, 20);
 			s += 20;
 		}
 		
-		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/4*3 - 4 + btnWidth/2, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(QuestDatabase.questDB.size() - maxRows + 1F)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + s, 248, 40, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + (int)Math.max(0, s * (float)rightScroll/(searchResults.size() - maxRowsR)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
-		String txt = I18n.format("betterquesting.gui.quest_line");
-		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		int sx = sizeX - 32;
+		String txt = I18n.format(quest.name);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		txt = I18n.format("betterquesting.gui.database");
-		mc.fontRenderer.drawString(txt, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		
+		searchBox.drawTextBox();
 	}
 	
 	@Override
@@ -148,9 +158,16 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = quest, 1 = quest delete, 2 = registry)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
-			int n4 = n1%maxRows + rightScroll; // Registry list index
+			int n2 = n1/maxRowsL; // Line listing (0 = quest, 1 = quest delete, 2 = registry)
+			int n3 = n1%maxRowsL + leftScroll; // Quest list index
+			int n4 = n1%maxRowsL + rightScroll; // Registry list index
+			
+			if(n2 >= 2) // Right list needs some modifications to work properly
+			{
+				n1 -= maxRowsL*2;
+				n2 = 2 + n1/maxRowsR;
+				n4 = n1%maxRowsR + rightScroll;
+			}
 			
 			if(n2 == 0) // Edit quest
 			{
@@ -167,26 +184,26 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				}
 			} else if(n2 == 2) // Edit quest
 			{
-				if(!(n4 < 0 || n4 >= QuestDatabase.questDB.size()))
+				if(!(n4 < 0 || n4 >= searchResults.size()))
 				{
-					mc.displayGuiScreen(new GuiQuestInstance(this, QuestDatabase.getQuestByOrder(n4)));
+					mc.displayGuiScreen(new GuiQuestInstance(this, searchResults.get(n4)));
 				}
 			} else if(n2 == 3) // Delete quest
 			{
-				if(!(n4 < 0 || n4 >= QuestDatabase.questDB.size()))
+				if(!(n4 < 0 || n4 >= searchResults.size()))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					//tags.setInteger("ID", 5);
 					tags.setInteger("action", 1); // Delete quest
-					tags.setInteger("questID", QuestDatabase.getQuestByOrder(n4).questID);
+					tags.setInteger("questID", searchResults.get(n4).questID);
 					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
 					BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
 				}
 			} else if(n2 == 4) // Add quest
 			{
-				if(!(quest == null || n4 < 0 || n4 >= QuestDatabase.questDB.size()))
+				if(!(quest == null || n4 < 0 || n4 >= searchResults.size()))
 				{
-					quest.preRequisites.add(QuestDatabase.getQuestByOrder(n4));
+					quest.preRequisites.add(searchResults.get(n4));
 					SendChanges();
 				}
 			}
@@ -207,13 +224,13 @@ public class GuiPrerequisiteEditor extends GuiQuesting
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, quest.preRequisites.size() - maxRows));
+    		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, quest.preRequisites.size() - maxRowsL));
     		RefreshColumns();
         }
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, QuestDatabase.questDB.size() - maxRows));
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, searchResults.size() - maxRowsR));
         	RefreshColumns();
         }
     }
@@ -231,8 +248,8 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	
 	public void RefreshColumns()
 	{
-		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.preRequisites.size() - maxRows));
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, QuestDatabase.questDB.size() - maxRows));
+		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.preRequisites.size() - maxRowsL));
+    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, searchResults.size() - maxRowsR));
     	
     	if(quest != null && !QuestDatabase.questDB.containsValue(quest))
 		{
@@ -251,9 +268,16 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		{
 			GuiButton btn = btnList.get(i);
 			int n1 = i - 2;
-			int n2 = n1/maxRows; // Button listing (0 = quest, 1 = quest delete, 2 = registry)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
-			int n4 = n1%maxRows + rightScroll; // Registry list index
+			int n2 = n1/maxRowsL; // Button listing (0 = quest, 1 = quest delete, 2 = registry)
+			int n3 = n1%maxRowsL + leftScroll; // Quest list index
+			int n4 = n1%maxRowsL + rightScroll; // Registry list index
+			
+			if(n2 >= 2) // Right list needs some modifications to work properly
+			{
+				n1 -= maxRowsL*2;
+				n2 = 2 + n1/maxRowsR;
+				n4 = n1%maxRowsR + rightScroll;
+			}
 			
 			if(n2 == 0) // Edit quest
 			{
@@ -271,31 +295,71 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				btn.visible = btn.enabled = quest != null && !(n3 < 0 || n3 >= quest.preRequisites.size());
 			} else if(n2 == 2) // Edit quest
 			{
-				if(n4 < 0 || n4 >= QuestDatabase.questDB.size())
+				if(n4 < 0 || n4 >= searchResults.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					QuestInstance q = QuestDatabase.getQuestByOrder(n4);
+					QuestInstance q = searchResults.get(n4);
 					btn.visible = btn.enabled = true;
 					btn.displayString = q.name;
 				}
 			} else if(n2 == 3) // Delete quest
 			{
-				btn.visible = btn.enabled = !(n3 < 0 || n3 >= QuestDatabase.questDB.size());
+				btn.visible = btn.enabled = !(n4 < 0 || n4 >= searchResults.size());
 			} else if(n2 == 4) // Add quest
 			{
-				if(n4 < 0 || n4 >= QuestDatabase.questDB.size())
+				if(n4 < 0 || n4 >= searchResults.size())
 				{
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					QuestInstance q = QuestDatabase.getQuestByOrder(n4);
+					QuestInstance q = searchResults.get(n4);
 					btn.visible = true;
-					btn.enabled = quest != null && !quest.preRequisites.contains(q);
+					btn.enabled = quest != null && !quest.preRequisites.contains(q) && quest != q;
 				}
 			}
 		}
+	}
+	
+    /**
+     * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
+     */
+	@Override
+    protected void keyTyped(char character, int num)
+    {
+		super.keyTyped(character, num);
+		String prevTxt = searchBox.getText();
+		
+		searchBox.textboxKeyTyped(character, num);
+		
+		if(!searchBox.getText().equalsIgnoreCase(prevTxt))
+		{
+			searchResults = new ArrayList<QuestInstance>();
+			String query = searchBox.getText().toLowerCase();
+			
+			for(QuestInstance q : QuestDatabase.questDB.values())
+			{
+				if(q == null)
+				{
+					continue;
+				}
+				
+				if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+				{
+					searchResults.add(q);
+				}
+			}
+			
+			RefreshColumns();
+		}
+    }
+	
+	@Override
+	public void mouseClicked(int mx, int my, int type)
+	{
+		super.mouseClicked(mx, my, type);
+		this.searchBox.mouseClicked(mx, my, type);
 	}
 }

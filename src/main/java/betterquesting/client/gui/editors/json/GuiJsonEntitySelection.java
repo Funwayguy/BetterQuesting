@@ -57,7 +57,7 @@ public class GuiJsonEntitySelection extends GuiQuesting
 		
 		scrollPos = 0;
 		
-		int bSize = Math.min((this.sizeX - 16) - this.sizeX/2, 200);
+		int bSize = sizeX/2 - 16;
 		
 		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<");
 		this.buttonList.add(leftBtn);

@@ -58,7 +58,7 @@ public class GuiButtonQuestLine extends GuiButtonQuesting
 			
 			for(GuiButtonQuestInstance b2 : buttonTree)
 			{
-				if(b2 == null)
+				if(b2 == null || btn == b2)
 				{
 					continue;
 				}

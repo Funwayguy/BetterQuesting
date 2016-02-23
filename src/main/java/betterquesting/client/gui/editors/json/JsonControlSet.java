@@ -128,7 +128,7 @@ public class JsonControlSet
 			
 			textField.xPosition = posX + 1;
 			textField.yPosition = posY + 1;
-			textField.width = Math.min(396, sizeX - ctrlSpace) - 2;
+			textField.width = sizeX - ctrlSpace - 2;
 			textField.height = 18;
 			textField.drawTextBox();
 		} else if(this.jsonDisplay instanceof GuiButton)
@@ -137,7 +137,7 @@ public class JsonControlSet
 			
 			button.xPosition = posX;
 			button.yPosition = posY;
-			button.width = Math.min(396, sizeX - ctrlSpace);
+			button.width = sizeX - ctrlSpace;
 		}
 		
 		if(addButton != null)
