@@ -64,7 +64,7 @@ public class GuiQuestInstance extends GuiQuesting
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
-		desc = new GuiScrollingText(this, sizeX/2 - 24, sizeY/2 - 48, this.guiTop + 32, this.guiLeft + 16, I18n.format(quest.description));
+		desc = new GuiScrollingText(this, sizeX/2 - 24, quest.rewards.size() > 0? sizeY/2 - 48 : sizeY - 64, this.guiTop + 32, this.guiLeft + 16, I18n.format(quest.description));
 		
 		btnTLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
 		btnTLeft.enabled = selTask > 0;
@@ -72,14 +72,17 @@ public class GuiQuestInstance extends GuiQuesting
 		btnTRight.enabled = selTask < quest.tasks.size() - 1;
 
 		btnRLeft = new GuiButtonQuesting(6, this.guiLeft + (sizeX/4) - 70, this.guiTop + sizeY - 48, 20, 20, "<");
-		btnRLeft.enabled = selReward > 0;
+		btnRLeft.visible = quest.rewards.size() > 0;
+		btnRLeft.enabled = btnRLeft.visible && selReward > 0;
 		btnRRight = new GuiButtonQuesting(7, this.guiLeft + (sizeX/4) + 50, this.guiTop + sizeY - 48, 20, 20, ">");
-		btnRRight.enabled = selReward < quest.rewards.size() - 1;
+		btnRRight.visible = quest.rewards.size() > 0;
+		btnRRight.enabled = btnRRight.visible && selReward < quest.rewards.size() - 1;
 		
 		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"));
 		btnDetect.enabled = !quest.isComplete(mc.thePlayer.getUniqueID());
 		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"));
-		btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+		btnClaim.visible = quest.rewards.size() > 0;
+		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
 		this.buttonList.add(btnTLeft);
 		this.buttonList.add(btnTRight);
 		this.buttonList.add(btnRLeft);
@@ -111,7 +114,7 @@ public class GuiQuestInstance extends GuiQuesting
 		
 		desc.drawScreen(mx, my, partialTick);
 		
-		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 28, 1, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 24, 1, ThemeRegistry.curTheme().textColor());
 		
 		/*int tx1 = guiLeft + sizeX/2 + 8;
 		int ty1 = guiTop + 48;

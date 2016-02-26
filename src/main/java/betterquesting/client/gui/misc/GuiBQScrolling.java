@@ -186,7 +186,7 @@ public abstract class GuiBQScrolling
             {
                 boolean var7 = true;
 
-                if (mouseY >= this.top && mouseY <= this.bottom)
+                if (mouseY >= this.top && mouseY <= this.bottom && mouseX >= this.left && mouseX <= this.left + this.listWidth)
                 {
                     var10 = mouseY - this.top - this.field_27261_r + (int)this.scrollDistance - 4;
                     var11 = var10 / this.slotHeight;
@@ -255,14 +255,17 @@ public abstract class GuiBQScrolling
         }
         else
         {
-            while (Mouse.next())
+            // Slightly modified to account for the possibility of multiple scrolling areas on the same screen
+            if (mouseY >= top && mouseY <= bottom && mouseX >= left && mouseX <= right)
             {
-                int var16 = Mouse.getEventDWheel();
-                
-                // Slightly modified to account for the possibility of multiple scrolling areas on the same screen
-                if (var16 != 0 && mouseY >= top && mouseY <= bottom && mouseX >= left && mouseX <= right)
-                {
-                    if (var16 > 0)
+	            while (Mouse.next())
+	            {
+	                int var16 = Mouse.getEventDWheel();
+	                
+	                if(var16 == 0)
+	                {
+	                	continue;
+	                } else if (var16 > 0)
                     {
                         var16 = -1;
                     }

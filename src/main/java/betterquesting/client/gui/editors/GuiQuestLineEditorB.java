@@ -109,6 +109,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		if(QuestDatabase.updateUI)
 		{
 			QuestDatabase.updateUI = false;
+			RefreshSearch();
 			RefreshColumns();
 		}
 		
@@ -374,25 +375,29 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		
 		if(!searchBox.getText().equalsIgnoreCase(prevTxt))
 		{
-			searchResults = new ArrayList<QuestInstance>();
-			String query = searchBox.getText().toLowerCase();
-			
-			for(QuestInstance q : QuestDatabase.questDB.values())
-			{
-				if(q == null)
-				{
-					continue;
-				}
-				
-				if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
-				{
-					searchResults.add(q);
-				}
-			}
-			
+			RefreshSearch();
 			RefreshColumns();
 		}
     }
+	
+	public void RefreshSearch()
+	{
+		searchResults = new ArrayList<QuestInstance>();
+		String query = searchBox.getText().toLowerCase();
+		
+		for(QuestInstance q : QuestDatabase.questDB.values())
+		{
+			if(q == null)
+			{
+				continue;
+			}
+			
+			if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			{
+				searchResults.add(q);
+			}
+		}
+	}
 	
 	@Override
 	public void mouseClicked(int mx, int my, int type)
