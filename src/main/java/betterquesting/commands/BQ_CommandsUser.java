@@ -2,34 +2,26 @@ package betterquesting.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import betterquesting.commands.admin.QuestCommandComplete;
-import betterquesting.commands.admin.QuestCommandDefaults;
-import betterquesting.commands.admin.QuestCommandDelete;
-import betterquesting.commands.admin.QuestCommandEdit;
-import betterquesting.commands.admin.QuestCommandHardcore;
-import betterquesting.commands.admin.QuestCommandReset;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import betterquesting.commands.user.QuestCommandHelp;
+import betterquesting.commands.user.QuestCommandRefresh;
 
-public class BQ_Commands extends CommandBase
+public class BQ_CommandsUser extends CommandBase
 {
 	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
 	
-	public BQ_Commands()
+	public BQ_CommandsUser()
 	{
-		coms.add(new QuestCommandEdit());
-		coms.add(new QuestCommandHardcore());
-		coms.add(new QuestCommandReset());
-		coms.add(new QuestCommandComplete());
-		coms.add(new QuestCommandDelete());
-		coms.add(new QuestCommandDefaults());
+		coms.add(new QuestCommandHelp());
+		coms.add(new QuestCommandRefresh());
 	}
 	
 	@Override
 	public String getCommandName()
 	{
-		return "bq_admin";
+		return "bq_user";
 	}
 	
 	@Override
@@ -59,8 +51,8 @@ public class BQ_Commands extends CommandBase
     /**
      * Adds the strings available in this command to the given list of tab completion options.
      */
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
     {
 		if(strings.length == 1)
@@ -84,13 +76,15 @@ public class BQ_Commands extends CommandBase
 		
 		return new ArrayList<String>();
     }
-	
-	@Override
+
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
-        return 2;
+        return 0;
     }
-
+	
 	@Override
 	public void processCommand(ICommandSender sender, String[] args)
 	{

@@ -43,6 +43,7 @@ public class QuestInstance
 	public ArrayList<QuestInstance> preRequisites = new ArrayList<QuestInstance>();
 	
 	public QuestLogic logic = QuestLogic.AND;
+	public QuestLogic tLogic = QuestLogic.AND;
 	public boolean globalQuest = false;
 	public boolean globalShare = true;
 	public boolean autoClaim = false;
@@ -108,7 +109,7 @@ public class QuestInstance
 		
 		if(isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
 		{
-			boolean done = true;
+			int done = 0;
 			boolean update = false;
 			
 			for(TaskBase tsk : tasks)
@@ -117,16 +118,18 @@ public class QuestInstance
 				
 				tsk.Update(player);
 				
-				if(!tsk.isComplete(player.getUniqueID()))
+				if(tsk.isComplete(player.getUniqueID()))
 				{
-					done = false;
-				} else if(flag)
-				{
-					update = true;
+					done += 1;
+					
+					if(flag)
+					{
+						update = true;
+					}
 				}
 			}
 			
-			if(done)
+			if(tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -470,6 +473,7 @@ public class QuestInstance
 		jObj.addProperty("autoClaim", autoClaim);
 		jObj.addProperty("repeatTime", repeatTime);
 		jObj.addProperty("logic", logic.toString());
+		jObj.addProperty("taskLogic", tLogic.toString());
 		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
 		
 		JsonArray tskJson = new JsonArray();
@@ -539,6 +543,14 @@ public class QuestInstance
 		} catch(Exception e)
 		{
 			this.logic = QuestLogic.AND;
+		}
+		try
+		{
+			this.tLogic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "taskLogic", "AND").toUpperCase());
+			this.tLogic = tLogic == null? QuestLogic.AND : tLogic;
+		} catch(Exception e)
+		{
+			this.tLogic = QuestLogic.AND;
 		}
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
 		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);

@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IIcon;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -13,6 +14,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
@@ -168,5 +170,13 @@ public class EventHandler
 			IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
 			BetterQuesting.fluidPlaceholder.setIcons(icon);
 		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onGuiOpen(GuiOpenEvent event)
+	{
+		// Hook for theme GUI replacements
+		event.gui = ThemeRegistry.curTheme().getGui(event.gui);
 	}
 }

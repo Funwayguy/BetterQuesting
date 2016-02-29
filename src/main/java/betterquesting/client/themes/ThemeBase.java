@@ -2,6 +2,7 @@ package betterquesting.client.themes;
 
 import java.awt.Color;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class ThemeBase
@@ -89,5 +90,13 @@ public abstract class ThemeBase
 			default: // Error
 				return Color.BLACK;
 		}
+	}
+	
+	/**
+	 * Quick method for theme specific GUI replacements
+	 */
+	public GuiScreen getGui(GuiScreen gui)
+	{
+		return gui;
 	}
 }

@@ -1,0 +1,122 @@
+package betterquesting.commands.admin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
+
+public class QuestCommandReset extends QuestCommandBase
+{
+	public String getUsageSuffix()
+	{
+		return "[all|<quest_id>] [username|uuid]";
+	}
+	
+	public boolean validArgs(String[] args)
+	{
+		return args.length == 2 || args.length == 3;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> autoComplete(ICommandSender sender, String[] args)
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		
+		if(args.length == 2)
+		{
+			list.add("all");
+			
+			for(int i : QuestDatabase.questDB.keySet())
+			{
+				list.add("" + i);
+			}
+		} else if(args.length == 3)
+		{
+			return CommandBase.getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public String getCommand()
+	{
+		return "reset";
+	}
+	
+	@Override
+	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	{
+		String action = args[1];
+		
+		UUID uuid = null;
+		EntityPlayerMP player = null;
+		
+		if(args.length == 3)
+		{
+			player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
+			
+			if(player == null)
+			{
+				try
+				{
+					uuid = UUID.fromString(args[2]);
+				} catch(Exception e)
+				{
+					throw getException(command);
+				}
+			} else
+			{
+				uuid = player.getUniqueID();
+			}
+		}
+		
+		if(action.equalsIgnoreCase("all"))
+		{
+			for(QuestInstance quest : new ArrayList<QuestInstance>(QuestDatabase.questDB.values()))
+			{
+				if(uuid != null)
+				{
+					quest.ResetProgress(uuid); // Clear progress
+					quest.RemoveUserEntry(uuid); // Clear completion state
+				} else
+				{
+					quest.ResetQuest();
+				}
+			}
+			
+			sender.addChatMessage(new ChatComponentText("Reset all quests" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+		} else
+		{
+			try
+			{
+				int id = Integer.parseInt(action.trim());
+				QuestInstance quest = QuestDatabase.getQuestByID(id);
+				
+				if(uuid != null)
+				{
+					quest.ResetProgress(uuid); // Clear progress
+					quest.RemoveUserEntry(uuid); // Clear completion state
+				} else
+				{
+					quest.ResetQuest();
+				}
+				
+				sender.addChatMessage(new ChatComponentText("Reset quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+			} catch(Exception e)
+			{
+				throw getException(command);
+			}
+		}
+		
+		QuestDatabase.UpdateClients();
+	}	
+}

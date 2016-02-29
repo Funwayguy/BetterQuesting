@@ -152,6 +152,7 @@ public class GuiQuestingHelp extends GuiQuesting
 		registerTopic("betterquesting.btn.help5", "betterquesting.help.page5");
 		registerTopic("betterquesting.btn.help6", "betterquesting.help.page6");
 		registerTopic("betterquesting.btn.help7", "betterquesting.help.page7");
+		registerTopic("betterquesting.btn.help8", "betterquesting.help.page8");
 	}
 	
 	public static class HelpTopic

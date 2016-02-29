@@ -18,6 +18,7 @@ import betterquesting.blocks.FluidPlaceholder;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
 import betterquesting.commands.BQ_Commands;
+import betterquesting.commands.BQ_CommandsUser;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemExtraLife;
@@ -119,6 +120,6 @@ public class BetterQuesting
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
 		manager.registerCommand(new BQ_Commands());
-		//manager.registerCommand(new BQ_CommandsDebug());
+		manager.registerCommand(new BQ_CommandsUser());
 	}
 }

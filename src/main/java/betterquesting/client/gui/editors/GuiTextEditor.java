@@ -223,6 +223,10 @@ public class GuiTextEditor extends GuiQuesting
                         case 14:
                             this.deleteFromCursor(-1);
                             return;
+                        case 28:
+                        case 156:
+                            this.writeText("\n");
+                            return;
                         case 199:
                             if (GuiScreen.isShiftKeyDown())
                             {
@@ -255,19 +259,16 @@ public class GuiTextEditor extends GuiQuesting
                             this.deleteFromCursor(1);
                             return;
                         default:
-                            if (ChatAllowedCharacters.isAllowedCharacter(p_146201_1_))
-                            {
-                                this.writeText(Character.toString(p_146201_1_));
-                                return;
-                            }
+                            this.writeText(ChatAllowedCharacters.filerAllowedCharacters(Character.toString(p_146201_1_)));
+                            return;
                     }
             }
     }
     
-    public void writeText(String p_146191_1_)
+    public void writeText(String raw)
     {
         String s1 = "";
-        String s2 = ChatAllowedCharacters.filerAllowedCharacters(p_146191_1_);
+        String s2 = raw;
         int i = this.cursorPosition;
 
         if (this.text.length() > 0)
