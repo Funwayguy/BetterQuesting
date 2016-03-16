@@ -32,7 +32,7 @@ public class GuiPartyInvite extends GuiQuesting
 	{
 		super.initGui();
 		maxRows = (sizeY - 72)/20;
-
+		
         NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
 		playerList = nethandlerplayclient.playerInfoList;
 		

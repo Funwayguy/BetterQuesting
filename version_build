@@ -1,0 +1,11 @@
+#Extra quote marks added to prevent grep editing them
+ver_key="CI_MOD_""VERSION"
+ver_num="1.0.$DRONE_BUILD_NUMBER"
+
+hash_key="CI_MOD_""HASH"
+branch_key"_CI_MOD_""BRANCH"
+
+#Do grep replacement of variables
+grep -lRr -e $ver_key * | xargs sed -i "s/$ver_key/$ver_num/g"
+grep -lRr -e $hash_key * | xargs sed -i "s/$hash_key/$DRONE_COMMIT/g"
+grep -lRr -e $branch_key * | xargs sed -i "s/$ver_key/$DRONE_BRANCH/g"

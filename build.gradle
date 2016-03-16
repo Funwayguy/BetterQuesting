@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "BQ_VER_KEY"
+version = "CI_MOD_VERSION"
 group= "betterquesting" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BetterQuesting"
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-FILE_NAME=`echo "BetterQuesting-BQ_VER_KEY.jar"`
+FILE_NAME=`echo "BetterQuesting-CI_MOD_VERSION.jar"`
 FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
-CHANGE_LOG=`git log -1 --pretty=format:"%B"`
+CHANGE_LOG=`git log $DRONE_BRANCH -1 --pretty=format:"%B"`
 
 #See https://github.com/curseforge/api for how to retrieve game version numbers
 JSON=`printf '{"changelog": "%s", "gameVersions": [4449], "releaseType": "release"}' "$CHANGE_LOG"`
@@ -15,7 +15,7 @@ FID=${RESPONSE:6}
 FID=${FID:0:${#FID}-1}
 echo $FID
 
-FILE_NAME=`echo "BetterQuesting-deobf-BQ_VER_KEY.jar"`
+FILE_NAME=`echo "BetterQuesting-deobf-CI_MOD_VERSION.jar"`
 FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
 
 

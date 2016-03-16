@@ -65,7 +65,7 @@ public class RewardRegistry
 		return null;
 	}
 	
-	public static Class<? extends RewardBase> GetQuest(String idName)
+	public static Class<? extends RewardBase> GetReward(String idName)
 	{
 		return rewardRegistry.get(idName);
 	}

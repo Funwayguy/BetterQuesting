@@ -3,6 +3,7 @@ package betterquesting.client;
 import java.io.BufferedInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
@@ -25,7 +26,7 @@ public class UpdateNotification
 		
 		hasChecked = true;
 		
-		if(BetterQuesting.VERSION == "BQ_VER_" + "KEY")
+		if(BetterQuesting.HASH == "CI_MOD_" + "HASH")
 		{
 			event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "THIS COPY OF " + BetterQuesting.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
 			return;
@@ -40,37 +41,69 @@ public class UpdateNotification
 				return;
 			}
 			
-			String version = data[0].trim();
-			String link = data[1].trim();
+			ArrayList<String> changelog = new ArrayList<String>();
+			boolean hasLog = false;
 			
-			int verStat = compareVersions(BetterQuesting.VERSION, version);
-			
-			if(verStat == -1)
+			for(String s : data)
 			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Update " + version + " of " + BetterQuesting.NAME + " available!"));
-				event.player.addChatMessage(new ChatComponentText("Download:"));
-				event.player.addChatMessage(new ChatComponentText("" + EnumChatFormatting.BLUE + EnumChatFormatting.UNDERLINE + link));
+				if(s.equalsIgnoreCase("git_branch:" + BetterQuesting.BRANCH))
+				{
+					if(!hasLog)
+					{
+						hasLog = true;
+						changelog.add(s);
+						continue;
+					} else
+					{
+						break;
+					}
+				} else if(s.toLowerCase().startsWith("git_branch:"))
+				{
+					if(hasLog)
+					{
+						break;
+					} else
+					{
+						continue;
+					}
+				} else if(hasLog)
+				{
+					changelog.add(s);
+				}
+			}
+			
+			if(!hasLog || data.length < 2)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
+				BetterQuesting.logger.log(Level.ERROR, "An error has occured while checking " + BetterQuesting.NAME + " version! (hasLog: " + hasLog + ", data: " + data.length + ")");
+				return;
+			} else
+			{
+				// Only the relevant portion of the changelog is preserved
+				data = changelog.toArray(new String[0]);
+			}
+			
+			String hash = data[0].trim();
+			String branch = data[1].trim();
+			
+			boolean hasUpdate = !BetterQuesting.HASH.equalsIgnoreCase(hash);
+			
+			if(hasUpdate)
+			{
+				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Update for " + BetterQuesting.NAME + " available!"));
+				event.player.addChatMessage(new ChatComponentText("Download: http://minecraft.curseforge.com/projects/better-questing"));
 				
 				for(int i = 2; i < data.length; i++)
 				{
 					if(i > 5)
 					{
-						event.player.addChatMessage(new ChatComponentText("and " + (data.length - 6) + " more..."));
+						event.player.addChatMessage(new ChatComponentText("and " + (data.length - 5) + " more..."));
 						break;
 					} else
 					{
-						event.player.addChatMessage(new ChatComponentText(data[i].trim()));
+						event.player.addChatMessage(new ChatComponentText("- " + data[i].trim()));
 					}
 				}
-			} else if(verStat == 0)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + BetterQuesting.NAME + " " + BetterQuesting.VERSION + " is up to date"));
-			} else if(verStat == 1)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + BetterQuesting.NAME + " " + BetterQuesting.VERSION + " is a debug build"));
-			} else if(verStat == -2)
-			{
-				event.player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
 			}
 			
 		} catch(Exception e)
@@ -79,39 +112,6 @@ public class UpdateNotification
 			BetterQuesting.logger.log(Level.ERROR, "An error has occured while checking " + BetterQuesting.NAME + " version!", e);
 			return;
 		}
-	}
-	
-	public int compareVersions(String ver1, String ver2)
-	{
-		int[] oldNum;
-		int[] newNum;
-		String[] oldNumString;
-		String[] newNumString;
-		
-		try
-		{
-			oldNumString = ver1.split("\\.");
-			newNumString = ver2.split("\\.");
-			
-			oldNum = new int[]{Integer.valueOf(oldNumString[0]), Integer.valueOf(oldNumString[1]), Integer.valueOf(oldNumString[2])};
-			newNum = new int[]{Integer.valueOf(newNumString[0]), Integer.valueOf(newNumString[1]), Integer.valueOf(newNumString[2])};
-		} catch(Exception e)
-		{
-			return -2;
-		}
-		
-		for(int i = 0; i < 3; i++)
-		{
-			if(oldNum[i] < newNum[i])
-			{
-				return -1; // New version available
-			} else if(oldNum[i] > newNum[i])
-			{
-				return 1; // Debug version ahead of release
-			}
-		}
-		
-		return 0;
 	}
 	
 	public static String[] getNotification(String link, boolean doRedirect) throws Exception
