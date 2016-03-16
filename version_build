@@ -1,6 +1,6 @@
 #Extra quote marks added to prevent grep editing them
+export ver_num="1.0.$DRONE_BUILD_NUMBER"
 ver_key="CI_MOD""_VERSION"
-ver_num="1.0.$DRONE_BUILD_NUMBER"
 
 hash_key="CI_MOD""_HASH"
 branch_key="CI_MOD""_BRANCH"
