@@ -1,11 +1,11 @@
 package betterquesting.network;
 
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
 
 public class PktHandlerClaim extends PktHandler
 {

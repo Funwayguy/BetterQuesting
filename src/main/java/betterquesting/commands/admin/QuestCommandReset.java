@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +26,6 @@ public class QuestCommandReset extends QuestCommandBase
 		return args.length == 2 || args.length == 3;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<String> autoComplete(ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -53,7 +53,7 @@ public class QuestCommandReset extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		String action = args[1];
 		
@@ -62,7 +62,7 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(args.length == 3)
 		{
-			player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
+			player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[2]);
 			
 			if(player == null)
 			{
@@ -93,7 +93,7 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentText("Reset all quests" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+			sender.addChatMessage(new ChatComponentText("Reset all quests" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 		} else
 		{
 			try
@@ -110,7 +110,7 @@ public class QuestCommandReset extends QuestCommandBase
 					quest.ResetQuest();
 				}
 				
-				sender.addChatMessage(new ChatComponentText("Reset quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+				sender.addChatMessage(new ChatComponentText("Reset quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 			} catch(Exception e)
 			{
 				throw getException(command);

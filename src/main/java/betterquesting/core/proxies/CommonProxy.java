@@ -1,14 +1,14 @@
 package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import betterquesting.client.UpdateNotification;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
 import betterquesting.lives.LifeManager;
 import betterquesting.quests.tasks.advanced.AdvancedEventHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.NetworkRegistry;
 
 public class CommonProxy
 {
@@ -17,6 +17,7 @@ public class CommonProxy
 		return false;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void registerHandlers()
 	{
 		EventHandler handler = new EventHandler();
@@ -37,8 +38,12 @@ public class CommonProxy
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}
-
+	
 	public void registerThemes()
+	{
+	}
+	
+	public void registerRenderers()
 	{
 	}
 }

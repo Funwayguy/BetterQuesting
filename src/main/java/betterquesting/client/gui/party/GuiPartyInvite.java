@@ -1,10 +1,12 @@
 package betterquesting.client.gui.party;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiPlayerInfo;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -19,7 +21,7 @@ public class GuiPartyInvite extends GuiQuesting
 	int scroll = 0;
 	int maxRows = 0;
 	PartyInstance party;
-	List<GuiPlayerInfo> playerList;
+	List<NetworkPlayerInfo> playerList;
 	
 	public GuiPartyInvite(GuiScreen parent, PartyInstance party)
 	{
@@ -27,14 +29,13 @@ public class GuiPartyInvite extends GuiQuesting
 		this.party = party;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
 		maxRows = (sizeY - 72)/20;
 		
         NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
-		playerList = nethandlerplayclient.playerInfoList;
+		playerList = new ArrayList<NetworkPlayerInfo>(nethandlerplayclient.getPlayerInfoMap());
 		
 		for(int i = 0; i < maxRows * 3; i++)
 		{
@@ -77,7 +78,7 @@ public class GuiPartyInvite extends GuiQuesting
 	}
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		
@@ -96,7 +97,6 @@ public class GuiPartyInvite extends GuiQuesting
 	{
 		scroll = Math.max(0, MathHelper.clamp_int(scroll, 0, playerList.size() - maxRows*3));
 
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)
@@ -111,7 +111,7 @@ public class GuiPartyInvite extends GuiQuesting
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = playerList.get(n3).name;
+					btn.displayString = playerList.get(n3).getGameProfile().getName();
 				} else
 				{
 					btn.visible = btn.enabled = false;

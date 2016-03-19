@@ -1,10 +1,10 @@
 package betterquesting.network;
 
-import betterquesting.client.QuestNotification;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import betterquesting.client.QuestNotification;
 
 public class PktHandlerNotification extends PktHandler
 {

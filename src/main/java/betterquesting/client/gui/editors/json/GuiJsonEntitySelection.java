@@ -11,6 +11,8 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -19,8 +21,6 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonEntitySelection extends GuiQuesting
@@ -35,7 +35,6 @@ public class GuiJsonEntitySelection extends GuiQuesting
 		this.json = json;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{

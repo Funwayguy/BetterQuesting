@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
@@ -29,8 +32,6 @@ import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonItemSelection extends GuiQuesting
@@ -50,15 +51,14 @@ public class GuiJsonItemSelection extends GuiQuesting
 		this.json = json;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
 		super.initGui();
 		
-		int txtW = mc.fontRenderer.getStringWidth(I18n.format("betterquesting.gui.search"));
+		int txtW = mc.fontRendererObj.getStringWidth(I18n.format("betterquesting.gui.search"));
 		int srcW = sizeX/2 - 35 - txtW - (sizeX/2 - 32)%18;
-		this.searchBox = new GuiTextField(this.fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
+		this.searchBox = new GuiTextField(0, this.fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
@@ -124,6 +124,8 @@ public class GuiJsonItemSelection extends GuiQuesting
 		
 		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		
+		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
@@ -255,7 +257,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 	}
 	
 	@Override
-	public void mouseClicked(int mx, int my, int type)
+	public void mouseClicked(int mx, int my, int type) throws IOException
 	{
 		super.mouseClicked(mx, my, type);
 		this.searchBox.mouseClicked(mx, my, type);
@@ -337,7 +339,7 @@ public class GuiJsonItemSelection extends GuiQuesting
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int num)
+    protected void keyTyped(char character, int num) throws IOException
     {
 		super.keyTyped(character, num);
 		String prevTxt = searchBox.getText();
@@ -351,7 +353,6 @@ public class GuiJsonItemSelection extends GuiQuesting
 			searchResults.clear();
 			String searchTxt = searchBox.getText().toLowerCase();
 			
-			@SuppressWarnings("unchecked")
 			Iterator<Item> iterator = Item.itemRegistry.iterator();
 			
 			while(iterator.hasNext())
@@ -367,11 +368,11 @@ public class GuiJsonItemSelection extends GuiQuesting
 				
 				if(baseItem == Items.enchanted_book)
 				{
-					for(Enchantment enchant : Enchantment.enchantmentsList)
+					for(Enchantment enchant : Enchantment.enchantmentsBookList)
 					{
 						if(enchant != null)
 						{
-							Items.enchanted_book.func_92113_a(enchant, subList);
+							Items.enchanted_book.getAll(enchant, subList);
 						}
 					}
 				} else
@@ -385,7 +386,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 					}
 				}
 				
-				if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.itemRegistry.getNameForObject(baseItem).toLowerCase().contains(searchTxt))
+				if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.itemRegistry.getNameForObject(baseItem).toString().contains(searchTxt))
 				{
 					searchResults.addAll(subList);
 				} else
@@ -399,7 +400,6 @@ public class GuiJsonItemSelection extends GuiQuesting
 								searchResults.add(subItem);
 							} else
 							{
-								@SuppressWarnings("unchecked")
 								List<String> toolTips = subItem.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 								
 								for(String line : toolTips)

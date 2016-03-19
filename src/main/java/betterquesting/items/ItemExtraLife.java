@@ -1,7 +1,6 @@
 package betterquesting.items;
 
 import java.util.List;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,24 +8,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
 import betterquesting.quests.QuestDatabase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemExtraLife extends Item
 {
-	IIcon iconQuarter;
-	IIcon iconHalf;
-	
 	public ItemExtraLife()
 	{
-		this.setTextureName("betterquesting:heart");
+		//this.setTextureName("betterquesting:heart");
 		this.setUnlocalizedName("betterquesting.extra_life");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
+		this.setHasSubtypes(true);
 	}
 
     /**
@@ -98,7 +94,7 @@ public class ItemExtraLife extends Item
     /**
      * Gets an icon index based on an item's damage value
      */
-    @SideOnly(Side.CLIENT)
+    /*@SideOnly(Side.CLIENT)
     public IIcon getIconFromDamage(int dmg)
     {
     	switch(dmg%3)
@@ -118,5 +114,5 @@ public class ItemExtraLife extends Item
     	iconQuarter = register.registerIcon(this.getIconString() + "_quarter");
     	iconHalf = register.registerIcon(this.getIconString() + "_half");
     	itemIcon = register.registerIcon(this.getIconString() + "_full");
-    }
+    }*/
 }

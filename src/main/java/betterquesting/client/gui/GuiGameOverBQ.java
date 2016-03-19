@@ -1,9 +1,5 @@
 package betterquesting.client.gui;
 
-import betterquesting.lives.LifeManager;
-import betterquesting.quests.QuestDatabase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.util.Iterator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiGameOver;
@@ -15,7 +11,11 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+import betterquesting.lives.LifeManager;
+import betterquesting.quests.QuestDatabase;
 
 @SideOnly(Side.CLIENT)
 public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
@@ -25,8 +25,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     /**
      * Adds the buttons (and other controls) to the screen in question.
      */
-    @SuppressWarnings("unchecked")
-	public void initGui()
+    public void initGui()
     {
     	lifeCache = LifeManager.getLives(mc.thePlayer);
         this.buttonList.clear();
@@ -78,7 +77,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
             case 1:
                 GuiYesNo guiyesno = new GuiYesNo(this, I18n.format("deathScreen.quit.confirm", new Object[0]), "", I18n.format("deathScreen.titleScreen", new Object[0]), I18n.format("deathScreen.respawn", new Object[0]), 0);
                 this.mc.displayGuiScreen(guiyesno);
-                guiyesno.func_146350_a(20);
+                guiyesno.setButtonDelay(20);
         }
     }
 
@@ -132,7 +131,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         for (k = 0; k < this.labelList.size(); ++k)
         {
-            ((GuiLabel)this.labelList.get(k)).func_146159_a(this.mc, mx, my);
+            ((GuiLabel)this.labelList.get(k)).drawLabel(this.mc, mx, my);
         }
     }
 
@@ -155,8 +154,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         if (this.cooldown == 20)
         {
-            for (@SuppressWarnings("unchecked")
-			Iterator<GuiButton> iterator = this.buttonList.iterator(); iterator.hasNext(); guibutton.enabled = true)
+            for (Iterator<GuiButton> iterator = this.buttonList.iterator(); iterator.hasNext(); guibutton.enabled = true)
             {
                 guibutton = iterator.next();
             }

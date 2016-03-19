@@ -11,7 +11,10 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ITickable;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -24,7 +27,7 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.advanced.IContainerTask;
 
-public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
+public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable
 {
 	ItemStack[] itemStack = new ItemStack[2];
 	boolean needsUpdate = false;
@@ -99,12 +102,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public ItemStack getStackInSlotOnClosing(int slot)
-	{
-		return null;
-	}
-
-	@Override
 	public void setInventorySlotContents(int idx, ItemStack stack)
 	{
 		if(idx < 0 || idx >= itemStack.length)
@@ -116,13 +113,13 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public String getInventoryName()
+	public String getName()
 	{
-		return "Object Submission Station";
+		return BetterQuesting.submitStation.getLocalizedName();
 	}
 
 	@Override
-	public boolean hasCustomInventoryName()
+	public boolean hasCustomName()
 	{
 		return false;
 	}
@@ -145,12 +142,12 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public void openInventory()
+	public void openInventory(EntityPlayer player)
 	{
 	}
 
 	@Override
-	public void closeInventory()
+	public void closeInventory(EntityPlayer player)
 	{
 	}
 
@@ -168,7 +165,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public int fill(ForgeDirection from, FluidStack fluid, boolean doFill)
+	public int fill(EnumFacing side, FluidStack fluid, boolean doFill)
 	{
 		QuestInstance q = getQuest();
 		IContainerTask t = getTask();
@@ -189,7 +186,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				q.UpdateClients();
 				reset();
-	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
+	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
 			} else
 			{
 				needsUpdate = true;
@@ -200,19 +197,19 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
+	public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
 	{
 		return null;
 	}
 
 	@Override
-	public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain)
+	public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
 	{
 		return null;
 	}
 
 	@Override
-	public boolean canFill(ForgeDirection from, Fluid fluid)
+	public boolean canFill(EnumFacing from, Fluid fluid)
 	{
 		IContainerTask t = getTask();
 		
@@ -220,19 +217,19 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public boolean canDrain(ForgeDirection from, Fluid fluid)
+	public boolean canDrain(EnumFacing from, Fluid fluid)
 	{
 		return false;
 	}
 
 	@Override
-	public FluidTankInfo[] getTankInfo(ForgeDirection from)
+	public FluidTankInfo[] getTankInfo(EnumFacing from)
 	{
 		return new FluidTankInfo[0];
 	}
 	
 	@Override
-	public void updateEntity()
+	public void update()
 	{
 		if(worldObj.isRemote)
 		{
@@ -256,7 +253,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 					{
 						q.UpdateClients();
 						reset();
-			    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
+			    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
 					} else
 					{
 						needsUpdate = true;
@@ -275,7 +272,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			} else if(t != null && ((TaskBase)t).isComplete(owner))
 			{
 				reset();
-	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
+	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
 			}
 		}
 	}
@@ -309,11 +306,13 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     /**
      * Overridden in a sign to provide the text.
      */
+	@Override
+	@SuppressWarnings("rawtypes")
     public Packet getDescriptionPacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
-        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 0, nbttagcompound);
+        return new S35PacketUpdateTileEntity(pos, 0, nbttagcompound);
     }
 
     /**
@@ -325,9 +324,10 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
      * @param net The NetworkManager the packet originated from
      * @param pkt The data packet
      */
+    @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
-    	this.readFromNBT(pkt.func_148857_g());
+    	this.readFromNBT(pkt.getNbtCompound());
     }
     
     /**
@@ -339,7 +339,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     	{
     		this.readFromNBT(data);
     		this.markDirty();
-    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
+    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
     	} else
     	{
     		NBTTagCompound payload = new NBTTagCompound();
@@ -389,20 +389,57 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public int[] getAccessibleSlotsFromSide(int side)
+	public int[] getSlotsForFace(EnumFacing side)
 	{
 		return new int[]{0,1};
 	}
 
 	@Override
-	public boolean canInsertItem(int slot, ItemStack stack, int side)
+	public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side)
 	{
 		return slot == 0;
 	}
 
 	@Override
-	public boolean canExtractItem(int slot, ItemStack stack, int side)
+	public boolean canExtractItem(int slot, ItemStack stack, EnumFacing side)
 	{
 		return slot == 1;
+	}
+
+	@Override
+	public ItemStack removeStackFromSlot(int index)
+	{
+		ItemStack stack = itemStack[index];
+		itemStack[index] = null;
+		return stack;
+	}
+
+	@Override
+	public int getField(int id)
+	{
+		return 0;
+	}
+
+	@Override
+	public void setField(int id, int value)
+	{
+	}
+
+	@Override
+	public int getFieldCount()
+	{
+		return 0;
+	}
+
+	@Override
+	public void clear()
+	{
+		itemStack = new ItemStack[2];
+	}
+
+	@Override
+	public IChatComponent getDisplayName()
+	{
+		return new ChatComponentText(BetterQuesting.submitStation.getLocalizedName());
 	}
 }

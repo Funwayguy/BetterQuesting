@@ -4,12 +4,19 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
@@ -21,7 +28,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
 
 public class ClientProxy extends CommonProxy
 {
@@ -57,8 +63,7 @@ public class ClientProxy extends CommonProxy
 		IResourceManager resManager = Minecraft.getMinecraft().getResourceManager();
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		
-        @SuppressWarnings("unchecked")
-		Iterator<String> iterator = resManager.getResourceDomains().iterator();
+        Iterator<String> iterator = resManager.getResourceDomains().iterator();
         
         while(iterator.hasNext())
         {
@@ -67,8 +72,7 @@ public class ClientProxy extends CommonProxy
             try
             {
             	ResourceLocation res = new ResourceLocation(domain, "bq_themes.json");
-                @SuppressWarnings("unchecked")
-				List<IResource> list = resManager.getAllResources(res);
+                List<IResource> list = resManager.getAllResources(res);
                 Iterator<IResource> iterator1 = list.iterator();
 
                 while (iterator1.hasNext())
@@ -113,5 +117,57 @@ public class ClientProxy extends CommonProxy
                 }
             } catch (Exception e){}
         }
+	}
+	
+	@Override
+	public void registerRenderers()
+	{
+		super.registerRenderers();
+		
+		registerBlockModel(BetterQuesting.submitStation);
+		registerItemModel(BetterQuesting.placeholder);
+		registerItemModel(BetterQuesting.extraLife, 0, BetterQuesting.MODID + ":heart_full");
+		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
+		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
+		registerItemModel(BetterQuesting.guideBook);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void registerBlockModel(Block block)
+	{
+		registerBlockModel(block, 0, block.getRegistryName());
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void registerBlockModel(Block block, int meta, String name)
+	{
+		Item item = Item.getItemFromBlock(block);
+		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
+		
+		if(!name.equals(item.getRegistryName()))
+		{
+		    ModelBakery.registerItemVariants(item, model);
+		}
+		
+	    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void registerItemModel(Item item)
+	{
+		registerItemModel(item, 0, item.getRegistryName());
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void registerItemModel(Item item, int meta, String name)
+	{
+		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
+		
+		if(!name.equals(item.getRegistryName()))
+		{
+		    ModelBakery.registerItemVariants(item, model);
+		}
+		
+	    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
 	}
 }

@@ -2,10 +2,10 @@ package betterquesting.quests.tasks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
 
 /**
  * Registry for all known task types. Questing packs should register their custom types here for proper NBT saving/loading

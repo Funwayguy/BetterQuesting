@@ -3,8 +3,10 @@ package betterquesting.commands;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.util.BlockPos;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
 
@@ -52,8 +54,7 @@ public class BQ_CommandsUser extends CommandBase
      * Adds the strings available in this command to the given list of tab completion options.
      */
 	@Override
-	@SuppressWarnings("unchecked")
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings, BlockPos pos)
     {
 		if(strings.length == 1)
 		{
@@ -86,7 +87,7 @@ public class BQ_CommandsUser extends CommandBase
     }
 	
 	@Override
-	public void processCommand(ICommandSender sender, String[] args)
+	public void processCommand(ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
 		{

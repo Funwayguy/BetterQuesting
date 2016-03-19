@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -8,6 +9,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -22,8 +25,6 @@ import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
@@ -40,7 +41,6 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		super(parent, "betterquesting.title.edit_line1");
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -50,10 +50,10 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
+		lineTitle = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
 		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
 		
-		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this, 0);
+		lineDesc = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this, 0);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
 		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new")));
@@ -111,8 +111,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
 		
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		lineTitle.drawTextBox();
 		lineDesc.drawTextBox();
@@ -207,7 +207,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int keyCode)
+    protected void keyTyped(char character, int keyCode) throws IOException
     {
         super.keyTyped(character, keyCode);
         
@@ -222,7 +222,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
      * Called when the mouse is clicked.
      */
 	@Override
-    protected void mouseClicked(int mx, int my, int click)
+    protected void mouseClicked(int mx, int my, int click) throws IOException
     {
 		super.mouseClicked(mx, my, click);
 		
@@ -256,7 +256,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -287,7 +287,6 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 			}
 		}
 
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 4; i < btnList.size(); i++)

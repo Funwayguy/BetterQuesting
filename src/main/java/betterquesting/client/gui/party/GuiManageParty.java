@@ -1,5 +1,6 @@
 package betterquesting.client.gui.party;
 
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -42,7 +43,6 @@ public class GuiManageParty extends GuiQuesting
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -75,7 +75,7 @@ public class GuiManageParty extends GuiQuesting
 		invBtn.enabled = member.GetPrivilege() == 2;
 		this.buttonList.add(invBtn);
 		
-		fieldName = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4 - 74, height/2 - 59, 148, 18);
+		fieldName = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/4 - 74, height/2 - 59, 148, 18);
 		fieldName.setText(party.name);
 		fieldName.setEnabled(member.GetPrivilege() == 2);
 		
@@ -110,13 +110,13 @@ public class GuiManageParty extends GuiQuesting
 		if(QuestDatabase.bqHardcore)
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
-			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
+			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
 		}
 		
 		String memTitle = EnumChatFormatting.UNDERLINE + I18n.format("betterquesting.gui.party_members");
-		mc.fontRenderer.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		int dotL = mc.fontRenderer.getStringWidth("...");
+		int dotL = mc.fontRendererObj.getStringWidth("...");
 		
 		for(int i = 0; i < party.GetMembers().size(); i++)
 		{
@@ -129,11 +129,11 @@ public class GuiManageParty extends GuiQuesting
 			
 			PartyMember m = party.GetMembers().get(n);
 			String name = PartyManager.GetUsername(m.userID);
-			if(mc.fontRenderer.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
+			if(mc.fontRendererObj.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
 			{
-				name = mc.fontRenderer.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
+				name = mc.fontRendererObj.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
 			}
-			mc.fontRenderer.drawString(name, guiLeft + sizeX - 82 - mc.fontRenderer.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(name, guiLeft + sizeX - 82 - mc.fontRendererObj.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
@@ -148,7 +148,7 @@ public class GuiManageParty extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(party.GetMembers().size() - maxRows)), 248, 60, 8, 20);
 		
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		fieldName.drawTextBox();
 		
@@ -207,7 +207,7 @@ public class GuiManageParty extends GuiQuesting
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int keyCode)
+    protected void keyTyped(char character, int keyCode) throws IOException
     {
         super.keyTyped(character, keyCode);
         
@@ -218,7 +218,7 @@ public class GuiManageParty extends GuiQuesting
      * Called when the mouse is clicked.
      */
 	@Override
-    protected void mouseClicked(int mx, int my, int click)
+    protected void mouseClicked(int mx, int my, int click) throws IOException
     {
 		super.mouseClicked(mx, my, click);
 		
@@ -239,7 +239,7 @@ public class GuiManageParty extends GuiQuesting
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		
@@ -279,7 +279,6 @@ public class GuiManageParty extends GuiQuesting
 	{
 		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, party.GetMembers().size() - maxRows));
 
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 5; i < btnList.size(); i++)

@@ -1,22 +1,25 @@
 package betterquesting.client.gui.editors.json;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -28,8 +31,6 @@ import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonFluidSelection extends GuiQuesting
@@ -49,15 +50,14 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		this.json = json;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
 		super.initGui();
 		
-		int txtW = mc.fontRenderer.getStringWidth(I18n.format("betterquesting.gui.search"));
+		int txtW = mc.fontRendererObj.getStringWidth(I18n.format("betterquesting.gui.search"));
 		int srcW = sizeX/2 - 35 - txtW - (sizeX/2 - 32)%18;
-		this.searchBox = new GuiTextField(fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
+		this.searchBox = new GuiTextField(0, fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
@@ -118,6 +118,8 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
+		GL11.glColor4f(1f, 1f, 1f, 1f);
+		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		GL11.glPushMatrix();
@@ -126,19 +128,14 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		
 		if(this.stackSelect != null)
 		{
-			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			GL11.glColor4f(1F, 1F, 1F, 1F);
 			
 			try
 			{
-				if(stackSelect.getFluid().getIcon() != null)
-				{
-					RenderUtils.itemRender.renderIcon((guiLeft + 26)/2, (guiTop + 50)/2, stackSelect.getFluid().getIcon(), 16, 16);
-				} else
-				{
-		            IIcon missing = ((TextureMap)mc.renderEngine.getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
-					RenderUtils.itemRender.renderIcon((guiLeft + 26)/2, (guiTop + 50)/2, missing, 16, 16);
-				}
+				mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+				TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(stackSelect.getFluid().getStill().toString());
+				fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
+				this.drawTexturedModalRect((guiLeft + 26)/2, (guiTop + 50)/2, fluidTx, 16, 16);
 			} catch(Exception e){}
 			
 			if(this.isWithin(mx, my, 25, 49, 32, 32))
@@ -225,19 +222,15 @@ public class GuiJsonFluidSelection extends GuiQuesting
 				this.drawTexturedModalRect(guiLeft + sizeX/2 + x + 8, guiTop + 48 + y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
 				
-				mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 				GL11.glColor4f(1F, 1F, 1F, 1F);
 				
 				try
 				{
-					if(resultStack.getFluid().getIcon() != null)
-					{
-						RenderUtils.itemRender.renderIcon(guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, resultStack.getFluid().getIcon(), 16, 16);
-					} else
-					{
-			            IIcon missing = ((TextureMap)mc.renderEngine.getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
-						RenderUtils.itemRender.renderIcon(guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, missing, 16, 16);
-					}
+					mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+					
+					TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(resultStack.getFluid().getStill(resultStack).toString());
+					fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
+					this.drawTexturedModalRect(guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, fluidTx, 16, 16);
 				} catch(Exception e){}
 				
 				if(this.isWithin(mx, my, this.sizeX/2 + x + 9, 49 + y, 16, 16))
@@ -274,7 +267,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 	}
 	
 	@Override
-	public void mouseClicked(int mx, int my, int type)
+	public void mouseClicked(int mx, int my, int type) throws IOException
 	{
 		super.mouseClicked(mx, my, type);
 		this.searchBox.mouseClicked(mx, my, type);
@@ -340,7 +333,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int num)
+    protected void keyTyped(char character, int num) throws IOException
     {
 		super.keyTyped(character, num);
 		String prevTxt = searchBox.getText();

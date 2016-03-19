@@ -12,20 +12,18 @@ import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderUtils
 {
-	public static RenderItem itemRender = new RenderItem();
-	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text)
 	{
 		RenderItemStack(mc, stack, x, y, text, Color.WHITE);
@@ -43,6 +41,8 @@ public class RenderUtils
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
 		GL11.glPushMatrix();
+		RenderItem itemRender = mc.getRenderItem();
+	    float preZ = itemRender.zLevel;
         
 		try
 		{
@@ -54,15 +54,16 @@ public class RenderUtils
 		    itemRender.zLevel = 200.0F;
 		    FontRenderer font = null;
 		    if (stack != null) font = stack.getItem().getFontRenderer(stack);
-		    if (font == null) font = mc.fontRenderer;
-		    itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), stack, x, y);
-		    itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), stack, x, y, text);
-		    itemRender.zLevel = 0.0F;
+		    if (font == null) font = mc.fontRendererObj;
+		    itemRender.renderItemAndEffectIntoGUI(stack, x, y);
+		    itemRender.renderItemOverlayIntoGUI(font, stack, x, y, text);
 		    
-		    GL11.glDisable(GL11.GL_LIGHTING);
+		    RenderHelper.disableStandardItemLighting();
 		} catch(Exception e)
 		{
 		}
+		
+	    itemRender.zLevel = preZ; // Just in case
 		
         GL11.glPopMatrix();
 	}
@@ -82,9 +83,10 @@ public class RenderUtils
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
 	        RenderHelper.enableStandardItemLighting();
-	        GL11.glTranslatef(0.0F, entity.yOffset, 0.0F);
-	        RenderManager.instance.playerViewY = 180.0F;
-	        RenderManager.instance.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        GL11.glTranslated(0D, entity.getYOffset(), 0D);
+	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+	        rendermanager.setPlayerViewY(180.0F);
+	        rendermanager.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
 	        GL11.glPopMatrix();
@@ -120,7 +122,7 @@ public class RenderUtils
 	
 	public static void DrawFakeButton(GuiQuesting screen, int x, int y, int width, int height, String text, int state)
 	{
-        FontRenderer fontrenderer = screen.mc.fontRenderer;
+        FontRenderer fontrenderer = screen.mc.fontRendererObj;
         screen.mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glEnable(GL11.GL_BLEND);
@@ -246,8 +248,7 @@ public class RenderUtils
         
 		// Render split
 
-        @SuppressWarnings("unchecked")
-		List<String> list = renderer.listFormattedStringToWidth(string, width);
+        List<String> list = renderer.listFormattedStringToWidth(string, width);
 
         for (int i = 0; i < list.size() && i <= end; i++)
         {

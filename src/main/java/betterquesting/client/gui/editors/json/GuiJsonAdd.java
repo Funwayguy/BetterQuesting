@@ -1,18 +1,8 @@
 package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.JsonIO;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -24,6 +14,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.utils.JsonIO;
+import betterquesting.utils.NBTConverter;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonAdd extends GuiQuesting
@@ -50,7 +51,6 @@ public class GuiJsonAdd extends GuiQuesting
 		this.json = json;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -64,7 +64,7 @@ public class GuiJsonAdd extends GuiQuesting
 		
 		if(json.isJsonObject())
 		{
-			keyText = new GuiTextField(this.fontRendererObj, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 48, 200, 16);
+			keyText = new GuiTextField(0, this.fontRendererObj, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 48, 200, 16);
 			keyText.setMaxStringLength(Integer.MAX_VALUE);
 			((GuiButton)this.buttonList.get(0)).enabled = false;
 			btnOff = 0;
@@ -102,16 +102,16 @@ public class GuiJsonAdd extends GuiQuesting
 		if(keyText != null)
 		{
 			String txt = I18n.format("betterquesting.gui.key");
-			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			if(keyText.getText().length() <= 0)
 			{
 				txt = I18n.format("betterquesting.gui.no_key");
-				mc.fontRenderer.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			} else if(json.getAsJsonObject().has(keyText.getText()))
 			{
 				txt = I18n.format("betterquesting.gui.duplicate_key");
-				mc.fontRenderer.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			}
 		}
 	}
@@ -120,7 +120,7 @@ public class GuiJsonAdd extends GuiQuesting
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int num)
+    protected void keyTyped(char character, int num) throws IOException
     {
 		super.keyTyped(character, num);
 		
@@ -144,7 +144,7 @@ public class GuiJsonAdd extends GuiQuesting
     }
 	
 	@Override
-	public void mouseClicked(int x, int y, int type)
+	public void mouseClicked(int x, int y, int type) throws IOException
 	{
 		super.mouseClicked(x, y, type);
 		if(keyText != null)

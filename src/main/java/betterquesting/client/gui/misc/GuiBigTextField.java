@@ -17,7 +17,7 @@ public class GuiBigTextField extends GuiTextField
 	
 	public GuiBigTextField(FontRenderer fontrenderer, int posX, int posY, int width, int height)
 	{
-		super(fontrenderer, posX, posY, width, height);
+		super(0, fontrenderer, posX, posY, width, height);
 	}
 	
 	public GuiBigTextField enableBigEdit(ITextEditor host, int id)

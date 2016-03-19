@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
@@ -9,6 +10,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuestInstance;
@@ -24,8 +27,6 @@ import betterquesting.quests.QuestLine.QuestLineEntry;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorB extends GuiQuesting
@@ -47,7 +48,6 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -59,7 +59,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.searchBox = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
+		this.searchBox = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
 		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons
@@ -143,9 +143,9 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format("betterquesting.gui.quest_line");
-		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		txt = I18n.format("betterquesting.gui.database");
-		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		searchBox.drawTextBox();
 	}
@@ -241,7 +241,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -300,7 +300,6 @@ public class GuiQuestLineEditorB extends GuiQuesting
 			}
 		}
     	
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 2; i < btnList.size(); i++)
@@ -366,7 +365,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int num)
+    protected void keyTyped(char character, int num) throws IOException
     {
 		super.keyTyped(character, num);
 		String prevTxt = searchBox.getText();
@@ -400,7 +399,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	}
 	
 	@Override
-	public void mouseClicked(int mx, int my, int type)
+	public void mouseClicked(int mx, int my, int type) throws IOException
 	{
 		super.mouseClicked(mx, my, type);
 		this.searchBox.mouseClicked(mx, my, type);

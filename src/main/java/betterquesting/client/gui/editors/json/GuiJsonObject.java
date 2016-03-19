@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -8,6 +9,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -22,8 +25,6 @@ import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonObject extends GuiQuesting implements ITextEditor
@@ -55,7 +56,6 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 		return this;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -239,7 +239,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 	}
 	
 	@Override
-	public void mouseClicked(int x, int y, int type)
+	public void mouseClicked(int x, int y, int type) throws IOException
 	{
 		super.mouseClicked(x, y, type);
 		
@@ -253,7 +253,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int num)
+    protected void keyTyped(char character, int num) throws IOException
     {
 		super.keyTyped(character, num);
 		

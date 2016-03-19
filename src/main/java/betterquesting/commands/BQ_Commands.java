@@ -9,8 +9,10 @@ import betterquesting.commands.admin.QuestCommandEdit;
 import betterquesting.commands.admin.QuestCommandHardcore;
 import betterquesting.commands.admin.QuestCommandReset;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.util.BlockPos;
 
 public class BQ_Commands extends CommandBase
 {
@@ -59,9 +61,8 @@ public class BQ_Commands extends CommandBase
     /**
      * Adds the strings available in this command to the given list of tab completion options.
      */
-	@SuppressWarnings("unchecked")
 	@Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings, BlockPos pos)
     {
 		if(strings.length == 1)
 		{
@@ -92,7 +93,7 @@ public class BQ_Commands extends CommandBase
     }
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] args)
+	public void processCommand(ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
 		{

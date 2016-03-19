@@ -1,12 +1,12 @@
 package betterquesting.network;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerQuestDB extends PktHandler
 {

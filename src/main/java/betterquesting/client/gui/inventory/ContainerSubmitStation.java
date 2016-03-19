@@ -50,7 +50,6 @@ public class ContainerSubmitStation extends Container
         }
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void moveInventorySlots(int x, int y)
 	{
 		ArrayList<Slot> slots = (ArrayList<Slot>)inventorySlots;

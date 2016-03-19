@@ -1,0 +1,20 @@
+{
+    "elements": [
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "texture": "#t1", "cullface": "down" },
+                "up":    { "texture": "#t1", "cullface": "up" },
+                "north": { "texture": "#t2", "cullface": "north" },
+                "south": { "texture": "#t2", "cullface": "south" },
+                "west":  { "texture": "#t2", "cullface": "west" },
+                "east":  { "texture": "#t2", "cullface": "east" }
+            }
+        }
+    ],
+    "textures": {
+        "particle": "betterquesting:/blocks/submit_station_side",
+        "t1": "betterquesting:blocks/submit_station_top",
+        "t2": "betterquesting:/blocks/submit_station_side"
+    }
+}

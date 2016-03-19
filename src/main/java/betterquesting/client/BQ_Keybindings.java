@@ -1,9 +1,9 @@
 package betterquesting.client;
 
-import org.lwjgl.input.Keyboard;
-import cpw.mods.fml.client.registry.ClientRegistry;
-import betterquesting.core.BetterQuesting;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import org.lwjgl.input.Keyboard;
+import betterquesting.core.BetterQuesting;
 
 public class BQ_Keybindings
 {

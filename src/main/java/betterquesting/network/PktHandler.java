@@ -2,7 +2,7 @@ package betterquesting.network;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 // Made to cleanup the old singular packet handler
 public abstract class PktHandler

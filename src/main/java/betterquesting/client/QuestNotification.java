@@ -11,12 +11,12 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.core.BQ_Settings;
 import betterquesting.utils.RenderUtils;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class QuestNotification
@@ -52,7 +52,7 @@ public class QuestNotification
 		}
 		
 		Minecraft mc = Minecraft.getMinecraft();
-		ScaledResolution resolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+		ScaledResolution resolution = new ScaledResolution(mc);
 		int width = resolution.getScaledWidth();
 		int height = resolution.getScaledHeight();
 		QuestNotice notice = notices.get(0);
@@ -66,7 +66,7 @@ public class QuestNotification
 			
 			notice.init = true;
 			notice.startTime = Minecraft.getSystemTime();
-			mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation(notice.sound), 1.0F));
+			mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(notice.sound), 1.0F));
 		}
 		
 		if(notice.getTime() >= 6F)
@@ -98,12 +98,12 @@ public class QuestNotification
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
 		String tmp = EnumChatFormatting.UNDERLINE + "" + EnumChatFormatting.BOLD + StatCollector.translateToLocal(notice.mainTxt);
-		int txtW = mc.fontRenderer.getStringWidth(tmp);
-		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4, color, false);
+		int txtW = mc.fontRendererObj.getStringWidth(tmp);
+		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
 		tmp = StatCollector.translateToLocal(notice.subTxt);
-		txtW = mc.fontRenderer.getStringWidth(tmp);
-		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
+		txtW = mc.fontRendererObj.getStringWidth(tmp);
+		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();

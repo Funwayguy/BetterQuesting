@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 import betterquesting.commands.QuestCommandBase;
@@ -48,7 +49,7 @@ public class QuestCommandDelete extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args[1].equalsIgnoreCase("all"))
 		{

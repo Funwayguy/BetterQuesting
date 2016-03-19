@@ -3,6 +3,7 @@ package betterquesting.commands;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 
@@ -29,7 +30,7 @@ public abstract class QuestCommandBase
 		return new ArrayList<String>();
 	}
 	
-	public abstract void runCommand(CommandBase command, ICommandSender sender, String[] args);
+	public abstract void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException;
 	
 	public final WrongUsageException getException(CommandBase command)
 	{

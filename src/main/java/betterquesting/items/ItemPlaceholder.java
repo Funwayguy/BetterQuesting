@@ -6,17 +6,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.core.BetterQuesting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemPlaceholder extends Item
 {
 	// Used solely for retaining info to missing items
 	public ItemPlaceholder()
 	{
-		this.setTextureName("betterquesting:placeholder");
+		//this.setTextureName("betterquesting:placeholder");
 		this.setUnlocalizedName("betterquesting.placeholder");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 	}
@@ -53,13 +54,13 @@ public class ItemPlaceholder extends Item
     	EntityPlayer player = (EntityPlayer)entity;
     	
     	NBTTagCompound tags = stack.getTagCompound();
-    	Item i = (Item)Item.itemRegistry.getObject(tags.getString("orig_id"));
+    	Item i = (Item)Item.itemRegistry.getObject(new ResourceLocation(tags.getString("orig_id")));
     	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
     	
     	if(i != null)
     	{
     		ItemStack converted = new ItemStack(i, stack.stackSize, stack.getItemDamage());
-    		converted.stackTagCompound = t;
+    		converted.setTagCompound(t);
     		player.inventory.setInventorySlotContents(slot, converted);
     	}
     }

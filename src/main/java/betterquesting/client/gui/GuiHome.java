@@ -22,7 +22,6 @@ public class GuiHome extends GuiQuesting
 		super(parent, "");
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{

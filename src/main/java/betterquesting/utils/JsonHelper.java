@@ -2,6 +2,7 @@ package betterquesting.utils;
 
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -138,7 +139,7 @@ public class JsonHelper
 			item = (Item)Item.itemRegistry.getObjectById(jID.getAsInt()); // Old format (numbers)
 		} else
 		{
-			item = (Item)Item.itemRegistry.getObject(jID.getAsString()); // New format (names)
+			item = (Item)Item.itemRegistry.getObject(new ResourceLocation(jID.getAsString())); // New format (names)
 		}
 		
 		NBTTagCompound tags = null;
@@ -163,7 +164,7 @@ public class JsonHelper
 		{
 			if(tags != null)
 			{
-				Item restored = (Item)Item.itemRegistry.getObject(tags.getString("orig_id"));
+				Item restored = (Item)Item.itemRegistry.getObject(new ResourceLocation(tags.getString("orig_id")));
 				
 				if(restored != null)
 				{
@@ -201,7 +202,7 @@ public class JsonHelper
 			return json;
 		}
 		
-		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()));
+		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()).toString());
 		json.addProperty("Count", stack.stackSize);
 		json.addProperty("OreDict", stack.oreDict);
 		json.addProperty("Damage", stack.getBaseStack().getItemDamage());

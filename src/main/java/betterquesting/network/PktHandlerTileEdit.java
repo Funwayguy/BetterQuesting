@@ -1,10 +1,11 @@
 package betterquesting.network;
 
-import betterquesting.blocks.TileSubmitStation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import net.minecraft.util.BlockPos;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import betterquesting.blocks.TileSubmitStation;
 
 public class PktHandlerTileEdit extends PktHandler
 {
@@ -12,7 +13,7 @@ public class PktHandlerTileEdit extends PktHandler
 	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data)
 	{
 		NBTTagCompound tileData = data.getCompoundTag("tile");
-		TileEntity tile = sender.worldObj.getTileEntity(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z"));
+		TileEntity tile = sender.worldObj.getTileEntity(new BlockPos(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z")));
 		
 		if(tile != null && tile instanceof TileSubmitStation)
 		{

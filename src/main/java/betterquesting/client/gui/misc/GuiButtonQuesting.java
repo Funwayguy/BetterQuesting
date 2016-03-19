@@ -7,10 +7,10 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonQuesting extends GuiButton
@@ -32,11 +32,11 @@ public class GuiButtonQuesting extends GuiButton
     {
         if (this.visible)
         {
-            FontRenderer fontrenderer = p_146112_1_.fontRenderer;
+            FontRenderer fontrenderer = p_146112_1_.fontRendererObj;
             p_146112_1_.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.field_146123_n = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
-            int k = this.getHoverState(this.field_146123_n);
+            this.hovered = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
+            int k = this.getHoverState(this.hovered);
             GL11.glEnable(GL11.GL_BLEND);
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -71,7 +71,7 @@ public class GuiButtonQuesting extends GuiButton
             {
                 l = 10526880;
             }
-            else if (this.field_146123_n)
+            else if (this.hovered)
             {
                 l = 16777120;
             }
@@ -89,8 +89,8 @@ public class GuiButtonQuesting extends GuiButton
     }
 	
 	@Override
-	public void func_146113_a(SoundHandler p_146113_1_)
+	public void playPressSound(SoundHandler p_146113_1_)
     {
-        p_146113_1_.playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
+        p_146113_1_.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
     }
 }

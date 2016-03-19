@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -25,7 +26,6 @@ public class QuestCommandComplete extends QuestCommandBase
 		return args.length == 3;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public List<String> autoComplete(ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -51,12 +51,12 @@ public class QuestCommandComplete extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		UUID uuid = null;
 		EntityPlayerMP player = null;
 		
-		player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
+		player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[2]);
 		
 		if(player == null)
 		{
@@ -78,7 +78,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			QuestInstance quest = QuestDatabase.getQuestByID(id);
 			quest.setComplete(uuid, 0);
 			
-			sender.addChatMessage(new ChatComponentText("Manually completed quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+			sender.addChatMessage(new ChatComponentText("Manually completed quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 		} catch(Exception e)
 		{
 			throw getException(command);

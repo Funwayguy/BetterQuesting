@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -7,6 +8,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -21,8 +24,6 @@ import betterquesting.quests.tasks.TaskRegistry;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiTaskEditor extends GuiQuesting
@@ -41,7 +42,6 @@ public class GuiTaskEditor extends GuiQuesting
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -170,7 +170,7 @@ public class GuiTaskEditor extends GuiQuesting
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -209,7 +209,6 @@ public class GuiTaskEditor extends GuiQuesting
     	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, TaskRegistry.GetTypeList().size() - maxRows));
 		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.tasks.size() - maxRows));
 		
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)

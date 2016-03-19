@@ -1,7 +1,6 @@
 package betterquesting.lives;
 
 import java.util.Date;
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,16 +12,17 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiGameOverBQ;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class LifeManager
 {
@@ -39,7 +39,7 @@ public class LifeManager
 			
 			if(tracker == null)
 			{
-				BetterQuesting.logger.log(Level.WARN, "Unable to get life data for " + player.getCommandSenderName());
+				BetterQuesting.logger.log(Level.WARN, "Unable to get life data for " + player.getName());
 				return 1; // Likely an error occurred, don't kill off the player because of it
 			} else
 			{
@@ -94,7 +94,7 @@ public class LifeManager
 		
 		if(tracker == null)
 		{
-			BetterQuesting.logger.log(Level.WARN, "Unable to find tracker for " + player.getCommandSenderName() + " to sync");
+			BetterQuesting.logger.log(Level.WARN, "Unable to find tracker for " + player.getName() + " to sync");
 			return;
 		}
 		
@@ -170,7 +170,7 @@ public class LifeManager
 					return;
 				}
 	            
-	            if (server.isSinglePlayer() && mpPlayer.getCommandSenderName().equals(server.getServerOwner()))
+	            if (server.isSinglePlayer() && mpPlayer.getName().equals(server.getServerOwner()))
                 {
                     mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
                     server.deleteWorldAndStopServer();
@@ -178,7 +178,7 @@ public class LifeManager
                 else
                 {
                     UserListBansEntry userlistbansentry = new UserListBansEntry(mpPlayer.getGameProfile(), (Date)null, "(You just lost the game)", (Date)null, "Death in Hardcore");
-                    server.getConfigurationManager().func_152608_h().func_152687_a(userlistbansentry);
+                    server.getConfigurationManager().getBannedPlayers().addEntry(userlistbansentry);
                     mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
                 }
 			} else

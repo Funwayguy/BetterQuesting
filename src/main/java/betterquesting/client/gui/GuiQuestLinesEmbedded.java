@@ -160,8 +160,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRenderer.drawString(EnumChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			mc.fontRenderer.drawString(EnumChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
 		
@@ -242,26 +242,26 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			btnGrb.enabled = true;
 			btnLnk.enabled = true;
 			toolType = 0;
-			btnSel.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
+			btnSel.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnGrb.mousePressed(Minecraft.getMinecraft(), mx, my))
 		{
 			btnSel.enabled = true;
 			btnGrb.enabled = false;
 			btnLnk.enabled = true;
 			toolType = 1;
-			btnGrb.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
+			btnGrb.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnLnk.mousePressed(Minecraft.getMinecraft(), mx, my))
 		{
 			btnSel.enabled = true;
 			btnGrb.enabled = true;
 			btnLnk.enabled = false;
 			toolType = 2;
-			btnLnk.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
+			btnLnk.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnSnp.mousePressed(Minecraft.getMinecraft(), mx, my))
 		{
 			dragSnap = (dragSnap + 1)%snaps.length;
 			btnSnp.displayString = I18n.format("betterquesting.tool.snap", dragSnap + 1);
-			btnSnp.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
+			btnSnp.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my) && qLine != null)
 		{
 			QDesignTree.instance.arrangeQuests(qLine);
@@ -279,7 +279,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			
 			autoAlign(QuestDatabase.editMode);
 			
-			btnAto.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
+			btnAto.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		}
 		
 		if(!screen.isWithin(mx, my, posX, posY, QuestDatabase.editMode? sizeX - 40 : sizeX, sizeY, false))

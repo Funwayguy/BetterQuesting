@@ -1,10 +1,13 @@
 package betterquesting.client.gui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
@@ -15,8 +18,6 @@ import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestLinesMain extends GuiQuesting
@@ -33,14 +34,11 @@ public class GuiQuestLinesMain extends GuiQuesting
 	GuiQuestLinesEmbedded qlGui;
 	GuiScrollingText qlDesc;
 	
-	// TODO: Embed context menu for moving quest lines
-	
 	public GuiQuestLinesMain(GuiScreen parent)
 	{
 		super(parent, I18n.format("betterquesting.title.quest_lines"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -190,7 +188,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 	}
 	
 	@Override
-    protected void mouseClicked(int mx, int my, int type)
+    protected void mouseClicked(int mx, int my, int type) throws IOException
     {
 		super.mouseClicked(mx, my, type);
 		
@@ -200,7 +198,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(qBtn != null)
 			{
-				qBtn.func_146113_a(this.mc.getSoundHandler());
+				qBtn.playPressSound(this.mc.getSoundHandler());
 				bookmarked = new GuiQuestInstance(this, qBtn.quest);
 				mc.displayGuiScreen(bookmarked);
 			}
@@ -208,7 +206,7 @@ public class GuiQuestLinesMain extends GuiQuesting
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		

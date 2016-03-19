@@ -1,17 +1,17 @@
 package betterquesting.network;
 
 import java.util.UUID;
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
-import betterquesting.party.PartyInstance;
-import betterquesting.party.PartyManager;
-import betterquesting.party.PartyInstance.PartyMember;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import org.apache.logging.log4j.Level;
+import betterquesting.core.BetterQuesting;
+import betterquesting.party.PartyInstance;
+import betterquesting.party.PartyInstance.PartyMember;
+import betterquesting.party.PartyManager;
+import betterquesting.utils.NBTConverter;
+import com.google.gson.JsonObject;
 
 public class PktHandlerPartyAction extends PktHandler
 {
@@ -101,14 +101,14 @@ public class PktHandlerPartyAction extends PktHandler
 			{
 				if(!party.JoinParty(sender.getUniqueID()))
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Player " + sender.getCommandSenderName() + " was unable to join party " + name);
+					BetterQuesting.logger.log(Level.ERROR, "Player " + sender.getName() + " was unable to join party " + name);
 				} else
 				{
 					PartyManager.UpdateClients();
 				}
 			} else
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Player " + sender.getCommandSenderName() + " was unable to join party " + name);
+				BetterQuesting.logger.log(Level.ERROR, "Player " + sender.getName() + " was unable to join party " + name);
 			}
 		} else if(action == 4) // Invite to party
 		{
@@ -126,7 +126,7 @@ public class PktHandlerPartyAction extends PktHandler
 			}
 			
 			String username = data.getString("Member");
-			EntityPlayer inviteUser = MinecraftServer.getServer().getConfigurationManager().func_152612_a(username);
+			EntityPlayer inviteUser = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(username);
 			
 			if(inviteUser != null)
 			{

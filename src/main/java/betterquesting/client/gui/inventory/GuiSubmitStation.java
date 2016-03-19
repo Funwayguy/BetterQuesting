@@ -1,6 +1,7 @@
 package betterquesting.client.gui.inventory;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -41,7 +42,6 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		this.setMaxSize(500, 300);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -120,19 +120,19 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		
 		this.drawTexturedModalRect(invX, invY, 0, 48, 18, 18);
 		
-		mc.fontRenderer.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
-		mc.fontRenderer.drawString("-->", invX - 17, invY + 6, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
+		mc.fontRendererObj.drawString("-->", invX - 17, invY + 6, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		if(quest != null)
 		{
-			mc.fontRenderer.drawString(I18n.format(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(I18n.format(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
 		if(task != null)
 		{
-			mc.fontRenderer.drawString(task.getDisplayName(), guiLeft + sizeX/2 - 92, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(task.getDisplayName(), guiLeft + sizeX/2 - 92, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
 		if(taskUI != null)
@@ -142,7 +142,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 	}
 	
 	@Override
-	public void keyTyped(char character, int keyCode)
+	public void keyTyped(char character, int keyCode) throws IOException
 	{
 		super.keyTyped(character, keyCode);
 		
@@ -153,7 +153,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 	}
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		

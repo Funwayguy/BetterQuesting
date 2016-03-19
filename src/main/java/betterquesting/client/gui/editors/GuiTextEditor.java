@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -7,6 +8,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -14,8 +17,6 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.gui.misc.ITextEditor;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiTextEditor extends GuiQuesting
@@ -46,8 +47,7 @@ public class GuiTextEditor extends GuiQuesting
     /**
      * Adds the buttons (and other controls) to the screen in question.
      */
-    @SuppressWarnings("unchecked")
-	public void initGui()
+    public void initGui()
     {
     	super.initGui();
     	
@@ -259,7 +259,7 @@ public class GuiTextEditor extends GuiQuesting
                             this.deleteFromCursor(1);
                             return;
                         default:
-                            this.writeText(ChatAllowedCharacters.filerAllowedCharacters(Character.toString(p_146201_1_)));
+                            this.writeText(ChatAllowedCharacters.filterAllowedCharacters(Character.toString(p_146201_1_)));
                             return;
                     }
             }
@@ -333,7 +333,7 @@ public class GuiTextEditor extends GuiQuesting
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -352,7 +352,6 @@ public class GuiTextEditor extends GuiQuesting
 	{
 		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, EnumChatFormatting.values().length - maxRows));
 
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)

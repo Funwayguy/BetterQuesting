@@ -1,5 +1,6 @@
 package betterquesting.client.gui.help;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
@@ -24,7 +25,6 @@ public class GuiQuestingHelp extends GuiQuesting
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -91,7 +91,7 @@ public class GuiQuestingHelp extends GuiQuesting
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -110,7 +110,6 @@ public class GuiQuestingHelp extends GuiQuesting
 	{
 		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, helpTopics.size() - maxRows));
 
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)

@@ -22,16 +22,15 @@ public class GuiScrollingText extends GuiBQScrolling
 	
 	public GuiScrollingText(GuiScreen parent, int width, int height, int top, int left, String text)
 	{
-		super(parent.mc, width, height, top, top + height, left, parent.mc.fontRenderer.FONT_HEIGHT + 2);
+		super(parent.mc, width, height, top, top + height, left, parent.mc.fontRendererObj.FONT_HEIGHT + 2);
 		this.parent = parent;
 		this.SetText(text);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void SetText(String txt)
 	{
 		this.rawText = txt.replaceAll("\r", "");
-		this.text = parent.mc.fontRenderer.listFormattedStringToWidth(rawText, listWidth - 12);
+		this.text = parent.mc.fontRendererObj.listFormattedStringToWidth(rawText, listWidth - 12);
 	}
 	
 	public String getText()
@@ -53,7 +52,7 @@ public class GuiScrollingText extends GuiBQScrolling
     @Override
     protected int getContentHeight()
     {
-    	return text.size() * (parent.mc.fontRenderer.FONT_HEIGHT + 2);
+    	return text.size() * (parent.mc.fontRendererObj.FONT_HEIGHT + 2);
     }
 	
 	@Override
@@ -76,6 +75,6 @@ public class GuiScrollingText extends GuiBQScrolling
 		}
 		
 		// Using this to preserve color formatting
-		RenderUtils.drawSplitString(parent.mc.fontRenderer, rawText, left + 4, posY + 1, listWidth - 12, ThemeRegistry.curTheme().textColor().getRGB(), false, index, index);
+		RenderUtils.drawSplitString(parent.mc.fontRendererObj, rawText, left + 4, posY + 1, listWidth - 12, ThemeRegistry.curTheme().textColor().getRGB(), false, index, index);
 	}
 }

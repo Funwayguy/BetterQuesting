@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
@@ -12,7 +13,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerLineEdit extends PktHandler
 {
@@ -24,9 +24,9 @@ public class PktHandlerLineEdit extends PktHandler
 			return null;
 		}
 		
-		if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile()))
+		if(!MinecraftServer.getServer().getConfigurationManager().canSendCommands(sender.getGameProfile()))
 		{
-			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quest lines without OP permissions!");
+			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quest lines without OP permissions!");
 			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
 			return null; // Player is not operator. Do nothing
 		}
@@ -35,7 +35,7 @@ public class PktHandlerLineEdit extends PktHandler
 		
 		if(action < 0)
 		{
-			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
+			BetterQuesting.logger.log(Level.ERROR, sender.getName() + " tried to perform invalid quest edit action: " + action);
 			return null;
 		}
 		

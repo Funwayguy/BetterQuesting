@@ -1,10 +1,13 @@
 package betterquesting.client.gui;
 
+import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -18,8 +21,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.rewards.RewardBase;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.RenderUtils;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestInstance extends GuiQuesting
@@ -42,7 +43,6 @@ public class GuiQuestInstance extends GuiQuesting
 		this.quest = quest;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -256,7 +256,7 @@ public class GuiQuestInstance extends GuiQuesting
 	}
 	
 	@Override
-    protected void keyTyped(char character, int keyCode)
+    protected void keyTyped(char character, int keyCode) throws IOException
     {
         super.keyTyped(character, keyCode);
         
@@ -272,7 +272,7 @@ public class GuiQuestInstance extends GuiQuesting
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		if(taskRender != null)
 		{

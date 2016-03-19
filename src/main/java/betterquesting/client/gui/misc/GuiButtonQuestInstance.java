@@ -9,13 +9,13 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.RenderUtils;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonQuestInstance extends GuiButtonQuesting
@@ -86,8 +86,8 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         	
             mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.field_146123_n = this.mousePressed(mc, mx, my);
-            int state = this.getHoverState(this.field_146123_n);
+            this.hovered = this.mousePressed(mc, mx, my);
+            int state = this.getHoverState(this.hovered);
             GL11.glEnable(GL11.GL_BLEND);
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

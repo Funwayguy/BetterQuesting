@@ -2,10 +2,11 @@ package betterquesting.client.gui.misc;
 
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -282,7 +283,9 @@ public abstract class GuiBQScrolling
         }
 
         this.applyScrollLimits();
-        Tessellator var18 = Tessellator.instance;
+        Tessellator var18 = Tessellator.getInstance();
+        WorldRenderer worldr = var18.getWorldRenderer();
+        
         /*if (this.client.theWorld != null)
         {
             this.drawGradientRect(this.left, this.top, this.right, this.bottom, -1072689136, -804253680);
@@ -311,8 +314,6 @@ public abstract class GuiBQScrolling
             this.func_27260_a(boxRight, var10, var18);
         }
 
-        int var14;
-
         for (var11 = 0; var11 < listLength; ++var11)
         {
             var19 = var10 + var11 * this.slotHeight + this.field_27261_r;
@@ -322,23 +323,21 @@ public abstract class GuiBQScrolling
             {
                 if (this.field_25123_p && this.isSelected(var11))
                 {
-                    var14 = boxLeft;
-                    int var15 = boxRight;
-                    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                    GL11.glDisable(GL11.GL_TEXTURE_2D);
-                    var18.startDrawingQuads();
-                    var18.setColorOpaque_I(8421504);
-                    var18.addVertexWithUV((double)var14, (double)(var19 + var13 + 2), 0.0D, 0.0D, 1.0D);
-                    var18.addVertexWithUV((double)var15, (double)(var19 + var13 + 2), 0.0D, 1.0D, 1.0D);
-                    var18.addVertexWithUV((double)var15, (double)(var19 - 2), 0.0D, 1.0D, 0.0D);
-                    var18.addVertexWithUV((double)var14, (double)(var19 - 2), 0.0D, 0.0D, 0.0D);
-                    var18.setColorOpaque_I(0);
-                    var18.addVertexWithUV((double)(var14 + 1), (double)(var19 + var13 + 1), 0.0D, 0.0D, 1.0D);
-                    var18.addVertexWithUV((double)(var15 - 1), (double)(var19 + var13 + 1), 0.0D, 1.0D, 1.0D);
-                    var18.addVertexWithUV((double)(var15 - 1), (double)(var19 - 1), 0.0D, 1.0D, 0.0D);
-                    var18.addVertexWithUV((double)(var14 + 1), (double)(var19 - 1), 0.0D, 0.0D, 0.0D);
+                    int min = this.left;
+                    int max = boxRight;
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    GlStateManager.disableTexture2D();
+                    worldr.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+                    worldr.pos(min,     var19 + var13 + 2, 0).tex(0, 1).color(0x80, 0x80, 0x80, 0xFF).endVertex();
+                    worldr.pos(max,     var19 + var13 + 2, 0).tex(1, 1).color(0x80, 0x80, 0x80, 0xFF).endVertex();
+                    worldr.pos(max,     var19         - 2, 0).tex(1, 0).color(0x80, 0x80, 0x80, 0xFF).endVertex();
+                    worldr.pos(min,     var19         - 2, 0).tex(0, 0).color(0x80, 0x80, 0x80, 0xFF).endVertex();
+                    worldr.pos(min + 1, var19 + var13 + 1, 0).tex(0, 1).color(0x00, 0x00, 0x00, 0xFF).endVertex();
+                    worldr.pos(max - 1, var19 + var13 + 1, 0).tex(1, 1).color(0x00, 0x00, 0x00, 0xFF).endVertex();
+                    worldr.pos(max - 1, var19         - 1, 0).tex(1, 0).color(0x00, 0x00, 0x00, 0xFF).endVertex();
+                    worldr.pos(min + 1, var19         - 1, 0).tex(0, 0).color(0x00, 0x00, 0x00, 0xFF).endVertex();
                     var18.draw();
-                    GL11.glEnable(GL11.GL_TEXTURE_2D);
+                    GlStateManager.enableTexture2D();
                 }
 
                 this.drawSlot(var11, boxRight, var19, var13, var18);
@@ -349,8 +348,7 @@ public abstract class GuiBQScrolling
         //byte var20 = 4;
         if (this.client.theWorld == null)
         {
-            this.overlayBackground(0, this.top, 255, 255);
-            this.overlayBackground(this.bottom, this.listHeight, 255, 255);
+            this.drawGradientRect(this.left, this.top, this.right, this.bottom, 0xC0101010, 0xD0101010);
         }
         
         RenderUtils.DrawLine(left, top, right, top, 1F, ThemeRegistry.curTheme().textColor());
@@ -395,7 +393,7 @@ public abstract class GuiBQScrolling
                 var13 = this.bottom - this.top - 8;
             }*/
             
-            var14 = (int)this.scrollDistance * (this.bottom - this.top - var13) / var19 + this.top;
+            int var14 = (int)this.scrollDistance * (this.bottom - this.top - var13) / var19 + this.top;
             
             if (var14 < this.top)
             {
@@ -456,65 +454,49 @@ public abstract class GuiBQScrolling
         GL11.glDisable(GL11.GL_BLEND);*/
     }
 
-    private void overlayBackground(int p_22239_1_, int p_22239_2_, int p_22239_3_, int p_22239_4_)
+    protected void drawGradientRect(int left, int top, int right, int bottom, int color1, int color2)
     {
-        Tessellator var5 = Tessellator.instance;
-        this.client.renderEngine.bindTexture(Gui.optionsBackground);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float var6 = 32.0F;
-        var5.startDrawingQuads();
-        var5.setColorRGBA_I(4210752, p_22239_4_);
-        var5.addVertexWithUV(0.0D, (double)p_22239_2_, 0.0D, 0.0D, (double)((float)p_22239_2_ / var6));
-        var5.addVertexWithUV((double)this.listWidth + 30, (double)p_22239_2_, 0.0D, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_2_ / var6));
-        var5.setColorRGBA_I(4210752, p_22239_3_);
-        var5.addVertexWithUV((double)this.listWidth + 30, (double)p_22239_1_, 0.0D, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_1_ / var6));
-        var5.addVertexWithUV(0.0D, (double)p_22239_1_, 0.0D, 0.0D, (double)((float)p_22239_1_ / var6));
-        var5.draw();
-    }
-
-    protected void drawGradientRect(int par1, int par2, int par3, int par4, int par5, int par6)
-    {
-        float f = (float)(par5 >> 24 & 255) / 255.0F;
-        float f1 = (float)(par5 >> 16 & 255) / 255.0F;
-        float f2 = (float)(par5 >> 8 & 255) / 255.0F;
-        float f3 = (float)(par5 & 255) / 255.0F;
-        float f4 = (float)(par6 >> 24 & 255) / 255.0F;
-        float f5 = (float)(par6 >> 16 & 255) / 255.0F;
-        float f6 = (float)(par6 >> 8 & 255) / 255.0F;
-        float f7 = (float)(par6 & 255) / 255.0F;
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GL11.glShadeModel(GL11.GL_SMOOTH);
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.setColorRGBA_F(f1, f2, f3, f);
-        tessellator.addVertex((double)par3, (double)par2, 0.0D);
-        tessellator.addVertex((double)par1, (double)par2, 0.0D);
-        tessellator.setColorRGBA_F(f5, f6, f7, f4);
-        tessellator.addVertex((double)par1, (double)par4, 0.0D);
-        tessellator.addVertex((double)par3, (double)par4, 0.0D);
+        float a1 = (float)(color1 >> 24 & 255) / 255.0F;
+        float r1 = (float)(color1 >> 16 & 255) / 255.0F;
+        float g1 = (float)(color1 >>  8 & 255) / 255.0F;
+        float b1 = (float)(color1       & 255) / 255.0F;
+        float a2 = (float)(color2 >> 24 & 255) / 255.0F;
+        float r2 = (float)(color2 >> 16 & 255) / 255.0F;
+        float g2 = (float)(color2 >>  8 & 255) / 255.0F;
+        float b2 = (float)(color2       & 255) / 255.0F;
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlpha();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(right, top, 0.0D).color(r1, g1, b1, a1).endVertex();
+        worldrenderer.pos(left,  top, 0.0D).color(r1, g1, b1, a1).endVertex();
+        worldrenderer.pos(left,  bottom, 0.0D).color(r2, g2, b2, a2).endVertex();
+        worldrenderer.pos(right, bottom, 0.0D).color(r2, g2, b2, a2).endVertex();
         tessellator.draw();
-        GL11.glShadeModel(GL11.GL_FLAT);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GlStateManager.shadeModel(GL11.GL_FLAT);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.enableTexture2D();
     }
 
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height
      */
-    protected void drawTexturedModalRect(int x, int y, int u, int v, int width, int height)
+    public void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
         float f = 0.00390625F;
         float f1 = 0.00390625F;
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + height), 0, (double)((float)(u + 0) * f), (double)((float)(v + height) * f1));
-        tessellator.addVertexWithUV((double)(x + width), (double)(y + height), 0, (double)((float)(u + width) * f), (double)((float)(v + height) * f1));
-        tessellator.addVertexWithUV((double)(x + width), (double)(y + 0), 0, (double)((float)(u + width) * f), (double)((float)(v + 0) * f1));
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), 0, (double)((float)(u + 0) * f), (double)((float)(v + 0) * f1));
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        worldrenderer.pos((double)(x + 0), (double)(y + height), 0).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + height), 0).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + 0), 0).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + 0) * f1)).endVertex();
+        worldrenderer.pos((double)(x + 0), (double)(y + 0), 0).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + 0) * f1)).endVertex();
         tessellator.draw();
     }
 }

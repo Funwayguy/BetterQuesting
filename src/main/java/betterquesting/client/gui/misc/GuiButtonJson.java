@@ -7,6 +7,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonArray;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
@@ -22,8 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonJson extends GuiButtonQuesting
@@ -64,7 +64,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 		
 		if(this.entity != null)
 		{
-			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getCommandSenderName();
+			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getName();
 		} else if(this.stack != null)
 		{
 			this.displayString = I18n.format("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();

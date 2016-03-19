@@ -1,6 +1,7 @@
 package betterquesting.client.gui;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -10,14 +11,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeBase;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.utils.RenderUtils;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiThemeSelect extends GuiQuesting
@@ -30,7 +31,6 @@ public class GuiThemeSelect extends GuiQuesting
 		super(parent, I18n.format("betterquesting.title.select_theme"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -97,7 +97,7 @@ public class GuiThemeSelect extends GuiQuesting
     	GL11.glColor4f(1F, 1F, 1F, 1F);
     	
     	String txt = EnumChatFormatting.BOLD + "EXAMPLE";
-    	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
+    	mc.fontRendererObj.drawString(txt, cx - mc.fontRendererObj.getStringWidth(txt)/2, cy - 32 - mc.fontRendererObj.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
     	
     	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");
 		
@@ -127,7 +127,7 @@ public class GuiThemeSelect extends GuiQuesting
      * Handles mouse input.
      */
 	@Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
 		super.handleMouseInput();
 		
@@ -146,7 +146,6 @@ public class GuiThemeSelect extends GuiQuesting
 	{
 		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, ThemeRegistry.GetAllThemes().size() - maxRows));
 		
-		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)

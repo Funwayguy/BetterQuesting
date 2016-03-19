@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -27,7 +28,6 @@ public class GuiImporters extends GuiQuesting
 		super(parent, "betterquesting.title.importers");
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -52,14 +52,14 @@ public class GuiImporters extends GuiQuesting
 		if(leftGui != null && rightImp != null)
 		{
 			String txt = EnumChatFormatting.UNDERLINE + I18n.format(leftImp.getUnlocalisedName());
-			mc.fontRenderer.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
+			mc.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			leftGui.drawGui(mx, my, partialTick);
 		}
 		
 		if(rightGui != null && rightImp != null)
 		{
 			String txt = EnumChatFormatting.UNDERLINE + I18n.format(rightImp.getUnlocalisedName());
-			mc.fontRenderer.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
+			mc.fontRendererObj.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			rightGui.drawGui(mx, my, partialTick);
 		}
 		
@@ -88,7 +88,7 @@ public class GuiImporters extends GuiQuesting
 	}
 	
 	@Override
-    protected void keyTyped(char character, int keyCode)
+    protected void keyTyped(char character, int keyCode) throws IOException
     {
         super.keyTyped(character, keyCode);
 		
@@ -104,7 +104,7 @@ public class GuiImporters extends GuiQuesting
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		

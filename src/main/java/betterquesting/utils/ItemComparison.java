@@ -1,7 +1,6 @@
 package betterquesting.utils;
 
 import java.util.ArrayList;
-import java.util.Set;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -99,17 +98,17 @@ public class ItemComparison
     		NBTTagIntArray list1 = (NBTTagIntArray)tag1;
     		NBTTagIntArray list2 = (NBTTagIntArray)tag2;
     		
-    		if(list1.func_150302_c().length > list2.func_150302_c().length)
+    		if(list1.getIntArray().length > list2.getIntArray().length)
     		{
     			return false; // Sample is missing requested tags
     		}
     		
     		topLoop:
-    		for(int i = 0; i < list1.func_150302_c().length; i++)
+    		for(int i = 0; i < list1.getIntArray().length; i++)
     		{
-    			for(int j = 0; j < list2.func_150302_c().length; j++)
+    			for(int j = 0; j < list2.getIntArray().length; j++)
     			{
-    				if(list1.func_150302_c()[i] == list2.func_150302_c()[j])
+    				if(list1.getIntArray()[i] == list2.getIntArray()[j])
     				{
     					continue topLoop;
     				}
@@ -124,7 +123,7 @@ public class ItemComparison
     		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
     		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
     		
-    		if(list1.func_150292_c().length > list2.func_150292_c().length)
+    		if(list1.getByteArray().length > list2.getByteArray().length)
     		{
     			return false; // Sample is missing requested tags
     		}
@@ -132,14 +131,14 @@ public class ItemComparison
     		ArrayList<Integer> usedIdxs = new ArrayList<Integer>(); // Duplicate control
     		
     		topLoop:
-    		for(int i = 0; i < list1.func_150292_c().length; i++)
+    		for(int i = 0; i < list1.getByteArray().length; i++)
     		{
-    			for(int j = 0; j < list2.func_150292_c().length; j++)
+    			for(int j = 0; j < list2.getByteArray().length; j++)
     			{
     				if(usedIdxs.contains(j))
     				{
     					continue;
-    				} else if(list1.func_150292_c()[i] == list2.func_150292_c()[j])
+    				} else if(list1.getByteArray()[i] == list2.getByteArray()[j])
     				{
     					usedIdxs.add(j);
     					continue topLoop;
@@ -158,10 +157,9 @@ public class ItemComparison
     	return true;
     }
     
-    @SuppressWarnings("unchecked")
-	private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample, boolean partial)
+    private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample, boolean partial)
     {
-    	for(String key : (Set<String>)reqTags.func_150296_c())
+    	for(String key : reqTags.getKeySet())
     	{
     		if(!sample.hasKey(key))
     		{

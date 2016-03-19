@@ -2,10 +2,10 @@ package betterquesting.client.gui.misc;
 
 import java.util.ArrayList;
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLine.QuestLineEntry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiButtonQuestLine extends GuiButtonQuesting

@@ -2,7 +2,6 @@ package betterquesting.utils;
 
 import java.util.ArrayList;
 import java.util.Map.Entry;
-import java.util.Set;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -15,6 +14,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.Gson;
@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
 
 public class NBTConverter
 {
@@ -46,12 +45,12 @@ public class NBTConverter
 		{
 			NBTTagString sTag = (NBTTagString)tag;
 			
-			if(sTag.func_150285_a_().startsWith("raw_json:")) // Prefix format = "raw_json:#:" where # is the JsonElement ID
+			if(sTag.getString().startsWith("raw_json:")) // Prefix format = "raw_json:#:" where # is the JsonElement ID
 			{
 				try
 				{
-					String jText = sTag.func_150285_a_().substring(11);
-					int rawID = Integer.parseInt(sTag.func_150285_a_().substring(9, 10));
+					String jText = sTag.getString().substring(11);
+					int rawID = Integer.parseInt(sTag.getString().substring(9, 10));
 					Class<? extends JsonElement> rawClass = getJsonFallback(rawID);
 					JsonElement json = new Gson().fromJson(jText, rawClass);
 					
@@ -65,7 +64,7 @@ public class NBTConverter
 				}
 			}
 			
-			return new JsonPrimitive(((NBTTagString)tag).func_150285_a_());
+			return new JsonPrimitive(((NBTTagString)tag).getString());
 		} else if(tag instanceof NBTTagCompound)
 		{
 			return NBTtoJSON_Compound((NBTTagCompound)tag, new JsonObject());
@@ -85,7 +84,7 @@ public class NBTConverter
 		{
 			JsonArray jAry = new JsonArray();
 			
-			for(byte b : ((NBTTagByteArray)tag).func_150292_c())
+			for(byte b : ((NBTTagByteArray)tag).getByteArray())
 			{
 				jAry.add(new JsonPrimitive(b));
 			}
@@ -95,7 +94,7 @@ public class NBTConverter
 		{
 			JsonArray jAry = new JsonArray();
 			
-			for(int i : ((NBTTagIntArray)tag).func_150302_c())
+			for(int i : ((NBTTagIntArray)tag).getIntArray())
 			{
 				jAry.add(new JsonPrimitive(i));
 			}
@@ -107,7 +106,6 @@ public class NBTConverter
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static JsonObject NBTtoJSON_Compound(NBTTagCompound parent, JsonObject jObj)
 	{
 		if(parent == null)
@@ -115,7 +113,7 @@ public class NBTConverter
 			return jObj;
 		}
 		
-		for(String key : (Set<String>)parent.func_150296_c())
+		for(String key : parent.getKeySet())
 		{
 			NBTBase tag = parent.getTag(key);
 			
@@ -310,22 +308,22 @@ public class NBTConverter
 	{
 		if(tag instanceof NBTTagByte)
 		{
-			return ((NBTTagByte)tag).func_150290_f();
+			return ((NBTTagByte)tag).getByte();
 		} else if(tag instanceof NBTTagShort)
 		{
-			return ((NBTTagShort)tag).func_150289_e();
+			return ((NBTTagShort)tag).getShort();
 		} else if(tag instanceof NBTTagInt)
 		{
-			return ((NBTTagInt)tag).func_150287_d();
+			return ((NBTTagInt)tag).getInt();
 		} else if(tag instanceof NBTTagFloat)
 		{
-			return ((NBTTagFloat)tag).func_150288_h();
+			return ((NBTTagFloat)tag).getFloat();
 		} else if(tag instanceof NBTTagDouble)
 		{
-			return ((NBTTagDouble)tag).func_150286_g();
+			return ((NBTTagDouble)tag).getDouble();
 		} else if(tag instanceof NBTTagLong)
 		{
-			return ((NBTTagLong)tag).func_150291_c();
+			return ((NBTTagLong)tag).getLong();
 		} else
 		{
 			return 0;

@@ -17,11 +17,11 @@ import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.NoteBlockEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.tasks.TaskBase;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 
 /**
  * In charge of sending event data to all AdvancedTasks
@@ -316,7 +316,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onBlockBreak(player, event.block, event.blockMetadata, event.x, event.y, event.z);
+			((AdvancedTaskBase)task).onBlockBreak(player, event.state, event.pos);
 		}
 	}
 	
@@ -337,7 +337,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onBlockPlace(player, event.block, event.blockMetadata, event.x, event.y, event.z);
+			((AdvancedTaskBase)task).onBlockPlace(player, event.state, event.pos);
 		}
 	}
 	
@@ -360,9 +360,9 @@ public class AdvancedEventHandler
 					continue;
 				}
 				
-				((AdvancedTaskBase)task).onBlockInteract(player, event.world.getBlock(event.x, event.y, event.z), event.world.getBlockMetadata(event.x, event.y, event.z), event.x, event.y, event.z, true);
+				((AdvancedTaskBase)task).onBlockInteract(player, event.world.getBlockState(event.pos), event.pos, true);
 			}
-		} else if(event.action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR)
+		} else if(event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK || event.action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR)
 		{
 			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 			{
@@ -371,7 +371,7 @@ public class AdvancedEventHandler
 					continue;
 				}
 				
-				((AdvancedTaskBase)task).onBlockInteract(player, event.world.getBlock(event.x, event.y, event.z), event.world.getBlockMetadata(event.x, event.y, event.z), event.x, event.y, event.z, false);
+				((AdvancedTaskBase)task).onBlockInteract(player, event.world.getBlockState(event.pos), event.pos, false);
 			}
 		}
 	}
@@ -405,8 +405,7 @@ public class AdvancedEventHandler
 			return;
 		}
 		
-		@SuppressWarnings("unchecked")
-		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(event.x, event.y, event.z, event.x + 1D, event.y + 1D, event.z + 1D).expand(64D, 64D, 64D));
+		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.fromBounds(event.pos.getX(), event.pos.getY(), event.pos.getZ(), event.pos.getX() + 1D, event.pos.getY() + 1D, event.pos.getZ() + 1D).expand(64D, 64D, 64D));
 		for(EntityPlayer player : pList)
 		{
 			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
@@ -416,7 +415,7 @@ public class AdvancedEventHandler
 					continue;
 				}
 				
-				((AdvancedTaskBase)task).onNotePlayed(event.world, event.x, event.y, event.z, event.instrument, event.getNote(), event.getOctave());
+				((AdvancedTaskBase)task).onNotePlayed(event.world, event.pos, event.instrument, event.getNote(), event.getOctave());
 			}
 		}
 	}

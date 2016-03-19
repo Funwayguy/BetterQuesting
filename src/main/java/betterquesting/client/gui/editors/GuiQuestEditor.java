@@ -1,10 +1,13 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.misc.GuiBigTextField;
@@ -18,8 +21,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestInstance.QuestLogic;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestEditor extends GuiQuesting implements ITextEditor
@@ -37,7 +38,6 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -51,7 +51,7 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 			SendChanges();
 		}
 		
-		titleField = new GuiTextField(this.fontRendererObj, width/2 - 99, height/2 - 68 + 1, 198, 18);
+		titleField = new GuiTextField(0, this.fontRendererObj, width/2 - 99, height/2 - 68 + 1, 198, 18);
 		titleField.setMaxStringLength(Integer.MAX_VALUE);
 		titleField.setText(quest.name);
 		
@@ -88,8 +88,8 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		titleField.drawTextBox();
 		descField.drawTextBox();
 
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
 	@Override
@@ -129,7 +129,7 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
 	@Override
-    protected void keyTyped(char character, int keyCode)
+    protected void keyTyped(char character, int keyCode) throws IOException
     {
         super.keyTyped(character, keyCode);
         
@@ -139,9 +139,10 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 	
     /**
      * Called when the mouse is clicked.
+     * @throws IOException 
      */
 	@Override
-    protected void mouseClicked(int mx, int my, int click)
+    protected void mouseClicked(int mx, int my, int click) throws IOException
     {
 		super.mouseClicked(mx, my, click);
 		

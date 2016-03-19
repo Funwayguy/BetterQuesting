@@ -33,7 +33,7 @@ public class PartyManager
 	 */
 	public static boolean CreateParty(EntityPlayer player, String name)
 	{
-		nameCache.put(player.getUniqueID(), player.getCommandSenderName());
+		nameCache.put(player.getUniqueID(), player.getName());
 		return CreateParty(player.getUniqueID(), name);
 	}
 	
@@ -145,12 +145,12 @@ public class PartyManager
 		{
 			for(WorldServer world : server.worldServers)
 			{
-				EntityPlayer player = world.func_152378_a(uuid);
+				EntityPlayer player = world.getPlayerEntityByUUID(uuid);
 				
 				if(player != null)
 				{
-					nameCache.put(uuid, player.getCommandSenderName());
-					return player.getCommandSenderName();
+					nameCache.put(uuid, player.getName());
+					return player.getName();
 				}
 			}
 		}

@@ -5,12 +5,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.IIcon;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
@@ -21,12 +26,6 @@ import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.JsonIO;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.client.event.ConfigChangedEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Event handling for standard quests and core BetterQuesting functionality
@@ -72,7 +71,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
-		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.dimensionId == 0)
+		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.getDimensionId() == 0)
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
@@ -163,20 +162,19 @@ public class EventHandler
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onTextureStitch(TextureStitchEvent.Pre event)
-	{
-		if(event.map.getTextureType() == 0)
-		{
-			IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
-			BetterQuesting.fluidPlaceholder.setIcons(icon);
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
 	public void onGuiOpen(GuiOpenEvent event)
 	{
 		// Hook for theme GUI replacements
 		event.gui = ThemeRegistry.curTheme().getGui(event.gui);
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onTextureStitch(TextureStitchEvent.Pre event)
+	{
+		if(event.map == Minecraft.getMinecraft().getTextureMapBlocks())
+		{
+			event.map.registerSprite(BetterQuesting.fluidPlaceholder.getStill());
+		}
 	}
 }

@@ -1,10 +1,11 @@
 package betterquesting.quests.tasks.advanced;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent;
@@ -41,13 +42,13 @@ public abstract class AdvancedTaskBase extends TaskBase
 	
 	public void onItemUseEnd(EntityPlayer player, ItemStack stack, int duration){}
 	
-	public void onBlockBreak(EntityPlayer player, Block block, int meta, int x, int y, int z){}
+	public void onBlockBreak(EntityPlayer player, IBlockState state, BlockPos pos){}
 	
-	public void onBlockPlace(EntityPlayer player, Block block, int meta, int x, int y, int z){}
+	public void onBlockPlace(EntityPlayer player, IBlockState state, BlockPos pos){}
 	
-	public void onBlockInteract(EntityPlayer player, Block block, int meta, int x, int y, int z, boolean isPunch){}
+	public void onBlockInteract(EntityPlayer player, IBlockState state, BlockPos pos, boolean isPunch){}
 	
 	public void onEntityInteract(EntityPlayer player, EntityLivingBase entity){}
 	
-	public void onNotePlayed(World world, int x, int y, int z, NoteBlockEvent.Instrument instrument, NoteBlockEvent.Note note, NoteBlockEvent.Octave octave){} // Special event, combination lock?
+	public void onNotePlayed(World world, BlockPos pos, NoteBlockEvent.Instrument instrument, NoteBlockEvent.Note note, NoteBlockEvent.Octave octave){} // Special event, combination lock?
 }

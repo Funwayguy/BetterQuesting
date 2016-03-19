@@ -1,5 +1,6 @@
 package betterquesting.client.gui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -7,14 +8,14 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuesting extends GuiScreen
@@ -36,12 +37,11 @@ public class GuiQuesting extends GuiScreen
 	public GuiQuesting(GuiScreen parent, String title)
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.fontRendererObj = this.mc.fontRenderer;
+		this.fontRendererObj = this.mc.fontRendererObj;
 		this.parent = parent;
 		this.title = title;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -167,14 +167,14 @@ public class GuiQuesting extends GuiScreen
 	/**
 	 * Used for rendering tool tips on this screen via external methods
 	 */
-	public final void DrawTooltip(List<?> list, int x, int y)
+	public final void DrawTooltip(List<String> list, int x, int y)
 	{
 		this.drawHoveringText(list, x, y, fontRendererObj);
         GL11.glDisable(GL11.GL_LIGHTING); // Normally not enabled on Questing GUI
 	}
 	
 	@Override
-	public void handleMouseInput()
+	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
 		
@@ -185,7 +185,7 @@ public class GuiQuesting extends GuiScreen
 	}
 	
 	@Override
-	protected void keyTyped(char character, int keyCode)
+	protected void keyTyped(char character, int keyCode) throws IOException
 	{
 		super.keyTyped(character, keyCode);
 		
