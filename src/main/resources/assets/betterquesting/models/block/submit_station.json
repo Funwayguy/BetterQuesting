@@ -13,8 +13,8 @@
         }
     ],
     "textures": {
-        "particle": "betterquesting:/blocks/submit_station_side",
+        "particle": "betterquesting:blocks/submit_station_side",
         "t1": "betterquesting:blocks/submit_station_top",
-        "t2": "betterquesting:/blocks/submit_station_side"
+        "t2": "betterquesting:blocks/submit_station_side"
     }
 }
