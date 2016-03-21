@@ -83,8 +83,7 @@ public class UpdateNotification
 				data = changelog.toArray(new String[0]);
 			}
 			
-			String hash = data[0].trim();
-			String branch = data[1].trim();
+			String hash = data[1].trim();
 			
 			boolean hasUpdate = !BetterQuesting.HASH.equalsIgnoreCase(hash);
 			
