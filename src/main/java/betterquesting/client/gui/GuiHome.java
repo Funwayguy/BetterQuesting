@@ -1,5 +1,9 @@
 package betterquesting.client.gui;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.party.GuiManageParty;
@@ -8,10 +12,6 @@ import betterquesting.core.BQ_Settings;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiHome extends GuiQuesting
 {
@@ -91,10 +91,4 @@ public class GuiHome extends GuiQuesting
 			mc.displayGuiScreen(new GuiThemeSelect(this));
 		}
 	}
-	
-	/* / ----------------------- \
-	 * | ------- ARTWORK ------- |
-	 * | ----------------------- |
-	 * [Exit][Quests][Party][Theme]
-	 */
 }

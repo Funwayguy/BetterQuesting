@@ -4,5 +4,5 @@ import java.io.File;
 
 public interface IFileCallback
 {
-	public File setFiles(File... files);
+	public void setFiles(File... files);
 }

@@ -48,6 +48,11 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 	{
 		super.initGui();
 		
+		if(quest == null)
+		{
+			mc.displayGuiScreen(parent);
+		}
+		
 		maxRowsL = (sizeY - 80)/20;
 		maxRowsR = (sizeY - 116)/20;
 		int btnWidth = sizeX/2 - 16;
@@ -91,7 +96,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 			this.buttonList.add(btn);
 		}
 		
-		searchResults.addAll(QuestDatabase.questDB.values());
+		RefreshSearch();
 		RefreshColumns();
 	}
 	
@@ -136,7 +141,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.format(quest.name);
+		String txt = I18n.format(quest == null? "ERROR" : quest.name);
 		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		txt = I18n.format("betterquesting.gui.database");
 		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
