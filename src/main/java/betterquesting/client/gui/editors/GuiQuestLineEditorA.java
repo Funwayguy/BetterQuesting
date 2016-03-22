@@ -19,6 +19,7 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
@@ -57,7 +58,9 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
 		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new")));
-		this.buttonList.add(new GuiButtonQuesting(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.import")));
+		GuiButtonQuesting btnImport = new GuiButtonQuesting(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.import"));
+		btnImport.enabled = ImporterRegistry.getImporters().size() > 0 && mc.isIntegratedServerRunning();
+		this.buttonList.add(btnImport);
 		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests")));
 		
 		// Quest Line - Main

@@ -97,7 +97,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 			this.buttonList.add(btn);
 		}
 		
-		searchResults.addAll(QuestDatabase.questDB.values());
+		RefreshSearch();
 		RefreshColumns();
 	}
 	
