@@ -52,6 +52,29 @@ public class LifeManager
 	}
 	
 	/**
+	 * Sets the player's life count to the given value. Applies to party if life share is enabled
+	 */
+	public static void setLives(EntityPlayer player, int value)
+	{
+		PartyInstance party = PartyManager.GetParty(player.getUniqueID());
+		
+		if(party == null || !party.lifeShare)
+		{
+			BQ_LifeTracker tracker = BQ_LifeTracker.get(player);
+			
+			if(tracker != null)
+			{
+				tracker.lives = Math.max(0, value);
+				SyncLives(player);
+			}
+		} else
+		{
+			party.lives = Math.max(0, value);
+			PartyManager.UpdateClients();
+		}
+	}
+	
+	/**
 	 * Changes the player's life count by the given value. Applies to party if life share is enabled
 	 */
 	public static void AddRemoveLives(EntityPlayer player, int value)
@@ -69,16 +92,12 @@ public class LifeManager
 			
 			if(tracker != null)
 			{
-				BetterQuesting.logger.log(Level.INFO, "Player Lives = " + tracker.lives + " + " + value);
 				tracker.lives = Math.max(0, tracker.lives + value);
-				BetterQuesting.logger.log(Level.INFO, "New value = " + tracker.lives);
 				SyncLives(player);
 			}
 		} else
 		{
-			BetterQuesting.logger.log(Level.INFO, "Party Lives = " + party.lives + " + " + value);
 			party.lives = Math.max(0, party.lives + value);
-			BetterQuesting.logger.log(Level.INFO, "New value = " + party.lives);
 			PartyManager.UpdateClients();
 		}
 	}
@@ -188,7 +207,7 @@ public class LifeManager
 					mpPlayer.addChatComponentMessage(new ChatComponentText("This is your last life!"));
 				} else
 				{
-					mpPlayer.addChatComponentMessage(new ChatComponentText(lives + " live(s) remaining!"));
+					mpPlayer.addChatComponentMessage(new ChatComponentText(lives + " lives remaining!"));
 				}
 			}
 		}
