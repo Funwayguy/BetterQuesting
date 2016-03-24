@@ -122,6 +122,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		
 		GL11.glPushMatrix();
 		GL11.glScalef(2F, 2F, 1F);
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		this.drawTexturedModalRect((guiLeft + 24)/2, (guiTop + 48)/2, 0, 48, 18, 18);
 		
 		if(this.stackSelect != null)

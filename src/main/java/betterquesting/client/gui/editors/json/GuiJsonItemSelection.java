@@ -129,6 +129,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		
 		GL11.glPushMatrix();
 		GL11.glScalef(2F, 2F, 1F);
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		this.drawTexturedModalRect((guiLeft + 24)/2, (guiTop + 48)/2, 0, 48, 18, 18);
 		
 		if(this.stackSelect != null)
@@ -165,6 +166,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 				int y = (i - i%9)/9 * 18;
 				
 				this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+				GL11.glColor4f(1F, 1F, 1F, 1F);
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);

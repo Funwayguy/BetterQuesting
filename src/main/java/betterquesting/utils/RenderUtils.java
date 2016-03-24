@@ -36,8 +36,7 @@ public class RenderUtils
 		float r = (float)(color >> 16 & 255) / 255.0F;
         float g = (float)(color >> 8 & 255) / 255.0F;
         float b = (float)(color & 255) / 255.0F;
-        float a = (float)(color >> 24 & 255) / 255.0F;
-		RenderItemStack(mc, stack, x, y, text, new Color(r, g, b, a));
+		RenderItemStack(mc, stack, x, y, text, new Color(r, g, b));
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
@@ -46,7 +45,7 @@ public class RenderUtils
         
 		try
 		{
-		    GL11.glColor4b((byte)color.getRed(), (byte)color.getGreen(), (byte)color.getBlue(), (byte)color.getAlpha());
+		    GL11.glColor3b((byte)color.getRed(), (byte)color.getGreen(), (byte)color.getBlue());
 			RenderHelper.enableGUIStandardItemLighting();
 		    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 			
@@ -59,7 +58,7 @@ public class RenderUtils
 		    itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), stack, x, y, text);
 		    itemRender.zLevel = 0.0F;
 		    
-		    GL11.glDisable(GL11.GL_LIGHTING);
+		   RenderHelper.disableStandardItemLighting();
 		} catch(Exception e)
 		{
 		}
