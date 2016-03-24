@@ -2,10 +2,10 @@ package betterquesting.client.gui;
 
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
@@ -52,14 +52,14 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	public GuiQuestLinesEmbedded(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(screen, posX, posY, sizeX, sizeY);
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocal("betterquesting.tool.select"));
 		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocal("betterquesting.tool.grab"));
 		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocal("betterquesting.tool.link"));
 		btnLnk.enabled = toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
+		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocal("betterquesting.tool.auto"));
 		
 		if(!QuestDatabase.editMode)
 		{
@@ -69,15 +69,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	
 	public void refreshToolButtons()
 	{
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocal("betterquesting.tool.select"));
 		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocal("betterquesting.tool.grab"));
 		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocal("betterquesting.tool.link"));
 		btnLnk.enabled = toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
+		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
 		btnSnp.enabled = true;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocal("betterquesting.tool.auto"));
 		btnAto.enabled = true;
 	}
 
@@ -160,32 +160,32 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(TextFormatting.BOLD + I18n.translateToLocal(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(TextFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
 		
 		if(qTooltip != null)
 		{
 			ArrayList<String> qInfo = new ArrayList<String>();
-			qInfo.add(I18n.format(qTooltip.name));
+			qInfo.add(I18n.translateToLocal(qTooltip.name));
 			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(EnumChatFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
+				qInfo.add(TextFormatting.GREEN + I18n.translateToLocal("betterquesting.tooltip.complete"));
 				
 				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
 				{
-					qInfo.add(EnumChatFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
+					qInfo.add(TextFormatting.GRAY + I18n.translateToLocal("betterquesting.tooltip.rewards_pending"));
 				}
 			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
+				qInfo.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.translateToLocal("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
 				
 				for(QuestInstance req : qTooltip.preRequisites)
 				{
 					if(!req.isComplete(mc.thePlayer.getUniqueID()))
 					{
-						qInfo.add(EnumChatFormatting.RED + "- " + I18n.format(req.name));
+						qInfo.add(TextFormatting.RED + "- " + I18n.translateToLocal(req.name));
 					}
 				}
 			} else
@@ -200,7 +200,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 					}
 				}
 				
-				qInfo.add(EnumChatFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
+				qInfo.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
 			}
 			screen.DrawTooltip(qInfo, mx, my);
 		}
@@ -260,7 +260,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		} else if(btnSnp.mousePressed(Minecraft.getMinecraft(), mx, my))
 		{
 			dragSnap = (dragSnap + 1)%snaps.length;
-			btnSnp.displayString = I18n.format("betterquesting.tool.snap", dragSnap + 1);
+			btnSnp.displayString = I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1);
 			btnSnp.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my) && qLine != null)
 		{

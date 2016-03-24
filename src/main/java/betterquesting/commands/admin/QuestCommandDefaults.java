@@ -3,16 +3,16 @@ package betterquesting.commands.admin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import com.google.gson.JsonObject;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.text.TextComponentString;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.utils.JsonIO;
+import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
 {
@@ -26,7 +26,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 		return args.length == 2;
 	}
 	
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -45,14 +45,14 @@ public class QuestCommandDefaults extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args[1].equalsIgnoreCase("save"))
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
-			JsonIO.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
-			sender.addChatMessage(new ChatComponentText("Quest database set as global default"));
+			JsonIO.WriteToFile(new File(server.getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
+			sender.addChatMessage(new TextComponentString("Quest database set as global default"));
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
 	    	File f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
@@ -62,10 +62,10 @@ public class QuestCommandDefaults extends QuestCommandBase
 			{
 				j1 = JsonIO.ReadFromFile(f1);
 				QuestDatabase.readFromJson(j1);
-				sender.addChatMessage(new ChatComponentText("Reloaded default quest database"));
+				sender.addChatMessage(new TextComponentString("Reloaded default quest database"));
 			} else
 			{
-				sender.addChatMessage(new ChatComponentText("No default currently set"));
+				sender.addChatMessage(new TextComponentString("No default currently set"));
 			}
 		} else
 		{

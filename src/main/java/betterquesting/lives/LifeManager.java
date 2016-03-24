@@ -1,17 +1,21 @@
 package betterquesting.lives;
 
-import java.util.Date;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.UserListBansEntry;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.WorldSettings.GameType;
 import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +30,9 @@ import betterquesting.quests.QuestDatabase;
 
 public class LifeManager
 {
+	@CapabilityInject(IHardcoreLives.class)
+	public static final Capability<IHardcoreLives> LIFE_CAP = null;
+	public static final ResourceLocation LIFE_ID = new ResourceLocation(BetterQuesting.MODID + ":BQ_LIVES");
 	/**
 	 * Returns the amount of lives this player currently has to spare. Gets the party's lives if life share is enabled
 	 */
@@ -35,7 +42,7 @@ public class LifeManager
 		
 		if(party == null || !party.lifeShare)
 		{
-			BQ_LifeTracker tracker = BQ_LifeTracker.get(player);
+			IHardcoreLives tracker = player.getCapability(LIFE_CAP, null);
 			
 			if(tracker == null)
 			{
@@ -43,11 +50,34 @@ public class LifeManager
 				return 1; // Likely an error occurred, don't kill off the player because of it
 			} else
 			{
-				return tracker.lives;
+				return tracker.getLives();
 			}
 		} else
 		{
 			return party.lives;
+		}
+	}
+	
+	/**
+	 * Sets the player's life count to the given value. Applies to party if life share is enabled
+	 */
+	public static void setLives(EntityPlayer player, int value)
+	{
+		PartyInstance party = PartyManager.GetParty(player.getUniqueID());
+		
+		if(party == null || !party.lifeShare)
+		{
+			IHardcoreLives tracker = player.getCapability(LIFE_CAP, null);
+			
+			if(tracker != null)
+			{
+				tracker.setLives(Math.max(0, value));
+				SyncLives(player);
+			}
+		} else
+		{
+			party.lives = Math.max(0, value);
+			PartyManager.UpdateClients();
 		}
 	}
 	
@@ -65,20 +95,16 @@ public class LifeManager
 		
 		if(party == null || !party.lifeShare)
 		{
-			BQ_LifeTracker tracker = BQ_LifeTracker.get(player);
+			IHardcoreLives tracker = player.getCapability(LIFE_CAP, null);
 			
 			if(tracker != null)
 			{
-				BetterQuesting.logger.log(Level.INFO, "Player Lives = " + tracker.lives + " + " + value);
-				tracker.lives = Math.max(0, tracker.lives + value);
-				BetterQuesting.logger.log(Level.INFO, "New value = " + tracker.lives);
+				tracker.setLives(Math.max(0, tracker.getLives() + value));
 				SyncLives(player);
 			}
 		} else
 		{
-			BetterQuesting.logger.log(Level.INFO, "Party Lives = " + party.lives + " + " + value);
 			party.lives = Math.max(0, party.lives + value);
-			BetterQuesting.logger.log(Level.INFO, "New value = " + party.lives);
 			PartyManager.UpdateClients();
 		}
 	}
@@ -90,7 +116,7 @@ public class LifeManager
 			return; // Can't sync null players, from client side or via non MP player
 		}
 		
-		BQ_LifeTracker tracker = BQ_LifeTracker.get(player);
+		IHardcoreLives tracker = player.getCapability(LIFE_CAP, null);
 		
 		if(tracker == null)
 		{
@@ -99,19 +125,14 @@ public class LifeManager
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound data = new NBTTagCompound();
-		tracker.saveNBTData(data);
-		tags.setTag("data", data);
+		tags.setTag("data", tracker.writeToNBT());
 		BetterQuesting.instance.network.sendTo(PacketDataType.LIFE_SYNC.makePacket(tags), (EntityPlayerMP)player);
 	}
 	
 	@SubscribeEvent
-	public void onEntityConstructing(EntityConstructing event)
+	public void getCapabilities(AttachCapabilitiesEvent.Entity event)
 	{
-		if(event.entity instanceof EntityPlayer && BQ_LifeTracker.get((EntityPlayer)event.entity) == null)
-		{
-			BQ_LifeTracker.register((EntityPlayer)event.entity);
-		}
+		event.addCapability(LIFE_ID, new LifeCapability());
 	}
 	
 	@SubscribeEvent
@@ -134,7 +155,8 @@ public class LifeManager
 	{
 		if(QuestDatabase.bqHardcore && event.gui != null && event.gui.getClass() == GuiGameOver.class && !(event.gui instanceof GuiGameOverBQ))
 		{
-			event.gui = new GuiGameOverBQ();
+			ITextComponent cod = ObfuscationReflectionHelper.getPrivateValue(GuiGameOver.class, (GuiGameOver)event.gui, "field_184871_f");
+			event.gui = new GuiGameOverBQ(cod);
 		}
 	}
 	
@@ -143,9 +165,8 @@ public class LifeManager
 	{
 		try
 		{
-			NBTTagCompound oldTags = new NBTTagCompound();
-			BQ_LifeTracker.get(event.original).saveNBTData(oldTags);
-			BQ_LifeTracker.get(event.entityPlayer).loadNBTData(oldTags);
+			NBTTagCompound nbt = event.original.getCapability(LIFE_CAP, null).writeToNBT();
+			event.entityPlayer.getCapability(LIFE_CAP, null).readFromNBT(nbt);
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Failed to persist life data", e);
@@ -163,32 +184,23 @@ public class LifeManager
 			
 			if(lives <= 0)
 			{
-				MinecraftServer server = MinecraftServer.getServer();
+				MinecraftServer server = mpPlayer.getServerForPlayer().getMinecraftServer();
 				
 				if(server == null)
 				{
 					return;
 				}
 	            
-	            if (server.isSinglePlayer() && mpPlayer.getName().equals(server.getServerOwner()))
-                {
-                    mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
-                    server.deleteWorldAndStopServer();
-                }
-                else
-                {
-                    UserListBansEntry userlistbansentry = new UserListBansEntry(mpPlayer.getGameProfile(), (Date)null, "(You just lost the game)", (Date)null, "Death in Hardcore");
-                    server.getConfigurationManager().getBannedPlayers().addEntry(userlistbansentry);
-                    mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
-                }
+	            mpPlayer.setGameType(GameType.SPECTATOR);
+	            mpPlayer.getServerForPlayer().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
 			} else
 			{
 				if(lives == 1)
 				{
-					mpPlayer.addChatComponentMessage(new ChatComponentText("This is your last life!"));
+					mpPlayer.addChatComponentMessage(new TextComponentString("This is your last life!"));
 				} else
 				{
-					mpPlayer.addChatComponentMessage(new ChatComponentText(lives + " live(s) remaining!"));
+					mpPlayer.addChatComponentMessage(new TextComponentString(lives + " lives remaining!"));
 				}
 			}
 		}

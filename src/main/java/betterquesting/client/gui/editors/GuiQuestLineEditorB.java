@@ -6,10 +6,10 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -42,7 +42,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	
 	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name)));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_line2", line == null? "?" : I18n.translateToLocal(line.name)));
 		this.line = line;
 		selIndex = line == null? -1 : QuestDatabase.questLines.indexOf(line);
 	}
@@ -52,7 +52,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 	{
 		super.initGui();
 		
-		this.title = I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name));
+		this.title = I18n.translateToLocalFormatted("betterquesting.title.edit_line2", line == null? "?" : I18n.translateToLocal(line.name));
 		
 		maxRowsL = (sizeY - 96)/20;
 		maxRowsR = (sizeY - 116)/20;
@@ -60,7 +60,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		int sx = sizeX - 32;
 		
 		this.searchBox = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -72,7 +72,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		// Left delete buttons
 		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + ">");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + TextFormatting.YELLOW + TextFormatting.BOLD + ">");
 			this.buttonList.add(btn);
 		}
 		
@@ -86,14 +86,14 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		// Right delete buttons
 		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28 + btnWidth - 56, guiTop + 68 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28 + btnWidth - 56, guiTop + 68 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			this.buttonList.add(btn);
 		}
 		
 		// Right add buttons
 		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 68 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "<");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 68 + (i*20), 20, 20, "" + TextFormatting.GREEN + TextFormatting.BOLD + "<");
 			this.buttonList.add(btn);
 		}
 		
@@ -142,9 +142,9 @@ public class GuiQuestLineEditorB extends GuiQuesting
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.format("betterquesting.gui.quest_line");
+		String txt = I18n.translateToLocal("betterquesting.gui.quest_line");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.format("betterquesting.gui.database");
+		txt = I18n.translateToLocal("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		searchBox.drawTextBox();
@@ -326,7 +326,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(line.questList.get(n3).quest.name);
+					btn.displayString = I18n.translateToLocal(line.questList.get(n3).quest.name);
 				}
 			} else if(n2 == 1) // Remove quest
 			{
@@ -341,7 +341,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				{
 					QuestInstance q = searchResults.get(n4);
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(q.name);
+					btn.displayString = I18n.translateToLocal(q.name);
 				}
 			} else if(n2 == 3) // Delete quest
 			{
@@ -391,7 +391,7 @@ public class GuiQuestLineEditorB extends GuiQuesting
 				continue;
 			}
 			
-			if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			if(q.name.toLowerCase().contains(query) || I18n.translateToLocal(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
 			{
 				searchResults.add(q);
 			}

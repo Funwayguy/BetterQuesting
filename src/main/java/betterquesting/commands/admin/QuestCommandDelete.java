@@ -3,11 +3,12 @@ package betterquesting.commands.admin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.translation.I18n;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -25,7 +26,7 @@ public class QuestCommandDelete extends QuestCommandBase
 		return args.length == 2;
 	}
 	
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -49,7 +50,7 @@ public class QuestCommandDelete extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args[1].equalsIgnoreCase("all"))
 		{
@@ -57,7 +58,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			QuestDatabase.questLines = new ArrayList<QuestLine>();
 			QuestDatabase.UpdateClients();
 		    
-			sender.addChatMessage(new ChatComponentText("Deleted all quests and quest lines"));
+			sender.addChatMessage(new TextComponentString("Deleted all quests and quest lines"));
 		} else
 		{
 			try
@@ -66,7 +67,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestInstance quest = QuestDatabase.getQuestByID(id);
 				QuestDatabase.DeleteQuest(id);
 				
-				sender.addChatMessage(new ChatComponentText("Deleted quest " + I18n.format(quest.name) +"(ID:" + id + ")"));
+				sender.addChatMessage(new TextComponentString("Deleted quest " + I18n.translateToLocal(quest.name) +"(ID:" + id + ")"));
 			} catch(Exception e)
 			{
 				throw getException(command);

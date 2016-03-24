@@ -71,7 +71,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
-		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.getDimensionId() == 0)
+		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.getDimension() == 0)
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
@@ -86,7 +86,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload event)
 	{
-		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
+		if(!event.world.isRemote && !event.world.getMinecraftServer().isServerRunning())
 		{
 			BQ_Settings.curWorldDir = null;
 		}
@@ -100,7 +100,7 @@ public class EventHandler
 			return;
 		}
 		
-		MinecraftServer server = MinecraftServer.getServer();
+		MinecraftServer server = event.world.getMinecraftServer();
 		
 		if(BetterQuesting.proxy.isClient())
 		{

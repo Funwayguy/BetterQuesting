@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;

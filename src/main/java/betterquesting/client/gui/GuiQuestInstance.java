@@ -3,9 +3,9 @@ package betterquesting.client.gui;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -39,7 +39,7 @@ public class GuiQuestInstance extends GuiQuesting
 	
 	public GuiQuestInstance(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.format(quest.name));
+		super(parent, I18n.translateToLocal(quest.name));
 		this.quest = quest;
 	}
 	
@@ -48,7 +48,7 @@ public class GuiQuestInstance extends GuiQuesting
 	{
 		super.initGui();
 		
-		this.title = I18n.format(quest.name);
+		this.title = I18n.translateToLocal(quest.name);
 		this.selReward = 0;
 		this.taskRender = null;
 		this.selTask = 0;
@@ -60,11 +60,11 @@ public class GuiQuestInstance extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocal("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
-		desc = new GuiScrollingText(this, sizeX/2 - 24, quest.rewards.size() > 0? sizeY/2 - 48 : sizeY - 64, this.guiTop + 32, this.guiLeft + 16, I18n.format(quest.description));
+		desc = new GuiScrollingText(this, sizeX/2 - 24, quest.rewards.size() > 0? sizeY/2 - 48 : sizeY - 64, this.guiTop + 32, this.guiLeft + 16, I18n.translateToLocal(quest.description));
 		
 		btnTLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
 		btnTLeft.enabled = selTask > 0;
@@ -78,9 +78,9 @@ public class GuiQuestInstance extends GuiQuesting
 		btnRRight.visible = quest.rewards.size() > 0;
 		btnRRight.enabled = btnRRight.visible && selReward < quest.rewards.size() - 1;
 		
-		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"));
+		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.detect_submit"));
 		btnDetect.enabled = !quest.isComplete(mc.thePlayer.getUniqueID());
-		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"));
+		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.claim"));
 		btnClaim.visible = quest.rewards.size() > 0;
 		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
 		this.buttonList.add(btnTLeft);
@@ -138,7 +138,7 @@ public class GuiQuestInstance extends GuiQuesting
 				tTitle = (selTask + 1) + "/" + quest.tasks.size() + " " + tTitle;
 			}
 			
-			tTitle = EnumChatFormatting.UNDERLINE + tTitle;
+			tTitle = TextFormatting.UNDERLINE + tTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
 			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
@@ -182,7 +182,7 @@ public class GuiQuestInstance extends GuiQuesting
 				rTitle = (selReward + 1) + "/" + quest.rewards.size() + " " + rTitle;
 			}
 			
-			rTitle = EnumChatFormatting.UNDERLINE + rTitle;
+			rTitle = TextFormatting.UNDERLINE + rTitle;
 			
 			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
 			this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB());

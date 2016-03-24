@@ -5,16 +5,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
-import net.minecraftforge.event.entity.player.PlayerUseItemEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.NoteBlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -237,14 +237,14 @@ public class AdvancedEventHandler
 	}
 	
 	@SubscribeEvent
-	public void onItemUseStart(PlayerUseItemEvent.Start event)
+	public void onItemUseStart(LivingEntityUseItemEvent.Start event)
 	{
-		if(event.entity.worldObj.isRemote)
+		if(event.entity.worldObj.isRemote && event.entityLiving instanceof EntityPlayer)
 		{
 			return;
 		}
 		
-		EntityPlayer player = event.entityPlayer;
+		EntityPlayer player = (EntityPlayer)event.entityLiving;
 		
 		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
@@ -258,14 +258,14 @@ public class AdvancedEventHandler
 	}
 	
 	@SubscribeEvent
-	public void onItemUseEnd(PlayerUseItemEvent.Finish event)
+	public void onItemUseEnd(LivingEntityUseItemEvent.Finish event)
 	{
-		if(event.entity.worldObj.isRemote)
+		if(event.entity.worldObj.isRemote && event.entityLiving instanceof EntityPlayer)
 		{
 			return;
 		}
 		
-		EntityPlayer player = event.entityPlayer;
+		EntityPlayer player = (EntityPlayer)event.entityLiving;
 		
 		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
@@ -405,7 +405,7 @@ public class AdvancedEventHandler
 			return;
 		}
 		
-		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.fromBounds(event.pos.getX(), event.pos.getY(), event.pos.getZ(), event.pos.getX() + 1D, event.pos.getY() + 1D, event.pos.getZ() + 1D).expand(64D, 64D, 64D));
+		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(event.pos.getX(), event.pos.getY(), event.pos.getZ(), event.pos.getX() + 1D, event.pos.getY() + 1D, event.pos.getZ() + 1D).expand(64D, 64D, 64D));
 		for(EntityPlayer player : pList)
 		{
 			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))

@@ -6,10 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -66,7 +67,7 @@ public class QuestNotification
 			
 			notice.init = true;
 			notice.startTime = Minecraft.getSystemTime();
-			mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation(notice.sound), 1.0F));
+			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(new SoundEvent(new ResourceLocation(notice.sound)), 1.0F));
 		}
 		
 		if(notice.getTime() >= 6F)
@@ -97,11 +98,11 @@ public class QuestNotification
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
-		String tmp = EnumChatFormatting.UNDERLINE + "" + EnumChatFormatting.BOLD + StatCollector.translateToLocal(notice.mainTxt);
+		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.translateToLocal(notice.mainTxt);
 		int txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
-		tmp = StatCollector.translateToLocal(notice.subTxt);
+		tmp = I18n.translateToLocal(notice.subTxt);
 		txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		

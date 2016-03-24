@@ -3,7 +3,6 @@ package betterquesting.network;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
@@ -126,7 +125,7 @@ public class PktHandlerPartyAction extends PktHandler
 			}
 			
 			String username = data.getString("Member");
-			EntityPlayer inviteUser = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(username);
+			EntityPlayer inviteUser = sender.worldObj.getMinecraftServer().getPlayerList().getPlayerByUsername(username);
 			
 			if(inviteUser != null)
 			{

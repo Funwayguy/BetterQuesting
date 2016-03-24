@@ -3,13 +3,13 @@ package betterquesting.commands.admin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.translation.I18n;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -26,7 +26,7 @@ public class QuestCommandReset extends QuestCommandBase
 		return args.length == 2 || args.length == 3;
 	}
 	
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -40,7 +40,7 @@ public class QuestCommandReset extends QuestCommandBase
 			}
 		} else if(args.length == 3)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getPlayerList().getAllUsernames());
 		}
 		
 		return list;
@@ -53,7 +53,7 @@ public class QuestCommandReset extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args) throws CommandException
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
 		String action = args[1];
 		
@@ -62,7 +62,7 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(args.length == 3)
 		{
-			player = MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[2]);
+			player = server.getPlayerList().getPlayerByUsername(args[2]);
 			
 			if(player == null)
 			{
@@ -93,7 +93,7 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentText("Reset all quests" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+			sender.addChatMessage(new TextComponentString("Reset all quests" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 		} else
 		{
 			try
@@ -110,7 +110,7 @@ public class QuestCommandReset extends QuestCommandBase
 					quest.ResetQuest();
 				}
 				
-				sender.addChatMessage(new ChatComponentText("Reset quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+				sender.addChatMessage(new TextComponentString("Reset quest " + I18n.translateToLocal(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 			} catch(Exception e)
 			{
 				throw getException(command);

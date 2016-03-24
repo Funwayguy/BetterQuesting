@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -86,7 +86,7 @@ public class RenderUtils
 	        GL11.glTranslated(0D, entity.getYOffset(), 0D);
 	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
-	        rendermanager.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
 	        GL11.glPopMatrix();

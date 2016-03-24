@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.opengl.GL11;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -61,8 +61,8 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		buttonList.add(new GuiButtonQuesting(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">")); // Next Quest
 		buttonList.add(new GuiButtonQuesting(3, guiLeft + sizeX/2 - 120, guiTop + 52, 20, 20, "<")); // Prev Task
 		buttonList.add(new GuiButtonQuesting(4, guiLeft + sizeX/2 + 100, guiTop + 52, 20, 20, ">")); // Next Quest
-		btnSelect = new GuiButtonQuesting(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, EnumChatFormatting.GREEN + "\u2714"); // Select Task
-		btnRemove = new GuiButtonQuesting(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, EnumChatFormatting.RED + "x"); // Remove Task
+		btnSelect = new GuiButtonQuesting(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, TextFormatting.GREEN + "\u2714"); // Select Task
+		btnRemove = new GuiButtonQuesting(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, TextFormatting.RED + "x"); // Remove Task
 		buttonList.add(btnSelect);
 		buttonList.add(btnRemove);
 
@@ -127,7 +127,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		
 		if(quest != null)
 		{
-			mc.fontRendererObj.drawString(I18n.format(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(I18n.translateToLocal(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
 		if(task != null)

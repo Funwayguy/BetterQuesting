@@ -1,13 +1,13 @@
 package betterquesting.client.gui.misc;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.GuiTextEditor;
 import betterquesting.utils.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.util.EnumChatFormatting;
 
 public class GuiBigTextField extends GuiTextField
 {
@@ -59,7 +59,7 @@ public class GuiBigTextField extends GuiTextField
 	        int i = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
 	        int j = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
 	        int bs = ((GuiQuesting)mc.currentScreen).isWithin(i, j, xPosition + width - 19, yPosition - 1, 20, height + 2, false)? 2 : 1;
-			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width - 19, yPosition - 1, 20, height + 2, EnumChatFormatting.BOLD + "A" + EnumChatFormatting.RESET + "a", bs);
+			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width - 19, yPosition - 1, 20, height + 2, TextFormatting.BOLD + "A" + TextFormatting.RESET + "a", bs);
 		}
 		
 		if(host != null)

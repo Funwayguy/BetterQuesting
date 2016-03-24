@@ -2,12 +2,8 @@ package betterquesting.network;
 
 import io.netty.buffer.ByteBuf;
 import java.util.HashMap;
-import java.util.UUID;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -37,12 +33,6 @@ public class PacketQuesting implements IMessage
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().thePlayer != null) // Auto set upon delivery to prevent forgery
-		{
-			tags.setString("Sender", Minecraft.getMinecraft().thePlayer.getUniqueID().toString());
-			tags.setInteger("Dimension", Minecraft.getMinecraft().thePlayer.dimension);
-		}
-		
 		ByteBufUtils.writeTag(buf, tags);
 	}
 	
@@ -65,19 +55,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			EntityPlayer player = null;
-			
-			if(message.tags.hasKey("Sender"))
-			{
-				try
-				{
-					WorldServer world = MinecraftServer.getServer().worldServerForDimension(message.tags.getInteger("Dimension"));
-					player = world.getPlayerEntityByUUID(UUID.fromString(message.tags.getString("Sender")));
-				} catch(Exception e)
-				{
-					
-				}
-			}
+			EntityPlayer player = ctx.getServerHandler().playerEntity;
 			
 			PacketDataType dataType = PacketDataType.values()[ID];
 			PktHandler handler = pktHandlers.get(dataType);

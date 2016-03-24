@@ -3,7 +3,7 @@ package betterquesting.quests.rewards;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
@@ -17,7 +17,7 @@ public abstract class RewardBase
 	
 	public String getDisplayName()
 	{
-		return StatCollector.translateToLocal(this.getUnlocalisedName());
+		return I18n.translateToLocal(this.getUnlocalisedName());
 	}
 	
 	public abstract boolean canClaim(EntityPlayer player, NBTTagCompound choiceData);

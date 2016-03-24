@@ -8,13 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -186,7 +185,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				q.UpdateClients();
 				reset();
-	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
+				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
 			} else
 			{
 				needsUpdate = true;
@@ -253,7 +252,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 					{
 						q.UpdateClients();
 						reset();
-			    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
+						worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
 					} else
 					{
 						needsUpdate = true;
@@ -272,7 +271,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			} else if(t != null && ((TaskBase)t).isComplete(owner))
 			{
 				reset();
-	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
+	    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
 			}
 		}
 	}
@@ -307,12 +306,11 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
      * Overridden in a sign to provide the text.
      */
 	@Override
-	@SuppressWarnings("rawtypes")
-    public Packet getDescriptionPacket()
+    public Packet<?> getDescriptionPacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
-        return new S35PacketUpdateTileEntity(pos, 0, nbttagcompound);
+        return new SPacketUpdateTileEntity(pos, 0, nbttagcompound);
     }
 
     /**
@@ -325,7 +323,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
      * @param pkt The data packet
      */
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
     	this.readFromNBT(pkt.getNbtCompound());
     }
@@ -339,7 +337,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     	{
     		this.readFromNBT(data);
     		this.markDirty();
-    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimensionId(), getDescriptionPacket());
+    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
     	} else
     	{
     		NBTTagCompound payload = new NBTTagCompound();
@@ -438,8 +436,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public IChatComponent getDisplayName()
+	public ITextComponent getDisplayName()
 	{
-		return new ChatComponentText(BetterQuesting.submitStation.getLocalizedName());
+		return new TextComponentString(BetterQuesting.submitStation.getLocalizedName());
 	}
 }

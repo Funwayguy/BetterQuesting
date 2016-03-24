@@ -3,12 +3,12 @@ package betterquesting.client.gui.editors.json;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -101,10 +101,10 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			}
 		}
 
-		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt")); // JSON Editor
-		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item")); // Item Selector
-		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid")); // Fluid Editor
-		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity")); // Entity Selector
+		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.translateToLocal("betterquesting.btn.raw_nbt")); // JSON Editor
+		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.translateToLocal("betterquesting.btn.item")); // Item Selector
+		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.translateToLocal("betterquesting.btn.fluid")); // Fluid Editor
+		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.translateToLocal("betterquesting.btn.entity")); // Entity Selector
 		
 		//itemButton.displayString = I18n.format("betterquesting.btn.item");
 		//entityButton.displayString = I18n.format("betterquesting.btn.entity");

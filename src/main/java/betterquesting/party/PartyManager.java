@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
@@ -135,13 +138,31 @@ public class PartyManager
 	}
 	
 	/**
-	 * Gets players user name from the server or cached copy
+	 * Gets players user name from the player list or cached copy
 	 */
-	public static String GetUsername(UUID uuid)
+	@SideOnly(Side.CLIENT)
+	public static String GetUsername(net.minecraft.client.Minecraft mc, UUID uuid)
 	{
-		MinecraftServer server = MinecraftServer.getServer();
+		for(NetworkPlayerInfo info : mc.thePlayer.sendQueue.getPlayerInfoMap())
+		{
+			if(info != null && info.getGameProfile().getId().equals(uuid))
+			{
+				nameCache.put(uuid, info.getGameProfile().getName());
+				return info.getGameProfile().getName();
+			}
+		}
 		
-		if(server != null && server.isServerRunning())
+		if(nameCache.containsKey(uuid))
+		{
+			return nameCache.get(uuid);
+		}
+		
+		return uuid.toString();
+	}
+	
+	public static String getUsername(MinecraftServer server, UUID uuid)
+	{
+		if(server.isServerRunning())
 		{
 			for(WorldServer world : server.worldServers)
 			{

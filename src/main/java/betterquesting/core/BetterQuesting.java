@@ -8,7 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -36,6 +36,9 @@ import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
 import betterquesting.items.ItemPlaceholder;
+import betterquesting.lives.IHardcoreLives;
+import betterquesting.lives.LifeStorage;
+import betterquesting.lives.LifeTrackerDefault;
 import betterquesting.network.PacketQuesting;
 
 @Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
@@ -85,6 +88,7 @@ public class BetterQuesting
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	CapabilityManager.INSTANCE.register(IHardcoreLives.class, new LifeStorage(), LifeTrackerDefault.class);
     	FluidRegistry.registerFluid(fluidPlaceholder);
     	
     	GameRegistry.registerItem(placeholder, "placeholder");
@@ -119,8 +123,7 @@ public class BetterQuesting
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event)
 	{
-		MinecraftServer server = MinecraftServer.getServer();
-		ICommandManager command = server.getCommandManager();
+		ICommandManager command = event.getServer().getCommandManager();
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
 		manager.registerCommand(new BQ_Commands());

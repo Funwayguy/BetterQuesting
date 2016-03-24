@@ -6,8 +6,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -64,7 +64,7 @@ public class GuiQuesting extends GuiScreen
 		this.guiTop = (this.height - this.sizeY)/2;
 		
 		this.buttonList.clear();
-        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.format("gui.done")));
+        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.translateToLocal("gui.done")));
 	}
 	
 	/**
@@ -119,8 +119,8 @@ public class GuiQuesting extends GuiScreen
 			}
 		}
 		
-		String tmp = I18n.format(title);
-		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		String tmp = I18n.translateToLocal(title);
+		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		super.drawScreen(mx, my, partialTick);
 		

@@ -9,8 +9,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -20,8 +21,16 @@ import betterquesting.quests.QuestDatabase;
 @SideOnly(Side.CLIENT)
 public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 {
+	ITextComponent causeOfDeath;
 	int lifeCache = -1;
     private int cooldown;
+    
+	public GuiGameOverBQ(ITextComponent causeOfDeath)
+	{
+		super(causeOfDeath);
+		this.causeOfDeath = causeOfDeath;
+	}
+	
     /**
      * Adds the buttons (and other controls) to the screen in question.
      */
@@ -32,32 +41,23 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0))
         {
-        	int i = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled()? 1 : 0;
-            if (this.mc.isIntegratedServerRunning())
-            {
-                this.buttonList.add(new GuiButton(i, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen.deleteWorld", new Object[0])));
-            }
-            else
-            {
-                this.buttonList.add(new GuiButton(i, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen.leaveServer", new Object[0])));
-            }
+            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.translateToLocal("deathScreen.spectate")));
+            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.translateToLocal("deathScreen." + (this.mc.isIntegratedServerRunning() ? "deleteWorld" : "leaveServer"))));
         }
         else
         {
-            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.respawn", new Object[0])));
-            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen.titleScreen", new Object[0])));
+            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.translateToLocal("deathScreen.respawn")));
+            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.translateToLocal("deathScreen.titleScreen")));
 
             if (this.mc.getSession() == null)
             {
                 ((GuiButton)this.buttonList.get(1)).enabled = false;
             }
         }
-
-        GuiButton guibutton;
-
-        for (Iterator<GuiButton> iterator = this.buttonList.iterator(); iterator.hasNext(); guibutton.enabled = false)
+        
+        for (GuiButton guibutton : this.buttonList)
         {
-            guibutton = iterator.next();
+            guibutton.enabled = false;
         }
     }
 
@@ -75,18 +75,29 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
                 this.mc.displayGuiScreen((GuiScreen)null);
                 break;
             case 1:
-                GuiYesNo guiyesno = new GuiYesNo(this, I18n.format("deathScreen.quit.confirm", new Object[0]), "", I18n.format("deathScreen.titleScreen", new Object[0]), I18n.format("deathScreen.respawn", new Object[0]), 0);
-                this.mc.displayGuiScreen(guiyesno);
-                guiyesno.setButtonDelay(20);
+
+                if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled())
+                {
+                    this.mc.displayGuiScreen(new GuiMainMenu());
+                }
+                else
+                {
+                    GuiYesNo guiyesno = new GuiYesNo(this, I18n.translateToLocal("deathScreen.quit.confirm"), "", I18n.translateToLocal("deathScreen.titleScreen"), I18n.translateToLocal("deathScreen.respawn"), 0);
+                    this.mc.displayGuiScreen(guiyesno);
+                    guiyesno.setButtonDelay(20);
+                }
         }
     }
 
-    public void confirmClicked(boolean p_73878_1_, int p_73878_2_)
+    public void confirmClicked(boolean result, int id)
     {
-        if (p_73878_1_)
+        if (result)
         {
-            this.mc.theWorld.sendQuittingDisconnectingPacket();
-        	// Send a custom BetterQuesting packet
+            if (this.mc.theWorld != null)
+            {
+                this.mc.theWorld.sendQuittingDisconnectingPacket();
+            }
+            
             this.mc.loadWorld((WorldClient)null);
             this.mc.displayGuiScreen(new GuiMainMenu());
         }
@@ -106,20 +117,30 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         GL11.glPushMatrix();
         GL11.glScalef(2.0F, 2.0F, 2.0F);
         boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0);
-        String s = flag ? I18n.format("deathScreen.title.hardcore", new Object[0]) : I18n.format("deathScreen.title", new Object[0]);
+        String s = flag ? I18n.translateToLocal("deathScreen.title.hardcore") : I18n.translateToLocal("deathScreen.title");
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
         GL11.glPopMatrix();
 
         if (flag)
         {
-            this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.hardcoreInfo", new Object[0]), this.width / 2, 144, 16777215);
+            this.drawCenteredString(this.fontRendererObj, I18n.translateToLocal("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
         }
 
-        this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score", new Object[0]) + ": " + EnumChatFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
+        this.drawCenteredString(this.fontRendererObj, I18n.translateToLocal("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
         
         if(QuestDatabase.bqHardcore)
         {
-        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(mc.thePlayer)), this.width / 2, 112, 16777215);
+        	this.drawCenteredString(this.fontRendererObj, I18n.translateToLocalFormatted("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(mc.thePlayer)), this.width / 2, 112, 16777215);
+        }
+        
+        if (this.causeOfDeath != null && my > 85 && my < 85 + this.fontRendererObj.FONT_HEIGHT)
+        {
+            ITextComponent itextcomponent = this.func_184870_b(mx);
+
+            if (itextcomponent != null && itextcomponent.getChatStyle().getChatHoverEvent() != null)
+            {
+                this.handleComponentHover(itextcomponent, mx, my);
+            }
         }
 
         int k;
@@ -152,7 +173,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         ++this.cooldown;
         GuiButton guibutton;
 
-        if (this.cooldown == 20)
+        if (this.cooldown >= 20)
         {
             for (Iterator<GuiButton> iterator = this.buttonList.iterator(); iterator.hasNext(); guibutton.enabled = true)
             {

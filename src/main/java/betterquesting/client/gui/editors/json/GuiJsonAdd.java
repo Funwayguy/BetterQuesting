@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -58,7 +58,7 @@ public class GuiJsonAdd extends GuiQuesting
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.guiLeft + this.sizeX/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel")));
+		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocal("gui.cancel")));
 		
 		int btnOff = -20;
 		
@@ -70,13 +70,13 @@ public class GuiJsonAdd extends GuiQuesting
 			btnOff = 0;
 		}
 		
-		GuiButtonQuesting buttonStr = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.format("betterquesting.btn.text"));
-		GuiButtonQuesting buttonNum = new GuiButtonQuesting(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.format("betterquesting.btn.number"));
-		GuiButtonQuesting buttonObj = new GuiButtonQuesting(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.object"));
-		GuiButtonQuesting buttonArr = new GuiButtonQuesting(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.list"));
-		GuiButtonQuesting buttonEnt = new GuiButtonQuesting(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.format("betterquesting.btn.entity"));
-		GuiButtonQuesting buttonItm = new GuiButtonQuesting(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.item"));
-		GuiButtonQuesting buttonFlu = new GuiButtonQuesting(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.fluid"));
+		GuiButtonQuesting buttonStr = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.translateToLocal("betterquesting.btn.text"));
+		GuiButtonQuesting buttonNum = new GuiButtonQuesting(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.translateToLocal("betterquesting.btn.number"));
+		GuiButtonQuesting buttonObj = new GuiButtonQuesting(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.translateToLocal("betterquesting.btn.object"));
+		GuiButtonQuesting buttonArr = new GuiButtonQuesting(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.translateToLocal("betterquesting.btn.list"));
+		GuiButtonQuesting buttonEnt = new GuiButtonQuesting(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.translateToLocal("betterquesting.btn.entity"));
+		GuiButtonQuesting buttonItm = new GuiButtonQuesting(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.translateToLocal("betterquesting.btn.item"));
+		GuiButtonQuesting buttonFlu = new GuiButtonQuesting(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.translateToLocal("betterquesting.btn.fluid"));
 		
 		buttonStr.enabled = false; // Default selection, init disabled
 		
@@ -101,17 +101,17 @@ public class GuiJsonAdd extends GuiQuesting
 		
 		if(keyText != null)
 		{
-			String txt = I18n.format("betterquesting.gui.key");
+			String txt = I18n.translateToLocal("betterquesting.gui.key");
 			mc.fontRendererObj.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
 			if(keyText.getText().length() <= 0)
 			{
-				txt = I18n.format("betterquesting.gui.no_key");
-				mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				txt = I18n.translateToLocal("betterquesting.gui.no_key");
+				mc.fontRendererObj.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			} else if(json.getAsJsonObject().has(keyText.getText()))
 			{
-				txt = I18n.format("betterquesting.gui.duplicate_key");
-				mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				txt = I18n.translateToLocal("betterquesting.gui.duplicate_key");
+				mc.fontRendererObj.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			}
 		}
 	}

@@ -9,12 +9,13 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -25,7 +26,7 @@ import com.google.common.collect.Sets;
 public abstract class GuiQuestingContainer extends GuiQuesting
 {
     /** The location of the inventory background texture */
-    protected static final ResourceLocation inventoryBackground = new ResourceLocation("textures/gui/container/inventory.png");
+    public static final ResourceLocation inventoryBackground = new ResourceLocation("textures/gui/container/inventory.png");
     /** A list of the players inventory slots */
     public Container inventorySlots;
     /** holds the slot currently hovered */
@@ -74,7 +75,11 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     }
 
     /**
-     * Draws the screen and all the components in it. Args : mouseX, mouseY, renderPartialTicks
+     * Draws the screen and all the components in it.
+     *  
+     * @param mouseX Mouse x coordinate
+     * @param mouseY Mouse y coordinate
+     * @param partialTicks How far into the current tick (1/20th of a second) the game is
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -94,7 +99,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
         this.theSlot = null;
         int k = 240;
         int l = 240;
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)k / 1.0F, (float)l / 1.0F);
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)k, (float)l);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         for (int i1 = 0; i1 < this.inventorySlots.inventorySlots.size(); ++i1)
@@ -141,7 +146,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
 
                 if (itemstack.stackSize == 0)
                 {
-                    s = "" + EnumChatFormatting.YELLOW + "0";
+                    s = "" + TextFormatting.YELLOW + "0";
                 }
             }
 
@@ -179,7 +184,15 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     }
 
     /**
-     * Render an ItemStack. Args : stack, x, y, format
+     * Draws an ItemStack.
+     *  
+     * The z index is increased by 32 (and not decreased afterwards), and the item is then rendered at z=200.
+     *  
+     * @param stack The ItemStack to draw
+     * @param x The x location to draw the item at
+     * @param y The y location to draw the item at
+     * @param altText An alternative String to display instead of the number of items in the stack. May be null, in
+     * which case the number of items in the stack is rendered.
      */
     private void drawItemStack(ItemStack stack, int x, int y, String altText)
     {
@@ -196,17 +209,30 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     }
 
     /**
-     * Draw the foreground layer for the GuiContainer (everything in front of the items). Args : mouseX, mouseY
+     * Draw the foreground layer for the GuiContainer (everything in front of the items)
+     *  
+     * @param mouseX Mouse x coordinate
+     * @param mouseY Mouse y coordinate
      */
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
     }
 
     /**
-     * Args : renderPartialTicks, mouseX, mouseY
+     * Draws the background layer of this container (behind the items).
+     *  
+     * @param partialTicks How far into the current tick the game is, with 0.0 being the start of the tick and 1.0 being
+     * the end.
+     * @param mouseX Mouse x coordinate
+     * @param mouseY Mouse y coordinate
      */
     protected abstract void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY);
 
+    /**
+     * Draws the given slot: any item in it, the slot's background, the hovered highlight, etc.
+     *  
+     * @param slotIn The slot to draw
+     */
     private void drawSlot(Slot slotIn)
     {
         int i = slotIn.xDisplayPosition;
@@ -237,27 +263,27 @@ public abstract class GuiQuestingContainer extends GuiQuesting
 
                 if (itemstack.stackSize > itemstack.getMaxStackSize())
                 {
-                    s = EnumChatFormatting.YELLOW + "" + itemstack.getMaxStackSize();
+                    s = TextFormatting.YELLOW + "" + itemstack.getMaxStackSize();
                     itemstack.stackSize = itemstack.getMaxStackSize();
                 }
 
                 if (itemstack.stackSize > slotIn.getItemStackLimit(itemstack))
                 {
-                    s = EnumChatFormatting.YELLOW + "" + slotIn.getItemStackLimit(itemstack);
+                    s = TextFormatting.YELLOW + "" + slotIn.getItemStackLimit(itemstack);
                     itemstack.stackSize = slotIn.getItemStackLimit(itemstack);
                 }
             }
             else
             {
                 this.dragSplittingSlots.remove(slotIn);
-                this.updateDragSplitting();
+                this.updateActivePotionEffects();
             }
         }
 
         this.zLevel = 100.0F;
         this.itemRender.zLevel = 100.0F;
 
-        if (itemstack == null)
+        if (itemstack == null && slotIn.canBeHovered())
         {
             TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
 
@@ -279,7 +305,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
             }
 
             GlStateManager.enableDepth();
-            this.itemRender.renderItemAndEffectIntoGUI(itemstack, i, j);
+            this.itemRender.renderItemAndEffectIntoGUI(this.mc.thePlayer, itemstack, i, j);
             this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, i, j, s);
         }
 
@@ -287,7 +313,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
         this.zLevel = 0.0F;
     }
 
-    private void updateDragSplitting()
+    private void updateActivePotionEffects()
     {
         ItemStack itemstack = this.mc.thePlayer.inventory.getItemStack();
 
@@ -391,24 +417,24 @@ public abstract class GuiQuestingContainer extends GuiQuesting
                     {
                         if (mouseButton == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100)
                         {
-                            this.handleMouseClick(slot, l, mouseButton, 3);
+                            this.handleMouseClick(slot, l, mouseButton, ClickType.CLONE);
                         }
                         else
                         {
                             boolean flag2 = l != -999 && (Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54));
-                            int i1 = 0;
+                            ClickType clicktype = ClickType.PICKUP;
 
                             if (flag2)
                             {
                                 this.shiftClickedSlot = slot != null && slot.getHasStack() ? slot.getStack() : null;
-                                i1 = 1;
+                                clicktype = ClickType.QUICK_MOVE;
                             }
                             else if (l == -999)
                             {
-                                i1 = 4;
+                                clicktype = ClickType.THROW;
                             }
 
-                            this.handleMouseClick(slot, l, mouseButton, i1);
+                            this.handleMouseClick(slot, l, mouseButton, clicktype);
                         }
 
                         this.ignoreMouseUp = true;
@@ -469,9 +495,9 @@ public abstract class GuiQuestingContainer extends GuiQuesting
                     {
                         if (i - this.dragItemDropDelay > 500L)
                         {
-                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, 0, 0);
-                            this.handleMouseClick(slot, slot.slotNumber, 1, 0);
-                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, 0, 0);
+                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, 0, ClickType.PICKUP);
+                            this.handleMouseClick(slot, slot.slotNumber, 1, ClickType.PICKUP);
+                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, 0, ClickType.PICKUP);
                             this.dragItemDropDelay = i + 750L;
                             --this.draggedStack.stackSize;
                         }
@@ -487,12 +513,16 @@ public abstract class GuiQuestingContainer extends GuiQuesting
         else if (this.dragSplitting && slot != null && itemstack != null && itemstack.stackSize > this.dragSplittingSlots.size() && Container.canAddItemToSlot(slot, itemstack, true) && slot.isItemValid(itemstack) && this.inventorySlots.canDragIntoSlot(slot))
         {
             this.dragSplittingSlots.add(slot);
-            this.updateDragSplitting();
+            this.updateActivePotionEffects();
         }
     }
 
     /**
-     * Called when a mouse button is released.  Args : mouseX, mouseY, releaseButton
+     * Called when a mouse button is released.
+     *  
+     * @param mouseX Current mouse x coordinate
+     * @param mouseY Current mouse y coordinate
+     * @param state The mouse button that was released
      */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
@@ -524,14 +554,14 @@ public abstract class GuiQuestingContainer extends GuiQuesting
                     {
                         if (slot2 != null && slot2.canTakeStack(this.mc.thePlayer) && slot2.getHasStack() && slot2.inventory == slot.inventory && Container.canAddItemToSlot(slot2, this.shiftClickedSlot, true))
                         {
-                            this.handleMouseClick(slot2, slot2.slotNumber, state, 1);
+                            this.handleMouseClick(slot2, slot2.slotNumber, state, ClickType.QUICK_MOVE);
                         }
                     }
                 }
             }
             else
             {
-                this.handleMouseClick(slot, k, state, 6);
+                this.handleMouseClick(slot, k, state, ClickType.PICKUP_ALL);
             }
 
             this.doubleClick = false;
@@ -566,12 +596,12 @@ public abstract class GuiQuestingContainer extends GuiQuesting
 
                     if (k != -1 && this.draggedStack != null && flag2)
                     {
-                        this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, state, 0);
-                        this.handleMouseClick(slot, k, 0, 0);
+                        this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, state, ClickType.PICKUP);
+                        this.handleMouseClick(slot, k, 0, ClickType.PICKUP);
 
                         if (this.mc.thePlayer.inventory.getItemStack() != null)
                         {
-                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, state, 0);
+                            this.handleMouseClick(this.clickedSlot, this.clickedSlot.slotNumber, state, ClickType.PICKUP);
                             this.touchUpX = mouseX - i;
                             this.touchUpY = mouseY - j;
                             this.returningStackDestSlot = this.clickedSlot;
@@ -598,20 +628,20 @@ public abstract class GuiQuestingContainer extends GuiQuesting
             }
             else if (this.dragSplitting && !this.dragSplittingSlots.isEmpty())
             {
-                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(0, this.dragSplittingLimit), 5);
+                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(0, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
 
                 for (Slot slot1 : this.dragSplittingSlots)
                 {
-                    this.handleMouseClick(slot1, slot1.slotNumber, Container.func_94534_d(1, this.dragSplittingLimit), 5);
+                    this.handleMouseClick(slot1, slot1.slotNumber, Container.func_94534_d(1, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
                 }
 
-                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(2, this.dragSplittingLimit), 5);
+                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(2, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
             }
             else if (this.mc.thePlayer.inventory.getItemStack() != null)
             {
                 if (state == this.mc.gameSettings.keyBindPickBlock.getKeyCode() + 100)
                 {
-                    this.handleMouseClick(slot, k, state, 3);
+                    this.handleMouseClick(slot, k, state, ClickType.CLONE);
                 }
                 else
                 {
@@ -622,7 +652,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
                         this.shiftClickedSlot = slot != null && slot.getHasStack() ? slot.getStack() : null;
                     }
 
-                    this.handleMouseClick(slot, k, state, flag1 ? 1 : 0);
+                    this.handleMouseClick(slot, k, state, flag1 ? ClickType.QUICK_MOVE : ClickType.PICKUP);
                 }
             }
         }
@@ -636,7 +666,11 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     }
 
     /**
-     * Returns if the passed mouse position is over the specified slot. Args : slot, mouseX, mouseY
+     * Returns whether the mouse is over the given slot.
+     *  
+     * @param slotIn The slot to check
+     * @param mouseX Mouse x coordinate on the screen
+     * @param mouseY Mouse y coordinate on the screen
      */
     private boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY)
     {
@@ -646,27 +680,42 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     /**
      * Test if the 2D point is in a rectangle (relative to the GUI). Args : rectX, rectY, rectWidth, rectHeight, pointX,
      * pointY
+     *  
+     * @param rectX Left x coordinate of the rectangle
+     * @param rectY Top y coordinate of the rectangle
+     * @param rectWidth Width of the rectangle
+     * @param rectHeight Height of the rectangle
+     * @param pointX X coordinate of the point, on screen. this.guiLeft is subtracted from it to get the test location
+     * within the rectangle
+     * @param pointY Y coordinate of the point, on screen. this.guiTop is subtracted from it to get the test location
+     * within the rectangle
      */
-    protected boolean isPointInRegion(int left, int top, int right, int bottom, int pointX, int pointY)
+    protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY)
     {
         int i = this.guiLeft;
         int j = this.guiTop;
         pointX = pointX - i;
         pointY = pointY - j;
-        return pointX >= left - 1 && pointX < left + right + 1 && pointY >= top - 1 && pointY < top + bottom + 1;
+        return pointX >= rectX - 1 && pointX < rectX + rectWidth + 1 && pointY >= rectY - 1 && pointY < rectY + rectHeight + 1;
     }
 
     /**
      * Called when the mouse is clicked over a slot or outside the gui.
+     *  
+     * @param slotIn The slot that was clicked, or null if the click was outside of the GUI.
+     * @param slotId The ID of the slot that was clicked. There are a few other values that are used with special
+     * clicks.
+     * @param mouseButton The mouse button that was clicked.
+     * @param type The type of the click.
      */
-    protected void handleMouseClick(Slot slotIn, int slotId, int clickedButton, int clickType)
+    protected void handleMouseClick(Slot slotIn, int slotId, int mouseButton, ClickType type)
     {
         if (slotIn != null)
         {
             slotId = slotIn.slotNumber;
         }
 
-        this.mc.playerController.windowClick(this.inventorySlots.windowId, slotId, clickedButton, clickType, this.mc.thePlayer);
+        this.mc.playerController.func_187098_a(this.inventorySlots.windowId, slotId, mouseButton, type, this.mc.thePlayer);
     }
 
     /**
@@ -686,18 +735,21 @@ public abstract class GuiQuestingContainer extends GuiQuesting
         {
             if (keyCode == this.mc.gameSettings.keyBindPickBlock.getKeyCode())
             {
-                this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, 0, 3);
+                this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, 0, ClickType.CLONE);
             }
             else if (keyCode == this.mc.gameSettings.keyBindDrop.getKeyCode())
             {
-                this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, 4);
+                this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, isCtrlKeyDown() ? 1 : 0, ClickType.THROW);
             }
         }
     }
 
     /**
-     * This function is what controls the hotbar shortcut check when you press a number key when hovering a stack. Args
-     * : keyCode, Returns true if a Hotbar key is pressed, else false
+     * Checks whether a hotbar key (to swap the hovered item with an item in the hotbar) has been pressed. If so, it
+     * swaps the given items.
+     * Returns true if a hotbar key was pressed.
+     *  
+     * @param keyCode The LWJGL keycode for the key that was pressed.
      */
     protected boolean checkHotbarKeys(int keyCode)
     {
@@ -707,7 +759,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
             {
                 if (keyCode == this.mc.gameSettings.keyBindsHotbar[i].getKeyCode())
                 {
-                    this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, i, 2);
+                    this.handleMouseClick(this.theSlot, this.theSlot.slotNumber, i, ClickType.SWAP);
                     return true;
                 }
             }

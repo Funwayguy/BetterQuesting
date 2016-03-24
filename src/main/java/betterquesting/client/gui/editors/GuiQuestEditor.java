@@ -4,8 +4,8 @@ import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
@@ -33,7 +33,7 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 	
 	public GuiQuestEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_quest", I18n.format(quest.name)));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_quest", I18n.translateToLocal(quest.name)));
 		this.quest = quest;
 	}
 	
@@ -42,7 +42,7 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 	{
 		super.initGui();
 		
-		this.title = I18n.format("betterquesting.title.edit_quest", I18n.format(quest.name));
+		this.title = I18n.translateToLocalFormatted("betterquesting.title.edit_quest", I18n.translateToLocal(quest.name));
 		
 		if(lastEdit != null)
 		{
@@ -59,17 +59,17 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		descField.setMaxStringLength(Integer.MAX_VALUE);
 		descField.setText(quest.description);
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(1, width/2, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.rewards"));
+		GuiButtonQuesting btn = new GuiButtonQuesting(1, width/2, height/2 + 28, 100, 20, I18n.translateToLocal("betterquesting.btn.rewards"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, width/2 - 100, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.tasks"));
+		btn = new GuiButtonQuesting(2, width/2 - 100, height/2 + 28, 100, 20, I18n.translateToLocal("betterquesting.btn.tasks"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.requirements"));
+		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 100, 20, I18n.translateToLocal("betterquesting.btn.requirements"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, I18n.format("betterquesting.btn.advanced"));
+		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, I18n.translateToLocal("betterquesting.btn.advanced"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.isMain);
+		btn = new GuiButtonQuesting(5, width/2 - 100, height/2 + 8, 200, 20, I18n.translateToLocal("betterquesting.btn.is_main") + ": " + quest.isMain);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.logic);
+		btn = new GuiButtonQuesting(6, width/2, height/2 + 48, 100, 20, I18n.translateToLocal("betterquesting.btn.logic") + ": " + quest.logic);
 		this.buttonList.add(btn);
 	}
 	
@@ -88,8 +88,8 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		titleField.drawTextBox();
 		descField.drawTextBox();
 
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.name"), width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.description"), width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
 	@Override
@@ -114,13 +114,13 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor
 		} else if(button.id == 5)
 		{
 			quest.isMain = !quest.isMain;
-			button.displayString = I18n.format("betterquesting.btn.is_main") + ": " + quest.isMain;
+			button.displayString = I18n.translateToLocal("betterquesting.btn.is_main") + ": " + quest.isMain;
 			SendChanges();
 		} else if(button.id == 6)
 		{
 			QuestLogic[] logic = QuestLogic.values();
 			quest.logic = logic[(quest.logic.ordinal() + 1)%logic.length];
-			button.displayString = I18n.format("betterquesting.btn.logic") + ": " + quest.logic;
+			button.displayString = I18n.translateToLocal("betterquesting.btn.logic") + ": " + quest.logic;
 			SendChanges();
 		}
 	}

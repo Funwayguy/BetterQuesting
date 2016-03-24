@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
@@ -51,14 +51,14 @@ public class GuiImporters extends GuiQuesting
 		
 		if(leftGui != null && rightImp != null)
 		{
-			String txt = EnumChatFormatting.UNDERLINE + I18n.format(leftImp.getUnlocalisedName());
+			String txt = TextFormatting.UNDERLINE + I18n.translateToLocal(leftImp.getUnlocalisedName());
 			mc.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			leftGui.drawGui(mx, my, partialTick);
 		}
 		
 		if(rightGui != null && rightImp != null)
 		{
-			String txt = EnumChatFormatting.UNDERLINE + I18n.format(rightImp.getUnlocalisedName());
+			String txt = TextFormatting.UNDERLINE + I18n.translateToLocal(rightImp.getUnlocalisedName());
 			mc.fontRendererObj.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			rightGui.drawGui(mx, my, partialTick);
 		}

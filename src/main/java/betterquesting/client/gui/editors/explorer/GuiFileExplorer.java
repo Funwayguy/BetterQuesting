@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -55,7 +55,7 @@ public class GuiFileExplorer extends GuiQuesting
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -67,7 +67,7 @@ public class GuiFileExplorer extends GuiQuesting
 		// Left remove buttons
 		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			this.buttonList.add(btn);
 		}
 		
@@ -81,7 +81,7 @@ public class GuiFileExplorer extends GuiQuesting
 		// Right add buttons
 		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "<");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 48 + (i*20), 20, 20, "" + TextFormatting.GREEN + TextFormatting.BOLD + "<");
 			this.buttonList.add(btn);
 		}
 		
@@ -124,9 +124,9 @@ public class GuiFileExplorer extends GuiQuesting
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.format("betterquesting.gui.quest_line");
+		String txt = I18n.translateToLocal("betterquesting.gui.quest_line");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.format("betterquesting.gui.database");
+		txt = I18n.translateToLocal("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
@@ -226,7 +226,7 @@ public class GuiFileExplorer extends GuiQuesting
 				{
 					btn.visible = true;
 					btn.enabled = false;
-					btn.displayString = I18n.format(selected.get(n3).getName());
+					btn.displayString = I18n.translateToLocal(selected.get(n3).getName());
 				}
 			} else if(n2 == 1) // Remove file
 			{

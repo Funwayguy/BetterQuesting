@@ -6,7 +6,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.lives.BQ_LifeTracker;
+import betterquesting.lives.IHardcoreLives;
+import betterquesting.lives.LifeManager;
 
 public class PktHandlerLives extends PktHandler
 {
@@ -20,11 +21,11 @@ public class PktHandlerLives extends PktHandler
 	@SideOnly(Side.CLIENT)
 	public IMessage handleClient(NBTTagCompound data)
 	{
-		BQ_LifeTracker tracker = BQ_LifeTracker.get(Minecraft.getMinecraft().thePlayer);
+		IHardcoreLives tracker = Minecraft.getMinecraft().thePlayer.getCapability(LifeManager.LIFE_CAP, null);
 		
 		if(tracker != null)
 		{
-			tracker.loadNBTData(data.getCompoundTag("data"));
+			tracker.readFromNBT(data.getCompoundTag("data"));
 		}
 		
 		return null;

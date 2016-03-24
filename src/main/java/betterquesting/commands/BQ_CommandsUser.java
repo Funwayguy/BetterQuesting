@@ -6,7 +6,8 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.util.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
 
@@ -54,7 +55,7 @@ public class BQ_CommandsUser extends CommandBase
      * Adds the strings available in this command to the given list of tab completion options.
      */
 	@Override
-	public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings, BlockPos pos)
+	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] strings, BlockPos pos)
     {
 		if(strings.length == 1)
 		{
@@ -70,7 +71,7 @@ public class BQ_CommandsUser extends CommandBase
 			{
 				if(c.getCommand().equalsIgnoreCase(strings[0]))
 				{
-					return c.autoComplete(sender, strings);
+					return c.autoComplete(server, sender, strings);
 				}
 			}
 		}
@@ -87,7 +88,7 @@ public class BQ_CommandsUser extends CommandBase
     }
 	
 	@Override
-	public void processCommand(ICommandSender sender, String[] args) throws CommandException
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
 		{
@@ -100,7 +101,7 @@ public class BQ_CommandsUser extends CommandBase
 			{
 				if(c.validArgs(args))
 				{
-					c.runCommand(this, sender, args);
+					c.runCommand(server, this, sender, args);
 					return;
 				} else
 				{

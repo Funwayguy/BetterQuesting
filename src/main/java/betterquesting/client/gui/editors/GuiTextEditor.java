@@ -6,8 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -81,9 +81,9 @@ public class GuiTextEditor extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < EnumChatFormatting.values().length)
+				if(n3 >= 0 && n3 < TextFormatting.values().length)
 				{
-					String tmp = EnumChatFormatting.values()[n3].toString();
+					String tmp = TextFormatting.values()[n3].toString();
 					writeText(tmp);
 				}
 			}
@@ -306,7 +306,7 @@ public class GuiTextEditor extends GuiQuesting
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + (int)Math.max(0, s * (float)listScroll/(EnumChatFormatting.values().length - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + (int)Math.max(0, s * (float)listScroll/(TextFormatting.values().length - maxRows)), 248, 60, 8, 20);
         
         String s1 = text.substring(0, cursorPosition);
         String s2 = text.substring(cursorPosition);
@@ -343,14 +343,14 @@ public class GuiTextEditor extends GuiQuesting
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 116, sizeY))
         {
-        	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + SDX, 0, EnumChatFormatting.values().length - maxRows));
+        	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + SDX, 0, TextFormatting.values().length - maxRows));
     		RefreshColumns();
         }
     }
 	
 	public void RefreshColumns()
 	{
-		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, EnumChatFormatting.values().length - maxRows));
+		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, TextFormatting.values().length - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		
@@ -363,9 +363,9 @@ public class GuiTextEditor extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < EnumChatFormatting.values().length)
+				if(n3 >= 0 && n3 < TextFormatting.values().length)
 				{
-					btn.displayString = EnumChatFormatting.values()[n3].getFriendlyName();
+					btn.displayString = TextFormatting.values()[n3].getFriendlyName();
 					btn.enabled = btn.visible = true;
 				} else
 				{

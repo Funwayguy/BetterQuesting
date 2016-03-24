@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -37,7 +37,7 @@ public class GuiRewardEditor extends GuiQuesting
 	
 	public GuiRewardEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.name)));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_rewards", I18n.translateToLocal(quest.name)));
 		this.quest = quest;
 	}
 	
@@ -71,7 +71,7 @@ public class GuiRewardEditor extends GuiQuesting
 		// Left delete buttons
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			this.buttonList.add(btn);
 		}
 		

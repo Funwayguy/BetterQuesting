@@ -2,10 +2,10 @@ package betterquesting.client.gui.misc;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -64,13 +64,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 		
 		if(this.entity != null)
 		{
-			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getName();
+			this.displayString = I18n.translateToLocal("betterquesting.btn.entity") + ":" + entity.getName();
 		} else if(this.stack != null)
 		{
-			this.displayString = I18n.format("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
+			this.displayString = I18n.translateToLocal("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
 		} else if(this.fluid != null)
 		{
-			this.displayString = I18n.format("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
+			this.displayString = I18n.translateToLocal("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
 		} else if(json.isJsonPrimitive())
 		{
 			this.displayString = json.getAsJsonPrimitive().getAsString();
@@ -84,13 +84,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 	{
 		if(c == JsonObject.class)
 		{
-			return I18n.format("betterquesting.btn.object");
+			return I18n.translateToLocal("betterquesting.btn.object");
 		} else if(c == JsonArray.class)
 		{
-			return I18n.format("betterquesting.btn.list");
+			return I18n.translateToLocal("betterquesting.btn.list");
 		} else if(c == JsonPrimitive.class)
 		{
-			return I18n.format("betterquesting.btn.text"); // This should not normally be seen
+			return I18n.translateToLocal("betterquesting.btn.text"); // This should not normally be seen
 		}
 		
 		return c.getSimpleName();

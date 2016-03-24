@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -36,7 +36,7 @@ public abstract class TaskBase
 	 */
 	public String getDisplayName()
 	{
-		return StatCollector.translateToLocal(this.getUnlocalisedName());
+		return I18n.translateToLocal(this.getUnlocalisedName());
 	}
 	
 	/**

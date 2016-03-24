@@ -5,9 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
@@ -284,7 +284,7 @@ public abstract class GuiBQScrolling
 
         this.applyScrollLimits();
         Tessellator var18 = Tessellator.getInstance();
-        WorldRenderer worldr = var18.getWorldRenderer();
+        VertexBuffer worldr = var18.getBuffer();
         
         /*if (this.client.theWorld != null)
         {
@@ -470,7 +470,7 @@ public abstract class GuiBQScrolling
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         worldrenderer.pos(right, top, 0.0D).color(r1, g1, b1, a1).endVertex();
         worldrenderer.pos(left,  top, 0.0D).color(r1, g1, b1, a1).endVertex();
@@ -491,7 +491,7 @@ public abstract class GuiBQScrolling
         float f = 0.00390625F;
         float f1 = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        VertexBuffer worldrenderer = tessellator.getBuffer();
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
         worldrenderer.pos((double)(x + 0), (double)(y + height), 0).tex((double)((float)(textureX + 0) * f), (double)((float)(textureY + height) * f1)).endVertex();
         worldrenderer.pos((double)(x + width), (double)(y + height), 0).tex((double)((float)(textureX + width) * f), (double)((float)(textureY + height) * f1)).endVertex();

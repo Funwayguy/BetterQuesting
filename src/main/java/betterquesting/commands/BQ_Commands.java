@@ -2,17 +2,19 @@ package betterquesting.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import betterquesting.commands.admin.QuestCommandComplete;
 import betterquesting.commands.admin.QuestCommandDefaults;
 import betterquesting.commands.admin.QuestCommandDelete;
 import betterquesting.commands.admin.QuestCommandEdit;
 import betterquesting.commands.admin.QuestCommandHardcore;
+import betterquesting.commands.admin.QuestCommandLives;
 import betterquesting.commands.admin.QuestCommandReset;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
-import net.minecraft.util.BlockPos;
 
 public class BQ_Commands extends CommandBase
 {
@@ -26,6 +28,7 @@ public class BQ_Commands extends CommandBase
 		coms.add(new QuestCommandComplete());
 		coms.add(new QuestCommandDelete());
 		coms.add(new QuestCommandDefaults());
+		coms.add(new QuestCommandLives());
 	}
 	
 	@Override
@@ -62,7 +65,7 @@ public class BQ_Commands extends CommandBase
      * Adds the strings available in this command to the given list of tab completion options.
      */
 	@Override
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings, BlockPos pos)
+    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] strings, BlockPos pos)
     {
 		if(strings.length == 1)
 		{
@@ -78,7 +81,7 @@ public class BQ_Commands extends CommandBase
 			{
 				if(c.getCommand().equalsIgnoreCase(strings[0]))
 				{
-					return c.autoComplete(sender, strings);
+					return c.autoComplete(server, sender, strings);
 				}
 			}
 		}
@@ -93,7 +96,7 @@ public class BQ_Commands extends CommandBase
     }
 
 	@Override
-	public void processCommand(ICommandSender sender, String[] args) throws CommandException
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
 		{
@@ -106,7 +109,7 @@ public class BQ_Commands extends CommandBase
 			{
 				if(c.validArgs(args))
 				{
-					c.runCommand(this, sender, args);
+					c.runCommand(server, this, sender, args);
 					return;
 				} else
 				{

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -123,7 +123,7 @@ public class GuiQuestingHelp extends GuiQuesting
 			{
 				if(n3 >= 0 && n3 < helpTopics.size())
 				{
-					btn.displayString = I18n.format(helpTopics.get(n3).getButton());
+					btn.displayString = I18n.translateToLocal(helpTopics.get(n3).getButton());
 					btn.enabled = btn.visible = true;
 				} else
 				{
@@ -167,12 +167,12 @@ public class GuiQuestingHelp extends GuiQuesting
 		
 		public String getButton()
 		{
-			return I18n.format(btn);
+			return I18n.translateToLocal(btn);
 		}
 		
 		public String getParagraph()
 		{
-			return I18n.format(txt);
+			return I18n.translateToLocal(txt);
 		}
 	}
 }
