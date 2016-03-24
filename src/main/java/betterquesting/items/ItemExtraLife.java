@@ -43,22 +43,21 @@ public class ItemExtraLife extends Item
      */
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-    	if(world.isRemote)
-    	{
-    		return stack;
-    	}
-    	
     	if(QuestDatabase.bqHardcore)
     	{
-    		if(player.capabilities.isCreativeMode)
+    		if(!player.capabilities.isCreativeMode)
     		{
     			stack.stackSize--;
     		}
     		
-    		LifeManager.AddRemoveLives(player, 1);
     		world.playSoundAtEntity(player, "random.levelup", 1F, 1F);
-    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(player))));
-    	} else
+    		
+    		if(!world.isRemote)
+    		{
+	    		LifeManager.AddRemoveLives(player, 1);
+	    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(player))));
+    		}
+    	} else if(!world.isRemote)
     	{
     		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.msg.heart_disabled")));
     	}

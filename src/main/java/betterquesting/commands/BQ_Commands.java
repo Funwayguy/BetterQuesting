@@ -7,6 +7,7 @@ import betterquesting.commands.admin.QuestCommandDefaults;
 import betterquesting.commands.admin.QuestCommandDelete;
 import betterquesting.commands.admin.QuestCommandEdit;
 import betterquesting.commands.admin.QuestCommandHardcore;
+import betterquesting.commands.admin.QuestCommandLives;
 import betterquesting.commands.admin.QuestCommandReset;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -24,6 +25,7 @@ public class BQ_Commands extends CommandBase
 		coms.add(new QuestCommandComplete());
 		coms.add(new QuestCommandDelete());
 		coms.add(new QuestCommandDefaults());
+		coms.add(new QuestCommandLives());
 	}
 	
 	@Override

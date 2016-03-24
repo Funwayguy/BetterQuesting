@@ -71,7 +71,7 @@ betterquesting.notice.complete=Quest Complete
 betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
-betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq hardcore" to toggle it
+betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
