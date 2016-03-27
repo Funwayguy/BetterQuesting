@@ -32,7 +32,10 @@ public class BQ_LifeTracker implements IExtendedEntityProperties
 	
 	public int lives = 1;
 	
-	public BQ_LifeTracker(){}
+	public BQ_LifeTracker()
+	{
+		lives = LifeManager.defLives;
+	}
 	
 	@Override
 	public void saveNBTData(NBTTagCompound compound)
@@ -45,7 +48,15 @@ public class BQ_LifeTracker implements IExtendedEntityProperties
 	@Override
 	public void loadNBTData(NBTTagCompound compound)
 	{
-		lives = compound.getCompoundTag(ID).getInteger("lives");
+		NBTTagCompound lTag = compound.getCompoundTag(ID);
+		
+		if(lTag.hasKey("lives"))
+		{
+			lives = lTag.getInteger("lives");
+		} else
+		{
+			lives = LifeManager.defLives;
+		}
 	}
 
 	@Override

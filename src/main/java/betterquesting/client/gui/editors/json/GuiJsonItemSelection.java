@@ -44,6 +44,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 	int searchPage = 0;
 	int rows = 1;
 	int columns = 1;
+	int oreDictIdx = 0;
 	
 	public GuiJsonItemSelection(GuiScreen parent, JsonObject json)
 	{
@@ -61,7 +62,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		this.searchBox = new GuiTextField(0, this.fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
-		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
+		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 48, 100, 16);
 
 		Iterator<Item> iterator = Item.itemRegistry.iterator();
 		
@@ -110,6 +111,8 @@ public class GuiJsonItemSelection extends GuiQuesting
 		this.buttonList.add(leftBtn);
 		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">");
 		this.buttonList.add(rightBtn);
+		GuiButtonQuesting oreDictBtn = new GuiButtonQuesting(3, guiLeft + 76, guiTop + 66, 100, 16, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict));
+		this.buttonList.add(oreDictBtn);
 	}
 	
 	@Override
@@ -123,7 +126,7 @@ public class GuiJsonItemSelection extends GuiQuesting
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
 		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
@@ -253,6 +256,29 @@ public class GuiJsonItemSelection extends GuiQuesting
 			{
 				searchPage++;
 			}
+		} else if(button.id == 3)
+		{
+			if(stackSelect != null)
+			{
+				int[] oreId = OreDictionary.getOreIDs(stackSelect.getBaseStack());
+				
+				oreDictIdx += 1;
+				
+				if(oreId.length <= 0 || oreDictIdx >= oreId.length || oreDictIdx < -1)
+				{
+					oreDictIdx = -1;
+					stackSelect.oreDict = "";
+					button.displayString = "OreDict: NONE";
+				} else
+				{
+					oreDictIdx %= oreId.length;
+					stackSelect.oreDict = OreDictionary.getOreName(oreId[oreDictIdx]);
+					button.displayString = "OreDict: " + stackSelect.oreDict;
+				}
+				
+				this.json.entrySet().clear();
+				this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
+			}
 		}
 	}
 	
@@ -287,12 +313,8 @@ public class GuiJsonItemSelection extends GuiQuesting
 					this.stackSelect = new BigItemStack(invoStack.copy());
 					numberBox.setText("" + stackSelect.stackSize);
 					
-					int[] oreId = OreDictionary.getOreIDs(stackSelect.getBaseStack());
-					
-					if(oreId.length > 0)
-					{
-						stackSelect.oreDict = OreDictionary.getOreName(oreId[0]);
-					}
+					oreDictIdx = -1;
+					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
 					
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
@@ -314,12 +336,8 @@ public class GuiJsonItemSelection extends GuiQuesting
 					this.stackSelect = new BigItemStack(searchItem.copy());
 					numberBox.setText("" + stackSelect.stackSize);
 					
-					int[] oreId = OreDictionary.getOreIDs(stackSelect.getBaseStack());
-					
-					if(oreId.length > 0)
-					{
-						stackSelect.oreDict = OreDictionary.getOreName(oreId[0]);
-					}
+					oreDictIdx = -1;
+					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
 					
 					this.json.entrySet().clear();
 					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);

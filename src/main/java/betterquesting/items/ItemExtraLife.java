@@ -19,7 +19,6 @@ public class ItemExtraLife extends Item
 {
 	public ItemExtraLife()
 	{
-		//this.setTextureName("betterquesting:heart");
 		this.setUnlocalizedName("betterquesting.extra_life");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 		this.setHasSubtypes(true);
@@ -37,13 +36,23 @@ public class ItemExtraLife extends Item
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-    	if(QuestDatabase.bqHardcore)
+    	if(stack.getItemDamage() != 0)
+    	{
+    		return stack;
+    	} else if(QuestDatabase.bqHardcore)
     	{
     		if(!player.capabilities.isCreativeMode)
     		{
     			stack.stackSize--;
+    		}
+    		
+    		if(LifeManager.getLives(player) >= LifeManager.maxLives)
+    		{
+	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+    			return stack;
     		}
     		
     		world.playSoundAtEntity(player, "random.levelup", 1F, 1F);
@@ -60,7 +69,13 @@ public class ItemExtraLife extends Item
     	
         return stack;
     }
-
+    
+    @Override
+    public boolean hasEffect(ItemStack stack)
+    {
+    	return stack.getItemDamage() == 0;
+    }
+    
     /**
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
@@ -89,29 +104,4 @@ public class ItemExtraLife extends Item
     	list.add(new ItemStack(item, 1, 1));
     	list.add(new ItemStack(item, 1, 2));
     }
-
-    /**
-     * Gets an icon index based on an item's damage value
-     */
-    /*@SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamage(int dmg)
-    {
-    	switch(dmg%3)
-    	{
-    		case 2:
-    			return iconQuarter;
-    		case 1:
-    			return iconHalf;
-    		default:
-    			return itemIcon;
-    	}
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister register)
-    {
-    	iconQuarter = register.registerIcon(this.getIconString() + "_quarter");
-    	iconHalf = register.registerIcon(this.getIconString() + "_half");
-    	itemIcon = register.registerIcon(this.getIconString() + "_full");
-    }*/
 }

@@ -26,6 +26,9 @@ import betterquesting.quests.QuestDatabase;
 
 public class LifeManager
 {
+	public static int defLives = 3;
+	public static int maxLives = 10;
+	
 	/**
 	 * Returns the amount of lives this player currently has to spare. Gets the party's lives if life share is enabled
 	 */

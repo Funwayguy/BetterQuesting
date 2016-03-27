@@ -46,7 +46,7 @@ public class RenderUtils
         
 		try
 		{
-		    GL11.glColor3b((byte)color.getRed(), (byte)color.getGreen(), (byte)color.getBlue());
+		    GL11.glColor3f(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
 			RenderHelper.enableGUIStandardItemLighting();
 			GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 			
