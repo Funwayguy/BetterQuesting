@@ -64,13 +64,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 		
 		if(this.entity != null)
 		{
-			this.displayString = I18n.translateToLocal("betterquesting.btn.entity") + ":" + entity.getName();
+			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.entity") + ":" + entity.getName();
 		} else if(this.stack != null)
 		{
-			this.displayString = I18n.translateToLocal("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
+			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
 		} else if(this.fluid != null)
 		{
-			this.displayString = I18n.translateToLocal("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
+			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
 		} else if(json.isJsonPrimitive())
 		{
 			this.displayString = json.getAsJsonPrimitive().getAsString();
@@ -84,13 +84,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 	{
 		if(c == JsonObject.class)
 		{
-			return I18n.translateToLocal("betterquesting.btn.object");
+			return I18n.translateToLocalFormatted("betterquesting.btn.object");
 		} else if(c == JsonArray.class)
 		{
-			return I18n.translateToLocal("betterquesting.btn.list");
+			return I18n.translateToLocalFormatted("betterquesting.btn.list");
 		} else if(c == JsonPrimitive.class)
 		{
-			return I18n.translateToLocal("betterquesting.btn.text"); // This should not normally be seen
+			return I18n.translateToLocalFormatted("betterquesting.btn.text"); // This should not normally be seen
 		}
 		
 		return c.getSimpleName();

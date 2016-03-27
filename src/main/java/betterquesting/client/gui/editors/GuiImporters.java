@@ -51,14 +51,14 @@ public class GuiImporters extends GuiQuesting
 		
 		if(leftGui != null && rightImp != null)
 		{
-			String txt = TextFormatting.UNDERLINE + I18n.translateToLocal(leftImp.getUnlocalisedName());
+			String txt = TextFormatting.UNDERLINE + I18n.translateToLocalFormatted(leftImp.getUnlocalisedName());
 			mc.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			leftGui.drawGui(mx, my, partialTick);
 		}
 		
 		if(rightGui != null && rightImp != null)
 		{
-			String txt = TextFormatting.UNDERLINE + I18n.translateToLocal(rightImp.getUnlocalisedName());
+			String txt = TextFormatting.UNDERLINE + I18n.translateToLocalFormatted(rightImp.getUnlocalisedName());
 			mc.fontRendererObj.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
 			rightGui.drawGui(mx, my, partialTick);
 		}

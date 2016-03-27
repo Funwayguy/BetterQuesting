@@ -64,7 +64,7 @@ public class GuiQuesting extends GuiScreen
 		this.guiTop = (this.height - this.sizeY)/2;
 		
 		this.buttonList.clear();
-        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.translateToLocal("gui.done")));
+        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.translateToLocalFormatted("gui.done")));
 	}
 	
 	/**
@@ -119,7 +119,7 @@ public class GuiQuesting extends GuiScreen
 			}
 		}
 		
-		String tmp = I18n.translateToLocal(title);
+		String tmp = I18n.translateToLocalFormatted(title);
 		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		super.drawScreen(mx, my, partialTick);

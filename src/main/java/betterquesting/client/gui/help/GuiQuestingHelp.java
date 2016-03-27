@@ -123,7 +123,7 @@ public class GuiQuestingHelp extends GuiQuesting
 			{
 				if(n3 >= 0 && n3 < helpTopics.size())
 				{
-					btn.displayString = I18n.translateToLocal(helpTopics.get(n3).getButton());
+					btn.displayString = I18n.translateToLocalFormatted(helpTopics.get(n3).getButton());
 					btn.enabled = btn.visible = true;
 				} else
 				{
@@ -167,12 +167,12 @@ public class GuiQuestingHelp extends GuiQuesting
 		
 		public String getButton()
 		{
-			return I18n.translateToLocal(btn);
+			return I18n.translateToLocalFormatted(btn);
 		}
 		
 		public String getParagraph()
 		{
-			return I18n.translateToLocal(txt);
+			return I18n.translateToLocalFormatted(txt);
 		}
 	}
 }

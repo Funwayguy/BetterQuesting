@@ -28,7 +28,7 @@ public class GuiThemeSelect extends GuiQuesting
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
-		super(parent, I18n.translateToLocal("betterquesting.title.select_theme"));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.select_theme"));
 	}
 	
 	@Override

@@ -2,7 +2,7 @@ package betterquesting.lives;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public class LifeTrackerDefault implements IHardcoreLives
+public class LifeDefault implements IHardcoreLives
 {
 	@Override
 	public int getLives()

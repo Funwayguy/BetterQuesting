@@ -78,7 +78,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			QuestInstance quest = QuestDatabase.getQuestByID(id);
 			quest.setComplete(uuid, 0);
 			
-			sender.addChatMessage(new TextComponentString("Manually completed quest " + I18n.translateToLocal(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+			sender.addChatMessage(new TextComponentString("Manually completed quest " + I18n.translateToLocalFormatted(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 		} catch(Exception e)
 		{
 			throw getException(command);

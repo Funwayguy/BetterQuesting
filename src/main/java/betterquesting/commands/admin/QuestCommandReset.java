@@ -110,7 +110,7 @@ public class QuestCommandReset extends QuestCommandBase
 					quest.ResetQuest();
 				}
 				
-				sender.addChatMessage(new TextComponentString("Reset quest " + I18n.translateToLocal(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+				sender.addChatMessage(new TextComponentString("Reset quest " + I18n.translateToLocalFormatted(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 			} catch(Exception e)
 			{
 				throw getException(command);

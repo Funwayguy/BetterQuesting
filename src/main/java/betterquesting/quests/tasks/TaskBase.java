@@ -36,7 +36,7 @@ public abstract class TaskBase
 	 */
 	public String getDisplayName()
 	{
-		return I18n.translateToLocal(this.getUnlocalisedName());
+		return I18n.translateToLocalFormatted(this.getUnlocalisedName());
 	}
 	
 	/**

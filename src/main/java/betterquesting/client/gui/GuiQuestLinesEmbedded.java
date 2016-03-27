@@ -52,14 +52,14 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	public GuiQuestLinesEmbedded(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(screen, posX, posY, sizeX, sizeY);
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocal("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.select"));
 		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocal("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.grab"));
 		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocal("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.link"));
 		btnLnk.enabled = toolType != 2;
 		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocal("betterquesting.tool.auto"));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.auto"));
 		
 		if(!QuestDatabase.editMode)
 		{
@@ -69,15 +69,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	
 	public void refreshToolButtons()
 	{
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocal("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.select"));
 		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocal("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.grab"));
 		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocal("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.link"));
 		btnLnk.enabled = toolType != 2;
 		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
 		btnSnp.enabled = true;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocal("betterquesting.tool.auto"));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.auto"));
 		btnAto.enabled = true;
 	}
 
@@ -160,7 +160,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GL11.glPushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GL11.glScalef(scale, scale, scale);
-			mc.fontRendererObj.drawString(TextFormatting.BOLD + I18n.translateToLocal(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(TextFormatting.BOLD + I18n.translateToLocalFormatted(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			mc.fontRendererObj.drawString(TextFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GL11.glPopMatrix();
 		}
@@ -168,24 +168,24 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		if(qTooltip != null)
 		{
 			ArrayList<String> qInfo = new ArrayList<String>();
-			qInfo.add(I18n.translateToLocal(qTooltip.name));
+			qInfo.add(I18n.translateToLocalFormatted(qTooltip.name));
 			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(TextFormatting.GREEN + I18n.translateToLocal("betterquesting.tooltip.complete"));
+				qInfo.add(TextFormatting.GREEN + I18n.translateToLocalFormatted("betterquesting.tooltip.complete"));
 				
 				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
 				{
-					qInfo.add(TextFormatting.GRAY + I18n.translateToLocal("betterquesting.tooltip.rewards_pending"));
+					qInfo.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
 				}
 			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
 			{
-				qInfo.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.translateToLocal("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
+				qInfo.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
 				
 				for(QuestInstance req : qTooltip.preRequisites)
 				{
 					if(!req.isComplete(mc.thePlayer.getUniqueID()))
 					{
-						qInfo.add(TextFormatting.RED + "- " + I18n.translateToLocal(req.name));
+						qInfo.add(TextFormatting.RED + "- " + I18n.translateToLocalFormatted(req.name));
 					}
 				}
 			} else

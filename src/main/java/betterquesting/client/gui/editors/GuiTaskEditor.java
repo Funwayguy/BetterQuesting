@@ -37,7 +37,7 @@ public class GuiTaskEditor extends GuiQuesting
 	
 	public GuiTaskEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_tasks", I18n.translateToLocal(quest.name)));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_tasks", I18n.translateToLocalFormatted(quest.name)));
 		this.quest = quest;
 	}
 	

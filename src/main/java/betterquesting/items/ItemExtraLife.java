@@ -47,27 +47,41 @@ public class ItemExtraLife extends Item
 	@Override
     public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-    	if(world.isRemote || hand != EnumHand.MAIN_HAND)
+    	if(stack.getItemDamage() != 0 || hand != EnumHand.MAIN_HAND)
     	{
     		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
-    	}
-    	
-    	if(QuestDatabase.bqHardcore)
+    	} else if(QuestDatabase.bqHardcore)
     	{
-    		if(player.capabilities.isCreativeMode)
+    		if(!player.capabilities.isCreativeMode)
     		{
     			stack.stackSize--;
     		}
     		
-    		LifeManager.AddRemoveLives(player, 1);
+    		if(LifeManager.getLives(player) >= LifeManager.maxLives)
+    		{
+	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + I18n.translateToLocalFormatted("betterquesting.gui.full_lives")));
+	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+    		}
+
             player.worldObj.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.entity_player_levelup, SoundCategory.PLAYERS, 1F, 1F);
-    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocalFormatted("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(player))));
-    	} else
+            
+            if(!world.isRemote)
+            {
+	    		LifeManager.AddRemoveLives(player, 1);
+	    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocalFormatted("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(player))));
+            }
+    	} else if(!world.isRemote)
     	{
-    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocal("betterquesting.msg.heart_disabled")));
+    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocalFormatted("betterquesting.msg.heart_disabled")));
     	}
     	
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+    }
+    
+    @Override
+    public boolean hasEffect(ItemStack stack)
+    {
+    	return stack.getItemDamage() == 0;
     }
 
     /**

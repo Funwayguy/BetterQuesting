@@ -55,7 +55,7 @@ public class GuiFileExplorer extends GuiQuesting
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -124,9 +124,9 @@ public class GuiFileExplorer extends GuiQuesting
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.translateToLocal("betterquesting.gui.quest_line");
+		String txt = I18n.translateToLocalFormatted("betterquesting.gui.quest_line");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.translateToLocal("betterquesting.gui.database");
+		txt = I18n.translateToLocalFormatted("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
@@ -226,7 +226,7 @@ public class GuiFileExplorer extends GuiQuesting
 				{
 					btn.visible = true;
 					btn.enabled = false;
-					btn.displayString = I18n.translateToLocal(selected.get(n3).getName());
+					btn.displayString = I18n.translateToLocalFormatted(selected.get(n3).getName());
 				}
 			} else if(n2 == 1) // Remove file
 			{

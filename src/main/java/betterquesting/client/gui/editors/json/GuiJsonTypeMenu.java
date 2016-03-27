@@ -101,10 +101,10 @@ public class GuiJsonTypeMenu extends GuiQuesting
 			}
 		}
 
-		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.translateToLocal("betterquesting.btn.raw_nbt")); // JSON Editor
-		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.translateToLocal("betterquesting.btn.item")); // Item Selector
-		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.translateToLocal("betterquesting.btn.fluid")); // Fluid Editor
-		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.translateToLocal("betterquesting.btn.entity")); // Entity Selector
+		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.translateToLocalFormatted("betterquesting.btn.raw_nbt")); // JSON Editor
+		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.translateToLocalFormatted("betterquesting.btn.item")); // Item Selector
+		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.translateToLocalFormatted("betterquesting.btn.fluid")); // Fluid Editor
+		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.translateToLocalFormatted("betterquesting.btn.entity")); // Entity Selector
 		
 		//itemButton.displayString = I18n.format("betterquesting.btn.item");
 		//entityButton.displayString = I18n.format("betterquesting.btn.entity");

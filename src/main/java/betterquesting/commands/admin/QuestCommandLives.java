@@ -21,12 +21,12 @@ public class QuestCommandLives extends QuestCommandBase
 	
 	public String getUsageSuffix()
 	{
-		return "<username> [add/set] <value>";
+		return "[add|set|max|default] <value> [username]";
 	}
 	
 	public boolean validArgs(String[] args)
 	{
-		return args.length == 4;
+		return args.length == 4 || args.length == 3;
 	}
 	
 	@Override
@@ -34,13 +34,12 @@ public class QuestCommandLives extends QuestCommandBase
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		if(args.length == 2)
+		if(args.length == 4 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set")))
 		{
 			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
-		} else if(args.length == 3)
+		} else if(args.length == 2)
 		{
-			list.add("add");
-			list.add("set");
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"add","set","max","default"});
 		}
 		
 		return list;
@@ -49,19 +48,14 @@ public class QuestCommandLives extends QuestCommandBase
 	@Override
 	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
-		String action = args[2];
-		EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(args[1]);
-		
-		if(player == null)
-		{
-			throw getException(command);
-		}
+		String action = args[1];
+		EntityPlayerMP player = args.length < 4? null : server.getPlayerList().getPlayerByUsername(args[3]);
 		
 		int value = 0;
 		
 		try
 		{
-			value = Integer.parseInt(args[3]);
+			value = Integer.parseInt(args[2]);
 		} catch(Exception e)
 		{
 			throw getException(command);
@@ -69,12 +63,43 @@ public class QuestCommandLives extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("set"))
 		{
-			LifeManager.setLives(player, value);
-			sender.addChatMessage(new TextComponentString("Set " + player.getName() + " lives to " + value));
+			if(player != null)
+			{
+				LifeManager.setLives(player, value);
+				sender.addChatMessage(new TextComponentString("Set " + player.getName() + " lives to " + value));
+			} else if(args.length == 3)
+			{
+				for(EntityPlayerMP p : server.getPlayerList().getPlayerList())
+				{
+					LifeManager.setLives(p, value);
+				}
+				
+				sender.addChatMessage(new TextComponentString("Set all player's lives to " + value));
+			}
 		} else if(action.equalsIgnoreCase("add"))
 		{
-			LifeManager.AddRemoveLives(player, value);
-			sender.addChatMessage(new TextComponentString((value >= 0? "Added " : "Removed ") + value + " lives from " + player.getName() + " (Total: " + LifeManager.getLives(player) + ")"));
+			if(player != null)
+			{
+				LifeManager.AddRemoveLives(player, value);
+				sender.addChatMessage(new TextComponentString((value >= 0? "Added " : "Removed ") + Math.abs(value) + " lives " + (value >= 0? "to " : "from ") + player.getName() + " (Total: " + LifeManager.getLives(player) + ")"));
+			} else
+			{
+				for(EntityPlayerMP p : server.getPlayerList().getPlayerList())
+				{
+					LifeManager.AddRemoveLives(p, value);
+				}
+				sender.addChatMessage(new TextComponentString((value >= 0? "Added " : "Removed ") + Math.abs(value) + " lives " + (value >= 0? "to " : "from ") + " all players"));
+			}
+		} else if(action.equalsIgnoreCase("max"))
+		{
+			value = Math.max(1, value);
+			LifeManager.maxLives = value;
+			sender.addChatMessage(new TextComponentString("Set max lives to " + value));
+		} else if(action.equalsIgnoreCase("default"))
+		{
+			value = Math.max(1, value);
+			LifeManager.maxLives = value;
+			sender.addChatMessage(new TextComponentString("Set default lives to " + value));
 		} else
 		{
 			throw getException(command);

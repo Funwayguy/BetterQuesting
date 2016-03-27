@@ -37,7 +37,7 @@ public class GuiRewardEditor extends GuiQuesting
 	
 	public GuiRewardEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_rewards", I18n.translateToLocal(quest.name)));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_rewards", I18n.translateToLocalFormatted(quest.name)));
 		this.quest = quest;
 	}
 	

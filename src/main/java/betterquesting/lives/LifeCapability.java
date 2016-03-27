@@ -12,7 +12,7 @@ public class LifeCapability implements IHardcoreLives, ICapabilitySerializable<N
 	
 	public LifeCapability()
 	{
-		
+		lives = LifeManager.defLives;
 	}
 	
 	@Override
@@ -68,6 +68,6 @@ public class LifeCapability implements IHardcoreLives, ICapabilitySerializable<N
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		lives = nbt.hasKey("lives")? nbt.getInteger("lives") : 3;
+		lives = nbt.hasKey("lives")? nbt.getInteger("lives") : LifeManager.defLives;
 	}
 }

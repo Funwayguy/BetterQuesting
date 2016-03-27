@@ -17,14 +17,14 @@ public class GuiButtonQuestLine extends GuiButtonQuesting
 	
 	public GuiButtonQuestLine(int id, int x, int y, QuestLine line)
 	{
-		super(id, x, y, I18n.translateToLocal(line.name));
+		super(id, x, y, I18n.translateToLocalFormatted(line.name));
 		this.line = line;
 		BuildButtonTree();
 	}
 	
 	public GuiButtonQuestLine(int id, int x, int y, int width, int height, QuestLine line)
 	{
-		super(id, x, y, width, height, I18n.translateToLocal(line.name));
+		super(id, x, y, width, height, I18n.translateToLocalFormatted(line.name));
 		this.line = line;
 		BuildButtonTree(); 
 	}

@@ -59,7 +59,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		int sx = sizeX - 32;
 		
 		this.searchBox = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -141,9 +141,9 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.translateToLocal(quest == null? "ERROR" : quest.name);
+		String txt = I18n.translateToLocalFormatted(quest == null? "ERROR" : quest.name);
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.translateToLocal("betterquesting.gui.database");
+		txt = I18n.translateToLocalFormatted("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		searchBox.drawTextBox();
@@ -358,7 +358,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting
 				continue;
 			}
 			
-			if(q.name.toLowerCase().contains(query) || I18n.translateToLocal(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			if(q.name.toLowerCase().contains(query) || I18n.translateToLocalFormatted(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
 			{
 				searchResults.add(q);
 			}

@@ -127,7 +127,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		
 		if(quest != null)
 		{
-			mc.fontRendererObj.drawString(I18n.translateToLocal(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(I18n.translateToLocalFormatted(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
 		if(task != null)

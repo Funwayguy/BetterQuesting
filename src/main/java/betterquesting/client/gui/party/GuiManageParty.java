@@ -64,14 +64,14 @@ public class GuiManageParty extends GuiQuesting
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 40, 70, 20, I18n.translateToLocal("betterquesting.btn.party_leave")));
-		GuiButtonQuesting lootBtn = new GuiButtonQuesting(2, guiLeft + sizeX/4 - 75, height/2 - 20, 150, 20, I18n.translateToLocal("betterquesting.btn.party_share_loot") + ": " + party.lootShare);
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 40, 70, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_leave")));
+		GuiButtonQuesting lootBtn = new GuiButtonQuesting(2, guiLeft + sizeX/4 - 75, height/2 - 20, 150, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_share_loot") + ": " + party.lootShare);
 		lootBtn.enabled = member.GetPrivilege() == 2;
 		this.buttonList.add(lootBtn);
-		GuiButtonQuesting lifeBtn = new GuiButtonQuesting(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.translateToLocal("betterquesting.btn.party_share_lives") + ": " + party.lifeShare);
+		GuiButtonQuesting lifeBtn = new GuiButtonQuesting(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_share_lives") + ": " + party.lifeShare);
 		lifeBtn.enabled = member.GetPrivilege() == 2;
 		this.buttonList.add(lifeBtn);
-		GuiButtonQuesting invBtn = new GuiButtonQuesting(4, guiLeft + sizeX/4 + 5, height/2 + 40, 70, 20, I18n.translateToLocal("betterquesting.btn.party_invite"));
+		GuiButtonQuesting invBtn = new GuiButtonQuesting(4, guiLeft + sizeX/4 + 5, height/2 + 40, 70, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_invite"));
 		invBtn.enabled = member.GetPrivilege() == 2;
 		this.buttonList.add(invBtn);
 		
@@ -82,7 +82,7 @@ public class GuiManageParty extends GuiQuesting
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.translateToLocal("betterquesting.btn.party_kick"));
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_kick"));
 			this.buttonList.add(btn);
 		}
 		
@@ -113,7 +113,7 @@ public class GuiManageParty extends GuiQuesting
 			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
 		}
 		
-		String memTitle = TextFormatting.UNDERLINE + I18n.translateToLocal("betterquesting.gui.party_members");
+		String memTitle = TextFormatting.UNDERLINE + I18n.translateToLocalFormatted("betterquesting.gui.party_members");
 		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		int dotL = mc.fontRendererObj.getStringWidth("...");
@@ -148,7 +148,7 @@ public class GuiManageParty extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(party.GetMembers().size() - maxRows)), 248, 60, 8, 20);
 		
-		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		fieldName.drawTextBox();
 		

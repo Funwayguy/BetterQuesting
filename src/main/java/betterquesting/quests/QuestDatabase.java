@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.core.BetterQuesting;
+import betterquesting.lives.LifeManager;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
@@ -222,6 +223,8 @@ public class QuestDatabase
 	{
 		json.addProperty("editMode", editMode);
 		json.addProperty("hardcore", bqHardcore);
+		json.addProperty("defLives", LifeManager.defLives);
+		json.addProperty("maxLives", LifeManager.maxLives);
 		
 		JsonArray dbJson = new JsonArray();
 		for(QuestInstance quest : questDB.values())
@@ -242,6 +245,8 @@ public class QuestDatabase
 		
 		editMode = JsonHelper.GetBoolean(json, "editMode", true);
 		bqHardcore = JsonHelper.GetBoolean(json, "hardcore", false);
+		LifeManager.defLives = JsonHelper.GetNumber(json, "defLives", 3).intValue();
+		LifeManager.maxLives = JsonHelper.GetNumber(json, "maxLives", 10).intValue();
 		updateUI = true;
 		questDB = new HashMap<Integer, QuestInstance>();
 		

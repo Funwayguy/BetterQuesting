@@ -17,7 +17,7 @@ public abstract class RewardBase
 	
 	public String getDisplayName()
 	{
-		return I18n.translateToLocal(this.getUnlocalisedName());
+		return I18n.translateToLocalFormatted(this.getUnlocalisedName());
 	}
 	
 	public abstract boolean canClaim(EntityPlayer player, NBTTagCompound choiceData);

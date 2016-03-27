@@ -67,7 +67,7 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocal("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
 		this.buttonList.add(new GuiButtonQuesting(2, this.width/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
 		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + this.sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
 		

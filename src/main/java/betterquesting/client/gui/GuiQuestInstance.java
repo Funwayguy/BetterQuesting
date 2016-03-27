@@ -39,7 +39,7 @@ public class GuiQuestInstance extends GuiQuesting
 	
 	public GuiQuestInstance(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.translateToLocal(quest.name));
+		super(parent, I18n.translateToLocalFormatted(quest.name));
 		this.quest = quest;
 	}
 	
@@ -48,7 +48,7 @@ public class GuiQuestInstance extends GuiQuesting
 	{
 		super.initGui();
 		
-		this.title = I18n.translateToLocal(quest.name);
+		this.title = I18n.translateToLocalFormatted(quest.name);
 		this.selReward = 0;
 		this.taskRender = null;
 		this.selTask = 0;
@@ -60,11 +60,11 @@ public class GuiQuestInstance extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocal("betterquesting.btn.edit"));
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
-		desc = new GuiScrollingText(this, sizeX/2 - 24, quest.rewards.size() > 0? sizeY/2 - 48 : sizeY - 64, this.guiTop + 32, this.guiLeft + 16, I18n.translateToLocal(quest.description));
+		desc = new GuiScrollingText(this, sizeX/2 - 24, quest.rewards.size() > 0? sizeY/2 - 48 : sizeY - 64, this.guiTop + 32, this.guiLeft + 16, I18n.translateToLocalFormatted(quest.description));
 		
 		btnTLeft = new GuiButtonQuesting(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<");
 		btnTLeft.enabled = selTask > 0;
@@ -78,9 +78,9 @@ public class GuiQuestInstance extends GuiQuesting
 		btnRRight.visible = quest.rewards.size() > 0;
 		btnRRight.enabled = btnRRight.visible && selReward < quest.rewards.size() - 1;
 		
-		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.detect_submit"));
+		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.detect_submit"));
 		btnDetect.enabled = !quest.isComplete(mc.thePlayer.getUniqueID());
-		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocal("betterquesting.btn.claim"));
+		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.claim"));
 		btnClaim.visible = quest.rewards.size() > 0;
 		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
 		this.buttonList.add(btnTLeft);

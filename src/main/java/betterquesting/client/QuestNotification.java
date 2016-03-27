@@ -98,11 +98,11 @@ public class QuestNotification
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
-		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.translateToLocal(notice.mainTxt);
+		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.translateToLocalFormatted(notice.mainTxt);
 		int txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
-		tmp = I18n.translateToLocal(notice.subTxt);
+		tmp = I18n.translateToLocalFormatted(notice.subTxt);
 		txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		

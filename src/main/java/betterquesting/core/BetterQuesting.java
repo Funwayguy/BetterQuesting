@@ -38,7 +38,7 @@ import betterquesting.items.ItemGuideBook;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.lives.IHardcoreLives;
 import betterquesting.lives.LifeStorage;
-import betterquesting.lives.LifeTrackerDefault;
+import betterquesting.lives.LifeDefault;
 import betterquesting.network.PacketQuesting;
 
 @Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
@@ -88,7 +88,7 @@ public class BetterQuesting
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-    	CapabilityManager.INSTANCE.register(IHardcoreLives.class, new LifeStorage(), LifeTrackerDefault.class);
+    	CapabilityManager.INSTANCE.register(IHardcoreLives.class, new LifeStorage(), LifeDefault.class);
     	FluidRegistry.registerFluid(fluidPlaceholder);
     	
     	GameRegistry.registerItem(placeholder, "placeholder");

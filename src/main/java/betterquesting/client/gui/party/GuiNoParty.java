@@ -59,7 +59,7 @@ public class GuiNoParty extends GuiQuesting
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
 		
-		btnCreate = new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, I18n.translateToLocal("betterquesting.btn.party_new"));
+		btnCreate = new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_new"));
 		this.buttonList.add(btnCreate);
 		
 		fieldName = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/4 - 74, height/2 - 19, 148, 18);
@@ -68,7 +68,7 @@ public class GuiNoParty extends GuiQuesting
 		// Party Invites
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.translateToLocal("betterquesting.btn.party_join"));
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.translateToLocalFormatted("betterquesting.btn.party_join"));
 			this.buttonList.add(btn);
 		}
 		
@@ -105,7 +105,7 @@ public class GuiNoParty extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(invites.size() - maxRows)), 248, 60, 8, 20);
 		
-		String memTitle = TextFormatting.UNDERLINE + I18n.translateToLocal("betterquesting.gui.party_invites");
+		String memTitle = TextFormatting.UNDERLINE + I18n.translateToLocalFormatted("betterquesting.gui.party_invites");
 		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		int dotL = mc.fontRendererObj.getStringWidth("...");
@@ -129,7 +129,7 @@ public class GuiNoParty extends GuiQuesting
 			mc.fontRendererObj.drawString(name, guiLeft + sizeX - 82 - mc.fontRendererObj.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		}
 		
-		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 30, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 30, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		fieldName.drawTextBox();
 		

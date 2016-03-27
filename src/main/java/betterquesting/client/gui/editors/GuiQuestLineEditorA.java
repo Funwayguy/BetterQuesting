@@ -57,11 +57,11 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		lineDesc = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this, 0);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.translateToLocal("betterquesting.btn.new")));
-		GuiButtonQuesting btnImport = new GuiButtonQuesting(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.translateToLocal("betterquesting.btn.import"));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
+		GuiButtonQuesting btnImport = new GuiButtonQuesting(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.translateToLocalFormatted("betterquesting.btn.import"));
 		btnImport.enabled = ImporterRegistry.getImporters().size() > 0 && mc.isIntegratedServerRunning();
 		this.buttonList.add(btnImport);
-		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.translateToLocal("betterquesting.btn.add_remove_quests")));
+		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.translateToLocalFormatted("betterquesting.btn.add_remove_quests")));
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
@@ -114,8 +114,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
 		
-		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		lineTitle.drawTextBox();
 		lineDesc.drawTextBox();
@@ -303,7 +303,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
 			{
 				if(n3 >= 0 && n3 < QuestDatabase.questLines.size())
 				{
-					btn.displayString = I18n.translateToLocal(QuestDatabase.questLines.get(n3).name);
+					btn.displayString = I18n.translateToLocalFormatted(QuestDatabase.questLines.get(n3).name);
 					btn.enabled = btn.visible = true;
 				} else
 				{

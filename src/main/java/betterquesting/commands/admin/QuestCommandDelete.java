@@ -67,7 +67,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestInstance quest = QuestDatabase.getQuestByID(id);
 				QuestDatabase.DeleteQuest(id);
 				
-				sender.addChatMessage(new TextComponentString("Deleted quest " + I18n.translateToLocal(quest.name) +"(ID:" + id + ")"));
+				sender.addChatMessage(new TextComponentString("Deleted quest " + I18n.translateToLocalFormatted(quest.name) +"(ID:" + id + ")"));
 			} catch(Exception e)
 			{
 				throw getException(command);

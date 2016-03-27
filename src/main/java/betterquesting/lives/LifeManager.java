@@ -30,9 +30,13 @@ import betterquesting.quests.QuestDatabase;
 
 public class LifeManager
 {
+	public static int defLives = 3;
+	public static int maxLives = 10;
+	
 	@CapabilityInject(IHardcoreLives.class)
 	public static final Capability<IHardcoreLives> LIFE_CAP = null;
 	public static final ResourceLocation LIFE_ID = new ResourceLocation(BetterQuesting.MODID + ":BQ_LIVES");
+	
 	/**
 	 * Returns the amount of lives this player currently has to spare. Gets the party's lives if life share is enabled
 	 */

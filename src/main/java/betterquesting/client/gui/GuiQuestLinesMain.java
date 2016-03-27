@@ -36,7 +36,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 	
 	public GuiQuestLinesMain(GuiScreen parent)
 	{
-		super(parent, I18n.translateToLocal("betterquesting.title.quest_lines"));
+		super(parent, I18n.translateToLocalFormatted("betterquesting.title.quest_lines"));
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocal("betterquesting.btn.edit"));
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
@@ -181,7 +181,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(selected != null)
 			{
-				qlDesc.SetText(I18n.translateToLocal(selected.line.description));
+				qlDesc.SetText(I18n.translateToLocalFormatted(selected.line.description));
 				qlGui.setQuestLine(selected);
 			}
 		}

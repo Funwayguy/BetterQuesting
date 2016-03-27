@@ -54,7 +54,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 	{
 		super.initGui();
 		
-		int txtW = mc.fontRendererObj.getStringWidth(I18n.translateToLocal("betterquesting.gui.search"));
+		int txtW = mc.fontRendererObj.getStringWidth(I18n.translateToLocalFormatted("betterquesting.gui.search"));
 		int srcW = sizeX/2 - 35 - txtW - (sizeX/2 - 32)%18;
 		this.searchBox = new GuiTextField(0, fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
@@ -114,7 +114,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
@@ -144,7 +144,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		}
 		GL11.glPopMatrix();
 		
-		fontRendererObj.drawString(I18n.translateToLocal("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		fontRendererObj.drawString(I18n.translateToLocalFormatted("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
@@ -188,7 +188,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 
-		this.fontRendererObj.drawString(I18n.translateToLocal("betterquesting.gui.search"), guiLeft + sizeX/2 + 8, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.search"), guiLeft + sizeX/2 + 8, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
 		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
@@ -357,7 +357,7 @@ public class GuiJsonFluidSelection extends GuiQuesting
 					continue;
 				}
 				
-				if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocal(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
+				if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocalFormatted(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 				{
 					searchResults.add(new FluidStack(baseFluid, 1000));
 				}
