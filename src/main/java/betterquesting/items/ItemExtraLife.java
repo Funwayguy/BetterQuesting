@@ -43,11 +43,24 @@ public class ItemExtraLife extends Item
      */
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
-    	if(QuestDatabase.bqHardcore)
+    	if(stack.getItemDamage() != 0)
+    	{
+    		return stack;
+    	} else if(QuestDatabase.bqHardcore)
     	{
     		if(!player.capabilities.isCreativeMode)
     		{
     			stack.stackSize--;
+    		}
+    		
+    		if(LifeManager.getLives(player) >= LifeManager.maxLives)
+    		{
+    			if(!world.isRemote)
+    			{
+    	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+    			}
+    			
+    			return stack;
     		}
     		
     		world.playSoundAtEntity(player, "random.levelup", 1F, 1F);
@@ -80,6 +93,13 @@ public class ItemExtraLife extends Item
         	default:
         		return this.getUnlocalizedName() + ".full";	
         }
+    }
+	
+	@Override
+    @SideOnly(Side.CLIENT)
+    public boolean hasEffect(ItemStack stack)
+    {
+		return stack.getItemDamage() == 0;
     }
 
     /**

@@ -129,7 +129,7 @@ public class QuestInstance
 				}
 			}
 			
-			if(tLogic.GetResult(done, tasks.size()))
+			if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
