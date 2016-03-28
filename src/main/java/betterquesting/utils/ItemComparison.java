@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.Set;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
@@ -53,7 +57,7 @@ public class ItemComparison
     
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial)
     {
-    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null) || (tag1 != null && tag1.getClass() != tag2.getClass()))
+    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null))
     	{
     		return false;
     	} else if(tag1 == null && tag2 == null)
@@ -61,12 +65,7 @@ public class ItemComparison
     		return true;
     	}
     	
-    	if(!partial)
-    	{
-    		return tag1.equals(tag2);
-    	}
-    	
-    	if(tag1 instanceof NBTTagCompound)
+    	if(tag1 instanceof NBTTagCompound && tag2 instanceof NBTTagCompound)
     	{
     		return CompareNBTTagCompound((NBTTagCompound)tag1, (NBTTagCompound)tag2, partial);
     	} else if(tag1 instanceof NBTTagList)
@@ -74,9 +73,9 @@ public class ItemComparison
     		NBTTagList list1 = (NBTTagList)tag1;
     		NBTTagList list2 = (NBTTagList)tag2;
     		
-    		if(list1.tagCount() > list2.tagCount())
+    		if(list1.tagCount() > list2.tagCount() || (!partial && list1.tagCount() != list2.tagCount()))
     		{
-    			return false; // Sample is missing requested tags
+    			return false; // Sample is missing requested tags or is not exact
     		}
     		
     		topLoop:
@@ -94,14 +93,14 @@ public class ItemComparison
     			
     			return false; // Couldn't find requested tag in list
     		}
-    	} else if(tag1 instanceof NBTTagIntArray)
+    	} else if(tag1 instanceof NBTTagIntArray && tag2 instanceof NBTTagIntArray)
     	{
     		NBTTagIntArray list1 = (NBTTagIntArray)tag1;
     		NBTTagIntArray list2 = (NBTTagIntArray)tag2;
     		
-    		if(list1.func_150302_c().length > list2.func_150302_c().length)
+    		if(list1.func_150302_c().length > list2.func_150302_c().length || (!partial && list1.func_150302_c().length != list2.func_150302_c().length))
     		{
-    			return false; // Sample is missing requested tags
+    			return false; // Sample is missing requested tags or is not exact
     		}
     		
     		topLoop:
@@ -119,14 +118,14 @@ public class ItemComparison
     		}
     		
     		return false;
-    	} else if(tag1 instanceof NBTTagByteArray)
+    	} else if(tag1 instanceof NBTTagByteArray && tag2 instanceof NBTTagByteArray)
     	{
     		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
     		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
     		
-    		if(list1.func_150292_c().length > list2.func_150292_c().length)
+    		if(list1.func_150292_c().length > list2.func_150292_c().length || (!partial && list1.func_150292_c().length != list2.func_150292_c().length))
     		{
-    			return false; // Sample is missing requested tags
+    			return false; // Sample is missing requested tags or is not exact
     		}
     		
     		ArrayList<Integer> usedIdxs = new ArrayList<Integer>(); // Duplicate control
@@ -150,6 +149,22 @@ public class ItemComparison
     		}
     		
     		return false;
+    	} else if(tag1 instanceof NBTTagString && tag2 instanceof NBTTagString)
+    	{
+    		return tag1.equals(tag2);
+    	} else if(tag1 instanceof NBTPrimitive && tag2 instanceof NBTPrimitive) // Standardize numbers to not care about format
+    	{
+    		Number num1 = NBTConverter.getNumber(tag1);
+    		Number num2 = NBTConverter.getNumber(tag2);
+    		
+    		// Second number will be cast to the requested number format
+    		if(tag1 instanceof NBTTagFloat || tag1 instanceof NBTTagDouble)
+    		{
+    			return num1.doubleValue() == num2.doubleValue();
+    		} else
+    		{
+    			return num1.longValue() == num2.longValue();
+    		}
     	} else
     	{
     		return tag1.equals(tag2);
