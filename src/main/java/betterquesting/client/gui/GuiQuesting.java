@@ -6,6 +6,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
+import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,12 +15,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuesting extends GuiScreen
+public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 {
 	public static final String numRegex = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
 	
@@ -187,11 +190,34 @@ public class GuiQuesting extends GuiScreen
 	@Override
 	protected void keyTyped(char character, int keyCode) throws IOException
 	{
-		super.keyTyped(character, keyCode);
+        if(keyCode == 1)
+        {
+        	if(this instanceof IVolatileScreen)
+        	{
+        		this.mc.displayGuiScreen(new GuiYesNo(this, I18n.translateToLocalFormatted("betterquesting.gui.closing_warning"), I18n.translateToLocalFormatted("betterquesting.gui.closing_confirm"), 0));
+        	} else
+        	{
+	            this.mc.displayGuiScreen((GuiScreen)null);
+	            this.mc.setIngameFocus();
+        	}
+        }
 		
 		for(GuiEmbedded gui : embedded)
 		{
 			gui.keyTyped(character, keyCode);;
+		}
+	}
+	
+	@Override
+    public void confirmClicked(boolean confirmed, int id)
+	{
+		if(confirmed && id == 0)
+		{
+            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.setIngameFocus();
+		} else
+		{
+			this.mc.displayGuiScreen(this);
 		}
 	}
 }

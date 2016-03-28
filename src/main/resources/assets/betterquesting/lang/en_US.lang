@@ -61,6 +61,8 @@ betterquesting.gui.party_invites=Invites
 betterquesting.gui.party_members=Members
 betterquesting.gui.remaining_lives=Remaining Lives: %s
 betterquesting.gui.full_lives=Lives Full
+betterquesting.gui.closing_warning=Are you sure you want to close this editor?
+betterquesting.gui.closing_confirm=Changes may be lost!
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE

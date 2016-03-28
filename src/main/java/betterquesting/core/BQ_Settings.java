@@ -16,6 +16,7 @@ public class BQ_Settings
 	public static String noticeUnlock = "random.levelup";
 	public static String noticeUpdate = "random.levelup";
 	public static String noticeComplete = "random.levelup";
+	public static boolean useBookmark = true;
 	public static String curTheme = "betterquesting:light";
 	
 	public static String titleCard = "betterquesting:textures/gui/default_title.png";

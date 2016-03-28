@@ -22,9 +22,10 @@ public class ConfigHandler
 		
 		BQ_Settings.hideUpdates = config.getBoolean("Hide Updates", Configuration.CATEGORY_GENERAL, false, "Hide update notifications");
 		BQ_Settings.curTheme = config.getString("Theme", Configuration.CATEGORY_GENERAL, "betterquesting:light", "The current questing theme");
-		BQ_Settings.noticeComplete = config.getString("Sound Complete", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");
-		BQ_Settings.noticeUpdate = config.getString("Sound Update", Configuration.CATEGORY_GENERAL, "random.levelup", "Sound that plays when a quest is completed");
-		BQ_Settings.noticeUnlock = config.getString("Sound Unlock", Configuration.CATEGORY_GENERAL, "random.click", "Sound that plays when a quest is completed");
+		BQ_Settings.noticeComplete = config.getString("Sound Complete", Configuration.CATEGORY_GENERAL, "entity.player.levelup", "Sound that plays when a quest is completed");
+		BQ_Settings.noticeUpdate = config.getString("Sound Update", Configuration.CATEGORY_GENERAL, "entity.player.levelup", "Sound that plays when a quest is completed");
+		BQ_Settings.noticeUnlock = config.getString("Sound Unlock", Configuration.CATEGORY_GENERAL, "ui.button.click", "Sound that plays when a quest is completed");
+		BQ_Settings.useBookmark = config.getBoolean("Use Quest Bookmark", Configuration.CATEGORY_GENERAL, true, "Jumps the user to the last opened quest");
 		
 		String catTitle = "TitleCard";
 		BQ_Settings.titleCard = config.getString("Title Texture", catTitle, "betterquesting:textures/gui/default_title.png", "Texture used in the quest tile card");

@@ -24,6 +24,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
@@ -32,7 +33,7 @@ import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonFluidSelection extends GuiQuesting
+public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScreen
 {
 	FluidStack stackSelect;
 	JsonObject json;

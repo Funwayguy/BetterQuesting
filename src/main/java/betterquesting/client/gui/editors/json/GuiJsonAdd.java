@@ -18,6 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.utils.JsonIO;
 import betterquesting.utils.NBTConverter;
@@ -27,7 +28,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonAdd extends GuiQuesting
+public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 {
 	GuiTextField keyText;
 	JsonElement json;
