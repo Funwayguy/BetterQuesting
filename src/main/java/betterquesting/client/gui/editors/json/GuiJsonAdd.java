@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.utils.JsonIO;
 import betterquesting.utils.NBTConverter;
@@ -26,7 +27,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonAdd extends GuiQuesting
+public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 {
 	GuiTextField keyText;
 	JsonElement json;

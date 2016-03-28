@@ -13,10 +13,11 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.utils.RenderUtils;
 
-public class GuiFileExplorer extends GuiQuesting
+public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 {
 	IFileCallback callback;
 	File directory;

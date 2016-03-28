@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
@@ -23,7 +24,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonEntitySelection extends GuiQuesting
+public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScreen
 {
 	JsonObject json;
 	Entity entity;

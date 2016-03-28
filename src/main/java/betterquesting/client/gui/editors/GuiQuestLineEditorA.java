@@ -14,6 +14,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.importers.ImporterRegistry;
@@ -27,7 +28,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor
+public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVolatileScreen
 {
 	GuiTextField lineTitle;
 	GuiBigTextField lineDesc;

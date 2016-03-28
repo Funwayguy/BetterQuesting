@@ -68,7 +68,7 @@ public class GuiHome extends GuiQuesting
 		
 		if(button.id == 1)
 		{
-			if(GuiQuestLinesMain.bookmarked != null && QuestDatabase.questDB.containsValue(GuiQuestLinesMain.bookmarked))
+			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null && QuestDatabase.questDB.containsValue(GuiQuestLinesMain.bookmarked.quest))
 			{
 				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
 			} else

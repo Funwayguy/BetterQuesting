@@ -14,11 +14,12 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiTextEditor extends GuiQuesting
+public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
 {
 	int hostID;
 	ITextEditor host;
