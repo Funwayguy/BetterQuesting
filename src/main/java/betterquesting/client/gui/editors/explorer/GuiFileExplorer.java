@@ -33,9 +33,9 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 	
 	public GuiFileExplorer(GuiScreen parent, IFileCallback callback, File directory, FileFilter filter)
 	{
-		super(parent, directory.getPath());
+		super(parent, directory.getAbsolutePath());
 		this.callback = callback;
-		this.directory = directory;
+		this.directory = directory.getAbsoluteFile();
 		this.filter = filter; // Can be null
 	}
 	
@@ -56,7 +56,7 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, "..."));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -125,9 +125,9 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.format("betterquesting.gui.quest_line");
+		String txt = I18n.format("betterquesting.gui.selection");
 		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.format("betterquesting.gui.database");
+		txt = I18n.format("betterquesting.gui.folder");
 		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
@@ -222,8 +222,7 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 				if(n3 < 0 || n3 >= selected.size())
 				{
 					btn.displayString = "NULL";
-					btn.visible = true;
-					btn.enabled = false;
+					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = true;
