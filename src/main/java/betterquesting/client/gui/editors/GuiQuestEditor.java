@@ -13,6 +13,7 @@ import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
@@ -23,7 +24,7 @@ import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestEditor extends GuiQuesting implements ITextEditor
+public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatileScreen
 {
 	JsonObject lastEdit;
 	QuestInstance quest;

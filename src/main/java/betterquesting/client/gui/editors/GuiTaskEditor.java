@@ -14,6 +14,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketQuesting.PacketDataType;
@@ -26,7 +27,7 @@ import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiTaskEditor extends GuiQuesting
+public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 {
 	TaskBase lastTask = null;
 	JsonObject lastEdit = null;

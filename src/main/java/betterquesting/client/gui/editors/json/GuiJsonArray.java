@@ -18,6 +18,7 @@ import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonIO;
@@ -26,7 +27,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiQuesting implements ITextEditor
+public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileScreen
 {
 	int scrollPos = 0;
 	JsonArray settings;

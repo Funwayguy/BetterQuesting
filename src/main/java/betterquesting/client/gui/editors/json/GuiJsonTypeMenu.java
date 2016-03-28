@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
@@ -23,7 +24,7 @@ import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonTypeMenu extends GuiQuesting
+public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
 {
 	JsonObject json;
 	FluidStack fluid;
