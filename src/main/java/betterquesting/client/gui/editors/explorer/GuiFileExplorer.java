@@ -34,9 +34,9 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 	
 	public GuiFileExplorer(GuiScreen parent, IFileCallback callback, File directory, FileFilter filter)
 	{
-		super(parent, directory.getPath());
+		super(parent, directory.getAbsolutePath());
 		this.callback = callback;
-		this.directory = directory;
+		this.directory = directory.getAbsoluteFile();
 		this.filter = filter; // Can be null
 	}
 	
@@ -125,9 +125,9 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.format("betterquesting.gui.quest_line");
+		String txt = I18n.format("betterquesting.gui.selection");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.format("betterquesting.gui.database");
+		txt = I18n.format("betterquesting.gui.folder");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
