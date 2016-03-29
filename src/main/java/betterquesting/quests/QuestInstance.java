@@ -607,7 +607,7 @@ public class QuestInstance
 				completeUsers.add(user);
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID '" + entry.getAsString() + "' for quest", e);
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
 			}
 		}
 		
