@@ -80,18 +80,19 @@ public class QuestInstance
 					return;
 				} else
 				{
-					boolean flag = false;
+					int done = 0;
 					
-					for(TaskBase t : tasks)
+					for(TaskBase tsk : tasks)
 					{
-						if(!t.isComplete(player.getUniqueID()))
+						tsk.Update(player);
+						
+						if(tsk.isComplete(player.getUniqueID()))
 						{
-							flag = true;
-							break;
+							done += 1;
 						}
 					}
 					
-					if(!flag)
+					if(!tLogic.GetResult(done, tasks.size()))
 					{
 						return;
 					}
@@ -231,6 +232,9 @@ public class QuestInstance
 		if(entry == null || HasClaimed(player.getUniqueID()))
 		{
 			return false;
+		} else if(canSubmit(player))
+		{
+			return false;
 		} else
 		{
 			for(int i = 0; i < rewards.size(); i++)
@@ -259,12 +263,45 @@ public class QuestInstance
 			rew.Claim(player, cTag);
 		}
 		
-		BetterQuesting.logger.log(Level.INFO, "Claiming reward for " + player.getUniqueID().toString());
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		entry.claimed = true;
 		entry.timestamp = player.worldObj.getTotalWorldTime();
 		
 		UpdateClients();
+	}
+	
+	public boolean canSubmit(EntityPlayer player)
+	{
+		if(player == null)
+		{
+			return false;
+		
+		}
+		
+		UserEntry entry = this.GetUserEntry(player.getUniqueID());
+		
+		if(entry == null)
+		{
+			return true;
+		} else if(!entry.claimed)
+		{
+			int done = 0;
+			
+			for(TaskBase tsk : tasks)
+			{
+				tsk.Update(player);
+				
+				if(tsk.isComplete(player.getUniqueID()))
+				{
+					done += 1;
+				}
+			}
+			
+			return !tLogic.GetResult(done, tasks.size());
+		} else
+		{
+			return false;
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -607,7 +644,7 @@ public class QuestInstance
 				completeUsers.add(user);
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID '" + entry.getAsString() + "' for quest", e);
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
 			}
 		}
 		

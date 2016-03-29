@@ -149,7 +149,7 @@ public class PartyInstance
 	
 	public void readFromJson(JsonObject jObj)
 	{
-		name = jObj.get("name").getAsString();
+		name = JsonHelper.GetString(jObj, "name", "New Party");
 		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
 		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
 		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();

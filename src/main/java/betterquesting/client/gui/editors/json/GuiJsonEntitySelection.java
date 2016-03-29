@@ -17,6 +17,7 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
+import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -42,7 +43,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 	{
 		super.initGui();
 		
-		if(json.has("id") && EntityList.stringToClassMapping.get(json.get("id").getAsString()) != null)
+		if(json.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(json, "id", "Pig")) != null)
 		{
 			entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), this.mc.theWorld);
 		}
