@@ -115,7 +115,7 @@ public abstract class TaskBase
 				completeUsers.add(UUID.fromString(entry.getAsString()));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID '" + entry.getAsString() + "' for task", e);
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for task", e);
 			}
 		}
 	}

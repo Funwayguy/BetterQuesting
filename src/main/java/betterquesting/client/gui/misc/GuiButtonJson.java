@@ -51,7 +51,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 				this.stack = JsonHelper.JsonToItemStack(tmpObj);
 			}
 			
-			if(stack == null && tmpObj.has("id") && EntityList.stringToClassMapping.get(tmpObj.get("id").getAsString()) != null)
+			if(stack == null && tmpObj.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(tmpObj, "id", "Pig")) != null)
 			{
 				this.entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
