@@ -3,7 +3,7 @@ package betterquesting.client.gui.misc;
 import java.awt.Color;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Items;
@@ -85,12 +85,12 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         	}
         	
             mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = this.mousePressed(mc, mx, my);
             int state = this.getHoverState(this.hovered);
-            GL11.glEnable(GL11.GL_BLEND);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+            GlStateManager.blendFunc(770, 771);
             
             int cx = MathHelper.clamp_int(xPosition + offX, clampMinX, clampMaxX);
             int cy = MathHelper.clamp_int(yPosition + offY, clampMinY, clampMaxY);
@@ -132,14 +132,14 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
         		
         		if(!(lsx == lex && (lsx == clampMinX || lex == clampMaxX)) && !(lsy == ley && (lsy == clampMinY || ley == clampMaxY)))
         		{
-	        		GL11.glPushMatrix();
+	        		GlStateManager.pushMatrix();
 	        		
-	        		GL11.glDisable(GL11.GL_TEXTURE_2D);
+	        		GlStateManager.disableTexture2D();
 
 	            	Color ci = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int(questState, 0, 2), quest.isMain);
-	            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
+	            	GlStateManager.color(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
 	        		
-	        		GL11.glLineWidth(quest.isMain? 16F : 4F);
+	        		GL11.glLineWidth(quest.isMain? 8F : 4F);
 	        		GL11.glBegin(GL11.GL_LINES);
 	        		
 	        		
@@ -147,17 +147,17 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	        		GL11.glVertex2f(lex, ley);
 	        		GL11.glEnd();
 	        		
-	        		GL11.glEnable(GL11.GL_TEXTURE_2D);
-	        		GL11.glColor4f(1F, 1F, 1F, 1F);
+	        		GlStateManager.enableTexture2D();
+	        		GlStateManager.color(1F, 1F, 1F, 1F);
 	        		
-	        		GL11.glPopMatrix();
+	        		GlStateManager.popMatrix();
         		}
         	}
             
             if(cw > 0 && ch > 0)
             {
             	Color ci = ThemeRegistry.curTheme().getIconColor(state, questState, quest.isMain);
-            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
+            	GlStateManager.color(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
             	
             	this.drawTexturedModalRect(cx, cy, (quest.isMain? 24 : 0) + Math.max(0, cx - (xPosition + offX)), 104 + Math.max(0, cy - (yPosition + offY)), cw, ch);
             	

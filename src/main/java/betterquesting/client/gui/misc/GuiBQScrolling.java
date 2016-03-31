@@ -292,10 +292,10 @@ public abstract class GuiBQScrolling
         }
         else
         {
-            GL11.glDisable(GL11.GL_LIGHTING);
+            GlStateManager.disableLighting();
             GL11.glDisable(GL11.GL_FOG);
             this.client.renderEngine.bindTexture(Gui.optionsBackground);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             float var17 = 32.0F;
             var18.startDrawingQuads();
             var18.setColorOpaque_I(2105376);
@@ -344,7 +344,7 @@ public abstract class GuiBQScrolling
             }
         }
 
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GlStateManager.disableDepth();
         //byte var20 = 4;
         if (this.client.theWorld == null)
         {
@@ -354,11 +354,11 @@ public abstract class GuiBQScrolling
         RenderUtils.DrawLine(left, top, right, top, 1F, ThemeRegistry.curTheme().textColor());
         RenderUtils.DrawLine(left, bottom, right, bottom, 1F, ThemeRegistry.curTheme().textColor());
         
-        /*GL11.glEnable(GL11.GL_BLEND);
+        /*GlStateManager.enableBlend();
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         GL11.glShadeModel(GL11.GL_SMOOTH);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GlStateManager.disableTexture2D();
         var18.startDrawingQuads();
         var18.setColorRGBA_I(0, 0);
         var18.addVertexWithUV((double)this.left, (double)(this.top + var20), 0.0D, 0.0D, 1.0D);
@@ -448,10 +448,10 @@ public abstract class GuiBQScrolling
         }
 
         /*this.func_27257_b(mouseX, mouseY);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GlStateManager.enableTexture2D();
         GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_BLEND);*/
+        GlStateManager.disableBlend();*/
     }
 
     protected void drawGradientRect(int left, int top, int right, int bottom, int color1, int color2)

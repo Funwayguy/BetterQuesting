@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
@@ -96,7 +96,7 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
 		// Left scroll bar

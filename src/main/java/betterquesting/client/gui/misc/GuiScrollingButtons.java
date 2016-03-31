@@ -1,12 +1,11 @@
 package betterquesting.client.gui.misc;
 
 import java.util.ArrayList;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 
-// [!] UNTESTED [!]
 public class GuiScrollingButtons extends GuiBQScrolling
 {
 	GuiQuesting screen;
@@ -59,8 +58,8 @@ public class GuiScrollingButtons extends GuiBQScrolling
 	@Override
 	protected void drawSlot(int index, int var2, int posY, int var4, Tessellator var5)
 	{
-		GL11.glPushMatrix();
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.pushMatrix();
+		GlStateManager.color(1F, 1F, 1F, 1F);
         int mx = Mouse.getEventX() * screen.width / screen.mc.displayWidth;
         int my = screen.height - Mouse.getEventY() * screen.height / screen.mc.displayHeight - 1;
         
@@ -84,6 +83,6 @@ public class GuiScrollingButtons extends GuiBQScrolling
 	        btn.height = h;
 	        btn.drawButton(screen.mc, mx, my);
 		}
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 }

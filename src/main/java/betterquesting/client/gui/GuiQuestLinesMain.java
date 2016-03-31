@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
@@ -129,7 +129,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			this.initGui();
 		}
 		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
@@ -146,16 +146,16 @@ public class GuiQuestLinesMain extends GuiQuesting
 		
 		if(qlGui != null && qlDesc != null)
 		{
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1F, 1F, 1F, 1f);
 			qlDesc.drawScreen(mx, my, partialTick);
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 			
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1F, 1F, 1F, 1f);
+			GlStateManager.enableDepth();
 			qlGui.drawGui(mx, my, partialTick);
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 	}
 	

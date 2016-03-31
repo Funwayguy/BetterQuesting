@@ -6,6 +6,7 @@ import java.util.Collections;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
@@ -14,7 +15,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
@@ -161,9 +161,9 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 		
 		if(entity != null)
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 			
-			GL11.glColor4f(1F, 1F, 1F, 1F);
+			GlStateManager.color(1F, 1F, 1F, 1F);
 			
 			float angle = ((float)Minecraft.getSystemTime()%30000F)/30000F * 360F;
 			float scale = 64F;
@@ -185,7 +185,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 			{
 			}
 			
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 	}
 }
