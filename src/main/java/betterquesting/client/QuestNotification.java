@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -15,7 +16,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import betterquesting.core.BQ_Settings;
 import betterquesting.utils.RenderUtils;
 
@@ -47,7 +47,7 @@ public class QuestNotification
 	@SubscribeEvent
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)
 	{
-		if(event.type != RenderGameOverlayEvent.ElementType.HELMET || notices.size() <= 0)
+		if(event.getType() != RenderGameOverlayEvent.ElementType.HELMET || notices.size() <= 0)
 		{
 			return;
 		}
@@ -76,11 +76,11 @@ public class QuestNotification
 			return;
 		}
 		
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
 		float scale = width > 600? 1.5F : 1F;
 		
-		GL11.glScalef(scale, scale, scale);
+		GlStateManager.scale(scale, scale, scale);
 		width = MathHelper.ceiling_float_int(width/scale);
 		height = MathHelper.ceiling_float_int(height/scale);
 		
@@ -88,15 +88,16 @@ public class QuestNotification
 		alpha = MathHelper.clamp_float(alpha, 0.02F, 1F);
 		int color = new Color(1F, 1F, 1F, alpha).getRGB();
 		
-		GL11.glColor4f(1F, 1F, 1F, alpha);
+		GlStateManager.color(1F, 1F, 1F, alpha);
 		
 		if(notice.icon != null)
 		{
 			RenderUtils.RenderItemStack(mc, notice.icon, width/2 - 8, height/4 - 20, "",  new Color(1F, 1F, 1F, alpha));
 		}
 
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
      	
 		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.translateToLocalFormatted(notice.mainTxt);
 		int txtW = mc.fontRendererObj.getStringWidth(tmp);
@@ -106,8 +107,8 @@ public class QuestNotification
 		txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glPopMatrix();
+		GlStateManager.disableBlend();
+		GlStateManager.popMatrix();
 	}
 	
 	public static class QuestNotice

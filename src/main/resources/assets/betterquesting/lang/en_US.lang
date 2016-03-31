@@ -8,6 +8,7 @@ betterquesting.title.edit_text=Text Editor
 betterquesting.title.pre_requisites=Edit Pre-Requisites
 betterquesting.title.json_object=Object
 betterquesting.title.json_array=List
+betterquesting.title.json_add=New Type
 betterquesting.title.select_item=Select Item
 betterquesting.title.select_fluid=Select Fluid
 betterquesting.title.select_entity=Select Entity

@@ -8,11 +8,11 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.gui.misc.IVolatileScreen;
@@ -91,6 +91,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		this.drawDefaultBackground();
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
@@ -128,7 +129,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 		super.drawScreen(mx, my, partialTick);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 	}
 	
 	/**
@@ -138,7 +139,10 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	{
 		for(GuiEmbedded gui : embedded)
 		{
+			GlStateManager.pushMatrix();
+			GlStateManager.color(1F, 1F, 1F, 1F);
 			gui.drawGui(mx, my, partialTick);
+			GlStateManager.popMatrix();
 		}
 	}
     
@@ -173,7 +177,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	public final void DrawTooltip(List<String> list, int x, int y)
 	{
 		this.drawHoveringText(list, x, y, fontRendererObj);
-        GL11.glDisable(GL11.GL_LIGHTING); // Normally not enabled on Questing GUI
+		GlStateManager.disableLighting(); // Normally not enabled on Questing GUI
 	}
 	
 	@Override

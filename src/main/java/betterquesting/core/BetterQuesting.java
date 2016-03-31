@@ -82,7 +82,7 @@ public class BetterQuesting
     	proxy.registerHandlers();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
-    	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 1, Side.SERVER);
+    	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
     }
     
     @EventHandler

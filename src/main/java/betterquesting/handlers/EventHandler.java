@@ -47,21 +47,21 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote)
+		if(event.getEntityLiving().worldObj.isRemote)
 		{
 			return;
 		}
 		
-		if(event.entityLiving instanceof EntityPlayer)
+		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
-			QuestDatabase.UpdateTasks((EntityPlayer)event.entityLiving);
+			QuestDatabase.UpdateTasks((EntityPlayer)event.getEntityLiving());
 		}
 	}
 	
 	@SubscribeEvent
 	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
 	{
-		if(event.modID.equals(BetterQuesting.MODID))
+		if(event.getModID().equals(BetterQuesting.MODID))
 		{
 			ConfigHandler.config.save();
 			ConfigHandler.initConfigs();
@@ -71,7 +71,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
-		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.getDimension() == 0)
+		if(!event.getWorld().isRemote && BQ_Settings.curWorldDir != null && event.getWorld().provider.getDimension() == 0)
 		{
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
@@ -86,7 +86,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldUnload(WorldEvent.Unload event)
 	{
-		if(!event.world.isRemote && !event.world.getMinecraftServer().isServerRunning())
+		if(!event.getWorld().isRemote && !event.getWorld().getMinecraftServer().isServerRunning())
 		{
 			BQ_Settings.curWorldDir = null;
 		}
@@ -95,12 +95,12 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event)
 	{
-		if(event.world.isRemote || BQ_Settings.curWorldDir != null)
+		if(event.getWorld().isRemote || BQ_Settings.curWorldDir != null)
 		{
 			return;
 		}
 		
-		MinecraftServer server = event.world.getMinecraftServer();
+		MinecraftServer server = event.getWorld().getMinecraftServer();
 		
 		if(BetterQuesting.proxy.isClient())
 		{
@@ -154,7 +154,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote)
+		if(event.getEntityLiving().worldObj.isRemote)
 		{
 			return;
 		}
@@ -165,16 +165,16 @@ public class EventHandler
 	public void onGuiOpen(GuiOpenEvent event)
 	{
 		// Hook for theme GUI replacements
-		event.gui = ThemeRegistry.curTheme().getGui(event.gui);
+		event.setGui(ThemeRegistry.curTheme().getGui(event.getGui()));
 	}
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onTextureStitch(TextureStitchEvent.Pre event)
 	{
-		if(event.map == Minecraft.getMinecraft().getTextureMapBlocks())
+		if(event.getMap() == Minecraft.getMinecraft().getTextureMapBlocks())
 		{
-			event.map.registerSprite(BetterQuesting.fluidPlaceholder.getStill());
+			event.getMap().registerSprite(BetterQuesting.fluidPlaceholder.getStill());
 		}
 	}
 }

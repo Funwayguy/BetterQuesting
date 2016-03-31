@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
@@ -20,7 +21,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
@@ -123,17 +123,17 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		BigItemStack ttStack = null;
 		int btnWidth = sizeX/2 - 16;
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		GL11.glPushMatrix();
-		GL11.glScalef(2F, 2F, 1F);
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(2F, 2F, 1F);
 		this.drawTexturedModalRect((guiLeft + 24)/2, (guiTop + 48)/2, 0, 48, 18, 18);
 		
 		if(this.stackSelect != null)
@@ -145,11 +145,11 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 				ttStack = this.stackSelect;
 			}
 		}
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
 		fontRendererObj.drawString(I18n.translateToLocalFormatted("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		if(this.mc.thePlayer != null)
 		{
@@ -161,18 +161,18 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 			int ipy = guiTop + sizeY/2;
 			
-			GL11.glPushMatrix();
-			GL11.glTranslatef(ipx, ipy, 0F);
-			GL11.glScalef(scale, scale, 1F);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(ipx, ipy, 0F);
+			GlStateManager.scale(scale, scale, 1F);
 			for(int i = 0; i < invoStacks.length && i < 9 * 4; i++) // Intentionally limited to vanilla size for UI neatness
 			{
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
 				
 				this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
+				GlStateManager.disableDepth();
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				GlStateManager.enableDepth();
 				
 				ItemStack stack = invoStacks[i];
 				
@@ -186,7 +186,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 					}
 				}
 			}
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
@@ -198,7 +198,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		this.searchBox.drawTextBox();
 		this.numberBox.drawTextBox();
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		int x = 0;
 		int y = 0;
@@ -220,9 +220,9 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			
 			if(resultStack != null)
 			{
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
+				GlStateManager.disableDepth();
 				this.drawTexturedModalRect(guiLeft + sizeX/2 + x + 8, guiTop + 48 + y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				GlStateManager.enableDepth();
 				RenderUtils.RenderItemStack(mc, resultStack, guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, "");
 				
 				if(this.isWithin(mx, my, this.sizeX/2 + x + 9, 49 + y, 16, 16))
@@ -234,11 +234,11 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		
 		if(ttStack != null)
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 			this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
-			GL11.glColor4f(1f, 1f, 1f, 1f);
-		    GL11.glDisable(GL11.GL_LIGHTING);
-			GL11.glPopMatrix();
+			GlStateManager.color(1f, 1f, 1f, 1f);
+		    GlStateManager.disableLighting();
+			GlStateManager.popMatrix();
 		}
 	}
 	

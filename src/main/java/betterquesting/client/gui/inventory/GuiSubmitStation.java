@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
-import org.lwjgl.opengl.GL11;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
@@ -123,7 +123,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		mc.fontRendererObj.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
 		mc.fontRendererObj.drawString("-->", invX - 17, invY + 6, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		if(quest != null)
 		{

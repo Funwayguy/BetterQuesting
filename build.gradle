@@ -18,7 +18,7 @@ group= "betterquesting" // http://maven.apache.org/guides/mini/guide-naming-conv
 archivesBaseName = "BetterQuesting"
 
 minecraft {
-    version = "1.9-12.16.0.1804-1.9"
+    version = "1.9-12.16.0.1816-1.9"
     mappings = "snapshot_20160312"
 }
 

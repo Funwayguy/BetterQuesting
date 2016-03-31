@@ -3,12 +3,12 @@ package betterquesting.client.gui;
 import java.io.IOException;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
@@ -150,10 +150,10 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			if(taskRender != null)
 			{
-				GL11.glPushMatrix(); 
-				GL11.glColor4f(1F, 1F, 1F, 1F);
+				GlStateManager.pushMatrix(); 
+				GlStateManager.color(1F, 1F, 1F, 1F);
 				taskRender.drawGui(mx, my, partialTick);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		} else
 		{
@@ -194,10 +194,10 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			if(rewardRender != null)
 			{
-				GL11.glPushMatrix(); 
-				GL11.glColor4f(1F, 1F, 1F, 1F);
+				GlStateManager.pushMatrix(); 
+				GlStateManager.color(1F, 1F, 1F, 1F);
 				rewardRender.drawGui(mx, my, partialTick);
-				GL11.glPopMatrix();
+				GlStateManager.popMatrix();
 			}
 		} else
 		{

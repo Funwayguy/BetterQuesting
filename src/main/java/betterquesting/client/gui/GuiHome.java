@@ -1,6 +1,10 @@
 package betterquesting.client.gui;
 
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.translation.I18n;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
@@ -8,10 +12,6 @@ import betterquesting.core.BQ_Settings;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
 
 public class GuiHome extends GuiQuesting
 {
@@ -47,13 +47,13 @@ public class GuiHome extends GuiQuesting
 		
 		mc.renderEngine.bindTexture(homeGui);
 		
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		float sw = (sizeX - 32)/256F;
 		float sh = (sizeY - 64)/128F;
-		GL11.glTranslatef(guiLeft + 16, guiTop + 16, 0F);
-		GL11.glScalef(sw, sh, 1F);
+		GlStateManager.translate(guiLeft + 16, guiTop + 16, 0F);
+		GlStateManager.scale(sw, sh, 1F);
 		this.drawTexturedModalRect(0, 0, 0, 0, 256, 128);
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
 		int tx = (int)((sizeX - 32) * BQ_Settings.titleAlignX) + BQ_Settings.titleOffX + guiLeft + 16;
 		int ty = (int)((sizeY - 64) * BQ_Settings.titleAlignY) + BQ_Settings.titleOffY + guiTop + 16;

@@ -2,12 +2,12 @@ package betterquesting.client.gui;
 
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -98,24 +98,24 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		}
 		
 		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		double scaleX = sx2/128D;
 		double scaleY = sizeY/128D;
-		GL11.glScaled(scaleX, scaleY, 1F);
-		GL11.glTranslated(posX/scaleX, posY/scaleY, 0);
+		GlStateManager.scale(scaleX, scaleY, 1F);
+		GlStateManager.translate(posX/scaleX, posY/scaleY, 0);
 		screen.drawTexturedModalRect(0, 0, 0, 128, 128, 128);
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
 		QuestInstance qTooltip = null;
 		
 		if(qLine != null)
 		{
-			GL11.glPushMatrix();
-			GL11.glTranslatef(posX, posY, 0);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(posX, posY, 0);
 			float zs = zoom/100F;
-			GL11.glScalef(zs, zs, 1F);
+			GlStateManager.scale(zs, zs, 1F);
 			int rw = (int)(sx2 / zs);
 			int rh = (int)(sizeY / zs);
 			int rmx = (int)((mx - posX)/zs);
@@ -144,9 +144,9 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 				}
 			}
 			
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 			
-			GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GlStateManager.disableDepth();
 			
 			if(toolType == 2 && dragging != null)
 			{
@@ -157,12 +157,12 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			
 			//RenderUtils.drawSplitString(mc.fontRenderer, I18n.format(qLine.description), posX + 174, posY + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
-			GL11.glScalef(scale, scale, scale);
+			GlStateManager.scale(scale, scale, scale);
 			mc.fontRendererObj.drawString(TextFormatting.BOLD + I18n.translateToLocalFormatted(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			mc.fontRendererObj.drawString(TextFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 		
 		if(qTooltip != null)

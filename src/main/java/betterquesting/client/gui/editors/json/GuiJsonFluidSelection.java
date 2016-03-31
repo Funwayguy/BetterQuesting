@@ -6,6 +6,7 @@ import java.util.Iterator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
@@ -20,7 +21,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
@@ -113,22 +113,22 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		FluidStack ttStack = null;
 		int btnWidth = sizeX/2 - 16;
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		GL11.glPushMatrix();
-		GL11.glScalef(2F, 2F, 1F);
+		GlStateManager.pushMatrix();
+		GlStateManager.scale(2F, 2F, 1F);
 		this.drawTexturedModalRect((guiLeft + 24)/2, (guiTop + 48)/2, 0, 48, 18, 18);
 		
 		if(this.stackSelect != null)
 		{
-			GL11.glColor4f(1F, 1F, 1F, 1F);
+			GlStateManager.color(1F, 1F, 1F, 1F);
 			
 			try
 			{
@@ -143,11 +143,11 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				ttStack = this.stackSelect;
 			}
 		}
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
 		fontRendererObj.drawString(I18n.translateToLocalFormatted("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		if(this.mc.thePlayer != null)
 		{
@@ -159,18 +159,18 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 			int ipy = guiTop + sizeY/2;
 			
-			GL11.glPushMatrix();
-			GL11.glTranslatef(ipx, ipy, 0F);
-			GL11.glScalef(scale, scale, 1F);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(ipx, ipy, 0F);
+			GlStateManager.scale(scale, scale, 1F);
 			for(int i = 0; i < invoStacks.length && i < 9 * 4; i++)
 			{
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
 				
 				this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
+				GlStateManager.disableDepth();
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				GlStateManager.enableDepth();
 				
 				ItemStack stack = invoStacks[i];
 				
@@ -184,7 +184,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 					}
 				}
 			}
-			GL11.glPopMatrix();
+			GlStateManager.popMatrix();
 		}
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
@@ -196,7 +196,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		this.searchBox.drawTextBox();
 		this.numberBox.drawTextBox();
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GlStateManager.color(1f, 1f, 1f, 1f);
 		
 		int x = 0;
 		int y = 0;
@@ -218,11 +218,11 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			
 			if(resultStack != null)
 			{
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
+				GlStateManager.disableDepth();
 				this.drawTexturedModalRect(guiLeft + sizeX/2 + x + 8, guiTop + 48 + y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				GlStateManager.enableDepth();
 				
-				GL11.glColor4f(1F, 1F, 1F, 1F);
+				GlStateManager.color(1F, 1F, 1F, 1F);
 				
 				try
 				{

@@ -142,14 +142,14 @@ public class LifeManager
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote || !QuestDatabase.bqHardcore)
+		if(event.getEntityLiving().worldObj.isRemote || !QuestDatabase.bqHardcore)
 		{
 			return;
 		}
 		
-		if(event.entityLiving instanceof EntityPlayer)
+		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
-			AddRemoveLives((EntityPlayer)event.entityLiving, -1);
+			AddRemoveLives((EntityPlayer)event.getEntityLiving(), -1);
 		}
 	}
 	
@@ -157,10 +157,10 @@ public class LifeManager
 	@SideOnly(Side.CLIENT)
 	public void onGuiOpen(GuiOpenEvent event)
 	{
-		if(QuestDatabase.bqHardcore && event.gui != null && event.gui.getClass() == GuiGameOver.class && !(event.gui instanceof GuiGameOverBQ))
+		if(QuestDatabase.bqHardcore && event.getGui() != null && event.getGui().getClass() == GuiGameOver.class && !(event.getGui() instanceof GuiGameOverBQ))
 		{
-			ITextComponent cod = ObfuscationReflectionHelper.getPrivateValue(GuiGameOver.class, (GuiGameOver)event.gui, "field_184871_f");
-			event.gui = new GuiGameOverBQ(cod);
+			ITextComponent cod = ObfuscationReflectionHelper.getPrivateValue(GuiGameOver.class, (GuiGameOver)event.getGui(), "field_184871_f");
+			event.setGui(new GuiGameOverBQ(cod));
 		}
 	}
 	
@@ -169,8 +169,8 @@ public class LifeManager
 	{
 		try
 		{
-			NBTTagCompound nbt = event.original.getCapability(LIFE_CAP, null).writeToNBT();
-			event.entityPlayer.getCapability(LIFE_CAP, null).readFromNBT(nbt);
+			NBTTagCompound nbt = event.getOriginal().getCapability(LIFE_CAP, null).writeToNBT();
+			event.getEntityPlayer().getCapability(LIFE_CAP, null).readFromNBT(nbt);
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Failed to persist life data", e);

@@ -9,12 +9,12 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import betterquesting.lives.LifeManager;
 import betterquesting.quests.QuestDatabase;
 
@@ -114,12 +114,12 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     public void drawScreen(int mx, int my, float partialTick)
     {
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
-        GL11.glPushMatrix();
-        GL11.glScalef(2.0F, 2.0F, 2.0F);
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(2.0F, 2.0F, 2.0F);
         boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0);
         String s = flag ? I18n.translateToLocalFormatted("deathScreen.title.hardcore") : I18n.translateToLocalFormatted("deathScreen.title");
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
 
         if (flag)
         {

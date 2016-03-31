@@ -3,10 +3,9 @@ package betterquesting.client.gui.misc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
 
 @SideOnly(Side.CLIENT)
@@ -31,23 +30,23 @@ public class GuiButtonQuesting extends GuiButton
         {
             FontRenderer fontrenderer = p_146112_1_.fontRendererObj;
             p_146112_1_.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = p_146112_2_ >= this.xPosition && p_146112_3_ >= this.yPosition && p_146112_2_ < this.xPosition + this.width && p_146112_3_ < this.yPosition + this.height;
             int k = this.getHoverState(this.hovered);
-            GL11.glEnable(GL11.GL_BLEND);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
             float sh = height/20F;
             float sw = width >= 196? width/200F : 1F;
             float py = yPosition/sh;
             float px = xPosition/sw;
-            GL11.glScalef(sw, sh, 1F);
+            GlStateManager.scale(sw, sh, 1F);
             
             if(width > 200) // Could use 396 but limiting it to 200 this makes things look nicer
             {
-                GL11.glTranslatef(px, py, 0F); // Fixes floating point errors related to position
+            	GlStateManager.translate(px, py, 0F); // Fixes floating point errors related to position
             	this.drawTexturedModalRect(0, 0, 48, k * 20, 200, 20);
             } else
             {
@@ -55,7 +54,7 @@ public class GuiButtonQuesting extends GuiButton
             	this.drawTexturedModalRect((int)px + width / 2, (int)py, 248 - this.width / 2, k * 20, this.width / 2, 20);
             }
             
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
             
             this.mouseDragged(p_146112_1_, p_146112_2_, p_146112_3_);
             int l = 14737632;

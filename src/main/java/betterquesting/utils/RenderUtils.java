@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
@@ -16,7 +17,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
@@ -39,17 +39,17 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		RenderItem itemRender = mc.getRenderItem();
 	    float preZ = itemRender.zLevel;
         
 		try
 		{
-		    GL11.glColor3f(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
+		    GlStateManager.color(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
 			RenderHelper.enableGUIStandardItemLighting();
-		    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+		    GlStateManager.enableRescaleNormal();
 			
-		    GL11.glTranslatef(0.0F, 0.0F, 32.0F);
+		    GlStateManager.translate(0.0F, 0.0F, 32.0F);
 		    itemRender.zLevel = 200.0F;
 		    FontRenderer font = null;
 		    if (stack != null) font = stack.getItem().getFontRenderer(stack);
@@ -64,35 +64,35 @@ public class RenderUtils
 		
 	    itemRender.zLevel = preZ; // Just in case
 		
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
 	}
 
     public static void RenderEntity(int posX, int posY, int scale, float rotation, float pitch, Entity entity)
     {
     	try
     	{
-	        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-	        GL11.glPushMatrix();
-	        GL11.glEnable(GL11.GL_DEPTH_TEST);
-	        GL11.glTranslatef((float)posX, (float)posY, 100.0F);
-	        GL11.glScalef((float)(-scale), (float)scale, (float)scale);
-	        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-	        GL11.glRotatef(15F, 1F, 0F, 0F);
-	        GL11.glRotatef(rotation, 0F, 1F, 0F);
+	        GlStateManager.enableColorMaterial();
+	        GlStateManager.pushMatrix();
+	        GlStateManager.enableDepth();
+	        GlStateManager.translate((float)posX, (float)posY, 100.0F);
+	        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
+	        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+	        GlStateManager.rotate(15F, 1F, 0F, 0F);
+	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
 	        RenderHelper.enableStandardItemLighting();
-	        GL11.glTranslated(0D, entity.getYOffset(), 0D);
+	        GlStateManager.translate(0D, entity.getYOffset(), 0D);
 	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
 	        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
-	        GL11.glPopMatrix();
+	        GlStateManager.popMatrix();
 	        RenderHelper.disableStandardItemLighting();
-	        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+	        GlStateManager.disableRescaleNormal();
 	        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-	        GL11.glDisable(GL11.GL_TEXTURE_2D);
+	        GlStateManager.disableTexture2D();
 	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
     	} catch(Exception e)
     	{
@@ -102,10 +102,10 @@ public class RenderUtils
 	
 	public static void DrawLine(int x1, int y1, int x2, int y2, float width, Color color)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glColor4f(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F, color.getAlpha()/255F);
+		GlStateManager.disableTexture2D();
+		GlStateManager.color(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F, color.getAlpha()/255F);
 		GL11.glLineWidth(width);
 		
 		GL11.glBegin(GL11.GL_LINES);
@@ -113,20 +113,20 @@ public class RenderUtils
 		GL11.glVertex2f(x2, y2);
 		GL11.glEnd();
 		
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glColor4f(1F, 1F, 1F, 1F);
+		GlStateManager.enableTexture2D();
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 	
 	public static void DrawFakeButton(GuiQuesting screen, int x, int y, int width, int height, String text, int state)
 	{
         FontRenderer fontrenderer = screen.mc.fontRendererObj;
         screen.mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glEnable(GL11.GL_BLEND);
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         screen.drawTexturedModalRect(x, y, 48, state * 20, width / 2, height);
         screen.drawTexturedModalRect(x + width / 2, y, 248 - width / 2, state * 20, width / 2, height);
         int l = 14737632;
@@ -141,7 +141,7 @@ public class RenderUtils
         }
 
         screen.drawCenteredString(fontrenderer, text, x + width / 2, y + (height - 8) / 2, l);
-        GL11.glColor4f(1F, 1F, 1F, 1F);
+        GlStateManager.color(1F, 1F, 1F, 1F);
 	}
 	
 	static Method bidiReorder;
@@ -301,7 +301,7 @@ public class RenderUtils
 	            blue.set(renderer, b);
 	            alpha.set(renderer, a);
 	            //setColor(this.red, this.blue, this.green, this.alpha);
-	            GL11.glColor4f(r, g, b, a);
+	            GlStateManager.color(r, g, b, a);
 	            rx.set(renderer, x);
 	            ry.set(renderer, y);
 	            
