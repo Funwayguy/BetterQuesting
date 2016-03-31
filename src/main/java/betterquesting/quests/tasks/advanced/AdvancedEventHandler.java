@@ -379,7 +379,7 @@ public class AdvancedEventHandler
 	@SubscribeEvent
 	public void onEntityInteract(EntityInteractEvent event)
 	{
-		if(event.entity.worldObj.isRemote)
+		if(event.entity.worldObj.isRemote && event.target != null)
 		{
 			return;
 		}
@@ -393,7 +393,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onEntityInteract(player, event.entityLiving);
+			((AdvancedTaskBase)task).onEntityInteract(player, event.target);
 		}
 	}
 	

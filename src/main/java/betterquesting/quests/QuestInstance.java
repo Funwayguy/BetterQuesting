@@ -84,8 +84,6 @@ public class QuestInstance
 					
 					for(TaskBase tsk : tasks)
 					{
-						tsk.Update(player);
-						
 						if(tsk.isComplete(player.getUniqueID()))
 						{
 							done += 1;
@@ -100,6 +98,24 @@ public class QuestInstance
 			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
 			{
 				ResetProgress(player.getUniqueID());
+				
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				{
+					NBTTagCompound tags = new NBTTagCompound();
+					tags.setString("Main", "betterquesting.notice.update");
+					tags.setString("Sub", name);
+					tags.setInteger("Sound", 1);
+					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					
+					if(globalQuest)
+					{
+						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+					} else if(player instanceof EntityPlayerMP)
+					{
+						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					}
+				}
+				
 				UpdateClients();
 				return;
 			} else
@@ -130,20 +146,27 @@ public class QuestInstance
 				}
 			}
 			
-			if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
+			if(update && (tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", name);
 					tags.setInteger("Sound", 2);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
-					BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					
+					if(globalQuest)
+					{
+						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+					} else if(player instanceof EntityPlayerMP)
+					{
+						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					}
 				}
 			} else if(update)
 			{
@@ -156,7 +179,14 @@ public class QuestInstance
 					tags.setString("Sub", name);
 					tags.setInteger("Sound", 1);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
-					BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					
+					if(globalQuest)
+					{
+						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+					} else if(player instanceof EntityPlayerMP)
+					{
+						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					}
 				}
 			}
 		}
@@ -174,21 +204,64 @@ public class QuestInstance
 		
 		if(this.isUnlocked(player.getUniqueID()))
 		{
-			boolean done = true;
+			int done = 0;
+			boolean update = false;
 			
-			for(TaskBase quest : tasks)
+			for(TaskBase tsk : tasks)
 			{
-				quest.Detect(player);
+				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
-				if(!quest.isComplete(player.getUniqueID()))
+				tsk.Detect(player);
+				
+				if(tsk.isComplete(player.getUniqueID()))
 				{
-					done = false;
+					done += 1;
+					
+					if(flag)
+					{
+						update = true;
+					}
 				}
 			}
 			
-			if(done)
+			if(update && (tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
+				
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				{
+					NBTTagCompound tags = new NBTTagCompound();
+					tags.setString("Main", "betterquesting.notice.complete");
+					tags.setString("Sub", name);
+					tags.setInteger("Sound", 2);
+					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					
+					if(globalQuest)
+					{
+						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+					} else if(player instanceof EntityPlayerMP)
+					{
+						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					}
+				}
+			} else if(update)
+			{
+				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				{
+					NBTTagCompound tags = new NBTTagCompound();
+					tags.setString("Main", "betterquesting.notice.update");
+					tags.setString("Sub", name);
+					tags.setInteger("Sound", 1);
+					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					
+					if(globalQuest)
+					{
+						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+					} else if(player instanceof EntityPlayerMP)
+					{
+						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+					}
+				}
 			}
 			
 			UpdateClients(); // Even if not completed we still need to update progression for clients
@@ -320,12 +393,10 @@ public class QuestInstance
 	public void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 1);
 		tags.setInteger("questID", this.questID);
 		JsonObject json = new JsonObject();
 		writeToJSON(json);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
 		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_SYNC.makePacket(tags));
 	}
 	

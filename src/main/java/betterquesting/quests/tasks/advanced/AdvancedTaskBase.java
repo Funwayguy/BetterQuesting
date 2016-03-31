@@ -1,6 +1,7 @@
 package betterquesting.quests.tasks.advanced;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,7 +48,7 @@ public abstract class AdvancedTaskBase extends TaskBase
 	
 	public void onBlockInteract(EntityPlayer player, Block block, int meta, int x, int y, int z, boolean isPunch){}
 	
-	public void onEntityInteract(EntityPlayer player, EntityLivingBase entity){}
+	public void onEntityInteract(EntityPlayer player, Entity target){}
 	
 	public void onNotePlayed(World world, int x, int y, int z, NoteBlockEvent.Instrument instrument, NoteBlockEvent.Note note, NoteBlockEvent.Octave octave){} // Special event, combination lock?
 }

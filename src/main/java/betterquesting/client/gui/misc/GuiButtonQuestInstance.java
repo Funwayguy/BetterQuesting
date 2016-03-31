@@ -139,7 +139,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 	            	Color ci = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int(questState, 0, 2), quest.isMain);
 	            	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
 	        		
-	        		GL11.glLineWidth(quest.isMain? 16F : 4F);
+	        		GL11.glLineWidth(quest.isMain? 8F : 4F);
 	        		GL11.glBegin(GL11.GL_LINES);
 	        		
 	        		
