@@ -71,32 +71,27 @@ public class QuestInstance
 			
 			if(!HasClaimed(player.getUniqueID()))
 			{
-				if(autoClaim && player.ticksExisted%20 == 0 && CanClaim(player, GetChoiceData()))
+				if(CanClaim(player, GetChoiceData()))
 				{
-					Claim(player, GetChoiceData());
+					// Quest is complete and pending claim.
+					// Task logic is not required to run.
+					if(autoClaim && player.ticksExisted%20 == 0)
+					{
+						Claim(player, GetChoiceData());
+					}
+					
 					return;
-				} else if(repeatTime < 0 && rewards.size() > 0)
+				} else if(repeatTime < 0 || rewards.size() <= 0)
 				{
+					// Task is non repeatable or has no rewards to claim
 					return;
 				} else
 				{
-					int done = 0;
-					
-					for(TaskBase tsk : tasks)
-					{
-						if(tsk.isComplete(player.getUniqueID()))
-						{
-							done += 1;
-						}
-					}
-					
-					if(!tLogic.GetResult(done, tasks.size()))
-					{
-						return;
-					}
+					// Task logic will now run for repeat quest
 				}
 			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
 			{
+				// Task is scheduled to reset
 				ResetProgress(player.getUniqueID());
 				
 				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
@@ -120,6 +115,7 @@ public class QuestInstance
 				return;
 			} else
 			{
+				// No reset or reset is pending
 				return;
 			}
 		}
@@ -146,7 +142,7 @@ public class QuestInstance
 				}
 			}
 			
-			if(update && (tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
+			if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -323,7 +319,6 @@ public class QuestInstance
 		}
 		
 		return true;
-					
 	}
 	
 	public void Claim(EntityPlayer player, NBTTagList choiceData)
@@ -348,7 +343,6 @@ public class QuestInstance
 		if(player == null)
 		{
 			return false;
-		
 		}
 		
 		UserEntry entry = this.GetUserEntry(player.getUniqueID());
@@ -362,8 +356,6 @@ public class QuestInstance
 			
 			for(TaskBase tsk : tasks)
 			{
-				tsk.Update(player);
-				
 				if(tsk.isComplete(player.getUniqueID()))
 				{
 					done += 1;
