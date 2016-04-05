@@ -79,7 +79,7 @@ public class GuiQuestInstance extends GuiQuesting
 		btnRRight.enabled = btnRRight.visible && selReward < quest.rewards.size() - 1;
 		
 		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.detect_submit"));
-		btnDetect.enabled = !quest.canSubmit(mc.thePlayer);
+		btnDetect.enabled = quest.canSubmit(mc.thePlayer);
 		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.claim"));
 		btnClaim.visible = quest.rewards.size() > 0;
 		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
