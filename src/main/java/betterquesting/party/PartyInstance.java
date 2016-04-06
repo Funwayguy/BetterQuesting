@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.UUID;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
+import betterquesting.lives.LifeManager;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-/**
- * Piggybacks off vanilla Team system
- */
 public class PartyInstance
 {
 	public String name = "New Party";
@@ -20,6 +18,11 @@ public class PartyInstance
 	public int lives = 1;
 	public boolean lifeShare = false;
 	public boolean lootShare = false;
+	
+	public PartyInstance()
+	{
+		lives = LifeManager.defLives;
+	}
 	
 	public void InvitePlayer(UUID uuid)
 	{

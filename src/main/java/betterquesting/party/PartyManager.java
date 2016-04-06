@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
+import betterquesting.lives.LifeManager;
 import betterquesting.network.PacketQuesting.PacketDataType;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.utils.JsonHelper;
@@ -37,7 +38,16 @@ public class PartyManager
 	public static boolean CreateParty(EntityPlayer player, String name)
 	{
 		nameCache.put(player.getUniqueID(), player.getName());
-		return CreateParty(player.getUniqueID(), name);
+		int pl = LifeManager.getLives(player);
+		boolean flag = CreateParty(player.getUniqueID(), name);
+		
+		if(flag)
+		{
+			PartyInstance p = GetParty(player.getUniqueID());
+			p.lives = Math.min(pl, p.lives);
+		}
+		
+		return flag;
 	}
 	
 	/**

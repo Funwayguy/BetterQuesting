@@ -301,6 +301,9 @@ public class QuestInstance
 		if(entry == null || HasClaimed(player.getUniqueID()))
 		{
 			return false;
+		} else if(canSubmit(player))
+		{
+			return false;
 		} else
 		{
 			for(int i = 0; i < rewards.size(); i++)
