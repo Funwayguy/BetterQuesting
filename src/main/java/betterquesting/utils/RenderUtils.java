@@ -3,6 +3,7 @@ package betterquesting.utils;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -10,8 +11,10 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -41,6 +44,25 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
+		if(stack == null || stack.getItem() == null)
+		{
+			return;
+		}
+		
+		ItemStack rStack = stack;
+		
+		if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+		{
+			ArrayList<ItemStack> tmp = new ArrayList<ItemStack>();
+			
+			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.tabAllSearch, tmp);
+			
+			if(tmp.size() > 0)
+			{
+				rStack = tmp.get((int)((Minecraft.getSystemTime()/1000)%tmp.size()));
+			}
+		}
+		
 		GL11.glPushMatrix();
         
 		try
@@ -52,10 +74,10 @@ public class RenderUtils
 		    GL11.glTranslatef(0.0F, 0.0F, 32.0F);
 		    itemRender.zLevel = 200.0F;
 		    FontRenderer font = null;
-		    if (stack != null) font = stack.getItem().getFontRenderer(stack);
+		    if (rStack != null) font = rStack.getItem().getFontRenderer(rStack);
 		    if (font == null) font = mc.fontRenderer;
-		    itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), stack, x, y);
-		    itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), stack, x, y, text);
+		    itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), rStack, x, y);
+		    itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), rStack, x, y, text);
 		    itemRender.zLevel = 0.0F;
 		    
 		   RenderHelper.disableStandardItemLighting();

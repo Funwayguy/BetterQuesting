@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
@@ -129,7 +130,8 @@ public class JsonHelper
 		JsonPrimitive jID = json.get("id").getAsJsonPrimitive();
 		int count = JsonHelper.GetNumber(json, "Count", 1).intValue();
 		String oreDict = JsonHelper.GetString(json, "OreDict", "");
-		int damage = JsonHelper.GetNumber(json, "Damage", 0).intValue();
+		int damage = JsonHelper.GetNumber(json, "Damage", OreDictionary.WILDCARD_VALUE).intValue();
+		damage = damage >= 0? damage : OreDictionary.WILDCARD_VALUE;
 		
 		Item item;
 		

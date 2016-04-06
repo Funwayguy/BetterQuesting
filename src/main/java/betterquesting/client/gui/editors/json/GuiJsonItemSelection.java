@@ -63,7 +63,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		this.searchBox = new GuiTextField(this.fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
-		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 48, 100, 16);
+		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 77, guiTop + 49, 98, 14);
 
 		Iterator<Item> iterator = Item.itemRegistry.iterator();
 		
@@ -112,7 +112,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		this.buttonList.add(leftBtn);
 		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">");
 		this.buttonList.add(rightBtn);
-		GuiButtonQuesting oreDictBtn = new GuiButtonQuesting(3, guiLeft + 76, guiTop + 66, 100, 16, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict));
+		GuiButtonQuesting oreDictBtn = new GuiButtonQuesting(3, guiLeft + 76, guiTop + 64, 100, 20, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict));
 		this.buttonList.add(oreDictBtn);
 	}
 	
@@ -127,7 +127,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
 		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString("x", guiLeft + 65, guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
@@ -157,7 +157,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			
 			int isx = (18 * 9);
 			int isy = (18 * 4);
-			float scale = Math.max((btnWidth - 16)/(float)isx, (sizeY/2 - 32)/isy);
+			float scale = Math.min((btnWidth - 16)/(float)isx, (sizeY/2 - 32)/isy);
 			int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 			int ipy = guiTop + sizeY/2;
 			
