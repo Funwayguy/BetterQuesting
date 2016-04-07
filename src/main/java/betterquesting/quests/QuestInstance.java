@@ -32,6 +32,7 @@ public class QuestInstance
 	public int questID;
 	public boolean isMain = false;
 	public boolean isSilent = false;
+	public boolean lockedProgress = false;
 	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
@@ -71,13 +72,13 @@ public class QuestInstance
 			
 			if(!HasClaimed(player.getUniqueID()))
 			{
-				if(CanClaim(player, GetChoiceData()))
+				if(CanClaim(player, new NBTTagList()))
 				{
 					// Quest is complete and pending claim.
 					// Task logic is not required to run.
 					if(autoClaim && player.ticksExisted%20 == 0)
 					{
-						Claim(player, GetChoiceData());
+						Claim(player, new NBTTagList());
 					}
 					
 					return;
@@ -120,7 +121,7 @@ public class QuestInstance
 			}
 		}
 		
-		if(isUnlocked(player.getUniqueID())) // Prevents quest logic from running until this player has unlocked it
+		if(isUnlocked(player.getUniqueID()) || lockedProgress)
 		{
 			int done = 0;
 			boolean update = false;
@@ -142,7 +143,15 @@ public class QuestInstance
 				}
 			}
 			
-			if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
+			if(!isUnlocked(player.getUniqueID()))
+			{
+				if(update)
+				{
+					UpdateClients();
+				}
+				
+				return;
+			} else if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -193,12 +202,15 @@ public class QuestInstance
 	 */
 	public void Detect(EntityPlayer player)
 	{
-		if(this.isComplete(player.getUniqueID()) && (repeatTime < 0 || rewards.size() <= 0))
+		if(isComplete(player.getUniqueID()) && (repeatTime < 0 || rewards.size() <= 0))
+		{
+			return;
+		} else if(!canSubmit(player))
 		{
 			return;
 		}
 		
-		if(this.isUnlocked(player.getUniqueID()))
+		if(isUnlocked(player.getUniqueID()) || QuestDatabase.editMode)
 		{
 			int done = 0;
 			boolean update = false;
@@ -220,7 +232,7 @@ public class QuestInstance
 				}
 			}
 			
-			if(update && (tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
+			if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -260,7 +272,7 @@ public class QuestInstance
 				}
 			}
 			
-			UpdateClients(); // Even if not completed we still need to update progression for clients
+			UpdateClients();
 		}
 	}
 	
@@ -309,7 +321,13 @@ public class QuestInstance
 			for(int i = 0; i < rewards.size(); i++)
 			{
 				RewardBase rew = rewards.get(i);
-				NBTTagCompound cTag = choiceData.getCompoundTagAt(i);
+				
+				NBTTagCompound cTag = new NBTTagCompound();
+				
+				if(choiceData != null && choiceData.tagCount() > i)
+				{
+					cTag = choiceData.getCompoundTagAt(i);
+				}
 				
 				if(!rew.canClaim(player, cTag))
 				{
@@ -326,7 +344,13 @@ public class QuestInstance
 		for(int i = 0; i < rewards.size(); i++)
 		{
 			RewardBase rew = rewards.get(i);
-			NBTTagCompound cTag = choiceData.getCompoundTagAt(i);
+			
+			NBTTagCompound cTag = new NBTTagCompound();
+			
+			if(choiceData != null && choiceData.tagCount() > i)
+			{
+				cTag = choiceData.getCompoundTagAt(i);
+			}
 			
 			rew.Claim(player, cTag);
 		}
@@ -568,6 +592,7 @@ public class QuestInstance
 		jObj.addProperty("description", description);
 		jObj.addProperty("isMain", isMain);
 		jObj.addProperty("isSilent", isSilent);
+		jObj.addProperty("lockedProgress", lockedProgress);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
@@ -632,6 +657,7 @@ public class QuestInstance
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
 		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
 		this.isSilent = JsonHelper.GetBoolean(jObj, "isSilent", false);
+		this.lockedProgress = JsonHelper.GetBoolean(jObj, "lockedProgress", false);
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.globalShare = JsonHelper.GetBoolean(jObj, "globalShare", true);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);

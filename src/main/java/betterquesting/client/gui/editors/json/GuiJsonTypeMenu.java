@@ -51,12 +51,12 @@ public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
 				stack = JsonHelper.JsonToItemStack(json);
 			}
 			
-			if(json.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(json, "id", "Pig")) != null)
+			if(stack == null && json.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(json, "id", "Pig")) != null)
 			{
 				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
 			
-			if(json.has("FluidName") && json.has("Amount"))
+			if(stack == null && entity == null && json.has("FluidName") && json.has("Amount"))
 			{
 				fluid = JsonHelper.JsonToFluidStack(json);
 			}
