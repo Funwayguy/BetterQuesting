@@ -68,7 +68,7 @@ public class ItemComparison
     	if(tag1 instanceof NBTTagCompound && tag2 instanceof NBTTagCompound)
     	{
     		return CompareNBTTagCompound((NBTTagCompound)tag1, (NBTTagCompound)tag2, partial);
-    	} else if(tag1 instanceof NBTTagList)
+    	} else if(tag1 instanceof NBTTagList && tag2 instanceof NBTTagList)
     	{
     		NBTTagList list1 = (NBTTagList)tag1;
     		NBTTagList list2 = (NBTTagList)tag2;
