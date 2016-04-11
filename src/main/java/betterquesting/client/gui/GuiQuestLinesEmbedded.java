@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
@@ -20,7 +21,6 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLine.QuestLineEntry;
 import betterquesting.quests.designers.QDesignTree;
-import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
@@ -167,42 +167,13 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		
 		if(qTooltip != null)
 		{
-			ArrayList<String> qInfo = new ArrayList<String>();
-			qInfo.add(I18n.translateToLocalFormatted(qTooltip.name));
-			if(qTooltip.isComplete(mc.thePlayer.getUniqueID()))
+			if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
 			{
-				qInfo.add(TextFormatting.GREEN + I18n.translateToLocalFormatted("betterquesting.tooltip.complete"));
-				
-				if(!qTooltip.HasClaimed(mc.thePlayer.getUniqueID()))
-				{
-					qInfo.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
-				}
-			} else if(!qTooltip.isUnlocked(mc.thePlayer.getUniqueID()))
-			{
-				qInfo.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + qTooltip.logic.toString().toUpperCase() + ")");
-				
-				for(QuestInstance req : qTooltip.preRequisites)
-				{
-					if(!req.isComplete(mc.thePlayer.getUniqueID()))
-					{
-						qInfo.add(TextFormatting.RED + "- " + I18n.translateToLocalFormatted(req.name));
-					}
-				}
+				screen.DrawTooltip(qTooltip.getAdvancedTooltip(mc.thePlayer), mx, my);
 			} else
 			{
-				int n = 0;
-				
-				for(TaskBase task : qTooltip.tasks)
-				{
-					if(task.isComplete(mc.thePlayer.getUniqueID()))
-					{
-						n++;
-					}
-				}
-				
-				qInfo.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.tasks_complete", n, qTooltip.tasks.size()));
+				screen.DrawTooltip(qTooltip.getStandardTooltip(mc.thePlayer), mx, my);
 			}
-			screen.DrawTooltip(qInfo, mx, my);
 		}
 	}
 	
