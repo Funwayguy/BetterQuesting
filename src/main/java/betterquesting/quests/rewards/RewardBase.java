@@ -35,6 +35,12 @@ public abstract class RewardBase
 	}
 	
 	@SideOnly(Side.CLIENT)
+	public void SetChoiceData(NBTTagCompound tags)
+	{
+		return;
+	}
+	
+	@SideOnly(Side.CLIENT)
 	public abstract GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY);
 	
 	/**

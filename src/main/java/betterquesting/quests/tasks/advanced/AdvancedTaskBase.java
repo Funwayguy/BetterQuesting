@@ -7,6 +7,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.NoteBlockEvent;
@@ -47,9 +48,9 @@ public abstract class AdvancedTaskBase extends TaskBase
 	
 	public void onBlockPlace(EntityPlayer player, IBlockState state, BlockPos pos){}
 	
-	public void onBlockInteract(EntityPlayer player, IBlockState state, BlockPos pos, boolean isPunch){}
+	public void onBlockInteract(EntityPlayer player, IBlockState state, BlockPos pos, EnumHand hand, boolean isPunch){}
 	
-	public void onEntityInteract(EntityPlayer player, Entity entity){}
+	public void onEntityInteract(EntityPlayer player, Entity entity, EnumHand hand){}
 	
 	public void onNotePlayed(World world, BlockPos pos, NoteBlockEvent.Instrument instrument, NoteBlockEvent.Note note, NoteBlockEvent.Octave octave){} // Special event, combination lock?
 }

@@ -12,8 +12,9 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.NoteBlockEvent;
@@ -342,7 +343,7 @@ public class AdvancedEventHandler
 	}
 	
 	@SubscribeEvent
-	public void onBlockInteract(PlayerInteractEvent event)
+	public void onBlockPunch(LeftClickBlock event)
 	{
 		if(event.getWorld().isRemote)
 		{
@@ -351,33 +352,40 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getEntityPlayer();
 		
-		if(event.getAction() == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK)
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
 		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			if(!(task instanceof AdvancedTaskBase))
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), true);
+				continue;
 			}
-		} else if(event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK || event.getAction() == PlayerInteractEvent.Action.RIGHT_CLICK_AIR)
-		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
-			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), false);
-			}
+			
+			((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), true);
 		}
 	}
 	
 	@SubscribeEvent
-	public void onEntityInteract(EntityInteractEvent event)
+	public void onBlockInteract(RightClickBlock event)
+	{
+		if(event.getWorld().isRemote)
+		{
+			return;
+		}
+		
+		EntityPlayer player = event.getEntityPlayer();
+		
+		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		{
+			if(!(task instanceof AdvancedTaskBase))
+			{
+				continue;
+			}
+			
+			((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), false);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onEntityInteract(EntityInteract event)
 	{
 		if(event.getEntityPlayer().worldObj.isRemote && event.getTarget() != null)
 		{
@@ -393,7 +401,7 @@ public class AdvancedEventHandler
 				continue;
 			}
 			
-			((AdvancedTaskBase)task).onEntityInteract(player, event.getTarget());
+			((AdvancedTaskBase)task).onEntityInteract(player, event.getTarget(), event.getHand());
 		}
 	}
 	

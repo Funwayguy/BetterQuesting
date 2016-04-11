@@ -7,7 +7,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.Fluid;
@@ -91,11 +93,11 @@ public class BetterQuesting
     	CapabilityManager.INSTANCE.register(IHardcoreLives.class, new LifeStorage(), LifeDefault.class);
     	FluidRegistry.registerFluid(fluidPlaceholder);
     	
-    	GameRegistry.registerItem(placeholder, "placeholder");
-    	GameRegistry.registerItem(extraLife, "extra_life");
-    	GameRegistry.registerItem(guideBook, "guide_book");
+    	registerItem(placeholder, "placeholder");
+    	registerItem(extraLife, "extra_life");
+    	registerItem(guideBook, "guide_book");
     	
-    	GameRegistry.registerBlock(submitStation, "submit_station");
+    	registerBlock(submitStation, "submit_station");
     	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
     	
     	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.glass), new ItemStack(Blocks.chest));
@@ -112,6 +114,22 @@ public class BetterQuesting
     	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.chest), new ItemStack(Blocks.glass));
     	
     	proxy.registerRenderers();
+    }
+    
+    /**
+     * Because I'm lazy...
+     */
+    public void registerBlock(Block b, String name)
+    {
+    	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
+    	GameRegistry.register(b, res);
+        GameRegistry.register(new ItemBlock(b).setRegistryName(res));
+    }
+    
+    public void registerItem(Item i, String name)
+    {
+    	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
+        GameRegistry.register(i.setRegistryName(res));
     }
     
     @EventHandler
