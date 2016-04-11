@@ -21,9 +21,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 public abstract class TaskBase
 {
 	/**
-	 * List of users that have completed this quest
+	 * List of users that have completed this quest<br>
+	 * Now locked (developers should be using <b>setCompletion(uuid, boolean)</b>)
 	 */
-	protected ArrayList<UUID> completeUsers = new ArrayList<UUID>();
+	private ArrayList<UUID> completeUsers = new ArrayList<UUID>();
 	
 	/**
 	 * Default unlocalised name for this quest type
