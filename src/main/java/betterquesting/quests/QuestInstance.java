@@ -407,6 +407,21 @@ public class QuestInstance
 		return cList;
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public void SetChoiceData(NBTTagList tags)
+	{
+		for(int i = 0; i < rewards.size(); i++)
+		{
+			if(i >= tags.tagCount())
+			{
+				break;
+			}
+			
+			RewardBase rew = rewards.get(i);
+			rew.SetChoiceData(tags.getCompoundTagAt(i));
+		}
+	}
+	
 	public void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();

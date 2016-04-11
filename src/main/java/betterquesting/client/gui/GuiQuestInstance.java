@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,6 +38,11 @@ public class GuiQuestInstance extends GuiQuesting
 	GuiButtonQuesting btnRRight;
 	GuiButtonQuesting btnClaim;
 	
+	/**
+	 * Cached between UI updates
+	 */
+	NBTTagList choiceData = new NBTTagList();
+	
 	public GuiQuestInstance(GuiScreen parent, QuestInstance quest)
 	{
 		super(parent, I18n.format(quest.name));
@@ -53,6 +59,7 @@ public class GuiQuestInstance extends GuiQuesting
 		this.taskRender = null;
 		this.selTask = 0;
 		this.rewardRender = null;
+		this.quest.SetChoiceData(choiceData); // Updates choices with any previous values
 		
 		if(QuestDatabase.editMode)
 		{
@@ -82,7 +89,7 @@ public class GuiQuestInstance extends GuiQuesting
 		btnDetect.enabled = quest.canSubmit(mc.thePlayer);
 		btnClaim = new GuiButtonQuesting(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"));
 		btnClaim.visible = quest.rewards.size() > 0;
-		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+		btnClaim.enabled = btnClaim.visible && quest.CanClaim(mc.thePlayer, choiceData);
 		this.buttonList.add(btnTLeft);
 		this.buttonList.add(btnTRight);
 		this.buttonList.add(btnRLeft);
@@ -269,6 +276,9 @@ public class GuiQuestInstance extends GuiQuesting
 		{
 			rewardRender.keyTyped(character, keyCode);
 		}
+		
+		choiceData = quest.GetChoiceData();
+		btnClaim.enabled = quest.CanClaim(mc.thePlayer, choiceData);
     }
 	
 	@Override
@@ -286,6 +296,7 @@ public class GuiQuestInstance extends GuiQuesting
 		
 		super.handleMouseInput();
 		
-		btnClaim.enabled = quest.CanClaim(mc.thePlayer, quest.GetChoiceData());
+		choiceData = quest.GetChoiceData();
+		btnClaim.enabled = quest.CanClaim(mc.thePlayer, choiceData);
 	}
 }
