@@ -1,5 +1,6 @@
 package betterquesting.quests;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
@@ -7,6 +8,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -33,6 +36,7 @@ public class QuestInstance
 	public boolean isMain = false;
 	public boolean isSilent = false;
 	public boolean lockedProgress = false;
+	public boolean simultaneous = false;
 	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
@@ -173,6 +177,10 @@ public class QuestInstance
 						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
 					}
 				}
+			} else if(update && simultaneous)
+			{
+				ResetProgress(player.getUniqueID());
+				UpdateClients();
 			} else if(update)
 			{
 				UpdateClients();
@@ -252,6 +260,10 @@ public class QuestInstance
 						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
 					}
 				}
+			} else if(update && simultaneous)
+			{
+				ResetProgress(player.getUniqueID());
+				UpdateClients();
 			} else if(update)
 			{
 				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
@@ -422,6 +434,104 @@ public class QuestInstance
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getStandardTooltip(EntityPlayer player)
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		
+		list.add(StatCollector.translateToLocalFormatted(name));
+		
+		if(isComplete(player.getUniqueID()))
+		{
+			list.add(EnumChatFormatting.GREEN + StatCollector.translateToLocalFormatted("betterquesting.tooltip.complete"));
+			
+			if(!HasClaimed(player.getUniqueID()))
+			{
+				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
+			} else if(repeatTime > 0)
+			{
+				long time = getRepeatSeconds(player);
+				DecimalFormat df = new DecimalFormat("00");
+				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat_time", (time/60) + "m " + df.format(time%60) + "s"));
+			}
+		} else if(!isUnlocked(player.getUniqueID()))
+		{
+			list.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + StatCollector.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + logic.toString().toUpperCase() + ")");
+			
+			for(QuestInstance req : preRequisites)
+			{
+				if(!req.isComplete(player.getUniqueID()))
+				{
+					list.add(EnumChatFormatting.RED + "- " + StatCollector.translateToLocalFormatted(req.name));
+				}
+			}
+		} else
+		{
+			int n = 0;
+			
+			for(TaskBase task : tasks)
+			{
+				if(task.isComplete(player.getUniqueID()))
+				{
+					n++;
+				}
+			}
+			
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.tasks_complete", n, tasks.size()));
+		}
+		
+		list.add(EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.shift_advanced"));
+		
+		return list;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public ArrayList<String> getAdvancedTooltip(EntityPlayer player)
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		
+		list.add(StatCollector.translateToLocalFormatted(name));
+		
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", isMain));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", globalQuest));
+		if(globalQuest)
+		{
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_share", globalShare));
+		}
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.task_logic", logic.toString().toUpperCase()));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.simultaneous", simultaneous));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.auto_claim", autoClaim));
+		if(repeatTime >= 0)
+		{
+			DecimalFormat df = new DecimalFormat("00");
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", (repeatTime/60) + "m " + df.format(repeatTime%60) + "s"));
+		} else
+		{
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", false));
+		}
+		
+		return list;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public long getRepeatSeconds(EntityPlayer player)
+	{
+		if(repeatTime < 0)
+		{
+			return -1;
+		}
+		
+		UserEntry ue = GetUserEntry(player.getUniqueID());
+		
+		if(ue == null)
+		{
+			return 0;
+		} else
+		{
+			return (repeatTime - (player.worldObj.getTotalWorldTime() - ue.timestamp))/20L;
+		}
+	}
+	
 	public void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
@@ -430,11 +540,6 @@ public class QuestInstance
 		writeToJSON(json);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_SYNC.makePacket(tags));
-	}
-	
-	public void SetGlobal(boolean state)
-	{
-		this.globalQuest = state;
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -609,6 +714,7 @@ public class QuestInstance
 		jObj.addProperty("isMain", isMain);
 		jObj.addProperty("isSilent", isSilent);
 		jObj.addProperty("lockedProgress", lockedProgress);
+		jObj.addProperty("simultaneous", simultaneous);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
@@ -674,6 +780,7 @@ public class QuestInstance
 		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
 		this.isSilent = JsonHelper.GetBoolean(jObj, "isSilent", false);
 		this.lockedProgress = JsonHelper.GetBoolean(jObj, "lockedProgress", false);
+		this.simultaneous = JsonHelper.GetBoolean(jObj, "simultaneous", false);
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.globalShare = JsonHelper.GetBoolean(jObj, "globalShare", true);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
