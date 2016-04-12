@@ -240,7 +240,7 @@ public class AdvancedEventHandler
 	@SubscribeEvent
 	public void onItemUseStart(LivingEntityUseItemEvent.Start event)
 	{
-		if(event.getEntityLiving().worldObj.isRemote && event.getEntityLiving() instanceof EntityPlayer)
+		if(event.getEntityLiving().worldObj.isRemote || !(event.getEntityLiving() instanceof EntityPlayer))
 		{
 			return;
 		}
@@ -261,7 +261,7 @@ public class AdvancedEventHandler
 	@SubscribeEvent
 	public void onItemUseEnd(LivingEntityUseItemEvent.Finish event)
 	{
-		if(event.getEntityLiving().worldObj.isRemote && event.getEntityLiving() instanceof EntityPlayer)
+		if(event.getEntityLiving().worldObj.isRemote || !(event.getEntityLiving() instanceof EntityPlayer))
 		{
 			return;
 		}
