@@ -147,6 +147,7 @@ public class EventHandler
 	{
 		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 		{
+			PartyManager.UpdateNameCache(false);
 			QuestDatabase.SendDatabase((EntityPlayerMP)event.player);
 			PartyManager.SendDatabase((EntityPlayerMP)event.player);
 		}

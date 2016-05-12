@@ -1,7 +1,6 @@
 package betterquesting.lives;
 
 import java.util.Date;
-import org.apache.logging.log4j.Level;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -13,9 +12,11 @@ import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiGameOverBQ;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
@@ -124,7 +125,7 @@ public class LifeManager
 		NBTTagCompound data = new NBTTagCompound();
 		tracker.saveNBTData(data);
 		tags.setTag("data", data);
-		BetterQuesting.instance.network.sendTo(PacketDataType.LIFE_SYNC.makePacket(tags), (EntityPlayerMP)player);
+		PacketAssembly.SendTo(BQPacketType.LIFE_SYNC.GetLocation(), tags, (EntityPlayerMP)player);
 	}
 	
 	@SubscribeEvent

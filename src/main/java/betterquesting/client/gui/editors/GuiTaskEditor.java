@@ -13,8 +13,8 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
@@ -126,7 +126,7 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(TaskRegistry.GetTypeList().size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(TaskRegistry.GetNameList().size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 	}
@@ -159,9 +159,9 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 			}
 		} else if(n2 == 2) // Add reward
 		{
-			if(!(n4 < 0 || n4 >= TaskRegistry.GetTypeList().size()))
+			if(!(n4 < 0 || n4 >= TaskRegistry.GetNameList().size()))
 			{
-				quest.tasks.add(TaskRegistry.InstatiateTask(TaskRegistry.GetTypeList().get(n4)));
+				quest.tasks.add(TaskRegistry.InstatiateTask(TaskRegistry.GetNameList().get(n4)));
 				SendChanges();
 			}
 		}
@@ -187,7 +187,7 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, TaskRegistry.GetTypeList().size() - maxRows));
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, TaskRegistry.GetNameList().size() - maxRows));
         	RefreshColumns();
         }
     }
@@ -201,13 +201,12 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
+		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 	}
 	
 	public void RefreshColumns()
 	{
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, TaskRegistry.GetTypeList().size() - maxRows));
+    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, TaskRegistry.GetNameList().size() - maxRows));
 		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.tasks.size() - maxRows));
 		
 		@SuppressWarnings("unchecked")
@@ -237,14 +236,14 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 				btn.visible = btn.enabled = !(n3 < 0 || n3 >= quest.tasks.size());
 			} else if(n2 == 2) // Add reward
 			{
-				if(n4 < 0 || n4 >= TaskRegistry.GetTypeList().size())
+				if(n4 < 0 || n4 >= TaskRegistry.GetNameList().size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = TaskRegistry.GetTypeList().get(n4);
+					btn.displayString = TaskRegistry.GetNameList().get(n4).toString();
 				}
 			}
 		}

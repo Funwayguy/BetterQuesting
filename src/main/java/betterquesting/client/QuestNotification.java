@@ -12,7 +12,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.lwjgl.opengl.GL11;
-import betterquesting.core.BQ_Settings;
 import betterquesting.utils.RenderUtils;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -21,24 +20,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class QuestNotification
 {
-	public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, int sound)
+	public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 	{
-		String sndName = "random.levelup";
-		
-		switch(sound)
-		{
-			case 0:
-				sndName = BQ_Settings.noticeUnlock;
-				break;
-			case 2:
-				sndName = BQ_Settings.noticeComplete;
-				break;
-			default:
-				sndName = BQ_Settings.noticeUpdate;
-				break;
-		}
-		
-		notices.add(new QuestNotice(mainTxt, subTxt, icon, sndName));
+		notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
 	}
 	
 	static ArrayList<QuestNotice> notices = new ArrayList<QuestNotice>();

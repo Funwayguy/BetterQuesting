@@ -18,7 +18,8 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
@@ -346,7 +347,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-    		BetterQuesting.instance.network.sendToServer(PacketQuesting.PacketDataType.EDIT_STATION.makePacket(payload));
+			PacketAssembly.SendToServer(BQPacketType.EDIT_STATION.GetLocation(), payload);
     	}
     }
 	
@@ -397,7 +398,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean canInsertItem(int slot, ItemStack stack, int side)
 	{
-		return slot == 0;
+		return slot == 0 && isItemValidForSlot(slot, stack);
 	}
 
 	@Override

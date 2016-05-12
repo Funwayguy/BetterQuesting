@@ -1,6 +1,6 @@
-package betterquesting.network;
+package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
@@ -11,23 +11,22 @@ import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class PktHandlerQuestEdit extends PktHandler
 {
 	@Override
-	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data)
+	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
 	{
 		if(sender == null)
 		{
-			return null;
+			return;
 		}
 		
 		if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile()))
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quests without OP permissions!");
 			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
-			return null; // Player is not operator. Do nothing
+			return; // Player is not operator. Do nothing
 		}
 		
 		int action = !data.hasKey("action")? -1 : data.getInteger("action");
@@ -37,11 +36,11 @@ public class PktHandlerQuestEdit extends PktHandler
 		if(action < 0)
 		{
 			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
-			return null;
+			return;
 		} else if(quest == null || qID < 0)
 		{
 			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
-			return null;
+			return;
 		}
 		
 		if(action == 0) // Update quest data
@@ -64,12 +63,12 @@ public class PktHandlerQuestEdit extends PktHandler
 			QuestDatabase.DeleteQuest(quest.questID);
 			QuestDatabase.UpdateClients();
 		}
-		return null;
+		return;
 	}
 
 	@Override
-	public IMessage handleClient(NBTTagCompound data)
+	public void handleClient(NBTTagCompound data)
 	{
-		return null;
+		return;
 	}
 }

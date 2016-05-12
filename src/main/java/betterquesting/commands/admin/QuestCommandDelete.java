@@ -1,7 +1,6 @@
 package betterquesting.commands.admin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
@@ -10,7 +9,6 @@ import net.minecraft.util.ChatComponentText;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
 
 public class QuestCommandDelete extends QuestCommandBase
 {
@@ -52,8 +50,8 @@ public class QuestCommandDelete extends QuestCommandBase
 	{
 		if(args[1].equalsIgnoreCase("all"))
 		{
-			QuestDatabase.questDB = new HashMap<Integer,QuestInstance>();
-			QuestDatabase.questLines = new ArrayList<QuestLine>();
+			QuestDatabase.questDB.clear();
+			QuestDatabase.questLines.clear();
 			QuestDatabase.UpdateClients();
 		    
 			sender.addChatMessage(new ChatComponentText("Deleted all quests and quest lines"));

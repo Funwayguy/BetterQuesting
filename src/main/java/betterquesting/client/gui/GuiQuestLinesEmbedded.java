@@ -14,8 +14,8 @@ import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
@@ -308,7 +308,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 							tags.setInteger("action", 0); // Action: Update data
 							tags.setInteger("questID", b.quest.questID);
 							tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-							BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
+							PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 							
 							break;
 						}
@@ -405,7 +405,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			JsonObject json = new JsonObject();
 			QuestDatabase.writeToJson_Lines(json);
 			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.LINE_EDIT.makePacket(tags));
+			PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
 		}
 	}
 	

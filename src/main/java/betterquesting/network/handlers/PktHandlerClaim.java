@@ -1,21 +1,20 @@
-package betterquesting.network;
+package betterquesting.network.handlers;
 
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
 
 public class PktHandlerClaim extends PktHandler
 {
 	
 	@Override
-	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data)
+	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
 	{
 		if(sender == null)
 		{
-			return null;
+			return;
 		}
 		
 		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
@@ -25,14 +24,11 @@ public class PktHandlerClaim extends PktHandler
 		{
 			quest.Claim(sender, choiceData);
 		}
-		
-		return null;
 	}
 	
 	@Override
-	public IMessage handleClient(NBTTagCompound data)
+	public void handleClient(NBTTagCompound data)
 	{
-		return null;
 	}
 	
 }

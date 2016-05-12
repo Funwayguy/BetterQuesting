@@ -15,7 +15,8 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
@@ -163,12 +164,10 @@ public class GuiManageParty extends GuiQuesting
 		if(button.id == 1) // Leave party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			//tags.setInteger("ID", 7);
 			tags.setInteger("action", 1);
 			tags.setString("Party", party.name);
 			tags.setString("Member", member.userID.toString());
-			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+			PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 		} else if(button.id == 2 && member.GetPrivilege() == 2) // Share loot
 		{
 			party.lootShare = !party.lootShare;
@@ -192,12 +191,10 @@ public class GuiManageParty extends GuiQuesting
 				{
 					PartyMember pMem = party.GetMembers().get(n3);
 					NBTTagCompound tags = new NBTTagCompound();
-					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 1);
 					tags.setString("Party", party.name);
 					tags.setString("Member", pMem.userID.toString());
-					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-					BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+					PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 				}
 			}
 		}
@@ -272,7 +269,7 @@ public class GuiManageParty extends GuiQuesting
 		JsonObject pJson = new JsonObject();
 		party.writeToJson(pJson);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(pJson, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 	}
 	
 	public void RefreshColumns()
