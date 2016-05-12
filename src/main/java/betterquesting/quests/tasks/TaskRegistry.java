@@ -2,6 +2,8 @@ package betterquesting.quests.tasks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import org.apache.logging.log4j.Level;
@@ -12,25 +14,40 @@ import betterquesting.core.BetterQuesting;
  */
 public class TaskRegistry
 {
-	static HashMap<String, Class<? extends TaskBase>> taskRegistry = new HashMap<String, Class<? extends TaskBase>>();
+	static HashMap<ResourceLocation, Class<? extends TaskBase>> taskRegistry = new HashMap<ResourceLocation, Class<? extends TaskBase>>();
 	
-	public static void RegisterTask(Class<? extends TaskBase> task, String idName)
+	@Deprecated
+	public static void RegisterTask(Class<? extends TaskBase> task, String registryName)
 	{
 		try
 		{
 			ModContainer mod = Loader.instance().activeModContainer();
 			
-			if(idName.contains(":"))
+			if(registryName.contains(":"))
 			{
-				throw new IllegalArgumentException("Illegal character(s) used in task ID name");
+				throw new IllegalArgumentException("Illegal character(s) used in reward ID name");
+			} else if(mod == null)
+			{
+				throw new IllegalStateException("Tried to register a reward without a vialid mod instance");
 			}
 			
+			RegisterTask(task, new ResourceLocation(mod.getModId() + ":" + registryName));
+		} catch(Exception e)
+		{
+			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register task", e);
+		}
+	}
+	
+	public static void RegisterTask(Class<? extends TaskBase> task, ResourceLocation registryName)
+	{
+		try
+		{
 			if(task == null)
 			{
 				throw new NullPointerException("Tried to register null task");
-			} else if(mod == null)
+			} else if(registryName == null)
 			{
-				throw new IllegalArgumentException("Tried to register a task without an active mod instance");
+				throw new IllegalArgumentException("Tried to register a task with a null name");
 			}
 			
 			try
@@ -41,59 +58,99 @@ public class TaskRegistry
 				throw new NoSuchMethodException("Task is missing a default constructor with 0 arguemnts");
 			}
 			
-			String fullName = mod.getModId() + ":" + idName;
-			
-			if(taskRegistry.containsKey(fullName) || taskRegistry.containsValue(task))
+			if(taskRegistry.containsKey(registryName) || taskRegistry.containsValue(task))
 			{
-				throw new IllegalStateException("Cannot register dupliate task type '" + fullName + "'");
+				throw new IllegalArgumentException("Cannot register dupliate task type '" + registryName.toString() + "'");
 			}
 			
-			taskRegistry.put(fullName, task);
+			taskRegistry.put(registryName, task);
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register task", e);
 		}
 	}
 	
+	@Deprecated
 	public static String GetID(Class<? extends TaskBase> task)
 	{
-		for(String idName : taskRegistry.keySet())
+		ResourceLocation loc = GetRegisteredName(task);
+		return loc == null? null : loc.toString();
+	}
+	
+	public static ResourceLocation GetRegisteredName(Class<? extends TaskBase> task)
+	{
+		for(Entry<ResourceLocation,Class<? extends TaskBase>> set : taskRegistry.entrySet())
 		{
-			if(taskRegistry.get(idName) == task)
+			if(set.getValue() == task)
 			{
-				return idName;
+				return set.getKey();
 			}
 		}
 		
 		return null;
 	}
 	
-	public static Class<? extends TaskBase> GetTask(String idName)
+	@Deprecated
+	public static Class<? extends TaskBase> GetTask(String registryName)
 	{
-		return taskRegistry.get(idName);
+		if(registryName == null)
+		{
+			return null;
+		}
+		
+		return GetTask(new ResourceLocation(registryName));
 	}
 	
+	public static Class<? extends TaskBase> GetTask(ResourceLocation registryName)
+	{
+		return taskRegistry.get(registryName);
+	}
+	
+	@Deprecated
 	public static ArrayList<String> GetTypeList()
 	{
-		return new ArrayList<String>(taskRegistry.keySet());
+		ArrayList<String> list = new ArrayList<String>();
+		
+		for(ResourceLocation loc : taskRegistry.keySet())
+		{
+			list.add(loc.toString());
+		}
+		
+		return list;
 	}
 	
-	public static TaskBase InstatiateTask(String idName)
+	public static ArrayList<ResourceLocation> GetNameList()
+	{
+		return new ArrayList<ResourceLocation>(taskRegistry.keySet());
+	}
+	
+	@Deprecated
+	public static TaskBase InstatiateTask(String registryName)
+	{
+		if(registryName == null)
+		{
+			return null;
+		}
+		
+		return InstatiateTask(new ResourceLocation(registryName));
+	}
+	
+	public static TaskBase InstatiateTask(ResourceLocation registryName)
 	{
 		try
 		{
-			Class<? extends TaskBase> task = taskRegistry.get(idName);
+			Class<? extends TaskBase> task = GetTask(registryName);
 			
 			if(task == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Tried to load missing task type '" + idName + "'! Are you missing a task pack?");
+				BetterQuesting.logger.log(Level.ERROR, "Tried to load missing task type '" + registryName + "'! Are you missing an expansion pack?");
 				return null;
 			}
 			
-			return taskRegistry.get(idName).newInstance();
+			return task.newInstance();
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate quest: " + idName, e);
+			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate task: " + registryName, e);
 			return null;
 		}
 	}

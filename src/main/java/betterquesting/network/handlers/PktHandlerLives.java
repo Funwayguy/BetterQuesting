@@ -1,9 +1,8 @@
-package betterquesting.network;
+package betterquesting.network.handlers;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.lives.BQ_LifeTracker;
@@ -11,14 +10,13 @@ import betterquesting.lives.BQ_LifeTracker;
 public class PktHandlerLives extends PktHandler
 {
 	@Override
-	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data)
+	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
 	{
-		return null;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IMessage handleClient(NBTTagCompound data)
+	public void handleClient(NBTTagCompound data)
 	{
 		BQ_LifeTracker tracker = BQ_LifeTracker.get(Minecraft.getMinecraft().thePlayer);
 		
@@ -26,8 +24,6 @@ public class PktHandlerLives extends PktHandler
 		{
 			tracker.loadNBTData(data.getCompoundTag("data"));
 		}
-		
-		return null;
 	}
 	
 }

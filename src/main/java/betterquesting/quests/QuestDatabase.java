@@ -1,14 +1,15 @@
 package betterquesting.quests;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -34,8 +35,8 @@ public class QuestDatabase
 	 * Turns on the hardcore life system
 	 */
 	public static boolean bqHardcore = false;
-	public static volatile HashMap<Integer, QuestInstance> questDB = new HashMap<Integer, QuestInstance>();
-	public static volatile ArrayList<QuestLine> questLines = new ArrayList<QuestLine>();
+	public static volatile ConcurrentHashMap<Integer, QuestInstance> questDB = new ConcurrentHashMap<Integer, QuestInstance>();
+	public static volatile CopyOnWriteArrayList<QuestLine> questLines = new CopyOnWriteArrayList<QuestLine>();
 	
 	/**
 	 * @return the next free ID within the quest database
@@ -54,7 +55,7 @@ public class QuestDatabase
 	
 	public static void UpdateTasks(EntityPlayer player)
 	{
-		for(QuestInstance quest : new ArrayList<QuestInstance>(questDB.values()))
+		for(QuestInstance quest : questDB.values())
 		{
 			quest.Update(player);
 		}
@@ -92,20 +93,19 @@ public class QuestDatabase
 	 */
 	public static ArrayList<QuestInstance> getActiveQuests(UUID uuid)
 	{
+		if(uuid == null)
+		{
+			return new ArrayList<QuestInstance>(questDB.values());
+		}
+		
 		ArrayList<QuestInstance> questList = new ArrayList<QuestInstance>();
 		
-		if(uuid != null)
+		for(QuestInstance quest : questDB.values())
 		{
-			for(QuestInstance quest : questDB.values())
+			if(quest != null && quest.isUnlocked(uuid) && (!quest.isComplete(uuid) || !quest.HasClaimed(uuid)))
 			{
-				if(quest != null && quest.isUnlocked(uuid) && (!quest.isComplete(uuid) || !quest.HasClaimed(uuid)))
-				{
-					questList.add(quest);
-				}
+				questList.add(quest);
 			}
-		} else
-		{
-			questList.addAll(questDB.values());
 		}
 		
 		return questList;
@@ -162,7 +162,7 @@ public class QuestDatabase
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_DATABASE.makePacket(tags));
+		PacketAssembly.SendToAll(BQPacketType.QUEST_DATABASE.GetLocation(), tags);
 	}
 	
 	/**
@@ -175,7 +175,7 @@ public class QuestDatabase
 		JsonObject json = new JsonObject();
 		QuestDatabase.writeToJson(json);
 		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendTo(PacketDataType.QUEST_DATABASE.makePacket(tags), player);
+		PacketAssembly.SendTo(BQPacketType.QUEST_DATABASE.GetLocation(), tags, player);
 	}
 	
 	public static void writeToJson(JsonObject json)
@@ -205,7 +205,7 @@ public class QuestDatabase
 	public static void readFromJson_Lines(JsonObject json)
 	{
 		updateUI = true;
-		questLines = new ArrayList<QuestLine>();
+		questLines.clear();
 		for(JsonElement entry : JsonHelper.GetArray(json, "questLines"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -249,7 +249,7 @@ public class QuestDatabase
 		LifeManager.maxLives = JsonHelper.GetNumber(json, "maxLives", 10).intValue();
 		
 		updateUI = true;
-		questDB = new HashMap<Integer, QuestInstance>();
+		questDB.clear();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "questDatabase"))
 		{

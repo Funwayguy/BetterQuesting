@@ -12,8 +12,8 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 
 public class GuiPartyInvite extends GuiQuesting
@@ -66,12 +66,10 @@ public class GuiPartyInvite extends GuiQuesting
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 4);
 					tags.setString("Party", party.name);
 					tags.setString("Member", button.displayString);
-					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-					BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+					PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 				}
 			}
 		}

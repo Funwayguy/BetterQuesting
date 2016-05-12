@@ -37,6 +37,7 @@ import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
 import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketTypeRegistry;
 
 @Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
@@ -77,6 +78,7 @@ public class BetterQuesting
     	ConfigHandler.initConfigs();
     	
     	proxy.registerHandlers();
+    	PacketTypeRegistry.RegisterNativeHandlers();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);

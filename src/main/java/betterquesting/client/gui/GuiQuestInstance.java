@@ -15,8 +15,8 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.rewards.RewardBase;
@@ -226,10 +226,8 @@ public class GuiQuestInstance extends GuiQuesting
 		} else if(btn.id == 2) // Manual detect
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			//tags.setInteger("ID", 3);
 			tags.setInteger("questID", quest.questID);
-			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.DETECT.makePacket(tags));
+			PacketAssembly.SendToServer(BQPacketType.DETECT.GetLocation(), tags);
 		} else if(btn.id == 3) // Task right
 		{
 			selTask++;
@@ -242,11 +240,9 @@ public class GuiQuestInstance extends GuiQuesting
 		} else if(btn.id == 5) // Claim reward
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			//tags.setInteger("ID", 4);
 			tags.setInteger("questID", quest.questID);
 			tags.setTag("ChoiceData", quest.GetChoiceData());
-			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.CLAIM.makePacket(tags));
+			PacketAssembly.SendToServer(BQPacketType.CLAIM.GetLocation(), tags);
 		} else if(btn.id == 6)
 		{
 			selReward--;

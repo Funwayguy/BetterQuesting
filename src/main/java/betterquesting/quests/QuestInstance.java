@@ -9,12 +9,14 @@ import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
@@ -53,6 +55,10 @@ public class QuestInstance
 	public boolean globalShare = true;
 	public boolean autoClaim = false;
 	public int repeatTime = -1;
+	
+	public String sndComplete = "random.levelup";
+	public String sndUpdate = "random.levelup";
+	public String sndUnlock = "random.click"; // Not currently used
 	
 	public QuestInstance(int questID, boolean register)
 	{
@@ -99,20 +105,20 @@ public class QuestInstance
 				// Task is scheduled to reset
 				ResetProgress(player.getUniqueID());
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", name);
-					tags.setInteger("Sound", 1);
+					tags.setString("Sound", sndUpdate);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
 					
 					if(globalQuest)
 					{
-						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 				
@@ -161,20 +167,20 @@ public class QuestInstance
 				
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", name);
-					tags.setInteger("Sound", 2);
+					tags.setString("Sound", sndComplete);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
 					
 					if(globalQuest)
 					{
-						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && simultaneous)
@@ -185,20 +191,20 @@ public class QuestInstance
 			{
 				UpdateClients();
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", name);
-					tags.setInteger("Sound", 1);
+					tags.setString("Sound", sndUpdate);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
 					
 					if(globalQuest)
 					{
-						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -244,20 +250,21 @@ public class QuestInstance
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", name);
-					tags.setInteger("Sound", 2);
+					tags.setString("Sound", sndComplete);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+
 					
 					if(globalQuest)
 					{
-						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && simultaneous)
@@ -266,20 +273,20 @@ public class QuestInstance
 				UpdateClients();
 			} else if(update)
 			{
-				if(player instanceof EntityPlayerMP && !QuestDatabase.editMode && !isSilent)
+				if(!QuestDatabase.editMode && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", name);
-					tags.setInteger("Sound", 1);
+					tags.setString("Sound", sndUpdate);
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
 					
 					if(globalQuest)
 					{
-						BetterQuesting.instance.network.sendToAll(PacketDataType.NOTIFICATION.makePacket(tags));
+						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						BetterQuesting.instance.network.sendTo(PacketDataType.NOTIFICATION.makePacket(tags), (EntityPlayerMP)player);
+						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -539,7 +546,7 @@ public class QuestInstance
 		JsonObject json = new JsonObject();
 		writeToJSON(json);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToAll(PacketDataType.QUEST_SYNC.makePacket(tags));
+		PacketAssembly.SendToAll(BQPacketType.QUEST_SYNC.GetLocation(), tags);
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -654,6 +661,20 @@ public class QuestInstance
 	}
 	
 	/**
+	 * Clears all quest data and completion status for only this user
+	 */
+	public void ResetQuest(UUID uuid)
+	{
+		for(TaskBase t : tasks)
+		{
+			t.ResetProgress(uuid);
+			t.setCompletion(uuid, false);
+		}
+		
+		RemoveUserEntry(uuid);
+	}
+	
+	/**
 	 * Resets task progress and claim status but does not reset completion status (applies to party members too)
 	 */
 	public void ResetProgress(UUID uuid)
@@ -719,6 +740,13 @@ public class QuestInstance
 		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
 		jObj.addProperty("repeatTime", repeatTime);
+		
+		JsonObject jSounds = new JsonObject();
+		jSounds.addProperty("complete", sndComplete);
+		jSounds.addProperty("update", sndUpdate);
+		//jSounds.addProperty("unlock", sndUnlock); // Not implemented
+		jObj.add("sounds", jSounds);
+		
 		jObj.addProperty("logic", logic.toString());
 		jObj.addProperty("taskLogic", tLogic.toString());
 		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
@@ -726,7 +754,7 @@ public class QuestInstance
 		JsonArray tskJson = new JsonArray();
 		for(TaskBase quest : tasks)
 		{
-			String taskID = TaskRegistry.GetID(quest.getClass());
+			ResourceLocation taskID = TaskRegistry.GetRegisteredName(quest.getClass());
 			
 			if(taskID == null)
 			{
@@ -736,7 +764,7 @@ public class QuestInstance
 			
 			JsonObject qJson = new JsonObject();
 			quest.writeToJson(qJson);
-			qJson.addProperty("taskID", TaskRegistry.GetID(quest.getClass()));
+			qJson.addProperty("taskID", taskID.toString());
 			tskJson.add(qJson);
 		}
 		jObj.add("tasks", tskJson);
@@ -744,9 +772,17 @@ public class QuestInstance
 		JsonArray rwdJson = new JsonArray();
 		for(RewardBase rew : rewards)
 		{
+			ResourceLocation rewardID = RewardRegistry.GetRegisteredName(rew.getClass());
+			
+			if(rewardID == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered reward: " + rew.getClass().getName());
+				continue;
+			}
+			
 			JsonObject rJson = new JsonObject();
 			rew.writeToJson(rJson);
-			rJson.addProperty("rewardID", RewardRegistry.GetID(rew.getClass()));
+			rJson.addProperty("rewardID", rewardID.toString());
 			rwdJson.add(rJson);
 		}
 		jObj.add("rewards", rwdJson);
@@ -785,6 +821,12 @@ public class QuestInstance
 		this.globalShare = JsonHelper.GetBoolean(jObj, "globalShare", true);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
 		this.repeatTime = JsonHelper.GetNumber(jObj, "repeatTime", -1).intValue();
+		
+		JsonObject jSounds = JsonHelper.GetObject(jObj, "sounds");
+		this.sndComplete = JsonHelper.GetString(jSounds, "complete", "random.levelup");
+		this.sndUpdate = JsonHelper.GetString(jSounds, "update", "random.levelup");
+		//this.sndUnlock = JsonHelper.GetString(jSounds, "unlock", "random.click"); // Not implemented
+		
 		try
 		{
 			this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
@@ -812,12 +854,13 @@ public class QuestInstance
 				continue;
 			}
 			
-			JsonObject jsonQuest = entry.getAsJsonObject();
-			TaskBase quest = TaskRegistry.InstatiateTask(JsonHelper.GetString(jsonQuest, "taskID", ""));
+			JsonObject jsonTask = entry.getAsJsonObject();
+			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
+			TaskBase quest = TaskRegistry.InstatiateTask(loc);
 			
 			if(quest != null)
 			{
-				quest.readFromJson(jsonQuest);
+				quest.readFromJson(jsonTask);
 				this.tasks.add(quest);
 			}
 		}
@@ -831,7 +874,8 @@ public class QuestInstance
 			}
 			
 			JsonObject jsonReward = entry.getAsJsonObject();
-			RewardBase reward = RewardRegistry.InstatiateReward(JsonHelper.GetString(jsonReward, "rewardID", ""));
+			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
+			RewardBase reward = RewardRegistry.InstatiateReward(loc);
 			
 			if(reward != null)
 			{
