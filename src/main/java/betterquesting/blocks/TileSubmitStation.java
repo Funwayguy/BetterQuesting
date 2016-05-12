@@ -14,19 +14,23 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.advanced.IContainerTask;
 
-public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable
+public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IItemHandlerModifiable
 {
 	ItemStack[] itemStack = new ItemStack[2];
 	boolean needsUpdate = false;
@@ -344,7 +348,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-    		BetterQuesting.instance.network.sendToServer(PacketQuesting.PacketDataType.EDIT_STATION.makePacket(payload));
+    		PacketAssembly.SendToServer(BQPacketType.EDIT_STATION.GetLocation(), payload);
     	}
     }
 	
@@ -395,7 +399,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side)
 	{
-		return slot == 0;
+		return slot == 0 && isItemValidForSlot(slot, stack);
 	}
 
 	@Override
@@ -440,4 +444,106 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		return new TextComponentString(BetterQuesting.submitStation.getLocalizedName());
 	}
+
+	@Override
+	public int getSlots()
+	{
+		return getSizeInventory();
+	}
+
+	@Override
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+	{
+		if(stack == null)
+		{
+			return null;
+		} else if(slot != 0)
+		{
+			return stack;
+		}
+		
+		// Existing stack
+		ItemStack ts1 = getStackInSlot(slot);
+		
+		if(ts1 != null && !stack.isItemEqual(ts1))
+		{
+			return stack;
+		}
+		
+		int inMax = Math.min(stack.stackSize, stack.getMaxStackSize() - (ts1 == null? 0 : ts1.stackSize));
+		// Input stack
+		ItemStack ts2 = stack.copy();
+		ts2.stackSize = inMax;
+		
+		if(!simulate)
+		{
+			setInventorySlotContents(slot, ts1);
+		}
+		
+		if(stack.stackSize > inMax)
+		{
+			// Left over stack
+			ItemStack ts3 = stack.copy();
+			ts3.stackSize = stack.stackSize - inMax;
+			return ts3;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate)
+	{
+		if(slot != 1 || amount <= 0)
+		{
+			return null;
+		}
+		
+		if(!simulate)
+		{
+			return decrStackSize(slot, amount);
+		}
+		
+		ItemStack stack = getStackInSlot(slot);
+		
+		if(stack == null)
+		{
+			return null;
+		}
+		
+		int outMax = Math.min(stack.stackSize, amount);
+		
+		ItemStack ts1 = stack.copy();
+		ts1.stackSize = outMax;
+		
+		return ts1;
+	}
+
+	@Override
+	public void setStackInSlot(int slot, ItemStack stack)
+	{
+		this.setInventorySlotContents(slot, stack);
+	}
+	
+	@Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    {
+		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+		{
+			return true;
+		}
+		
+        return super.hasCapability(capability, facing);
+    }
+	
+	@Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    {
+		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+		{
+			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this);
+		}
+		
+        return super.getCapability(capability, facing);
+    }
 }

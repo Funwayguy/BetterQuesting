@@ -56,7 +56,7 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, "..."));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)

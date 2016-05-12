@@ -1,9 +1,9 @@
-package betterquesting.network;
+package betterquesting.network.handlers;
 
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyInstance;
@@ -16,11 +16,11 @@ public class PktHandlerPartyAction extends PktHandler
 {
 	
 	@Override
-	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data) // Party management
+	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Party management
 	{
 		if(sender == null)
 		{
-			return null;
+			return;
 		}
 		
 		int action = !data.hasKey("action")? -1 : data.getInteger("action");
@@ -48,7 +48,7 @@ public class PktHandlerPartyAction extends PktHandler
 			if(member == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + sender.getUniqueID().toString() + " in party " + name, new Exception());
-				return null;
+				return;
 			}
 			
 			UUID uuid;
@@ -63,13 +63,13 @@ public class PktHandlerPartyAction extends PktHandler
 			} catch(Exception e)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Unabled to remove user from pary", e);
-				return null;
+				return;
 			}
 			
 			if(!uuid.equals(sender.getUniqueID()) && member.GetPrivilege() != 2)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to kick user");
-				return null;
+				return;
 			} 
 			
 			party.LeaveParty(uuid);
@@ -82,11 +82,11 @@ public class PktHandlerPartyAction extends PktHandler
 			if(member == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + sender.getUniqueID().toString() + " in party " + name, new Exception());
-				return null;
+				return;
 			} else if(member.GetPrivilege() != 2)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to edit party");
-				return null;
+				return;
 			}
 			
 			party.readFromJson(NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject()));
@@ -117,11 +117,11 @@ public class PktHandlerPartyAction extends PktHandler
 			if(member == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Unabled to find party or membership data for " + sender.getUniqueID().toString() + " in party " + name, new Exception());
-				return null;
+				return;
 			} else if(member.GetPrivilege() != 2)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Insufficient permission to invite to party");
-				return null;
+				return;
 			}
 			
 			String username = data.getString("Member");
@@ -129,18 +129,16 @@ public class PktHandlerPartyAction extends PktHandler
 			
 			if(inviteUser != null)
 			{
+				PartyManager.ManualUserCache(inviteUser);
 				party.InvitePlayer(inviteUser.getUniqueID());
 				PartyManager.UpdateClients();
 			}
 		}
-		
-		return null;
 	}
 	
 	@Override
-	public IMessage handleClient(NBTTagCompound data) // Nothing technical should be happening client side
+	public void handleClient(NBTTagCompound data) // Nothing technical should be happening client side
 	{
-		return null;
 	}
 	
 }

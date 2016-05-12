@@ -81,12 +81,11 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(QuestInstance quest : new ArrayList<QuestInstance>(QuestDatabase.questDB.values()))
+			for(QuestInstance quest : QuestDatabase.questDB.values())
 			{
 				if(uuid != null)
 				{
-					quest.ResetProgress(uuid); // Clear progress
-					quest.RemoveUserEntry(uuid); // Clear completion state
+					quest.ResetQuest(uuid); // Clear progress and state
 				} else
 				{
 					quest.ResetQuest();
@@ -103,8 +102,7 @@ public class QuestCommandReset extends QuestCommandBase
 				
 				if(uuid != null)
 				{
-					quest.ResetProgress(uuid); // Clear progress
-					quest.RemoveUserEntry(uuid); // Clear completion state
+					quest.ResetQuest(uuid); // Clear progress and state
 				} else
 				{
 					quest.ResetQuest();

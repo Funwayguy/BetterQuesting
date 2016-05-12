@@ -1,9 +1,9 @@
-package betterquesting.network;
+package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.NBTConverter;
@@ -13,7 +13,7 @@ public class PktHandlerQuestSync extends PktHandler
 {
 	
 	@Override
-	public IMessage handleServer(EntityPlayer sender, NBTTagCompound data)
+	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
 	{
 		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
 		
@@ -24,14 +24,12 @@ public class PktHandlerQuestSync extends PktHandler
 			quest.writeToJSON(json);
 			tags.setInteger("questID", quest.questID);
 			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-			return PacketDataType.QUEST_SYNC.makePacket(tags);
+			PacketAssembly.SendTo(BQPacketType.QUEST_SYNC.GetLocation(), tags, sender);
 		}
-		
-		return null;
 	}
 	
 	@Override
-	public IMessage handleClient(NBTTagCompound data)
+	public void handleClient(NBTTagCompound data)
 	{
 		int questID = data.getInteger("questID");
 		QuestInstance quest = QuestDatabase.getQuestByID(questID);
@@ -41,7 +39,6 @@ public class PktHandlerQuestSync extends PktHandler
 		quest.readFromJSON(json);
 		
 		QuestDatabase.updateUI = true; // Tell all UIs they need updating
-		return null;
 	}
 	
 }

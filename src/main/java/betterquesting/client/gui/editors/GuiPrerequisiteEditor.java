@@ -19,8 +19,8 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.utils.NBTConverter;
@@ -158,10 +158,8 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		if(button.id == 1)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			//tags.setInteger("ID", 6);
 			tags.setInteger("action", 1);
-			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.LINE_EDIT.makePacket(tags));
+    		PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -200,11 +198,9 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 				if(!(n4 < 0 || n4 >= searchResults.size()))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					//tags.setInteger("ID", 5);
 					tags.setInteger("action", 1); // Delete quest
 					tags.setInteger("questID", searchResults.get(n4).questID);
-					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-					BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
+		    		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 				}
 			} else if(n2 == 4) // Add quest
 			{
@@ -250,7 +246,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		BetterQuesting.instance.network.sendToServer(PacketDataType.QUEST_EDIT.makePacket(tags));
+		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 	}
 	
 	public void RefreshColumns()

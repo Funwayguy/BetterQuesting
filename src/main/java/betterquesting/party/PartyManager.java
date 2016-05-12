@@ -4,18 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.utils.JsonHelper;
 import betterquesting.utils.NBTConverter;
@@ -23,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mojang.authlib.GameProfile;
 
 public class PartyManager
 {
@@ -148,72 +146,90 @@ public class PartyManager
 	}
 	
 	/**
-	 * Gets players user name from the player list or cached copy
+	 * Scans through all players and updates the name listing
 	 */
-	@SideOnly(Side.CLIENT)
-	public static String GetUsername(net.minecraft.client.Minecraft mc, UUID uuid)
+	public static void UpdateNameCache(MinecraftServer server, boolean doUpdate)
 	{
-		for(NetworkPlayerInfo info : mc.thePlayer.sendQueue.getPlayerInfoMap())
-		{
-			if(info != null && info.getGameProfile().getId().equals(uuid))
-			{
-				nameCache.put(uuid, info.getGameProfile().getName());
-				return info.getGameProfile().getName();
-			}
-		}
+		boolean changed = false;
 		
-		if(nameCache.containsKey(uuid))
+		if(server != null && server.isServerRunning())
 		{
-			return nameCache.get(uuid);
-		}
-		
-		return uuid.toString();
-	}
-	
-	public static String getUsername(MinecraftServer server, UUID uuid)
-	{
-		if(server.isServerRunning())
-		{
-			for(WorldServer world : server.worldServers)
+			// Using the server's user cache for offline players
+			for(String name : server.getPlayerProfileCache().getUsernames())
 			{
-				EntityPlayer player = world.getPlayerEntityByUUID(uuid);
+				GameProfile prof = server.getPlayerProfileCache().getGameProfileForUsername(name);
 				
-				if(player != null)
+				if(prof != null)
 				{
-					nameCache.put(uuid, player.getName());
-					return player.getName();
+					if(!name.equalsIgnoreCase(nameCache.get(prof.getId())))
+					{
+						nameCache.put(prof.getId(), name);
+						changed = true;
+					}
 				}
 			}
 		}
 		
+		if(doUpdate && changed)
+		{
+			UpdateClients();
+		}
+	}
+	
+	/**
+	 * Gets players user name from the player list or cached copy
+	 */
+	public static String GetUsername(MinecraftServer server, UUID uuid)
+	{
+		String name = null;
+		
 		if(nameCache.containsKey(uuid))
 		{
-			return nameCache.get(uuid);
+			name = nameCache.get(uuid);
 		}
 		
-		return uuid.toString();
+		if(server != null && server.isServerRunning())
+		{
+			GameProfile prof = server.getPlayerProfileCache().getProfileByUUID(uuid);
+			
+			if(prof != null && prof.getName() != null)
+			{
+				boolean update = !prof.getName().equalsIgnoreCase(name); // Casing isn't that important
+				
+				name = prof.getName();
+				
+				if(update)
+				{
+					nameCache.put(uuid, name);
+					UpdateClients(); // Update all client's with the new UUID name
+				}
+			}
+		}
+		
+		return name != null? name : uuid.toString();
+	}
+	
+	public static void ManualUserCache(EntityPlayer player)
+	{
+		nameCache.put(player.getUniqueID(), player.getName());
 	}
 	
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 2);
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendTo(new PacketQuesting(tags), player);
-		BetterQuesting.instance.network.sendTo(PacketDataType.PARTY_DATABASE.makePacket(tags), player);
+		PacketAssembly.SendTo(BQPacketType.PARTY_DATABASE.GetLocation(), tags, player);
 	}
 	
 	public static void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 2);
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		//BetterQuesting.instance.network.sendToAll(new PacketQuesting(tags));
-		BetterQuesting.instance.network.sendToAll(PacketDataType.PARTY_DATABASE.makePacket(tags));
+		PacketAssembly.SendToAll(BQPacketType.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	public static void writeToJson(JsonObject jObj)

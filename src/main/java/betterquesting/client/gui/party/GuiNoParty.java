@@ -17,7 +17,8 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketQuesting.PacketDataType;
+import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
@@ -144,11 +145,9 @@ public class GuiNoParty extends GuiQuesting
 		if(button.id == 1) // Create party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			//tags.setInteger("ID", 7);
 			tags.setInteger("action", 0);
 			tags.setString("Party", fieldName.getText());
-			//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-			BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+    		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 		} else if(button.id > 1) // Join party
 		{
 			int n1 = button.id - 2; // Button index
@@ -160,11 +159,9 @@ public class GuiNoParty extends GuiQuesting
 				if(n3 >= 0 && n3 < invites.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					//tags.setInteger("ID", 7);
 					tags.setInteger("action", 3);
 					tags.setString("Party", invites.get(n3).name);
-					//BetterQuesting.instance.network.sendToServer(new PacketQuesting(tags));
-					BetterQuesting.instance.network.sendToServer(PacketDataType.PARTY_ACTION.makePacket(tags));
+		    		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
 				}
 			}
 		}
