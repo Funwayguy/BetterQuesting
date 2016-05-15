@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -160,8 +159,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GlStateManager.scale(scale, scale, scale);
-			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			mc.fontRendererObj.drawString(EnumChatFormatting.BOLD + "" + zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GlStateManager.popMatrix();
 		}
 		

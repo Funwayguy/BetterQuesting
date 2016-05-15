@@ -12,6 +12,10 @@ import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.core.BetterQuesting;
+import betterquesting.party.PartyInstance;
+import betterquesting.party.PartyManager;
+import betterquesting.party.PartyInstance.PartyMember;
+import betterquesting.quests.QuestInstance;
 import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -28,7 +32,6 @@ public abstract class TaskBase
 	
 	/**
 	 * Default unlocalised name for this quest type
-	 * @return
 	 */
 	public abstract String getUnlocalisedName();
 	
@@ -43,18 +46,35 @@ public abstract class TaskBase
 	/**
 	 * Updates the questing logic based on the given player instance<br>
 	 * WARNING: Keep processing to a minimum here as this is called through EntityLivingUpdate<br>
-	 * NOTE: This is only run server side. Send custom packets if clientside action is required
-	 * @param player
-	 * @param quest
+	 * NOTE: This is only run server side. Send custom packets if client side action is required
 	 */
+	public void Update(QuestInstance quest, EntityPlayer player)
+	{
+		Update(player); // For use by out dated expansions only!
+	}
+	
+	@Deprecated
 	public void Update(EntityPlayer player){}
 
 	/**
 	 * Fired when someone presses the detect button for the quest (can be used occasionally in Update to auto-detect). Use this for item submissions or manual updates
-	 * @param player
-	 * @param quest
 	 */
+	public void Detect(QuestInstance quest, EntityPlayer player)
+	{
+		Detect(player); // For use by out dated expansions only!
+	}
+	
+	@Deprecated
 	public void Detect(EntityPlayer player){}
+	
+	/**
+	 * Gets the percentage of participation this player has contributed<br>
+	 * Defaults to completion state but should be overridden for progression tasks
+	 */
+	public float GetParticipation(UUID uuid)
+	{
+		return isComplete(uuid) ? 1F : 0F;
+	}
 	
 	/**
 	 * Called by repeatable quests to reset progress for the next attempt
@@ -62,6 +82,26 @@ public abstract class TaskBase
 	public void ResetProgress(UUID uuid)
 	{
 		completeUsers.remove(uuid);
+	}
+	
+	/**
+	 * Resets progress for all members of the given user's party
+	 * or just this user if no party is found
+	 */
+	public void ResetPartyProgress(UUID uuid)
+	{
+		PartyInstance party = PartyManager.GetParty(uuid);
+		
+		if(party == null)
+		{
+			ResetProgress(uuid);
+		} else
+		{
+			for(PartyMember mem : party.GetMembers())
+			{
+				ResetProgress(mem.userID);
+			}
+		}
 	}
 	
 	/**
@@ -79,15 +119,35 @@ public abstract class TaskBase
 	
 	public void setCompletion(UUID uuid, boolean state)
 	{
-		if(state)
+		PartyInstance party = PartyManager.GetParty(uuid);
+		
+		if(party == null)
 		{
-			if(!completeUsers.contains(uuid))
+			if(state)
 			{
-				completeUsers.add(uuid);
+				if(!completeUsers.contains(uuid))
+				{
+					completeUsers.add(uuid);
+				}
+			} else
+			{
+				completeUsers.remove(uuid);
 			}
 		} else
 		{
-			completeUsers.remove(uuid);
+			for(PartyMember mem : party.GetMembers())
+			{
+				if(state)
+				{
+					if(!completeUsers.contains(mem.userID))
+					{
+						completeUsers.add(mem.userID);
+					}
+				} else
+				{
+					completeUsers.remove(mem.userID);
+				}
+			}
 		}
 	}
 	
