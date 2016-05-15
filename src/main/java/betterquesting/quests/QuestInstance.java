@@ -53,6 +53,7 @@ public class QuestInstance
 	public QuestLogic tLogic = QuestLogic.AND;
 	public boolean globalQuest = false;
 	public boolean globalShare = true;
+	public float globalParticipation = 0F;
 	public boolean autoClaim = false;
 	public int repeatTime = -1;
 	
@@ -72,7 +73,6 @@ public class QuestInstance
 	
 	/**
 	 * Quest specific living update event. Do not use for item submissions
-	 * @param player
 	 */
 	public void Update(EntityPlayer player)
 	{
@@ -103,7 +103,13 @@ public class QuestInstance
 			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
 			{
 				// Task is scheduled to reset
-				ResetProgress(player.getUniqueID());
+				if(globalQuest)
+				{
+					ResetAllProgress();
+				} else
+				{
+					ResetProgress(player.getUniqueID());
+				}
 				
 				if(!QuestDatabase.editMode && !isSilent)
 				{
@@ -140,7 +146,7 @@ public class QuestInstance
 			{
 				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
-				tsk.Update(player);
+				tsk.Update(this, player);
 				
 				if(tsk.isComplete(player.getUniqueID()))
 				{
@@ -233,7 +239,7 @@ public class QuestInstance
 			{
 				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
-				tsk.Detect(player);
+				tsk.Detect(this, player);
 				
 				if(tsk.isComplete(player.getUniqueID()))
 				{
@@ -300,18 +306,24 @@ public class QuestInstance
 		{
 			return true;
 		}
-		
-		if(globalQuest && !globalShare)
+				
+		if(globalQuest)
 		{
-			for(UserEntry entry : completeUsers)
+			if(GetParticipation(uuid) < globalParticipation)
 			{
-				if(entry.claimed)
+				return true;
+			} else if(!globalShare)
+			{
+				for(UserEntry entry : completeUsers)
 				{
-					return true;
+					if(entry.claimed)
+					{
+						return true;
+					}
 				}
+				
+				return false;
 			}
-			
-			return false;
 		}
 		
 		UserEntry entry = GetUserEntry(uuid);
@@ -409,6 +421,23 @@ public class QuestInstance
 		{
 			return false;
 		}
+	}
+	
+	public float GetParticipation(UUID uuid)
+	{
+		if(tasks.size() <= 0)
+		{
+			return 0F;
+		}
+		
+		float total = 0F;
+		
+		for(TaskBase t : tasks)
+		{
+			total += t.GetParticipation(uuid);
+		}
+		
+		return total / tasks.size();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -604,8 +633,6 @@ public class QuestInstance
 	
 	/**
 	 * Returns true if the quest has been completed at least once
-	 * @param uuid
-	 * @return
 	 */
 	public boolean isComplete(UUID uuid)
 	{
@@ -711,6 +738,22 @@ public class QuestInstance
 		}
 	}
 	
+	/**
+	 * Resets task progress and claim status for all users
+	 */
+	public void ResetAllProgress()
+	{
+		for(UserEntry entry : completeUsers)
+		{
+			entry.claimed = false;
+		}
+		
+		for(TaskBase t : tasks)
+		{
+			t.ResetAllProgress();
+		}
+	}
+	
 	public void AddPreRequisite(QuestInstance quest)
 	{
 		if(!this.preRequisites.contains(quest.questID))
@@ -734,6 +777,7 @@ public class QuestInstance
 		jObj.addProperty("isSilent", isSilent);
 		jObj.addProperty("lockedProgress", lockedProgress);
 		jObj.addProperty("simultaneous", simultaneous);
+		jObj.addProperty("globalParticipation", globalParticipation);
 		jObj.addProperty("globalQuest", globalQuest);
 		jObj.addProperty("globalShare", globalShare);
 		jObj.addProperty("autoClaim", autoClaim);
@@ -815,6 +859,7 @@ public class QuestInstance
 		this.isSilent = JsonHelper.GetBoolean(jObj, "isSilent", false);
 		this.lockedProgress = JsonHelper.GetBoolean(jObj, "lockedProgress", false);
 		this.simultaneous = JsonHelper.GetBoolean(jObj, "simultaneous", false);
+		this.globalParticipation = JsonHelper.GetNumber(jObj, "globalParticipation", 0F).floatValue();
 		this.globalQuest = JsonHelper.GetBoolean(jObj, "globalQuest", false);
 		this.globalShare = JsonHelper.GetBoolean(jObj, "globalShare", true);
 		this.autoClaim = JsonHelper.GetBoolean(jObj, "autoClaim", false);
