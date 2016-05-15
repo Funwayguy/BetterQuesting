@@ -5,6 +5,11 @@ import java.util.UUID;
 public interface IProgressionTask<T>
 {
 	/**
+	 * Sets the given users progress
+	 */
+	public void SetUserProgress(UUID uuid, T progress);
+	
+	/**
 	 * Returns the progress for the given user
 	 */
 	public T GetUserProgress(UUID uuid);
@@ -19,5 +24,5 @@ public interface IProgressionTask<T>
 	 * Returns the global progress from all players.
 	 * Should be within global quests
 	 */
-	public T GetGlobalProgress(UUID uuid);
+	public T GetGlobalProgress();
 }
