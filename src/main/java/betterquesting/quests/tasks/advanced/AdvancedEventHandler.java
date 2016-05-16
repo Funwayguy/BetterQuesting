@@ -1,6 +1,9 @@
 package betterquesting.quests.tasks.advanced;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.Map.Entry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -22,6 +25,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
 
 /**
@@ -41,27 +45,17 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onPlayerAttacked(player, event.getSource(), event.getAmount());
+				set.getKey().onPlayerAttacked(set.getValue(), player, event.getSource(), event.getAmount());
 			}
 		} else if(event.getSource().getEntity() instanceof EntityPlayer)
 		{
 			EntityPlayer player = (EntityPlayer)event.getSource().getEntity();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onAttackedByPlayer(event.getEntityLiving(), event.getSource(), event.getAmount());
+				set.getKey().onAttackedByPlayer(set.getValue(), event.getEntityLiving(), event.getSource(), event.getAmount());
 			}
 		}
 	}
@@ -78,27 +72,17 @@ public class AdvancedEventHandler
 		{
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onPlayerKilled(player, event.getSource());
+				set.getKey().onPlayerKilled(set.getValue(), player, event.getSource());
 			}
 		} else if(event.getSource().getEntity() instanceof EntityPlayer)
 		{
 			EntityPlayer player = (EntityPlayer)event.getSource().getEntity();
 			
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onKilledByPlayer(event.getEntityLiving(), event.getSource());
+				set.getKey().onKilledByPlayer(set.getValue(), event.getEntityLiving(), event.getSource());
 			}
 		}
 	}
@@ -113,14 +97,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onPlayerHeal(player, event.getAmount());
+			set.getKey().onPlayerHeal(set.getValue(), player, event.getAmount());
 		}
 	}
 	
@@ -134,14 +113,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onXpPickup(player, event.getOrb().xpValue);
+			set.getKey().onXpPickup(set.getValue(), player, event.getOrb().xpValue);
 		}
 	}
 	
@@ -155,14 +129,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.getEntity();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onEnterChunk(player, event.getNewChunkX(), event.getNewChunkZ());
+			set.getKey().onEnterChunk(set.getValue(), player, event.getNewChunkX(), event.getNewChunkZ());
 		}
 	}
 	
@@ -184,14 +153,9 @@ public class AdvancedEventHandler
 			actStack = CraftingManager.getInstance().findMatchingRecipe((InventoryCrafting)event.craftMatrix, player.worldObj);
 		}
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemCrafted(player, actStack);
+			set.getKey().onItemCrafted(set.getValue(), player, actStack);
 		}
 	}
 	
@@ -205,14 +169,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemDropped(player, event.getEntityItem());
+			set.getKey().onItemDropped(set.getValue(), player, event.getEntityItem());
 		}
 	}
 	
@@ -226,14 +185,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemPickup(player, event.pickedUp);
+			set.getKey().onItemPickup(set.getValue(), player, event.pickedUp);
 		}
 	}
 	
@@ -247,14 +201,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemUseStart(player, event.getItem(), event.getDuration());
+			set.getKey().onItemUseStart(set.getValue(), player, event.getItem(), event.getDuration());
 		}
 	}
 	
@@ -268,14 +217,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemUseEnd(player, event.getItem(), event.getDuration());
+			set.getKey().onItemUseEnd(set.getValue(), player, event.getItem(), event.getDuration());
 		}
 	}
 	
@@ -289,14 +233,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.player;
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onItemSmelted(player, event.smelting);
+			set.getKey().onItemSmelted(set.getValue(), player, event.smelting);
 		}
 	}
 	
@@ -310,14 +249,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onBlockBreak(player, event.getState(), event.getPos());
+			set.getKey().onBlockBreak(set.getValue(), player, event.getState(), event.getPos());
 		}
 	}
 	
@@ -331,14 +265,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onBlockPlace(player, event.getState(), event.getPos());
+			set.getKey().onBlockPlace(set.getValue(), player, event.getState(), event.getPos());
 		}
 	}
 	
@@ -352,14 +281,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getEntityPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), true);
+			set.getKey().onBlockInteract(set.getValue(), player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), true);
 		}
 	}
 	
@@ -373,14 +297,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getEntityPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onBlockInteract(player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), false);
+			set.getKey().onBlockInteract(set.getValue(), player, event.getWorld().getBlockState(event.getPos()), event.getPos(), event.getHand(), false);
 		}
 	}
 	
@@ -394,14 +313,9 @@ public class AdvancedEventHandler
 		
 		EntityPlayer player = event.getEntityPlayer();
 		
-		for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+		for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 		{
-			if(!(task instanceof AdvancedTaskBase))
-			{
-				continue;
-			}
-			
-			((AdvancedTaskBase)task).onEntityInteract(player, event.getTarget(), event.getHand());
+			set.getKey().onEntityInteract(set.getValue(), player, event.getTarget(), event.getHand());
 		}
 	}
 	
@@ -416,15 +330,28 @@ public class AdvancedEventHandler
 		ArrayList<EntityPlayer> pList = (ArrayList<EntityPlayer>)event.getWorld().getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), event.getPos().getX() + 1D, event.getPos().getY() + 1D, event.getPos().getZ() + 1D).expand(64D, 64D, 64D));
 		for(EntityPlayer player : pList)
 		{
-			for(TaskBase task : QuestDatabase.getActiveTasks(player.getUniqueID()))
+			for(Entry<AdvancedTaskBase,QuestInstance> set : GetAdvancedTasks(player.getUniqueID()).entrySet())
 			{
-				if(!(task instanceof AdvancedTaskBase))
-				{
-					continue;
-				}
-				
-				((AdvancedTaskBase)task).onNotePlayed(event.getWorld(), event.getPos(), event.getInstrument(), event.getNote(), event.getOctave());
+				set.getKey().onNotePlayed(set.getValue(), event.getWorld(), event.getPos(), event.getInstrument(), event.getNote(), event.getOctave());
 			}
 		}
+	}
+	
+	HashMap<AdvancedTaskBase, QuestInstance> GetAdvancedTasks(UUID uuid)
+	{
+		HashMap<AdvancedTaskBase, QuestInstance> map = new HashMap<AdvancedTaskBase, QuestInstance>();
+		
+		for(QuestInstance quest : QuestDatabase.getActiveQuests(uuid))
+		{
+			for(TaskBase task : quest.tasks)
+			{
+				if(task instanceof AdvancedTaskBase && !task.isComplete(uuid))
+				{
+					map.put((AdvancedTaskBase)task, quest);
+				}
+			}
+		}
+		
+		return map;
 	}
 }

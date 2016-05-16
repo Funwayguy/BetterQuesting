@@ -182,7 +182,17 @@ public abstract class TaskBase
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY);
+	public GuiEmbedded getGui(QuestInstance quest, GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return getGui(screen, posX, posY, sizeX, sizeY);
+	}
+	
+	@Deprecated
+	@SideOnly(Side.CLIENT)
+	public GuiEmbedded getGui(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	{
+		return null;
+	}
 	
 	/**
 	 * Returns a new editor screen for this Reward type to edit the given data
