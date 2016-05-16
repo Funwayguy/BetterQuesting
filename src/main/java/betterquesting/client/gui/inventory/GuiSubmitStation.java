@@ -227,7 +227,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		{
 			quest = tile.getQuest();
 			task = (TaskBase)tile.getTask();
-			taskUI = task.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
+			taskUI = task.getGui(quest, this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
 			
 			selQuest = Math.max(0, activeQuests.indexOf(quest));
 			selTask = Math.max(0, quest.tasks.indexOf(task));
@@ -272,7 +272,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			taskUI = null;
 		} else
 		{
-			taskUI = task.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
+			taskUI = task.getGui(quest, this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
 		}
 		
 		btnSelect.enabled = task != null && task instanceof IContainerTask && !task.isComplete(mc.thePlayer.getUniqueID());

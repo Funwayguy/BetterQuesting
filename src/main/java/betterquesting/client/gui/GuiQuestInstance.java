@@ -152,7 +152,7 @@ public class GuiQuestInstance extends GuiQuesting
 			
 			if(taskRender == null)
 			{
-				taskRender = task.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 104);
+				taskRender = task.getGui(quest, this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 104);
 			}
 			
 			if(taskRender != null)

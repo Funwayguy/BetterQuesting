@@ -97,7 +97,7 @@ public class QuestDatabase
 		
 		for(QuestInstance quest : questDB.values())
 		{
-			if(quest != null && quest.isUnlocked(uuid) && (!quest.isComplete(uuid) || !quest.HasClaimed(uuid)))
+			if(quest != null && (quest.lockedProgress || quest.isUnlocked(uuid)) && (!quest.isComplete(uuid) || !quest.HasClaimed(uuid)))
 			{
 				questList.add(quest);
 			}
