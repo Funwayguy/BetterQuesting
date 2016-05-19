@@ -30,7 +30,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		if(args.length == 1)
+		if(args.length == 2)
 		{
 			CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
 		}
