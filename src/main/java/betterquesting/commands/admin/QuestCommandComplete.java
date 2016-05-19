@@ -13,6 +13,7 @@ import net.minecraft.util.text.translation.I18n;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.tasks.TaskBase;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -77,6 +78,18 @@ public class QuestCommandComplete extends QuestCommandBase
 			int id = Integer.parseInt(args[1].trim());
 			QuestInstance quest = QuestDatabase.getQuestByID(id);
 			quest.setComplete(uuid, 0);
+			
+			int done = 0;
+			for(TaskBase task : quest.tasks)
+			{
+				task.setCompletion(uuid, true);
+				done += 1;
+				
+				if(quest.logic.GetResult(done, quest.tasks.size()))
+				{
+					break; // Only complete enough quests to claim the reward
+				}
+			}
 			
 			sender.addChatMessage(new TextComponentString("Manually completed quest " + I18n.translateToLocalFormatted(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 		} catch(Exception e)
