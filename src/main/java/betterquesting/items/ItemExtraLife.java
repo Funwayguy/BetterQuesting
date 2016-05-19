@@ -27,6 +27,7 @@ public class ItemExtraLife extends Item
 		this.setTextureName("betterquesting:heart");
 		this.setUnlocalizedName("betterquesting.extra_life");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
+		this.setHasSubtypes(true);
 	}
 
     /**

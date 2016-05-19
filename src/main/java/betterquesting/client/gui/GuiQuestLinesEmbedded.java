@@ -52,13 +52,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	{
 		super(screen, posX, posY, sizeX, sizeY);
 		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
-		btnSel.enabled = toolType != 0;
+		btnSel.enabled = QuestDatabase.editMode && toolType != 0;
 		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
-		btnGrb.enabled = toolType != 1;
+		btnGrb.enabled = QuestDatabase.editMode && toolType != 1;
 		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
-		btnLnk.enabled = toolType != 2;
+		btnLnk.enabled = QuestDatabase.editMode && toolType != 2;
 		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
+		btnSnp.enabled = QuestDatabase.editMode;
 		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
+		btnAto.enabled = QuestDatabase.editMode;
 		
 		if(!QuestDatabase.editMode)
 		{
@@ -201,7 +203,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	@Override
 	public void mouseClick(int mx, int my, int button)
 	{
-		if(button != 0)
+		if(button != 0 || !QuestDatabase.editMode)
 		{
 			return;
 		}
