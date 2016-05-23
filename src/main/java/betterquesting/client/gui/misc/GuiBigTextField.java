@@ -1,5 +1,6 @@
 package betterquesting.client.gui.misc;
 
+import java.awt.Color;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.GuiTextEditor;
@@ -14,10 +15,14 @@ public class GuiBigTextField extends GuiTextField
 	int hostID;
 	ITextEditor host;
 	GuiTextEditor editor;
+	FontRenderer fontrenderer;
+	String watermark = "";
+	Color wmColor = new Color(96, 96, 96);
 	
 	public GuiBigTextField(FontRenderer fontrenderer, int posX, int posY, int width, int height)
 	{
 		super(fontrenderer, posX, posY, width, height);
+		this.fontrenderer = fontrenderer;
 	}
 	
 	public GuiBigTextField enableBigEdit(ITextEditor host, int id)
@@ -26,7 +31,12 @@ public class GuiBigTextField extends GuiTextField
 		this.hostID = id;
 		return this;
 	}
-
+	
+	public void setWatermark(String text)
+	{
+		watermark = text == null? "" : text;
+	}
+	
     /**
      * Args: x, y, buttonClicked
      */
@@ -70,6 +80,11 @@ public class GuiBigTextField extends GuiTextField
 		} else
 		{
 			super.drawTextBox();
+		}
+		
+		if(getText().length() <= 0 && watermark.length() > 0 && !isFocused())
+		{
+			this.fontrenderer.drawString(watermark, this.xPosition + 4, this.yPosition + height/2 - 4, wmColor.getRGB(), false);
 		}
 	}
 }

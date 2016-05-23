@@ -570,9 +570,12 @@ public class QuestInstance
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("questID", this.questID);
-		JsonObject json = new JsonObject();
-		writeToJSON(json);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		JsonObject json1 = new JsonObject();
+		writeToJSON(json1);
+		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		JsonObject json2 = new JsonObject();
+		writeProgressToJSON(json2);
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendToAll(BQPacketType.QUEST_SYNC.GetLocation(), tags);
 	}
 	
@@ -829,13 +832,6 @@ public class QuestInstance
 		}
 		jObj.add("rewards", rwdJson);
 		
-		JsonArray comJson = new JsonArray();
-		for(UserEntry entry : completeUsers)
-		{
-			comJson.add(entry.toJson());
-		}
-		jObj.add("completed", comJson);
-		
 		JsonArray reqJson = new JsonArray();
 		for(QuestInstance quest : preRequisites)
 		{
@@ -899,12 +895,12 @@ public class QuestInstance
 			
 			JsonObject jsonTask = entry.getAsJsonObject();
 			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
-			TaskBase quest = TaskRegistry.InstatiateTask(loc);
+			TaskBase task = TaskRegistry.InstatiateTask(loc);
 			
-			if(quest != null)
+			if(task != null)
 			{
-				quest.readFromJson(jsonTask);
-				this.tasks.add(quest);
+				task.readFromJson(jsonTask);
+				this.tasks.add(task);
 			}
 		}
 		
@@ -927,8 +923,58 @@ public class QuestInstance
 			}
 		}
 		
+		preRequisites = new ArrayList<QuestInstance>();
+		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
+		{
+			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())
+			{
+				continue;
+			}
+			
+			preRequisites.add(QuestDatabase.GetOrRegisterQuest(entry.getAsInt()));
+		}
+		
+		// Backwards compatibility with single quest files
+		if(jObj.has("completeUsers"))
+		{
+			readProgressFromJSON(jObj);
+		}
+	}
+	
+	public void writeProgressToJSON(JsonObject json)
+	{
+		json.addProperty("questID", questID);
+		
+		JsonArray comJson = new JsonArray();
+		for(UserEntry entry : completeUsers)
+		{
+			comJson.add(entry.toJson());
+		}
+		json.add("completed", comJson);
+		
+		JsonArray tskJson = new JsonArray();
+		for(TaskBase tsk : tasks)
+		{
+			ResourceLocation taskID = TaskRegistry.GetRegisteredName(tsk.getClass());
+			
+			if(taskID == null)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + tsk.getClass().getName());
+				continue;
+			}
+			
+			JsonObject qJson = new JsonObject();
+			tsk.writeProgressToJson(qJson);
+			qJson.addProperty("taskID", taskID.toString());
+			tskJson.add(qJson);
+		}
+		json.add("tasks", tskJson);
+	}
+	
+	public void readProgressFromJSON(JsonObject json)
+	{
 		completeUsers = new ArrayList<UserEntry>();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "completed"))
+		for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
 		{
 			if(entry == null || !entry.isJsonObject())
 			{
@@ -947,15 +993,35 @@ public class QuestInstance
 			}
 		}
 		
-		preRequisites = new ArrayList<QuestInstance>();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
+		JsonArray tAry = JsonHelper.GetArray(json, "tasks");
+		
+		if(tAry.size() == tasks.size()) // If the tasks
 		{
-			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())
+			for(int i = 0; i < tAry.size(); i++)
 			{
-				continue;
+				JsonElement entry = tAry.get(i);
+				
+				if(entry == null || !entry.isJsonObject())
+				{
+					continue;
+				}
+				
+				JsonObject jsonTask = entry.getAsJsonObject();
+				ResourceLocation loc1 = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
+				TaskBase task = tasks.get(i);
+				
+				if(task != null)
+				{
+					ResourceLocation loc2 = TaskRegistry.GetRegisteredName(task.getClass());
+					if(!loc1.equals(loc2))
+					{
+						// Progression mismatch
+						continue;
+					}
+					
+					task.readProgressFromJson(jsonTask);
+				}
 			}
-			
-			preRequisites.add(QuestDatabase.GetOrRegisterQuest(entry.getAsInt()));
 		}
 	}
 	

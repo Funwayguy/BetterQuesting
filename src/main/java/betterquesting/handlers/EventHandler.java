@@ -81,6 +81,10 @@ public class EventHandler
 			JsonObject jsonP = new JsonObject();
 			PartyManager.writeToJson(jsonP);
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
+			
+			JsonObject jsonPr = new JsonObject();
+			QuestDatabase.writeToJson_Progression(jsonPr);
+			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonPr);
 		}
 	}
 	
@@ -111,6 +115,7 @@ public class EventHandler
 			BQ_Settings.curWorldDir = server.getFile(server.getFolderName());
 		}
     	
+		// Load Questing Data
     	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
 		JsonObject j1 = new JsonObject();
 		
@@ -128,16 +133,28 @@ public class EventHandler
 		}
 		
 		QuestDatabase.readFromJson(j1);
+    	
+		// Load Progression
+    	File f2 = new File(BQ_Settings.curWorldDir, "QuestProgress.json");
+		JsonObject j2 = new JsonObject();
 		
-	    File f2 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
-	    JsonObject j2 = new JsonObject();
+		if(f2.exists())
+		{
+			j2 = JsonIO.ReadFromFile(f2);
+		}
+		
+		QuestDatabase.readFromJson_Progression(j2);
+		
+		// Load Questing Parties
+	    File f3 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
+	    JsonObject j3 = new JsonObject();
 	    
-	    if(f2.exists())
+	    if(f3.exists())
 	    {
-	    	j2 = JsonIO.ReadFromFile(f2);
+	    	j3 = JsonIO.ReadFromFile(f3);
 	    }
 	    
-	    PartyManager.readFromJson(j2);
+	    PartyManager.readFromJson(j3);
 	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.questDB.size() + " quest instances and " + QuestDatabase.questLines.size() + " quest lines");
 	}
