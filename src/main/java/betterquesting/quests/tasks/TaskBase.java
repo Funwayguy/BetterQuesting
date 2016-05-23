@@ -153,6 +153,19 @@ public abstract class TaskBase
 	
 	public void writeToJson(JsonObject json)
 	{
+	}
+	
+	public void readFromJson(JsonObject json)
+	{
+		// Backup loader. Should make sure old progress is retained as long as the original file was not modified
+		if(json.has("completeUsers"))
+		{
+			readProgressFromJson(json);
+		}
+	}
+	
+	public void writeProgressToJson(JsonObject json)
+	{
 		JsonArray jArray = new JsonArray();
 		for(UUID uuid : completeUsers)
 		{
@@ -161,7 +174,7 @@ public abstract class TaskBase
 		json.add("completeUsers", jArray);
 	}
 	
-	public void readFromJson(JsonObject json)
+	public void readProgressFromJson(JsonObject json)
 	{
 		completeUsers = new ArrayList<UUID>();
 		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))

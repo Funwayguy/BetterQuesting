@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,6 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
@@ -38,7 +38,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	int rightScroll = 0;
 	int maxRowsL = 0;
 	int maxRowsR = 0;
-	GuiTextField searchBox;
+	GuiBigTextField searchBox;
 	ArrayList<QuestInstance> searchResults = new ArrayList<QuestInstance>();
 	
 	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
@@ -60,7 +60,8 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.searchBox = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
+		this.searchBox = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
+		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons

@@ -269,4 +269,37 @@ public class QuestDatabase
 			quest.readFromJSON(entry.getAsJsonObject());
 		}
 	}
+	
+	public static void writeToJson_Progression(JsonObject json)
+	{
+		JsonArray dbJson = new JsonArray();
+		for(QuestInstance quest : questDB.values())
+		{
+			JsonObject questJson = new JsonObject();
+			quest.writeProgressToJSON(questJson);
+			dbJson.add(questJson);
+		}
+		json.add("questProgress", dbJson);
+	}
+	
+	public static void readFromJson_Progression(JsonObject json)
+	{
+		for(JsonElement entry : JsonHelper.GetArray(json, "questProgress"))
+		{
+			if(entry == null || !entry.isJsonObject())
+			{
+				continue;
+			}
+			
+			int qID = JsonHelper.GetNumber(entry.getAsJsonObject(), "questID", -1).intValue();
+			
+			if(qID < 0)
+			{
+				continue;
+			}
+			
+			QuestInstance quest = GetOrRegisterQuest(qID);
+			quest.readProgressFromJSON(entry.getAsJsonObject());
+		}
+	}
 }
