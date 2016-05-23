@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -22,6 +21,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.client.gui.misc.IVolatileScreen;
@@ -37,7 +37,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 {
 	FluidStack stackSelect;
 	JsonObject json;
-	GuiTextField searchBox;
+	GuiBigTextField searchBox;
 	GuiNumberField numberBox;
 	ArrayList<FluidStack> searchResults = new ArrayList<FluidStack>();
 	int searchPage = 0;
@@ -55,24 +55,15 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 	{
 		super.initGui();
 		
-		int txtW = mc.fontRendererObj.getStringWidth(I18n.translateToLocalFormatted("betterquesting.gui.search"));
-		int srcW = sizeX/2 - 35 - txtW - (sizeX/2 - 32)%18;
-		this.searchBox = new GuiTextField(0, fontRendererObj, guiLeft + sizeX/2 + 10 + txtW, guiTop + 33, srcW, 14);
+		int srcW = sizeX/2 - 34 - (sizeX/2 - 32)%18;
+		this.searchBox = new GuiBigTextField(fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, srcW, 14);
+		this.searchBox.setWatermark(I18n.translateToLocalFormatted("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
-
-		Iterator<Fluid> iterator = FluidRegistry.getRegisteredFluids().values().iterator();
 		
-		while(iterator.hasNext())
-		{
-			Fluid fluid = iterator.next();
-			
-			if(fluid != null)
-			{
-				searchResults.add(new FluidStack(fluid, 1000));
-			}
-		}
+		searchResults.clear();
+		searching = FluidRegistry.getRegisteredFluids().values().iterator();
 		
 		if(json != null)
 		{
@@ -109,6 +100,8 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
+		
+		doSearch();
 		
 		FluidStack ttStack = null;
 		int btnWidth = sizeX/2 - 16;
@@ -188,8 +181,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		}
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
-
-		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.search"), guiLeft + sizeX/2 + 8, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
 		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
@@ -329,6 +321,40 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		}
 	}
 	
+	Iterator<Fluid> searching = null;
+	String searchTxt = "";
+	
+	public void doSearch()
+	{
+		if(searching == null)
+		{
+			return;
+		} else if(!searching.hasNext())
+		{
+			searching = null;
+			return;
+		}
+		
+		int pass = 0;
+		
+		while(searching.hasNext() && pass < 100)
+		{
+			pass++;
+			
+			Fluid baseFluid = searching.next();
+			
+			if(baseFluid == null)
+			{
+				continue;
+			}
+			
+			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocalFormatted(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
+			{
+				searchResults.add(new FluidStack(baseFluid, 1000));
+			}
+		}
+	}
+	
     /**
      * Fired when a key is typed. This is the equivalent of KeyListener.keyTyped(KeyEvent e).
      */
@@ -349,20 +375,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			
 			Iterator<Fluid> iterator = FluidRegistry.getRegisteredFluids().values().iterator();
 			
-			while(iterator.hasNext())
-			{
-				Fluid baseFluid = iterator.next();
-				
-				if(baseFluid == null)
-				{
-					continue;
-				}
-				
-				if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocalFormatted(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
-				{
-					searchResults.add(new FluidStack(baseFluid, 1000));
-				}
-			}
+			
 		}
     }
 }
