@@ -977,23 +977,26 @@ public class QuestInstance
 	
 	public void readProgressFromJSON(JsonObject json)
 	{
-		completeUsers = new ArrayList<UserEntry>();
-		for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
+		if(json.has("completed"))
 		{
-			if(entry == null || !entry.isJsonObject())
+			completeUsers = new ArrayList<UserEntry>();
+			for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
 			{
-				continue;
-			}
-			
-			try
-			{
-				UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
-				UserEntry user = new UserEntry(uuid);
-				user.fromJson(entry.getAsJsonObject());
-				completeUsers.add(user);
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
+				if(entry == null || !entry.isJsonObject())
+				{
+					continue;
+				}
+				
+				try
+				{
+					UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
+					UserEntry user = new UserEntry(uuid);
+					user.fromJson(entry.getAsJsonObject());
+					completeUsers.add(user);
+				} catch(Exception e)
+				{
+					BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
+				}
 			}
 		}
 		
