@@ -176,20 +176,23 @@ public abstract class TaskBase
 	
 	public void readProgressFromJson(JsonObject json)
 	{
-		completeUsers = new ArrayList<UUID>();
-		for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+		if(json.has("completeUsers"))
 		{
-			if(entry == null || !entry.isJsonPrimitive())
+			completeUsers = new ArrayList<UUID>();
+			for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
 			{
-				continue;
-			}
-			
-			try
-			{
-				completeUsers.add(UUID.fromString(entry.getAsString()));
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for task", e);
+				if(entry == null || !entry.isJsonPrimitive())
+				{
+					continue;
+				}
+				
+				try
+				{
+					completeUsers.add(UUID.fromString(entry.getAsString()));
+				} catch(Exception e)
+				{
+					BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for task", e);
+				}
 			}
 		}
 	}
