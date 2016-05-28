@@ -937,7 +937,7 @@ public class QuestInstance
 		// Backwards compatibility with single quest files
 		if(jObj.has("completeUsers"))
 		{
-			readProgressFromJSON(jObj);
+			jMig = jObj;
 		}
 	}
 	
@@ -971,28 +971,30 @@ public class QuestInstance
 		json.add("tasks", tskJson);
 	}
 	
+	JsonObject jMig = null;
+	
 	public void readProgressFromJSON(JsonObject json)
 	{
-		if(json.has("completed"))
+		JsonObject jTmp = jMig != null? jMig : json; // Check for migrated progress
+		jMig = null;
+		
+		completeUsers = new ArrayList<UserEntry>();
+		for(JsonElement entry : JsonHelper.GetArray(jTmp, "completed"))
 		{
-			completeUsers = new ArrayList<UserEntry>();
-			for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
+			if(entry == null || !entry.isJsonObject())
 			{
-				if(entry == null || !entry.isJsonObject())
-				{
-					continue;
-				}
-				
-				try
-				{
-					UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
-					UserEntry user = new UserEntry(uuid);
-					user.fromJson(entry.getAsJsonObject());
-					completeUsers.add(user);
-				} catch(Exception e)
-				{
-					BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
-				}
+				continue;
+			}
+			
+			try
+			{
+				UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
+				UserEntry user = new UserEntry(uuid);
+				user.fromJson(entry.getAsJsonObject());
+				completeUsers.add(user);
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
 			}
 		}
 		

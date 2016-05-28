@@ -17,10 +17,8 @@ import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -29,8 +27,6 @@ public class NBTConverter
 {
 	/**
 	 * Convert NBT tags to a JSON object
-	 * @param parent
-	 * @return
 	 */
 	private static JsonElement NBTtoJSON_Base(NBTBase tag)
 	{
@@ -44,27 +40,6 @@ public class NBTConverter
 			return new JsonPrimitive(getNumber(tag));
 		} else if(tag instanceof NBTTagString)
 		{
-			NBTTagString sTag = (NBTTagString)tag;
-			
-			if(sTag.func_150285_a_().startsWith("raw_json:")) // Prefix format = "raw_json:#:" where # is the JsonElement ID
-			{
-				try
-				{
-					String jText = sTag.func_150285_a_().substring(11);
-					int rawID = Integer.parseInt(sTag.func_150285_a_().substring(9, 10));
-					Class<? extends JsonElement> rawClass = getJsonFallback(rawID);
-					JsonElement json = new Gson().fromJson(jText, rawClass);
-					
-					if(json != null)
-					{
-						return json;
-					}
-				} catch(Exception e)
-				{
-					BetterQuesting.logger.log(Level.ERROR, "Unable to parse raw json from NBT", e);
-				}
-			}
-			
 			return new JsonPrimitive(((NBTTagString)tag).func_150285_a_());
 		} else if(tag instanceof NBTTagCompound)
 		{
@@ -124,7 +99,7 @@ public class NBTConverter
 				continue;
 			}
 			
-			jObj.add(key, NBTtoJSON_Base(tag));
+			jObj.add(key + ":" + tag.getId(), NBTtoJSON_Base(tag));
 		}
 		
 		return jObj;
@@ -132,8 +107,6 @@ public class NBTConverter
 	
 	/**
 	 * Convert JsonObject to a NBTTagCompound
-	 * @param jObj
-	 * @return
 	 */
 	public static NBTTagCompound JSONtoNBT_Object(JsonObject jObj, NBTTagCompound tags)
 	{
@@ -146,7 +119,17 @@ public class NBTConverter
 		{
 			try
 			{
-				tags.setTag(entry.getKey(), JSONtoNBT_Element(entry.getValue()));
+				String key = entry.getKey();
+				String[] s = key.split(":");
+				byte id = 0;
+				
+				try
+				{
+					id = Byte.parseByte(s[s.length - 1]);
+					key = key.substring(0, key.lastIndexOf(":" + id));
+				} catch(Exception e){}
+				
+				tags.setTag(key, JSONtoNBT_Element(entry.getValue(), id));
 			} catch(Exception e)
 			{
 				continue; // Given key is not a JSON formatted NBT value
@@ -157,18 +140,129 @@ public class NBTConverter
 	}
 	
 	/**
-	 * Used purely for array elements without tag names. Tries to interpret the tagID from the JsonElement's contents
-	 * @param jObj
-	 * @param type
-	 * @return
+	 * Tries to interpret the tagID from the JsonElement's contents
 	 */
-	private static NBTBase JSONtoNBT_Element(JsonElement jObj)
+	private static NBTBase JSONtoNBT_Element(JsonElement jObj, byte id)
 	{
 		if(jObj == null)
 		{
 			return new NBTTagString();
 		}
 		
+		byte tagID = id <= 0? fallbackTagID(jObj) : id;
+		
+		try
+		{
+			if(tagID >= 1 && tagID <= 6)
+			{
+				return instanceNumber(jObj.getAsNumber(), tagID);
+			} else if(tagID == 8)
+			{
+				return new NBTTagString(jObj.getAsString());
+			} else if(tagID == 10)
+			{
+				return JSONtoNBT_Object(jObj.getAsJsonObject(), new NBTTagCompound());
+			} else if(tagID == 7) // Byte array
+			{
+				JsonArray jAry = jObj.getAsJsonArray();
+				
+				byte[] bAry = new byte[jAry.size()];
+				
+				for(int i = 0; i < jAry.size(); i++)
+				{
+					bAry[i] = jAry.get(i).getAsByte();
+				}
+				
+				return new NBTTagByteArray(bAry);
+			} else if(tagID == 11)
+			{
+				JsonArray jAry = jObj.getAsJsonArray();
+				
+				int[] iAry = new int[jAry.size()];
+				
+				for(int i = 0; i < jAry.size(); i++)
+				{
+					iAry[i] = jAry.get(i).getAsInt();
+				}
+				
+				return new NBTTagIntArray(iAry);
+			} else if(tagID == 9)
+			{
+				JsonArray jAry = jObj.getAsJsonArray();
+				NBTTagList tList = new NBTTagList();
+				
+				for(int i = 0; i < jAry.size(); i++)
+				{
+					JsonElement jElm = jAry.get(i);
+					tList.appendTag(JSONtoNBT_Element(jElm, (byte)0));
+				}
+				
+				return tList;
+			}
+		} catch(Exception e)
+		{
+			BetterQuesting.logger.log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
+		}
+		
+		BetterQuesting.logger.log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
+		return new NBTTagString();
+	}
+	
+	/**
+	 * Pulls the raw list out of the NBTTagList
+	 */
+	public static ArrayList<NBTBase> getTagList(NBTTagList tag)
+	{
+		return ObfuscationReflectionHelper.getPrivateValue(NBTTagList.class, tag, new String[]{"tagList", "field_74747_a"});
+	}
+	
+	public static Number getNumber(NBTBase tag)
+	{
+		if(tag instanceof NBTTagByte)
+		{
+			return ((NBTTagByte)tag).func_150290_f();
+		} else if(tag instanceof NBTTagShort)
+		{
+			return ((NBTTagShort)tag).func_150289_e();
+		} else if(tag instanceof NBTTagInt)
+		{
+			return ((NBTTagInt)tag).func_150287_d();
+		} else if(tag instanceof NBTTagFloat)
+		{
+			return ((NBTTagFloat)tag).func_150288_h();
+		} else if(tag instanceof NBTTagDouble)
+		{
+			return ((NBTTagDouble)tag).func_150286_g();
+		} else if(tag instanceof NBTTagLong)
+		{
+			return ((NBTTagLong)tag).func_150291_c();
+		} else
+		{
+			return 0;
+		}
+	}
+	
+	public static NBTBase instanceNumber(Number num, byte type)
+	{
+		switch (type)
+        {
+            case 1:
+                return new NBTTagByte(num.byteValue());
+            case 2:
+                return new NBTTagShort(num.shortValue());
+            case 3:
+                return new NBTTagInt(num.intValue());
+            case 4:
+                return new NBTTagLong(num.longValue());
+            case 5:
+                return new NBTTagFloat(num.floatValue());
+            default:
+                return new NBTTagDouble(num.doubleValue());
+        }
+	}
+	
+	private static byte fallbackTagID(JsonElement jObj)
+	{
 		byte tagID = 0;
 		
 		if(jObj.isJsonPrimitive())
@@ -231,167 +325,13 @@ public class NBTConverter
 					break;
 				}
 			}
+			
+			tagID = 9; // No data to judge format. Assuming tag list
 		} else
 		{
 			tagID = 10;
 		}
 		
-		try
-		{
-			if(tagID >= 1 && tagID <= 6)
-			{
-				return instanceNumber(jObj.getAsNumber(), tagID);
-			} else if(tagID == 8)
-			{
-				return new NBTTagString(jObj.getAsString());
-			} else if(tagID == 10)
-			{
-				return JSONtoNBT_Object(jObj.getAsJsonObject(), new NBTTagCompound());
-			} else if(tagID == 7) // Byte array
-			{
-				JsonArray jAry = jObj.getAsJsonArray();
-				
-				byte[] bAry = new byte[jAry.size()];
-				
-				for(int i = 0; i < jAry.size(); i++)
-				{
-					bAry[i] = jAry.get(i).getAsByte();
-				}
-				
-				return new NBTTagByteArray(bAry);
-			} else if(tagID == 11)
-			{
-				JsonArray jAry = jObj.getAsJsonArray();
-				
-				int[] iAry = new int[jAry.size()];
-				
-				for(int i = 0; i < jAry.size(); i++)
-				{
-					iAry[i] = jAry.get(i).getAsInt();
-				}
-				
-				return new NBTTagIntArray(iAry);
-			} else if(tagID == 9)
-			{
-				JsonArray jAry = jObj.getAsJsonArray();
-				NBTTagList tList = new NBTTagList();
-				
-				for(int i = 0; i < jAry.size(); i++)
-				{
-					JsonElement jElm = jAry.get(i);
-					tList.appendTag(JSONtoNBT_Element(jElm));
-				}
-				
-				return tList;
-			} else if(tagID == -1) // Emergency fall back for unknown/unsupported types
-			{
-				NBTTagString tag = new NBTTagString("raw_json:" + getFallbackID(jObj) + ":" + new Gson().toJson(jObj));
-				return tag;
-			}
-		} catch(Exception e)
-		{
-			BetterQuesting.logger.log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
-		}
-		
-		return new NBTTagString();
-	}
-	
-	/**
-	 * Pulls the raw list out of the NBTTagList
-	 * @param tag
-	 * @return
-	 */
-	public static ArrayList<NBTBase> getTagList(NBTTagList tag)
-	{
-		return ObfuscationReflectionHelper.getPrivateValue(NBTTagList.class, tag, new String[]{"tagList", "field_74747_a"});
-	}
-	
-	public static Number getNumber(NBTBase tag)
-	{
-		if(tag instanceof NBTTagByte)
-		{
-			return ((NBTTagByte)tag).func_150290_f();
-		} else if(tag instanceof NBTTagShort)
-		{
-			return ((NBTTagShort)tag).func_150289_e();
-		} else if(tag instanceof NBTTagInt)
-		{
-			return ((NBTTagInt)tag).func_150287_d();
-		} else if(tag instanceof NBTTagFloat)
-		{
-			return ((NBTTagFloat)tag).func_150288_h();
-		} else if(tag instanceof NBTTagDouble)
-		{
-			return ((NBTTagDouble)tag).func_150286_g();
-		} else if(tag instanceof NBTTagLong)
-		{
-			return ((NBTTagLong)tag).func_150291_c();
-		} else
-		{
-			return 0;
-		}
-	}
-	
-	public static NBTBase instanceNumber(Number num, byte type)
-	{
-		switch (type)
-        {
-            case 1:
-                return new NBTTagByte(num.byteValue());
-            case 2:
-                return new NBTTagShort(num.shortValue());
-            case 3:
-                return new NBTTagInt(num.shortValue());
-            case 4:
-                return new NBTTagLong(num.longValue());
-            case 5:
-                return new NBTTagFloat(num.floatValue());
-            case 6:
-                return new NBTTagDouble(num.doubleValue());
-            default:
-            	return new NBTTagByte(num.byteValue());
-        }
-	}
-	
-	private static Class<? extends JsonElement> getJsonFallback(int id)
-	{
-		switch(id)
-		{
-			case 1:
-				return JsonObject.class;
-			case 2:
-				return JsonArray.class;
-			case 3:
-				return JsonNull.class; // Do not use unless absolutely necessary!
-			default:
-				return JsonPrimitive.class;
-		}
-	}
-	
-	private static int getFallbackID(JsonElement json)
-	{
-		if(json == null)
-		{
-			return 3;
-		}
-		
-		return getFallbackID(json.getClass());
-	}
-	
-	private static int getFallbackID(Class<? extends JsonElement> json)
-	{
-		if(json == JsonObject.class)
-		{
-			return 1;
-		} else if(json == JsonArray.class)
-		{
-			return 2;
-		} else if(json == JsonNull.class)
-		{
-			return 3;
-		} else
-		{
-			return 0;
-		}
+		return tagID;
 	}
 }
