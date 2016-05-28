@@ -45,7 +45,6 @@ public class ThemeRegistry
 			}
 			
 			themeList.put(fullName, theme);
-        	BetterQuesting.logger.log(Level.INFO, "Registered theme '" + theme.GetName() + "' (" + fullName + ")");
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register theme", e);

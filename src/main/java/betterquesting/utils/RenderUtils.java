@@ -1,8 +1,6 @@
 package betterquesting.utils;
 
 import java.awt.Color;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -18,11 +16,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
 
 @SideOnly(Side.CLIENT)
 public class RenderUtils
@@ -167,177 +163,30 @@ public class RenderUtils
         GlStateManager.color(1F, 1F, 1F, 1F);
 	}
 	
-	static Method bidiReorder;
-	static Method stringAtPos;
-	static Method resetStyle;
-	static Field textColor;
-	static Field red;
-	static Field green;
-	static Field blue;
-	static Field alpha;
-	static Field rx;
-	static Field ry;
-	
-	/**
-	 * Fixed version of the one in FontRenderer. Supports multi-line color formatting (lots of reflection hacking involved!)
-	 */
-	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean isShadow)
+	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow)
 	{
-		drawSplitString(renderer, string, x, y, width, color, isShadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1);
+		drawSplitString(renderer, string, x, y, width, color, shadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1);
 	}
 	
-	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean isShadow, int start, int end)
+	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end)
 	{
 		if(renderer == null || string == null || string.length() <= 0)
 		{
 			return;
 		}
 		
-		string = string.replaceAll("\r", ""); //Line endings from localisation break things so we remove them
+		string = string.replaceAll("\r", ""); //Line endings from localizations break things so we remove them
 		
-		// Pre-render setup
-		if(bidiReorder == null || stringAtPos == null || resetStyle == null || textColor == null || red == null || green == null || blue == null || alpha == null || rx == null || ry == null)
+		List<String> list = renderer.listFormattedStringToWidth(string, width);
+		
+		for(int i = start; i <= end; i++)
 		{
-			try
+			if(i < 0 || i >= list.size())
 			{
-				bidiReorder = FontRenderer.class.getDeclaredMethod("bidiReorder", String.class);
-				bidiReorder.setAccessible(true);
-				stringAtPos = FontRenderer.class.getDeclaredMethod("renderStringAtPos", String.class, boolean.class);
-				stringAtPos.setAccessible(true);
-				resetStyle = FontRenderer.class.getDeclaredMethod("resetStyles");
-				resetStyle.setAccessible(true);
-				textColor = FontRenderer.class.getDeclaredField("textColor");
-				textColor.setAccessible(true);
-				red = FontRenderer.class.getDeclaredField("red");
-				red.setAccessible(true);
-				green = FontRenderer.class.getDeclaredField("green");
-				green.setAccessible(true);
-				blue = FontRenderer.class.getDeclaredField("blue");
-				blue.setAccessible(true);
-				alpha = FontRenderer.class.getDeclaredField("alpha");
-				alpha.setAccessible(true);
-				rx = FontRenderer.class.getDeclaredField("posX");
-				rx.setAccessible(true);
-				ry = FontRenderer.class.getDeclaredField("posY");
-				ry.setAccessible(true);
-			} catch(Exception e)
-			{
-				try
-				{
-					bidiReorder = FontRenderer.class.getDeclaredMethod("func_147647_b", String.class);
-					bidiReorder.setAccessible(true);
-					stringAtPos = FontRenderer.class.getDeclaredMethod("func_78255_a", String.class, boolean.class);
-					stringAtPos.setAccessible(true);
-					resetStyle = FontRenderer.class.getDeclaredMethod("func_78265_b");
-					resetStyle.setAccessible(true);
-					textColor = FontRenderer.class.getDeclaredField("field_78304_r");
-					textColor.setAccessible(true);
-					red = FontRenderer.class.getDeclaredField("field_78291_n");
-					red.setAccessible(true);
-					green = FontRenderer.class.getDeclaredField("field_78306_p");
-					green.setAccessible(true);
-					blue = FontRenderer.class.getDeclaredField("field_78292_o");
-					blue.setAccessible(true);
-					alpha = FontRenderer.class.getDeclaredField("field_78305_q");
-					alpha.setAccessible(true);
-					rx = FontRenderer.class.getDeclaredField("field_78295_j");
-					rx.setAccessible(true);
-					ry = FontRenderer.class.getDeclaredField("field_78296_k");
-					ry.setAccessible(true);
-				} catch(Exception e2)
-				{
-					BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-					return;
-				}
+				continue;
 			}
+			
+			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
 		}
-		
-		// Pre-render split
-		try
-		{
-	        resetStyle.invoke(renderer);
-	        textColor.set(renderer, color);
-		} catch(Exception e)
-		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-			return;
-		}
-        
-        while (string != null && string.endsWith("\n"))
-        {
-            string = string.substring(0, string.length() - 1); // Remove trailing new lines
-        }
-        
-		// Render split
-
-        List<String> list = renderer.listFormattedStringToWidth(string, width);
-
-        for (int i = 0; i < list.size() && i <= end; i++)
-        {
-            String s1 = list.get(i);
-            
-            // Render aligned
-            if (renderer.getBidiFlag())
-            {
-            	try
-            	{
-	                int i1 = renderer.getStringWidth((String)bidiReorder.invoke(renderer, s1));
-	                x = x + width - i1;
-            	} catch(Exception e)
-            	{
-        			BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-        			return;
-            	}
-            }
-            
-            // Render string
-            if (renderer.getBidiFlag())
-            {
-            	try
-            	{
-            		s1 = (String)bidiReorder.invoke(renderer, s1);
-            	} catch(Exception e)
-            	{
-        			BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-        			return;
-            	}
-            }
-
-            if ((color & -67108864) == 0)
-            {
-                color |= -16777216;
-            }
-
-            if (isShadow)
-            {
-                color = (color & 16579836) >> 2 | color & -16777216;
-            }
-
-            float r = (float)(color >> 16 & 255) / 255.0F;
-            float b = (float)(color >> 8 & 255) / 255.0F;
-            float g = (float)(color & 255) / 255.0F;
-            float a = (float)(color >> 24 & 255) / 255.0F;
-            try
-            {
-	            red.set(renderer, r);
-	            green.set(renderer, g);
-	            blue.set(renderer, b);
-	            alpha.set(renderer, a);
-	            //setColor(this.red, this.blue, this.green, this.alpha);
-	            GlStateManager.color(r, g, b, a);
-	            rx.set(renderer, x);
-	            ry.set(renderer, y);
-	            
-	            if(i >= start) // We check here instead to preserve prior formatting
-	            {
-		            stringAtPos.invoke(renderer, s1, isShadow);
-		            y += renderer.FONT_HEIGHT;
-	            }
-            } catch(Exception e)
-            {
-    			BetterQuesting.logger.log(Level.ERROR, "Unable to render split string: ", e);
-    			return;
-            }
-        }
 	}
 }

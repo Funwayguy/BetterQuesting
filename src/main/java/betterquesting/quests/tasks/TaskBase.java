@@ -160,9 +160,11 @@ public abstract class TaskBase
 		// Backup loader. Should make sure old progress is retained as long as the original file was not modified
 		if(json.has("completeUsers"))
 		{
-			readProgressFromJson(json);
+			jMig = json;
 		}
 	}
+	
+	JsonObject jMig = null;
 	
 	public void writeProgressToJson(JsonObject json)
 	{
@@ -176,23 +178,22 @@ public abstract class TaskBase
 	
 	public void readProgressFromJson(JsonObject json)
 	{
-		if(json.has("completeUsers"))
+		JsonObject jTmp = jMig != null? jMig : json;
+		
+		completeUsers = new ArrayList<UUID>();
+		for(JsonElement entry : JsonHelper.GetArray(jTmp, "completeUsers"))
 		{
-			completeUsers = new ArrayList<UUID>();
-			for(JsonElement entry : JsonHelper.GetArray(json, "completeUsers"))
+			if(entry == null || !entry.isJsonPrimitive())
 			{
-				if(entry == null || !entry.isJsonPrimitive())
-				{
-					continue;
-				}
-				
-				try
-				{
-					completeUsers.add(UUID.fromString(entry.getAsString()));
-				} catch(Exception e)
-				{
-					BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for task", e);
-				}
+				continue;
+			}
+			
+			try
+			{
+				completeUsers.add(UUID.fromString(entry.getAsString()));
+			} catch(Exception e)
+			{
+				BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for task", e);
 			}
 		}
 	}
