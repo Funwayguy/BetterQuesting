@@ -179,6 +179,7 @@ public abstract class TaskBase
 	public void readProgressFromJson(JsonObject json)
 	{
 		JsonObject jTmp = jMig != null? jMig : json;
+		jMig = null;
 		
 		completeUsers = new ArrayList<UUID>();
 		for(JsonElement entry : JsonHelper.GetArray(jTmp, "completeUsers"))
