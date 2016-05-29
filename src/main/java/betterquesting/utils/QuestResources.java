@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.IMetadataSerializer;
+import net.minecraft.client.resources.data.MetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.core.BetterQuesting;
 
@@ -60,7 +60,7 @@ public class QuestResources implements IResourcePack
 	}
 	
 	@Override
-	public <T extends IMetadataSection> T getPackMetadata(IMetadataSerializer p_135058_1_, String p_135058_2_) throws IOException
+	public <T extends IMetadataSection> T getPackMetadata(MetadataSerializer p_135058_1_, String p_135058_2_) throws IOException
 	{
 		return null;
 	}

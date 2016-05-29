@@ -1,6 +1,7 @@
 package betterquesting.items;
 
 import java.util.List;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -14,7 +15,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -59,20 +59,26 @@ public class ItemExtraLife extends Item
     		
     		if(LifeManager.getLives(player) >= LifeManager.maxLives)
     		{
-	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + I18n.translateToLocalFormatted("betterquesting.gui.full_lives")));
+	    		if(world.isRemote)
+	    		{
+		    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+	    		}
+	    		
 	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     		}
 
-            player.worldObj.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.entity_player_levelup, SoundCategory.PLAYERS, 1F, 1F);
+            player.worldObj.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
             
             if(!world.isRemote)
             {
 	    		LifeManager.AddRemoveLives(player, 1);
-	    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocalFormatted("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(player))));
+            } else
+            {
+	    		player.addChatComponentMessage(new TextComponentString(I18n.format("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(player))));
             }
-    	} else if(!world.isRemote)
+    	} else if(world.isRemote)
     	{
-    		player.addChatComponentMessage(new TextComponentString(I18n.translateToLocalFormatted("betterquesting.msg.heart_disabled")));
+    		player.addChatComponentMessage(new TextComponentString(I18n.format("betterquesting.msg.heart_disabled")));
     	}
     	
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

@@ -3,6 +3,7 @@ package betterquesting.quests;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.UUID;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -10,7 +11,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -39,7 +39,7 @@ public class QuestInstance
 	public boolean isSilent = false;
 	public boolean lockedProgress = false;
 	public boolean simultaneous = false;
-	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
+	public BigItemStack itemIcon = new BigItemStack(Items.NETHER_STAR);
 	public IconVisibility visibility = IconVisibility.NORMAL;
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
@@ -476,30 +476,30 @@ public class QuestInstance
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.translateToLocalFormatted(name));
+		list.add(I18n.format(name));
 		
 		if(isComplete(player.getUniqueID()))
 		{
-			list.add(TextFormatting.GREEN + I18n.translateToLocalFormatted("betterquesting.tooltip.complete"));
+			list.add(TextFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
 			
 			if(!HasClaimed(player.getUniqueID()))
 			{
-				list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
+				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
 			} else if(repeatTime > 0)
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
-				list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.repeat_time", (time/60) + "m " + df.format(time%60) + "s"));
+				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat_time", (time/60) + "m " + df.format(time%60) + "s"));
 			}
 		} else if(!isUnlocked(player.getUniqueID()))
 		{
-			list.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + logic.toString().toUpperCase() + ")");
+			list.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires") + " (" + logic.toString().toUpperCase() + ")");
 			
 			for(QuestInstance req : preRequisites)
 			{
 				if(!req.isComplete(player.getUniqueID()))
 				{
-					list.add(TextFormatting.RED + "- " + I18n.translateToLocalFormatted(req.name));
+					list.add(TextFormatting.RED + "- " + I18n.format(req.name));
 				}
 			}
 		} else
@@ -514,10 +514,10 @@ public class QuestInstance
 				}
 			}
 			
-			list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.tasks_complete", n, tasks.size()));
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, tasks.size()));
 		}
 		
-		list.add(TextFormatting.DARK_GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.shift_advanced"));
+		list.add(TextFormatting.DARK_GRAY + I18n.format("betterquesting.tooltip.shift_advanced"));
 		
 		return list;
 	}
@@ -527,24 +527,24 @@ public class QuestInstance
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.translateToLocalFormatted(name));
+		list.add(I18n.format(name));
 		
-		list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.main_quest", isMain));
-		list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.global_quest", globalQuest));
+		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.main_quest", isMain));
+		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_quest", globalQuest));
 		if(globalQuest)
 		{
-			list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.global_share", globalShare));
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_share", globalShare));
 		}
-		list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.task_logic", logic.toString().toUpperCase()));
-		list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.simultaneous", simultaneous));
-		list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.auto_claim", autoClaim));
+		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.task_logic", logic.toString().toUpperCase()));
+		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.simultaneous", simultaneous));
+		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.auto_claim", autoClaim));
 		if(repeatTime >= 0)
 		{
 			DecimalFormat df = new DecimalFormat("00");
-			list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.repeat", (repeatTime/60) + "m " + df.format(repeatTime%60) + "s"));
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", (repeatTime/60) + "m " + df.format(repeatTime%60) + "s"));
 		} else
 		{
-			list.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("betterquesting.tooltip.repeat", false));
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", false));
 		}
 		
 		return list;
@@ -891,7 +891,7 @@ public class QuestInstance
 		}
 		
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
-		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
+		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.NETHER_STAR);
 		
 		try
 		{

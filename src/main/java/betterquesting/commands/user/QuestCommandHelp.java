@@ -24,7 +24,7 @@ public class QuestCommandHelp extends QuestCommandBase
 			EntityPlayer player = (EntityPlayer)sender;
 			if(!player.inventory.addItemStackToInventory(new ItemStack(BetterQuesting.guideBook)))
 			{
-				player.dropPlayerItemWithRandomChoice(new ItemStack(BetterQuesting.guideBook), false);
+				player.dropItem(new ItemStack(BetterQuesting.guideBook), true, false);
 			}
 		}
 	}

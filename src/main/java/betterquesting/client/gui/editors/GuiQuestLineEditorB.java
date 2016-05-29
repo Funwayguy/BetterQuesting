@@ -6,10 +6,10 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -43,7 +43,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	
 	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_line2", line == null? "?" : I18n.translateToLocalFormatted(line.name)));
+		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name)));
 		this.line = line;
 		selIndex = line == null? -1 : QuestDatabase.questLines.indexOf(line);
 	}
@@ -53,7 +53,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	{
 		super.initGui();
 		
-		this.title = I18n.translateToLocalFormatted("betterquesting.title.edit_line2", line == null? "?" : I18n.translateToLocalFormatted(line.name));
+		this.title = I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name));
 		
 		maxRowsL = (sizeY - 96)/20;
 		maxRowsR = (sizeY - 116)/20;
@@ -61,8 +61,8 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 		int sx = sizeX - 32;
 		
 		this.searchBox = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
-		this.searchBox.setWatermark(I18n.translateToLocalFormatted("betterquesting.gui.search"));
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
+		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
+		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
@@ -144,9 +144,9 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.translateToLocalFormatted("betterquesting.gui.quest_line");
+		String txt = I18n.format("betterquesting.gui.quest_line");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.translateToLocalFormatted("betterquesting.gui.database");
+		txt = I18n.format("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		searchBox.drawTextBox();
@@ -324,7 +324,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.translateToLocalFormatted(line.questList.get(n3).quest.name);
+					btn.displayString = I18n.format(line.questList.get(n3).quest.name);
 				}
 			} else if(n2 == 1) // Remove quest
 			{
@@ -339,7 +339,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 				{
 					QuestInstance q = searchResults.get(n4);
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.translateToLocalFormatted(q.name);
+					btn.displayString = I18n.format(q.name);
 				}
 			} else if(n2 == 3) // Delete quest
 			{
@@ -389,7 +389,7 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 				continue;
 			}
 			
-			if(q.name.toLowerCase().contains(query) || I18n.translateToLocalFormatted(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
 			{
 				searchResults.add(q);
 			}

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -36,7 +36,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 	
 	public GuiQuestLinesMain(GuiScreen parent)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.quest_lines"));
+		super(parent, I18n.format("betterquesting.title.quest_lines"));
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.edit"));
+		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
 		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
 		this.buttonList.add(btnEdit);
 		
@@ -181,7 +181,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(selected != null)
 			{
-				qlDesc.SetText(I18n.translateToLocalFormatted(selected.line.description));
+				qlDesc.SetText(I18n.format(selected.line.description));
 				qlGui.setQuestLine(selected);
 			}
 		}

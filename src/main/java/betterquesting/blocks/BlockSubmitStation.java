@@ -18,7 +18,7 @@ public class BlockSubmitStation extends BlockContainer
 {
 	public BlockSubmitStation()
 	{
-		super(Material.wood);
+		super(Material.WOOD);
 		this.setHardness(1);
 		this.setUnlocalizedName("betterquesting.submit_station");
 		this.setCreativeTab(BetterQuesting.tabQuesting);

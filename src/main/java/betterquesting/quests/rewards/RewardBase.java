@@ -1,9 +1,9 @@
 package betterquesting.quests.rewards;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.GuiQuesting;
@@ -15,9 +15,10 @@ public abstract class RewardBase
 {
 	public abstract String getUnlocalisedName();
 	
+	@SideOnly(Side.CLIENT)
 	public String getDisplayName()
 	{
-		return I18n.translateToLocalFormatted(this.getUnlocalisedName());
+		return I18n.format(this.getUnlocalisedName());
 	}
 	
 	public abstract boolean canClaim(EntityPlayer player, NBTTagCompound choiceData);

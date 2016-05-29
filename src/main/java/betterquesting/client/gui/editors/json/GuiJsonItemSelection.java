@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
@@ -15,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -59,13 +59,13 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		
 		int srcW = sizeX/2 - 34 - (sizeX/2 - 32)%18;
 		this.searchBox = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, srcW, 14);
-		this.searchBox.setWatermark(I18n.translateToLocalFormatted("betterquesting.gui.search"));
+		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 77, guiTop + 48, 98, 14);
 		
 		searchResults.clear();
-		searching = Item.itemRegistry.iterator();
+		searching = Item.REGISTRY.iterator();
 		
 		if(json != null)
 		{
@@ -79,7 +79,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		if(stackSelect == null)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "The JSON editor was unable to parse item NBTs! Reverting to stone...");
-			stackSelect = new BigItemStack(Blocks.stone);
+			stackSelect = new BigItemStack(Blocks.STONE);
 			json.entrySet().clear();
 			JsonHelper.ItemStackToJson(stackSelect, json);
 		} else // Ensure all necessary NBTs are present
@@ -112,7 +112,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 65, guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
@@ -134,7 +134,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		}
 		GlStateManager.popMatrix();
 		
-		fontRendererObj.drawString(I18n.translateToLocalFormatted("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
@@ -368,27 +368,27 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			
 			ArrayList<ItemStack> subList = new ArrayList<ItemStack>();
 			
-			if(baseItem == Items.enchanted_book)
+			if(baseItem == Items.ENCHANTED_BOOK)
 			{
-				for(Enchantment enchant : Enchantment.enchantmentRegistry)
+				for(Enchantment enchant : Enchantment.REGISTRY)
 				{
 					if(enchant != null)
 					{
-						Items.enchanted_book.getAll(enchant, subList);
+						Items.ENCHANTED_BOOK.getAll(enchant, subList);
 					}
 				}
 			} else
 			{
 				try
 				{
-					baseItem.getSubItems(baseItem, CreativeTabs.tabAllSearch, subList);
+					baseItem.getSubItems(baseItem, CreativeTabs.SEARCH, subList);
 				} catch(Exception e)
 				{
 					subList.add(new ItemStack(baseItem));
 				}
 			}
 			
-			if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocalFormatted(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.itemRegistry.getNameForObject(baseItem).toString().contains(searchTxt))
+			if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.format(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.REGISTRY.getNameForObject(baseItem).toString().contains(searchTxt))
 			{
 				searchResults.addAll(subList);
 			} else
@@ -439,7 +439,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			searchPage = 0;
 			searchResults.clear();
 			searchTxt = searchBox.getText().toLowerCase();
-			searching = Item.itemRegistry.iterator();
+			searching = Item.REGISTRY.iterator();
 		}
     }
 }

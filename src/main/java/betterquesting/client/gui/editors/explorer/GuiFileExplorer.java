@@ -8,9 +8,9 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -125,9 +125,9 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 		
 		int sx = sizeX - 32;
-		String txt = I18n.translateToLocalFormatted("betterquesting.gui.selection");
+		String txt = I18n.format("betterquesting.gui.selection");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		txt = I18n.translateToLocalFormatted("betterquesting.gui.folder");
+		txt = I18n.format("betterquesting.gui.folder");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
 	}
 	
@@ -226,7 +226,7 @@ public class GuiFileExplorer extends GuiQuesting implements IVolatileScreen
 				{
 					btn.visible = true;
 					btn.enabled = false;
-					btn.displayString = I18n.translateToLocalFormatted(selected.get(n3).getName());
+					btn.displayString = I18n.format(selected.get(n3).getName());
 				}
 			} else if(n2 == 1) // Remove file
 			{

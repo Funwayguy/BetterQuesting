@@ -3,9 +3,9 @@ package betterquesting.client.gui;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.translation.I18n;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
@@ -51,15 +51,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	public GuiQuestLinesEmbedded(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(screen, posX, posY, sizeX, sizeY);
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
 		btnSel.enabled = QuestDatabase.editMode && toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
 		btnGrb.enabled = QuestDatabase.editMode && toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
 		btnLnk.enabled = QuestDatabase.editMode && toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
+		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
 		btnSnp.enabled = QuestDatabase.editMode;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.auto"));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
 		btnAto.enabled = QuestDatabase.editMode;
 		
 		if(!QuestDatabase.editMode)
@@ -70,15 +70,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	
 	public void refreshToolButtons()
 	{
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.select"));
+		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
 		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.grab"));
+		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
 		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.link"));
+		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
 		btnLnk.enabled = toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1));
+		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
 		btnSnp.enabled = true;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.translateToLocalFormatted("betterquesting.tool.auto"));
+		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
 		btnAto.enabled = true;
 	}
 
@@ -161,7 +161,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GlStateManager.scale(scale, scale, scale);
-			mc.fontRendererObj.drawString(I18n.translateToLocalFormatted(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			mc.fontRendererObj.drawString(zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GlStateManager.popMatrix();
 		}
@@ -232,7 +232,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		} else if(btnSnp.mousePressed(Minecraft.getMinecraft(), mx, my))
 		{
 			dragSnap = (dragSnap + 1)%snaps.length;
-			btnSnp.displayString = I18n.translateToLocalFormatted("betterquesting.tool.snap", dragSnap + 1);
+			btnSnp.displayString = I18n.format("betterquesting.tool.snap", dragSnap + 1);
 			btnSnp.playPressSound(Minecraft.getMinecraft().getSoundHandler());
 		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my) && qLine != null)
 		{

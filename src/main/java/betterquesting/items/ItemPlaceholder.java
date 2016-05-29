@@ -54,7 +54,7 @@ public class ItemPlaceholder extends Item
     	EntityPlayer player = (EntityPlayer)entity;
     	
     	NBTTagCompound tags = stack.getTagCompound();
-    	Item i = (Item)Item.itemRegistry.getObject(new ResourceLocation(tags.getString("orig_id")));
+    	Item i = (Item)Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
     	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
     	
     	if(i != null)

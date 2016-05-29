@@ -189,7 +189,7 @@ public class LifeManager
 			
 			if(lives <= 0)
 			{
-				MinecraftServer server = mpPlayer.getServerForPlayer().getMinecraftServer();
+				MinecraftServer server = mpPlayer.getServer();
 				
 				if(server == null)
 				{
@@ -197,7 +197,7 @@ public class LifeManager
 				}
 	            
 	            mpPlayer.setGameType(GameType.SPECTATOR);
-	            mpPlayer.getServerForPlayer().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
+	            mpPlayer.getServerWorld().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
 			} else
 			{
 				if(lives == 1)

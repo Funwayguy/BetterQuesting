@@ -5,10 +5,10 @@ import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -38,7 +38,7 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 	
 	public GuiRewardEditor(GuiScreen parent, QuestInstance quest)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.edit_rewards", I18n.translateToLocalFormatted(quest.name)));
+		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.name)));
 		this.quest = quest;
 	}
 	

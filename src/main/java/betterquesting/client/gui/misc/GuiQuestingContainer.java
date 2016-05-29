@@ -628,14 +628,14 @@ public abstract class GuiQuestingContainer extends GuiQuesting
             }
             else if (this.dragSplitting && !this.dragSplittingSlots.isEmpty())
             {
-                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(0, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
+                this.handleMouseClick((Slot)null, -999, Container.getQuickcraftMask(0, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
 
                 for (Slot slot1 : this.dragSplittingSlots)
                 {
-                    this.handleMouseClick(slot1, slot1.slotNumber, Container.func_94534_d(1, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
+                    this.handleMouseClick(slot1, slot1.slotNumber, Container.getQuickcraftMask(1, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
                 }
 
-                this.handleMouseClick((Slot)null, -999, Container.func_94534_d(2, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
+                this.handleMouseClick((Slot)null, -999, Container.getQuickcraftMask(2, this.dragSplittingLimit), ClickType.QUICK_CRAFT);
             }
             else if (this.mc.thePlayer.inventory.getItemStack() != null)
             {
@@ -715,7 +715,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
             slotId = slotIn.slotNumber;
         }
 
-        this.mc.playerController.func_187098_a(this.inventorySlots.windowId, slotId, mouseButton, type, this.mc.thePlayer);
+        this.mc.playerController.windowClick(this.inventorySlots.windowId, slotId, mouseButton, type, this.mc.thePlayer);
     }
 
     /**

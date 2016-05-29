@@ -153,7 +153,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             	if(itemIcon == null)
             	{
             		EntityItem eItem = new EntityItem(mc.theWorld);
-            		eItem.setEntityItemStack(new ItemStack(Items.bed));
+            		eItem.setEntityItemStack(new ItemStack(Items.BED));
             		eItem.hoverStart = 0F;
             		itemIcon = eItem;
             	}

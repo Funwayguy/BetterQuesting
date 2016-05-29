@@ -7,7 +7,6 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -65,7 +64,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestInstance quest = QuestDatabase.getQuestByID(id);
 				QuestDatabase.DeleteQuest(id);
 				
-				sender.addChatMessage(new TextComponentString("Deleted quest " + I18n.translateToLocalFormatted(quest.name) +"(ID:" + id + ")"));
+				sender.addChatMessage(new TextComponentString("Deleted quest " + quest.name +"(ID:" + id + ")"));
 			} catch(Exception e)
 			{
 				throw getException(command);

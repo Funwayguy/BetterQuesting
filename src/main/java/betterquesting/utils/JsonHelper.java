@@ -138,10 +138,10 @@ public class JsonHelper
 		
 		if(jID.isNumber())
 		{
-			item = (Item)Item.itemRegistry.getObjectById(jID.getAsInt()); // Old format (numbers)
+			item = (Item)Item.REGISTRY.getObjectById(jID.getAsInt()); // Old format (numbers)
 		} else
 		{
-			item = (Item)Item.itemRegistry.getObject(new ResourceLocation(jID.getAsString())); // New format (names)
+			item = (Item)Item.REGISTRY.getObject(new ResourceLocation(jID.getAsString())); // New format (names)
 		}
 		
 		NBTTagCompound tags = null;
@@ -166,7 +166,7 @@ public class JsonHelper
 		{
 			if(tags != null)
 			{
-				Item restored = (Item)Item.itemRegistry.getObject(new ResourceLocation(tags.getString("orig_id")));
+				Item restored = (Item)Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
 				
 				if(restored != null)
 				{
@@ -204,7 +204,7 @@ public class JsonHelper
 			return json;
 		}
 		
-		json.addProperty("id", Item.itemRegistry.getNameForObject(stack.getBaseStack().getItem()).toString());
+		json.addProperty("id", Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem()).toString());
 		json.addProperty("Count", stack.stackSize);
 		json.addProperty("OreDict", stack.oreDict);
 		json.addProperty("Damage", stack.getBaseStack().getItemDamage());

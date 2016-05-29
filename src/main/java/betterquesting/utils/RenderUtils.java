@@ -49,7 +49,7 @@ public class RenderUtils
 		{
 			ArrayList<ItemStack> tmp = new ArrayList<ItemStack>();
 			
-			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.tabAllSearch, tmp);
+			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.SEARCH, tmp);
 			
 			if(tmp.size() > 0)
 			{

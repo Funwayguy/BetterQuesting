@@ -7,11 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
@@ -28,7 +28,7 @@ public class GuiThemeSelect extends GuiQuesting
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
-		super(parent, I18n.translateToLocalFormatted("betterquesting.title.select_theme"));
+		super(parent, I18n.format("betterquesting.title.select_theme"));
 	}
 	
 	@Override
@@ -99,7 +99,7 @@ public class GuiThemeSelect extends GuiQuesting
     	String txt = TextFormatting.BOLD + "EXAMPLE";
     	mc.fontRendererObj.drawString(txt, cx - mc.fontRendererObj.getStringWidth(txt)/2, cy - 32 - mc.fontRendererObj.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
     	
-    	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");
+    	RenderUtils.RenderItemStack(mc, new ItemStack(Items.ENCHANTED_BOOK), cx - 8, cy - 23, "");
 		
 		GlStateManager.popMatrix();
 	}

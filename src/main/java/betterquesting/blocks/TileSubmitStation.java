@@ -7,7 +7,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -189,7 +188,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				q.UpdateClients();
 				reset();
-				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
+				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 			} else
 			{
 				needsUpdate = true;
@@ -256,7 +255,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 					{
 						q.UpdateClients();
 						reset();
-						worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
+						worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 					} else
 					{
 						needsUpdate = true;
@@ -275,7 +274,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			} else if(t != null && ((TaskBase)t).isComplete(owner))
 			{
 				reset();
-	    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
+	    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 			}
 		}
 	}
@@ -310,7 +309,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
      * Overridden in a sign to provide the text.
      */
 	@Override
-    public Packet<?> getDescriptionPacket()
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         this.writeToNBT(nbttagcompound);
@@ -341,7 +340,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     	{
     		this.readFromNBT(data);
     		this.markDirty();
-    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getDescriptionPacket());
+    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
     	} else
     	{
     		NBTTagCompound payload = new NBTTagCompound();
@@ -380,7 +379,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound tags)
+	public NBTTagCompound writeToNBT(NBTTagCompound tags)
 	{
 		super.writeToNBT(tags);
 		tags.setString("owner", owner != null? owner.toString() : "");
@@ -388,6 +387,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		tags.setInteger("task", taskID);
 		tags.setTag("input", itemStack[0] != null? itemStack[0].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
 		tags.setTag("output", itemStack[1] != null? itemStack[1].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
+		return tags;
 	}
 
 	@Override

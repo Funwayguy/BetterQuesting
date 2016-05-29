@@ -6,12 +6,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -83,11 +83,11 @@ public class QuestNotification
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
      	
-		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.translateToLocalFormatted(notice.mainTxt);
+		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.format(notice.mainTxt);
 		int txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
-		tmp = I18n.translateToLocalFormatted(notice.subTxt);
+		tmp = I18n.format(notice.subTxt);
 		txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		

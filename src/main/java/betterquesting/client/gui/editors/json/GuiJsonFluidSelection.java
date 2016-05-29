@@ -8,11 +8,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -57,7 +57,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		
 		int srcW = sizeX/2 - 34 - (sizeX/2 - 32)%18;
 		this.searchBox = new GuiBigTextField(fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, srcW, 14);
-		this.searchBox.setWatermark(I18n.translateToLocalFormatted("betterquesting.gui.search"));
+		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
@@ -108,7 +108,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.translateToLocalFormatted("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
@@ -125,7 +125,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			
 			try
 			{
-				mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+				mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(stackSelect.getFluid().getStill().toString());
 				fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
 				this.drawTexturedModalRect((guiLeft + 26)/2, (guiTop + 50)/2, fluidTx, 16, 16);
@@ -138,7 +138,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		}
 		GlStateManager.popMatrix();
 		
-		fontRendererObj.drawString(I18n.translateToLocalFormatted("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
@@ -218,7 +218,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				
 				try
 				{
-					mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+					mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					
 					TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(resultStack.getFluid().getStill(resultStack).toString());
 					fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
@@ -348,7 +348,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				continue;
 			}
 			
-			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.translateToLocalFormatted(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
+			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.format(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 			{
 				searchResults.add(new FluidStack(baseFluid, 1000));
 			}

@@ -42,7 +42,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 	{
 		super.initGui();
 		
-		if(json.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(json, "id", "Pig")) != null)
+		if(json.has("id") && EntityList.NAME_TO_CLASS.get(JsonHelper.GetString(json, "id", "Pig")) != null)
 		{
 			entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), this.mc.theWorld);
 		}
@@ -67,7 +67,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 		
 		int i = 0;
 		
-		ArrayList<String> sortedNames = new ArrayList<String>((Collection<String>)EntityList.stringToClassMapping.keySet());
+		ArrayList<String> sortedNames = new ArrayList<String>((Collection<String>)EntityList.NAME_TO_CLASS.keySet());
 		
 		Collections.sort(sortedNames);
 		
@@ -123,7 +123,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 		} else if(button.id == 2)
 		{
 			int maxRows = (this.sizeY - 80)/20;
-			int maxPages = MathHelper.ceiling_float_int(EntityList.stringToClassMapping.size()/(float)maxRows);
+			int maxPages = MathHelper.ceiling_float_int(EntityList.NAME_TO_CLASS.size()/(float)maxRows);
 			
 			if(scrollPos + 1 < maxPages)
 			{

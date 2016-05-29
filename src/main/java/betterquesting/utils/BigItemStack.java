@@ -15,7 +15,7 @@ public class BigItemStack
 {
 	public int stackSize = 0;
 	public String oreDict = "";
-	ItemStack baseStack = new ItemStack(Blocks.stone); // Ensures that this base stack is never null
+	ItemStack baseStack = new ItemStack(Blocks.STONE); // Ensures that this base stack is never null
 	
 	public BigItemStack(ItemStack stack)
 	{

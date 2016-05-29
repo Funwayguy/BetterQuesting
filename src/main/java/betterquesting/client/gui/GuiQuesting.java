@@ -9,8 +9,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -67,7 +67,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 		this.guiTop = (this.height - this.sizeY)/2;
 		
 		this.buttonList.clear();
-        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.translateToLocalFormatted("gui.done")));
+        this.buttonList.add(new GuiButtonQuesting(0, this.width / 2 - 100, this.guiTop + this.sizeY - 16, I18n.format("gui.done")));
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 			}
 		}
 		
-		String tmp = I18n.translateToLocalFormatted(title);
+		String tmp = I18n.format(title);
 		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
 		
 		super.drawScreen(mx, my, partialTick);
@@ -198,7 +198,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
         {
         	if(this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNo(this, I18n.translateToLocalFormatted("betterquesting.gui.closing_warning"), I18n.translateToLocalFormatted("betterquesting.gui.closing_confirm"), 0));
+        		this.mc.displayGuiScreen(new GuiYesNo(this, I18n.format("betterquesting.gui.closing_warning"), I18n.format("betterquesting.gui.closing_confirm"), 0));
         	} else
         	{
 	            this.mc.displayGuiScreen((GuiScreen)null);

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -65,7 +65,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.translateToLocalFormatted("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
 		this.buttonList.add(new GuiButtonQuesting(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
 		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
 		

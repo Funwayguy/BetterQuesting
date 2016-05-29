@@ -3,8 +3,8 @@ package betterquesting.client.gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
@@ -30,13 +30,13 @@ public class GuiHome extends GuiQuesting
 		
 		int bw = (sizeX - 32)/4;
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, I18n.translateToLocalFormatted("betterquesting.home.exit"));
+		GuiButtonQuesting btn = new GuiButtonQuesting(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.exit"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, I18n.translateToLocalFormatted("betterquesting.home.quests"));
+		btn = new GuiButtonQuesting(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.quests"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, I18n.translateToLocalFormatted("betterquesting.home.party"));
+		btn = new GuiButtonQuesting(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.party"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, I18n.translateToLocalFormatted("betterquesting.home.theme"));
+		btn = new GuiButtonQuesting(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.theme"));
 		this.buttonList.add(btn);
 	}
 	

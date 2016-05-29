@@ -10,9 +10,9 @@ import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.lives.LifeManager;
@@ -41,13 +41,13 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0))
         {
-            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.translateToLocalFormatted("deathScreen.spectate")));
-            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.translateToLocalFormatted("deathScreen." + (this.mc.isIntegratedServerRunning() ? "deleteWorld" : "leaveServer"))));
+            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.spectate")));
+            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen." + (this.mc.isIntegratedServerRunning() ? "deleteWorld" : "leaveServer"))));
         }
         else
         {
-            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.translateToLocalFormatted("deathScreen.respawn")));
-            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.translateToLocalFormatted("deathScreen.titleScreen")));
+            this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.respawn")));
+            this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen.titleScreen")));
 
             if (this.mc.getSession() == null)
             {
@@ -82,7 +82,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
                 }
                 else
                 {
-                    GuiYesNo guiyesno = new GuiYesNo(this, I18n.translateToLocalFormatted("deathScreen.quit.confirm"), "", I18n.translateToLocalFormatted("deathScreen.titleScreen"), I18n.translateToLocalFormatted("deathScreen.respawn"), 0);
+                    GuiYesNo guiyesno = new GuiYesNo(this, I18n.format("deathScreen.quit.confirm"), "", I18n.format("deathScreen.titleScreen"), I18n.format("deathScreen.respawn"), 0);
                     this.mc.displayGuiScreen(guiyesno);
                     guiyesno.setButtonDelay(20);
                 }
@@ -117,27 +117,27 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         GlStateManager.pushMatrix();
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
         boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0);
-        String s = flag ? I18n.translateToLocalFormatted("deathScreen.title.hardcore") : I18n.translateToLocalFormatted("deathScreen.title");
+        String s = flag ? I18n.format("deathScreen.title.hardcore") : I18n.format("deathScreen.title");
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
         GlStateManager.popMatrix();
 
         if (flag)
         {
-            this.drawCenteredString(this.fontRendererObj, I18n.translateToLocalFormatted("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
+            this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
         }
 
-        this.drawCenteredString(this.fontRendererObj, I18n.translateToLocalFormatted("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
+        this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
         
         if(QuestDatabase.bqHardcore)
         {
-        	this.drawCenteredString(this.fontRendererObj, I18n.translateToLocalFormatted("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(mc.thePlayer)), this.width / 2, 112, 16777215);
+        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(mc.thePlayer)), this.width / 2, 112, 16777215);
         }
         
         if (this.causeOfDeath != null && my > 85 && my < 85 + this.fontRendererObj.FONT_HEIGHT)
         {
-            ITextComponent itextcomponent = this.func_184870_b(mx);
+            ITextComponent itextcomponent = this.getClickedComponentAt(mx);
 
-            if (itextcomponent != null && itextcomponent.getChatStyle().getChatHoverEvent() != null)
+            if (itextcomponent != null && itextcomponent.getStyle().getHoverEvent() != null)
             {
                 this.handleComponentHover(itextcomponent, mx, my);
             }

@@ -2,10 +2,10 @@ package betterquesting.client.gui.misc;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -51,7 +51,7 @@ public class GuiButtonJson extends GuiButtonQuesting
 				this.stack = JsonHelper.JsonToItemStack(tmpObj);
 			}
 			
-			if(stack == null && tmpObj.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(tmpObj, "id", "Pig")) != null)
+			if(stack == null && tmpObj.has("id") && EntityList.NAME_TO_CLASS.get(JsonHelper.GetString(tmpObj, "id", "Pig")) != null)
 			{
 				this.entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
@@ -64,13 +64,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 		
 		if(this.entity != null)
 		{
-			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.entity") + ":" + entity.getName();
+			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getName();
 		} else if(this.stack != null)
 		{
-			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
+			this.displayString = I18n.format("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
 		} else if(this.fluid != null)
 		{
-			this.displayString = I18n.translateToLocalFormatted("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
+			this.displayString = I18n.format("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
 		} else if(json.isJsonPrimitive())
 		{
 			this.displayString = json.getAsJsonPrimitive().getAsString();
@@ -84,13 +84,13 @@ public class GuiButtonJson extends GuiButtonQuesting
 	{
 		if(c == JsonObject.class)
 		{
-			return I18n.translateToLocalFormatted("betterquesting.btn.object");
+			return I18n.format("betterquesting.btn.object");
 		} else if(c == JsonArray.class)
 		{
-			return I18n.translateToLocalFormatted("betterquesting.btn.list");
+			return I18n.format("betterquesting.btn.list");
 		} else if(c == JsonPrimitive.class)
 		{
-			return I18n.translateToLocalFormatted("betterquesting.btn.text"); // This should not normally be seen
+			return I18n.format("betterquesting.btn.text"); // This should not normally be seen
 		}
 		
 		return c.getSimpleName();
