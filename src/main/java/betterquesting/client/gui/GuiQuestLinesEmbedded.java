@@ -303,12 +303,15 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 								dragging.quest.preRequisites.remove(b.quest);
 							}
 							
-							JsonObject json = new JsonObject();
-							b.quest.writeToJSON(json);
+							JsonObject json1 = new JsonObject();
+							b.quest.writeToJSON(json1);
+							JsonObject json2 = new JsonObject();
+							b.quest.writeProgressToJSON(json2);
 							NBTTagCompound tags = new NBTTagCompound();
 							tags.setInteger("action", 0); // Action: Update data
 							tags.setInteger("questID", b.quest.questID);
-							tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+							tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+							tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 				    		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 							
 							break;

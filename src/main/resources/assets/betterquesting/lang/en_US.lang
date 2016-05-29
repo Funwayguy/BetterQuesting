@@ -28,6 +28,7 @@ betterquesting.btn.edit=Edit
 betterquesting.btn.new=Add New
 betterquesting.btn.import=Import
 betterquesting.btn.logic=Logic
+betterquesting.btn.show=Show
 betterquesting.btn.claim=Claim
 betterquesting.btn.detect_submit=Detect/Submit
 betterquesting.btn.add_remove_quests=Add/Remove Quests

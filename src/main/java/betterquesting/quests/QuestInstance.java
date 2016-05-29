@@ -40,6 +40,7 @@ public class QuestInstance
 	public boolean lockedProgress = false;
 	public boolean simultaneous = false;
 	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
+	public IconVisibility visibility = IconVisibility.NORMAL;
 	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
 	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
 	
@@ -799,20 +800,21 @@ public class QuestInstance
 		jObj.addProperty("logic", logic.toString());
 		jObj.addProperty("taskLogic", tLogic.toString());
 		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
+		jObj.addProperty("visibility", visibility.toString());
 		
 		JsonArray tskJson = new JsonArray();
-		for(TaskBase quest : tasks)
+		for(TaskBase tsk : tasks)
 		{
-			ResourceLocation taskID = TaskRegistry.GetRegisteredName(quest.getClass());
+			ResourceLocation taskID = TaskRegistry.GetRegisteredName(tsk.getClass());
 			
 			if(taskID == null)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + quest.getClass().getName());
+				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + tsk.getClass().getName());
 				continue;
 			}
 			
 			JsonObject qJson = new JsonObject();
-			quest.writeToJson(qJson);
+			tsk.writeToJson(qJson);
 			qJson.addProperty("taskID", taskID.toString());
 			tskJson.add(qJson);
 		}
@@ -878,6 +880,7 @@ public class QuestInstance
 		{
 			this.logic = QuestLogic.AND;
 		}
+		
 		try
 		{
 			this.tLogic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "taskLogic", "AND").toUpperCase());
@@ -886,8 +889,18 @@ public class QuestInstance
 		{
 			this.tLogic = QuestLogic.AND;
 		}
+		
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
 		this.itemIcon = this.itemIcon != null? this.itemIcon : new BigItemStack(Items.nether_star);
+		
+		try
+		{
+			this.visibility = IconVisibility.valueOf(JsonHelper.GetString(jObj, "visibility", "AND").toUpperCase());
+			this.visibility = visibility == null? IconVisibility.NORMAL : visibility;
+		} catch(Exception e)
+		{
+			this.visibility = IconVisibility.NORMAL;
+		}
 		
 		this.tasks = new ArrayList<TaskBase>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
@@ -939,7 +952,7 @@ public class QuestInstance
 		}
 		
 		// Backwards compatibility with single quest files
-		if(jObj.has("completeUsers"))
+		if(jObj.has("completed"))
 		{
 			jMig = jObj;
 		}
@@ -1025,12 +1038,17 @@ public class QuestInstance
 					if(!loc1.equals(loc2))
 					{
 						// Progression mismatch
+						BetterQuesting.logger.log(Level.WARN, "Task ID mismatch: " + loc1 + " != " + loc2);
 						continue;
 					}
 					
 					task.readProgressFromJson(jsonTask);
 				}
 			}
+		} else
+		{
+			// Task count mismatch
+			BetterQuesting.logger.log(Level.WARN, "Task count mismatch! Existing progress has been lost");
 		}
 	}
 	
@@ -1096,5 +1114,13 @@ public class QuestInstance
 					return false;
 			}
 		}
+	}
+	
+	public enum IconVisibility
+	{
+		HIDDEN,
+		UNLOCKED,
+		NORMAL,
+		ALWAYS;
 	}
 }

@@ -47,8 +47,10 @@ public class PktHandlerQuestEdit extends PktHandler
 			int ps = quest.preRequisites.size();
 			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " edited quest " + quest.name);
-			JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
-			quest.readFromJSON(json);
+			JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
+			quest.readFromJSON(json1);
+			JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
+			quest.readProgressFromJSON(json2);
 			
 			if(ps != quest.preRequisites.size())
 			{
