@@ -2,6 +2,7 @@ package betterquesting.client.gui.misc;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
@@ -13,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestInstance.IconVisibility;
 import betterquesting.utils.RenderUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -56,21 +58,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 			this.visible = true;
 		} else
 		{
-			boolean flag = true;
-			
-			if(!quest.isComplete(mc.thePlayer.getUniqueID()))
-			{
-				for(GuiButtonQuestInstance p : parents)
-				{
-					if(!p.quest.isUnlocked(mc.thePlayer.getUniqueID()))
-					{
-						flag = false;
-						break;
-					}
-				}
-			}
-			
-			this.visible = flag;
+			this.visible = isQuestShown(quest, mc.thePlayer.getUniqueID());
 			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
 		}
 		
@@ -97,7 +85,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
             int cw = MathHelper.clamp_int(xPosition + offX + width, clampMinX, clampMaxX) - cx;
             int ch = MathHelper.clamp_int(yPosition + offY + height, clampMinY, clampMaxY) - cy;
 
-        	int questState = !quest.isUnlocked(mc.thePlayer.getUniqueID())? 0 : (!quest.isComplete(mc.thePlayer.getUniqueID())? 1 : (!quest.HasClaimed(mc.thePlayer.getUniqueID())? 2 : 3));
+        	int questState = getQuestState(quest, mc.thePlayer.getUniqueID());
         	
         	for(GuiButtonQuestInstance p : parents)
         	{
@@ -215,5 +203,51 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 		this.offX = scrollX;
 		this.offY = scrollY;
 		return this;
+	}
+	
+	public boolean isQuestShown(QuestInstance quest, UUID uuid)
+	{
+		if(QuestDatabase.editMode || quest.visibility == IconVisibility.ALWAYS)
+		{
+			return true;
+		} else if(quest.visibility == IconVisibility.HIDDEN)
+		{
+			return false;
+		} else if(quest.visibility == IconVisibility.UNLOCKED)
+		{
+			return quest.isUnlocked(uuid) || quest.isComplete(uuid);
+		} else if(quest.visibility == IconVisibility.NORMAL)
+		{
+			if(!quest.isComplete(uuid))
+			{
+				for(GuiButtonQuestInstance p : parents)
+				{
+					if(!p.quest.isUnlocked(uuid))
+					{
+						return false; // We require something locked
+					}
+				}
+			}
+			
+			return true;
+		}
+		
+		return true;
+	}
+	
+	public int getQuestState(QuestInstance quest, UUID uuid)
+	{
+		if(!quest.isUnlocked(uuid))
+		{
+			return 0; // Locked
+		} else if(!quest.isComplete(uuid))
+		{
+			return 1; // In progress
+		} else if(!quest.HasClaimed(uuid))
+		{
+			return 2; // Unclaimed
+		}
+		
+		return 3; // Complete
 	}
 }

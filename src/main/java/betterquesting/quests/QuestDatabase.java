@@ -154,9 +154,12 @@ public class QuestDatabase
 	public static void UpdateClients()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		QuestDatabase.writeToJson(json);
-		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		JsonObject json1 = new JsonObject();
+		QuestDatabase.writeToJson(json1);
+		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		JsonObject json2 = new JsonObject();
+		QuestDatabase.writeToJson_Progression(json2);
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendToAll(BQPacketType.QUEST_DATABASE.GetLocation(), tags);
 	}
 	
@@ -167,9 +170,12 @@ public class QuestDatabase
 	public static void SendDatabase(EntityPlayerMP player)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		QuestDatabase.writeToJson(json);
-		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		JsonObject json1 = new JsonObject();
+		QuestDatabase.writeToJson(json1);
+		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		JsonObject json2 = new JsonObject();
+		QuestDatabase.writeToJson_Progression(json2);
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendTo(BQPacketType.QUEST_DATABASE.GetLocation(), tags, player);
 	}
 	

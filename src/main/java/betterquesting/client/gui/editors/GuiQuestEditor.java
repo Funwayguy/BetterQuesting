@@ -16,6 +16,7 @@ import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.QuestInstance.IconVisibility;
 import betterquesting.quests.QuestInstance.QuestLogic;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
@@ -66,11 +67,13 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.requirements"));
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(4, width/2 - 100, height/2 + 68, 200, 20, I18n.format("betterquesting.btn.advanced"));
+		btn = new GuiButtonQuesting(4, width/2, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.advanced"));
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.isMain);
 		this.buttonList.add(btn);
 		btn = new GuiButtonQuesting(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.logic);
+		this.buttonList.add(btn);
+		btn = new GuiButtonQuesting(7, width/2 - 100, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.show") + ": " + quest.visibility.toString());
 		this.buttonList.add(btn);
 	}
 	
@@ -123,6 +126,12 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 			quest.logic = logic[(quest.logic.ordinal() + 1)%logic.length];
 			button.displayString = I18n.format("betterquesting.btn.logic") + ": " + quest.logic;
 			SendChanges();
+		} else if(button.id == 7)
+		{
+			IconVisibility[] vis = IconVisibility.values();
+			quest.visibility = vis[(quest.visibility.ordinal() + 1)%vis.length];
+			button.displayString =  I18n.format("betterquesting.btn.show") + ": " + quest.visibility.toString();
+			SendChanges();
 		}
 	}
 
@@ -174,12 +183,15 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 	// If the changes are approved by the server, it will be broadcast to all players including the editor
 	public void SendChanges()
 	{
-		JsonObject json = new JsonObject();
-		quest.writeToJSON(json);
+		JsonObject json1 = new JsonObject();
+		quest.writeToJSON(json1);
+		JsonObject json2 = new JsonObject();
+		quest.writeProgressToJSON(json2);
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 	}
 

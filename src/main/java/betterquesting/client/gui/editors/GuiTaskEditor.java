@@ -194,13 +194,15 @@ public class GuiTaskEditor extends GuiQuesting implements IVolatileScreen
 	
 	public void SendChanges()
 	{
-		JsonObject json = new JsonObject();
-		quest.writeToJSON(json);
+		JsonObject json1 = new JsonObject();
+		quest.writeToJSON(json1);
+		JsonObject json2 = new JsonObject();
+		quest.writeProgressToJSON(json2);
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 0); // Action: Update data
 		tags.setInteger("questID", quest.questID);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 	}
 	
