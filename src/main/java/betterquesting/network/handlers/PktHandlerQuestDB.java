@@ -14,17 +14,22 @@ public class PktHandlerQuestDB extends PktHandler
 	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Sync request
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		QuestDatabase.writeToJson(json);
-		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		JsonObject json1 = new JsonObject();
+		QuestDatabase.writeToJson(json1);
+		tags.setTag("Database", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
+		JsonObject json2 = new JsonObject();
+		QuestDatabase.writeToJson_Progression(json2);
+		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
 		PacketAssembly.SendTo(BQPacketType.QUEST_DATABASE.GetLocation(), tags, sender);
 	}
 	
 	@Override
 	public void handleClient(NBTTagCompound data) // Client side sync
 	{
-		JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Database"), new JsonObject());
-		QuestDatabase.readFromJson(json);
+		JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Database"), new JsonObject());
+		QuestDatabase.readFromJson(json1);
+		JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
+		QuestDatabase.readFromJson_Progression(json2);
 	}
 	
 }
