@@ -230,6 +230,20 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 			}
 			
 			return true;
+		} else if(quest.visibility == IconVisibility.COMPLETED)
+		{
+			return quest.isComplete(uuid);
+		} else if(quest.visibility == IconVisibility.CHAIN)
+		{
+			for(GuiButtonQuestInstance q : parents)
+			{
+				if(q.isQuestShown(quest, uuid))
+				{
+					return true;
+				}
+			}
+			
+			return parents.size() <= 0;
 		}
 		
 		return true;

@@ -25,13 +25,14 @@ public class QuestCommandDefaults extends QuestCommandBase
 		return args.length == 2;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> autoComplete(ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
 		if(args.length == 2)
 		{
-			CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
 		}
 		
 		return list;

@@ -1117,6 +1117,8 @@ public class QuestInstance
 		HIDDEN,
 		UNLOCKED,
 		NORMAL,
+		COMPLETED,
+		CHAIN,
 		ALWAYS;
 	}
 }
