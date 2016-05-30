@@ -659,10 +659,14 @@ public class QuestInstance
 		{
 			UserEntry entry = completeUsers.get(i);
 			
-			if(entry.uuid.equals(uuid))
-			{
-				completeUsers.remove(i);
-				UpdateClients();
+			// Iterate through our varargs...
+			for(int k = 0; k < uuid.length; k++) {
+				if(entry.uuid.equals(uuid[k]))
+				{
+					completeUsers.remove(i);
+					UpdateClients();
+					break;
+				}
 			}
 		}
 	}
