@@ -32,7 +32,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 		
 		if(args.length == 2)
 		{
-			CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
 		}
 		
 		return list;
