@@ -655,15 +655,26 @@ public class QuestInstance
 	
 	public void RemoveUserEntry(UUID... uuid)
 	{
+		boolean flag = false;
+		
 		for(int i = completeUsers.size() - 1; i >= 0; i--)
 		{
 			UserEntry entry = completeUsers.get(i);
 			
-			if(entry.uuid.equals(uuid))
+			for(UUID id : uuid)
 			{
-				completeUsers.remove(i);
-				UpdateClients();
+				if(entry.uuid.equals(id))
+				{
+					completeUsers.remove(i);
+					flag = true;
+					break;
+				}
 			}
+		}
+		
+		if(flag)
+		{
+			UpdateClients();
 		}
 	}
 	
