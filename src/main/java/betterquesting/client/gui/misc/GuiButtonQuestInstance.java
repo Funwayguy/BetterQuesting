@@ -237,7 +237,7 @@ public class GuiButtonQuestInstance extends GuiButtonQuesting
 		{
 			for(GuiButtonQuestInstance q : parents)
 			{
-				if(q.isQuestShown(quest, uuid))
+				if(q.isQuestShown(q.quest, uuid))
 				{
 					return true;
 				}
