@@ -55,6 +55,8 @@ public class QuestCommandDefaults extends QuestCommandBase
 			sender.addChatMessage(new ChatComponentText("Quest database set as global default"));
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
+			JsonObject jsonP = new JsonObject();
+			QuestDatabase.writeToJson_Progression(jsonP);
 	    	File f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 			JsonObject j1 = new JsonObject();
 			
@@ -62,7 +64,9 @@ public class QuestCommandDefaults extends QuestCommandBase
 			{
 				j1 = JsonIO.ReadFromFile(f1);
 				QuestDatabase.readFromJson(j1);
+				QuestDatabase.readFromJson_Progression(jsonP);
 				sender.addChatMessage(new ChatComponentText("Reloaded default quest database"));
+				QuestDatabase.UpdateClients();
 			} else
 			{
 				sender.addChatMessage(new ChatComponentText("No default currently set"));
