@@ -8,6 +8,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
 import betterquesting.quests.QuestDatabase;
@@ -52,7 +53,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			JsonObject jsonQ = new JsonObject();
 			QuestDatabase.writeToJson(jsonQ);
 			JsonIO.WriteToFile(new File(server.getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
-			sender.addChatMessage(new TextComponentString("Quest database set as global default"));
+			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
 			JsonObject jsonP = new JsonObject();
@@ -65,11 +66,11 @@ public class QuestCommandDefaults extends QuestCommandBase
 				j1 = JsonIO.ReadFromFile(f1);
 				QuestDatabase.readFromJson(j1);
 				QuestDatabase.readFromJson_Progression(jsonP);
-				sender.addChatMessage(new TextComponentString("Reloaded default quest database"));
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
 				QuestDatabase.UpdateClients();
 			} else
 			{
-				sender.addChatMessage(new TextComponentString("No default currently set"));
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
 			}
 		} else
 		{

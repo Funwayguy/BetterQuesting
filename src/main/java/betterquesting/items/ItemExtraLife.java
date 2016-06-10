@@ -14,6 +14,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -59,9 +60,9 @@ public class ItemExtraLife extends Item
     		
     		if(LifeManager.getLives(player) >= LifeManager.maxLives)
     		{
-	    		if(world.isRemote)
+	    		if(!world.isRemote)
 	    		{
-		    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+    	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")));
 	    		}
 	    		
 	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -72,11 +73,9 @@ public class ItemExtraLife extends Item
             if(!world.isRemote)
             {
 	    		LifeManager.AddRemoveLives(player, 1);
-            } else
-            {
-	    		player.addChatComponentMessage(new TextComponentString(I18n.format("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + LifeManager.getLives(player))));
-            }
-    	} else if(world.isRemote)
+	    		player.addChatComponentMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + LifeManager.getLives(player)));
+    		}
+    	} else if(!world.isRemote)
     	{
     		player.addChatComponentMessage(new TextComponentString(I18n.format("betterquesting.msg.heart_disabled")));
     	}

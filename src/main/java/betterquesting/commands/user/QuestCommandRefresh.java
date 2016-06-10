@@ -4,7 +4,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 
@@ -23,7 +23,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 		{
 			EntityPlayerMP player = (EntityPlayerMP)sender;
 			QuestDatabase.SendDatabase(player);
-			sender.addChatMessage(new TextComponentString("Refreshing local database..."));
+			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}
 }

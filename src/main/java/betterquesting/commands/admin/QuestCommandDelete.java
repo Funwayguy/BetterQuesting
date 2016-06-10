@@ -6,7 +6,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -55,7 +55,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			QuestDatabase.questLines.clear();
 			QuestDatabase.UpdateClients();
 		    
-			sender.addChatMessage(new TextComponentString("Deleted all quests and quest lines"));
+			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.delete.all"));
 		} else
 		{
 			try
@@ -64,7 +64,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestInstance quest = QuestDatabase.getQuestByID(id);
 				QuestDatabase.DeleteQuest(id);
 				
-				sender.addChatMessage(new TextComponentString("Deleted quest " + quest.name +"(ID:" + id + ")"));
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.name)));
 			} catch(Exception e)
 			{
 				throw getException(command);

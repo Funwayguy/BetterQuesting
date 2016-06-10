@@ -144,7 +144,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 			
 			int isx = (18 * 9);
 			int isy = (18 * 4);
-			float scale = Math.min((btnWidth - 16)/(float)isx, (sizeY/2 - 32)/isy);
+			float scale = Math.min((btnWidth - 16)/(float)isx, (sizeY/2F - 32)/isy);
 			int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 			int ipy = guiTop + sizeY/2;
 			
@@ -279,7 +279,7 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		
 		int isx = (18 * 9);
 		int isy = (18 * 4);
-		float scale = Math.max((btnWidth - 16)/(float)isx, (sizeY/2 - 32)/isy);
+		float scale = Math.min((btnWidth - 16)/(float)isx, (sizeY/2F - 32)/isy);
 		int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 		int ipy = guiTop + sizeY/2;
 		

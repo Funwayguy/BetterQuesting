@@ -8,7 +8,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -59,6 +59,8 @@ public class QuestCommandReset extends QuestCommandBase
 		UUID uuid = null;
 		EntityPlayerMP player = null;
 		
+		String pName = player != null? player.getName() : (uuid != null? uuid.toString() : null);
+		
 		if(args.length == 3)
 		{
 			player = server.getPlayerList().getPlayerByUsername(args[2]);
@@ -91,7 +93,13 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new TextComponentString("Reset all quests" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+			if(uuid != null)
+			{
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
+			} else
+			{
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
+			}
 		} else
 		{
 			try
@@ -102,12 +110,12 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.ResetQuest(uuid); // Clear progress and state
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.name), pName));
 				} else
 				{
 					quest.ResetQuest();
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.name)));
 				}
-				
-				sender.addChatMessage(new TextComponentString("Reset quest " + quest.name +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 			} catch(Exception e)
 			{
 				throw getException(command);
