@@ -1,10 +1,10 @@
 package betterquesting.commands.admin;
 
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.quests.QuestDatabase;
 
 public class QuestCommandEdit extends QuestCommandBase
 {
@@ -18,7 +18,7 @@ public class QuestCommandEdit extends QuestCommandBase
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
 		QuestDatabase.editMode = !QuestDatabase.editMode;
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestDatabase.editMode? "options.on" : "options.off")));
 		QuestDatabase.UpdateClients();
-		sender.addChatMessage(new ChatComponentText("Edit mode " + (QuestDatabase.editMode? "enabled" : "disabled")));
 	}
 }

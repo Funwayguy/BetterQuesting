@@ -3,12 +3,11 @@ package betterquesting.commands.admin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -91,7 +90,7 @@ public class QuestCommandComplete extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentText("Manually completed quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getCommandSenderName() : (uuid != null? " for " + uuid.toString() : ""))));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.name), player.getCommandSenderName()));
 		} catch(Exception e)
 		{
 			throw getException(command);

@@ -48,7 +48,10 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 		
 		if(lastEdit != null)
 		{
+			JsonObject prog = new JsonObject();
+			quest.writeProgressToJSON(prog);
 			quest.readFromJSON(lastEdit);
+			quest.readProgressFromJSON(prog);
 			lastEdit = null;
 			SendChanges();
 		}

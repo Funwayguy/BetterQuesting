@@ -2,10 +2,9 @@ package betterquesting.commands.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -54,7 +53,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			QuestDatabase.questLines.clear();
 			QuestDatabase.UpdateClients();
 		    
-			sender.addChatMessage(new ChatComponentText("Deleted all quests and quest lines"));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.all"));
 		} else
 		{
 			try
@@ -63,7 +62,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestInstance quest = QuestDatabase.getQuestByID(id);
 				QuestDatabase.DeleteQuest(id);
 				
-				sender.addChatMessage(new ChatComponentText("Deleted quest " + I18n.format(quest.name) +"(ID:" + id + ")"));
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.name)));
 			} catch(Exception e)
 			{
 				throw getException(command);

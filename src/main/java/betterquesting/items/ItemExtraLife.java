@@ -2,12 +2,12 @@ package betterquesting.items;
 
 import java.util.List;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
@@ -42,6 +42,7 @@ public class ItemExtraLife extends Item
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Override
     public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
     {
     	if(stack.getItemDamage() != 0)
@@ -58,7 +59,7 @@ public class ItemExtraLife extends Item
     		{
     			if(!world.isRemote)
     			{
-    	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+    	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED.toString()).appendSibling(new ChatComponentTranslation("betterquesting.gui.full_lives")));
     			}
     			
     			return stack;
@@ -69,11 +70,11 @@ public class ItemExtraLife extends Item
     		if(!world.isRemote)
     		{
 	    		LifeManager.AddRemoveLives(player, 1);
-	    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(player))));
+	    		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW.toString() + LifeManager.getLives(player)));
     		}
     	} else if(!world.isRemote)
     	{
-    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.msg.heart_disabled")));
+    		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.msg.heart_disabled"));
     	}
     	
         return stack;
