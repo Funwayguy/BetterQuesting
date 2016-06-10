@@ -490,7 +490,7 @@ public class QuestInstance
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
-				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat_time", (time/60) + "m " + df.format(time%60) + "s"));
+				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", (time/60) + "m " + df.format(time%60) + "s"));
 			}
 		} else if(!isUnlocked(player.getUniqueID()))
 		{

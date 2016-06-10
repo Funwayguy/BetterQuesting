@@ -129,3 +129,27 @@ betterquesting.tool.grab=Grab
 betterquesting.tool.link=Link
 betterquesting.tool.snap=Snap: %s
 betterquesting.tool.auto=Auto
+
+betterquesting.cmd.complete=Completed quest %s for %s
+betterquesting.cmd.default.save=Quest database saved as default
+betterquesting.cmd.default.load=Reloaded default quest database
+betterquesting.cmd.default.none=No default currently set
+betterquesting.cmd.delete.single=Deleted quest %s
+betterquesting.cmd.delete.all=Deleted all quests
+betterquesting.cmd.edit=Edit mode %s
+betterquesting.cmd.hardcore=Hardcore mode %s
+
+betterquesting.cmd.lives.add_player=Added %s lives to %s (Total: %s)
+betterquesting.cmd.lives.add_all=Added %s lives to all players
+betterquesting.cmd.lives.remove_player=Removed %s lives from %s (Total: %s)
+betterquesting.cmd.lives.remove_all=Removed %s lives from all players
+betterquesting.cmd.lives.set_player=Set %s's lives to %s
+betterquesting.cmd.lives.set_all=Set all player's lives to %s
+betterquesting.cmd.lives.max=Set max lives to %s
+betterquesting.cmd.lives.default=Set default lives to %s
+
+betterquesting.cmd.reset.player_single=Reset quest '%s' for %s
+betterquesting.cmd.reset.player_all=Reset all quests for %s
+betterquesting.cmd.reset.all_single=Reset quest '%s' for everyone
+betterquesting.cmd.reset.all_all=Reset all quests for everyone
+betterquesting.cmd.refresh=Refreshing local database...

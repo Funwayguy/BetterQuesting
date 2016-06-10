@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -51,7 +52,11 @@ public class ItemExtraLife extends Item
     		
     		if(LifeManager.getLives(player) >= LifeManager.maxLives)
     		{
-	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + I18n.format("betterquesting.gui.full_lives")));
+    			if(!world.isRemote)
+    			{
+    	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED.toString()).appendSibling(new ChatComponentTranslation("betterquesting.gui.full_lives")));
+    			}
+    			
     			return stack;
     		}
     		
@@ -60,11 +65,11 @@ public class ItemExtraLife extends Item
     		if(!world.isRemote)
     		{
 	    		LifeManager.AddRemoveLives(player, 1);
-	    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(player))));
+	    		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW.toString() + LifeManager.getLives(player)));
     		}
     	} else if(!world.isRemote)
     	{
-    		player.addChatComponentMessage(new ChatComponentText(I18n.format("betterquesting.msg.heart_disabled")));
+    		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.msg.heart_disabled"));
     	}
     	
         return stack;

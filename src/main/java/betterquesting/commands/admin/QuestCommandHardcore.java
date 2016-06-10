@@ -1,10 +1,10 @@
 package betterquesting.commands.admin;
 
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.quests.QuestDatabase;
 
 public class QuestCommandHardcore extends QuestCommandBase
 {
@@ -18,7 +18,7 @@ public class QuestCommandHardcore extends QuestCommandBase
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
 		QuestDatabase.bqHardcore = !QuestDatabase.bqHardcore;
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestDatabase.bqHardcore? "options.on" : "options.off")));
 		QuestDatabase.UpdateClients();
-		sender.addChatMessage(new ChatComponentText("Hardcore mode " + (QuestDatabase.bqHardcore? "enabled" : "disabled")));
 	}
 }

@@ -3,13 +3,12 @@ package betterquesting.commands.admin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
@@ -79,6 +78,8 @@ public class QuestCommandReset extends QuestCommandBase
 			}
 		}
 		
+		String pName = player != null? player.getName() : (uuid != null? uuid.toString() : null);
+		
 		if(action.equalsIgnoreCase("all"))
 		{
 			for(QuestInstance quest : QuestDatabase.questDB.values())
@@ -92,7 +93,13 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentText("Reset all quests" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
+			if(uuid != null)
+			{
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_all", pName));
+			} else
+			{
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_all"));
+			}
 		} else
 		{
 			try
@@ -103,12 +110,12 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.ResetQuest(uuid); // Clear progress and state
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.name), pName));
 				} else
 				{
 					quest.ResetQuest();
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_single", new ChatComponentTranslation(quest.name)));
 				}
-				
-				sender.addChatMessage(new ChatComponentText("Reset quest " + I18n.format(quest.name) +"(ID:" + id + ")" + (player != null? " for " + player.getName() : (uuid != null? " for " + uuid.toString() : ""))));
 			} catch(Exception e)
 			{
 				throw getException(command);

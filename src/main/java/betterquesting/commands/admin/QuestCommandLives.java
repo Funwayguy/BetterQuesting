@@ -8,6 +8,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.lives.LifeManager;
 
@@ -50,6 +51,11 @@ public class QuestCommandLives extends QuestCommandBase
 		String action = args[1];
 		EntityPlayerMP player = args.length < 4? null : MinecraftServer.getServer().getConfigurationManager().getPlayerByUsername(args[3]);
 		
+		if(player == null && args.length == 4)
+		{
+			throw getException(command);
+		}
+		
 		int value = 0;
 		
 		try
@@ -62,10 +68,11 @@ public class QuestCommandLives extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("set"))
 		{
+			value = Math.max(1, value);
 			if(player != null)
 			{
 				LifeManager.setLives(player, value);
-				sender.addChatMessage(new ChatComponentText("Set " + player.getName() + " lives to " + value));
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_player", player.getName(), value));
 			} else if(args.length == 3)
 			{
 				for(EntityPlayerMP p : MinecraftServer.getServer().getConfigurationManager().playerEntityList)
@@ -73,32 +80,46 @@ public class QuestCommandLives extends QuestCommandBase
 					LifeManager.setLives(p, value);
 				}
 				
-				sender.addChatMessage(new ChatComponentText("Set all player's lives to " + value));
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
 		} else if(action.equalsIgnoreCase("add"))
 		{
 			if(player != null)
 			{
 				LifeManager.AddRemoveLives(player, value);
-				sender.addChatMessage(new ChatComponentText((value >= 0? "Added " : "Removed ") + Math.abs(value) + " lives " + (value >= 0? "to " : "from ") + player.getName() + " (Total: " + LifeManager.getLives(player) + ")"));
+				
+				if(value >= 0)
+				{
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.add_player", value, player.getName(), LifeManager.getLives(player)));
+				} else
+				{
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), player.getName(), LifeManager.getLives(player)));
+				}
 			} else
 			{
 				for(EntityPlayerMP p : MinecraftServer.getServer().getConfigurationManager().playerEntityList)
 				{
 					LifeManager.AddRemoveLives(p, value);
 				}
-				sender.addChatMessage(new ChatComponentText((value >= 0? "Added " : "Removed ") + Math.abs(value) + " lives " + (value >= 0? "to " : "from ") + " all players"));
+				
+				if(value >= 0)
+				{
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.add_all", value));
+				} else
+				{
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
+				}
 			}
 		} else if(action.equalsIgnoreCase("max"))
 		{
 			value = Math.max(1, value);
 			LifeManager.maxLives = value;
-			sender.addChatMessage(new ChatComponentText("Set max lives to " + value));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.max", value));
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
-			LifeManager.maxLives = value;
-			sender.addChatMessage(new ChatComponentText("Set default lives to " + value));
+			LifeManager.defLives = value;
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.default" + value));
 		} else
 		{
 			throw getException(command);
