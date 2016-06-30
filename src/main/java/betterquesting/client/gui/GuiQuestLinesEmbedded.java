@@ -9,100 +9,75 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.gui.misc.GuiButtonQuestLine;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.misc.QuestLineButtonTree;
 import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLine.QuestLineEntry;
-import betterquesting.quests.designers.QDesignTree;
 import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
 public class GuiQuestLinesEmbedded extends GuiEmbedded
 {
 	/**
-	 * Graph level of zoom out of 100
+	 * Graph level of zoom out of 100%
 	 */
 	public int zoom = 100;
 	public int scrollX = 0;
 	public int scrollY = 0;
 	int maxX = 0;
 	int maxY = 0;
-	boolean flag = false;
-	public int toolType = 0;
-	public int dragSnap = 2;
-	static int[] snaps = new int[]{1,4,8,24};
-	GuiButtonQuestInstance dragging;
+	boolean noScroll = false;
+	ToolboxTool curTool = null;
 	QuestLine qLine;
 	ArrayList<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
-	
-	GuiButtonQuesting btnSel;
-	GuiButtonQuesting btnGrb;
-	GuiButtonQuesting btnSnp;
-	GuiButtonQuesting btnLnk;
-	GuiButtonQuesting btnAto;
 	
 	public GuiQuestLinesEmbedded(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
 	{
 		super(screen, posX, posY, sizeX, sizeY);
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
-		btnSel.enabled = QuestDatabase.editMode && toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
-		btnGrb.enabled = QuestDatabase.editMode && toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
-		btnLnk.enabled = QuestDatabase.editMode && toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
-		btnSnp.enabled = QuestDatabase.editMode;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
-		btnAto.enabled = QuestDatabase.editMode;
-		
-		if(!QuestDatabase.editMode)
+	}
+	
+	public void setCurrentTool(ToolboxTool tool)
+	{
+		if(curTool != null)
 		{
-			toolType = 0;
+			curTool.deactivateTool();
+		}
+		
+		curTool = tool;
+		
+		if(tool != null)
+		{
+			tool.initTool(this);
 		}
 	}
 	
-	public void refreshToolButtons()
+	public ToolboxTool getCurrentTool()
 	{
-		btnSel = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 00, 40, 20, I18n.format("betterquesting.tool.select"));
-		btnSel.enabled = toolType != 0;
-		btnGrb = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 20, 40, 20, I18n.format("betterquesting.tool.grab"));
-		btnGrb.enabled = toolType != 1;
-		btnLnk = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 40, 40, 20, I18n.format("betterquesting.tool.link"));
-		btnLnk.enabled = toolType != 2;
-		btnSnp = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 60, 40, 20, I18n.format("betterquesting.tool.snap", dragSnap + 1));
-		btnSnp.enabled = true;
-		btnAto = new GuiButtonQuesting(0, posX + sizeX - 40, posY + 80, 40, 20, I18n.format("betterquesting.tool.auto"));
-		btnAto.enabled = true;
+		return curTool;
+	}
+	
+	public void copySettings(GuiQuestLinesEmbedded old)
+	{
+		this.zoom = old.zoom;
+		this.scrollX = old.scrollX;
+		this.scrollY = old.scrollY;
+		this.setCurrentTool(old.curTool);
 	}
 
 	@Override
 	public void drawGui(int mx, int my, float partialTick)
 	{
-		Minecraft mc = Minecraft.getMinecraft();
-		
-		int sx2 = QuestDatabase.editMode? sizeX - 40 : sizeX;
-		
-		if(QuestDatabase.editMode)
-		{
-			btnSel.drawButton(mc, mx, my);
-			btnGrb.drawButton(mc, mx, my);
-			btnLnk.drawButton(mc, mx, my);
-			btnSnp.drawButton(mc, mx, my);
-			btnAto.drawButton(mc, mx, my);
-		}
-		
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		GlStateManager.pushMatrix();
-		double scaleX = sx2/128D;
+		double scaleX = sizeX/128D;
 		double scaleY = sizeY/128D;
 		GlStateManager.scale(scaleX, scaleY, 1F);
 		GlStateManager.translate(posX/scaleX, posY/scaleY, 0);
@@ -117,29 +92,18 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			GlStateManager.translate(posX, posY, 0);
 			float zs = zoom/100F;
 			GlStateManager.scale(zs, zs, 1F);
-			int rw = (int)(sx2 / zs);
+			int rw = (int)(sizeX / zs);
 			int rh = (int)(sizeY / zs);
 			int rmx = (int)((mx - posX)/zs);
 			int rmy = (int)((my - posY)/zs);
 			
 			for(GuiButtonQuestInstance btnQuest : qBtns)
 			{
-				if(btnQuest == dragging)
-				{
-					if(toolType == 1)
-					{
-						btnQuest.xPosition = rmx - scrollX - 12;
-						btnQuest.yPosition = rmy - scrollY - 12;
-						btnQuest.xPosition -= btnQuest.xPosition%snaps[dragSnap];
-						btnQuest.yPosition -= btnQuest.yPosition%snaps[dragSnap];
-					}
-				}
-				
 				btnQuest.SetClampingBounds(0, 0, rw, rh);
 				btnQuest.SetScrollOffset(scrollX, scrollY);
-				btnQuest.drawButton(mc, rmx, rmy);
+				btnQuest.drawButton(screen.mc, rmx, rmy);
 				
-				if(btnQuest.visible && btnQuest != dragging && screen.isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height, false) && screen.isWithin(mx, my, posX, posY, sx2, sizeY, false))
+				if(btnQuest.visible && screen.isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height, false) && screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
 				{
 					qTooltip = btnQuest.quest;
 				}
@@ -147,40 +111,34 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			
 			GlStateManager.popMatrix();
 			
-			GlStateManager.disableDepth();
-			
-			if(toolType == 2 && dragging != null)
-			{
-				int lsx = MathHelper.clamp_int(posX + scrollX + dragging.xPosition + 12, posX, posX + sizeX);
-				int lsy = MathHelper.clamp_int(posY + scrollY + dragging.yPosition + 12, posY, posY + sizeY);
-				RenderUtils.DrawLine(lsx, lsy, mx, my, 4, ThemeRegistry.curTheme().getLineColor(2, false));
-			}
-			
-			//RenderUtils.drawSplitString(mc.fontRenderer, I18n.format(qLine.description), posX + 174, posY + 32 + this.sizeY - 64 - 32 + 4, this.sizeX - (32 + 150 + 8), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			
 			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GlStateManager.scale(scale, scale, scale);
-			mc.fontRendererObj.drawString(I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			mc.fontRendererObj.drawString(zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			screen.mc.fontRendererObj.drawString(I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			screen.mc.fontRendererObj.drawString(zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - screen.mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
 			GlStateManager.popMatrix();
+		}
+		
+		if(curTool != null)
+		{
+			curTool.drawTool(mx, my, partialTick);
 		}
 		
 		if(qTooltip != null)
 		{
 			if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
 			{
-				screen.DrawTooltip(qTooltip.getAdvancedTooltip(mc.thePlayer), mx, my);
+				screen.DrawTooltip(qTooltip.getAdvancedTooltip(screen.mc.thePlayer), mx, my);
 			} else
 			{
-				screen.DrawTooltip(qTooltip.getStandardTooltip(mc.thePlayer), mx, my);
+				screen.DrawTooltip(qTooltip.getStandardTooltip(screen.mc.thePlayer), mx, my);
 			}
 		}
 	}
 	
 	public GuiButtonQuestInstance getClickedQuest(int mx, int my)
 	{
-		if(!screen.isWithin(mx, my, posX, posY, QuestDatabase.editMode? sizeX - 40 : sizeX, sizeY, false) || toolType != 0 || dragging != null)
+		if(!screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
 		{
 			return null;
 		}
@@ -201,143 +159,20 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	}
 	
 	@Override
-	public void mouseClick(int mx, int my, int button)
+	public void mouseClick(int mx, int my, int click)
 	{
-		if(button != 0 || !QuestDatabase.editMode)
+		if(curTool != null && curTool.isInitialised(this))
 		{
+			curTool.onMouseClick(mx, my, click);
+		}
+		
+		if(!screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
+		{
+			noScroll = true;
 			return;
 		}
 		
-		if(btnSel.mousePressed(Minecraft.getMinecraft(), mx, my))
-		{
-			btnSel.enabled = false;
-			btnGrb.enabled = true;
-			btnLnk.enabled = true;
-			toolType = 0;
-			btnSel.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-		} else if(btnGrb.mousePressed(Minecraft.getMinecraft(), mx, my))
-		{
-			btnSel.enabled = true;
-			btnGrb.enabled = false;
-			btnLnk.enabled = true;
-			toolType = 1;
-			btnGrb.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-		} else if(btnLnk.mousePressed(Minecraft.getMinecraft(), mx, my))
-		{
-			btnSel.enabled = true;
-			btnGrb.enabled = true;
-			btnLnk.enabled = false;
-			toolType = 2;
-			btnLnk.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-		} else if(btnSnp.mousePressed(Minecraft.getMinecraft(), mx, my))
-		{
-			dragSnap = (dragSnap + 1)%snaps.length;
-			btnSnp.displayString = I18n.format("betterquesting.tool.snap", dragSnap + 1);
-			btnSnp.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-		} else if(btnAto.mousePressed(Minecraft.getMinecraft(), mx, my) && qLine != null)
-		{
-			QDesignTree.instance.arrangeQuests(qLine);
-			
-			for(GuiButtonQuestInstance q : qBtns)
-			{
-				QuestLineEntry entry = qLine.getEntryByID(q.quest.questID);
-				
-				if(entry != null)
-				{
-					q.xPosition = entry.posX;
-					q.yPosition = entry.posY;
-				}
-			}
-			
-			autoAlign(QuestDatabase.editMode);
-			
-			btnAto.playPressSound(Minecraft.getMinecraft().getSoundHandler());
-		}
-		
-		if(!screen.isWithin(mx, my, posX, posY, QuestDatabase.editMode? sizeX - 40 : sizeX, sizeY, false))
-		{
-			flag = true;
-			return;
-		}
-		
-		flag = false;
-		
-		float zs = zoom/100F;
-		int rmx = (int)((mx - posX)/zs);
-		int rmy = (int)((my - posY)/zs);
-		
-		if(dragging != null)
-		{
-			if(toolType == 1)
-			{
-				QuestLineEntry entry = qLine.getEntryByID(dragging.quest.questID);
-				
-				if(entry != null)
-				{
-					entry.posX = rmx - scrollX - 12;
-					entry.posY = rmy - scrollY - 12;
-					entry.posX -= entry.posX%snaps[dragSnap];
-					entry.posY -= entry.posY%snaps[dragSnap];
-					dragging.xPosition = entry.posX;
-					dragging.yPosition = entry.posY;
-				}
-				
-				autoAlign(QuestDatabase.editMode);
-			} else if(toolType == 2)
-			{
-				if(screen.isWithin(mx, my, posX, posY, QuestDatabase.editMode? sizeX - 40 : sizeX, sizeY, false))
-				{
-					for(GuiButtonQuestInstance b : qBtns)
-					{
-						if(b != dragging && b.mousePressed(Minecraft.getMinecraft(), rmx, rmy))
-						{
-							if(!b.parents.contains(dragging) && !b.quest.preRequisites.contains(dragging.quest) && !dragging.parents.contains(b) && !dragging.quest.preRequisites.contains(b.quest))
-							{
-								b.parents.add(dragging);
-								b.quest.preRequisites.add(dragging.quest);
-							} else
-							{
-								b.parents.remove(dragging);
-								dragging.parents.remove(b);
-								b.quest.preRequisites.remove(dragging.quest);
-								dragging.quest.preRequisites.remove(b.quest);
-							}
-							
-							JsonObject json1 = new JsonObject();
-							b.quest.writeToJSON(json1);
-							JsonObject json2 = new JsonObject();
-							b.quest.writeProgressToJSON(json2);
-							NBTTagCompound tags = new NBTTagCompound();
-							tags.setInteger("action", 0); // Action: Update data
-							tags.setInteger("questID", b.quest.questID);
-							tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-							tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-							PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
-							
-							break;
-						}
-					}
-				}
-			}
-			
-			dragging = null;
-		} else
-		{
-			for(GuiButtonQuestInstance b : qBtns)
-			{
-				if(b.mousePressed(Minecraft.getMinecraft(), rmx, rmy))
-				{
-					flag = true;
-					
-					if(toolType != 0)
-					{
-						dragging = b;
-					}
-					
-					break;
-				}
-			}
-		}
+		noScroll = curTool != null && !curTool.allowDragging(click);
 	}
 	
 	/**
@@ -400,7 +235,10 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			}
 		}
 		
-		clampScroll();
+		if(curTool == null || curTool.clampScrolling())
+		{
+			clampScroll();
+		}
 		
 		if(applyEdits)
 		{
@@ -418,30 +256,42 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	{
         if(SDX != 0 && screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
         {
-        	zoom = MathHelper.clamp_int(zoom - SDX*5, 50, 200);
-        	clampScroll();
+            if(curTool != null)
+            {
+            	curTool.onMouseScroll(mx, my, SDX);
+            	
+            	if(!curTool.allowScrolling())
+            	{
+            		return; // No zoom for you
+            	}
+            }
+            
+        	setZoom(zoom - SDX*5);
         }
 	}
 	
 	public void setZoom(int value)
 	{
-		zoom = MathHelper.clamp_int(zoom, 1, 200);
-		clampScroll();
+		zoom = MathHelper.clamp_int(zoom, 50, 200);
+		
+		if(curTool == null || curTool.clampScrolling())
+		{
+			clampScroll();
+		}
 	}
 	
-	public void setQuestLine(GuiButtonQuestLine qlBtn)
+	public void setQuestLine(QuestLineButtonTree tree)
 	{
-		dragging = null;
 		zoom = 100;
 		
-		if(qlBtn == null)
+		if(tree == null)
 		{
 			this.qLine = null;
 			this.qBtns = new ArrayList<GuiButtonQuestInstance>();
 		} else
 		{
-			this.qLine = qlBtn.line;
-			this.qBtns = qlBtn.buttonTree;
+			this.qLine = tree.line;
+			this.qBtns = tree.buttonTree;
 			
 			autoAlign(false);
 			
@@ -455,13 +305,13 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	{
 		super.handleMouse();
         
-    	if((Mouse.isButtonDown(0) && !flag) || Mouse.isButtonDown(2))
+    	if((Mouse.isButtonDown(0) && !noScroll) || Mouse.isButtonDown(2))
     	{
 			float zs = zoom/100F;
     		scrollX += (Mouse.getEventDX() * screen.width / screen.mc.displayWidth)/zs;
     		scrollY -= (Mouse.getEventDY() * screen.height / screen.mc.displayHeight)/zs;
     		
-    		if(dragging == null || toolType != 1)
+    		if(curTool == null || curTool.clampScrolling())
     		{
     			clampScroll();
     		}
@@ -471,8 +321,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	public void clampScroll()
 	{
 		float zs = zoom/100F;
-		int sx2 = QuestDatabase.editMode? sizeX - 40 : sizeX;
-		sx2 /= zs;
+		int sx2 = (int)(sizeX/zs);
 		int sy2 = (int)(sizeY/zs);
 		int zmx = (int)Math.abs(sx2/2 - (maxX + 32)/2);
 		int zmy = (int)Math.abs(sy2/2 - (maxY + 32)/2);
@@ -480,5 +329,73 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		int zoy = sy2/2 - (maxY + 32)/2 + 16;
 		scrollX = MathHelper.clamp_int(scrollX, -zmx + zox, zmx + zox);
 		scrollY = MathHelper.clamp_int(scrollY, -zmy + zoy, zmy + zoy);
+	}
+	
+	// Methods below are to assist with editing tools
+	
+	/**
+	 * Convert normal coordinates to canvas coordinates
+	 */
+	public int getRelativeX(int x)
+	{
+		float zs = zoom/100F;
+		return (int)((x - posX)/zs) - scrollX;
+	}
+	
+	/**
+	 * Convert normal coordinates to canvas coordinates
+	 */
+	public int getRelativeY(int y)
+	{
+		float zs = zoom/100F;
+		return (int)((y - posY)/zs) - scrollY;
+	}
+	
+	/**
+	 * Convert canvas coordinates to normal coordinates
+	 */
+	public int getScreenX(int x)
+	{
+		float zs = zoom/100F;
+		return (int)((x + scrollX)*zs) + posX;
+	}
+	
+	/**
+	 * Convert canvas coordinates to normal coordinates
+	 */
+	public int getScreenY(int y)
+	{
+		float zs = zoom/100F;
+		return (int)((y + scrollY)*zs) + posY;
+	}
+	
+	public int getPosX()
+	{
+		return posX;
+	}
+	
+	public int getPosY()
+	{
+		return posY;
+	}
+	
+	public int getWidth()
+	{
+		return sizeX;
+	}
+	
+	public int getHeight()
+	{
+		return sizeY;
+	}
+	
+	public QuestLine getQuestLine()
+	{
+		return qLine;
+	}
+	
+	public ArrayList<GuiButtonQuestInstance> getButtons()
+	{
+		return qBtns;
 	}
 }

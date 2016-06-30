@@ -3,10 +3,10 @@ package betterquesting.client.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
+import betterquesting.client.gui.misc.GuiYesNoLocked;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.party.PartyManager;
@@ -49,6 +50,8 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	public void initGui()
 	{
 		super.initGui();
+		
+		Keyboard.enableRepeatEvents(true);
 		
 		QuestDatabase.updateUI = false;
 		PartyManager.updateUI = false;
@@ -87,6 +90,12 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 			this.mc.displayGuiScreen(parent);
 		}
 	}
+	
+	@Override
+    public void onGuiClosed()
+    {
+    	Keyboard.enableRepeatEvents(false);
+    }
 	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
@@ -194,7 +203,7 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
         {
         	if(this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNo(this, I18n.format("betterquesting.gui.closing_warning"), I18n.format("betterquesting.gui.closing_confirm"), 0));
+        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, I18n.format("betterquesting.gui.closing_warning"), I18n.format("betterquesting.gui.closing_confirm"), 0));
         	} else
         	{
 	            this.mc.displayGuiScreen((GuiScreen)null);

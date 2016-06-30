@@ -7,11 +7,15 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import betterquesting.client.gui.GuiQuesting;
+import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
@@ -22,6 +26,8 @@ public class GuiPartyInvite extends GuiQuesting
 	int maxRows = 0;
 	PartyInstance party;
 	List<NetworkPlayerInfo> playerList;
+	GuiBigTextField txtManual;
+	GuiButtonQuesting btnManual;
 	
 	public GuiPartyInvite(GuiScreen parent, PartyInstance party)
 	{
@@ -32,14 +38,19 @@ public class GuiPartyInvite extends GuiQuesting
 	public void initGui()
 	{
 		super.initGui();
-		maxRows = (sizeY - 72)/20;
+		maxRows = (sizeY - 92)/20;
 		
         NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
 		playerList = new ArrayList<NetworkPlayerInfo>(nethandlerplayclient.getPlayerInfoMap());
 		
+		this.txtManual = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
+		this.txtManual.setWatermark("Username");
+		this.btnManual = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"));
+		this.buttonList.add(btnManual);
+		
 		for(int i = 0; i < maxRows * 3; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 48 + (i/3*20), 100, 20, "Username");
+			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username");
 			this.buttonList.add(btn);
 		}
 		
@@ -49,15 +60,42 @@ public class GuiPartyInvite extends GuiQuesting
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
+		
+		if(txtManual != null)
+		{
+			txtManual.drawTextBox();
+		}
+		
+		GlStateManager.color(1F, 1F, 1F, 1F);
+		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		
+		// Scroll bar
+		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68, 248, 0, 8, 20);
+		int s = 20;
+		while(s < (maxRows - 1) * 20)
+		{
+			this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + s, 248, 20, 8, 20);
+			s += 20;
+		}
+		
+		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + s, 248, 40, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)scroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
 	}
 	
 	public void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
 		
-		if(button.id > 0)
+		if(button.id == 1)
 		{
-			int n1 = button.id - 1; // Button index
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("action", 4);
+			tags.setString("Party", party.name);
+			tags.setString("Member", txtManual.getText());
+			PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+		} else if(button.id > 1)
+		{
+			int n1 = button.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
 			int n3 = n1%(maxRows*3) + scroll; // Format index
 			
@@ -84,12 +122,34 @@ public class GuiPartyInvite extends GuiQuesting
         int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
         int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(SDX != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
         {
     		scroll = Math.max(0, MathHelper.clamp_int(scroll + SDX*3, 0, playerList.size() - maxRows*3));
     		RefreshColumns();
         }
 	}
+	
+	@Override
+    public void keyTyped(char character, int num) throws IOException
+    {
+		super.keyTyped(character, num);
+		
+		if(this.txtManual != null)
+		{
+			this.txtManual.textboxKeyTyped(character, num);
+			
+			if(this.txtManual.getText() != null && this.txtManual.getText().length() > 0)
+			{
+				this.btnManual.enabled = true;
+			} else
+			{
+				this.btnManual.enabled = false;
+			}
+		} else
+		{
+			this.btnManual.enabled = false;
+		}
+    }
 	
 	public void RefreshColumns()
 	{
@@ -97,10 +157,10 @@ public class GuiPartyInvite extends GuiQuesting
 
 		List<GuiButton> btnList = this.buttonList;
 		
-		for(int i = 1; i < btnList.size(); i++)
+		for(int i = 2; i < btnList.size(); i++)
 		{
 			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 1; // Button index
+			int n1 = btn.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
 			int n3 = n1%(maxRows*3) + scroll; // Format index
 			
@@ -112,8 +172,9 @@ public class GuiPartyInvite extends GuiQuesting
 					btn.displayString = playerList.get(n3).getGameProfile().getName();
 				} else
 				{
-					btn.visible = btn.enabled = false;
-					btn.displayString = "#" + n3;
+					btn.visible = true;
+					btn.enabled = false;
+					btn.displayString = "-";
 				}
 			}
 		}

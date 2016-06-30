@@ -338,16 +338,15 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		
 		int pass = 0;
 		
-		while(searching.hasNext() && pass < 100)
+		while(searching.hasNext() && pass < 256)
 		{
-			pass++;
-			
 			Fluid baseFluid = searching.next();
 			
 			if(baseFluid == null)
 			{
 				continue;
 			}
+			pass++;
 			
 			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 			{
