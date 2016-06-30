@@ -63,6 +63,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		btnImport.enabled = ImporterRegistry.getImporters().size() > 0 && mc.isIntegratedServerRunning();
 		this.buttonList.add(btnImport);
 		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests")));
+		this.buttonList.add(new GuiButtonQuesting(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer")));
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
@@ -125,7 +126,6 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 	public void DeleteQuest(int id)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 5);
 		tags.setInteger("action", 1);
 		tags.setInteger("questID", id);
 		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
@@ -169,9 +169,13 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		{
 			// Changes this to import screen
 			mc.displayGuiScreen(new GuiImporters(this));
-		} else if(btn.id > 3)
+		} else if(btn.id == 4 && selected != null)
 		{
-			int n1 = btn.id - 4; // Line index
+			// Changes this to import screen
+			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
+		} else if(btn.id > 4)
+		{
+			int n1 = btn.id - 5; // Line index
 			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
 			int n3 = n1%maxRows + leftScroll; // Quest list index
 			
@@ -293,10 +297,10 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
 		
-		for(int i = 4; i < btnList.size(); i++)
+		for(int i = 5; i < btnList.size(); i++)
 		{
 			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 4; // Line index
+			int n1 = btn.id - 5; // Line index
 			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
 			int n3 = n1%maxRows + leftScroll; // Quest list index
 			

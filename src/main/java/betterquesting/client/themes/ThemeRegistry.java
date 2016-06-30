@@ -1,11 +1,21 @@
 package betterquesting.client.themes;
 
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
@@ -22,6 +32,7 @@ public class ThemeRegistry
 	 */
 	static ThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
 	static HashMap<String,ThemeBase> themeList = new HashMap<String,ThemeBase>();
+	static HashMap<String,ThemeBase> resThemes = new HashMap<String,ThemeBase>();
 	
 	public static void RegisterThemeManual(ThemeBase theme, String domain, String idName)
 	{
@@ -96,12 +107,13 @@ public class ThemeRegistry
 	public static ThemeBase getTheme(String id)
 	{
 		ThemeBase tmp = themeList.get(id);
+		tmp = tmp != null? tmp : resThemes.get(id);
 		return tmp != null? tmp : fallbackTheme;
 	}
 	
 	public static boolean themeExists(String id)
 	{
-		return themeList.get(id) != null;
+		return themeList.get(id) != null || resThemes.get(id) != null;
 	}
 	
 	public static void setTheme(String id)
@@ -128,11 +140,87 @@ public class ThemeRegistry
 			}
 		}
 		
+		for(Entry<String,ThemeBase> entry : resThemes.entrySet())
+		{
+			if(entry.getValue() == theme)
+			{
+				return entry.getKey();
+			}
+		}
+		
 		return "";
 	}
 	
 	public static ArrayList<ThemeBase> GetAllThemes()
 	{
-		return new ArrayList<ThemeBase>(themeList.values());
+		ArrayList<ThemeBase> list = new ArrayList<ThemeBase>();
+		list.addAll(themeList.values());
+		list.addAll(resThemes.values());
+		return list;
+	}
+	
+	public static void RefreshResourceThemes()
+	{
+		resThemes.clear();
+		
+		IResourceManager resManager = Minecraft.getMinecraft().getResourceManager();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		
+        @SuppressWarnings("unchecked")
+		Iterator<String> iterator = resManager.getResourceDomains().iterator();
+        
+        while(iterator.hasNext())
+        {
+            String domain = iterator.next();
+            
+            try
+            {
+            	ResourceLocation res = new ResourceLocation(domain, "bq_themes.json");
+                @SuppressWarnings("unchecked")
+				List<IResource> list = resManager.getAllResources(res);
+                Iterator<IResource> iterator1 = list.iterator();
+
+                while (iterator1.hasNext())
+                {
+                    IResource iresource = (IResource)iterator1.next();
+
+                    try
+                    {
+                    	InputStreamReader isr = new InputStreamReader(iresource.getInputStream());
+                        JsonArray jAry = gson.fromJson(isr, JsonArray.class);
+                        isr.close();
+                        
+                        for(JsonElement je : jAry)
+                        {
+                        	if(je == null || !je.isJsonObject())
+                        	{
+                        		BetterQuesting.logger.log(Level.WARN, "Invalid entry in bq_themes.json");
+                        		continue;
+                        	}
+                        	
+                        	ThemeStandard theme = ThemeStandard.fromJson(je.getAsJsonObject());
+                        	String id = theme.GetName().toLowerCase().trim().replaceAll(" ", "_"); // Generate a 'neater' ID name
+                        	
+                        	if(themeExists(domain + ":" + id))
+                        	{
+                        		int i = 2;
+                        		
+	                        	while(themeExists(domain + ":" + id + "_" + i))
+	                        	{
+	                        		i++;
+	                        	}
+	                        	
+	                        	id = id + "_" + i;
+                        	}
+                        	
+                        	resThemes.put(domain + ":" + id, theme);
+                        }
+                    } catch (Exception e)
+                    {
+                        BetterQuesting.logger.log(Level.WARN, "Invalid bq_themes.json", e);
+                    }
+                }
+            } catch (Exception e){}
+        }
 	}
 }

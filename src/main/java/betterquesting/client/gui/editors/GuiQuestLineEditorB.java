@@ -270,7 +270,6 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		//tags.setInteger("ID", 6);
 		tags.setInteger("action", action);
 		
 		if(action == 2)

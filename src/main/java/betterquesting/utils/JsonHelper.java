@@ -1,12 +1,16 @@
 package betterquesting.utils;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
+import betterquesting.EntityPlaceholder;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -146,7 +150,7 @@ public class JsonHelper
 		NBTTagCompound tags = null;
 		if(json.has("tag"))
 		{
-			tags = NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "tag"), new NBTTagCompound());
+			tags = NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "tag"), new NBTTagCompound(), true);
 		}
 		
 		if(item == null)
@@ -209,7 +213,7 @@ public class JsonHelper
 		json.addProperty("Damage", stack.getBaseStack().getItemDamage());
 		if(stack.HasTagCompound())
 		{
-			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.GetTagCompound(), new JsonObject()));
+			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.GetTagCompound(), new JsonObject(), true));
 		}
 		return json;
 	}
@@ -222,7 +226,7 @@ public class JsonHelper
 		
 		if(json.has("Tag"))
 		{
-			tags = NBTConverter.JSONtoNBT_Object(GetObject(json, "Tag"), new NBTTagCompound());
+			tags = NBTConverter.JSONtoNBT_Object(GetObject(json, "Tag"), new NBTTagCompound(), true);
 		}
 		
 		Fluid fluid = FluidRegistry.getFluid(name);
@@ -276,8 +280,53 @@ public class JsonHelper
 		json.addProperty("Amount", stack.amount);
 		if(stack.tag != null)
 		{
-			json.add("Tag", NBTConverter.NBTtoJSON_Compound(stack.tag, new JsonObject()));
+			json.add("Tag", NBTConverter.NBTtoJSON_Compound(stack.tag, new JsonObject(), true));
 		}
+		return json;
+	}
+	
+	public static Entity JsonToEntity(JsonObject json, World world)
+	{
+		return JsonToEntity(json, world, true);
+	}
+	
+	// Extra option to allow null returns for checking purposes
+	public static Entity JsonToEntity(JsonObject json, World world, boolean allowPlaceholder)
+	{
+		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
+		Entity entity = null;
+		
+		if(tags.hasKey("id") && EntityList.stringToClassMapping.containsKey(tags.getString("id")))
+		{
+			entity = EntityList.createEntityFromNBT(tags, world);
+		}
+		
+		if(entity == null && allowPlaceholder)
+		{
+			entity = new EntityPlaceholder(world);
+			((EntityPlaceholder)entity).SetOriginalTags(tags);
+		} else if(entity instanceof EntityPlaceholder)
+		{
+			EntityPlaceholder p = (EntityPlaceholder)entity;
+			Entity tmp = EntityList.createEntityFromNBT(p.GetOriginalTags(), world);
+			entity = tmp != null? tmp : p;
+		}
+		
+		return entity;
+	}
+	
+	public static JsonObject EntityToJson(Entity entity, JsonObject json)
+	{
+		if(entity == null)
+		{
+			return json;
+		}
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		entity.writeToNBTOptional(tags);
+		String id = EntityList.getEntityString(entity);
+		tags.setString("id", id); // Some entities don't write this to file in certain cases
+		NBTConverter.NBTtoJSON_Compound(tags, json, true);
 		return json;
 	}
 }

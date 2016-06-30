@@ -1,0 +1,54 @@
+package betterquesting;
+
+import betterquesting.core.BetterQuesting;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+
+public class EntityPlaceholder extends Entity
+{
+	EntityItem eItem;
+	NBTTagCompound original = new NBTTagCompound();
+	
+	public EntityPlaceholder(World world)
+	{
+		super(world);
+		eItem = new EntityItem(world);
+		eItem.setEntityItemStack(new ItemStack(BetterQuesting.placeholder));
+	}
+	
+	public EntityPlaceholder SetOriginalTags(NBTTagCompound tags)
+	{
+		this.original = tags;
+		return this;
+	}
+	
+	public NBTTagCompound GetOriginalTags()
+	{
+		return this.original;
+	}
+	
+	public EntityItem GetItemEntity()
+	{
+		return eItem;
+	}
+	
+	@Override
+	protected void entityInit()
+	{
+	}
+	
+	@Override
+	protected void readEntityFromNBT(NBTTagCompound tags)
+	{
+		original = tags.getCompoundTag("original");
+	}
+	
+	@Override
+	protected void writeEntityToNBT(NBTTagCompound tags)
+	{
+		tags.setTag("original", this.original);
+	}
+}

@@ -81,7 +81,7 @@ public class QuestLine
 					questList.add(qe);
 				} else
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString(), new IllegalArgumentException());
+					BetterQuesting.logger.log(Level.WARN, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString());
 				}
 			} else if(entry.isJsonObject())
 			{
@@ -93,7 +93,7 @@ public class QuestLine
 					questList.add(qe);
 				} else
 				{
-					BetterQuesting.logger.log(Level.ERROR, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString(), new IllegalArgumentException());
+					BetterQuesting.logger.log(Level.WARN, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString());
 				}
 			}
 		}

@@ -36,6 +36,8 @@ public class GuiThemeSelect extends GuiQuesting
 	{
 		super.initGui();
 		
+		ThemeRegistry.RefreshResourceThemes();
+		
 		maxRows = (sizeY - 80)/20;
 		int btnWidth = sizeX/2 - 32;
 		

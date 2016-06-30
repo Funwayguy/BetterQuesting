@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
@@ -51,8 +50,6 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
 	public void initGui()
     {
     	super.initGui();
-    	
-        Keyboard.enableRepeatEvents(true);
 
 		maxRows = (sizeY - 48)/20;
 		
@@ -90,13 +87,11 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
 			}
     	}
     }
-
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
+    
+    @Override
     public void onGuiClosed()
     {
-        Keyboard.enableRepeatEvents(false);
+        super.onGuiClosed();
         
         if(host != null)
         {

@@ -18,7 +18,6 @@ import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -43,18 +42,13 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 	{
 		super.initGui();
 		
-		if(json.has("id") && EntityList.stringToClassMapping.get(JsonHelper.GetString(json, "id", "Pig")) != null)
-		{
-			entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), this.mc.theWorld);
-		}
+		entity = JsonHelper.JsonToEntity(json, this.mc.theWorld, false);
 		
 		if(entity == null)
 		{
 			entity = new EntityPig(Minecraft.getMinecraft().theWorld);
 			this.json.entrySet().clear();
-			NBTTagCompound eTags = new NBTTagCompound();
-			entity.writeToNBTOptional(eTags);
-			NBTConverter.NBTtoJSON_Compound(eTags, json);
+			JsonHelper.EntityToJson(entity, json);
 		}
 		
 		scrollPos = 0;
@@ -141,11 +135,7 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 				{
 					tmpE.readFromNBT(new NBTTagCompound()); // Solves some instantiation issues
 					tmpE.isDead = false; // Some entities instantiate dead or die when ticked
-					NBTTagCompound eTags = new NBTTagCompound();
-					tmpE.writeToNBTOptional(eTags);
-					eTags.setString("id", EntityList.getEntityString(tmpE)); // Some entities don't write this to file in certain cases
-					this.json.entrySet().clear();
-					NBTConverter.NBTtoJSON_Compound(eTags, json);
+					JsonHelper.EntityToJson(tmpE, json);
 					entity = tmpE;
 				} catch(Exception e)
 				{

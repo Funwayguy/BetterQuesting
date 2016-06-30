@@ -37,7 +37,7 @@ public class PktHandlerQuestEdit extends PktHandler
 		{
 			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
 			return;
-		} else if(quest == null || qID < 0)
+		} else if((quest == null || qID < 0) && action < 2)
 		{
 			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
 			return;
@@ -62,9 +62,19 @@ public class PktHandlerQuestEdit extends PktHandler
 			}
 		} else if(action == 1) // Delete quest
 		{
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.name);
 			QuestDatabase.DeleteQuest(quest.questID);
 			QuestDatabase.UpdateClients();
+		} else if(action == 2) // Full edit
+		{
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " made a database edit");
+			JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
+			JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
+			QuestDatabase.readFromJson(json1);
+			QuestDatabase.readFromJson_Progression(json2);
+			QuestDatabase.UpdateClients();
 		}
+		
 		return;
 	}
 
