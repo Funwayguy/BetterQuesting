@@ -166,7 +166,8 @@ public class ToolboxGuiMain extends ToolboxGui
 			GL11.glEnable(GL11.GL_LINE_STIPPLE);
 			if(i != 0)
 			{
-				GL11.glLineStipple(2, (short)0b1010101010101010);
+				//GL11.glLineStipple(2, (short)0b1010101010101010); // 1.7 upward only
+				GL11.glLineStipple(2, (short)43690);
 			}
 			RenderUtils.DrawLine(ui.getScreenX(i), ui.getPosY(), ui.getScreenX(i), ui.getPosY() + ui.getHeight(), i == 0? 2F : 1F, ThemeRegistry.curTheme().textColor());
 			GL11.glLineStipple(1, (short)0xFFFF);
@@ -180,7 +181,8 @@ public class ToolboxGuiMain extends ToolboxGui
 			GL11.glEnable(GL11.GL_LINE_STIPPLE);
 			if(j != 0)
 			{
-				GL11.glLineStipple(2, (short)0b1010101010101010);
+				//GL11.glLineStipple(2, (short)0b1010101010101010); // 1.7 upward only
+				GL11.glLineStipple(2, (short)43690);
 			}
 			RenderUtils.DrawLine(ui.getPosX(), ui.getScreenY(j), ui.getPosX() + ui.getWidth(), ui.getScreenY(j), j == 0? 2F : 1F, ThemeRegistry.curTheme().textColor());
 			GL11.glLineStipple(1, (short)0xFFFF);
