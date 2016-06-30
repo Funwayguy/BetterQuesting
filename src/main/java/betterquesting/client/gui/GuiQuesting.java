@@ -3,6 +3,7 @@ package betterquesting.client.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -50,6 +51,8 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	{
 		super.initGui();
 		
+		Keyboard.enableRepeatEvents(true);
+		
 		QuestDatabase.updateUI = false;
 		PartyManager.updateUI = false;
 		
@@ -87,6 +90,12 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 			this.mc.displayGuiScreen(parent);
 		}
 	}
+	
+	@Override
+    public void onGuiClosed()
+    {
+    	Keyboard.enableRepeatEvents(false);
+    }
 	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)

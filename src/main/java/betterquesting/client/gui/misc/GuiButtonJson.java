@@ -4,8 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,7 +16,6 @@ import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.editors.json.GuiJsonTypeMenu;
 import betterquesting.utils.BigItemStack;
 import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -51,9 +48,9 @@ public class GuiButtonJson extends GuiButtonQuesting
 				this.stack = JsonHelper.JsonToItemStack(tmpObj);
 			}
 			
-			if(stack == null && tmpObj.has("id") && EntityList.NAME_TO_CLASS.get(JsonHelper.GetString(tmpObj, "id", "Pig")) != null)
+			if(stack == null)
 			{
-				this.entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
+				this.entity = JsonHelper.JsonToEntity(tmpObj, Minecraft.getMinecraft().theWorld, false);
 			}
 			
 			if(tmpObj.has("FluidName") && tmpObj.has("Amount"))

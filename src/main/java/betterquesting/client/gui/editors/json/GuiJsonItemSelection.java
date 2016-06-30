@@ -355,16 +355,16 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 		
 		int pass = 0;
 		
-		while(searching.hasNext() && pass < 100)
+		while(searching.hasNext() && pass < 256)
 		{
-			pass++;
-			
 			Item baseItem = searching.next();
 			
 			if(baseItem == null)
 			{
 				continue;
 			}
+			
+			pass++;
 			
 			ArrayList<ItemStack> subList = new ArrayList<ItemStack>();
 			

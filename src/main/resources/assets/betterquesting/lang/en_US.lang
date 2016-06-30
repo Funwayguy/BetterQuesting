@@ -32,6 +32,7 @@ betterquesting.btn.show=Show
 betterquesting.btn.claim=Claim
 betterquesting.btn.detect_submit=Detect/Submit
 betterquesting.btn.add_remove_quests=Add/Remove Quests
+betterquesting.btn.designer=Designer
 betterquesting.btn.item=Item
 betterquesting.btn.list=List
 betterquesting.btn.fluid=Fluid
@@ -124,11 +125,24 @@ betterquesting.help.page8=§l§nResources%n§r%nIf you want to customise the hom
 
 betterquesting.design.tree=Tree Design
 
-betterquesting.tool.select=Select
-betterquesting.tool.grab=Grab
-betterquesting.tool.link=Link
-betterquesting.tool.snap=Snap: %s
-betterquesting.tool.auto=Auto
+betterquesting.toolbox.tab.main=Main
+
+betterquesting.toolbox.tool.open.name=Open
+betterquesting.toolbox.tool.open.desc=Opens a quest for futher editing
+betterquesting.toolbox.tool.grab.name=Grab
+betterquesting.toolbox.tool.grab.desc=Picks up and moves quests elsewhere in the quest line
+betterquesting.toolbox.tool.link.name=Link
+betterquesting.toolbox.tool.link.desc=Sets a quest as prerequisites for others. If a link is already present then it is removed
+betterquesting.toolbox.tool.snap.name=Grid Snap
+betterquesting.toolbox.tool.snap.desc=Changes the grid snap resolution for various other tools
+betterquesting.toolbox.tool.copy.name=Copy
+betterquesting.toolbox.tool.copy.desc=Copies the given quest including prerequisites, tasks and rewards but not progression data
+betterquesting.toolbox.tool.new.name=New Quest
+betterquesting.toolbox.tool.new.desc=Creates a new empty quest
+betterquesting.toolbox.tool.delete.name=Delete Quest
+betterquesting.toolbox.tool.delete.desc=Deletes the given quest from the quest line and database
+betterquesting.toolbox.tool.remove.name=Remove Quest
+betterquesting.toolbox.tool.remove.desc=Removes the given quest only from the quest line. The quest will still be accessible through the database
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default

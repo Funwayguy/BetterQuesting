@@ -81,7 +81,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(!btnLine.enabled)
 			{
-				for(GuiButtonQuestInstance p : btnLine.buttonTree)
+				for(GuiButtonQuestInstance p : btnLine.tree.buttonTree)
 				{
 					if((p.quest.isComplete(mc.thePlayer.getUniqueID()) || p.quest.isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.line != line))
 					{
@@ -102,17 +102,12 @@ public class GuiQuestLinesMain extends GuiQuesting
 		} else
 		{
 			qlDesc.SetText(selected.line.description);
-			qlGui.setQuestLine(selected);
+			qlGui.setQuestLine(selected.tree);
 		}
 		
 		if(oldGui != null) // Preserve old settings
 		{
-			qlGui.zoom = oldGui.zoom;
-			qlGui.scrollX = oldGui.scrollX;
-			qlGui.scrollY = oldGui.scrollY;
-			qlGui.toolType = oldGui.toolType;
-			qlGui.dragSnap = oldGui.dragSnap;
-			qlGui.refreshToolButtons();
+			qlGui.copySettings(oldGui);
 		}
 		
 		UpdateScroll();
@@ -182,7 +177,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 			if(selected != null)
 			{
 				qlDesc.SetText(I18n.format(selected.line.description));
-				qlGui.setQuestLine(selected);
+				qlGui.setQuestLine(selected.tree);
 			}
 		}
 	}

@@ -24,9 +24,11 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
+import betterquesting.EntityPlaceholder;
 import betterquesting.blocks.BlockSubmitStation;
 import betterquesting.blocks.FluidPlaceholder;
 import betterquesting.blocks.TileSubmitStation;
@@ -114,6 +116,8 @@ public class BetterQuesting
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 2), new ItemStack(extraLife, 1, 1));
     	
     	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.BOOK), new ItemStack(Blocks.CHEST), new ItemStack(Blocks.GLASS));
+    	
+    	EntityRegistry.registerModEntity(EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     	
     	proxy.registerRenderers();
     }

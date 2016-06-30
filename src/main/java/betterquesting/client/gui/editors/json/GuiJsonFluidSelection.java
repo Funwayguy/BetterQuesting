@@ -32,6 +32,7 @@ import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
+@SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
 public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScreen
 {
@@ -337,16 +338,16 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		
 		int pass = 0;
 		
-		while(searching.hasNext() && pass < 100)
+		while(searching.hasNext() && pass < 256)
 		{
-			pass++;
-			
 			Fluid baseFluid = searching.next();
 			
 			if(baseFluid == null)
 			{
 				continue;
 			}
+			
+			pass++;
 			
 			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.format(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 			{
@@ -371,9 +372,8 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		{
 			searchPage = 0;
 			searchResults.clear();
-			String searchTxt = searchBox.getText().toLowerCase();
-			
-			Iterator<Fluid> iterator = FluidRegistry.getRegisteredFluids().values().iterator();
+			searchTxt = searchBox.getText().toLowerCase();
+			searching = FluidRegistry.getRegisteredFluids().values().iterator();
 			
 			
 		}
