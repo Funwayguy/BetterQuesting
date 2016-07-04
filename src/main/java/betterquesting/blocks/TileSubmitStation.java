@@ -399,7 +399,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side)
 	{
-		return slot == 0 && isItemValidForSlot(slot, stack);
+		return isItemValidForSlot(slot, stack);
 	}
 
 	@Override
@@ -457,7 +457,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		if(stack == null)
 		{
 			return null;
-		} else if(slot != 0)
+		} else if(!isItemValidForSlot(slot, stack))
 		{
 			return stack;
 		}
@@ -477,6 +477,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 		if(!simulate)
 		{
+			if(ts1 == null)
+			{
+				ts1 = ts2;
+			} else
+			{
+				ts1.stackSize += ts2.stackSize;
+			}
+			
 			setInventorySlotContents(slot, ts1);
 		}
 		

@@ -17,6 +17,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -172,9 +173,16 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				{
 					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.stackSize > 1? stack.stackSize : ""));
 					
-					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false) && FluidContainerRegistry.isFilledContainer(stack))
+					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false))
 					{
-						ttStack = FluidContainerRegistry.getFluidForFilledItem(stack);
+						if(FluidContainerRegistry.isFilledContainer(stack))
+						{
+							ttStack = FluidContainerRegistry.getFluidForFilledItem(stack);
+						} else if(stack.getItem() instanceof IFluidContainerItem)
+						{
+							IFluidContainerItem container = (IFluidContainerItem)stack.getItem();
+							ttStack = container.getFluid(stack);
+						}
 					}
 				}
 			}
@@ -285,12 +293,26 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			{
 				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory[index];
 				
-				if(invoStack != null && FluidContainerRegistry.isFilledContainer(invoStack))
+				if(invoStack != null)
 				{
-					this.stackSelect = FluidContainerRegistry.getFluidForFilledItem(invoStack).copy();
-					this.json.entrySet().clear();
-					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
-					numberBox.setText("" + stackSelect.amount);
+					FluidStack tmp = null;
+					
+					if(FluidContainerRegistry.isFilledContainer(invoStack))
+					{
+						tmp = FluidContainerRegistry.getFluidForFilledItem(invoStack);
+					} else if(invoStack.getItem() instanceof IFluidContainerItem)
+					{
+						IFluidContainerItem container = (IFluidContainerItem)invoStack.getItem();
+						tmp = container.getFluid(invoStack);
+					}
+					
+					if(tmp != null)
+					{
+						this.stackSelect = tmp.copy();
+						this.json.entrySet().clear();
+						this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
+						numberBox.setText("" + stackSelect.amount);
+					}
 				}
 			}
 		} else if(this.isWithin(mx, my, this.sizeX/2, 48, columns * 18, rows * 18))

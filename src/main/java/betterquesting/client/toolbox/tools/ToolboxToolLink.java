@@ -57,6 +57,15 @@ public class ToolboxToolLink extends ToolboxTool
 			return;
 		}
 		
+		if(click == 1)
+		{
+			b1 = null;
+			return;
+		} else if(click != 0)
+		{
+			return;
+		}
+		
 		if(b1 == null)
 		{
 			b1 = ui.getClickedQuest(mx, my);

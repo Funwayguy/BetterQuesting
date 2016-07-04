@@ -27,6 +27,8 @@ public class ToolboxToolCopy extends ToolboxTool
 	public void initTool(GuiQuestLinesEmbedded ui)
 	{
 		super.initTool(ui);
+		
+		btnQuest = null;
 	}
 	
 	@Override
@@ -55,6 +57,15 @@ public class ToolboxToolCopy extends ToolboxTool
 	public void onMouseClick(int mx, int my, int click)
 	{
 		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		{
+			return;
+		}
+		
+		if(click == 1 && btnQuest != null)
+		{
+			ui.getButtons().remove(btnQuest);
+			btnQuest = null;
+		} else if(click != 0)
 		{
 			return;
 		}

@@ -143,6 +143,10 @@ betterquesting.toolbox.tool.delete.name=Delete Quest
 betterquesting.toolbox.tool.delete.desc=Deletes the given quest from the quest line and database
 betterquesting.toolbox.tool.remove.name=Remove Quest
 betterquesting.toolbox.tool.remove.desc=Removes the given quest only from the quest line. The quest will still be accessible through the database
+betterquesting.toolbox.tool.complete.name=Manual Complete
+betterquesting.toolbox.tool.complete.desc=Forcibly completes the selected quest
+betterquesting.toolbox.tool.reset.name=Reset Quest
+betterquesting.toolbox.tool.reset.desc=Resets completion status and all task progress
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default
