@@ -3,6 +3,7 @@ package betterquesting.utils;
 import java.util.ArrayList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
@@ -10,7 +11,6 @@ import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**

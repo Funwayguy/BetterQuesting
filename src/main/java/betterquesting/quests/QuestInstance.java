@@ -527,7 +527,7 @@ public class QuestInstance
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.format(name));
+		list.add(I18n.format(name) + " #" + questID);
 		
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.main_quest", isMain));
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_quest", globalQuest));

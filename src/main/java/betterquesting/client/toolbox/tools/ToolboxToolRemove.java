@@ -22,6 +22,11 @@ public class ToolboxToolRemove extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
+		if(click != 0)
+		{
+			return;
+		}
+		
 		QuestLine line = ui.getQuestLine();
 		GuiButtonQuestInstance btn = ui.getClickedQuest(mx, my);
 		
