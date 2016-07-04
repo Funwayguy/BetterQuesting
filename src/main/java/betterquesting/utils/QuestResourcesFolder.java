@@ -13,7 +13,7 @@ import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.core.BetterQuesting;
 
-public class QuestResources implements IResourcePack
+public class QuestResourcesFolder implements IResourcePack
 {
 	static final File rootFolder = new File("config/betterquesting/resources/");
 	
@@ -74,7 +74,6 @@ public class QuestResources implements IResourcePack
 	@Override
 	public String getPackName()
 	{
-		return BetterQuesting.NAME;
+		return BetterQuesting.NAME + "_folders";
 	}
-	
 }

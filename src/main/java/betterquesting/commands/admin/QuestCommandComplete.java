@@ -79,14 +79,18 @@ public class QuestCommandComplete extends QuestCommandBase
 			quest.setComplete(uuid, 0);
 			
 			int done = 0;
-			for(TaskBase task : quest.tasks)
+			
+			if(!quest.logic.GetResult(done, quest.tasks.size())) // Preliminary check
 			{
-				task.setCompletion(uuid, true);
-				done += 1;
-				
-				if(quest.logic.GetResult(done, quest.tasks.size()))
+				for(TaskBase task : quest.tasks)
 				{
-					break; // Only complete enough quests to claim the reward
+					task.setCompletion(uuid, true);
+					done += 1;
+					
+					if(quest.logic.GetResult(done, quest.tasks.size()))
+					{
+						break; // Only complete enough quests to claim the reward
+					}
 				}
 			}
 			

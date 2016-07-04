@@ -69,6 +69,24 @@ public class ToolboxToolGrab extends ToolboxTool
 			return;
 		}
 		
+		if(click == 1)
+		{
+			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			
+			if(qle != null)
+			{
+				// Reset position
+				grabbed.xPosition = qle.posX;
+				grabbed.yPosition = qle.posY;
+			}
+			
+			grabbed = null;
+			return;
+		} else if(click != 0)
+		{
+			return;
+		}
+		
 		if(grabbed == null)
 		{
 			grabbed = ui.getClickedQuest(mx, my);

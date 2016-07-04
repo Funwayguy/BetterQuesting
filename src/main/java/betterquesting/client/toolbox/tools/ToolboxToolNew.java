@@ -75,7 +75,7 @@ public class ToolboxToolNew extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		if(click != 0 || !screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
 		{
 			return;
 		}

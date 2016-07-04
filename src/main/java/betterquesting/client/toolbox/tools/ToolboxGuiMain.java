@@ -29,6 +29,8 @@ public class ToolboxGuiMain extends ToolboxGui
 	GuiButtonQuesting btnCopy;
 	GuiButtonQuesting btnRem;
 	GuiButtonQuesting btnDel;
+	GuiButtonQuesting btnCom;
+	GuiButtonQuesting btnRes;
 	
 	public ToolboxGuiMain(GuiQuestLineDesigner designer, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -90,6 +92,18 @@ public class ToolboxGuiMain extends ToolboxGui
 		list.add(btnDel);
 		btnDel.enabled = curTool != ToolboxTabMain.instance.toolDel;
 		
+		btnCom = new GuiButtonQuesting(2, posX + 8, posY + 120, 20, 20, "");
+		btnCom.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 128, 0, 16, 16, true);
+		setButtonTooltip(btnCom, I18n.format("betterquesting.toolbox.tool.complete.name"), I18n.format("betterquesting.toolbox.tool.complete.desc"));
+		list.add(btnCom);
+		btnCom.enabled = curTool != ToolboxTabMain.instance.toolCom;
+		
+		btnRes = new GuiButtonQuesting(2, posX + 36, posY + 120, 20, 20, "");
+		btnRes.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 128, 16, 16, 16, true);
+		setButtonTooltip(btnRes, I18n.format("betterquesting.toolbox.tool.reset.name"), I18n.format("betterquesting.toolbox.tool.reset.desc"));
+		list.add(btnRes);
+		btnRes.enabled = curTool != ToolboxTabMain.instance.toolRes;
+		
 		if(designer.getEmbeddedGui() != null && designer.getEmbeddedGui().getCurrentTool() == null)
 		{
 			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolOpen);
@@ -117,6 +131,8 @@ public class ToolboxGuiMain extends ToolboxGui
 		btnCopy.drawButton(screen.mc, mx, my);
 		btnRem.drawButton(screen.mc, mx, my);
 		btnDel.drawButton(screen.mc, mx, my);
+		btnCom.drawButton(screen.mc, mx, my);
+		btnRes.drawButton(screen.mc, mx, my);
 	}
 	
 	@Override
@@ -132,6 +148,8 @@ public class ToolboxGuiMain extends ToolboxGui
 		bTip = btnCopy.isMouseOver()? btnCopy : bTip;
 		bTip = btnRem.isMouseOver()? btnRem : bTip;
 		bTip = btnDel.isMouseOver()? btnDel : bTip;
+		bTip = btnCom.isMouseOver()? btnCom : bTip;
+		bTip = btnRes.isMouseOver()? btnRes : bTip;
 		
 		if(bTip != null)
 		{
@@ -244,6 +262,18 @@ public class ToolboxGuiMain extends ToolboxGui
 			btnRem.playPressSound(screen.mc.getSoundHandler());
 			btnRem.enabled = false;
 			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolRem);
+		} else if(btnCom.mousePressed(screen.mc, mx, my))
+		{
+			resetButtons();
+			btnCom.playPressSound(screen.mc.getSoundHandler());
+			btnCom.enabled = false;
+			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolCom);
+		} else if(btnRes.mousePressed(screen.mc, mx, my))
+		{
+			resetButtons();
+			btnRes.playPressSound(screen.mc.getSoundHandler());
+			btnRes.enabled = false;
+			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolRes);
 		}
 	}
 	
