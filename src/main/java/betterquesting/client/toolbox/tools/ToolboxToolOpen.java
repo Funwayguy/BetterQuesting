@@ -15,6 +15,11 @@ public class ToolboxToolOpen extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
+		if(click != 0)
+		{
+			return;
+		}
+		
 		GuiButtonQuestInstance btn = ui.getClickedQuest(mx, my);
 		
 		if(btn != null && btn.quest != null)

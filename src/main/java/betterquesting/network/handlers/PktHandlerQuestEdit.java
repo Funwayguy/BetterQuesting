@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
+import betterquesting.quests.tasks.TaskBase;
 import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
@@ -37,14 +38,16 @@ public class PktHandlerQuestEdit extends PktHandler
 		{
 			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
 			return;
-		} else if((quest == null || qID < 0) && action < 2)
-		{
-			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
-			return;
 		}
 		
 		if(action == 0) // Update quest data
 		{
+			if(quest == null || qID < 0)
+			{
+				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
+				return;
+			}
+			
 			int ps = quest.preRequisites.size();
 			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " edited quest " + quest.name);
@@ -62,6 +65,12 @@ public class PktHandlerQuestEdit extends PktHandler
 			}
 		} else if(action == 1) // Delete quest
 		{
+			if(quest == null || qID < 0)
+			{
+				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to delete non-existent quest with ID:" + qID);
+				return;
+			}
+			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.name);
 			QuestDatabase.DeleteQuest(quest.questID);
 			QuestDatabase.UpdateClients();
@@ -73,9 +82,41 @@ public class PktHandlerQuestEdit extends PktHandler
 			QuestDatabase.readFromJson(json1);
 			QuestDatabase.readFromJson_Progression(json2);
 			QuestDatabase.UpdateClients();
+		} else if(action == 3) // Force Complete
+		{
+			if(quest == null || qID < 0)
+			{
+				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to force complete non-existent quest with ID:" + qID);
+				return;
+			}
+			
+			quest.setComplete(sender.getUniqueID(), 0);
+			
+			int done = 0;
+			
+			if(!quest.logic.GetResult(done, quest.tasks.size())) // Preliminary check
+			{
+				for(TaskBase task : quest.tasks)
+				{
+					task.setCompletion(sender.getUniqueID(), true);
+					done += 1;
+					
+					if(quest.logic.GetResult(done, quest.tasks.size()))
+					{
+						break; // Only complete enough quests to claim the reward
+					}
+				}
+			}
+		} else if(action == 4) // Force Reset
+		{
+			if(quest == null || qID < 0)
+			{
+				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to force reset non-existent quest with ID:" + qID);
+				return;
+			}
+			
+			quest.ResetQuest();
 		}
-		
-		return;
 	}
 
 	@Override

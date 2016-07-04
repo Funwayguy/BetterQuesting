@@ -30,6 +30,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVolatileScreen
 {
+	GuiButtonQuesting btnDesign;
 	GuiTextField lineTitle;
 	GuiBigTextField lineDesc;
 	QuestLine selected;
@@ -63,7 +64,8 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		btnImport.enabled = ImporterRegistry.getImporters().size() > 0 && mc.isIntegratedServerRunning();
 		this.buttonList.add(btnImport);
 		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests")));
-		this.buttonList.add(new GuiButtonQuesting(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer")));
+		btnDesign = new GuiButtonQuesting(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer"));
+		this.buttonList.add(btnDesign);
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
@@ -292,6 +294,11 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 				selected = null;
 				selIndex = -1;
 			}
+		}
+		
+		if(btnDesign != null)
+		{
+			btnDesign.enabled = selected != null;
 		}
 
 		@SuppressWarnings("unchecked")

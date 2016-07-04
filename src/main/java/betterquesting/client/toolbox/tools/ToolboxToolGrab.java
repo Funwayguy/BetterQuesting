@@ -69,6 +69,15 @@ public class ToolboxToolGrab extends ToolboxTool
 			return;
 		}
 		
+		if(click == 1)
+		{
+			grabbed = null;
+			return;
+		} else if(click != 0)
+		{
+			return;
+		}
+		
 		if(grabbed == null)
 		{
 			grabbed = ui.getClickedQuest(mx, my);

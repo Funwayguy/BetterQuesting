@@ -7,9 +7,9 @@ import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 
-public class ToolboxToolDelete extends ToolboxTool
+public class ToolboxToolComplete extends ToolboxTool
 {
-	public ToolboxToolDelete(GuiQuesting screen)
+	public ToolboxToolComplete(GuiQuesting screen)
 	{
 		super(screen);
 	}
@@ -27,7 +27,7 @@ public class ToolboxToolDelete extends ToolboxTool
 		if(btn != null)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 1); // Delete quest
+			tags.setInteger("action", 3); // Complete quest
 			tags.setInteger("questID", btn.quest.questID);
 			PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 		}

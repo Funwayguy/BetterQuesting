@@ -525,7 +525,7 @@ public class QuestInstance
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(StatCollector.translateToLocalFormatted(name));
+		list.add(StatCollector.translateToLocalFormatted(name) + " #" + questID);
 		
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", isMain));
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", globalQuest));

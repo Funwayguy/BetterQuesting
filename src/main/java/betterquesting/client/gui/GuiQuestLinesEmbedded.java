@@ -274,7 +274,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	
 	public void setZoom(int value)
 	{
-		zoom = MathHelper.clamp_int(zoom, 50, 200);
+		zoom = MathHelper.clamp_int(value, 50, 200);
 		
 		if(curTool == null || curTool.clampScrolling())
 		{

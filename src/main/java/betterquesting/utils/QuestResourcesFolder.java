@@ -7,13 +7,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.logging.log4j.Level;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.data.IMetadataSection;
 import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.core.BetterQuesting;
 
-public class QuestResources implements IResourcePack
+public class QuestResourcesFolder implements IResourcePack
 {
 	static final File rootFolder = new File("config/betterquesting/resources/");
 	
@@ -52,7 +53,13 @@ public class QuestResources implements IResourcePack
 			
 			if(f.exists() && f.isDirectory())
 			{
-				folders.add(f.getName());
+				if(!f.getName().equals(f.getName().toLowerCase()))
+				{
+					logNameNotLowercase(f.getName(), f.toString());
+				} else
+				{
+					folders.add(f.getName());
+				}
 			}
 		}
 		
@@ -74,7 +81,11 @@ public class QuestResources implements IResourcePack
 	@Override
 	public String getPackName()
 	{
-		return BetterQuesting.NAME;
+		return BetterQuesting.NAME + "_folders";
 	}
 	
+    protected void logNameNotLowercase(String name, String file)
+    {
+        BetterQuesting.logger.log(Level.WARN, "ResourcePack: ignored non-lowercase namespace: {} in {}", new Object[] {name, file});
+    }
 }

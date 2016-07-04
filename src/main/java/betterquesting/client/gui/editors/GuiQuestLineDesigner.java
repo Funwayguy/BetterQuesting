@@ -68,6 +68,8 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 			qlGui.copySettings(oldGui);
 		}
 		
+		qlGui.clampScroll();
+		
 		ArrayList<ToolboxTab> tabList = ToolboxRegistry.getList();
 		
 		if(tabGui == null && tabList.size() > tabIndex)

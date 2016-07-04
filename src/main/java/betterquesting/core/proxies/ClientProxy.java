@@ -13,7 +13,8 @@ import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.tools.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.QuestResources;
+import betterquesting.utils.QuestResourcesFile;
+import betterquesting.utils.QuestResourcesFolder;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 
@@ -36,12 +37,15 @@ public class ClientProxy extends CommonProxy
 		try
 		{
 			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
-			QuestResources qRes = new QuestResources();
-			list.add(qRes);
-			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes); // Make sure the pack(s) are visible to everything
+			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
+			QuestResourcesFile qRes2 = new QuestResourcesFile();
+			list.add(qRes1);
+			list.add(qRes2);
+			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes1); // Make sure the pack(s) are visible to everything
+			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes2); // Make sure the pack(s) are visible to everything
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loader", e);
+			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loaders", e);
 		}
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
