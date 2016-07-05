@@ -11,15 +11,12 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidContainerItem;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,7 +33,6 @@ import betterquesting.utils.NBTConverter;
 import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 
-@SuppressWarnings("deprecation")
 @SideOnly(Side.CLIENT)
 public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScreen
 {
@@ -178,17 +174,11 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 					
 					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false))
 					{
-						if(FluidContainerRegistry.isFilledContainer(stack))
+						IFluidHandler fluidCap = FluidUtil.getFluidHandler(stack);
+						
+						if(fluidCap != null)
 						{
-							ttStack = FluidContainerRegistry.getFluidForFilledItem(stack);
-						} else if(stack.getItem() instanceof IFluidContainerItem)
-						{
-							IFluidContainerItem container = (IFluidContainerItem)stack.getItem();
-							ttStack = container.getFluid(stack);
-						} else if(stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, EnumFacing.NORTH))
-						{
-							IFluidHandler fluidCap = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, EnumFacing.NORTH);
-							ttStack = fluidCap == null? null : fluidCap.drain(Integer.MAX_VALUE, false);
+							ttStack = fluidCap.drain(Integer.MAX_VALUE, false);
 						}
 					}
 				}
@@ -304,17 +294,11 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				{
 					FluidStack tmp = null;
 					
-					if(FluidContainerRegistry.isFilledContainer(invoStack))
+					IFluidHandler fluidCap = FluidUtil.getFluidHandler(invoStack);
+					
+					if(fluidCap != null)
 					{
-						tmp = FluidContainerRegistry.getFluidForFilledItem(invoStack);
-					} else if(invoStack.getItem() instanceof IFluidContainerItem)
-					{
-						IFluidContainerItem container = (IFluidContainerItem)invoStack.getItem();
-						tmp = container.getFluid(invoStack);
-					} else if(invoStack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, EnumFacing.NORTH))
-					{
-						IFluidHandler fluidCap = invoStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, EnumFacing.NORTH);
-						tmp = fluidCap == null? null : fluidCap.drain(Integer.MAX_VALUE, false);
+						tmp = fluidCap.drain(Integer.MAX_VALUE, false);
 					}
 					
 					if(tmp != null)
