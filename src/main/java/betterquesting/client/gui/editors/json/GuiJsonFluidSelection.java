@@ -357,6 +357,11 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			
 			pass++;
 			
+			if(baseFluid.getUnlocalizedName() == null || FluidRegistry.getDefaultFluidName(baseFluid) == null)
+			{
+				continue;
+			}
+			
 			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 			{
 				searchResults.add(new FluidStack(baseFluid, 1000));

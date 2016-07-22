@@ -32,7 +32,7 @@ public class BQ_CommandsUser extends CommandBase
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_admin " + c.getCommand();
+			txt += "/bq_user " + c.getCommand();
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
@@ -80,10 +80,17 @@ public class BQ_CommandsUser extends CommandBase
     /**
      * Return the required permission level for this command.
      */
+	@Override
     public int getRequiredPermissionLevel()
     {
         return 0;
     }
+	
+	@Override
+	public boolean canCommandSenderUseCommand(ICommandSender sender)
+	{
+		return true;
+	}
 	
 	@Override
 	public void processCommand(ICommandSender sender, String[] args)
