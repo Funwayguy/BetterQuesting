@@ -388,6 +388,11 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 				}
 			}
 			
+			if(baseItem.getUnlocalizedName() == null || Item.REGISTRY.getNameForObject(baseItem) == null)
+			{
+				continue;
+			}
+			
 			if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || I18n.format(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.REGISTRY.getNameForObject(baseItem).toString().contains(searchTxt))
 			{
 				searchResults.addAll(subList);
@@ -397,7 +402,12 @@ public class GuiJsonItemSelection extends GuiQuesting implements IVolatileScreen
 				{
 					try
 					{
-						if(subItem != null && (subItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || subItem.getDisplayName().toLowerCase().contains(searchTxt)))
+						if(subItem == null || subItem.getUnlocalizedName() == null)
+						{
+							continue;
+						}
+						
+						if(subItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || subItem.getDisplayName().toLowerCase().contains(searchTxt))
 						{
 							searchResults.add(subItem);
 						} else
