@@ -30,6 +30,7 @@ public class ToolboxGuiMain extends ToolboxGui
 	GuiButtonQuesting btnDel;
 	GuiButtonQuesting btnCom;
 	GuiButtonQuesting btnRes;
+	GuiButtonQuesting btnIco;
 	
 	public ToolboxGuiMain(GuiQuestLineDesigner designer, int posX, int posY, int sizeX, int sizeY)
 	{
@@ -103,6 +104,12 @@ public class ToolboxGuiMain extends ToolboxGui
 		list.add(btnRes);
 		btnRes.enabled = curTool != ToolboxTabMain.instance.toolRes;
 		
+		btnIco = new GuiButtonQuesting(2, posX + 8, posY + 148, 20, 20, "");
+		btnIco.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 144, 0, 16, 16, true);
+		setButtonTooltip(btnIco, I18n.format("betterquesting.toolbox.tool.icon.name"), I18n.format("betterquesting.toolbox.tool.icon.desc"));
+		list.add(btnIco);
+		btnIco.enabled = curTool != ToolboxTabMain.instance.toolIco;
+		
 		if(designer.getEmbeddedGui() != null && designer.getEmbeddedGui().getCurrentTool() == null)
 		{
 			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolOpen);
@@ -132,6 +139,7 @@ public class ToolboxGuiMain extends ToolboxGui
 		btnDel.drawButton(screen.mc, mx, my);
 		btnCom.drawButton(screen.mc, mx, my);
 		btnRes.drawButton(screen.mc, mx, my);
+		btnIco.drawButton(screen.mc, mx, my);
 	}
 	
 	@Override
@@ -149,6 +157,7 @@ public class ToolboxGuiMain extends ToolboxGui
 		bTip = btnDel.func_146115_a()? btnDel : bTip;
 		bTip = btnCom.func_146115_a()? btnCom : bTip;
 		bTip = btnRes.func_146115_a()? btnRes : bTip;
+		bTip = btnIco.func_146115_a()? btnIco : bTip;
 		
 		if(bTip != null)
 		{
@@ -273,6 +282,12 @@ public class ToolboxGuiMain extends ToolboxGui
 			btnRes.func_146113_a(screen.mc.getSoundHandler());
 			btnRes.enabled = false;
 			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolRes);
+		} else if(btnIco.mousePressed(screen.mc, mx, my))
+		{
+			resetButtons();
+			btnIco.func_146113_a(screen.mc.getSoundHandler());
+			btnIco.enabled = false;
+			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolIco);
 		}
 	}
 	

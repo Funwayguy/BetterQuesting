@@ -10,6 +10,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import scala.actors.threadpool.Arrays;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.gui.misc.GuiYesNoLocked;
@@ -181,7 +182,13 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	 */
 	public final void DrawTooltip(List<?> list, int x, int y)
 	{
-		this.drawHoveringText(list, x, y, fontRendererObj);
+		try
+		{
+			this.drawHoveringText(list, x, y, fontRendererObj);
+		} catch(Exception e)
+		{
+			this.drawHoveringText(Arrays.asList(new String[]{"ERROR: " + e.getClass().getSimpleName()}), x, y, fontRendererObj);
+		}
         GL11.glDisable(GL11.GL_LIGHTING); // Normally not enabled on Questing GUI
 	}
 	
