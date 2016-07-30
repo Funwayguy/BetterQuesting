@@ -17,6 +17,7 @@ public class ToolboxTabMain extends ToolboxTab
 	public ToolboxToolDelete toolDel;
 	public ToolboxToolComplete toolCom;
 	public ToolboxToolReset toolRes;
+	public ToolboxToolIcon toolIco;
 	
 	@Override
 	public String getUnlocalisedName()
@@ -36,6 +37,7 @@ public class ToolboxTabMain extends ToolboxTab
 		toolDel = new ToolboxToolDelete(designer);
 		toolCom = new ToolboxToolComplete(designer);
 		toolRes = new ToolboxToolReset(designer);
+		toolIco = new ToolboxToolIcon(designer);
 	}
 	
 	@Override

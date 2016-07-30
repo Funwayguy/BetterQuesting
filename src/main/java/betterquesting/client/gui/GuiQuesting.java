@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.input.Keyboard;
+import scala.actors.threadpool.Arrays;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -183,9 +184,16 @@ public class GuiQuesting extends GuiScreen implements GuiYesNoCallback
 	/**
 	 * Used for rendering tool tips on this screen via external methods
 	 */
+	@SuppressWarnings("unchecked")
 	public final void DrawTooltip(List<String> list, int x, int y)
 	{
-		this.drawHoveringText(list, x, y, fontRendererObj);
+		try
+		{
+			this.drawHoveringText(list, x, y, fontRendererObj);
+		} catch(Exception e)
+		{
+			this.drawHoveringText(Arrays.asList(new String[]{"ERROR: " + e.getClass().getSimpleName()}), x, y, fontRendererObj);
+		}
 		GlStateManager.disableLighting(); // Normally not enabled on Questing GUI
 	}
 	
