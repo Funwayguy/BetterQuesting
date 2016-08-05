@@ -3,13 +3,13 @@ package betterquesting.client.toolbox.tools;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import com.google.gson.JsonObject;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestInstance;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 
 public class GuiToolIconProxy extends GuiQuesting
 {

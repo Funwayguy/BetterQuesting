@@ -2,6 +2,7 @@ package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
 import com.google.gson.JsonObject;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
@@ -12,7 +13,6 @@ import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLine.QuestLineEntry;
-import betterquesting.utils.NBTConverter;
 
 public class ToolboxToolCopy extends ToolboxTool
 {

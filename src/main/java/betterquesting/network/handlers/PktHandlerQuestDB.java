@@ -2,16 +2,24 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
-public class PktHandlerQuestDB extends PktHandler
+public class PktHandlerQuestDB implements IPacketHandler
 {
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Sync request
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.QUEST_DATABASE.GetLocation();
+	}
+	
+	@Override
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender) // Sync request
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json1 = new JsonObject();
@@ -20,7 +28,7 @@ public class PktHandlerQuestDB extends PktHandler
 		JsonObject json2 = new JsonObject();
 		QuestDatabase.writeToJson_Progression(json2);
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendTo(BQPacketType.QUEST_DATABASE.GetLocation(), tags, sender);
+		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags, sender);
 	}
 	
 	@Override
@@ -31,5 +39,4 @@ public class PktHandlerQuestDB extends PktHandler
 		JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
 		QuestDatabase.readFromJson_Progression(json2);
 	}
-	
 }

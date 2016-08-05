@@ -1,6 +1,6 @@
 package betterquesting.client.gui;
 
-import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -12,16 +12,19 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeBase;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiThemeSelect extends GuiQuesting
+public class GuiThemeSelect extends GuiScreenThemed
 {
+	List<IThemeBase> themeList = new ArrayList<IThemeBase>();
 	int leftScroll = 0;
 	int maxRows = 0;
 	
@@ -36,7 +39,9 @@ public class GuiThemeSelect extends GuiQuesting
 	{
 		super.initGui();
 		
-		ThemeRegistry.RefreshResourceThemes();
+		ThemeRegistry.INSTANCE.reloadThemes();
+		themeList.clear();
+		themeList.addAll(ThemeRegistry.INSTANCE.getAllThemes());
 		
 		maxRows = (sizeY - 80)/20;
 		int btnWidth = sizeX/2 - 32;
@@ -57,7 +62,7 @@ public class GuiThemeSelect extends GuiQuesting
 		super.drawScreen(mx, my, partialTick);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		int btnWidth = sizeX/2 - 32;
 		
@@ -70,9 +75,9 @@ public class GuiThemeSelect extends GuiQuesting
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(ThemeRegistry.GetAllThemes().size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(themeList.size() - maxRows)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, getTextColor());
 		
 		GL11.glPushMatrix();
 		float scale = ((sizeX - 32)/2)/128F;
@@ -87,19 +92,22 @@ public class GuiThemeSelect extends GuiQuesting
 		
 		this.drawTexturedModalRect(cx - 9, cy - 24, 0, 48, 18, 18);
 		
-    	Color ci = ThemeRegistry.curTheme().getIconColor((int)(Minecraft.getSystemTime()/1000)%2 + 1, (int)(Minecraft.getSystemTime()/2000)%4, (Minecraft.getSystemTime()/8000)%2 == 0);
-    	GL11.glColor4f(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
+    	int ci = currentTheme().getQuestIconColor(null, EnumQuestState.values()[(int)(Minecraft.getSystemTime()/2000)%4], (int)(Minecraft.getSystemTime()/1000)%2 + 1);
+		float r = (float)(ci >> 16 & 255) / 255.0F;
+        float g = (float)(ci >> 8 & 255) / 255.0F;
+        float b = (float)(ci & 255) / 255.0F;
+    	GL11.glColor4f(r, g, b, 1F);
     	
 		this.drawTexturedModalRect(cx + 16, cy + 8, 0, 104, 24, 24);
 		this.drawTexturedModalRect(cx - 40, cy + 8, 24, 104, 24, 24);
 		
-    	Color cl = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int((int)(Minecraft.getSystemTime()/2000)%4, 0, 2), (Minecraft.getSystemTime()/8000)%2 == 0);
+    	int cl = currentTheme().getQuestLineColor(null, EnumQuestState.values()[(int)(Minecraft.getSystemTime()/2000)%4]);
     	RenderUtils.DrawLine(cx - 16, cy + 20, cx + 16, cy + 20, 4, cl);
     	
     	GL11.glColor4f(1F, 1F, 1F, 1F);
     	
     	String txt = EnumChatFormatting.BOLD + "EXAMPLE";
-    	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
+    	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, getTextColor());
     	
     	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");
 		
@@ -119,7 +127,7 @@ public class GuiThemeSelect extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				ThemeRegistry.setTheme(ThemeRegistry.getId(ThemeRegistry.GetAllThemes().get(n3)));
+				ThemeRegistry.INSTANCE.setCurrentTheme(themeList.get(n3));
 				RefreshColumns();
 			}
 		}
@@ -139,14 +147,14 @@ public class GuiThemeSelect extends GuiQuesting
         
         if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, ThemeRegistry.GetAllThemes().size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, themeList.size() - maxRows));
     		RefreshColumns();
         }
     }
 	
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, ThemeRegistry.GetAllThemes().size() - maxRows));
+		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, themeList.size() - maxRows));
 		
 		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
@@ -160,12 +168,12 @@ public class GuiThemeSelect extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < ThemeRegistry.GetAllThemes().size())
+				if(n3 >= 0 && n3 < themeList.size())
 				{
-					ThemeBase theme = ThemeRegistry.GetAllThemes().get(n3);
-					btn.displayString = theme.GetName();
+					IThemeBase theme = themeList.get(n3);
+					btn.displayString = theme.getDisplayName();
 					btn.visible = true;
-					btn.enabled = ThemeRegistry.curTheme() != theme;
+					btn.enabled = currentTheme() != theme;
 				} else
 				{
 					btn.displayString = "NULL";

@@ -1,8 +1,10 @@
 package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
+import betterquesting.api.IQuestingExpansion;
 import betterquesting.client.UpdateNotification;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ExpansionLoader;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
 import betterquesting.lives.LifeManager;
@@ -37,8 +39,12 @@ public class CommonProxy
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}
-
-	public void registerThemes()
+	
+	public void registerExpansions()
 	{
+		for(IQuestingExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
+		{
+			exp.registerCommon();
+		}
 	}
 }

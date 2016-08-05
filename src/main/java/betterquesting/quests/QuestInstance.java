@@ -12,6 +12,9 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
@@ -19,12 +22,9 @@ import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.rewards.RewardRegistry;
 import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.TaskRegistry;
-import betterquesting.utils.BigItemStack;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
+import betterquesting.registry.RewardRegistry;
+import betterquesting.registry.TaskRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -1057,79 +1057,5 @@ public class QuestInstance
 			// Task count mismatch
 			BetterQuesting.logger.log(Level.WARN, "Task count mismatch! Existing progress has been lost");
 		}
-	}
-	
-	private class UserEntry
-	{
-		public final UUID uuid;
-		public long timestamp = 0;
-		public boolean claimed = false;
-		
-		public UserEntry(UUID uuid, long timestamp)
-		{
-			this(uuid);
-			this.timestamp = timestamp;
-		}
-		
-		public UserEntry(UUID uuid)
-		{
-			this.uuid = uuid;
-		}
-		
-		public JsonObject toJson()
-		{
-			JsonObject json = new JsonObject();
-			json.addProperty("uuid", uuid.toString());
-			json.addProperty("timestamp", timestamp);
-			json.addProperty("claimed", claimed);
-			return json;
-		}
-		
-		public void fromJson(JsonObject json)
-		{
-			timestamp = JsonHelper.GetNumber(json, "timestamp", 0).longValue();
-			claimed = JsonHelper.GetBoolean(json, "claimed", false);
-		}
-	}
-	
-	public enum QuestLogic
-	{
-		AND, // All complete
-		NAND, // Any incomplete
-		OR, // Any complete
-		NOR, // All incomplete
-		XOR, // Only one complete
-		XNOR; // Only one incomplete
-		
-		public boolean GetResult(int inputs, int total)
-		{
-			switch(this)
-			{
-				case AND:
-					return inputs == total;
-				case NAND:
-					return inputs < total;
-				case NOR:
-					return inputs == 0; 
-				case OR:
-					return inputs > 0;
-				case XNOR:
-					return inputs == total - 1;
-				case XOR:
-					return inputs == 1;
-				default:
-					return false;
-			}
-		}
-	}
-	
-	public enum IconVisibility
-	{
-		HIDDEN,
-		UNLOCKED,
-		NORMAL,
-		COMPLETED,
-		CHAIN,
-		ALWAYS;
 	}
 }

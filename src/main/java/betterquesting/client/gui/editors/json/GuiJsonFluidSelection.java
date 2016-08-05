@@ -18,22 +18,21 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiNumberField;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiNumberField;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScreen
+public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileScreen
 {
 	FluidStack stackSelect;
 	JsonObject json;
@@ -109,10 +108,10 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, getTextColor(), false);
+		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, getTextColor(), false);
 		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		GL11.glPushMatrix();
 		GL11.glScalef(2F, 2F, 1F);
@@ -143,7 +142,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 		}
 		GL11.glPopMatrix();
 		
-		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, getTextColor(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
@@ -165,7 +164,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
 				
-				this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+				this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -185,10 +184,10 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 			GL11.glPopMatrix();
 		}
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
-		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, getTextColor(), false);
 		
 		this.searchBox.drawTextBox();
 		this.numberBox.drawTextBox();
@@ -209,7 +208,7 @@ public class GuiJsonFluidSelection extends GuiQuesting implements IVolatileScree
 				break;
 			}
 			
-			this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+			this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 			
 			FluidStack resultStack = searchResults.get(i);
 			

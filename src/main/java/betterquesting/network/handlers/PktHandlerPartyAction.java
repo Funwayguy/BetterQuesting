@@ -5,19 +5,27 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
-import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
-public class PktHandlerPartyAction extends PktHandler
+public class PktHandlerPartyAction implements IPacketHandler
 {
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.PARTY_ACTION.GetLocation();
+	}
 	
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Party management
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender) // Party management
 	{
 		if(sender == null)
 		{
@@ -143,5 +151,4 @@ public class PktHandlerPartyAction extends PktHandler
 	public void handleClient(NBTTagCompound data) // Nothing technical should be happening client side
 	{
 	}
-	
 }

@@ -2,22 +2,35 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
-import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 
-public class PktHandlerPartyDB extends PktHandler
+public class PktHandlerPartyDB implements IPacketHandler
 {
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Sync request
+	public ResourceLocation getRegistryName()
 	{
+		return PacketTypeNative.PARTY_DATABASE.GetLocation();
+	}
+	
+	@Override
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender) // Sync request
+	{
+		if(sender == null)
+		{
+			return;
+		}
+		
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json = new JsonObject();
 		PartyManager.writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketAssembly.SendTo(BQPacketType.PARTY_DATABASE.GetLocation(), tags, sender);
+		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags, sender);
 	}
 	
 	@Override
@@ -26,5 +39,4 @@ public class PktHandlerPartyDB extends PktHandler
 		JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Parties"), new JsonObject());
 		PartyManager.readFromJson(json);
 	}
-	
 }

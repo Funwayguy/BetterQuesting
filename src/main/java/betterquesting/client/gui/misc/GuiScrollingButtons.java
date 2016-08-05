@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import net.minecraft.client.renderer.Tessellator;
+import betterquesting.api.client.gui.premade.GuiBQScrolling;
 import betterquesting.client.gui.GuiQuesting;
 
 // [!] UNTESTED [!]

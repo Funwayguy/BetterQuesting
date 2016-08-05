@@ -12,19 +12,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.BigItemStack;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
+public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 {
 	JsonObject json;
 	FluidStack fluid;

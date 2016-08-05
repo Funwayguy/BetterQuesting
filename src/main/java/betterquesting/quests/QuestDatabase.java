@@ -1,24 +1,29 @@
 package betterquesting.quests;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.database.IQuestDatabase;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.tasks.TaskBase;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class QuestDatabase
+public class QuestDatabase implements IQuestDatabase
 {
+	public static final QuestDatabase INSTANCE = new QuestDatabase();
+	
 	/**
 	 * This is used by UIs to query whether it needs refreshed</br>
 	 * Set to false on UI init and when refreshed. It will be reset to true when required
@@ -35,13 +40,16 @@ public class QuestDatabase
 	 * Turns on the hardcore life system
 	 */
 	public static boolean bqHardcore = false;
-	public static volatile ConcurrentHashMap<Integer, QuestInstance> questDB = new ConcurrentHashMap<Integer, QuestInstance>();
-	public static volatile CopyOnWriteArrayList<QuestLine> questLines = new CopyOnWriteArrayList<QuestLine>();
+	private final ConcurrentHashMap<Integer, QuestInstance> questDB = new ConcurrentHashMap<Integer, QuestInstance>();
+	
+	private QuestDatabase()
+	{
+	}
 	
 	/**
 	 * @return the next free ID within the quest database
 	 */
-	public static int getUniqueID()
+	public int getUniqueID()
 	{
 		int id = 0;
 		
@@ -160,7 +168,7 @@ public class QuestDatabase
 		JsonObject json2 = new JsonObject();
 		QuestDatabase.writeToJson_Progression(json2);
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendToAll(BQPacketType.QUEST_DATABASE.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToAll(BQPacketType.QUEST_DATABASE.GetLocation(), tags);
 	}
 	
 	/**
@@ -176,7 +184,7 @@ public class QuestDatabase
 		JsonObject json2 = new JsonObject();
 		QuestDatabase.writeToJson_Progression(json2);
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendTo(BQPacketType.QUEST_DATABASE.GetLocation(), tags, player);
+		PacketSender.INSTANCE.sendToPlayer(BQPacketType.QUEST_DATABASE.GetLocation(), tags, player);
 	}
 	
 	public static void writeToJson(JsonObject json)
@@ -302,5 +310,49 @@ public class QuestDatabase
 			QuestInstance quest = GetOrRegisterQuest(qID);
 			quest.readProgressFromJSON(entry.getAsJsonObject());
 		}
+	}
+
+	@Override
+	public void addQuest(IQuestContainer quest)
+	{
+	}
+
+	@Override
+	public void deleteQuest(int quesId)
+	{
+	}
+
+	@Override
+	public IQuestContainer getQuest(int questId)
+	{
+		return null;
+	}
+
+	@Override
+	public List<IQuestContainer> getAllQuests()
+	{
+		return null;
+	}
+
+	@Override
+	public JsonObject writeToJson_Config(JsonObject json)
+	{
+		return null;
+	}
+
+	@Override
+	public void readFromJson_Config(JsonObject json)
+	{
+	}
+
+	@Override
+	public JsonObject writeToJson_Progress(JsonObject json)
+	{
+		return null;
+	}
+
+	@Override
+	public void readFromJson_Progress(JsonObject json)
+	{
 	}
 }

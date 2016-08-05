@@ -3,14 +3,22 @@ package betterquesting.network.handlers;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 
-public class PktHandlerClaim extends PktHandler
+public class PktHandlerClaim implements IPacketHandler
 {
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.CLAIM.GetLocation();
+	}
 	
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 		if(sender == null)
 		{
@@ -30,5 +38,4 @@ public class PktHandlerClaim extends PktHandler
 	public void handleClient(NBTTagCompound data)
 	{
 	}
-	
 }

@@ -6,13 +6,14 @@ import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
 import betterquesting.EntityPlaceholder;
+import betterquesting.api.IQuestingExpansion;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.EntityPlaceholderRenderer;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.tools.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
+import betterquesting.core.ExpansionLoader;
+import betterquesting.registry.ToolboxRegistry;
 import betterquesting.utils.QuestResourcesFile;
 import betterquesting.utils.QuestResourcesFolder;
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -50,12 +51,17 @@ public class ClientProxy extends CommonProxy
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
 		
-		ToolboxRegistry.registerToolTab(ToolboxTabMain.instance);
+		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
 	}
 	
 	@Override
-	public void registerThemes()
+	public void registerExpansions()
 	{
-		ThemeRegistry.RefreshResourceThemes();
+		super.registerExpansions();
+		
+		for(IQuestingExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
+		{
+			exp.registerClient();
+		}
 	}
 }

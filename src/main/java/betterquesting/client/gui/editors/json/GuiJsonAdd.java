@@ -2,18 +2,6 @@ package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.JsonIO;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -25,9 +13,20 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.JsonIO;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.client.gui.misc.GuiButtonQuesting;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
+public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 {
 	GuiTextField keyText;
 	JsonElement json;
@@ -103,7 +102,7 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 		if(keyText != null)
 		{
 			String txt = I18n.format("betterquesting.gui.key");
-			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, getTextColor(), false);
 			
 			if(keyText.getText().length() <= 0)
 			{

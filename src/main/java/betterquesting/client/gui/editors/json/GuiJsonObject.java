@@ -11,14 +11,13 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiNumberField;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,7 +26,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonObject extends GuiQuesting implements ITextEditor, IVolatileScreen
+public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVolatileScreen
 {
 	HashMap<Integer,String> idMap = new HashMap<Integer,String>();
 	int scrollPos = 0;
@@ -231,12 +230,12 @@ public class GuiJsonObject extends GuiQuesting implements ITextEditor, IVolatile
 				controls.Disable();
 			}
 			
-			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, getTextColor(), false);
 		}
 		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
-		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, ThemeRegistry.curTheme().textColor().getRGB());
+		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
 	}
 	
 	@Override

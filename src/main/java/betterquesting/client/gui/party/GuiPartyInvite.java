@@ -13,10 +13,10 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
+import betterquesting.registry.ThemeRegistry;
 
 public class GuiPartyInvite extends GuiQuesting
 {

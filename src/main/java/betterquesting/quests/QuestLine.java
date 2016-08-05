@@ -1,20 +1,30 @@
 package betterquesting.quests;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLineEntry;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class QuestLine
+public class QuestLine implements IQuestLineContainer
 {
+	private int ID = 0;
 	public String name = "New Quest Line";
 	public String description = "No description";
-	public ArrayList<QuestLineEntry> questList = new ArrayList<QuestLineEntry>();
+	public ArrayList<IQuestLineEntry> questList = new ArrayList<IQuestLineEntry>();4
 	
-	public ArrayList<QuestInstance> getQuests()
+	public QuestLine(int id)
+	{
+		this.ID = id;
+	}
+	
+	@Override
+	public List<IQuestLineEntry> getAllQuests()
 	{
 		ArrayList<QuestInstance> list = new ArrayList<QuestInstance>();
 		
@@ -42,6 +52,7 @@ public class QuestLine
 	public void writeToJSON(JsonObject json)
 	{
 		json.addProperty("name", name);
+		json.addProperty("id", id);
 		json.addProperty("description", description);
 		
 		JsonArray jArr = new JsonArray();
@@ -96,36 +107,6 @@ public class QuestLine
 					BetterQuesting.logger.log(Level.WARN, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString());
 				}
 			}
-		}
-	}
-	
-	public static class QuestLineEntry
-	{
-		public QuestInstance quest;
-		public int posX = 0;
-		public int posY = 0;
-		
-		protected QuestLineEntry(){}
-		
-		public QuestLineEntry(QuestInstance quest, int posX, int posY)
-		{
-			this.quest = quest;
-			this.posX = posX;
-			this.posY = posY;
-		}
-		
-		public void readFromJson(JsonObject json)
-		{
-			quest = QuestDatabase.getQuestByID(JsonHelper.GetNumber(json, "id", -1).intValue());
-			posX = JsonHelper.GetNumber(json, "x", 0).intValue();
-			posY = JsonHelper.GetNumber(json, "y", 0).intValue();
-		}
-		
-		public void writeToJson(JsonObject json)
-		{
-			json.addProperty("id", quest.questID);
-			json.addProperty("x", posX);
-			json.addProperty("y", posY);
 		}
 	}
 }

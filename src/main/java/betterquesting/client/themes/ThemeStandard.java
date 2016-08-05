@@ -1,54 +1,64 @@
 package betterquesting.client.themes;
 
 import java.awt.Color;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.utils.JsonHelper;
-import com.google.gson.JsonObject;
+import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.quests.IQuestContainer;
 
-/**
- * Class for making standard themes with no special functionality. If you do require more functionality, create your own type originating from ThemeBase
- */
-public class ThemeStandard extends ThemeBase
+public class ThemeStandard implements IThemeBase
 {
-	final String name;
-	final ResourceLocation guiTexture;
-	Color txtColor = Color.BLACK;
-	Color[] lineColors = new Color[]{new Color(0.75F, 0F, 0F), Color.YELLOW, Color.GREEN};
-	Color[] iconColors = new Color[]{Color.GRAY, new Color(0.75F, 0F, 0F), new Color(0F, 1F, 1F), Color.GREEN};
+	private final ResourceLocation regName;
+	private final String name;
+	private final ResourceLocation guiTexture;
+	private ResourceLocation btnSound = new ResourceLocation("gui.button.press");
+	private int txtColor = Color.BLACK.getRGB();
+	private int[] lineColors = new int[]{new Color(0.75F, 0F, 0F).getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), Color.GREEN.getRGB()};
+	private int[] iconColors = new int[]{Color.GRAY.getRGB(), new Color(0.75F, 0F, 0F).getRGB(), new Color(0F, 1F, 1F).getRGB(), Color.GREEN.getRGB()};
 	
-	public ThemeStandard(String name, ResourceLocation texture)
+	public ThemeStandard(String name, ResourceLocation texture, ResourceLocation regName)
 	{
+		this.regName = regName;
 		this.name = name;
 		this.guiTexture = texture;
 	}
 	
 	@Override
-	public String GetName()
+	public ResourceLocation getThemeID()
+	{
+		return regName;
+	}
+	
+	@Override
+	public String getDisplayName()
 	{
 		return name;
 	}
 	
 	@Override
-	public ResourceLocation guiTexture()
+	public ResourceLocation getGuiTexture()
 	{
 		return guiTexture;
 	}
 	
-	public ThemeStandard setTextColor(Color c)
+	public ThemeStandard setTextColor(int c)
 	{
 		txtColor = c;
 		return this;
 	}
 	
-	public ThemeStandard setLineColors(Color locked, Color incomplete, Color complete)
+	public ThemeStandard setLineColors(int locked, int incomplete, int complete)
 	{
 		lineColors[0] = locked;
 		lineColors[1] = incomplete;
 		lineColors[2] = complete;
+		lineColors[3] = complete;
 		return this;
 	}
 	
-	public ThemeStandard setIconColors(Color locked, Color incomplete, Color pending, Color complete)
+	public ThemeStandard setIconColors(int locked, int incomplete, int pending, int complete)
 	{
 		iconColors[0] = locked;
 		iconColors[1] = incomplete;
@@ -57,64 +67,65 @@ public class ThemeStandard extends ThemeBase
 		return this;
 	}
 	
+	public ThemeStandard setButtonSound(ResourceLocation sound)
+	{
+		this.btnSound = sound;
+		return this;
+	}
+	
 	@Override
-	public Color textColor()
+	public int getTextColor()
 	{
 		return txtColor;
 	}
 	
 	@Override
-	public Color lineColor(int questState, boolean isMain)
+	public int getLineStipple(IQuestContainer quest, EnumQuestState state)
 	{
-		if(questState >= 0 && questState < lineColors.length)
-		{
-			return lineColors[questState];
-		} else
-		{
-			return Color.GRAY;
-		}
+		return 0xAAAA;
 	}
 	
 	@Override
-	public Color iconColor(int questState, boolean isMain)
+	public float getLineWidth(IQuestContainer quest, EnumQuestState state)
 	{
-		if(questState >= 0 && questState < iconColors.length)
-		{
-			return iconColors[questState];
-		} else
-		{
-			return Color.GRAY;
-		}
+		return quest.isMain()? 4F : 2F;
 	}
 	
-	public static ThemeStandard fromJson(JsonObject json)
+	@Override
+	public int getQuestLineColor(IQuestContainer quest, EnumQuestState state)
 	{
-		if(json == null)
+		Color c = new Color(lineColors[state.ordinal()]);
+		
+		if(state == EnumQuestState.UNLOCKED && (Minecraft.getSystemTime()/1000)%2 == 0)
 		{
-			return null;
+			return new Color(c.getRed()/255F*0.5F, c.getGreen()/255F*0.5F, c.getBlue()/255F*0.5F).getRGB();
 		}
 		
-		String name = JsonHelper.GetString(json, "name", "Unnamed Theme");
-		String texture = JsonHelper.GetString(json, "texture", "betterquesting:textures/gui/editor_gui.png");
+		return c.getRGB();
+	}
+	
+	@Override
+	public int getQuestIconColor(IQuestContainer quest, EnumQuestState state, int hoverState)
+	{
+		Color c = new Color(iconColors[state.ordinal()]);
 		
-		int tColor = JsonHelper.GetNumber(json, "textColor", Color.BLACK.getRGB()).intValue();
+		if(hoverState == 1)
+		{
+			return new Color(c.getRed()/255F*0.75F, c.getGreen()/255F*0.75F, c.getBlue()/255F*0.75F).getRGB();
+		}
 		
-		JsonObject jl = JsonHelper.GetObject(json, "lineColor");
-		int lLocked = JsonHelper.GetNumber(jl, "locked", new Color(0.75F, 0F, 0F).getRGB()).intValue();
-		int lPending = JsonHelper.GetNumber(jl, "pending", Color.YELLOW.getRGB()).intValue();
-		int lComplete = JsonHelper.GetNumber(jl, "complete", Color.GREEN.getRGB()).intValue();
-		
-		JsonObject ji = JsonHelper.GetObject(json, "iconColor");
-		int iLocked = JsonHelper.GetNumber(ji, "locked", Color.GRAY.getRGB()).intValue();
-		int iPending = JsonHelper.GetNumber(ji, "pending", new Color(0.75F, 0F, 0F).getRGB()).intValue();
-		int iUnclaimed = JsonHelper.GetNumber(ji, "unclaimed", new Color(0F, 1F, 1F).getRGB()).intValue();
-		int iComplete = JsonHelper.GetNumber(ji, "complete", Color.GREEN.getRGB()).intValue();
-		
-		ThemeStandard theme = new ThemeStandard(name, new ResourceLocation(texture));
-		theme.setTextColor(new Color(tColor));
-		theme.setLineColors(new Color(lLocked), new Color(lPending), new Color(lComplete));
-		theme.setIconColors(new Color(iLocked), new Color(iPending), new Color(iUnclaimed), new Color(iComplete));
-		
-		return theme;
+		return c.getRGB();
+	}
+	
+	@Override
+	public IGuiEmbedded getGuiOverride(IGuiEmbedded gui)
+	{
+		return gui;
+	}
+
+	@Override
+	public ResourceLocation getButtonSound()
+	{
+		return btnSound;
 	}
 }

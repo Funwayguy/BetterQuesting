@@ -5,14 +5,14 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.client.gui.editors.GuiQuestLineDesigner;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxGui;
 import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 
 public class ToolboxGuiMain extends ToolboxGui
 {

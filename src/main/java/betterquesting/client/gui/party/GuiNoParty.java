@@ -11,9 +11,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
 import betterquesting.network.PacketAssembly;
@@ -21,7 +21,7 @@ import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 
 public class GuiNoParty extends GuiQuesting
 {

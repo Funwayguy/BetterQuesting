@@ -12,9 +12,9 @@ import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
+import betterquesting.registry.ThemeRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

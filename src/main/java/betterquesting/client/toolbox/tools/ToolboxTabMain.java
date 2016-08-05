@@ -1,10 +1,12 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTab;
 import betterquesting.client.gui.editors.GuiQuestLineDesigner;
 import betterquesting.client.toolbox.ToolboxGui;
 import betterquesting.client.toolbox.ToolboxTab;
 
-public class ToolboxTabMain extends ToolboxTab
+public class ToolboxTabMain implements IToolboxTab
 {
 	public static final ToolboxTabMain instance = new ToolboxTabMain();
 	
@@ -26,7 +28,7 @@ public class ToolboxTabMain extends ToolboxTab
 	}
 	
 	@Override
-	public void initTools(GuiQuestLineDesigner designer)
+	public void initTools(IGuiQuestLine designer)
 	{
 		toolOpen = new ToolboxToolOpen(designer);
 		toolNew = new ToolboxToolNew(designer);

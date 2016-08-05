@@ -1,19 +1,17 @@
 package betterquesting.network;
 
 import java.util.ArrayList;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import betterquesting.core.BetterQuesting;
 
 /**
  * In charge of splitting up packets and reassembling them
+ * TODO: Make this thread safe
  */
 public class PacketAssembly
 {
@@ -97,55 +95,5 @@ public class PacketAssembly
 		}
 		
 		return null;
-	}
-	
-	public static void SendToAll(ResourceLocation type, NBTTagCompound payload)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
-		}
-	}
-	
-	public static void SendTo(ResourceLocation type, NBTTagCompound payload, EntityPlayerMP player)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
-		}
-	}
-	
-	public static void SendToServer(ResourceLocation type, NBTTagCompound payload)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
-		}
-	}
-	
-	public static void SendToAllArround(ResourceLocation type, NBTTagCompound payload, TargetPoint point)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
-		}
-	}
-	
-	public static void SendToDimension(ResourceLocation type, NBTTagCompound payload, int dim)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dim);
-		}
 	}
 }

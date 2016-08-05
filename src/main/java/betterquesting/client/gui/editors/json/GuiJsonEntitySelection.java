@@ -13,18 +13,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.RenderUtils;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScreen
+public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatileScreen
 {
 	JsonObject json;
 	Entity entity;

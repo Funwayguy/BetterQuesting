@@ -1,15 +1,15 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolLink extends ToolboxTool

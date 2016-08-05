@@ -11,11 +11,11 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestInstance.IconVisibility;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

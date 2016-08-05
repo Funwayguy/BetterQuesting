@@ -7,18 +7,18 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
 import betterquesting.client.gui.misc.QuestLineButtonTree;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxGui;
-import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTab;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLine;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
+import betterquesting.registry.ToolboxRegistry;
 
 public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 {

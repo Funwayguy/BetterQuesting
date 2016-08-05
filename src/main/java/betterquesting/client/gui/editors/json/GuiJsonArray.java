@@ -9,16 +9,16 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiNumberField;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.JsonIO;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonJson;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiNumberField;
 import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonIO;
+import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -26,7 +26,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileScreen
+public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolatileScreen
 {
 	int scrollPos = 0;
 	JsonArray settings;
@@ -221,7 +221,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 			if(n >= 0 && n < maxRows)
 			{
 				posY = this.guiTop + 32 + (n * 20);
-				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, getTextColor(), false);
 				
 				if(controls != null)
 				{
@@ -235,7 +235,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
-		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, ThemeRegistry.curTheme().textColor().getRGB());
+		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
 	}
 	
 	@Override

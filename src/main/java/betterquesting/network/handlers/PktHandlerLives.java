@@ -3,14 +3,23 @@ package betterquesting.network.handlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.lives.BQ_LifeTracker;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class PktHandlerLives extends PktHandler
+public class PktHandlerLives implements IPacketHandler
 {
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.LIFE_SYNC.GetLocation();
+	}
+	
+	@Override
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 	}
 
@@ -25,5 +34,4 @@ public class PktHandlerLives extends PktHandler
 			tracker.loadNBTData(data.getCompoundTag("data"));
 		}
 	}
-	
 }

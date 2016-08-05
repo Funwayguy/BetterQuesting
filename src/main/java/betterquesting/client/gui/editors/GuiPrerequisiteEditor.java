@@ -10,24 +10,25 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
-import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.network.PacketAssembly;
+import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScreen
+public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileScreen
 {
 	QuestInstance quest;
 	int leftScroll = 0;
@@ -115,7 +116,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		// Left scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48, 248, 0, 8, 20);
@@ -140,13 +141,13 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + (int)Math.max(0, s * (float)rightScroll/(searchResults.size() - maxRowsR)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format(quest == null? "ERROR" : quest.name);
-		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		txt = I18n.format("betterquesting.gui.database");
-		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		
 		searchBox.drawTextBox();
 	}
@@ -160,7 +161,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", 1);
-			PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -201,7 +202,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", 1); // Delete quest
 					tags.setInteger("questID", searchResults.get(n4).questID);
-					PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+					PacketSender.INSTANCE.sendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 				}
 			} else if(n2 == 4) // Add quest
 			{
@@ -250,7 +251,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
 	}
 	
 	public void RefreshColumns()
@@ -258,7 +259,7 @@ public class GuiPrerequisiteEditor extends GuiQuesting implements IVolatileScree
 		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.preRequisites.size() - maxRowsL));
     	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, searchResults.size() - maxRowsR));
     	
-    	if(quest != null && !QuestDatabase.questDB.containsValue(quest))
+    	if(quest != null && QuestDatabase.INSTANCE.getQuestByID(quest.questID) != quest))
 		{
     		quest = QuestDatabase.getQuestByID(quest.questID);
     		

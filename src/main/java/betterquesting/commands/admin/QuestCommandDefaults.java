@@ -7,10 +7,10 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.utils.JsonIO;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.utils.JsonIO;
 import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase

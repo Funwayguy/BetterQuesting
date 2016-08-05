@@ -7,10 +7,10 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.gui.misc.QuestLineButtonTree;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;
@@ -18,7 +18,7 @@ import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLine.QuestLineEntry;
-import betterquesting.utils.NBTConverter;
+import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonObject;
 
 public class GuiQuestLinesEmbedded extends GuiEmbedded

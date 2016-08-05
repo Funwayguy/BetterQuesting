@@ -2,9 +2,9 @@ package betterquesting.client.gui.misc;
 
 import java.awt.Color;
 import org.lwjgl.input.Mouse;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.gui.editors.GuiTextEditor;
-import betterquesting.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
@@ -12,6 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 
 public class GuiBigTextField extends GuiTextField
 {
+	GuiButtonQuesting bigEdit;
 	int hostID;
 	ITextEditor host;
 	GuiTextEditor editor;
@@ -32,9 +33,10 @@ public class GuiBigTextField extends GuiTextField
 		return this;
 	}
 	
-	public void setWatermark(String text)
+	public GuiBigTextField setWatermark(String text)
 	{
 		watermark = text == null? "" : text;
+		return this;
 	}
 	
     /**
@@ -43,7 +45,7 @@ public class GuiBigTextField extends GuiTextField
 	@Override
     public void mouseClicked(int mx, int my, int p_146192_3_)
     {
-        if(host != null && mx >= xPosition + width - 20 && mx < xPosition + width && my >= yPosition && my < yPosition + height)
+        if(bigEdit != null && bigEdit.mousePressed(Minecraft.getMinecraft(), mx, my))
         {
         	editor = new GuiTextEditor(Minecraft.getMinecraft().currentScreen, getText()).setHost(host, hostID);
         	Minecraft.getMinecraft().displayGuiScreen(editor);
@@ -59,17 +61,32 @@ public class GuiBigTextField extends GuiTextField
         }
     }
 	
+	/**
+	 * Use <i>drawTextBox(int mx, int my, float partialTick)</i>
+	 */
 	@Override
+	@Deprecated
 	public void drawTextBox()
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		if(mc.currentScreen instanceof GuiQuesting && host != null)
+		int mx = 0;
+		int my = 0;
+		
+		if(mc.currentScreen != null)
 		{
-	        int i = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
-	        int j = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
-	        int bs = ((GuiQuesting)mc.currentScreen).isWithin(i, j, xPosition + width - 19, yPosition - 1, 20, height + 2, false)? 2 : 1;
-			RenderUtils.DrawFakeButton((GuiQuesting)mc.currentScreen, xPosition + width - 19, yPosition - 1, 20, height + 2, EnumChatFormatting.BOLD + "A" + EnumChatFormatting.RESET + "a", bs);
+	        mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
+	        my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
+		}
+		
+		this.drawTextBox(mx, my, 1F);
+	}
+	
+	public void drawTextBox(int mx, int my, float partialTick)
+	{
+		if(bigEdit != null)
+		{
+	        bigEdit.drawButton(Minecraft.getMinecraft(), mx, my);
 		}
 		
 		if(host != null)

@@ -3,9 +3,10 @@ package betterquesting.network;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.IPacketHandler;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.handlers.PktHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -59,7 +60,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
+			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{
@@ -67,7 +68,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else
 			{
-				handler.handleServer(sender, message);
+				handler.handleServer(message, sender);
 			}
 			
 			return null;
@@ -96,7 +97,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
+			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{

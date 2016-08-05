@@ -79,7 +79,10 @@ public class BetterQuesting
     	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
     	ConfigHandler.initConfigs();
     	
+    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
+    	
     	proxy.registerHandlers();
+    	
     	PacketTypeRegistry.RegisterNativeHandlers();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
@@ -117,7 +120,7 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-    	proxy.registerThemes();
+    	proxy.registerExpansions();
     }
 	
 	@EventHandler

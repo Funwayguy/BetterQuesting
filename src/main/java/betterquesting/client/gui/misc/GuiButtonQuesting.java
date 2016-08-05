@@ -9,7 +9,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.api.ExpansionAPI;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -72,7 +72,7 @@ public class GuiButtonQuesting extends GuiButton
         if (this.visible)
         {
             FontRenderer fontrenderer = mc.fontRenderer;
-            mc.getTextureManager().bindTexture(ThemeRegistry.curTheme().guiTexture());
+            mc.getTextureManager().bindTexture(ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme().getGuiTexture());
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
             this.field_146123_n = mx >= this.xPosition && my >= this.yPosition && mx < this.xPosition + this.width && my < this.yPosition + this.height;
             int k = this.getHoverState(this.field_146123_n);

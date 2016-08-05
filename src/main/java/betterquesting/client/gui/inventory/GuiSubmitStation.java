@@ -12,11 +12,11 @@ import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiEmbedded;
 import betterquesting.client.gui.misc.GuiQuestingContainer;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.advanced.IContainerTask;
+import betterquesting.registry.ThemeRegistry;
 
 public class GuiSubmitStation extends GuiQuestingContainer
 {
