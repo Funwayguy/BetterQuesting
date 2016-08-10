@@ -1,6 +1,7 @@
 package betterquesting.network;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
@@ -19,7 +20,7 @@ public class PacketAssembly
 {
 	// Set to handle a maximum of 100 unique packets before overwriting.
 	// If you hit that limit you've got bigger problems... seriously.
-	private static byte[][] buffer = new byte[100][];
+	private static final ConcurrentHashMap<Integer,byte[]> buffer = new ConcurrentHashMap<Integer,byte[]>();
 	private static int id = 0;
 	
 	public static ArrayList<NBTTagCompound> SplitPackets(NBTTagCompound tags)
@@ -73,20 +74,23 @@ public class PacketAssembly
 		boolean end = tags.getBoolean("end");
 		byte[] data = tags.getByteArray("data");
 		
-		if(buffer[bId] == null || buffer[bId].length != size)
+		byte[] tmp = buffer.get(bId);
+		
+		if(tmp == null || tmp.length != size)
 		{
-			buffer[bId] = new byte[size];
+			tmp = new byte[size];
+			buffer.put(bId, tmp);
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)
 		{
-			buffer[bId][index + i] = data[i];
+			tmp[index + i] = data[i];
 		}
 		
 		if(end)
 		{
-			byte[] tmp = buffer[bId];
-			buffer[bId] = null;
+			buffer.remove(bId);
+			
 			try
 			{
 				return CompressedStreamTools.func_152457_a(tmp, NBTSizeTracker.field_152451_a);
