@@ -1,17 +1,17 @@
-package betterquesting.client.gui.misc;
+package betterquesting.api.client.gui;
 
 import java.util.ArrayList;
+import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.quests.IQuestLineEntry;
+import betterquesting.quests.QuestLine;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLine.QuestLineEntry;
 
 @SideOnly(Side.CLIENT)
 public class QuestLineButtonTree
 {
 	public QuestLine line;
-	public ArrayList<GuiButtonQuestInstance> buttonTree = new ArrayList<GuiButtonQuestInstance>();
+	public ArrayList<IQuestLineEntry> buttonTree = new ArrayList<IQuestLineEntry>();
 	public int treeW = 0;
 	public int treeH = 0;
 	
@@ -32,7 +32,7 @@ public class QuestLineButtonTree
 			return;
 		}
 		
-		for(QuestLineEntry entry : line.questList)
+		for(IQuestLineEntry entry : line.getAllQuests())
 		{
 			buttonTree.add(new GuiButtonQuestInstance(0, entry.posX, entry.posY, entry.quest));
 		}

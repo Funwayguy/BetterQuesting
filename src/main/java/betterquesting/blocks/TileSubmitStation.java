@@ -17,9 +17,9 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
@@ -347,7 +347,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-			PacketSender.INSTANCE.sendToServer(BQPacketType.EDIT_STATION.GetLocation(), payload);
+			PacketSender.INSTANCE.sendToServer(PacketTypeNative.EDIT_STATION.GetLocation(), payload);
     	}
     }
 	

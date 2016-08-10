@@ -1,7 +1,7 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.toolbox.ToolboxTool;
 
 public class ToolboxToolIcon extends ToolboxTool

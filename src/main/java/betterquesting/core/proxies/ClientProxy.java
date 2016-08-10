@@ -13,6 +13,7 @@ import betterquesting.client.renderer.EntityPlaceholderRenderer;
 import betterquesting.client.toolbox.tools.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
+import betterquesting.core.ParentAPI;
 import betterquesting.registry.ToolboxRegistry;
 import betterquesting.utils.QuestResourcesFile;
 import betterquesting.utils.QuestResourcesFolder;
@@ -61,7 +62,7 @@ public class ClientProxy extends CommonProxy
 		
 		for(IQuestingExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
 		{
-			exp.registerClient();
+			exp.registerClient(ParentAPI.API);
 		}
 	}
 }

@@ -2,9 +2,9 @@ package betterquesting.client.toolbox.tools;
 
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketTypeRegistry.BQPacketType;

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 
 public interface IQuestLineEntry
 {
-	public IQuestContainer getQuest();
+	public int getQuestID();
 	public int getSize();
 	public int getPosX();
 	public int getPosY();

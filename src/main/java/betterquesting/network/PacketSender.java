@@ -20,7 +20,7 @@ public class PacketSender implements IPacketSender
 	{
 		payload.setString("ID", handler.toString());
 		
-		for(NBTTagCompound p : PacketAssembly.SplitPackets(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
 		{
 			BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
 		}
@@ -31,7 +31,7 @@ public class PacketSender implements IPacketSender
 	{
 		payload.setString("ID", handler.toString());
 		
-		for(NBTTagCompound p : PacketAssembly.SplitPackets(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
 		{
 			BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
 		}
@@ -42,7 +42,7 @@ public class PacketSender implements IPacketSender
 	{
 		payload.setString("ID", handler.toString());
 		
-		for(NBTTagCompound p : PacketAssembly.SplitPackets(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
 		{
 			BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
 		}
@@ -53,7 +53,7 @@ public class PacketSender implements IPacketSender
 	{
 		payload.setString("ID", handler.toString());
 		
-		for(NBTTagCompound p : PacketAssembly.SplitPackets(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
 		{
 			BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
 		}
@@ -64,7 +64,7 @@ public class PacketSender implements IPacketSender
 	{
 		payload.setString("ID", handler.toString());
 		
-		for(NBTTagCompound p : PacketAssembly.SplitPackets(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
 		{
 			BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dimension);
 		}

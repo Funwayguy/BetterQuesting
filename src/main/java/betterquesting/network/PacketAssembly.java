@@ -1,6 +1,7 @@
 package betterquesting.network;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -13,14 +14,20 @@ import betterquesting.core.BetterQuesting;
  * In charge of splitting up packets and reassembling them
  * TODO: Make this thread safe
  */
-public class PacketAssembly
+public final class PacketAssembly
 {
+	public static final PacketAssembly INSTANCE = new PacketAssembly();
+	
 	// Set to handle a maximum of 100 unique packets before overwriting.
 	// If you hit that limit you've got bigger problems... seriously.
-	private static byte[][] buffer = new byte[100][];
-	private static int id = 0;
+	private final ConcurrentHashMap<Integer,byte[]> buffer = new ConcurrentHashMap<Integer,byte[]>();
+	private int id = 0;
 	
-	public static ArrayList<NBTTagCompound> SplitPackets(NBTTagCompound tags)
+	private PacketAssembly()
+	{
+	}
+	
+	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
 		ArrayList<NBTTagCompound> pkts = new ArrayList<NBTTagCompound>();
 		
@@ -63,7 +70,7 @@ public class PacketAssembly
 	/**
 	 * Appends a packet onto the buffer and returns an assembled NBTTagCompound when complete
 	 */
-	public static NBTTagCompound AssemblePacket(NBTTagCompound tags)
+	public NBTTagCompound assemblePacket(NBTTagCompound tags)
 	{
 		int bId = tags.getInteger("id");
 		int size = tags.getInteger("size");
@@ -71,20 +78,23 @@ public class PacketAssembly
 		boolean end = tags.getBoolean("end");
 		byte[] data = tags.getByteArray("data");
 		
-		if(buffer[bId] == null || buffer[bId].length != size)
+		byte[] tmp = buffer.get(bId);
+		
+		if(tmp == null || tmp.length != size)
 		{
-			buffer[bId] = new byte[size];
+			tmp = new byte[size];
+			buffer.put(bId, tmp);
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)
 		{
-			buffer[bId][index + i] = data[i];
+			tmp[index + i] = data[i];
 		}
 		
 		if(end)
 		{
-			byte[] tmp = buffer[bId];
-			buffer[bId] = null;
+			buffer.remove(bId);
+			
 			try
 			{
 				return CompressedStreamTools.func_152457_a(tmp, NBTSizeTracker.field_152451_a);

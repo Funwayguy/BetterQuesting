@@ -7,8 +7,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
@@ -19,12 +20,12 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLinesMain extends GuiQuesting
+public class GuiQuestLinesMain extends GuiScreenThemed
 {
 	/**
 	 * Last opened quest screen from here
 	 */
-	public static GuiQuestInstance bookmarked;
+	public static int bookmarked;
 	
 	GuiButtonQuestLine selected;
 	ArrayList<GuiButtonQuestLine> qlBtns = new ArrayList<GuiButtonQuestLine>();

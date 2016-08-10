@@ -12,17 +12,16 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
-import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -36,7 +35,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	int maxRowsL = 0;
 	int maxRowsR = 0;
 	GuiBigTextField searchBox;
-	ArrayList<QuestInstance> searchResults = new ArrayList<QuestInstance>();
+	ArrayList<IQuestContainer> searchResults = new ArrayList<IQuestContainer>();
 	
 	public GuiPrerequisiteEditor(GuiScreen parent, QuestInstance quest)
 	{
@@ -161,7 +160,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", 1);
-			PacketSender.INSTANCE.sendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(PacketTypeNative.LINE_EDIT.GetLocation(), tags);
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -251,7 +250,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		tags.setInteger("questID", quest.questID);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToServer(PacketTypeNative.QUEST_EDIT.GetLocation(), tags);
 	}
 	
 	public void RefreshColumns()
@@ -259,7 +258,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		leftScroll = quest == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.preRequisites.size() - maxRowsL));
     	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, searchResults.size() - maxRowsR));
     	
-    	if(quest != null && QuestDatabase.INSTANCE.getQuestByID(quest.questID) != quest))
+    	if(quest != null && QuestDatabase.INSTANCE.getQuest(quest.questID) != quest)
 		{
     		quest = QuestDatabase.getQuestByID(quest.questID);
     		
@@ -351,17 +350,17 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	
 	public void RefreshSearch()
 	{
-		searchResults = new ArrayList<QuestInstance>();
+		searchResults = new ArrayList<IQuestContainer>();
 		String query = searchBox.getText().toLowerCase();
 		
-		for(QuestInstance q : QuestDatabase.questDB.values())
+		for(IQuestContainer q : QuestDatabase.INSTANCE.getAllQuests())
 		{
 			if(q == null)
 			{
 				continue;
 			}
 			
-			if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			if(q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.getQuestID()))
 			{
 				searchResults.add(q);
 			}

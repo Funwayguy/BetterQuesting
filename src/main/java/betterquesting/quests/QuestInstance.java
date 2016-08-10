@@ -2,6 +2,7 @@ package betterquesting.quests;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -11,20 +12,27 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.enums.EnumLogic;
+import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.rewards.IRewardBase;
+import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.tasks.TaskBase;
 import betterquesting.registry.RewardRegistry;
 import betterquesting.registry.TaskRegistry;
+import betterquesting.utils.UserEntry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -32,50 +40,41 @@ import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class QuestInstance
+public class QuestInstance implements IQuestContainer
 {
-	public int questID;
-	public boolean isMain = false;
-	public boolean isSilent = false;
-	public boolean lockedProgress = false;
-	public boolean simultaneous = false;
-	public BigItemStack itemIcon = new BigItemStack(Items.nether_star);
-	public IconVisibility visibility = IconVisibility.NORMAL;
-	public ArrayList<TaskBase> tasks = new ArrayList<TaskBase>();
-	public ArrayList<RewardBase> rewards = new ArrayList<RewardBase>();
+	private BigItemStack itemIcon = new BigItemStack(Items.nether_star);
+	private EnumQuestVisibility visibility = EnumQuestVisibility.NORMAL;
+	private final TaskStorage tasks = new TaskStorage();
+	private final RewardStorage rewards = new RewardStorage();
 	
-	public String name = "New Quest";
-	public String description = "No Description";
+	private String name = "New Quest";
+	private String description = "No Description";
 	
-	ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
-	public ArrayList<QuestInstance> preRequisites = new ArrayList<QuestInstance>();
+	private ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
+	private ArrayList<Integer> preRequisites = new ArrayList<Integer>();
 	
-	public QuestLogic logic = QuestLogic.AND;
-	public QuestLogic tLogic = QuestLogic.AND;
-	public boolean globalQuest = false;
-	public boolean globalShare = true;
-	public float globalParticipation = 0F;
-	public boolean autoClaim = false;
-	public int repeatTime = -1;
+	private EnumLogic logic = EnumLogic.AND;
+	private EnumLogic tLogic = EnumLogic.AND;
+	private boolean globalQuest = false;
+	private boolean globalShare = true;
+	private float globalParticipation = 0F;
+	private boolean autoClaim = false;
+	private int repeatTime = -1;
 	
-	public String sndComplete = "random.levelup";
-	public String sndUpdate = "random.levelup";
-	public String sndUnlock = "random.click"; // Not currently used
+	private boolean isMain = false;
+	private boolean isSilent = false;
+	private boolean lockedProgress = false;
+	private boolean simultaneous = false;
 	
-	public QuestInstance(int questID, boolean register)
-	{
-		this.questID = questID;
-		
-		if(register)
-		{
-			QuestDatabase.questDB.put(this.questID, this);
-		}
-	}
+	private String sndComplete = "random.levelup";
+	private String sndUpdate = "random.levelup";
+	private String sndUnlock = "random.click"; // Not currently used
 	
 	/**
 	 * Quest specific living update event. Do not use for item submissions
 	 */
-	public void Update(EntityPlayer player)
+	@Override
+	public void update(EntityPlayer player)
 	{
 		if(isComplete(player.getUniqueID()))
 		{
@@ -83,13 +82,13 @@ public class QuestInstance
 			
 			if(!HasClaimed(player.getUniqueID()))
 			{
-				if(CanClaim(player, new NBTTagList()))
+				if(canClaim(player))
 				{
 					// Quest is complete and pending claim.
 					// Task logic is not required to run.
 					if(autoClaim && player.ticksExisted%20 == 0)
 					{
-						Claim(player, new NBTTagList());
+						claimReward(player);
 					}
 					
 					return;
@@ -101,7 +100,7 @@ public class QuestInstance
 				{
 					// Task logic will now run for repeat quest
 				}
-			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.timestamp >= repeatTime)
+			} else if(rewards.size() > 0 && repeatTime >= 0 && player.worldObj.getTotalWorldTime() - entry.getTimestamp() >= repeatTime)
 			{
 				// Task is scheduled to reset
 				if(globalQuest)
@@ -112,7 +111,7 @@ public class QuestInstance
 					ResetProgress(player.getUniqueID());
 				}
 				
-				if(!QuestDatabase.editMode && !isSilent)
+				if(!QuestProperties.INSTANCE.isEditMode() && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
@@ -122,14 +121,14 @@ public class QuestInstance
 					
 					if(globalQuest)
 					{
-						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 				
-				UpdateClients();
+				syncAll();
 				return;
 			} else
 			{
@@ -143,11 +142,11 @@ public class QuestInstance
 			int done = 0;
 			boolean update = false;
 			
-			for(TaskBase tsk : tasks)
+			for(ITaskBase tsk : tasks)
 			{
 				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
-				tsk.Update(this, player);
+				tsk.update(player, this);
 				
 				if(tsk.isComplete(player.getUniqueID()))
 				{
@@ -164,17 +163,17 @@ public class QuestInstance
 			{
 				if(update)
 				{
-					UpdateClients();
+					syncAll();
 				}
 				
 				return;
-			} else if((tasks.size() > 0 || !QuestDatabase.editMode) && tLogic.GetResult(done, tasks.size()))
+			} else if((tasks.size() > 0 || !QuestProperties.INSTANCE.isEditMode()) && tLogic.GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
-				UpdateClients();
+				syncAll();
 				
-				if(!QuestDatabase.editMode && !isSilent)
+				if(!QuestProperties.INSTANCE.isEditMode() && !isSilent)
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
@@ -184,19 +183,19 @@ public class QuestInstance
 					
 					if(globalQuest)
 					{
-						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && simultaneous)
 			{
 				ResetProgress(player.getUniqueID());
-				UpdateClients();
+				syncAll();
 			} else if(update)
 			{
-				UpdateClients();
+				syncAll();
 				
 				if(!QuestDatabase.editMode && !isSilent)
 				{
@@ -208,10 +207,10 @@ public class QuestInstance
 					
 					if(globalQuest)
 					{
-						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -221,7 +220,8 @@ public class QuestInstance
 	/**
 	 * Fired when someone clicks the detect button for this quest
 	 */
-	public void Detect(EntityPlayer player)
+	@Override
+	public void detect(EntityPlayer player)
 	{
 		if(isComplete(player.getUniqueID()) && (repeatTime < 0 || rewards.size() <= 0))
 		{
@@ -231,16 +231,16 @@ public class QuestInstance
 			return;
 		}
 		
-		if(isUnlocked(player.getUniqueID()) || QuestDatabase.editMode)
+		if(isUnlocked(player.getUniqueID()) || QuestProperties.INSTANCE.isEditMode())
 		{
 			int done = 0;
 			boolean update = false;
 			
-			for(TaskBase tsk : tasks)
+			for(ITaskBase tsk : tasks)
 			{
 				boolean flag = !tsk.isComplete(player.getUniqueID());
 				
-				tsk.Detect(this, player);
+				tsk.detect(player, this);
 				
 				if(tsk.isComplete(player.getUniqueID()))
 				{
@@ -267,16 +267,16 @@ public class QuestInstance
 					
 					if(globalQuest)
 					{
-						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && simultaneous)
 			{
 				ResetProgress(player.getUniqueID());
-				UpdateClients();
+				syncAll();
 			} else if(update)
 			{
 				if(!QuestDatabase.editMode && !isSilent)
@@ -289,15 +289,15 @@ public class QuestInstance
 					
 					if(globalQuest)
 					{
-						PacketAssembly.SendToAll(BQPacketType.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketAssembly.SendTo(BQPacketType.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
 					}
 				}
 			}
 			
-			UpdateClients();
+			syncAll();
 		}
 	}
 	
@@ -317,7 +317,7 @@ public class QuestInstance
 			{
 				for(UserEntry entry : completeUsers)
 				{
-					if(entry.claimed)
+					if(entry.hasClaimed())
 					{
 						return true;
 					}
@@ -334,10 +334,11 @@ public class QuestInstance
 			return false;
 		}
 		
-		return entry.claimed;
+		return entry.hasClaimed();
 	}
 	
-	public boolean CanClaim(EntityPlayer player, NBTTagList choiceData)
+	@Override
+	public boolean canClaim(EntityPlayer player)
 	{
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		
@@ -351,16 +352,9 @@ public class QuestInstance
 		{
 			for(int i = 0; i < rewards.size(); i++)
 			{
-				RewardBase rew = rewards.get(i);
+				IRewardBase rew = rewards.get(i);
 				
-				NBTTagCompound cTag = new NBTTagCompound();
-				
-				if(choiceData != null && choiceData.tagCount() > i)
-				{
-					cTag = choiceData.getCompoundTagAt(i);
-				}
-				
-				if(!rew.canClaim(player, cTag))
+				if(!rew.canClaim(player, this))
 				{
 					return false;
 				}
@@ -370,29 +364,23 @@ public class QuestInstance
 		return true;
 	}
 	
-	public void Claim(EntityPlayer player, NBTTagList choiceData)
+	@Override
+	public void claimReward(EntityPlayer player)
 	{
 		for(int i = 0; i < rewards.size(); i++)
 		{
-			RewardBase rew = rewards.get(i);
+			IRewardBase rew = rewards.get(i);
 			
-			NBTTagCompound cTag = new NBTTagCompound();
-			
-			if(choiceData != null && choiceData.tagCount() > i)
-			{
-				cTag = choiceData.getCompoundTagAt(i);
-			}
-			
-			rew.Claim(player, cTag);
+			rew.claimReward(player, this);
 		}
 		
 		UserEntry entry = GetUserEntry(player.getUniqueID());
-		entry.claimed = true;
-		entry.timestamp = player.worldObj.getTotalWorldTime();
+		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
 		
-		UpdateClients();
+		syncAll();
 	}
 	
+	@Override
 	public boolean canSubmit(EntityPlayer player)
 	{
 		if(player == null)
@@ -405,11 +393,11 @@ public class QuestInstance
 		if(entry == null)
 		{
 			return true;
-		} else if(!entry.claimed)
+		} else if(!entry.hasClaimed())
 		{
 			int done = 0;
 			
-			for(TaskBase tsk : tasks)
+			for(ITaskBase tsk : tasks)
 			{
 				if(tsk.isComplete(player.getUniqueID()))
 				{
@@ -433,40 +421,12 @@ public class QuestInstance
 		
 		float total = 0F;
 		
-		for(TaskBase t : tasks)
+		for(ITaskBase t : tasks)
 		{
 			total += t.GetParticipation(uuid);
 		}
 		
 		return total / tasks.size();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public NBTTagList GetChoiceData()
-	{
-		NBTTagList cList = new NBTTagList();
-		
-		for(RewardBase rew : rewards)
-		{
-			cList.appendTag(rew.GetChoiceData());
-		}
-		
-		return cList;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void SetChoiceData(NBTTagList tags)
-	{
-		for(int i = 0; i < rewards.size(); i++)
-		{
-			if(i >= tags.tagCount())
-			{
-				break;
-			}
-			
-			RewardBase rew = rewards.get(i);
-			rew.SetChoiceData(tags.getCompoundTagAt(i));
-		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -563,21 +523,22 @@ public class QuestInstance
 			return 0;
 		} else
 		{
-			return (repeatTime - (player.worldObj.getTotalWorldTime() - ue.timestamp))/20L;
+			return (repeatTime - (player.worldObj.getTotalWorldTime() - ue.getTimestamp()))/20L;
 		}
 	}
 	
-	public void UpdateClients()
+	@Override
+	public void syncAll()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("questID", this.questID);
 		JsonObject json1 = new JsonObject();
-		writeToJSON(json1);
+		writeToJson(json1, EnumSaveType.CONFIG);
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
 		JsonObject json2 = new JsonObject();
 		writeProgressToJSON(json2);
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendToAll(BQPacketType.QUEST_SYNC.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToAll(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -611,8 +572,7 @@ public class QuestInstance
 			
 			if(entry != null)
 			{
-				entry.claimed = false;
-				entry.timestamp = timestamp;
+				entry.setClaimed(false, timestamp);
 			} else
 			{
 				completeUsers.add(new UserEntry(uuid, timestamp));
@@ -625,8 +585,7 @@ public class QuestInstance
 				
 				if(entry != null)
 				{
-					entry.claimed = false;
-					entry.timestamp = timestamp;
+					entry.setClaimed(false, timestamp);
 				} else
 				{
 					completeUsers.add(new UserEntry(mem.userID, timestamp));
@@ -659,7 +618,7 @@ public class QuestInstance
 			
 			for(UUID id : uuid)
 			{
-				if(entry.uuid.equals(id))
+				if(entry.getUUID().equals(id))
 				{
 					completeUsers.remove(i);
 					flag = true;
@@ -670,7 +629,7 @@ public class QuestInstance
 		
 		if(flag)
 		{
-			UpdateClients();
+			syncAll();
 		}
 	}
 	
@@ -678,7 +637,7 @@ public class QuestInstance
 	{
 		for(UserEntry entry : completeUsers)
 		{
-			if(entry.uuid.equals(uuid))
+			if(entry.getUUID().equals(uuid))
 			{
 				return entry;
 			}
@@ -727,7 +686,7 @@ public class QuestInstance
 			
 			if(entry != null)
 			{
-				entry.claimed = false;
+				entry.setClaimed(false, 0);
 			}
 			
 			for(TaskBase t : tasks)
@@ -742,7 +701,7 @@ public class QuestInstance
 				
 				if(entry != null)
 				{
-					entry.claimed = false;
+					entry.setClaimed(false, 0);
 				}
 				
 				for(TaskBase t : tasks)
@@ -760,7 +719,7 @@ public class QuestInstance
 	{
 		for(UserEntry entry : completeUsers)
 		{
-			entry.claimed = false;
+			entry.setClaimed(false, 0);
 		}
 		
 		for(TaskBase t : tasks)
@@ -782,10 +741,42 @@ public class QuestInstance
 		this.preRequisites.remove(quest);
 	}
 	
-	public void writeToJSON(JsonObject jObj)
+	@Override
+	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
 	{
-		jObj.addProperty("questID", questID);
+		switch(saveType)
+		{
+			case CONFIG:
+				writeToJson_Config(json);
+				break;
+			case PROGRESS:
+				writeToJson_Progress(json);
+				break;
+			default:
+				break;
+		}
 		
+		return json;
+	}
+	
+	@Override
+	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	{
+		switch(saveType)
+		{
+			case CONFIG:
+				readFromJson_Config(json);
+				break;
+			case PROGRESS:
+				readFromJson_Progress(json);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	private JsonObject writeToJson_Config(JsonObject jObj)
+	{
 		jObj.addProperty("name", name);
 		jObj.addProperty("description", description);
 		jObj.addProperty("isMain", isMain);
@@ -809,59 +800,24 @@ public class QuestInstance
 		jObj.add("icon", JsonHelper.ItemStackToJson(itemIcon, new JsonObject()));
 		jObj.addProperty("visibility", visibility.toString());
 		
-		JsonArray tskJson = new JsonArray();
-		for(TaskBase tsk : tasks)
-		{
-			ResourceLocation taskID = TaskRegistry.GetRegisteredName(tsk.getClass());
-			
-			if(taskID == null)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + tsk.getClass().getName());
-				continue;
-			}
-			
-			JsonObject qJson = new JsonObject();
-			tsk.writeToJson(qJson);
-			qJson.addProperty("taskID", taskID.toString());
-			tskJson.add(qJson);
-		}
+		JsonArray tskJson = tasks.writeToJson(new JsonArray(), EnumSaveType.CONFIG);
 		jObj.add("tasks", tskJson);
 		
-		JsonArray rwdJson = new JsonArray();
-		for(RewardBase rew : rewards)
-		{
-			ResourceLocation rewardID = RewardRegistry.GetRegisteredName(rew.getClass());
-			
-			if(rewardID == null)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered reward: " + rew.getClass().getName());
-				continue;
-			}
-			
-			JsonObject rJson = new JsonObject();
-			rew.writeToJson(rJson);
-			rJson.addProperty("rewardID", rewardID.toString());
-			rwdJson.add(rJson);
-		}
+		JsonArray rwdJson = rewards.writeToJson(new JsonArray(), EnumSaveType.CONFIG);
 		jObj.add("rewards", rwdJson);
 		
 		JsonArray reqJson = new JsonArray();
-		for(QuestInstance quest : preRequisites)
+		for(int quest : preRequisites)
 		{
-			if(quest == null)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Quest " + name + " had null prequisite!", new IllegalArgumentException());
-				continue;
-			}
-			reqJson.add(new JsonPrimitive(quest.questID));
+			reqJson.add(new JsonPrimitive(quest));
 		}
 		jObj.add("preRequisites", reqJson);
+		
+		return jObj;
 	}
 	
-	public void readFromJSON(JsonObject jObj)
+	private void readFromJson_Config(JsonObject jObj)
 	{
-		this.questID = JsonHelper.GetNumber(jObj, "questID", -1).intValue();
-		
 		this.name = JsonHelper.GetString(jObj, "name", "New Quest");
 		this.description = JsonHelper.GetString(jObj, "description", "No Description");
 		this.isMain = JsonHelper.GetBoolean(jObj, "isMain", false);
@@ -881,20 +837,20 @@ public class QuestInstance
 		
 		try
 		{
-			this.logic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
-			this.logic = logic == null? QuestLogic.AND : logic;
+			this.logic = EnumLogic.valueOf(JsonHelper.GetString(jObj, "logic", "AND").toUpperCase());
+			this.logic = logic == null? EnumLogic.AND : logic;
 		} catch(Exception e)
 		{
-			this.logic = QuestLogic.AND;
+			this.logic = EnumLogic.AND;
 		}
 		
 		try
 		{
-			this.tLogic = QuestLogic.valueOf(JsonHelper.GetString(jObj, "taskLogic", "AND").toUpperCase());
-			this.tLogic = tLogic == null? QuestLogic.AND : tLogic;
+			this.tLogic = EnumLogic.valueOf(JsonHelper.GetString(jObj, "taskLogic", "AND").toUpperCase());
+			this.tLogic = tLogic == null? EnumLogic.AND : tLogic;
 		} catch(Exception e)
 		{
-			this.tLogic = QuestLogic.AND;
+			this.tLogic = EnumLogic.AND;
 		}
 		
 		this.itemIcon = JsonHelper.JsonToItemStack(JsonHelper.GetObject(jObj, "icon"));
@@ -902,52 +858,18 @@ public class QuestInstance
 		
 		try
 		{
-			this.visibility = IconVisibility.valueOf(JsonHelper.GetString(jObj, "visibility", "AND").toUpperCase());
-			this.visibility = visibility == null? IconVisibility.NORMAL : visibility;
+			this.visibility = EnumQuestVisibility.valueOf(JsonHelper.GetString(jObj, "visibility", "AND").toUpperCase());
+			this.visibility = visibility == null? EnumQuestVisibility.NORMAL : visibility;
 		} catch(Exception e)
 		{
-			this.visibility = IconVisibility.NORMAL;
+			this.visibility = EnumQuestVisibility.NORMAL;
 		}
 		
-		this.tasks = new ArrayList<TaskBase>();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "tasks"))
-		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
-			
-			JsonObject jsonTask = entry.getAsJsonObject();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
-			TaskBase task = TaskRegistry.InstatiateTask(loc);
-			
-			if(task != null)
-			{
-				task.readFromJson(jsonTask);
-				this.tasks.add(task);
-			}
-		}
+		this.tasks.readFromJson(JsonHelper.GetArray(jObj, "tasks"), EnumSaveType.CONFIG);
 		
-		this.rewards = new ArrayList<RewardBase>();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "rewards"))
-		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
-			
-			JsonObject jsonReward = entry.getAsJsonObject();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
-			RewardBase reward = RewardRegistry.InstatiateReward(loc);
-			
-			if(reward != null)
-			{
-				reward.readFromJson(jsonReward);
-				this.rewards.add(reward);
-			}
-		}
+		this.rewards.readFromJson(JsonHelper.GetArray(jObj, "rewards"), EnumSaveType.CONFIG);
 		
-		preRequisites = new ArrayList<QuestInstance>();
+		preRequisites = new ArrayList<Integer>();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
 		{
 			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())
@@ -955,7 +877,7 @@ public class QuestInstance
 				continue;
 			}
 			
-			preRequisites.add(QuestDatabase.GetOrRegisterQuest(entry.getAsInt()));
+			preRequisites.add(entry.getAsInt());
 		}
 		
 		// Backwards compatibility with single quest files
@@ -965,39 +887,24 @@ public class QuestInstance
 		}
 	}
 	
-	public void writeProgressToJSON(JsonObject json)
+	private JsonObject writeToJson_Progress(JsonObject json)
 	{
-		json.addProperty("questID", questID);
-		
 		JsonArray comJson = new JsonArray();
 		for(UserEntry entry : completeUsers)
 		{
-			comJson.add(entry.toJson());
+			comJson.add(entry.writeToJson(new JsonObject()));
 		}
 		json.add("completed", comJson);
 		
-		JsonArray tskJson = new JsonArray();
-		for(TaskBase tsk : tasks)
-		{
-			ResourceLocation taskID = TaskRegistry.GetRegisteredName(tsk.getClass());
-			
-			if(taskID == null)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "A quest was unable to save an unregistered task: " + tsk.getClass().getName());
-				continue;
-			}
-			
-			JsonObject qJson = new JsonObject();
-			tsk.writeProgressToJson(qJson);
-			qJson.addProperty("taskID", taskID.toString());
-			tskJson.add(qJson);
-		}
+		JsonArray tskJson = tasks.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
 		json.add("tasks", tskJson);
+		
+		return json;
 	}
 	
 	JsonObject jMig = null;
 	
-	public void readProgressFromJSON(JsonObject json)
+	private void readFromJson_Progress(JsonObject json)
 	{
 		JsonObject jTmp = jMig != null? jMig : json; // Check for migrated progress
 		jMig = null;
@@ -1014,7 +921,7 @@ public class QuestInstance
 			{
 				UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
 				UserEntry user = new UserEntry(uuid);
-				user.fromJson(entry.getAsJsonObject());
+				user.readFromJson(entry.getAsJsonObject());
 				completeUsers.add(user);
 			} catch(Exception e)
 			{
@@ -1022,40 +929,6 @@ public class QuestInstance
 			}
 		}
 		
-		JsonArray tAry = JsonHelper.GetArray(json, "tasks");
-		
-		if(tAry.size() == tasks.size()) // If the tasks
-		{
-			for(int i = 0; i < tAry.size(); i++)
-			{
-				JsonElement entry = tAry.get(i);
-				
-				if(entry == null || !entry.isJsonObject())
-				{
-					continue;
-				}
-				
-				JsonObject jsonTask = entry.getAsJsonObject();
-				ResourceLocation loc1 = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
-				TaskBase task = tasks.get(i);
-				
-				if(task != null)
-				{
-					ResourceLocation loc2 = TaskRegistry.GetRegisteredName(task.getClass());
-					if(!loc1.equals(loc2))
-					{
-						// Progression mismatch
-						BetterQuesting.logger.log(Level.WARN, "Task ID mismatch: " + loc1 + " != " + loc2);
-						continue;
-					}
-					
-					task.readProgressFromJson(jsonTask);
-				}
-			}
-		} else
-		{
-			// Task count mismatch
-			BetterQuesting.logger.log(Level.WARN, "Task count mismatch! Existing progress has been lost");
-		}
+		tasks.readFromJson(JsonHelper.GetArray(json, "tasks"), EnumSaveType.PROGRESS);
 	}
 }

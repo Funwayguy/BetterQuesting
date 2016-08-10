@@ -19,6 +19,8 @@ import betterquesting.api.utils.IMakePlaceholder;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestLineDatabase;
 import betterquesting.registry.RewardRegistry;
 import betterquesting.registry.TaskRegistry;
 import betterquesting.registry.ThemeRegistry;
@@ -96,13 +98,13 @@ public final class ParentAPI implements IQuestingAPI
 	@Override
 	public IQuestLineDatabase getQuestLineDB()
 	{
-		return null;
+		return QuestLineDatabase.INSTANCE;
 	}
 
 	@Override
 	public IQuestDatabase getQuestDB()
 	{
-		return null;
+		return QuestDatabase.INSTANCE;
 	}
 
 	@Override

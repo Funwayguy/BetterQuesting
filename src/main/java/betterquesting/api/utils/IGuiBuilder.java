@@ -17,5 +17,8 @@ public interface IGuiBuilder
 	public GuiScreen openFluidEditor(GuiScreen parent, IJsonStorage<? extends JsonObject> json);
 	public GuiScreen openEntityEditor(GuiScreen parent, IJsonStorage<? extends JsonObject> json);
 	
+	public GuiScreen openQuestEditor(GuiScreen parent, int questId);
+	public GuiScreen openLineEditor(GuiScreen parnet, int questLineId);
+	
 	public GuiScreen openFileExplorer(GuiScreen parent, IFileCallback callback, boolean singleFile);
 }

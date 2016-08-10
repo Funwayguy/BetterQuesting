@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import betterquesting.EntityPlaceholder;
 import betterquesting.blocks.BlockSubmitStation;
@@ -83,7 +84,11 @@ public class BetterQuesting
     	
     	proxy.registerHandlers();
     	
-    	PacketTypeRegistry.RegisterNativeHandlers();
+    	if(PacketTypeRegistry.INSTANCE == null)
+    	{
+    		// Not actually required but for the sake of instantiating first...
+    		BetterQuesting.logger.log(Level.ERROR, "Unabled to instatiate packet registry");
+    	}
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);

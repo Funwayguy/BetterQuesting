@@ -1,8 +1,8 @@
 package betterquesting.api.client.themes;
 
 import java.awt.Color;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.quests.IQuestContainer;
 
@@ -57,9 +57,9 @@ public final class DummyTheme implements IThemeBase
 	}
 	
 	@Override
-	public int getLineStipple(IQuestContainer quest, EnumQuestState state)
+	public short getLineStipple(IQuestContainer quest, EnumQuestState state)
 	{
-		return 0xAAAA;
+		return (short)0xAAAA;
 	}
 	
 	@Override
@@ -69,7 +69,7 @@ public final class DummyTheme implements IThemeBase
 	}
 	
 	@Override
-	public IGuiEmbedded getGuiOverride(IGuiEmbedded gui)
+	public GuiScreen getGuiOverride(GuiScreen gui)
 	{
 		return gui;
 	}

@@ -1,13 +1,12 @@
 package betterquesting.quests;
 
-import com.google.gson.JsonObject;
-import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
+import com.google.gson.JsonObject;
 
 public class QuestLineEntry implements IQuestLineEntry
 {
-	private IQuestContainer quest;
+	private int quest = -1;
 	private int size = 0;
 	private int posX = 0;
 	private int posY = 0;
@@ -17,12 +16,12 @@ public class QuestLineEntry implements IQuestLineEntry
 		this.readFromJson(json);
 	}
 	
-	public QuestLineEntry(IQuestContainer quest, int x, int y)
+	public QuestLineEntry(int quest, int x, int y)
 	{
 		this(quest, x, y, 24);
 	}
 	
-	public QuestLineEntry(IQuestContainer quest, int x, int y, int size)
+	public QuestLineEntry(int quest, int x, int y, int size)
 	{
 		this.quest = quest;
 		this.size = size;
@@ -31,7 +30,7 @@ public class QuestLineEntry implements IQuestLineEntry
 	}
 	
 	@Override
-	public IQuestContainer getQuest()
+	public int getQuestID()
 	{
 		return quest;
 	}
@@ -70,7 +69,7 @@ public class QuestLineEntry implements IQuestLineEntry
 	@Override
 	public JsonObject writeToJson(JsonObject json)
 	{
-		json.addProperty("id", quest.getQuestID());
+		json.addProperty("id", quest);
 		json.addProperty("size", size);
 		json.addProperty("x", posX);
 		json.addProperty("y", posY);
@@ -80,7 +79,7 @@ public class QuestLineEntry implements IQuestLineEntry
 	@Override
 	public void readFromJson(JsonObject json)
 	{
-		quest = QuestDatabase.INSTANCE.getQuest(JsonHelper.GetNumber(json, "id", -1).intValue());
+		quest = JsonHelper.GetNumber(json, "id", -1).intValue();
 		size = JsonHelper.GetNumber(json, "size", 24).intValue();
 		posX = JsonHelper.GetNumber(json, "x", 0).intValue();
 		posY = JsonHelper.GetNumber(json, "y", 0).intValue();

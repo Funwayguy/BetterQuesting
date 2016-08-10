@@ -52,6 +52,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 			QuestDatabase.questLines.add(new QuestLine());
 		} else if(action == 1) // Add new QuestInstance
 		{
+			QuestDatabase.INSTANCE.addQuest(quest);
 			new QuestInstance(QuestDatabase.getUniqueID(), true);
 		} else if(action == 2) // Edit quest lines
 		{

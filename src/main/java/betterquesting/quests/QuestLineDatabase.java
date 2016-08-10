@@ -2,15 +2,17 @@ package betterquesting.quests;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import betterquesting.api.database.IQuestLineDatabase;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.utils.JsonHelper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-public class QuestLineDatabase implements IQuestLineDatabase
+public final class QuestLineDatabase implements IQuestLineDatabase
 {
 	public static final QuestLineDatabase INSTANCE = new QuestLineDatabase();
 	
@@ -21,7 +23,7 @@ public class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public int getUniqueID()
+	public int nextID()
 	{
 		int id = 0;
 		
@@ -34,47 +36,120 @@ public class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public void addQuestLine(IQuestLineContainer questLine)
+	public boolean add(IQuestLineContainer questLine, int id)
 	{
+		if(questLine == null || questLines.containsValue(questLine) || questLines.containsKey(id))
+		{
+			return false;
+		}
+		
+		questLines.put(id, questLine);
+		return true;
 	}
 	
 	@Override
-	public void deleteQuestLine(int lineId)
+	public boolean remove(int lineId)
 	{
+		return questLines.remove(lineId) != null;
 	}
 	
 	@Override
-	public IQuestLineContainer getQuestLine(int lineId)
+	public int getKey(IQuestLineContainer questLine)
 	{
-		return null;
+		for(Entry<Integer,IQuestLineContainer> entry  : questLines.entrySet())
+		{
+			if(entry.getValue() == questLine)
+			{
+				return entry.getKey();
+			}
+		}
+		
+		return -1;
 	}
 	
 	@Override
-	public List<IQuestLineContainer> getAllQuestLines()
+	public IQuestLineContainer getValue(int lineId)
+	{
+		return questLines.get(lineId);
+	}
+	
+	@Override
+	public List<IQuestLineContainer> getAllValues()
 	{
 		return new ArrayList<IQuestLineContainer>(questLines.values());
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json)
+	public List<Integer> getAllKeys()
 	{
-		for(JsonElement entry : JsonHelper.GetArray(json, "questLines"))
+		return new ArrayList<Integer>(questLines.keySet());
+	}
+	
+	@Override
+	public void syncDatabase()
+	{
+		//TODO: Setup dedicated sync packet
+	}
+	
+	@Override
+	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	{
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return json;
+		}
+		
+		for(Entry<Integer,IQuestLineContainer> entry : questLines.entrySet())
+		{
+			if(entry.getValue() == null)
+			{
+				continue;
+			}
+			
+			JsonObject jObj = entry.getValue().writeToJson(new JsonObject());
+			jObj.addProperty("lineID", entry.getKey());
+			json.add(jObj);
+		}
+		
+		return json;
+	}
+	
+	@Override
+	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	{
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return;
+		}
+		
+		ArrayList<IQuestLineContainer> unassigned = new ArrayList<IQuestLineContainer>();
+		
+		for(JsonElement entry : json)
 		{
 			if(entry == null || !entry.isJsonObject())
 			{
 				continue;
 			}
 			
+			JsonObject jql = entry.getAsJsonObject();
+			
+			int id = JsonHelper.GetNumber(jql, "lineID", -1).intValue();
 			QuestLine line = new QuestLine();
-			line.readFromJSON(entry.getAsJsonObject());
-			questLines.add(line);
+			line.readFromJson(entry.getAsJsonObject());
+			
+			if(id >= 0)
+			{
+				questLines.put(id, line);
+			} else
+			{
+				unassigned.add(line);
+			}
 		}
-		return null;
+		
+		// Legacy support ONLY
+		for(IQuestLineContainer q : unassigned)
+		{
+			questLines.put(this.nextID(), q);
+		}
 	}
-	
-	@Override
-	public void readFromJson(JsonObject json)
-	{
-	}
-	
 }

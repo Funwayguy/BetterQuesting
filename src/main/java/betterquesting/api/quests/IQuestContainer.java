@@ -1,22 +1,25 @@
 package betterquesting.api.quests;
 
-import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import com.google.gson.JsonObject;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import betterquesting.api.database.IJsonSaveLoad;
+import betterquesting.api.database.IRegStorage;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.quests.rewards.IRewardBase;
 import betterquesting.api.quests.tasks.ITaskBase;
-import com.google.gson.JsonObject;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
+import betterquesting.api.utils.BigItemStack;
 
-public interface IQuestContainer
+public interface IQuestContainer extends IJsonSaveLoad<JsonObject>
 {
 	public int getQuestID();
 	public String getUnlocalisedName();
+	public String getUnlocalisedDescription();
 	
-	public ItemStack getIcon();
+	public BigItemStack getIcon();
 	public EnumQuestState getState(UUID uuid);
 	public EnumQuestVisibility getVisibility();
 	
@@ -25,6 +28,9 @@ public interface IQuestContainer
 	
 	public void update(EntityPlayer player);
 	public void detect(EntityPlayer player);
+	
+	public boolean isUnlocked(UUID uuid);
+	public boolean canSubmit(EntityPlayer player);
 	
 	public boolean isComplete(UUID uuid);
 	public void setComplete(UUID uuid, long timeStamp);
@@ -35,22 +41,18 @@ public interface IQuestContainer
 	public void reset(UUID uuid);
 	public void resetAll();
 	
-	public int addTask(ITaskBase task);
-	public ITaskBase getTask(int taskId);
-	public int getTaskID(ITaskBase task);
-	public List<ITaskBase> getAllTasks();
+	/**
+	 * Returns the internal task database or null if this quest doesn't support tasks
+	 */
+	@Nullable
+	public IRegStorage<ITaskBase> getTasks();
 	
-	public int addReward(IRewardBase reward);
-	public IRewardBase getReward(int rewardId);
-	public int getRewardID(IRewardBase reward);
-	public List<IRewardBase> getAllRewards();
+	/**
+	 * Returns the internal reward database or null if this quest doesn't support rewards
+	 */
+	@Nullable
+	public IRegStorage<IRewardBase> getRewards();
 	
 	public void syncAll();
 	public void syncPlayer(EntityPlayerMP player);
-	
-	public JsonObject writeToJson_Config(JsonObject json);
-	public void readFromJson_Config(JsonObject json);
-	
-	public JsonObject writesToJson_Progress(JsonObject json);
-	public void readToJson_Progress(JsonObject json);
 }

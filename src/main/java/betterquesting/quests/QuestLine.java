@@ -2,45 +2,37 @@ package betterquesting.quests;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class QuestLine implements IQuestLineContainer
 {
-	private int ID = 0;
-	public String name = "New Quest Line";
-	public String description = "No description";
-	public ArrayList<IQuestLineEntry> questList = new ArrayList<IQuestLineEntry>();4
+	private String name = "questline.untitled.name";
+	private String description = "questline.untitled.desc";
+	private final ArrayList<IQuestLineEntry> questList = new ArrayList<IQuestLineEntry>();
 	
-	public QuestLine(int id)
+	@Override
+	public String getUnlocalisedName()
 	{
-		this.ID = id;
+		return name;
 	}
 	
 	@Override
-	public List<IQuestLineEntry> getAllQuests()
+	public String getUnlocalisedDescription()
 	{
-		ArrayList<QuestInstance> list = new ArrayList<QuestInstance>();
-		
-		for(QuestLineEntry entry : questList)
-		{
-			list.add(entry.quest);
-		}
-		
-		return list;
+		return description;
 	}
 	
-	public QuestLineEntry getEntryByID(int id)
+	@Override
+	public IQuestLineEntry getQuestEntry(int questId)
 	{
-		for(QuestLineEntry entry : questList)
+		for(IQuestLineEntry entry : questList)
 		{
-			if(entry != null && entry.quest != null && entry.quest.questID == id)
+			if(entry != null && entry.getQuestID() == questId)
 			{
 				return entry;
 			}
@@ -49,32 +41,38 @@ public class QuestLine implements IQuestLineContainer
 		return null;
 	}
 	
-	public void writeToJSON(JsonObject json)
+	@Override
+	public List<IQuestLineEntry> getAllQuests()
+	{
+		return questList;
+	}
+	
+	@Override
+	public JsonObject writeToJson(JsonObject json)
 	{
 		json.addProperty("name", name);
-		json.addProperty("id", id);
 		json.addProperty("description", description);
 		
 		JsonArray jArr = new JsonArray();
 		
-		for(QuestLineEntry entry : questList)
+		for(IQuestLineEntry entry : questList)
 		{
-			JsonObject jq = new JsonObject();
-			entry.writeToJson(jq);
-			jArr.add(jq);
+			jArr.add(entry.writeToJson(new JsonObject()));
 		}
 		
 		json.add("quests", jArr);
+		return json;
 	}
 	
-	public void readFromJSON(JsonObject json)
+	@Override
+	public void readFromJson(JsonObject json)
 	{
 		name = JsonHelper.GetString(json, "name", "New Quest Line");
 		description = JsonHelper.GetString(json, "description", "No description");
 		
 		//boolean remap = false;
 		
-		questList = new ArrayList<QuestLineEntry>();
+		questList.clear();
 		for(JsonElement entry : JsonHelper.GetArray(json, "quests"))
 		{
 			if(entry == null)
@@ -84,28 +82,10 @@ public class QuestLine implements IQuestLineContainer
 			
 			if(entry.isJsonPrimitive() && entry.getAsJsonPrimitive().isNumber()) // Backwards compatibility
 			{
-				QuestInstance quest = QuestDatabase.getQuestByID(entry.getAsInt());
-				
-				if(quest != null)
-				{
-					QuestLineEntry qe = new QuestLineEntry(quest, 0, 0);
-					questList.add(qe);
-				} else
-				{
-					BetterQuesting.logger.log(Level.WARN, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString());
-				}
+				questList.add(new QuestLineEntry(entry.getAsInt(), 0, 0));
 			} else if(entry.isJsonObject())
 			{
-				QuestLineEntry qe = new QuestLineEntry();
-				qe.readFromJson(entry.getAsJsonObject());
-				
-				if(qe.quest != null)
-				{
-					questList.add(qe);
-				} else
-				{
-					BetterQuesting.logger.log(Level.WARN, "Quest line '" + this.name + "' contained an invalid entry: " + entry.toString());
-				}
+				questList.add(new QuestLineEntry(entry.getAsJsonObject()));
 			}
 		}
 	}

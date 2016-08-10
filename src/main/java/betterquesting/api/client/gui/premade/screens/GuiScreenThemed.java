@@ -21,8 +21,8 @@ import betterquesting.api.client.themes.IThemeBase;
 public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 {
 	public ArrayList<IGuiEmbedded> embedded = new ArrayList<IGuiEmbedded>();
-	protected GuiScreen parent;
-	protected String title = "Untitled";
+	public GuiScreen parent;
+	private String title = "Untitled";
 	
 	public int guiLeft = 0;
 	public int guiTop = 0;
@@ -38,6 +38,11 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		this.fontRendererObj = this.mc.fontRenderer;
 		
 		this.parent = parent;
+		this.title = title;
+	}
+	
+	public void setTitle(String title)
+	{
 		this.title = title;
 	}
 	

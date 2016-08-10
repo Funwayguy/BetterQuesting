@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
@@ -13,7 +14,7 @@ import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 
-public class GuiHome extends GuiQuesting
+public class GuiHome extends GuiScreenThemed
 {
 	ResourceLocation homeGui = new ResourceLocation(BQ_Settings.titleCard);
 	
@@ -68,7 +69,7 @@ public class GuiHome extends GuiQuesting
 		
 		if(button.id == 1)
 		{
-			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null && QuestDatabase.questDB.containsValue(GuiQuestLinesMain.bookmarked.quest))
+			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked >= 0 && QuestDatabase.INSTANCE.getQuest(GuiQuestLinesMain.bookmarked) != null)
 			{
 				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
 			} else

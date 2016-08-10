@@ -13,7 +13,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestProperties;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -48,7 +48,7 @@ public class ItemExtraLife extends Item
     	if(stack.getItemDamage() != 0)
     	{
     		return stack;
-    	} else if(QuestDatabase.bqHardcore)
+    	} else if(QuestProperties.INSTANCE.isHardcore())
     	{
     		if(!player.capabilities.isCreativeMode)
     		{

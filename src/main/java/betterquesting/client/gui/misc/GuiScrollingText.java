@@ -77,6 +77,6 @@ public class GuiScrollingText extends GuiBQScrolling
 		}
 		
 		// Using this to preserve color formatting
-		RenderUtils.drawSplitString(fontRenderer, rawText, left + 4, posY + 1, listWidth - 12, ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme().getTextColor().getRGB(), false, index, index);
+		RenderUtils.drawSplitString(fontRenderer, rawText, left + 4, posY + 1, listWidth - 12, ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme().getTextColor(), false, index, index);
 	}
 }
