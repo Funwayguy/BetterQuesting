@@ -6,6 +6,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
@@ -55,9 +56,9 @@ public class GuiQuestInstance extends GuiQuesting
 		super.initGui();
 		
 		this.title = I18n.format(quest.name);
-		this.selReward = 0;
+		this.selReward = MathHelper.clamp_int(selReward, 0, Math.max(0, quest.rewards.size() - 1));
 		this.taskRender = null;
-		this.selTask = 0;
+		this.selTask = MathHelper.clamp_int(selTask, 0, Math.max(0, quest.tasks.size() - 1));
 		this.rewardRender = null;
 		this.quest.SetChoiceData(choiceData); // Updates choices with any previous values
 		

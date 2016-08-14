@@ -97,6 +97,10 @@ public class QuestInstance
 				{
 					// Task is non repeatable or has no rewards to claim
 					return;
+				} else if(!canSubmit(player))
+				{
+					// Tasks cannot be updated at this time
+					return;
 				} else
 				{
 					// Task logic will now run for repeat quest
