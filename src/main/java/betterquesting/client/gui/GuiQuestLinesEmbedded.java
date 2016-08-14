@@ -49,6 +49,12 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			curTool.deactivateTool();
 		}
 		
+		if(qLine == null)
+		{
+			curTool = null;
+			return;
+		}
+		
 		curTool = tool;
 		
 		if(tool != null)
@@ -121,10 +127,16 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		
 		if(curTool != null)
 		{
-			curTool.drawTool(mx, my, partialTick);
+			if(qLine == null)
+			{
+				this.setCurrentTool(null);
+			} else
+			{
+				curTool.drawTool(mx, my, partialTick);
+			}
 		}
 		
-		if(qTooltip != null)
+		if(qTooltip != null && (curTool == null || curTool.showTooltips()))
 		{
 			if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
 			{
@@ -288,6 +300,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		{
 			this.qLine = null;
 			this.qBtns = new ArrayList<GuiButtonQuestInstance>();
+			
+			this.setCurrentTool(null);
 		} else
 		{
 			this.qLine = tree.line;
@@ -297,6 +311,8 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 			
 			scrollX = Math.abs(sizeX - maxX)/2;
 			scrollY = 16;
+			
+			this.setCurrentTool(this.getCurrentTool()); // Force refresh tool
 		}
 	}
 	

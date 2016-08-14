@@ -28,7 +28,7 @@ public class ToolboxToolGrab extends ToolboxTool
 	{
 		if(grabbed != null)
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			QuestLineEntry qle = ui.getQuestLine() == null? null : ui.getQuestLine().getEntryByID(grabbed.quest.questID);
 			
 			if(qle != null)
 			{
@@ -71,7 +71,7 @@ public class ToolboxToolGrab extends ToolboxTool
 		
 		if(click == 1)
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			QuestLineEntry qle = ui.getQuestLine() == null? null : ui.getQuestLine().getEntryByID(grabbed.quest.questID);
 			
 			if(qle != null)
 			{
@@ -92,7 +92,7 @@ public class ToolboxToolGrab extends ToolboxTool
 			grabbed = ui.getClickedQuest(mx, my);
 		} else
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			QuestLineEntry qle = ui.getQuestLine() == null? null : ui.getQuestLine().getEntryByID(grabbed.quest.questID);
 			
 			if(qle != null)
 			{
