@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -55,9 +56,9 @@ public class GuiQuestInstance extends GuiQuesting
 		super.initGui();
 		
 		this.title = I18n.format(quest.name);
-		this.selReward = 0;
+		this.selReward = MathHelper.clamp_int(selReward, 0, Math.max(0, quest.rewards.size() - 1));
 		this.taskRender = null;
-		this.selTask = 0;
+		this.selTask = MathHelper.clamp_int(selTask, 0, Math.max(0, quest.tasks.size() - 1));
 		this.rewardRender = null;
 		this.quest.SetChoiceData(choiceData); // Updates choices with any previous values
 		
