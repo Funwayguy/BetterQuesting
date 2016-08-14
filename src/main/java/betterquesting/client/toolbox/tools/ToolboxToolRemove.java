@@ -22,7 +22,7 @@ public class ToolboxToolRemove extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
+		if(click != 0 || ui.getQuestLine() == null)
 		{
 			return;
 		}

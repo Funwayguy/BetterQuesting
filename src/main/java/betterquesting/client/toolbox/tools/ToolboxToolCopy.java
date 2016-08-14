@@ -56,7 +56,7 @@ public class ToolboxToolCopy extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()) || ui.getQuestLine() == null)
 		{
 			return;
 		}
