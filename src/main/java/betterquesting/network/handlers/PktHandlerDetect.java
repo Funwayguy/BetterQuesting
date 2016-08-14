@@ -5,8 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.quests.IQuestContainer;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
 
 public class PktHandlerDetect implements IPacketHandler
 {
@@ -24,11 +24,11 @@ public class PktHandlerDetect implements IPacketHandler
 			return;
 		}
 		
-		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
+		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
 		if(quest != null)
 		{
-			quest.Detect(sender);
+			quest.detect(sender);
 		}
 	}
 	

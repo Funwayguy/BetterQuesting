@@ -7,13 +7,16 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLine;
+import betterquesting.quests.QuestLineDatabase;
 import com.google.gson.JsonObject;
 
 public class PktHandlerLineEdit implements IPacketHandler
@@ -49,17 +52,17 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		if(action == 0) // Add new QuestLine
 		{
-			QuestDatabase.questLines.add(new QuestLine());
+			QuestLineDatabase.INSTANCE.add(new QuestLine(), QuestLineDatabase.INSTANCE.nextID());
 		} else if(action == 1) // Add new QuestInstance
 		{
-			QuestDatabase.INSTANCE.addQuest(quest);
-			new QuestInstance(QuestDatabase.getUniqueID(), true);
+			QuestDatabase.INSTANCE.add(new QuestInstance(), QuestDatabase.INSTANCE.nextID());
 		} else if(action == 2) // Edit quest lines
 		{
-			QuestDatabase.readFromJson_Lines(NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject()));
+			JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
+			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(json, "questLines"), EnumSaveType.CONFIG);
 		}
 		
-		QuestDatabase.UpdateClients(); // Update all clients with new quest data
+		QuestDatabase.INSTANCE.syncAll(); // Update all clients with new quest data
 	}
 	
 	@Override

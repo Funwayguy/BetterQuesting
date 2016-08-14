@@ -21,7 +21,7 @@ public interface ITaskBase extends IJsonSaveLoad<JsonObject>
 	public boolean isComplete(UUID uuid);
 	public void setComplete(UUID uuid);
 	
-	public void reset(UUID uuid);
+	public void resetUser(UUID uuid);
 	public void resetAll();
 	
 	@SideOnly(Side.CLIENT)

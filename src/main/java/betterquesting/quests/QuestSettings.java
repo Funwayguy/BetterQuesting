@@ -1,18 +1,18 @@
 package betterquesting.quests;
 
-import betterquesting.api.database.IQuestProperties;
+import betterquesting.api.database.IQuestSettings;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonObject;
 
-public class QuestProperties implements IQuestProperties
+public class QuestSettings implements IQuestSettings
 {
-	public static final QuestProperties INSTANCE = new QuestProperties();
+	public static final QuestSettings INSTANCE = new QuestSettings();
 	
 	private boolean editMode = true;
 	private boolean hardcore = false;
 	
-	private QuestProperties()
+	private QuestSettings()
 	{
 		
 	}

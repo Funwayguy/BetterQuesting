@@ -51,6 +51,8 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	{
 		super.initGui();
 		
+		embedded.clear();
+		
 		int border = 8; // The minimum distance between the UI and the window edge
 		this.sizeX = this.width - border * 2;
 		this.sizeY = this.height - border * 2;

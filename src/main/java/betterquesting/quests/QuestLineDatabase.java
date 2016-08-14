@@ -38,7 +38,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	@Override
 	public boolean add(IQuestLineContainer questLine, int id)
 	{
-		if(questLine == null || questLines.containsValue(questLine) || questLines.containsKey(id))
+		if(questLine == null || id < 0 || questLines.containsValue(questLine) || questLines.containsKey(id))
 		{
 			return false;
 		}
@@ -83,6 +83,12 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	public List<Integer> getAllKeys()
 	{
 		return new ArrayList<Integer>(questLines.keySet());
+	}
+	
+	@Override
+	public int size()
+	{
+		return questLines.size();
 	}
 	
 	@Override

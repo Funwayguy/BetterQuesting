@@ -1,8 +1,5 @@
 package betterquesting.client.gui.misc;
 
-import betterquesting.client.gui.GuiQuesting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,12 +20,15 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * This is a special case container where a questing UI needs to also be a container
  */
 @SideOnly(Side.CLIENT)
-public abstract class GuiQuestingContainer extends GuiQuesting
+public abstract class GuiContainerThemed extends GuiScreenThemed
 {
     protected static final ResourceLocation field_147001_a = new ResourceLocation("textures/gui/container/inventory.png");
     /** A list of the players inventory slots */
@@ -60,7 +60,7 @@ public abstract class GuiQuestingContainer extends GuiQuesting
     private boolean field_146993_M;
     private ItemStack field_146994_N;
 
-    public GuiQuestingContainer(GuiScreen parent, String title, Container container)
+    public GuiContainerThemed(GuiScreen parent, String title, Container container)
     {
     	super(parent, title);
         this.inventorySlots = container;

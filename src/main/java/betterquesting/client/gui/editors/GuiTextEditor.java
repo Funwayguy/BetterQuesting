@@ -10,7 +10,7 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.gui.misc.ITextEditor;
@@ -18,7 +18,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
+public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 {
 	int hostID;
 	ITextEditor host;
@@ -59,7 +59,7 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
 			this.buttonList.add(btn);
 		}
 		
-		scrollingText = new GuiScrollingText(this, sizeX - 148, sizeY - 64, guiTop + 32, guiLeft + 132);
+		scrollingText = new GuiScrollingText(guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64);
 		scrollingText.SetText(text);
     	cursorPosition = text.length();
 		

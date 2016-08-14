@@ -7,11 +7,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 
-public class GuiQuestingHelp extends GuiQuesting
+public class GuiQuestingHelp extends GuiScreenThemed
 {
 	GuiScrollingText curPage = null;
 	static ArrayList<HelpTopic> helpTopics = new ArrayList<HelpTopic>();
@@ -76,7 +76,7 @@ public class GuiQuestingHelp extends GuiQuesting
 			{
 				if(n3 >= 0 && n3 < helpTopics.size())
 				{
-					curPage = new GuiScrollingText(this, sizeX - 148, sizeY - 64, guiTop + 32, guiLeft + 124, helpTopics.get(n3).getParagraph());
+					curPage = new GuiScrollingText(guiLeft + 124, guiTop + 32, sizeX - 148, sizeY - 64, helpTopics.get(n3).getParagraph());
 				} else
 				{
 					curPage = null;

@@ -1,0 +1,35 @@
+package betterquesting.api.quests.properties.basic;
+
+import net.minecraft.util.ResourceLocation;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+public class QuestPropertyNumber extends QuestPropertyBase<Number>
+{
+	public QuestPropertyNumber(ResourceLocation key, Number def)
+	{
+		super(key, def);
+	}
+	
+	@Override
+	public Number readValue(JsonElement json)
+	{
+		if(json == null || !json.isJsonPrimitive() || !json.getAsJsonPrimitive().isNumber())
+		{
+			this.getDefault();
+		}
+		
+		return json.getAsNumber();
+	}
+	
+	@Override
+	public JsonElement writeValue(Number value)
+	{
+		if(value == null)
+		{
+			return new JsonPrimitive(this.getDefault());
+		}
+		
+		return new JsonPrimitive(value);
+	}
+}

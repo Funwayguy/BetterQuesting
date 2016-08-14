@@ -2,12 +2,11 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.quests.IQuestContainer;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
 
 public class PktHandlerClaim implements IPacketHandler
 {
@@ -25,12 +24,11 @@ public class PktHandlerClaim implements IPacketHandler
 			return;
 		}
 		
-		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
-		NBTTagList choiceData = data.getTagList("ChoiceData", 10);
+		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
-		if(quest != null && !quest.HasClaimed(sender.getUniqueID()) && quest.CanClaim(sender, choiceData))
+		if(quest != null && !quest.hasClaimed(sender.getUniqueID()) && quest.canClaim(sender))
 		{
-			quest.Claim(sender, choiceData);
+			quest.claimReward(sender);
 		}
 	}
 	

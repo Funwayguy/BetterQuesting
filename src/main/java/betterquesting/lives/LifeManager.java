@@ -13,13 +13,13 @@ import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.client.gui.GuiGameOverBQ;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestSettings;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -125,7 +125,7 @@ public class LifeManager
 		NBTTagCompound data = new NBTTagCompound();
 		tracker.saveNBTData(data);
 		tags.setTag("data", data);
-		PacketAssembly.SendTo(BQPacketType.LIFE_SYNC.GetLocation(), tags, (EntityPlayerMP)player);
+		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.LIFE_SYNC.GetLocation(), tags, (EntityPlayerMP)player);
 	}
 	
 	@SubscribeEvent
@@ -140,7 +140,7 @@ public class LifeManager
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote || !QuestDatabase.bqHardcore)
+		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.isHardcore())
 		{
 			return;
 		}
@@ -155,7 +155,7 @@ public class LifeManager
 	@SideOnly(Side.CLIENT)
 	public void onGuiOpen(GuiOpenEvent event)
 	{
-		if(QuestDatabase.bqHardcore && event.gui != null && event.gui.getClass() == GuiGameOver.class && !(event.gui instanceof GuiGameOverBQ))
+		if(QuestSettings.INSTANCE.isHardcore() && event.gui != null && event.gui.getClass() == GuiGameOver.class && !(event.gui instanceof GuiGameOverBQ))
 		{
 			event.gui = new GuiGameOverBQ();
 		}
@@ -178,7 +178,7 @@ public class LifeManager
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		if(QuestDatabase.bqHardcore && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
+		if(QuestSettings.INSTANCE.isHardcore() && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			

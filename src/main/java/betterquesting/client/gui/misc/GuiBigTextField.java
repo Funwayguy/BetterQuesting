@@ -1,14 +1,11 @@
 package betterquesting.client.gui.misc;
 
 import java.awt.Color;
-import org.lwjgl.input.Mouse;
-import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.editors.GuiTextEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.util.EnumChatFormatting;
+import org.lwjgl.input.Mouse;
+import betterquesting.client.gui.editors.GuiTextEditor;
 
 public class GuiBigTextField extends GuiTextField
 {

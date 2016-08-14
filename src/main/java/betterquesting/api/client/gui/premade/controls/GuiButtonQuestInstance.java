@@ -10,6 +10,7 @@ import betterquesting.api.ExpansionAPI;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.properties.QuestProperties;
 import betterquesting.api.utils.RenderUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -29,6 +30,11 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	public void addParent(GuiButtonQuestInstance btn)
 	{
 		parents.add(btn);
+	}
+	
+	public IQuestContainer getQuest()
+	{
+		return quest;
 	}
 
     /**
@@ -121,11 +127,11 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         	float sw = width / 24;
         	float sh = height / 24;
         	GL11.glScalef(sw, sh, 0F);
-        	this.drawTexturedModalRect(0, 0, (quest.isMain()? 24 : 0), 104, 24, 24);
+        	this.drawTexturedModalRect(0, 0, (quest.getInfo().getProperty(QuestProperties.MAIN)? 24 : 0), 104, 24, 24);
         	
-        	if(quest.getIcon() != null)
+        	if(quest.getItemIcon() != null)
         	{
-        		RenderUtils.RenderItemStack(mc, quest.getIcon().getBaseStack(), 4, 4, "");
+        		RenderUtils.RenderItemStack(mc, quest.getItemIcon().getBaseStack(), 4, 4, "");
         	}
         	
         	GL11.glPopMatrix();
@@ -136,16 +142,16 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	
 	public boolean isQuestShown(UUID uuid)
 	{
-		if(ExpansionAPI.INSTANCE.getProperties().isEditMode() || quest.getVisibility() == EnumQuestVisibility.ALWAYS)
+		if(ExpansionAPI.INSTANCE.getProperties().isEditMode() || quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.ALWAYS)
 		{
 			return true;
-		} else if(quest.getVisibility() == EnumQuestVisibility.HIDDEN)
+		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.HIDDEN)
 		{
 			return false;
-		} else if(quest.getVisibility() == EnumQuestVisibility.UNLOCKED)
+		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.UNLOCKED)
 		{
 			return quest.isUnlocked(uuid) || quest.isComplete(uuid);
-		} else if(quest.getVisibility() == EnumQuestVisibility.NORMAL)
+		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.NORMAL)
 		{
 			if(!quest.isComplete(uuid))
 			{
@@ -159,10 +165,10 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 			}
 			
 			return true;
-		} else if(quest.getVisibility() == EnumQuestVisibility.COMPLETED)
+		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.COMPLETED)
 		{
 			return quest.isComplete(uuid);
-		} else if(quest.getVisibility() == EnumQuestVisibility.CHAIN)
+		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.CHAIN)
 		{
 			for(GuiButtonQuestInstance q : parents)
 			{

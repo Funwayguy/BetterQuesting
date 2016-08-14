@@ -3,7 +3,7 @@ package betterquesting.api.database;
 import com.google.gson.JsonObject;
 
 
-public interface IQuestProperties extends IJsonSaveLoad<JsonObject>
+public interface IQuestSettings extends IJsonSaveLoad<JsonObject>
 {
 	public boolean isEditMode();
 	public boolean isHardcore();

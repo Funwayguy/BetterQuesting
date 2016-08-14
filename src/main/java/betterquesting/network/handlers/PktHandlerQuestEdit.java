@@ -7,13 +7,16 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
 import com.google.gson.JsonObject;
 
 public class PktHandlerQuestEdit implements IPacketHandler
@@ -41,7 +44,8 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		
 		int action = !data.hasKey("action")? -1 : data.getInteger("action");
 		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
-		QuestInstance quest = QuestDatabase.getQuestByID(qID);
+		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(qID);
+		//JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
 		
 		if(action < 0)
 		{
@@ -57,20 +61,20 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			int ps = quest.preRequisites.size();
+			int ps = quest.getPrerequisites().size();
 			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " edited quest " + quest.name);
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " edited quest " + quest.getUnlocalisedName());
 			JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
-			quest.readFromJSON(json1);
+			quest.readFromJson(json1, EnumSaveType.CONFIG);
 			JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
-			quest.readProgressFromJSON(json2);
+			quest.readFromJson(json2, EnumSaveType.PROGRESS);
 			
-			if(ps != quest.preRequisites.size())
+			if(ps != quest.getPrerequisites().size())
 			{
-				QuestDatabase.UpdateClients();
+				QuestDatabase.INSTANCE.syncAll();
 			} else
 			{
-				quest.UpdateClients();
+				quest.syncAll();
 			}
 		} else if(action == 1) // Delete quest
 		{
@@ -80,17 +84,16 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.name);
-			QuestDatabase.DeleteQuest(quest.questID);
-			QuestDatabase.UpdateClients();
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.getUnlocalisedName());
+			QuestDatabase.INSTANCE.remove(qID);
+			QuestDatabase.INSTANCE.syncAll();
 		} else if(action == 2) // Full edit
 		{
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " made a database edit");
-			JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
-			JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
-			QuestDatabase.readFromJson(json1);
-			QuestDatabase.readFromJson_Progression(json2);
-			QuestDatabase.UpdateClients();
+			JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
+			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(base, "database"), EnumSaveType.CONFIG);
+			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(base, "progress"), EnumSaveType.PROGRESS);
+			QuestDatabase.INSTANCE.syncAll();
 		} else if(action == 3) // Force Complete
 		{
 			if(quest == null || qID < 0)
@@ -103,14 +106,14 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			
 			int done = 0;
 			
-			if(!quest.logic.GetResult(done, quest.tasks.size())) // Preliminary check
+			if(!quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
 			{
-				for(TaskBase task : quest.tasks)
+				for(ITaskBase task : quest.getTasks().getAllValues())
 				{
-					task.setCompletion(sender.getUniqueID(), true);
+					task.setComplete(sender.getUniqueID());
 					done += 1;
 					
-					if(quest.logic.GetResult(done, quest.tasks.size()))
+					if(quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
 					{
 						break; // Only complete enough quests to claim the reward
 					}
@@ -124,7 +127,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			quest.ResetQuest();
+			quest.resetAll(true);
 		}
 	}
 

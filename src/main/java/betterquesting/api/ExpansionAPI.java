@@ -7,7 +7,7 @@ import betterquesting.api.database.ILifeDatabase;
 import betterquesting.api.database.IPartyDatabase;
 import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.database.IQuestLineDatabase;
-import betterquesting.api.database.IQuestProperties;
+import betterquesting.api.database.IQuestSettings;
 import betterquesting.api.network.IPacketSender;
 import betterquesting.api.registry.IPacketRegistry;
 import betterquesting.api.registry.IQuestIORegistry;
@@ -133,7 +133,7 @@ public final class ExpansionAPI implements IQuestingAPI
 	}
 	
 	@Override
-	public IQuestProperties getProperties()
+	public IQuestSettings getProperties()
 	{
 		return API.getProperties();
 	}

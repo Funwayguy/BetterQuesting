@@ -1,30 +1,29 @@
 package betterquesting.api.quests;
 
+import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import com.google.gson.JsonObject;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import betterquesting.api.database.IJsonSaveLoad;
 import betterquesting.api.database.IRegStorage;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.quests.properties.IQuestInfo;
 import betterquesting.api.quests.rewards.IRewardBase;
 import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.api.utils.BigItemStack;
+import com.google.gson.JsonObject;
 
 public interface IQuestContainer extends IJsonSaveLoad<JsonObject>
 {
-	public int getQuestID();
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
 	
-	public BigItemStack getIcon();
-	public EnumQuestState getState(UUID uuid);
-	public EnumQuestVisibility getVisibility();
+	public BigItemStack getItemIcon();
 	
-	public boolean isGlobal();
-	public boolean isMain();
+	public IQuestInfo getInfo();
+	public IQuestSound getSounds();
+	
+	public EnumQuestState getState(UUID uuid);
 	
 	public void update(EntityPlayer player);
 	public void detect(EntityPlayer player);
@@ -36,22 +35,16 @@ public interface IQuestContainer extends IJsonSaveLoad<JsonObject>
 	public void setComplete(UUID uuid, long timeStamp);
 	
 	public boolean canClaim(EntityPlayer player);
+	public boolean hasClaimed(UUID uuid);
 	public void claimReward(EntityPlayer player);
 	
-	public void reset(UUID uuid);
-	public void resetAll();
+	public void resetUser(UUID uuid, boolean fullReset);
+	public void resetAll(boolean fullReset);
 	
-	/**
-	 * Returns the internal task database or null if this quest doesn't support tasks
-	 */
-	@Nullable
 	public IRegStorage<ITaskBase> getTasks();
-	
-	/**
-	 * Returns the internal reward database or null if this quest doesn't support rewards
-	 */
-	@Nullable
 	public IRegStorage<IRewardBase> getRewards();
+	
+	public List<IQuestContainer> getPrerequisites();
 	
 	public void syncAll();
 	public void syncPlayer(EntityPlayerMP player);

@@ -69,7 +69,7 @@ public class GuiHome extends GuiScreenThemed
 		
 		if(button.id == 1)
 		{
-			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked >= 0 && QuestDatabase.INSTANCE.getQuest(GuiQuestLinesMain.bookmarked) != null)
+			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
 			{
 				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
 			} else

@@ -19,20 +19,16 @@ import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.network.PacketAssembly;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.tasks.TaskBase;
-import betterquesting.registry.ThemeRegistry;
+import betterquesting.quests.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 {
-	int questId = -1;
+	int id = -1;
 	IQuestContainer quest;
 	int selTask = 0;
 	IGuiEmbedded taskRender = null;
@@ -50,24 +46,25 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	 */
 	NBTTagList choiceData = new NBTTagList();
 	
-	public GuiQuestInstance(GuiScreen parent, int questId)
+	public GuiQuestInstance(GuiScreen parent, IQuestContainer quest)
 	{
-		super(parent, "?");
-		this.questId = questId;
+		super(parent, I18n.format(quest.getUnlocalisedName()));
+		this.quest = quest;
+		this.id = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
 	public void refreshGui()
 	{
-		this.quest = QuestDatabase.INSTANCE.getQuest(questId);
+		this.quest = QuestDatabase.INSTANCE.getValue(id);
 		
 		if(quest == null)
 		{
 			this.mc.displayGuiScreen(parent);
-		} else
-		{
-			this.setTitle(I18n.format(quest.getUnlocalisedName()));
+			return;
 		}
+		
+		initGui();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -75,51 +72,41 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	public void initGui()
 	{
 		super.initGui();
-
-		this.quest = QuestDatabase.INSTANCE.getQuest(questId);
-		
-		if(quest == null)
-		{
-			this.mc.displayGuiScreen(parent);
-		} else
-		{
-			this.setTitle(I18n.format(quest.getUnlocalisedName()));
-			desc.SetText(I18n.format(quest.getUnlocalisedDescription()));
-		}
 		
 		this.selReward = 0;
 		this.taskRender = null;
 		this.selTask = 0;
 		this.rewardRender = null;
 		
-		if(QuestDatabase.editMode)
+		if(QuestSettings.INSTANCE.isEditMode())
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
-		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.isEditMode();
 		this.buttonList.add(btnEdit);
 		
-		desc = new GuiScrollingText(this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 24, quest.getAllRewards().size() > 0? sizeY/2 - 48 : sizeY - 64, I18n.format(quest.getUnlocalisedDescription()));
+		this.setTitle(I18n.format(quest.getUnlocalisedName()));
+		desc = new GuiScrollingText(this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 24, quest.getRewards().size() > 0? sizeY/2 - 48 : sizeY - 64, I18n.format(quest.getUnlocalisedDescription()));
 		
 		btnTLeft = new GuiButtonThemed(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<", true);
 		btnTLeft.enabled = selTask > 0;
 		btnTRight = new GuiButtonThemed(3, this.guiLeft + (sizeX/4)*3 + 50, this.guiTop + sizeY - 48, 20, 20, ">", true);
-		btnTRight.enabled = selTask < quest.getAllTasks().size() - 1;
+		btnTRight.enabled = selTask < quest.getTasks().size() - 1;
 
 		btnRLeft = new GuiButtonThemed(6, this.guiLeft + (sizeX/4) - 70, this.guiTop + sizeY - 48, 20, 20, "<", true);
-		btnRLeft.visible = quest.getAllRewards().size() > 0;
+		btnRLeft.visible = quest.getRewards().size() > 0;
 		btnRLeft.enabled = btnRLeft.visible && selReward > 0;
 		btnRRight = new GuiButtonThemed(7, this.guiLeft + (sizeX/4) + 50, this.guiTop + sizeY - 48, 20, 20, ">", true);
-		btnRRight.visible = quest.getAllRewards().size() > 0;
-		btnRRight.enabled = btnRRight.visible && selReward < quest.getAllRewards().size() - 1;
+		btnRRight.visible = quest.getRewards().size() > 0;
+		btnRRight.enabled = btnRRight.visible && selReward < quest.getRewards().size() - 1;
 		
 		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"));
 		btnDetect.enabled = quest.canSubmit(mc.thePlayer);
 		btnClaim = new GuiButtonThemed(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"), true);
-		btnClaim.visible = quest.getAllRewards().size() > 0;
+		btnClaim.visible = quest.getRewards().size() > 0;
 		btnClaim.enabled = btnClaim.visible && quest.canClaim(mc.thePlayer);
 		this.buttonList.add(btnTLeft);
 		this.buttonList.add(btnTRight);
@@ -127,6 +114,8 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		this.buttonList.add(btnRRight);
 		this.buttonList.add(btnDetect);
 		this.buttonList.add(btnClaim);
+		
+		refreshEmbedded();
 	}
 	
 	@Override
@@ -137,56 +126,6 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		desc.drawScreen(mx, my, partialTick);
 		
 		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 24, 1, getTextColor());
-		
-		ITaskBase task = quest.getTask(selTask);
-		
-		if(task != null)
-		{
-			String tTitle = I18n.format(task.getUnlocalisedName());
-			
-			if(quest.getAllTasks().size() > 1)
-			{
-				tTitle = (selTask + 1) + "/" + quest.getAllTasks().size() + " " + tTitle;
-			}
-			
-			tTitle = EnumChatFormatting.UNDERLINE + tTitle;
-			
-			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
-			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, getTextColor());
-			
-			if(taskRender == null)
-			{
-				taskRender = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 104, quest);
-			}
-		} else
-		{
-			taskRender = null;
-		}
-		
-		IRewardBase reward = selReward < quest.getAllRewards().size()? quest.getAllRewards().get(selReward) : null;
-		
-		if(reward != null)
-		{
-			String rTitle = reward.getUnlocalisedName();
-			
-			if(quest.getAllRewards().size() > 1)
-			{
-				rTitle = (selReward + 1) + "/" + quest.getAllRewards().size() + " " + rTitle;
-			}
-			
-			rTitle = EnumChatFormatting.UNDERLINE + rTitle;
-			
-			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
-			this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, getTextColor());
-			
-			if(rewardRender == null)
-			{
-				rewardRender = reward.getRewardGui(guiLeft + 16, guiTop + sizeY/2, sizeX/2 - 24, sizeY/2 - 48, quest);
-			}
-		} else
-		{
-			rewardRender = null;
-		}
 		
 		if(taskRender != null)
 		{
@@ -214,40 +153,47 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		{
 			selTask--;
 			btnTLeft.enabled = selTask > 0;
-			btnTRight.enabled = selTask < quest.getAllTasks().size() - 1;
+			btnTRight.enabled = selTask < quest.getTasks().size() - 1;
+			this.embedded.remove(taskRender);
 			taskRender = null;
+			refreshEmbedded();
 		} else if(btn.id == 2) // Manual detect
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getQuestID(quest));
+			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 			PacketSender.INSTANCE.sendToServer(PacketTypeNative.DETECT.GetLocation(), tags);
 		} else if(btn.id == 3) // Task right
 		{
 			selTask++;
 			btnTLeft.enabled = selTask > 0;
-			btnTRight.enabled = selTask < quest.getAllTasks().size() - 1;
+			btnTRight.enabled = selTask < quest.getTasks().size() - 1;
+			this.embedded.remove(taskRender);
 			taskRender = null;
+			refreshEmbedded();
 		} else if(btn.id == 4) // Edit Quest
 		{
 			mc.displayGuiScreen(new GuiQuestEditor(this, quest));
 		} else if(btn.id == 5) // Claim reward
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getQuestID(quest));
-			tags.setTag("ChoiceData", quest.GetChoiceData());
+			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 			PacketSender.INSTANCE.sendToServer(PacketTypeNative.CLAIM.GetLocation(), tags);
 		} else if(btn.id == 6)
 		{
 			selReward--;
 			btnRLeft.enabled = selReward > 0;
-			btnRRight.enabled = selReward < quest.getAllRewards().size() - 1;
+			btnRRight.enabled = selReward < quest.getRewards().size() - 1;
+			this.embedded.remove(rewardRender);
 			rewardRender = null;
+			refreshEmbedded();
 		} else if(btn.id == 7)
 		{
 			selReward++;
 			btnRLeft.enabled = selReward > 0;
-			btnRRight.enabled = selReward < quest.getAllRewards().size() - 1;
+			btnRRight.enabled = selReward < quest.getRewards().size() - 1;
+			this.embedded.remove(rewardRender);
 			rewardRender = null;
+			refreshEmbedded();
 		}
 	}
 	
@@ -256,35 +202,61 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
     {
         super.keyTyped(character, keyCode);
         
-		if(taskRender != null)
-		{
-			taskRender.keyTyped(character, keyCode);
-		}
-		
-		if(rewardRender != null)
-		{
-			rewardRender.keyTyped(character, keyCode);
-		}
-		
 		btnClaim.enabled = quest.canClaim(mc.thePlayer);
     }
 	
 	@Override
 	public void handleMouseInput()
 	{
-		if(taskRender != null)
-		{
-			taskRender.handleMouse();
-		}
-		
-		if(rewardRender != null)
-		{
-			rewardRender.handleMouse();
-		}
-		
 		super.handleMouseInput();
 		
-		choiceData = quest.GetChoiceData();
-		btnClaim.enabled = quest.CanClaim(mc.thePlayer, choiceData);
+		btnClaim.enabled = quest.canClaim(mc.thePlayer);
+	}
+	
+	private void refreshEmbedded()
+	{
+		int tSize = quest.getTasks().size();
+		if(taskRender == null && tSize > 0)
+		{
+			ITaskBase task = quest.getTasks().getAllValues().get(selTask%tSize);
+			
+			if(task != null)
+			{
+				String tTitle = I18n.format(task.getUnlocalisedName());
+				
+				if(tSize > 1)
+				{
+					tTitle = (selTask + 1) + "/" + tSize + " " + tTitle;
+				}
+				
+				tTitle = EnumChatFormatting.UNDERLINE + tTitle;
+				
+				int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
+				this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, getTextColor());
+				taskRender = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 104, quest);
+			}
+		}
+		
+		int rSize = quest.getRewards().size();
+		if(rewardRender == null && rSize > 0)
+		{
+			IRewardBase reward = quest.getRewards().getAllValues().get(selReward%rSize);
+			
+			if(reward != null)
+			{
+				String rTitle = reward.getUnlocalisedName();
+				
+				if(rSize > 1)
+				{
+					rTitle = (selReward + 1) + "/" + rSize + " " + rTitle;
+				}
+				
+				rTitle = EnumChatFormatting.UNDERLINE + rTitle;
+				
+				int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
+				this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, getTextColor());
+				rewardRender = reward.getRewardGui(guiLeft + 16, guiTop + sizeY/2, sizeX/2 - 24, sizeY/2 - 48, quest);
+			}
+		}
 	}
 }

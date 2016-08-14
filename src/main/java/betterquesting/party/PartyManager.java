@@ -9,12 +9,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyInstance.PartyMember;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -224,7 +224,7 @@ public class PartyManager
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketAssembly.SendTo(BQPacketType.PARTY_DATABASE.GetLocation(), tags, player);
+		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags, player);
 	}
 	
 	public static void UpdateClients()
@@ -233,7 +233,7 @@ public class PartyManager
 		JsonObject json = new JsonObject();
 		writeToJson(json);
 		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketAssembly.SendToAll(BQPacketType.PARTY_DATABASE.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToAll(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	public static void writeToJson(JsonObject jObj)

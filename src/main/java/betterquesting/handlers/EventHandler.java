@@ -23,7 +23,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLineDatabase;
-import betterquesting.quests.QuestProperties;
+import betterquesting.quests.QuestSettings;
 import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -94,7 +94,7 @@ public class EventHandler
 			jsonCon.add("questLines", jsonL);
 			
 			// Will likely be moved at a later date, but for the sake of compatibility
-			QuestProperties.INSTANCE.writeToJson(jsonCon, EnumSaveType.CONFIG);
+			QuestSettings.INSTANCE.writeToJson(jsonCon, EnumSaveType.CONFIG);
 			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
 			
