@@ -69,7 +69,7 @@ public class ToolboxToolGrab extends ToolboxTool
 			return;
 		}
 		
-		if(click == 1)
+		if(click == 1 && grabbed != null)
 		{
 			QuestLineEntry qle = ui.getQuestLine() == null? null : ui.getQuestLine().getEntryByID(grabbed.quest.questID);
 			
