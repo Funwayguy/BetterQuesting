@@ -11,12 +11,12 @@ import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.tasks.IFluidTask;
 import betterquesting.api.quests.tasks.IItemTask;
 import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiContainerThemed;
 import betterquesting.quests.QuestDatabase;
 
@@ -30,8 +30,8 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 	ITaskBase task;
 	
 	IGuiEmbedded taskUI;
-	GuiButtonQuesting btnSelect;
-	GuiButtonQuesting btnRemove;
+	GuiButtonThemed btnSelect;
+	GuiButtonThemed btnRemove;
 	
 	ContainerSubmitStation subContainer;
 	
@@ -67,15 +67,15 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<")); // Prev Quest
-		buttonList.add(new GuiButtonQuesting(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">")); // Next Quest
-		buttonList.add(new GuiButtonQuesting(3, guiLeft + sizeX/2 - 120, guiTop + 52, 20, 20, "<")); // Prev Task
-		buttonList.add(new GuiButtonQuesting(4, guiLeft + sizeX/2 + 100, guiTop + 52, 20, 20, ">")); // Next Quest
-		btnSelect = new GuiButtonQuesting(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, EnumChatFormatting.GREEN + "\u2714"); // Select Task
-		btnRemove = new GuiButtonQuesting(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, EnumChatFormatting.RED + "x"); // Remove Task
+		buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<", true)); // Prev Quest
+		buttonList.add(new GuiButtonThemed(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">", true)); // Next Quest
+		buttonList.add(new GuiButtonThemed(3, guiLeft + sizeX/2 - 120, guiTop + 52, 20, 20, "<", true)); // Prev Task
+		buttonList.add(new GuiButtonThemed(4, guiLeft + sizeX/2 + 100, guiTop + 52, 20, 20, ">", true)); // Next Quest
+		btnSelect = new GuiButtonThemed(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, EnumChatFormatting.GREEN + "\u2714", true); // Select Task
+		btnRemove = new GuiButtonThemed(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, EnumChatFormatting.RED + "x", true); // Remove Task
 		buttonList.add(btnSelect);
 		buttonList.add(btnRemove);
-
+		
 		int invX = 16 + (sizeX/2 - 24)/2 - 162/2;
 		int invY = 92 + (sizeY - 108)/2 - 98/2 + 22;
 		

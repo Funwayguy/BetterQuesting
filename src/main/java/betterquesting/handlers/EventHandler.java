@@ -1,10 +1,14 @@
 package betterquesting.handlers;
 
 import java.io.File;
+import java.util.Date;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.UserListBansEntry;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -13,6 +17,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.JsonIO;
@@ -20,7 +25,9 @@ import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
+import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
+import betterquesting.quests.NameCache;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
@@ -31,6 +38,7 @@ import cpw.mods.fml.client.event.ConfigChangedEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -110,7 +118,7 @@ public class EventHandler
 			// === PARTIES ===
 			
 			JsonObject jsonP = new JsonObject();
-			PartyManager.writeToJson(jsonP);
+			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
 		}
 	}
@@ -183,7 +191,7 @@ public class EventHandler
 	    	j3 = JsonIO.ReadFromFile(f3);
 	    }
 	    
-	    PartyManager.readFromJson(j3);
+	    PartyManager.INSTANCE.readFromJson(JsonHelper.GetArray(j3, "parties"), EnumSaveType.CONFIG);
 	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.getAllValues().size() + " quest instances and " + QuestLineDatabase.INSTANCE.getAllValues().size() + " quest lines");
 	}
@@ -193,18 +201,75 @@ public class EventHandler
 	{
 		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 		{
-			PartyManager.UpdateNameCache(false);
-			QuestDatabase.INSTANCE.syncPlayer((EntityPlayerMP)event.player);
-			PartyManager.SendDatabase((EntityPlayerMP)event.player);
+			NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPlayerRespawn(PlayerRespawnEvent event)
+	{
+		if(QuestSettings.INSTANCE.isHardcore() && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
+		{
+			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+			
+			IParty party = PartyManager.INSTANCE.getUserParty(mpPlayer.getUniqueID());
+			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(mpPlayer.getUniqueID()) : LifeDatabase.INSTANCE.getLives(party);
+			
+			if(lives <= 0)
+			{
+				MinecraftServer server = MinecraftServer.getServer();
+				
+				if(server == null)
+				{
+					return;
+				}
+	            
+	            if (server.isSinglePlayer() && mpPlayer.getCommandSenderName().equals(server.getServerOwner()))
+                {
+                    mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
+                    server.deleteWorldAndStopServer();
+                }
+                else
+                {
+                    UserListBansEntry userlistbansentry = new UserListBansEntry(mpPlayer.getGameProfile(), (Date)null, "(You just lost the game)", (Date)null, "Death in Hardcore");
+                    server.getConfigurationManager().func_152608_h().func_152687_a(userlistbansentry);
+                    mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
+                }
+			} else
+			{
+				if(lives == 1)
+				{
+					mpPlayer.addChatComponentMessage(new ChatComponentText("This is your last life!"));
+				} else
+				{
+					mpPlayer.addChatComponentMessage(new ChatComponentText(lives + " lives remaining!"));
+				}
+			}
 		}
 	}
 	
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote)
+		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.isHardcore())
 		{
 			return;
+		}
+		
+		if(event.entityLiving instanceof EntityPlayer)
+		{
+			UUID uuid = event.entityLiving.getUniqueID();
+			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
+			
+			if(party == null || !party.getShareLives())
+			{
+				int lives = LifeDatabase.INSTANCE.getLives(event.entityLiving.getUniqueID());
+				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
+			} else
+			{
+				int lives = LifeDatabase.INSTANCE.getLives(party);
+				LifeDatabase.INSTANCE.setLives(party, lives - 1);
+			}
 		}
 	}
 	

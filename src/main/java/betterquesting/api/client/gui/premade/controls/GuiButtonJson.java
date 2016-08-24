@@ -11,7 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class GuiButtonJson<T extends JsonElement> extends GuiButtonThemed implements IJsonStorage<T>
+public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T> implements IJsonStorage<T>
 {
 	private T json = null;
 	
@@ -35,6 +35,18 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonThemed implem
 	public T getJson()
 	{
 		return json;
+	}
+	
+	@Override
+	public T getStored()
+	{
+		return getJson();
+	}
+	
+	@Override
+	public void setStored(T value)
+	{
+		this.json = value;
 	}
 	
 	public void refreshJson()

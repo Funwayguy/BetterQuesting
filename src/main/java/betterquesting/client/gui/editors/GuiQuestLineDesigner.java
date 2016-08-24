@@ -7,33 +7,34 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.QuestLineButtonTree;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.toolbox.IToolboxTab;
+import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.QuestLineButtonTree;
-import betterquesting.client.toolbox.ToolboxGui;
-import betterquesting.client.toolbox.ToolboxTab;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLine;
+import betterquesting.quests.QuestLineDatabase;
 import betterquesting.registry.ThemeRegistry;
 import betterquesting.registry.ToolboxRegistry;
 
-public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
+public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
 	int qIndex = -1;
-	QuestLine qLine;
+	IQuestLineContainer qLine;
 	GuiQuestLinesEmbedded qlGui;
 	int tabIndex = 0;
-	ToolboxTab toolTab = null;
-	ToolboxGui tabGui = null;
+	IToolboxTab toolTab = null;
+	IGuiEmbedded tabGui = null;
 	
-	public GuiQuestLineDesigner(GuiScreen parent, QuestLine qLine)
+	public GuiQuestLineDesigner(GuiScreen parent, IQuestLineContainer qLine)
 	{
 		super(parent, "betterquesting.title.designer"); // This title won't be shown but for the sake of labels...
 		this.qLine = qLine;
-		this.qIndex = QuestDatabase.questLines.indexOf(qLine);
+		this.qIndex = QuestLineDatabase.INSTANCE.getKey(qLine);
 	}
 	
 	public GuiQuestLinesEmbedded getEmbeddedGui()
@@ -60,7 +61,7 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 		}
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
-		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 16, guiTop + 16, sizeX - 32, sizeY - 32);
+		qlGui = new GuiQuestLinesEmbedded(guiLeft + 16, guiTop + 16, sizeX - 32, sizeY - 32);
 		qlGui.setQuestLine(new QuestLineButtonTree(qLine));
 		
 		if(oldGui != null) // Preserve old settings
@@ -112,7 +113,7 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 	{
 		this.drawDefaultBackground();
 		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		for(int i = 0; i < 96; i += 16)
 		{
@@ -168,8 +169,8 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 			}
 		}
 		
-		String tmp = I18n.format(title);
-		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		String tmp = I18n.format("betterquesting.title.designer");
+		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
         int k;
         
@@ -183,7 +184,7 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
             ((GuiLabel)this.labelList.get(k)).func_146159_a(this.mc, mx, my);
         }
 		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 	}
 	
@@ -227,6 +228,12 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 	}
 	
 	@Override
+	public void refreshGui()
+	{
+		this.initGui();
+	}
+	
+	@Override
 	public void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
@@ -266,20 +273,4 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 			}
 		}
 	}
-	
-	@Override
-	public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-		if(qlGui != null)
-		{
-			qlGui.handleMouse();
-		}
-		
-		if(tabGui != null)
-		{
-			tabGui.handleMouse();
-		}
-    }
 }

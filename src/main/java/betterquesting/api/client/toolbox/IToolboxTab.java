@@ -9,5 +9,5 @@ public interface IToolboxTab
 	
 	public void initTools(IGuiQuestLine gui);
 	
-	public IGuiEmbedded getTabGui(int sizeX, int sizeY);
+	public IGuiEmbedded getTabGui(int x, int y, int w, int h);
 }

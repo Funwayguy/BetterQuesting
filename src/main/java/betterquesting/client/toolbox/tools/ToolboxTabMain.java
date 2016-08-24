@@ -1,10 +1,8 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.quest.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTab;
-import betterquesting.client.gui.editors.GuiQuestLineDesigner;
-import betterquesting.client.toolbox.ToolboxGui;
-import betterquesting.client.toolbox.ToolboxTab;
 
 public class ToolboxTabMain implements IToolboxTab
 {
@@ -43,8 +41,8 @@ public class ToolboxTabMain implements IToolboxTab
 	}
 	
 	@Override
-	public ToolboxGui getTabGui(GuiQuestLineDesigner designer, int posX, int posY, int sizeX, int sizeZ)
+	public IGuiEmbedded getTabGui(int posX, int posY, int sizeX, int sizeZ)
 	{
-		return new ToolboxGuiMain(designer, posX, posY, sizeX, sizeZ);
+		return new ToolboxGuiMain(posX, posY, sizeX, sizeZ);
 	}
 }

@@ -10,8 +10,8 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.client.gui.misc.ITextEditor;
 import cpw.mods.fml.relauncher.Side;
@@ -55,7 +55,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 		
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		

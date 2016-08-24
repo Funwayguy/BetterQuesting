@@ -1,4 +1,4 @@
-package betterquesting.client.gui.editors.explorer;
+package betterquesting.api.client.gui.premade.screens;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -13,9 +13,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.IFileCallback;
 import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 
 public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 {
@@ -56,33 +55,33 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, "..."));
+		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, "...", true));
 		
 		// Left main buttons
 		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		
 		// Left remove buttons
 		for(int i = 0; i < maxRowsL; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x", true);
 			this.buttonList.add(btn);
 		}
 		
 		// Right main buttons
 		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 28, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		
 		// Right add buttons
 		for(int i = 0; i < maxRowsR; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "<");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 48 + (i*20), 20, 20, "" + EnumChatFormatting.GREEN + EnumChatFormatting.BOLD + "<", true);
 			this.buttonList.add(btn);
 		}
 		

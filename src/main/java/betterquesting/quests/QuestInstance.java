@@ -15,6 +15,8 @@ import betterquesting.api.database.IRegStorage;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.IQuestSound;
 import betterquesting.api.quests.properties.IQuestInfo;
@@ -27,8 +29,6 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
-import betterquesting.party.PartyInstance;
-import betterquesting.party.PartyInstance.PartyMember;
 import betterquesting.party.PartyManager;
 import betterquesting.utils.UserEntry;
 import com.google.gson.JsonArray;
@@ -40,16 +40,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class QuestInstance implements IQuestContainer
 {
-	private String name = "quest.untitled.name";
-	private String desc = "quest.untitled.desc";
-	
 	private BigItemStack itemIcon = new BigItemStack(Items.nether_star);
 	
 	private final TaskStorage tasks = new TaskStorage();
 	private final RewardStorage rewards = new RewardStorage();
 	
-	private ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
-	private ArrayList<IQuestContainer> preRequisites = new ArrayList<IQuestContainer>();
+	private final ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
+	private final ArrayList<IQuestContainer> preRequisites = new ArrayList<IQuestContainer>();
 	
 	private QuestInfo qInfo = new QuestInfo();
 	private IQuestSound qSounds = new QuestSound();
@@ -57,13 +54,29 @@ public class QuestInstance implements IQuestContainer
 	@Override
 	public String getUnlocalisedName()
 	{
-		return name;
+		String def = "quest.untitled.name";
+		
+		if(!qInfo.hasProperty(QuestProperties.NAME))
+		{
+			qInfo.setProperty(QuestProperties.NAME, def);
+			return def;
+		}
+		
+		return qInfo.getProperty(QuestProperties.NAME, def);
 	}
 	
 	@Override
 	public String getUnlocalisedDescription()
 	{
-		return desc;
+		String def = "quest.untitled.desc";
+		
+		if(!qInfo.hasProperty(QuestProperties.DESC))
+		{
+			qInfo.setProperty(QuestProperties.DESC, def);
+			return def;
+		}
+		
+		return qInfo.getProperty(QuestProperties.DESC, def);
 	}
 	
 	@Override
@@ -129,20 +142,21 @@ public class QuestInstance implements IQuestContainer
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", name);
+					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
 					{
-						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
 				
-				syncAll();
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				return;
 			} else
 			{
@@ -177,7 +191,7 @@ public class QuestInstance implements IQuestContainer
 			{
 				if(update)
 				{
-					syncAll();
+					PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				}
 				
 				return;
@@ -185,46 +199,48 @@ public class QuestInstance implements IQuestContainer
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
-				syncAll();
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
 				if(!QuestSettings.INSTANCE.isEditMode() && !qInfo.getProperty(QuestProperties.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
-					tags.setString("Sub", desc);
+					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getCompleteSound());
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
 					{
-						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && qInfo.getProperty(QuestProperties.SIMULTANEOUS))
 			{
 				resetUser(player.getUniqueID(), false);
-				syncAll();
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
-				syncAll();
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
 				if(!QuestSettings.INSTANCE.isEditMode() && !qInfo.getProperty(QuestProperties.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", name);
+					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
 					{
-						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -275,43 +291,45 @@ public class QuestInstance implements IQuestContainer
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
-					tags.setString("Sub", name);
+					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getCompleteSound());
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
 					{
-						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
 			} else if(update && qInfo.getProperty(QuestProperties.SIMULTANEOUS))
 			{
 				resetUser(player.getUniqueID(), false);
-				syncAll();
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
 				if(!QuestSettings.INSTANCE.isEditMode() && !qInfo.getProperty(QuestProperties.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", name);
+					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
 					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
 					{
-						PacketSender.INSTANCE.sendToAll(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
 					{
-						PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.NOTIFICATION.GetLocation(), tags, (EntityPlayerMP)player);
+						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
 			}
 			
-			syncAll();
+			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
 	
@@ -388,7 +406,7 @@ public class QuestInstance implements IQuestContainer
 		UserEntry entry = GetUserEntry(player.getUniqueID());
 		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
 		
-		syncAll();
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
 	@Override
@@ -448,7 +466,7 @@ public class QuestInstance implements IQuestContainer
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(StatCollector.translateToLocalFormatted(name));
+		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()));
 		
 		if(isComplete(player.getUniqueID()))
 		{
@@ -499,7 +517,7 @@ public class QuestInstance implements IQuestContainer
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(StatCollector.translateToLocalFormatted(name) + " #" + QuestDatabase.INSTANCE.getKey(this));
+		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()) + " #" + QuestDatabase.INSTANCE.getKey(this));
 		
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", qInfo.getProperty(QuestProperties.MAIN)));
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", qInfo.getProperty(QuestProperties.GLOBAL)));
@@ -542,31 +560,25 @@ public class QuestInstance implements IQuestContainer
 	}
 	
 	@Override
-	public void syncAll()
+	public PreparedPayload getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
+		JsonObject base = new JsonObject();
+		base.add("config", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		base.add("progress", writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(this));
-		JsonObject json1 = new JsonObject();
-		writeToJson(json1, EnumSaveType.CONFIG);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-		JsonObject json2 = new JsonObject();
-		writeToJson(json2, EnumSaveType.PROGRESS);
-		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToAll(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
+		
+		return new PreparedPayload(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
 	
 	@Override
-	public void syncPlayer(EntityPlayerMP player)
+	public void readPacket(NBTTagCompound payload)
 	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(this));
-		JsonObject json1 = new JsonObject();
-		writeToJson(json1, EnumSaveType.CONFIG);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-		JsonObject json2 = new JsonObject();
-		writeToJson(json2, EnumSaveType.PROGRESS);
-		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.QUEST_SYNC.GetLocation(), tags, player);
+		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		
+		readFromJson(JsonHelper.GetObject(base, "config"), EnumSaveType.CONFIG);
+		readFromJson(JsonHelper.GetObject(base, "progress"), EnumSaveType.PROGRESS);
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -593,7 +605,7 @@ public class QuestInstance implements IQuestContainer
 	@Override
 	public void setComplete(UUID uuid, long timestamp)
 	{
-		PartyInstance party = PartyManager.GetParty(uuid);
+		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 		
 		if(party == null)
 		{
@@ -608,16 +620,16 @@ public class QuestInstance implements IQuestContainer
 			}
 		} else
 		{
-			for(PartyMember mem : party.GetMembers())
+			for(UUID mem : party.getMembers())
 			{
-				UserEntry entry = this.GetUserEntry(mem.userID);
+				UserEntry entry = this.GetUserEntry(mem);
 				
 				if(entry != null)
 				{
 					entry.setClaimed(false, timestamp);
 				} else
 				{
-					completeUsers.add(new UserEntry(mem.userID, timestamp));
+					completeUsers.add(new UserEntry(mem, timestamp));
 				}
 			}
 		}
@@ -659,7 +671,7 @@ public class QuestInstance implements IQuestContainer
 		
 		if(flag)
 		{
-			syncAll();
+			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
 	
@@ -798,10 +810,6 @@ public class QuestInstance implements IQuestContainer
 	
 	private JsonObject writeToJson_Config(JsonObject jObj)
 	{
-		this.qInfo.writeToJson(jObj, EnumSaveType.CONFIG);
-		jObj.addProperty("name", name);
-		jObj.addProperty("description", desc);
-		
 		jObj.add("properties", qInfo.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		jObj.add("sounds", qSounds.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		jObj.add("tasks", tasks.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
@@ -842,12 +850,6 @@ public class QuestInstance implements IQuestContainer
 			
 			preRequisites.add(tmp);
 		}
-		
-		// Backwards compatibility with single quest files
-		if(jObj.has("completed"))
-		{
-			jMig = jObj;
-		}
 	}
 	
 	private JsonObject writeToJson_Progress(JsonObject json)
@@ -865,15 +867,10 @@ public class QuestInstance implements IQuestContainer
 		return json;
 	}
 	
-	JsonObject jMig = null;
-	
 	private void readFromJson_Progress(JsonObject json)
 	{
-		JsonObject jTmp = jMig != null? jMig : json; // Check for migrated progress
-		jMig = null;
-		
-		completeUsers = new ArrayList<UserEntry>();
-		for(JsonElement entry : JsonHelper.GetArray(jTmp, "completed"))
+		completeUsers.clear();
+		for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
 		{
 			if(entry == null || !entry.isJsonObject())
 			{

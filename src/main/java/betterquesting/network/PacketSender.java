@@ -1,11 +1,11 @@
 package betterquesting.network;
 
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketSender;
+import betterquesting.api.network.PreparedPayload;
 import betterquesting.core.BetterQuesting;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
 public class PacketSender implements IPacketSender
 {
@@ -16,55 +16,55 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToPlayer(ResourceLocation handler, NBTTagCompound payload, EntityPlayerMP player)
+	public void sendToPlayer(PreparedPayload payload, EntityPlayerMP player)
 	{
-		payload.setString("ID", handler.toString());
+		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
 		{
 			BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
 		}
 	}
 	
 	@Override
-	public void sendToAll(ResourceLocation handler, NBTTagCompound payload)
+	public void sendToAll(PreparedPayload payload)
 	{
-		payload.setString("ID", handler.toString());
+		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
 		{
 			BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
 		}
 	}
 	
 	@Override
-	public void sendToServer(ResourceLocation handler, NBTTagCompound payload)
+	public void sendToServer(PreparedPayload payload)
 	{
-		payload.setString("ID", handler.toString());
+		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
 		{
 			BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
 		}
 	}
 	
 	@Override
-	public void sendToAround(ResourceLocation handler, NBTTagCompound payload, TargetPoint point)
+	public void sendToAround(PreparedPayload payload, TargetPoint point)
 	{
-		payload.setString("ID", handler.toString());
+		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
 		{
 			BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
 		}
 	}
 	
 	@Override
-	public void sendToDimension(ResourceLocation handler, NBTTagCompound payload, int dimension)
+	public void sendToDimension(PreparedPayload payload, int dimension)
 	{
-		payload.setString("ID", handler.toString());
+		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload))
+		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
 		{
 			BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dimension);
 		}

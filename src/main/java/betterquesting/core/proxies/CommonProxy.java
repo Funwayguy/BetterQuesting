@@ -8,7 +8,6 @@ import betterquesting.core.ExpansionLoader;
 import betterquesting.core.ParentAPI;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
-import betterquesting.lives.LifeManager;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
@@ -25,10 +24,6 @@ public class CommonProxy
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
 		FMLCommonHandler.instance().bus().register(handler);
-		
-		LifeManager lifeManager = new LifeManager();
-		MinecraftForge.EVENT_BUS.register(lifeManager);
-		FMLCommonHandler.instance().bus().register(lifeManager);
 		
 		FMLCommonHandler.instance().bus().register(new UpdateNotification());
 		

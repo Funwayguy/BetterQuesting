@@ -8,10 +8,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -32,7 +34,7 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		if(args.length == 2)
 		{
-			for(int i : QuestDatabase.questDB.keySet())
+			for(int i : QuestDatabase.INSTANCE.getAllKeys())
 			{
 				list.add("" + i);
 			}
@@ -75,31 +77,31 @@ public class QuestCommandComplete extends QuestCommandBase
 		try
 		{
 			int id = Integer.parseInt(args[1].trim());
-			QuestInstance quest = QuestDatabase.getQuestByID(id);
+			IQuestContainer quest = QuestDatabase.INSTANCE.getValue(id);
 			quest.setComplete(uuid, 0);
 			
 			int done = 0;
 			
-			if(!quest.logic.GetResult(done, quest.tasks.size())) // Preliminary check
+			if(!quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
 			{
-				for(TaskBase task : quest.tasks)
+				for(ITaskBase task : quest.getTasks().getAllValues())
 				{
-					task.setCompletion(uuid, true);
+					task.setComplete(uuid);
 					done += 1;
 					
-					if(quest.logic.GetResult(done, quest.tasks.size()))
+					if(quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
 					{
 						break; // Only complete enough quests to claim the reward
 					}
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.name), player.getCommandSenderName()));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.getUnlocalisedName()), player.getCommandSenderName()));
 		} catch(Exception e)
 		{
 			throw getException(command);
 		}
 		
-		QuestDatabase.UpdateClients();
+		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 }

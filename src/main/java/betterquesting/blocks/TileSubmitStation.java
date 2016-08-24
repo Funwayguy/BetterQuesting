@@ -17,6 +17,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.tasks.IFluidTask;
 import betterquesting.api.quests.tasks.IItemTask;
@@ -199,7 +200,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 			if(((ITaskBase)t).isComplete(owner))
 			{
-				q.syncAll();
+				PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				reset();
 	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
 			} else
@@ -266,7 +267,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 					
 					if(((ITaskBase)t).isComplete(owner))
 					{
-						q.syncAll();
+						PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 						reset();
 			    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
 					} else
@@ -286,7 +287,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 				
 				if(q != null && !worldObj.isRemote)
 				{
-					q.syncAll();
+					PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				}
 			} else if(t != null && ((ITaskBase)t).isComplete(owner))
 			{
@@ -370,7 +371,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-			PacketSender.INSTANCE.sendToServer(PacketTypeNative.EDIT_STATION.GetLocation(), payload);
+			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
     	}
     }
 	

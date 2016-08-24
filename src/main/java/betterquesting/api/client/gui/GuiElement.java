@@ -1,10 +1,16 @@
 package betterquesting.api.client.gui;
 
+import java.util.Iterator;
+import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.themes.DummyTheme;
 import betterquesting.api.client.themes.IThemeBase;
@@ -138,5 +144,97 @@ public abstract class GuiElement
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+    
+    public void drawTooltip(List<String> list, int x, int y, FontRenderer font)
+    {
+    	Minecraft mc = Minecraft.getMinecraft();
+    	ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+        int sw = scaledresolution.getScaledWidth();
+        int sh = scaledresolution.getScaledHeight();
+    	
+        if (!list.isEmpty())
+        {
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+            RenderHelper.disableStandardItemLighting();
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            int k = 0;
+            Iterator<String> iterator = list.iterator();
+
+            while (iterator.hasNext())
+            {
+                String s = iterator.next();
+                
+                if(s == null)
+                {
+                	continue;
+                }
+                
+                int l = font.getStringWidth(s);
+
+                if (l > k)
+                {
+                    k = l;
+                }
+            }
+
+            int j2 = x + 12;
+            int k2 = y - 12;
+            int i1 = 8;
+
+            if (list.size() > 1)
+            {
+                i1 += 2 + (list.size() - 1) * 10;
+            }
+
+            if (j2 + k > sw)
+            {
+                j2 -= 28 + k;
+            }
+
+            if (k2 + i1 + 6 > sh)
+            {
+                k2 = sh - i1 - 6;
+            }
+
+            this.zLevel = 300.0F;
+            int j1 = -267386864;
+            this.drawGradientRect(j2 - 3, k2 - 4, j2 + k + 3, k2 - 3, j1, j1);
+            this.drawGradientRect(j2 - 3, k2 + i1 + 3, j2 + k + 3, k2 + i1 + 4, j1, j1);
+            this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 + i1 + 3, j1, j1);
+            this.drawGradientRect(j2 - 4, k2 - 3, j2 - 3, k2 + i1 + 3, j1, j1);
+            this.drawGradientRect(j2 + k + 3, k2 - 3, j2 + k + 4, k2 + i1 + 3, j1, j1);
+            int k1 = 1347420415;
+            int l1 = (k1 & 16711422) >> 1 | k1 & -16777216;
+            this.drawGradientRect(j2 - 3, k2 - 3 + 1, j2 - 3 + 1, k2 + i1 + 3 - 1, k1, l1);
+            this.drawGradientRect(j2 + k + 2, k2 - 3 + 1, j2 + k + 3, k2 + i1 + 3 - 1, k1, l1);
+            this.drawGradientRect(j2 - 3, k2 - 3, j2 + k + 3, k2 - 3 + 1, k1, k1);
+            this.drawGradientRect(j2 - 3, k2 + i1 + 2, j2 + k + 3, k2 + i1 + 3, l1, l1);
+
+            for (int i2 = 0; i2 < list.size(); ++i2)
+            {
+                String s1 = (String)list.get(i2);
+                font.drawStringWithShadow(s1, j2, k2, -1);
+
+                if (i2 == 0)
+                {
+                    k2 += 2;
+                }
+
+                k2 += 10;
+            }
+
+            this.zLevel = 0.0F;
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            RenderHelper.enableStandardItemLighting();
+            GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+        }
+    }
+    
+    public boolean isWithin(int xIn, int yIn, int x, int y, int w, int h)
+    {
+    	return xIn >= x && xIn < x + w && yIn >= y && yIn < y + h;
     }
 }

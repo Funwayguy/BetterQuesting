@@ -10,24 +10,25 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.gui.GuiQuesting;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.party.IParty;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.party.PartyInstance;
-import betterquesting.registry.ThemeRegistry;
+import betterquesting.network.PacketSender;
+import betterquesting.party.PartyManager;
 
-public class GuiPartyInvite extends GuiQuesting
+public class GuiPartyInvite extends GuiScreenThemed
 {
 	int scroll = 0;
 	int maxRows = 0;
-	PartyInstance party;
+	IParty party;
 	List<GuiPlayerInfo> playerList;
 	GuiBigTextField txtManual;
-	GuiButtonQuesting btnManual;
+	GuiButtonThemed btnManual;
 	
-	public GuiPartyInvite(GuiScreen parent, PartyInstance party)
+	public GuiPartyInvite(GuiScreen parent, IParty party)
 	{
 		super(parent, "betterquesting.title.party_invite");
 		this.party = party;
@@ -44,12 +45,12 @@ public class GuiPartyInvite extends GuiQuesting
 		
 		this.txtManual = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
 		this.txtManual.setWatermark("Username");
-		this.btnManual = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"));
+		this.btnManual = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"), true);
 		this.buttonList.add(btnManual);
 		
 		for(int i = 0; i < maxRows * 3; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username", true);
 			this.buttonList.add(btn);
 		}
 		
@@ -62,11 +63,11 @@ public class GuiPartyInvite extends GuiQuesting
 		
 		if(txtManual != null)
 		{
-			txtManual.drawTextBox();
+			txtManual.drawTextBox(mx, my, partialTick);
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		// Scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68, 248, 0, 8, 20);
@@ -89,9 +90,9 @@ public class GuiPartyInvite extends GuiQuesting
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", 4);
-			tags.setString("Party", party.name);
+			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 			tags.setString("Member", txtManual.getText());
-			PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Button index
@@ -104,9 +105,9 @@ public class GuiPartyInvite extends GuiQuesting
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", 4);
-					tags.setString("Party", party.name);
+					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 					tags.setString("Member", button.displayString);
-					PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}

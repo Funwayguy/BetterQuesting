@@ -14,10 +14,10 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -55,9 +55,9 @@ public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatile
 		
 		int bSize = sizeX/2 - 16;
 		
-		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<");
+		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
 		this.buttonList.add(leftBtn);
-		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + (bSize - 20), this.guiTop + this.sizeY - 48, 20, 20, ">");
+		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + (bSize - 20), this.guiTop + this.sizeY - 48, 20, 20, ">", true);
 		this.buttonList.add(rightBtn);
 		
 		int i = 0;
@@ -68,7 +68,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatile
 		
 		for(String key : sortedNames)
 		{
-			this.buttonList.add(new GuiButtonQuesting(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key));
+			this.buttonList.add(new GuiButtonThemed(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key, true));
 			i++;
 		}
 		

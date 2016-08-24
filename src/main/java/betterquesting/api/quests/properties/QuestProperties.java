@@ -6,12 +6,16 @@ import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.quests.properties.basic.QuestPropertyBoolean;
 import betterquesting.api.quests.properties.basic.QuestPropertyEnum;
 import betterquesting.api.quests.properties.basic.QuestPropertyNumber;
+import betterquesting.api.quests.properties.basic.QuestPropertyString;
 
 /**
  * List of standard properties quests can have
  */
 public class QuestProperties
 {
+	public static final IQuestProperty<String> NAME =						new QuestPropertyString(new ResourceLocation("betterquesting:name"), "untitled.name");
+	public static final IQuestProperty<String> DESC =						new QuestPropertyString(new ResourceLocation("betterquesting:desc"), "untitled.desc");
+	
 	public static final IQuestProperty<Boolean> MAIN =						new QuestPropertyBoolean(new ResourceLocation("betterquesting:isMain"), false);
 	public static final IQuestProperty<Boolean> GLOBAL =					new QuestPropertyBoolean(new ResourceLocation("betterquesting:isGlobal"), false);
 	public static final IQuestProperty<Boolean> GLOBAL_SHARE =				new QuestPropertyBoolean(new ResourceLocation("betterquesting:globalShare"), false);

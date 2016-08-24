@@ -19,6 +19,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.controls.GuiNumberField;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.BigItemStack;
@@ -26,7 +27,6 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -92,11 +92,11 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 		columns = (sizeX/2 - 32)/18;
 		rows = (sizeY - (48 + 48))/18;
 		
-		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<");
+		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
 		this.buttonList.add(leftBtn);
-		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">");
+		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">", true);
 		this.buttonList.add(rightBtn);
-		GuiButtonQuesting oreDictBtn = new GuiButtonQuesting(3, guiLeft + 76, guiTop + 64, 100, 20, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict));
+		GuiButtonThemed oreDictBtn = new GuiButtonThemed(3, guiLeft + 76, guiTop + 64, 100, 20, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict), true);
 		this.buttonList.add(oreDictBtn);
 	}
 	
@@ -181,7 +181,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
 		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, getTextColor(), false);
 		
-		this.searchBox.drawTextBox();
+		this.searchBox.drawTextBox(mx, my, partialTick);
 		this.numberBox.drawTextBox();
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);

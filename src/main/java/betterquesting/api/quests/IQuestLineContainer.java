@@ -1,17 +1,17 @@
 package betterquesting.api.quests;
 
-import java.util.List;
+import betterquesting.api.database.IDataSync;
+import betterquesting.api.database.IJsonSaveLoad;
+import betterquesting.api.database.IRegStorage;
+import betterquesting.api.quests.properties.IQuestInfo;
 import com.google.gson.JsonObject;
 
-public interface IQuestLineContainer
+public interface IQuestLineContainer extends IDataSync, IJsonSaveLoad<JsonObject>, IRegStorage<IQuestLineEntry>
 {
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
 	
-	public IQuestLineEntry getQuestEntry(int questId);
+	public IQuestInfo getInfo();
 	
-	public List<IQuestLineEntry> getAllQuests();
-	
-	public JsonObject writeToJson(JsonObject json);
-	public void readFromJson(JsonObject json);
+	public int getQuestAt(int x, int y);
 }

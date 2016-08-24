@@ -9,18 +9,14 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
-import betterquesting.registry.ThemeRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -62,13 +58,13 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
+		GuiButtonThemed btnEdit = new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
 		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.isEditMode();
 		this.buttonList.add(btnEdit);
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
-		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
-		qlDesc = new GuiScrollingText(this, sizeX - (32 + 150 + 8), 48, guiTop + 32 + sizeY - 64 - 32, guiLeft + 174);
+		qlGui = new GuiQuestLinesEmbedded(guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
+		qlDesc = new GuiScrollingText(guiLeft + 174, guiTop + 32 + sizeY - 64 - 32, sizeX - (32 + 150 + 8), 48);
 		
 		boolean reset = true;
 		
@@ -77,9 +73,9 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		{
 			IQuestLineContainer line = QuestLineDatabase.INSTANCE.getAllValues().get(j);
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = line.getAllQuests().size() <= 0 || QuestSettings.INSTANCE.isEditMode();
+			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.isEditMode();
 			
-			if(selected != null && selected.line.getUnlocalisedName().equals(line.getUnlocalisedName()))
+			if(selected != null && selected.getQuestLine().getUnlocalisedName().equals(line.getUnlocalisedName()))
 			{
 				reset = false;
 				selected = btnLine;
@@ -87,9 +83,9 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			if(!btnLine.enabled)
 			{
-				for(GuiButtonQuestInstance p : btnLine.tree.buttonTree)
+				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{
-					if((p.getQuest().isComplete(mc.thePlayer.getUniqueID()) || p.getQuest().isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.line != line))
+					if((p.getQuest().isComplete(mc.thePlayer.getUniqueID()) || p.getQuest().isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.getQuestLine() != line))
 					{
 						btnLine.enabled = true;
 						break;
@@ -107,8 +103,8 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			selected = null;
 		} else
 		{
-			qlDesc.SetText(selected.line.getUnlocalisedDescription());
-			qlGui.setQuestLine(selected.tree);
+			qlDesc.SetText(selected.getQuestLine().getUnlocalisedDescription());
+			qlGui.setQuestLine(selected.getButtonTree());
 		}
 		
 		if(oldGui != null) // Preserve old settings
@@ -155,7 +151,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			GL11.glPushMatrix();
 			GL11.glColor4f(1F, 1F, 1F, 1f);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			qlGui.drawGui(mx, my, partialTick);
+			qlGui.drawBackground(mx, my, partialTick);
 			GL11.glPopMatrix();
 		}
 	}
@@ -182,8 +178,8 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			if(selected != null)
 			{
-				qlDesc.SetText(I18n.format(selected.line.getUnlocalisedDescription()));
-				qlGui.setQuestLine(selected.tree);
+				qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
+				qlGui.setQuestLine(selected.getButtonTree());
 			}
 		}
 	}
@@ -193,9 +189,9 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
     {
 		super.mouseClicked(mx, my, type);
 		
-		if(qlGui != null && type == 0)
+		if(qlGui != null && qlGui.getQuestLine() != null && type == 0)
 		{
-			GuiButtonQuestInstance qBtn = qlGui.getClickedQuest(mx, my);
+			GuiButtonQuestInstance qBtn = qlGui.getQuestLine().getButtonAt(mx, my);
 			
 			if(qBtn != null)
 			{
@@ -223,7 +219,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
         
         if(qlGui != null)
         {
-        	qlGui.handleMouse();
+        	//qlGui.handleMouse();
         }
     }
 	

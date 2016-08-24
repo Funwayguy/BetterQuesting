@@ -19,14 +19,42 @@ public class QuestInfo implements IQuestInfo
 			return null;
 		}
 		
+		return getProperty(prop, prop.getDefault());
+	}
+	
+	@Override
+	public <T> T getProperty(IQuestProperty<T> prop, T def)
+	{
+		if(prop == null)
+		{
+			return null;
+		}
+		
 		JsonElement jProp = jInfo.get(prop.getKey().toString());
 		
 		if(jProp != null)
 		{
-			prop.getDefault();
+			return def;
 		}
 		
 		return prop.readValue(jProp);
+	}
+	
+	@Override
+	public boolean hasProperty(IQuestProperty<?> prop)
+	{
+		return jInfo.has(prop.getKey().toString());
+	}
+	
+	@Override
+	public <T> void setProperty(IQuestProperty<T> prop, T value)
+	{
+		if(prop == null || value == null)
+		{
+			return;
+		}
+		
+		jInfo.add(prop.getKey().toString(), prop.writeValue(value));
 	}
 	
 	@Override

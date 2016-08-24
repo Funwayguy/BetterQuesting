@@ -7,17 +7,14 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.core.BetterQuesting;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
+import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
 public class PktHandlerLineEdit implements IPacketHandler
 {
@@ -35,34 +32,42 @@ public class PktHandlerLineEdit implements IPacketHandler
 			return;
 		}
 		
-		if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile()))
+		boolean isOP = MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile());
+		
+		if(!isOP)
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quest lines without OP permissions!");
 			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
 			return; // Player is not operator. Do nothing
 		}
 		
-		int action = !data.hasKey("action")? -1 : data.getInteger("action");
+		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
+		int lID = !data.hasKey("lineID")? -1 : data.getInteger("lineID");
+		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(lID);
 		
-		if(action < 0)
+		if(aID < 0 || aID >= EnumPacketAction.values().length)
 		{
-			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
 			return;
 		}
 		
-		if(action == 0) // Add new QuestLine
+		EnumPacketAction action = EnumPacketAction.values()[aID];
+		
+		if(action == EnumPacketAction.ADD) 
 		{
 			QuestLineDatabase.INSTANCE.add(new QuestLine(), QuestLineDatabase.INSTANCE.nextID());
-		} else if(action == 1) // Add new QuestInstance
+			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+			return;
+		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{
-			QuestDatabase.INSTANCE.add(new QuestInstance(), QuestDatabase.INSTANCE.nextID());
-		} else if(action == 2) // Edit quest lines
+			questLine.readPacket(data);
+			PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket());
+			return;
+		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
-			JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
-			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(json, "questLines"), EnumSaveType.CONFIG);
+			QuestLineDatabase.INSTANCE.remove(lID);
+			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+			return;
 		}
-		
-		QuestDatabase.INSTANCE.syncAll(); // Update all clients with new quest data
 	}
 	
 	@Override

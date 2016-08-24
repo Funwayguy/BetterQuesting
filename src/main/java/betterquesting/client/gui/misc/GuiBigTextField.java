@@ -5,11 +5,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Mouse;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.client.gui.editors.GuiTextEditor;
 
 public class GuiBigTextField extends GuiTextField
 {
-	GuiButtonQuesting bigEdit;
+	GuiButtonThemed bigEdit;
 	int hostID;
 	ITextEditor host;
 	GuiTextEditor editor;

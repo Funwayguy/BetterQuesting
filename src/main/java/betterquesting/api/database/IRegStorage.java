@@ -11,11 +11,13 @@ public interface IRegStorage<T>
 	
 	public boolean add(T obj, int id);
 	public boolean remove(int id);
+	public boolean remove(T obj);
 	
 	public T getValue(int id);
 	public int getKey(T obj);
 	
 	public int size();
+	public void reset();
 	
 	public List<T> getAllValues();
 	public List<Integer> getAllKeys();

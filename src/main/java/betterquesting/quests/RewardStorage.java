@@ -51,6 +51,12 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 	}
 	
 	@Override
+	public boolean remove(IRewardBase reward)
+	{
+		return remove(getKey(reward));
+	}
+	
+	@Override
 	public IRewardBase getValue(int id)
 	{
 		return database.get(id);
@@ -88,6 +94,12 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 	public int size()
 	{
 		return database.size();
+	}
+	
+	@Override
+	public void reset()
+	{
+		database.clear();
 	}
 	
 	@Override

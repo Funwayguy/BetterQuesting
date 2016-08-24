@@ -2,11 +2,12 @@ package betterquesting.client.themes;
 
 import java.awt.Color;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.themes.IThemeBase;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.properties.QuestProperties;
 
 public class ThemeStandard implements IThemeBase
 {
@@ -80,15 +81,15 @@ public class ThemeStandard implements IThemeBase
 	}
 	
 	@Override
-	public int getLineStipple(IQuestContainer quest, EnumQuestState state)
+	public short getLineStipple(IQuestContainer quest, EnumQuestState state)
 	{
-		return 0xAAAA;
+		return (short)0xAAAA;
 	}
 	
 	@Override
 	public float getLineWidth(IQuestContainer quest, EnumQuestState state)
 	{
-		return quest.isMain()? 4F : 2F;
+		return quest.getInfo().getProperty(QuestProperties.MAIN)? 4F : 2F;
 	}
 	
 	@Override
@@ -118,7 +119,7 @@ public class ThemeStandard implements IThemeBase
 	}
 	
 	@Override
-	public IGuiEmbedded getGuiOverride(IGuiEmbedded gui)
+	public GuiScreen getGuiOverride(GuiScreen gui)
 	{
 		return gui;
 	}

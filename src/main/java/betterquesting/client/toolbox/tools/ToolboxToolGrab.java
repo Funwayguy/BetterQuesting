@@ -1,34 +1,36 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.client.gui.GuiQuesting;
 import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.quests.QuestLine.QuestLineEntry;
 
-public class ToolboxToolGrab extends ToolboxTool
+public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 {
-	GuiButtonQuestInstance grabbed = null;
-	
-	public ToolboxToolGrab(GuiQuesting screen)
-	{
-		super(screen);
-	}
+	int grabID = -1;
+	IQuestLineEntry grabbed = null;
+	IQuestLineContainer questLine;
 	
 	@Override
-	public void initTool(GuiQuestLinesEmbedded ui)
+	public void initTool(IQuestLineContainer line)
 	{
-		super.initTool(ui);
-		
+		this.questLine = line;
 		grabbed = null;
+		grabID = -1;
 	}
 	
 	@Override
-	public void deactivateTool()
+	public void disableTool()
 	{
 		if(grabbed != null)
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			IQuestLineEntry qle = questLine.getValue(grabbed.quest.questID);
 			
 			if(qle != null)
 			{
@@ -36,9 +38,10 @@ public class ToolboxToolGrab extends ToolboxTool
 				grabbed.xPosition = qle.posX;
 				grabbed.yPosition = qle.posY;
 			}
-			
-			grabbed = null;
 		}
+		
+		grabbed = null;
+		grabID = -1;
 	}
 	
 	@Override

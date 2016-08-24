@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 
 public class GuiQuestingHelp extends GuiScreenThemed
@@ -33,7 +33,7 @@ public class GuiQuestingHelp extends GuiScreenThemed
 		
 		for(int i = 0; i < maxRows; i++)
 		{
-			buttonList.add(new GuiButtonQuesting(i + 1, guiLeft + 16, guiTop + 32 + i*20, 100, 20, "NULL"));
+			buttonList.add(new GuiButtonThemed(i + 1, guiLeft + 16, guiTop + 32 + i*20, 100, 20, "NULL", true));
 		}
 		
 		RefreshColumns();

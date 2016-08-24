@@ -1,27 +1,81 @@
 package betterquesting.api.client.gui;
 
 import java.util.ArrayList;
+import java.util.List;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.quests.IQuestLineEntry;
-import betterquesting.quests.QuestLine;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+/**
+ * Builds a tree of connected buttons based on the given quest line.
+ * Intended for use in the within the draggable quest line GUI.<br>
+ * <b>WARNING:</b> Button IDs will all be initialized as 0
+ */
 @SideOnly(Side.CLIENT)
 public class QuestLineButtonTree
 {
-	public QuestLine line;
-	public ArrayList<IQuestLineEntry> buttonTree = new ArrayList<IQuestLineEntry>();
-	public int treeW = 0;
-	public int treeH = 0;
+	private IQuestLineContainer line;
+	private ArrayList<GuiButtonQuestInstance> buttonTree = new ArrayList<GuiButtonQuestInstance>();
+	private int treeW = 0;
+	private int treeH = 0;
 	
-	public QuestLineButtonTree(QuestLine line)
+	public QuestLineButtonTree(IQuestLineContainer line)
 	{
 		this.line = line;
-		BuildButtonTree();
+		RebuildTree();
 	}
 	
-	public void BuildButtonTree()
+	public int getWidth()
+	{
+		return treeW;
+	}
+	
+	public int getHeight()
+	{
+		return treeH;
+	}
+	
+	public IQuestLineContainer getQuestLine()
+	{
+		return line;
+	}
+	
+	public List<GuiButtonQuestInstance> getButtonTree()
+	{
+		return buttonTree;
+	}
+	
+	public GuiButtonQuestInstance getButtonAt(int x, int y)
+	{
+		if(line == null)
+		{
+			return null;
+		}
+		
+		int id = line.getQuestAt(x, y);
+		IQuestContainer quest = ExpansionAPI.INSTANCE.getQuestDB().getValue(id);
+		
+		if(quest == null)
+		{
+			return null;
+		}
+		
+		for(GuiButtonQuestInstance btn : buttonTree)
+		{
+			if(btn.getQuest() == quest)
+			{
+				return btn;
+			}
+		}
+		
+		return null;
+	}
+	
+	public void RebuildTree()
 	{
 		buttonTree.clear();
 		treeW = 0;
@@ -32,9 +86,15 @@ public class QuestLineButtonTree
 			return;
 		}
 		
-		for(IQuestLineEntry entry : line.getAllQuests())
+		for(int id : line.getAllKeys())
 		{
-			buttonTree.add(new GuiButtonQuestInstance(0, entry.posX, entry.posY, entry.quest));
+			IQuestContainer quest = ExpansionAPI.INSTANCE.getQuestDB().getValue(id);
+			IQuestLineEntry entry = line.getValue(id);
+			
+			if(quest != null && entry != null)
+			{
+				buttonTree.add(new GuiButtonQuestInstance(0, entry.getPosX(), entry.getPosY(), entry.getSize(), entry.getSize(), quest));
+			}
 		}
 		
 		// Offset origin to 0,0 and establish bounds
@@ -50,14 +110,14 @@ public class QuestLineButtonTree
 			
 			for(GuiButtonQuestInstance b2 : buttonTree)
 			{
-				if(b2 == null || btn == b2)
+				if(b2 == null || btn == b2 || btn.getQuest() == null)
 				{
 					continue;
 				}
 				
-				if(btn.quest.preRequisites.contains(b2.quest))
+				if(btn.getQuest().getPrerequisites().contains(b2.getQuest()))
 				{
-					btn.parents.add(b2);
+					btn.addParent(b2);
 				}
 			}
 		}

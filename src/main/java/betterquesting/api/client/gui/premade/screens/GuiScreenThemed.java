@@ -15,6 +15,7 @@ import scala.actors.threadpool.Arrays;
 import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.themes.DummyTheme;
 import betterquesting.api.client.themes.IThemeBase;
 
@@ -47,6 +48,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -67,6 +69,8 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		this.guiTop = (this.height - this.sizeY)/2;
 		
 		Keyboard.enableRepeatEvents(true);
+		
+		this.buttonList.add(new GuiButtonThemed(0, guiLeft + sizeX/2 - 100, guiTop + sizeY - 16, 200, 20, "gui.done", true));
 	}
 	
 	@Override
@@ -218,7 +222,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	/**
 	 * Used for rendering tool tips on this screen via external methods
 	 */
-	public void DrawTooltip(List<?> list, int x, int y)
+	public void drawTooltip(List<String> list, int x, int y)
 	{
 		try
 		{

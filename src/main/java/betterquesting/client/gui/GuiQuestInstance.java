@@ -12,12 +12,12 @@ import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.rewards.IRewardBase;
 import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.GuiQuestEditor;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -84,7 +84,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
+		GuiButtonThemed btnEdit = new GuiButtonThemed(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
 		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.isEditMode();
 		this.buttonList.add(btnEdit);
 		
@@ -103,7 +103,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		btnRRight.visible = quest.getRewards().size() > 0;
 		btnRRight.enabled = btnRRight.visible && selReward < quest.getRewards().size() - 1;
 		
-		GuiButtonQuesting btnDetect = new GuiButtonQuesting(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"));
+		GuiButtonThemed btnDetect = new GuiButtonThemed(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"), true);
 		btnDetect.enabled = quest.canSubmit(mc.thePlayer);
 		btnClaim = new GuiButtonThemed(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"), true);
 		btnClaim.visible = quest.getRewards().size() > 0;
@@ -161,7 +161,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
-			PacketSender.INSTANCE.sendToServer(PacketTypeNative.DETECT.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.DETECT.GetLocation(), tags));
 		} else if(btn.id == 3) // Task right
 		{
 			selTask++;
@@ -177,7 +177,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
-			PacketSender.INSTANCE.sendToServer(PacketTypeNative.CLAIM.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.CLAIM.GetLocation(), tags));
 		} else if(btn.id == 6)
 		{
 			selReward--;

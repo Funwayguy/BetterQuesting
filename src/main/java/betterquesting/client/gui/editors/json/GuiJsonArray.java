@@ -8,17 +8,15 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonJson;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.controls.GuiNumberField;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.JsonIO;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonJson;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.core.BetterQuesting;
-import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
@@ -28,9 +26,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolatileScreen
 {
-	int scrollPos = 0;
-	JsonArray settings;
-	boolean allowEdit = true;
+	private int scrollPos = 0;
+	private final JsonArray settings;
+	private boolean allowEdit = true;
 	
 	/**
 	 * List of GuiTextFields and GuiButtons
@@ -65,9 +63,9 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
-		this.buttonList.add(new GuiButtonQuesting(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
-		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
+		this.buttonList.add(new GuiButtonThemed(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new"), true));
+		this.buttonList.add(new GuiButtonThemed(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<", true));
+		this.buttonList.add(new GuiButtonThemed(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">", true));
 		
         for(int i = 0; i < settings.size(); i++)
 		{
@@ -82,7 +80,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 					txtBox.setText("" + jPrim.getAsNumber());
 				} else if(jPrim.isBoolean())
 				{
-					GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, jPrim);
+					GuiButtonJson<JsonPrimitive> button = new GuiButtonJson<JsonPrimitive>(buttonList.size(), -9999, -9999, 128, 20, jPrim, true);
 					editables.add(new JsonControlSet(this.buttonList, button, true, true));
 					this.buttonList.add(button);
 					continue;
@@ -96,7 +94,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 				editables.add(new JsonControlSet(this.buttonList, txtBox, true, true));
 			} else
 			{
-				GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, entry);
+				GuiButtonJson<JsonElement> button = new GuiButtonJson<JsonElement>(buttonList.size(), -9999, -9999, 128, 20, entry, true);
 				editables.add(new JsonControlSet(this.buttonList, button, true, true));
 				this.buttonList.add(button);
 			}
@@ -106,8 +104,8 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-        int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
-        int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
+        //int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
+        //int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
         
 		if(button.id == 0)
 		{
@@ -157,15 +155,16 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
 				{
-					GuiButtonJson jsonButton = (GuiButtonJson)button;
-					JsonElement element = jsonButton.json;
+					@SuppressWarnings("unchecked")
+					GuiButtonJson<JsonElement> jsonButton = (GuiButtonJson<JsonElement>)button;
+					JsonElement element = jsonButton.getJson();
 					
-					GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
+					/*GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
 					
 					if(jGui != null)
 					{
 						this.mc.displayGuiScreen(jGui);
-					} else if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
+					} else */if(jsonButton.isItem() || jsonButton.isEntity() || jsonButton.isFluid())
 					{
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())
@@ -194,7 +193,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 							
 							
 							jsonButton.displayString = "" + jBool.getAsBoolean();
-							jsonButton.json = jBool;
+							jsonButton.setStored(jBool);
 						}
 					}
 					break;

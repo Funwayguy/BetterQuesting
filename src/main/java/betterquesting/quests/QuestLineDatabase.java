@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.database.IQuestLineDatabase;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,10 +20,22 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 {
 	public static final QuestLineDatabase INSTANCE = new QuestLineDatabase();
 	
+	/** 
+	 * NOTE: The keys used in this database represent questIDs and are NOT unique identifiers
+	 */
 	private final ConcurrentHashMap<Integer, IQuestLineContainer> questLines = new ConcurrentHashMap<Integer, IQuestLineContainer>();
 	
 	private QuestLineDatabase()
 	{
+	}
+	
+	@Override
+	public void removeQuest(int questID)
+	{
+		for(IQuestLineContainer ql : getAllValues())
+		{
+			ql.remove(questID);
+		}
 	}
 	
 	@Override
@@ -38,7 +54,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	@Override
 	public boolean add(IQuestLineContainer questLine, int id)
 	{
-		if(questLine == null || id < 0 || questLines.containsValue(questLine) || questLines.containsKey(id))
+		if(id < 0 || questLine == null || questLines.containsValue(questLine) || questLines.containsKey(id))
 		{
 			return false;
 		}
@@ -51,6 +67,12 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	public boolean remove(int lineId)
 	{
 		return questLines.remove(lineId) != null;
+	}
+	
+	@Override
+	public boolean remove(IQuestLineContainer quest)
+	{
+		return remove(getKey(quest));
 	}
 	
 	@Override
@@ -92,9 +114,27 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public void syncDatabase()
+	public void reset()
 	{
-		//TODO: Setup dedicated sync packet
+		questLines.clear();
+	}
+	
+	@Override
+	public PreparedPayload getSyncPacket()
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		JsonObject base = new JsonObject();
+		base.add("questLines", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		return new PreparedPayload(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
+	}
+	
+	@Override
+	public void readPacket(NBTTagCompound payload)
+	{
+		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		
+		this.readFromJson(JsonHelper.GetArray(base, "questLines"), EnumSaveType.CONFIG);
 	}
 	
 	@Override
@@ -112,7 +152,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 				continue;
 			}
 			
-			JsonObject jObj = entry.getValue().writeToJson(new JsonObject());
+			JsonObject jObj = entry.getValue().writeToJson(new JsonObject(), saveType);
 			jObj.addProperty("lineID", entry.getKey());
 			json.add(jObj);
 		}
@@ -141,7 +181,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 			
 			int id = JsonHelper.GetNumber(jql, "lineID", -1).intValue();
 			QuestLine line = new QuestLine();
-			line.readFromJson(entry.getAsJsonObject());
+			line.readFromJson(entry.getAsJsonObject(), saveType);
 			
 			if(id >= 0)
 			{

@@ -14,10 +14,10 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.JsonIO;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,10 +28,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 {
-	GuiTextField keyText;
-	JsonElement json;
-	int select = 0;
-	int insertIdx = 0;
+	private GuiTextField keyText;
+	private final JsonElement json;
+	private int select = 0;
+	private int insertIdx = 0;
 	
 	public GuiJsonAdd(GuiScreen parent, JsonArray json, int insertIdx) // JsonArray
 	{
@@ -58,7 +58,7 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.guiLeft + this.sizeX/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel")));
+		this.buttonList.add(new GuiButtonThemed(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel"), true));
 		
 		int btnOff = -20;
 		
@@ -70,13 +70,13 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 			btnOff = 0;
 		}
 		
-		GuiButtonQuesting buttonStr = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.format("betterquesting.btn.text"));
-		GuiButtonQuesting buttonNum = new GuiButtonQuesting(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.format("betterquesting.btn.number"));
-		GuiButtonQuesting buttonObj = new GuiButtonQuesting(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.object"));
-		GuiButtonQuesting buttonArr = new GuiButtonQuesting(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.list"));
-		GuiButtonQuesting buttonEnt = new GuiButtonQuesting(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.format("betterquesting.btn.entity"));
-		GuiButtonQuesting buttonItm = new GuiButtonQuesting(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.item"));
-		GuiButtonQuesting buttonFlu = new GuiButtonQuesting(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.fluid"));
+		GuiButtonThemed buttonStr = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.format("betterquesting.btn.text"), true);
+		GuiButtonThemed buttonNum = new GuiButtonThemed(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.format("betterquesting.btn.number"), true);
+		GuiButtonThemed buttonObj = new GuiButtonThemed(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.object"), true);
+		GuiButtonThemed buttonArr = new GuiButtonThemed(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.list"), true);
+		GuiButtonThemed buttonEnt = new GuiButtonThemed(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.format("betterquesting.btn.entity"), true);
+		GuiButtonThemed buttonItm = new GuiButtonThemed(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.item"), true);
+		GuiButtonThemed buttonFlu = new GuiButtonThemed(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.fluid"), true);
 		
 		buttonStr.enabled = false; // Default selection, init disabled
 		

@@ -1,16 +1,14 @@
 package betterquesting.api.network;
 
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
 public interface IPacketSender
 {
-	public void sendToPlayer(ResourceLocation handler, NBTTagCompound payload, EntityPlayerMP player);
-	public void sendToAll(ResourceLocation handler, NBTTagCompound payload);
-	public void sendToServer(ResourceLocation handler, NBTTagCompound payload);
+	public void sendToPlayer(PreparedPayload payload, EntityPlayerMP player);
+	public void sendToAll(PreparedPayload payload);
+	public void sendToServer(PreparedPayload payload);
 	
-	public void sendToAround(ResourceLocation handler, NBTTagCompound payload, TargetPoint point);
-	public void sendToDimension(ResourceLocation handler, NBTTagCompound payload, int dimension);
+	public void sendToAround(PreparedPayload payload, TargetPoint point);
+	public void sendToDimension(PreparedPayload payload, int dimension);
 }

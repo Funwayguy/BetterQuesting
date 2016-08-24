@@ -11,26 +11,27 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.party.IParty;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.party.PartyInstance;
+import betterquesting.lives.LifeDatabase;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.registry.ThemeRegistry;
+import betterquesting.quests.QuestSettings;
 
-public class GuiNoParty extends GuiQuesting
+public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 {
 	ItemStack heart;
 	int lives = 1;
 	
 	int rightScroll = 0; // Invite list
 	int maxRows = 0;
-	ArrayList<PartyInstance> invites = new ArrayList<PartyInstance>();
+	List<IParty> invites = new ArrayList<IParty>();
 	GuiTextField fieldName;
 	GuiButton btnCreate;
 	
@@ -45,7 +46,7 @@ public class GuiNoParty extends GuiQuesting
 	{
 		super.initGui();
 		
-		PartyInstance party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
+		IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
 		if(party != null)
 		{
 			mc.displayGuiScreen(new GuiManageParty(parent, party));
@@ -53,14 +54,17 @@ public class GuiNoParty extends GuiQuesting
 		}
 		
 		heart = new ItemStack(BetterQuesting.extraLife);
-		lives = LifeManager.getLives(mc.thePlayer);
-		
-		invites = PartyManager.getInvites(mc.thePlayer.getUniqueID());
+		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getUniqueID());
+		invites.clear();
+		for(int i : PartyManager.INSTANCE.getPartyInvites(mc.thePlayer.getUniqueID()))
+		{
+			invites.add(PartyManager.INSTANCE.getValue(i));
+		}
 		
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
 		
-		btnCreate = new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, I18n.format("betterquesting.btn.party_new"));
+		btnCreate = new GuiButtonThemed(1, guiLeft + sizeX/4 - 75, height/2 + 00, 150, 20, I18n.format("betterquesting.btn.party_new"), true);
 		this.buttonList.add(btnCreate);
 		
 		fieldName = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/4 - 74, height/2 - 19, 148, 18);
@@ -69,7 +73,7 @@ public class GuiNoParty extends GuiQuesting
 		// Party Invites
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_join"));
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_join"), true);
 			this.buttonList.add(btn);
 		}
 		
@@ -77,24 +81,23 @@ public class GuiNoParty extends GuiQuesting
 	}
 	
 	@Override
+	public void refreshGui()
+	{
+		this.initGui();
+	}
+	
+	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(PartyManager.updateUI)
-		{
-			PartyManager.updateUI = false;
-			this.initGui();
-			return;
-		}
-		
-		if(QuestDatabase.bqHardcore)
+		if(QuestSettings.INSTANCE.isHardcore())
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
-			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
+			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());
 		}
 		
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48, 248, 0, 8, 20);
 		int s = 20;
@@ -107,7 +110,7 @@ public class GuiNoParty extends GuiQuesting
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(invites.size() - maxRows)), 248, 60, 8, 20);
 		
 		String memTitle = EnumChatFormatting.UNDERLINE + I18n.format("betterquesting.gui.party_invites");
-		mc.fontRenderer.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(memTitle)/2, guiTop + 32, getTextColor(), false);
 		
 		int dotL = mc.fontRenderer.getStringWidth("...");
 		
@@ -115,26 +118,26 @@ public class GuiNoParty extends GuiQuesting
 		{
 			int n = i + rightScroll;
 			
-			PartyInstance party = invites.get(i);
+			IParty party = invites.get(i);
 			
 			if(n < 0 || n >= invites.size() || i >= maxRows)
 			{
 				continue;
 			}
 			
-			String name = party.name;
+			String name = party.getName();
 			if(mc.fontRenderer.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
 			{
 				name = mc.fontRenderer.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
 			}
-			mc.fontRenderer.drawString(name, guiLeft + sizeX - 82 - mc.fontRenderer.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(name, guiLeft + sizeX - 82 - mc.fontRenderer.getStringWidth(name), guiTop + 48 + (i*20) + 4, getTextColor(), false);
 		}
 		
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 30, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 30, getTextColor(), false);
 		
 		fieldName.drawTextBox();
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 	}
 	
 	@Override
@@ -147,7 +150,7 @@ public class GuiNoParty extends GuiQuesting
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", 0);
 			tags.setString("Party", fieldName.getText());
-			PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1) // Join party
 		{
 			int n1 = button.id - 2; // Button index
@@ -160,8 +163,8 @@ public class GuiNoParty extends GuiQuesting
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", 3);
-					tags.setString("Party", invites.get(n3).name);
-					PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(invites.get(n3)));
+					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}
@@ -177,7 +180,7 @@ public class GuiNoParty extends GuiQuesting
         
         fieldName.textboxKeyTyped(character, keyCode);
         
-        btnCreate.enabled = PartyManager.GetPartyByName(fieldName.getText()) == null && fieldName.getText().length() >= 0;
+        btnCreate.enabled = fieldName.getText().length() >= 0;
     }
 	
     /**

@@ -3,7 +3,7 @@ package betterquesting.api.quests;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import betterquesting.api.database.IDataSync;
 import betterquesting.api.database.IJsonSaveLoad;
 import betterquesting.api.database.IRegStorage;
 import betterquesting.api.enums.EnumQuestState;
@@ -13,7 +13,7 @@ import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.api.utils.BigItemStack;
 import com.google.gson.JsonObject;
 
-public interface IQuestContainer extends IJsonSaveLoad<JsonObject>
+public interface IQuestContainer extends IJsonSaveLoad<JsonObject>, IDataSync
 {
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
@@ -45,7 +45,4 @@ public interface IQuestContainer extends IJsonSaveLoad<JsonObject>
 	public IRegStorage<IRewardBase> getRewards();
 	
 	public List<IQuestContainer> getPrerequisites();
-	
-	public void syncAll();
-	public void syncPlayer(EntityPlayerMP player);
 }

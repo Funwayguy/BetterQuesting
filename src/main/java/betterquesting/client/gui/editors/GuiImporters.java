@@ -6,10 +6,10 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.client.io.IQuestIO;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.importers.ImporterRegistry;
 
 public class GuiImporters extends GuiScreenThemed
@@ -33,9 +33,9 @@ public class GuiImporters extends GuiScreenThemed
 		scroll = 0;
 		cachedImporters = ImporterRegistry.INSTANCE.getImporters();
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(1, guiLeft - 4, height/2 - 10, 20, 20, "<");
+		GuiButtonThemed btn = new GuiButtonThemed(1, guiLeft - 4, height/2 - 10, 20, 20, "<", true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, guiLeft + sizeX - 16, height/2 - 10, 20, 20, ">");
+		btn = new GuiButtonThemed(2, guiLeft + sizeX - 16, height/2 - 10, 20, 20, ">", true);
 		this.buttonList.add(btn);
 		
 		UpdateScroll();

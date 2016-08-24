@@ -1,5 +1,6 @@
 package betterquesting.api.quests.rewards;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.IGuiEmbedded;
@@ -21,5 +22,5 @@ public interface IRewardBase extends IJsonSaveLoad<JsonObject>
 	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuestContainer quest);
 	
 	@SideOnly(Side.CLIENT)
-	public IGuiEmbedded getRewardEditor(int x, int y, int w, int h, IQuestContainer quest);
+	public GuiScreen getRewardEditor(GuiScreen parent, IQuestContainer quest);
 }

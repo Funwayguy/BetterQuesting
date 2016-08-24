@@ -1,6 +1,7 @@
 package betterquesting.api.quests.tasks;
 
 import java.util.UUID;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.IGuiEmbedded;
@@ -28,5 +29,5 @@ public interface ITaskBase extends IJsonSaveLoad<JsonObject>
 	public IGuiEmbedded getTaskGui(int x, int y, int w, int h, IQuestContainer quest);
 	
 	@SideOnly(Side.CLIENT)
-	public IGuiEmbedded getTaskEditor(int x, int y, int w, int h, IQuestContainer quest);
+	public GuiScreen getTaskEditor(GuiScreen parent, IQuestContainer quest);
 }

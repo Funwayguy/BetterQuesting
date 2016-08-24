@@ -13,11 +13,11 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -103,10 +103,10 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 			}
 		}
 
-		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt")); // JSON Editor
-		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item")); // Item Selector
-		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid")); // Fluid Editor
-		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity")); // Entity Selector
+		GuiButtonThemed editButton = new GuiButtonThemed(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt"), true); // JSON Editor
+		GuiButtonThemed itemButton = new GuiButtonThemed(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item"), true); // Item Selector
+		GuiButtonThemed fluidButton = new GuiButtonThemed(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid"), true); // Fluid Editor
+		GuiButtonThemed entityButton = new GuiButtonThemed(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity"), true); // Entity Selector
 		
 		//itemButton.displayString = I18n.format("betterquesting.btn.item");
 		//entityButton.displayString = I18n.format("betterquesting.btn.entity");

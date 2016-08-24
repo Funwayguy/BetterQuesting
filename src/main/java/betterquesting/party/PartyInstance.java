@@ -1,163 +1,271 @@
 package betterquesting.party;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
-import org.apache.logging.log4j.Level;
+import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.party.IParty;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeManager;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketSender;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class PartyInstance
+public class PartyInstance implements IParty
 {
-	public String name = "New Party";
-	ArrayList<PartyMember> members = new ArrayList<PartyMember>();
+	private String name = "New Party";
+	private HashMap<UUID, EnumPartyStatus> members = new HashMap<UUID, EnumPartyStatus>();
 	
-	public int lives = 1;
-	public boolean lifeShare = false;
-	public boolean lootShare = false;
+	private int lives = 3;
+	private boolean lifeShare = false;
+	private boolean lootShare = false;
 	
 	public PartyInstance()
 	{
-		lives = LifeManager.defLives;
 	}
 	
-	public void InvitePlayer(UUID uuid)
+	@Override
+	public String getName()
 	{
-		PartyMember mem = GetMemberData(uuid);
-		
-		if(mem == null)
-		{
-			mem = new PartyMember(uuid);
-			mem.privilege = 0;
-			members.add(mem);
-		}
+		return name;
 	}
 	
-	public ArrayList<PartyMember> GetMembers()
+	@Override
+	public void setName(String name)
 	{
-		return members;
+		this.name = name;
 	}
 	
-	/**
-	 * Adds a player to the given party. They must have been previously invited
-	 * @param player
-	 * @return true if the player was added successfully
-	 */
-	public boolean JoinParty(UUID uuid)
+	@Override
+	public boolean getShareLives()
 	{
-		PartyMember mem = GetMemberData(uuid);
-		
-		if(mem != null && mem.privilege == 0)
-		{
-			mem.privilege = 1;
-			return true;
-		} else if(members.size() <= 0)
-		{
-			mem = new PartyMember(uuid);
-			mem.privilege = 2;
-			members.add(mem);
-			return true;
-		} else
-		{
-			return false;
-		}
+		return lifeShare;
 	}
 	
-	/**
-	 * Purges this player from both the party members and invite list
-	 * @param player
-	 */
-	public void LeaveParty(UUID uuid)
+	@Override
+	public boolean getShareReward()
 	{
-		PartyMember mem = GetMemberData(uuid);
-		
-		if(mem == null)
+		return lootShare;
+	}
+	
+	@Override
+	public void setShareLives(boolean state)
+	{
+		lifeShare = state;
+	}
+	
+	@Override
+	public void setShareReward(boolean state)
+	{
+		lootShare = state;
+	}
+	
+	@Override
+	public void inviteUser(UUID uuid)
+	{
+		if(uuid == null || members.containsKey(uuid))
 		{
 			return;
 		}
 		
-		members.remove(mem);
+		if(members.size() == 0)
+		{
+			members.put(uuid, EnumPartyStatus.OWNER);
+		} else
+		{
+			members.put(uuid, EnumPartyStatus.INVITE);
+		}
 		
-		if(members.size() <= 0) // Cannot have a party without any members so we disband this party
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+	}
+	
+	@Override
+	public void kickUser(UUID uuid)
+	{
+		if(!members.containsKey(uuid))
 		{
-			PartyManager.Disband(name);
-		} else if(mem.privilege >= 2) // Try host migration
+			return;
+		}
+		
+		EnumPartyStatus old = members.get(uuid);
+		
+		members.remove(uuid);
+		
+		if(old == EnumPartyStatus.OWNER)
 		{
-			PartyMember nHost = null;
-			
-			for(PartyMember m : members)
+			hostMigrate();
+		}
+		
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+	}
+	
+	@Override
+	public void setStatus(UUID uuid, EnumPartyStatus priv)
+	{
+		if(!members.containsKey(uuid))
+		{
+			return;
+		}
+		
+		EnumPartyStatus old = members.get(uuid);
+		
+		if(old == priv)
+		{
+			return;
+		}
+		
+		members.put(uuid, priv);
+		
+		if(priv == EnumPartyStatus.OWNER)
+		{
+			for(UUID mem : getMembers())
 			{
-				if(m.privilege == 2) // There's another host?
+				if(mem != uuid && members.get(mem) == EnumPartyStatus.OWNER)
 				{
-					return;
-				} else if(m.privilege == 1 && nHost != null) // Only members that have previously accepted their invites can be hosts
+					// Removes previous owner
+					members.put(mem, EnumPartyStatus.ADMIN);
+					break;
+				}
+			}
+		} else if(old == EnumPartyStatus.OWNER)
+		{
+			UUID migrate = null;
+			
+			// Find new owner
+			for(UUID mem : getMembers())
+			{
+				if(mem == uuid)
 				{
-					nHost = m; // We don't break in case there is another host
+					continue;
+				} else if(members.get(mem) == EnumPartyStatus.ADMIN)
+				{
+					migrate = mem;
+					break;
+				} else if(migrate == null)
+				{
+					migrate = mem;
 				}
 			}
 			
-			if(nHost == null)
+			// No other valid owners found
+			if(migrate == null)
 			{
-				PartyManager.Disband(name);
+				members.put(uuid, old);
+				return;
 			} else
 			{
-				nHost.privilege = 2;
+				members.put(migrate, EnumPartyStatus.OWNER);
 			}
 		}
-	}
-	
-	public boolean isHost(UUID uuid)
-	{
-		PartyMember mem = GetMemberData(uuid);
 		
-		return mem != null && mem.privilege >= 2;
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
-	/**
-	 * @param uuid
-	 * @return Party membership data or null if player is not a member of this party
-	 */
-	public PartyMember GetMemberData(UUID uuid)
+	@Override
+	public EnumPartyStatus getStatus(UUID uuid)
 	{
-		for(PartyMember mem : members)
+		return members.get(uuid);
+	}
+	
+	@Override
+	public List<UUID> getMembers()
+	{
+		return new ArrayList<UUID>(members.keySet());
+	}
+	
+	private void hostMigrate()
+	{
+		List<UUID> tmp = getMembers();
+		
+		// Pre check for existing owners
+		for(UUID uuid : tmp)
 		{
-			if(mem.userID.equals(uuid))
+			if(members.get(uuid) == EnumPartyStatus.OWNER)
 			{
-				return mem;
+				return;
 			}
 		}
 		
-		return null;
+		UUID migrate = null;
+		
+		for(UUID mem : getMembers())
+		{
+			if(members.get(mem) == EnumPartyStatus.ADMIN)
+			{
+				migrate = mem;
+				break;
+			} else if(migrate == null)
+			{
+				migrate = mem;
+			}
+		}
+		
+		if(migrate != null)
+		{
+			members.put(migrate, EnumPartyStatus.OWNER);
+		}
 	}
 	
-	public void writeToJson(JsonObject jObj)
+	@Override
+	public PreparedPayload getSyncPacket()
 	{
-		jObj.addProperty("name", name);
-		jObj.addProperty("lifeShare", lifeShare);
-		jObj.addProperty("lootShare", lootShare);
-		jObj.addProperty("lives", lives);
+		NBTTagCompound tags = new NBTTagCompound();
+		JsonObject base = new JsonObject();
+		base.add("party", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		return new PreparedPayload(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
+	}
+	
+	@Override
+	public void readPacket(NBTTagCompound payload)
+	{
+		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		
+		readFromJson(JsonHelper.GetObject(base, "party"), EnumSaveType.CONFIG);
+	}
+	
+	@Override
+	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	{
+		json.addProperty("name", name);
+		json.addProperty("lifeShare", lifeShare);
+		json.addProperty("lootShare", lootShare);
+		json.addProperty("lives", lives);
 		
 		JsonArray memJson = new JsonArray();
-		
-		for(PartyMember mem : members)
+		for(Entry<UUID,EnumPartyStatus> mem : members.entrySet())
 		{
-			memJson.add(mem.getJson());
+			JsonObject jm = new JsonObject();
+			jm.addProperty("uuid", mem.getKey().toString());
+			jm.addProperty("status", mem.getValue().toString());
+			memJson.add(jm);
 		}
+		json.add("members", memJson);
 		
-		jObj.add("members", memJson);
+		return json;
 	}
 	
-	public void readFromJson(JsonObject jObj)
+	@Override
+	public void readFromJson(JsonObject jObj, EnumSaveType saveType)
 	{
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return;
+		}
+		
 		name = JsonHelper.GetString(jObj, "name", "New Party");
 		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
 		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
 		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();
 		
-		members = new ArrayList<PartyMember>();
+		members.clear();;
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -165,52 +273,31 @@ public class PartyInstance
 				continue;
 			}
 			
+			JsonObject jMem = entry.getAsJsonObject();
+			UUID uuid = null;
+			EnumPartyStatus priv = EnumPartyStatus.INVITE;
+			
 			try
 			{
-				PartyMember pMem = new PartyMember(UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "userID", "")));
-				pMem.readJson(entry.getAsJsonObject());
-				members.add(pMem);
+				uuid = UUID.fromString(JsonHelper.GetString(jMem, "uuid", ""));
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.ERROR, "Failed to load party member for party '" + this.name + "'");
+				uuid = null;
 			}
-		}
-	}
-	
-	public static class PartyMember
-	{
-		public final UUID userID;
-		/**
-		 * Ch-ch-check your privilege!</br>
-		 * 0 = invited, 1 = member, 2 = host</br>
-		 * Operators may not be able to forcibly join parties however they can kick any user without the hosts consent!
-		 * This power is intentionally reserved for situations such as forcing a host migration when the user has been offline for an extended period of time. 
-		 */
-		private int privilege = 0; // Ch-ch-check your privilege!
-		
-		public PartyMember(UUID uuid)
-		{
-			this.userID = uuid;
-		}
-		/**
-		 * 0 = invited, 1 = member, 2 = host</br>
-		 */
-		public int GetPrivilege()
-		{
-			return privilege;
-		}
-		
-		public JsonObject getJson()
-		{
-			JsonObject json = new JsonObject();
-			json.addProperty("userID", userID.toString());
-			json.addProperty("privilege", privilege);
-			return json;
-		}
-		
-		public void readJson(JsonObject json)
-		{
-			privilege = JsonHelper.GetNumber(json, "privilege", 0).intValue();
+			
+			try
+			{
+				priv = EnumPartyStatus.valueOf(JsonHelper.GetString(jMem, "status", EnumPartyStatus.INVITE.toString()));
+				priv = priv != null? priv : EnumPartyStatus.INVITE;
+			} catch(Exception e)
+			{
+				priv = EnumPartyStatus.INVITE;
+			}
+			
+			if(uuid != null)
+			{
+				members.put(uuid, priv);
+			}
 		}
 	}
 }

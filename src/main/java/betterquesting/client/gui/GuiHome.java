@@ -5,14 +5,13 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
+import betterquesting.api.party.IParty;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
-import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
 
 public class GuiHome extends GuiScreenThemed
 {
@@ -32,13 +31,13 @@ public class GuiHome extends GuiScreenThemed
 		
 		int bw = (sizeX - 32)/4;
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.exit"));
+		GuiButtonThemed btn = new GuiButtonThemed(0, guiLeft + 16, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.exit"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.quests"));
+		btn = new GuiButtonThemed(1, guiLeft + 16 + bw, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.quests"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.party"));
+		btn = new GuiButtonThemed(2, guiLeft + 16 + bw*2, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.party"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.theme"));
+		btn = new GuiButtonThemed(3, guiLeft + 16 + bw*3, guiTop + sizeY - 48, bw, 32, I18n.format("betterquesting.home.theme"), true);
 		this.buttonList.add(btn);
 	}
 	
@@ -78,7 +77,7 @@ public class GuiHome extends GuiScreenThemed
 			}
 		} else if(button.id == 2)
 		{
-			PartyInstance party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
+			IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
 			
 			if(party != null)
 			{

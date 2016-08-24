@@ -1,19 +1,22 @@
 package betterquesting.api.client.gui.quest;
 
 import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.quests.IQuestLineContainer;
-import betterquesting.api.quests.IQuestLineEntry;
 
 public interface IGuiQuestLine extends IGuiEmbedded
 {
 	public IToolboxTool getActiveTool();
 	public void setActiveTool(IToolboxTool tool);
 	
-	public IQuestLineContainer getQuestLine();
-	public IQuestLineEntry getEntryAt(int x, int y);
+	// Can be used to modify button positions without making permanent changes
+	public QuestLineButtonTree getQuestLine();
+	public void setQuestLine(QuestLineButtonTree line);
 	
-	public float getZoom();
+	// These are mostly used in copySettings()
+	public int getZoom();
 	public int getScrollX();
 	public int getScrollY();
+	
+	public void copySettings(IGuiQuestLine gui);
 }

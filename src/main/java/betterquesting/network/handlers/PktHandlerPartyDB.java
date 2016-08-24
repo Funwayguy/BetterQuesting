@@ -5,10 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
-import com.google.gson.JsonObject;
 
 public class PktHandlerPartyDB implements IPacketHandler
 {
@@ -26,17 +24,12 @@ public class PktHandlerPartyDB implements IPacketHandler
 			return;
 		}
 		
-		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		PartyManager.writeToJson(json);
-		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags, sender);
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), sender);
 	}
 	
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Parties"), new JsonObject());
-		PartyManager.readFromJson(json);
+		PartyManager.INSTANCE.readPacket(data);
 	}
 }

@@ -1,25 +1,21 @@
 package betterquesting.client.gui.misc;
 
 import java.util.ArrayList;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.Tessellator;
+import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.premade.GuiBQScrolling;
-import betterquesting.client.gui.GuiQuesting;
 
-// [!] UNTESTED [!]
 public class GuiScrollingButtons extends GuiBQScrolling
 {
-	GuiQuesting screen;
-	ArrayList<GuiButtonQuesting> buttons = new ArrayList<GuiButtonQuesting>();
+	ArrayList<GuiButton> buttons = new ArrayList<GuiButton>();
 	
-	public GuiScrollingButtons(GuiQuesting screen, int width, int height, int top, int bottom, int left)
+	public GuiScrollingButtons(int x, int y, int w, int h)
 	{
-		super(screen.mc, width, height, top, bottom, left, 20);
-		this.screen = screen;
+		super(x, y, w, h, 20);
 	}
 	
-	public void AddButton(GuiButtonQuesting btn)
+	public void AddButton(GuiButton btn)
 	{
 		if(btn != null)
 		{
@@ -43,7 +39,6 @@ public class GuiScrollingButtons extends GuiBQScrolling
 	@Override
 	protected void elementClicked(int index, boolean doubleClick)
 	{
-		screen.actionPerformed(buttons.get(index)); // Act as if the button was part of the screen
 	}
 	
 	@Override
@@ -62,8 +57,6 @@ public class GuiScrollingButtons extends GuiBQScrolling
 	{
 		GL11.glPushMatrix();
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-        int mx = Mouse.getEventX() * screen.width / screen.mc.displayWidth;
-        int my = screen.height - Mouse.getEventY() * screen.height / screen.mc.displayHeight - 1;
         
         int t = 0;
 		int b = 36;
@@ -78,12 +71,12 @@ public class GuiScrollingButtons extends GuiBQScrolling
         
 		if(h >= 10)
 		{
-	        GuiButtonQuesting btn = buttons.get(index);
+	        GuiButton btn = buttons.get(index);
 	        btn.xPosition = left;
 	        btn.yPosition = posY;
 	        btn.width = listWidth - 8;
 	        btn.height = h;
-	        btn.drawButton(screen.mc, mx, my);
+	        btn.drawButton(client, mouseX, mouseY);
 		}
 		GL11.glPopMatrix();
 	}

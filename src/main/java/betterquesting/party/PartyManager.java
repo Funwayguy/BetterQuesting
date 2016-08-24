@@ -1,310 +1,196 @@
 package betterquesting.party;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import org.apache.logging.log4j.Level;
+import betterquesting.api.database.IPartyDatabase;
+import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.party.IParty;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketSender;
-import betterquesting.party.PartyInstance.PartyMember;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.mojang.authlib.GameProfile;
 
-public class PartyManager
+public final class PartyManager implements IPartyDatabase
 {
-	public static boolean updateUI = true;
-	static HashMap<String, PartyInstance> partyList = new HashMap<String, PartyInstance>();
-	static HashMap<UUID, String> nameCache = new HashMap<UUID, String>(); // Used for display purposes only
+	public static final PartyManager INSTANCE = new PartyManager();
 	
-	/**
-	 * Creates a new party with the given player as host and adds it to the list of active parties
-	 * @param player
-	 * @return
-	 */
-	public static boolean CreateParty(EntityPlayer player, String name)
+	private final ConcurrentHashMap<Integer, IParty> partyList = new ConcurrentHashMap<Integer, IParty>();
+	
+	private PartyManager()
 	{
-		nameCache.put(player.getUniqueID(), player.getCommandSenderName());
-		int pl = LifeManager.getLives(player);
-		boolean flag = CreateParty(player.getUniqueID(), name);
-		
-		if(flag)
-		{
-			PartyInstance p = GetParty(player.getUniqueID());
-			p.lives = Math.min(pl, p.lives);
-		}
-		
-		return flag;
 	}
 	
-	/**
-	 * Creates a new party with the given player as host and adds it to the list of active parties
-	 * @param player
-	 * @return
-	 */
-	public static boolean CreateParty(UUID host, String name)
+	@Override
+	public IParty getUserParty(UUID uuid)
 	{
-		if(partyList.containsKey(name) || GetParty(host) != null)
+		for(IParty p : getAllValues())
 		{
-			return false;
-		}
-		
-		PartyInstance p = new PartyInstance();
-		p.name = name;
-		
-		if(!p.JoinParty(host))
-		{
-			return false;
-		}
-		
-		partyList.put(name, p);
-		return true;
-	}
-	
-	/**
-	 * Deletes the party with the given name
-	 * @param name
-	 */
-	public static void Disband(String name)
-	{
-		partyList.remove(name);
-	}
-	
-	public static PartyInstance GetPartyByName(String name)
-	{
-		return partyList.get(name);
-	}
-	
-	/**
-	 * Updates the party name mapping
-	 */
-	public static void ApplyNameChange(PartyInstance party)
-	{
-		PartyInstance tmp = partyList.get(party.name);
-		if(tmp != null && tmp != party)
-		{
-			BetterQuesting.logger.log(Level.WARN, "Another party has the name '" + party.name + "'! Adjusting...");
-			int i = 0;
-			while(partyList.containsKey(party.name + " #" + i))
-			{
-				i++;
-			}
-			party.name = party.name + " #" + i;
-		}
-		
-		partyList.remove(party);
-		partyList.put(party.name, party);
-	}
-	
-	/**
-	 * Returns a list of party invites this player has
-	 * @param player
-	 * @return
-	 */
-	public static ArrayList<PartyInstance> getInvites(UUID uuid)
-	{
-		ArrayList<PartyInstance> list = new ArrayList<PartyInstance>();
-		
-		for(PartyInstance party : partyList.values())
-		{
-			PartyMember mem = party.GetMemberData(uuid);
+			EnumPartyStatus status = p.getStatus(uuid);
 			
-			if(mem != null && mem.GetPrivilege() == 0)
+			if(status != null && status != EnumPartyStatus.INVITE)
 			{
-				list.add(party);
-			}
-		}
-		
-		return list;
-	}
-	
-	public static PartyInstance GetParty(UUID uuid)
-	{
-		for(PartyInstance party : partyList.values())
-		{
-			for(PartyMember mem : party.members)
-			{
-				if(mem.userID.equals(uuid) && mem.GetPrivilege() > 0)
-				{
-					return party;
-				}
+				return p;
 			}
 		}
 		
 		return null;
 	}
 	
-	/**
-	 * Scans through all players and updates the name listing
-	 */
-	public static void UpdateNameCache(boolean doUpdate)
+	@Override
+	public List<Integer> getPartyInvites(UUID uuid)
 	{
-		boolean changed = false;
+		ArrayList<Integer> invites = new ArrayList<Integer>();
 		
-		MinecraftServer server = MinecraftServer.getServer();
-		
-		if(server != null && server.isServerRunning())
+		for(Entry<Integer,IParty> entry : partyList.entrySet())
 		{
-			// Using the server's user cache for offline players
-			for(String name : server.func_152358_ax().func_152654_a())
+			if(entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
 			{
-				GameProfile prof = server.func_152358_ax().func_152655_a(name);
-				
-				if(prof != null)
-				{
-					if(!name.equalsIgnoreCase(nameCache.get(prof.getId())))
-					{
-						nameCache.put(prof.getId(), name);
-						changed = true;
-					}
-				}
+				invites.add(entry.getKey());
 			}
 		}
 		
-		if(doUpdate && changed)
-		{
-			UpdateClients();
-		}
+		return invites;
 	}
 	
-	/**
-	 * Gets players user name from the server or cached copy
-	 */
-	public static String GetUsername(UUID uuid)
+	@Override
+	public int nextID()
 	{
-		String name = null;
+		int i = 0;
 		
-		if(nameCache.containsKey(uuid))
+		while(partyList.containsKey(i))
 		{
-			name = nameCache.get(uuid);
+			i++;
 		}
 		
-		MinecraftServer server = MinecraftServer.getServer();
-		
-		if(server != null && server.isServerRunning())
+		return i;
+	}
+	
+	@Override
+	public boolean add(IParty party, int id)
+	{
+		if(party == null || id < 0 || partyList.containsKey(id) || partyList.containsValue(party))
 		{
-			GameProfile prof = server.func_152358_ax().func_152652_a(uuid);
-			
-			if(prof != null && prof.getName() != null)
+			return false;
+		}
+		
+		partyList.put(id, party);
+		return true;
+	}
+	
+	@Override
+	public boolean remove(int id)
+	{
+		return partyList.remove(id) != null;
+	}
+	
+	@Override
+	public boolean remove(IParty party)
+	{
+		return remove(getKey(party));
+	}
+	
+	@Override
+	public IParty getValue(int id)
+	{
+		return partyList.get(id);
+	}
+	
+	@Override
+	public int getKey(IParty party)
+	{
+		for(Entry<Integer,IParty> entry : partyList.entrySet())
+		{
+			if(entry.getValue() == party)
 			{
-				boolean update = !prof.getName().equalsIgnoreCase(name); // Casing isn't that important
-				
-				name = prof.getName();
-				
-				if(update)
-				{
-					nameCache.put(uuid, name);
-					UpdateClients(); // Update all client's with the new UUID name
-				}
+				return entry.getKey();
 			}
 		}
 		
-		return name != null? name : uuid.toString();
+		return -1;
 	}
 	
-	public static void ManualUserCache(EntityPlayer player)
+	@Override
+	public int size()
 	{
-		nameCache.put(player.getUniqueID(), player.getCommandSenderName());
+		return partyList.size();
 	}
 	
-	public static void SendDatabase(EntityPlayerMP player)
+	@Override
+	public void reset()
+	{
+		partyList.clear();
+	}
+	
+	@Override
+	public List<IParty> getAllValues()
+	{
+		return new ArrayList<IParty>(partyList.values());
+	}
+	
+	@Override
+	public List<Integer> getAllKeys()
+	{
+		return new ArrayList<Integer>(partyList.keySet());
+	}
+	
+	@Override
+	public PreparedPayload getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json = new JsonObject();
-		writeToJson(json);
-		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToPlayer(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags, player);
+		json.add("parties", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		return new PreparedPayload(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
-	public static void UpdateClients()
+	@Override
+	public void readPacket(NBTTagCompound payload)
 	{
-		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		writeToJson(json);
-		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToAll(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
+		JsonObject json = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		
+		readFromJson(JsonHelper.GetArray(json, "parties"), EnumSaveType.CONFIG);
 	}
 	
-	public static void writeToJson(JsonObject jObj)
+	@Override
+	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
 	{
-		JsonArray ptyJson = new JsonArray();
-		
-		for(PartyInstance party : partyList.values())
+		if(saveType != EnumSaveType.CONFIG)
 		{
-			if(party != null)
-			{
-				JsonObject partyJson = new JsonObject();
-				party.writeToJson(partyJson);
-				ptyJson.add(partyJson);
-			}
+			return json;
 		}
 		
-		jObj.add("partyList", ptyJson);
-		
-		JsonObject cache = new JsonObject();
-		
-		for(Entry<UUID,String> entry : nameCache.entrySet())
+		for(Entry<Integer,IParty> entry : partyList.entrySet())
 		{
-			cache.addProperty(entry.getKey().toString(), entry.getValue());
+			JsonObject jp = entry.getValue().writeToJson(new JsonObject(), saveType);
+			jp.addProperty("partyID", entry.getKey());
+			json.add(jp);
 		}
 		
-		jObj.add("nameCache", cache);
+		return json;
 	}
 	
-	public static void readFromJson(JsonObject json)
+	@Override
+	public void readFromJson(JsonArray json, EnumSaveType saveType)
 	{
-		if(json == null)
+		if(saveType != EnumSaveType.CONFIG)
 		{
-			json = new JsonObject();
+			return;
 		}
 		
-		updateUI = true;
-		partyList = new HashMap<String, PartyInstance>();
-		
-		for(JsonElement entry : JsonHelper.GetArray(json, "partyList"))
+		for(JsonElement element : json)
 		{
-			if(entry == null || !entry.isJsonObject())
+			if(element == null || !element.isJsonObject())
 			{
 				continue;
 			}
-			
-			PartyInstance party = new PartyInstance();
-			party.readFromJson(entry.getAsJsonObject());
-			partyList.put(party.name, party);
-		}
-		
-		nameCache = new HashMap<UUID, String>();
-		
-		for(Entry<String,JsonElement> entry : JsonHelper.GetObject(json, "nameCache").entrySet())
-		{
-			if(entry == null || entry.getValue() == null || !(entry.getValue() instanceof JsonPrimitive))
-			{
-				continue;
-			}
-			
-			UUID uuid;
-			
-			try
-			{
-				uuid = UUID.fromString(entry.getKey());
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "Unable to read UUID from name cache", e);
-				continue;
-			}
-			
-			nameCache.put(uuid, entry.getValue().getAsString());
 		}
 	}
 }

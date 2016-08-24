@@ -3,21 +3,18 @@ package betterquesting.network.handlers;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.properties.QuestProperties;
 import betterquesting.api.quests.tasks.ITaskBase;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
-import com.google.gson.JsonObject;
+import betterquesting.quests.QuestInstance;
 
 public class PktHandlerQuestEdit implements IPacketHandler
 {
@@ -35,48 +32,32 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			return;
 		}
 		
-		if(!MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile()))
-		{
-			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getUniqueID() + ") tried to edit quests without OP permissions!");
-			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
-			return; // Player is not operator. Do nothing
-		}
+		boolean isOp = MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile());
 		
-		int action = !data.hasKey("action")? -1 : data.getInteger("action");
-		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
-		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(qID);
-		//JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
-		
-		if(action < 0)
+		if(!isOp)
 		{
-			BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to perform invalid quest edit action: " + action);
 			return;
 		}
 		
-		if(action == 0) // Update quest data
+		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
+		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
+		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(qID);
+		
+		EnumPacketAction action = null;
+		
+		if(aID < 0 || aID >= EnumPacketAction.values().length)
 		{
-			if(quest == null || qID < 0)
-			{
-				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to edit non-existent quest with ID:" + qID);
-				return;
-			}
-			
-			int ps = quest.getPrerequisites().size();
-			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " edited quest " + quest.getUnlocalisedName());
-			JsonObject json1 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Data"), new JsonObject());
-			quest.readFromJson(json1, EnumSaveType.CONFIG);
-			JsonObject json2 = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Progress"), new JsonObject());
-			quest.readFromJson(json2, EnumSaveType.PROGRESS);
-			
-			if(ps != quest.getPrerequisites().size())
-			{
-				QuestDatabase.INSTANCE.syncAll();
-			} else
-			{
-				quest.syncAll();
-			}
-		} else if(action == 1) // Delete quest
+			return;
+		}
+		
+		action = EnumPacketAction.values()[aID];
+		
+		if(action == EnumPacketAction.EDIT && quest != null)
+		{
+			quest.readPacket(data);
+			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			return;
+		} else if(action == EnumPacketAction.REMOVE)
 		{
 			if(quest == null || qID < 0)
 			{
@@ -86,48 +67,41 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.getUnlocalisedName());
 			QuestDatabase.INSTANCE.remove(qID);
-			QuestDatabase.INSTANCE.syncAll();
-		} else if(action == 2) // Full edit
+			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+			return;
+		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
 		{
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " made a database edit");
-			JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(base, "database"), EnumSaveType.CONFIG);
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(base, "progress"), EnumSaveType.PROGRESS);
-			QuestDatabase.INSTANCE.syncAll();
-		} else if(action == 3) // Force Complete
-		{
-			if(quest == null || qID < 0)
+			if(data.getBoolean("state"))
 			{
-				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to force complete non-existent quest with ID:" + qID);
-				return;
-			}
-			
-			quest.setComplete(sender.getUniqueID(), 0);
-			
-			int done = 0;
-			
-			if(!quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
-			{
-				for(ITaskBase task : quest.getTasks().getAllValues())
+				quest.setComplete(sender.getUniqueID(), 0);
+				
+				int done = 0;
+				
+				if(!quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
 				{
-					task.setComplete(sender.getUniqueID());
-					done += 1;
-					
-					if(quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+					for(ITaskBase task : quest.getTasks().getAllValues())
 					{
-						break; // Only complete enough quests to claim the reward
+						task.setComplete(sender.getUniqueID());
+						done += 1;
+						
+						if(quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+						{
+							break; // Only complete enough quests to claim the reward
+						}
 					}
 				}
-			}
-		} else if(action == 4) // Force Reset
-		{
-			if(quest == null || qID < 0)
+			} else
 			{
-				BetterQuesting.logger.log(Level.ERROR, sender.getCommandSenderName() + " tried to force reset non-existent quest with ID:" + qID);
-				return;
+				quest.resetAll(true);
 			}
 			
-			quest.resetAll(true);
+			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			return;
+		} else if(action == EnumPacketAction.ADD)
+		{
+			QuestDatabase.INSTANCE.add(new QuestInstance(), QuestDatabase.INSTANCE.nextID());
+			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+			return;
 		}
 	}
 

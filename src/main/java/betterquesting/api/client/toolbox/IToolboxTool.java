@@ -14,6 +14,8 @@ public interface IToolboxTool
 	public void onKeyPressed(char c, int key);
 	
 	public boolean allowTooltips();
-	public boolean allowDragging();
+	public boolean allowDragging(int click);
 	public boolean allowScrolling();
+	
+	public boolean clampScrolling();
 }

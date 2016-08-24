@@ -10,13 +10,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonJson;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.controls.GuiNumberField;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonJson;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
@@ -67,9 +66,9 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
-		this.buttonList.add(new GuiButtonQuesting(2, this.width/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
-		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + this.sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
+		this.buttonList.add(new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new"), true));
+		this.buttonList.add(new GuiButtonThemed(2, this.width/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<", true));
+		this.buttonList.add(new GuiButtonThemed(3, this.guiLeft + this.sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">", true));
 		
         Keyboard.enableRepeatEvents(true);
         
@@ -88,7 +87,7 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 					txtBox.setText("" + jPrim.getAsNumber());
 				} else if(jPrim.isBoolean())
 				{
-					GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, jPrim);
+					GuiButtonJson<JsonPrimitive> button = new GuiButtonJson<JsonPrimitive>(buttonList.size(), -9999, -9999, 128, 20, jPrim, true);
 					this.buttonList.add(button);
 					editables.put(entry.getKey(), new JsonControlSet(this.buttonList, button, false, allowEdit));
 					continue;
@@ -102,7 +101,7 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 				editables.put(entry.getKey(), new JsonControlSet(this.buttonList, txtBox, false, allowEdit));
 			} else
 			{
-				GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, entry.getValue());
+				GuiButtonJson<JsonElement> button = new GuiButtonJson<JsonElement>(buttonList.size(), -9999, -9999, 128, 20, entry.getValue(), true);
 				this.buttonList.add(button);
 				editables.put(entry.getKey(), new JsonControlSet(this.buttonList, button, false, allowEdit));
 			}
@@ -119,8 +118,8 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-        int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
-        int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
+        //int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
+        //int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
         
 		if(button.id == 0)
 		{
@@ -165,15 +164,16 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
 				{
-					GuiButtonJson jsonButton = (GuiButtonJson)button;
-					JsonElement element = jsonButton.json;
+					@SuppressWarnings("unchecked")
+					GuiButtonJson<JsonElement> jsonButton = (GuiButtonJson<JsonElement>)button;
+					JsonElement element = jsonButton.getJson();
 					
-					GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
+					/*GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
 					
 					if(jGui != null)
 					{
 						this.mc.displayGuiScreen(jGui);
-					} else if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
+					} else */if(jsonButton.isItem() || jsonButton.isEntity() || jsonButton.isFluid())
 					{
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())
@@ -189,7 +189,7 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 							JsonPrimitive jBool = new JsonPrimitive(!element.getAsBoolean());
 							settings.add(key, jBool);
 							jsonButton.displayString = "" + jBool.getAsBoolean();
-							jsonButton.json = jBool;
+							jsonButton.setStored(jBool);
 						}
 					}
 					break;

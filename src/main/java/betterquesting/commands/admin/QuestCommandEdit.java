@@ -4,7 +4,8 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.network.PacketSender;
+import betterquesting.quests.QuestSettings;
 
 public class QuestCommandEdit extends QuestCommandBase
 {
@@ -17,8 +18,8 @@ public class QuestCommandEdit extends QuestCommandBase
 	@Override
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
-		QuestDatabase.editMode = !QuestDatabase.editMode;
-		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestDatabase.editMode? "options.on" : "options.off")));
-		QuestDatabase.UpdateClients();
+		QuestSettings.INSTANCE.setEditMode(!QuestSettings.INSTANCE.isEditMode());
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestSettings.INSTANCE.isEditMode()? "options.on" : "options.off")));
+		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

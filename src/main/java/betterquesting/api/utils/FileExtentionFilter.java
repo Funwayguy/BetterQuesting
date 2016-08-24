@@ -1,4 +1,4 @@
-package betterquesting.client.gui.editors.explorer;
+package betterquesting.api.utils;
 
 import java.io.File;
 import java.io.FileFilter;

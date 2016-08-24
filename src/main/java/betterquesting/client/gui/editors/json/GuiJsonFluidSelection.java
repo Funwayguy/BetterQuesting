@@ -19,13 +19,13 @@ import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
+import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.controls.GuiNumberField;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -90,9 +90,9 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 		columns = (sizeX/2 - 32)/18;
 		rows = (sizeY - (48 + 48))/18;
 		
-		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<");
+		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
 		this.buttonList.add(leftBtn);
-		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">");
+		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">", true);
 		this.buttonList.add(rightBtn);
 	}
 	
@@ -189,7 +189,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
 		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, getTextColor(), false);
 		
-		this.searchBox.drawTextBox();
+		this.searchBox.drawTextBox(mx, my, partialTick);
 		this.numberBox.drawTextBox();
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
@@ -245,7 +245,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 			ArrayList<String> tTip = new ArrayList<String>();
 			tTip.add(ttStack.getLocalizedName());
 			tTip.add(EnumChatFormatting.GRAY + "" + ttStack.amount + " mB");
-			this.DrawTooltip(tTip, mx, my);
+			this.drawTooltip(tTip, mx, my);
 		}
 	}
 	

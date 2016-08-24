@@ -17,7 +17,7 @@ import betterquesting.api.utils.RenderUtils;
  */
 public abstract class GuiBQScrolling
 {
-	private final Minecraft client;
+	protected final Minecraft client;
 	protected final int listWidth;
 	protected final int listHeight;
 	protected final int top;

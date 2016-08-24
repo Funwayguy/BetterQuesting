@@ -51,6 +51,12 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	}
 	
 	@Override
+	public boolean remove(ITaskBase task)
+	{
+		return remove(getKey(task));
+	}
+	
+	@Override
 	public ITaskBase getValue(int id)
 	{
 		return database.get(id);
@@ -88,6 +94,12 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	public int size()
 	{
 		return database.size();
+	}
+	
+	@Override
+	public void reset()
+	{
+		database.clear();
 	}
 
 	@Override
