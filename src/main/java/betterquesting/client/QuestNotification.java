@@ -91,7 +91,7 @@ public class QuestNotification
 		txtW = mc.fontRendererObj.getStringWidth(tmp);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
-		GlStateManager.disableBlend();
+		//GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 	}
 	
