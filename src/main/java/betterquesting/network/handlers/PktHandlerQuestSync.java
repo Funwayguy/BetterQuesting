@@ -37,7 +37,6 @@ public class PktHandlerQuestSync implements IPacketHandler
 		}
 		
 		quest.readPacket(data);
-		
 		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
 	}
 }

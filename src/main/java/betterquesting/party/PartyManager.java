@@ -185,11 +185,29 @@ public final class PartyManager implements IPartyDatabase
 			return;
 		}
 		
+		partyList.clear();
 		for(JsonElement element : json)
 		{
 			if(element == null || !element.isJsonObject())
 			{
 				continue;
+			}
+			
+			JsonObject jp = element.getAsJsonObject();
+			
+			int partyID = JsonHelper.GetNumber(jp, "partyID", -1).intValue();
+			
+			if(partyID < 0)
+			{
+				continue;
+			}
+			
+			IParty party = new PartyInstance();
+			party.readFromJson(jp, EnumSaveType.CONFIG);
+			
+			if(party.getMembers().size() > 0)
+			{
+				partyList.put(partyID, party);
 			}
 		}
 	}

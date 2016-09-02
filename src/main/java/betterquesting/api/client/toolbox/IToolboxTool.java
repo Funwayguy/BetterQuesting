@@ -1,10 +1,10 @@
 package betterquesting.api.client.toolbox;
 
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
 
 public interface IToolboxTool
 {
-	public void initTool(IQuestLineContainer questLine);
+	public void initTool(IGuiQuestLine gui);
 	public void disableTool();
 	
 	public void drawTool(int mx, int my, float partialTick);
@@ -14,8 +14,8 @@ public interface IToolboxTool
 	public void onKeyPressed(char c, int key);
 	
 	public boolean allowTooltips();
-	public boolean allowDragging(int click);
-	public boolean allowScrolling();
+	public boolean allowScrolling(int click);
+	public boolean allowZoom();
 	
 	public boolean clampScrolling();
 }

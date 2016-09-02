@@ -9,7 +9,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.IFileCallback;
 import betterquesting.api.client.gui.IVolatileScreen;
@@ -259,28 +258,28 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
 		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+		boolean refresh = false;
+		
+		if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, selected.size() - maxRowsL));
-    		RefreshColumns();
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, selected.size() - maxRowsL));
+    		refresh = true;
         }
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, contents.length - maxRowsR));
-        	RefreshColumns();
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, contents.length - maxRowsR));
+        	refresh = true;
         }
-    }
+        
+        if(refresh)
+        {
+        	this.RefreshColumns();
+        }
+	}
 }

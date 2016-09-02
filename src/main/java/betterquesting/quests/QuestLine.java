@@ -65,7 +65,7 @@ public class QuestLine implements IQuestLineContainer
 			int i1 = entry.getValue().getPosX();
 			int j1 = entry.getValue().getPosY();
 			int i2 = i1 + entry.getValue().getSize();
-			int j2 = i1 + entry.getValue().getSize();
+			int j2 = j1 + entry.getValue().getSize();
 			
 			if(x >= i1 && x < i2 && y >= j1 && y < j2)
 			{
@@ -161,7 +161,7 @@ public class QuestLine implements IQuestLineContainer
 		JsonObject base = new JsonObject();
 		base.add("line", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		tags.setInteger("questID", QuestLineDatabase.INSTANCE.getKey(this));
+		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(this));
 		
 		return new PreparedPayload(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
 	}

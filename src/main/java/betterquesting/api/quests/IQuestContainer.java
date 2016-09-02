@@ -12,11 +12,16 @@ import betterquesting.api.quests.rewards.IRewardBase;
 import betterquesting.api.quests.tasks.ITaskBase;
 import betterquesting.api.utils.BigItemStack;
 import com.google.gson.JsonObject;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public interface IQuestContainer extends IJsonSaveLoad<JsonObject>, IDataSync
 {
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
+	
+	@SideOnly(Side.CLIENT)
+	public List<String> getTooltip(EntityPlayer player);
 	
 	public BigItemStack getItemIcon();
 	

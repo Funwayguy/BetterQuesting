@@ -5,12 +5,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import com.google.gson.JsonObject;
 import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.properties.QuestProperties;
 import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -99,8 +103,19 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.ADD)
 		{
-			QuestDatabase.INSTANCE.add(new QuestInstance(), QuestDatabase.INSTANCE.nextID());
-			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+			IQuestContainer nq = new QuestInstance();
+			int nID = QuestDatabase.INSTANCE.nextID();
+			
+			if(data.hasKey("data") && data.hasKey("questID"))
+			{
+				nID = data.getInteger("questID");
+				JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
+				
+				nq.readFromJson(JsonHelper.GetObject(base, "config"), EnumSaveType.CONFIG);
+			}
+			
+			QuestDatabase.INSTANCE.add(nq, nID);
+			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
 			return;
 		}
 	}

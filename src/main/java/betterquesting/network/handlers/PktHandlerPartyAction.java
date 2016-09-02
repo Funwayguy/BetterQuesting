@@ -94,7 +94,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			PartyManager.INSTANCE.remove(partyID);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
-		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && (status.ordinal() >= 2 || tarUser == sender.getUniqueID())) // Kick/leave party
+		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == sender.getUniqueID())) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());

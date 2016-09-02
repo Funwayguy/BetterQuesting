@@ -1,9 +1,9 @@
 package betterquesting.api.client.gui.premade.controls;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.ExpansionAPI;
@@ -19,7 +19,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiButtonQuestInstance extends GuiButtonThemed
 {
 	private IQuestContainer quest;
-	private ArrayList<GuiButtonQuestInstance> parents = new ArrayList<GuiButtonQuestInstance>();
+	private List<GuiButtonQuestInstance> parents = new ArrayList<GuiButtonQuestInstance>();
 	
 	public GuiButtonQuestInstance(int id, int x, int y, int w, int h, IQuestContainer quest)
 	{
@@ -30,6 +30,11 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	public void addParent(GuiButtonQuestInstance btn)
 	{
 		parents.add(btn);
+	}
+	
+	public List<GuiButtonQuestInstance> getParents()
+	{
+		return parents;
 	}
 	
 	public IQuestContainer getQuest()
@@ -59,12 +64,12 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         if (this.visible)
         {
             mc.getTextureManager().bindTexture(currentTheme().getGuiTexture());
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GL11.glColor4f(1F, 1F, 1F, 1F);
             this.field_146123_n = this.mousePressed(mc, mx, my);
             int state = this.getHoverState(this.field_146123_n);
-            GL11.glEnable(GL11.GL_BLEND);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            //GL11.glEnable(GL11.GL_BLEND);
+            //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             
         	EnumQuestState questState = quest.getState(mc.thePlayer.getUniqueID());
         	
@@ -103,13 +108,16 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
             	GL11.glColor4f(lr, lg, lb, 1F);
         		
         		GL11.glLineWidth(currentTheme().getLineWidth(quest, questState));
+        		GL11.glEnable(GL11.GL_LINE_STIPPLE);
+        		GL11.glLineStipple(8, currentTheme().getLineStipple(quest, questState));
         		GL11.glBegin(GL11.GL_LINES);
-        		GL11.glLineStipple(1, currentTheme().getLineStipple(quest, questState));
         		
         		GL11.glVertex2f(lsx, lsy);
         		GL11.glVertex2f(lex, ley);
         		GL11.glEnd();
         		
+        		GL11.glLineStipple(1, Short.MAX_VALUE);
+        		GL11.glDisable(GL11.GL_LINE_STIPPLE);
         		GL11.glEnable(GL11.GL_TEXTURE_2D);
         		GL11.glColor4f(1F, 1F, 1F, 1F);
         		
@@ -126,7 +134,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         	GL11.glTranslatef(this.xPosition, this.yPosition, 0F);
         	float sw = width / 24;
         	float sh = height / 24;
-        	GL11.glScalef(sw, sh, 0F);
+        	GL11.glScalef(sw, sh, 1F);
         	this.drawTexturedModalRect(0, 0, (quest.getInfo().getProperty(QuestProperties.MAIN)? 24 : 0), 104, 24, 24);
         	
         	if(quest.getItemIcon() != null)

@@ -8,12 +8,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
@@ -172,7 +172,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		if(button.id == 1)
 		{
-			SendChanges(1);
+			createQuest();
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -261,48 +261,48 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, line.size() - maxRowsL));
+    		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, line.size() - maxRowsL));
     		RefreshColumns();
         }
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, searchResults.size() - maxRowsR));
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, searchResults.size() - maxRowsR));
         	RefreshColumns();
         }
-    }
+	}
 	
-	public void SendChanges(int action)
+	public void createQuest()
 	{
-		if(action < 0 || action > 2)
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("action", EnumPacketAction.ADD.ordinal());
+		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
+	}
+	
+	public void SendChanges(EnumPacketAction action, int lineID)
+	{
+		if(action == null)
 		{
 			return;
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
 		
-		if(action == 2)
+		if(action == EnumPacketAction.EDIT && line != null)
 		{
 			JsonObject base = new JsonObject();
 			base.add("entries", line.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		}
 		
-		tags.setInteger("action", action);
+		tags.setInteger("action", action.ordinal());
 		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
 		
 		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
@@ -310,7 +310,13 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	
 	public void RefreshColumns()
 	{
-    	lineQuests = line.getAllKeys();
+		if(line == null)
+		{
+			lineQuests.clear();
+		} else
+		{
+			lineQuests = line.getAllKeys();
+		}
     	
 		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, lineQuests.size() - maxRowsL));
     	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, searchResults.size() - maxRowsR));
@@ -357,7 +363,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				} else
 				{
 					IQuestContainer q = QuestDatabase.INSTANCE.getValue(searchResults.get(n4));
-					btn.visible = btn.enabled = q != null;
+					btn.visible = btn.enabled = true;//q != null;
 					btn.displayString = q == null? "NULL" : I18n.format(q.getUnlocalisedName());
 				}
 			} else if(n2 == 3) // Delete quest
@@ -405,7 +411,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		{
 			IQuestContainer q = QuestDatabase.INSTANCE.getValue(id);
 			
-			if(q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
+			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
 			{
 				searchResults.add(id);
 			}

@@ -1,5 +1,7 @@
 package betterquesting.api.client.gui.premade.controls;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -28,6 +30,8 @@ public class GuiButtonThemed extends GuiButton
 	private int iw = 0;
 	private int ih = 0;
 	
+	private List<String> tooltip = new ArrayList<String>();
+	
 	public GuiButtonThemed(int id, int posX, int posY, String text)
 	{
 		this(id, posX, posY, 200, 20, text, true);
@@ -52,6 +56,16 @@ public class GuiButtonThemed extends GuiButton
 		this.iw = w;
 		this.ih = h;
 		return this;
+	}
+	
+	public List<String> getTooltip()
+	{
+		return tooltip;
+	}
+	
+	public void setTooltip(List<String> tooltip)
+	{
+		this.tooltip = tooltip;
 	}
 	
 	@Override

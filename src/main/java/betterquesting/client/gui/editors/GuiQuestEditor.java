@@ -30,12 +30,16 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiQuestEditor extends GuiScreenThemed implements ITextEditor, IVolatileScreen, INeedsRefresh
 {
-	JsonObject lastEdit;
-	int id = -1;
-	IQuestContainer quest;
+	private JsonObject lastEdit;
+	private int id = -1;
+	private IQuestContainer quest;
 	
-	GuiTextField titleField;
-	GuiBigTextField descField;
+	private GuiTextField titleField;
+	private GuiBigTextField descField;
+	
+	private GuiButtonThemed btnMain;
+	private GuiButtonThemed btnLogic;
+	private GuiButtonThemed btnVis;
 	
 	public GuiQuestEditor(GuiScreen parent, IQuestContainer quest)
 	{
@@ -78,12 +82,13 @@ public class GuiQuestEditor extends GuiScreenThemed implements ITextEditor, IVol
 		this.buttonList.add(btn);
 		btn = new GuiButtonThemed(4, width/2, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.advanced"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonThemed(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.getInfo().getProperty(QuestProperties.MAIN), true);
-		this.buttonList.add(btn);
-		btn = new GuiButtonThemed(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.getInfo().getProperty(QuestProperties.LOGIC_QUEST), true);
-		this.buttonList.add(btn);
-		btn = new GuiButtonThemed(7, width/2 - 100, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.show") + ": " + quest.getInfo().getProperty(QuestProperties.VISIBILITY), true);
-		this.buttonList.add(btn);
+		
+		btnMain = new GuiButtonThemed(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.getInfo().getProperty(QuestProperties.MAIN), true);
+		this.buttonList.add(btnMain);
+		btnLogic = new GuiButtonThemed(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.getInfo().getProperty(QuestProperties.LOGIC_QUEST), true);
+		this.buttonList.add(btnLogic);
+		btnVis = new GuiButtonThemed(7, width/2 - 100, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.show") + ": " + quest.getInfo().getProperty(QuestProperties.VISIBILITY), true);
+		this.buttonList.add(btnVis);
 	}
 	
 	@Override
@@ -98,7 +103,13 @@ public class GuiQuestEditor extends GuiScreenThemed implements ITextEditor, IVol
 		}
 		
 		lastEdit = null;
-		initGui();
+		
+		titleField.setText(quest.getUnlocalisedName());
+		descField.setText(quest.getUnlocalisedDescription());
+		
+		btnMain.displayString = I18n.format("betterquesting.btn.is_main") + ": " + quest.getInfo().getProperty(QuestProperties.MAIN);
+		btnLogic.displayString = I18n.format("betterquesting.btn.logic") + ": " + quest.getInfo().getProperty(QuestProperties.LOGIC_QUEST);
+		btnVis.displayString = I18n.format("betterquesting.btn.show") + ": " + quest.getInfo().getProperty(QuestProperties.VISIBILITY);
 	}
 	
 	@Override

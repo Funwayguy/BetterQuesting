@@ -17,10 +17,13 @@ import betterquesting.api.registry.IToolRegistry;
 import betterquesting.api.utils.IGuiBuilder;
 import betterquesting.api.utils.IMakePlaceholder;
 import betterquesting.importers.ImporterRegistry;
+import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
+import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLineDatabase;
+import betterquesting.quests.QuestSettings;
 import betterquesting.registry.RewardRegistry;
 import betterquesting.registry.TaskRegistry;
 import betterquesting.registry.ThemeRegistry;
@@ -110,19 +113,19 @@ public final class ParentAPI implements IQuestingAPI
 	@Override
 	public IPartyDatabase getPartyDB()
 	{
-		return null;
+		return PartyManager.INSTANCE;
 	}
 
 	@Override
 	public ILifeDatabase getLifeDB()
 	{
-		return null;
+		return LifeDatabase.INSTANCE;
 	}
 	
 	@Override
 	public IQuestSettings getProperties()
 	{
-		return null;
+		return QuestSettings.INSTANCE;
 	}
 
 	@Override

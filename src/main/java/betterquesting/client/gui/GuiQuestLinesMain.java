@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
@@ -104,13 +103,16 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		} else
 		{
 			qlDesc.SetText(selected.getQuestLine().getUnlocalisedDescription());
-			qlGui.setQuestLine(selected.getButtonTree());
+			qlGui.setQuestLine(selected.getButtonTree(), true);
 		}
 		
 		if(oldGui != null) // Preserve old settings
 		{
 			qlGui.copySettings(oldGui);
+			this.embedded.remove(oldGui);
 		}
+		
+		this.embedded.add(qlGui);
 		
 		UpdateScroll();
 	}
@@ -122,9 +124,9 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 	}
 	
 	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
-		super.drawScreen(mx, my, partialTick);
+		super.drawBackPanel(mx, my, partialTick);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
@@ -139,21 +141,6 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		}
 		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
-		
-		
-		if(qlGui != null && qlDesc != null)
-		{
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
-			qlDesc.drawScreen(mx, my, partialTick);
-			GL11.glPopMatrix();
-			
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			qlGui.drawBackground(mx, my, partialTick);
-			GL11.glPopMatrix();
-		}
 	}
 	
 	@Override
@@ -179,49 +166,22 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			if(selected != null)
 			{
 				qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
-				qlGui.setQuestLine(selected.getButtonTree());
+				qlGui.setQuestLine(selected.getButtonTree(), true);
 			}
 		}
 	}
 	
 	@Override
-    protected void mouseClicked(int mx, int my, int type)
-    {
-		super.mouseClicked(mx, my, type);
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
 		
-		if(qlGui != null && qlGui.getQuestLine() != null && type == 0)
-		{
-			GuiButtonQuestInstance qBtn = qlGui.getQuestLine().getButtonAt(mx, my);
-			
-			if(qBtn != null)
-			{
-				qBtn.func_146113_a(this.mc.getSoundHandler());
-				bookmarked = new GuiQuestInstance(this, qBtn.getQuest());
-				mc.displayGuiScreen(bookmarked);
-			}
-		}
-    }
-	
-	@Override
-	public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 166, sizeY))
+		if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 166, sizeY))
         {
-    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + SDX, 0, qlBtns.size() - maxRows));
+    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll, 0, qlBtns.size() - maxRows));
     		UpdateScroll();
         }
-        
-        if(qlGui != null)
-        {
-        	//qlGui.handleMouse();
-        }
-    }
+	}
 	
 	public void UpdateScroll()
 	{

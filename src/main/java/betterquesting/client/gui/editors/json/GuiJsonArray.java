@@ -157,7 +157,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextEditor, IVolat
 				{
 					@SuppressWarnings("unchecked")
 					GuiButtonJson<JsonElement> jsonButton = (GuiButtonJson<JsonElement>)button;
-					JsonElement element = jsonButton.getJson();
+					JsonElement element = jsonButton.getStored();
 					
 					/*GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
 					

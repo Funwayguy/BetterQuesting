@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -16,7 +17,9 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.events.QuestDataEvent;
 import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.utils.JsonHelper;
@@ -25,6 +28,8 @@ import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
+import betterquesting.legacy.ILegacyLoader;
+import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.NameCache;
@@ -49,7 +54,7 @@ public class EventHandler
 {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onKey(InputEvent.KeyInputEvent event) // Currently for debugging purposes only. Replace with proper handler later
+	public void onKey(InputEvent.KeyInputEvent event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		
@@ -104,6 +109,8 @@ public class EventHandler
 			// Will likely be moved at a later date, but for the sake of compatibility
 			QuestSettings.INSTANCE.writeToJson(jsonCon, EnumSaveType.CONFIG);
 			
+			jsonCon.addProperty("format", BetterQuesting.FORMAT);
+			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
 			
 			// === PROGRESS ===
@@ -120,6 +127,12 @@ public class EventHandler
 			JsonObject jsonP = new JsonObject();
 			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
+			
+			// === NAMES ===
+			
+			JsonObject jsonN = new JsonObject();
+			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
 		}
 	}
 	
@@ -144,13 +157,14 @@ public class EventHandler
 		
 		if(BetterQuesting.proxy.isClient())
 		{
-			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName());
+			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName() + "/betterquesting");
 		} else
 		{
-			BQ_Settings.curWorldDir = server.getFile(server.getFolderName());
+			BQ_Settings.curWorldDir = server.getFile(server.getFolderName() + "/betterquesting");
 		}
     	
-		// Load Questing Data
+		// === CONFIG ===
+		
     	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
 		JsonObject j1 = new JsonObject();
 		
@@ -167,10 +181,21 @@ public class EventHandler
 			}
 		}
 		
-		QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
-		QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
+		String fVer = JsonHelper.GetString(j1, "format", "0.0.0");
+		
+		ILegacyLoader loader = LegacyLoaderRegistry.getLoader(fVer);
+		
+		if(loader == null)
+		{
+			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
+			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
+		} else
+		{
+			loader.readFromJson(j1, EnumSaveType.CONFIG);
+		}
     	
-		// Load Progression
+		// === PROGRESS ===
+		
     	File f2 = new File(BQ_Settings.curWorldDir, "QuestProgress.json");
 		JsonObject j2 = new JsonObject();
 		
@@ -179,10 +204,17 @@ public class EventHandler
 			j2 = JsonIO.ReadFromFile(f2);
 		}
 		
-		QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questDatabase"), EnumSaveType.PROGRESS);
-		QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questLines"), EnumSaveType.PROGRESS);
+		if(loader == null)
+		{
+			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questDatabase"), EnumSaveType.PROGRESS);
+			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questLines"), EnumSaveType.PROGRESS);
+		} else
+		{
+			loader.readFromJson(j2, EnumSaveType.PROGRESS);
+		}
 		
-		// Load Questing Parties
+		// === PARTIES ===
+		
 	    File f3 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
 	    JsonObject j3 = new JsonObject();
 	    
@@ -193,7 +225,22 @@ public class EventHandler
 	    
 	    PartyManager.INSTANCE.readFromJson(JsonHelper.GetArray(j3, "parties"), EnumSaveType.CONFIG);
 	    
-	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.getAllValues().size() + " quest instances and " + QuestLineDatabase.INSTANCE.getAllValues().size() + " quest lines");
+	    // === NAMES ===
+	    
+	    File f4 = new File(BQ_Settings.curWorldDir, "NameCache.json");
+	    JsonObject j4 = new JsonObject();
+	    
+	    if(f4.exists())
+	    {
+	    	j4 = JsonIO.ReadFromFile(f4);
+	    }
+	    
+	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
+	    
+	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
+	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
+	    BetterQuesting.logger.log(Level.INFO, "Loaded " + PartyManager.INSTANCE.size() + " parties");
+	    BetterQuesting.logger.log(Level.INFO, "Loaded " + NameCache.INSTANCE.size() + " names");
 	}
 	
 	@SubscribeEvent
@@ -290,5 +337,17 @@ public class EventHandler
 	{
 		// Hook for theme GUI replacements
 		event.gui = ThemeRegistry.INSTANCE.getCurrentTheme().getGuiOverride(event.gui);
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onDataUpdated(QuestDataEvent.DatabaseUpdated event)
+	{
+		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+		
+		if(screen instanceof INeedsRefresh)
+		{
+			((INeedsRefresh)screen).refreshGui();
+		}
 	}
 }

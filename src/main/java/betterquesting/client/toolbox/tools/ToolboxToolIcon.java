@@ -1,14 +1,23 @@
 package betterquesting.client.toolbox.tools;
 
+import net.minecraft.client.Minecraft;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.toolbox.ToolboxTool;
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
 
-public class ToolboxToolIcon extends ToolboxTool
+public class ToolboxToolIcon implements IToolboxTool
 {
-	public ToolboxToolIcon(GuiQuesting screen)
+	IGuiQuestLine gui;
+	
+	@Override
+	public void initTool(IGuiQuestLine gui)
 	{
-		super(screen);
+		this.gui = gui;
+	}
+	
+	@Override
+	public void disableTool()
+	{
 	}
 	
 	@Override
@@ -19,12 +28,52 @@ public class ToolboxToolIcon extends ToolboxTool
 			return;
 		}
 		
-		GuiButtonQuestInstance btn = ui.getClickedQuest(mx, my);
+		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
 		
-		if(btn != null && btn.quest != null)
+		if(btn != null)
 		{
-			btn.func_146113_a(screen.mc.getSoundHandler());
-			screen.mc.displayGuiScreen(new GuiToolIconProxy(screen, btn.quest));
+			Minecraft mc = Minecraft.getMinecraft();
+			btn.func_146113_a(mc.getSoundHandler());
+			mc.displayGuiScreen(new GuiToolIconProxy(mc.currentScreen, btn.getQuest()));
 		}
+	}
+	
+	@Override
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+	
+	@Override
+	public void onKeyPressed(char c, int keyCode)
+	{
+	}
+
+	@Override
+	public void drawTool(int mx, int my, float partialTick)
+	{
+	}
+
+	@Override
+	public boolean allowTooltips()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowScrolling(int click)
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean clampScrolling()
+	{
+		return true;
 	}
 }

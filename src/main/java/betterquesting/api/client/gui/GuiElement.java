@@ -26,7 +26,7 @@ public abstract class GuiElement
 	/**
 	 * Shortcut method for obtaining the current theme.
 	 */
-	public IThemeBase currentTheme()
+	public static IThemeBase currentTheme()
 	{
 		if(ExpansionAPI.isReady())
 		{
@@ -40,7 +40,7 @@ public abstract class GuiElement
 	/**
 	 * Returns the current theme color
 	 */
-	public int getTextColor()
+	public static int getTextColor()
 	{
 		return currentTheme().getTextColor();
 	}

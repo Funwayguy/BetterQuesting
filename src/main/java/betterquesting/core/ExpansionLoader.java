@@ -3,6 +3,7 @@ package betterquesting.core;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.IQuestingExpansion;
 import betterquesting.api.QuestExpansion;
 import cpw.mods.fml.common.discovery.ASMDataTable;
@@ -23,6 +24,8 @@ public class ExpansionLoader
 	public void loadExpansions(ASMDataTable asmData)
 	{
 		expansions.clear();
+		
+		new ExpansionAPI(ParentAPI.API);
 		
 		for(ASMDataTable.ASMData data : asmData.getAll(QuestExpansion.class.getCanonicalName()))
 		{

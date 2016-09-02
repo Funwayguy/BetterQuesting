@@ -4,14 +4,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.IJsonStorage;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T> implements IJsonStorage<T>
+public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 {
 	private T json = null;
 	
@@ -32,15 +31,9 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T> im
 	}
 	
 	@Override
-	public T getJson()
-	{
-		return json;
-	}
-	
-	@Override
 	public T getStored()
 	{
-		return getJson();
+		return json;
 	}
 	
 	@Override
@@ -55,7 +48,7 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T> im
 		{
 			this.displayString = "?";
 			return;
-		} else if(json.isJsonObject());
+		} else if(json.isJsonObject())
 		{
 			if(JsonHelper.isItem(json.getAsJsonObject()))
 			{

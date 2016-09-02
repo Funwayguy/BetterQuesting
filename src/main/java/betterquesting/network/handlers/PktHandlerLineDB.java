@@ -3,17 +3,19 @@ package betterquesting.network.handlers;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import betterquesting.api.events.QuestDataEvent;
 import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.PacketTypeNative;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLineDatabase;
 
-public class PktHandlerQuestLineDB implements IPacketHandler
+public class PktHandlerLineDB implements IPacketHandler
 {
-	
 	@Override
 	public ResourceLocation getRegistryName()
 	{
-		return null;
+		return PacketTypeNative.LINE_DATABASE.GetLocation();
 	}
 	
 	@Override
@@ -31,5 +33,6 @@ public class PktHandlerQuestLineDB implements IPacketHandler
 	public void handleClient(NBTTagCompound tag)
 	{
 		QuestLineDatabase.INSTANCE.readPacket(tag);
+		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
 	}
 }

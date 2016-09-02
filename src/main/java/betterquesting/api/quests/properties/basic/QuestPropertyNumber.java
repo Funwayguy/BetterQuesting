@@ -14,12 +14,18 @@ public class QuestPropertyNumber extends QuestPropertyBase<Number>
 	@Override
 	public Number readValue(JsonElement json)
 	{
-		if(json == null || !json.isJsonPrimitive() || !json.getAsJsonPrimitive().isNumber())
+		if(json == null || !json.isJsonPrimitive())
 		{
-			this.getDefault();
+			return this.getDefault();
 		}
 		
-		return json.getAsNumber();
+		try
+		{
+			return json.getAsNumber();
+		} catch(Exception e)
+		{
+			return this.getDefault();
+		}
 	}
 	
 	@Override

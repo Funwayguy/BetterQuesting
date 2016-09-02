@@ -7,10 +7,14 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import com.google.gson.JsonObject;
 import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLine;
@@ -54,8 +58,19 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		if(action == EnumPacketAction.ADD) 
 		{
-			QuestLineDatabase.INSTANCE.add(new QuestLine(), QuestLineDatabase.INSTANCE.nextID());
-			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+			IQuestLineContainer nq = new QuestLine();
+			int nID = QuestLineDatabase.INSTANCE.nextID();
+			
+			if(data.hasKey("data") && lID >= 0)
+			{
+				nID = lID;
+				
+				JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
+				nq.readFromJson(JsonHelper.GetObject(base, "line"), EnumSaveType.CONFIG);
+			}
+			
+			QuestLineDatabase.INSTANCE.add(nq, nID);
+			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{

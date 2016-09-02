@@ -1,9 +1,11 @@
 package betterquesting.quests;
 
 import java.util.Map.Entry;
+import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.quests.properties.IQuestInfo;
 import betterquesting.api.quests.properties.IQuestProperty;
+import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -30,9 +32,9 @@ public class QuestInfo implements IQuestInfo
 			return null;
 		}
 		
-		JsonElement jProp = jInfo.get(prop.getKey().toString());
+		JsonElement jProp = getJsonDomain(prop.getKey()).get(prop.getKey().getResourcePath());
 		
-		if(jProp != null)
+		if(jProp == null)
 		{
 			return def;
 		}
@@ -43,7 +45,12 @@ public class QuestInfo implements IQuestInfo
 	@Override
 	public boolean hasProperty(IQuestProperty<?> prop)
 	{
-		return jInfo.has(prop.getKey().toString());
+		if(prop == null)
+		{
+			return false;
+		}
+		
+		return getJsonDomain(prop.getKey()).has(prop.getKey().getResourcePath());
 	}
 	
 	@Override
@@ -54,7 +61,9 @@ public class QuestInfo implements IQuestInfo
 			return;
 		}
 		
-		jInfo.add(prop.getKey().toString(), prop.writeValue(value));
+		JsonObject dom = getJsonDomain(prop.getKey());
+		dom.add(prop.getKey().getResourcePath(), prop.writeValue(value));
+		jInfo.add(prop.getKey().getResourceDomain(), dom);
 	}
 	
 	@Override
@@ -77,5 +86,10 @@ public class QuestInfo implements IQuestInfo
 		{
 			jInfo.add(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	private JsonObject getJsonDomain(ResourceLocation res)
+	{
+		return JsonHelper.GetObject(jInfo, res.getResourceDomain());
 	}
 }

@@ -2,72 +2,62 @@ package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.toolbox.ToolboxTool;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLine.QuestLineEntry;
+import betterquesting.quests.QuestLineDatabase;
+import betterquesting.quests.QuestLineEntry;
 import com.google.gson.JsonObject;
 
-public class ToolboxToolNew extends ToolboxTool
+public class ToolboxToolNew implements IToolboxTool
 {
+	IGuiQuestLine gui = null;
 	GuiButtonQuestInstance nQuest;
 	
-	public ToolboxToolNew(GuiQuesting screen)
+	@Override
+	public void initTool(IGuiQuestLine gui)
 	{
-		super(screen);
+		this.gui = gui;
+		
+		nQuest = new GuiButtonQuestInstance(0, 0, 0, 24, 24, new QuestInstance());
+		gui.getQuestLine().getButtonTree().add(nQuest);
 	}
 	
 	@Override
 	public void drawTool(int mx, int my, float partialTick)
 	{
-		if(screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		if(nQuest == null)
 		{
-			int snap = ToolboxGuiMain.getSnapValue();
-			int rmx = ui.getRelativeX(mx);
-			int rmy = ui.getRelativeY(my);
-			int modX = ((rmx%snap) + snap)%snap;
-			int modY = ((rmy%snap) + snap)%snap;
-			rmx -= modX;
-			rmy -= modY;
-			
-			if(nQuest == null)
-			{
-				nQuest = new GuiButtonQuestInstance(0, rmx, rmy, new QuestInstance(0, false));
-				ui.getButtons().add(nQuest);
-			}
-			
-			nQuest.xPosition = rmx;
-			nQuest.yPosition = rmy;
-		} else
-		{
-			ui.getButtons().remove(nQuest);
-			nQuest = null;
+			return;
 		}
 		
-		ToolboxGuiMain.drawGrid(ui);
-	}
-	
-	@Override
-	public void initTool(GuiQuestLinesEmbedded ui)
-	{
-		ui.getButtons().remove(nQuest);
-		nQuest = null;
+		int snap = ToolboxGuiMain.getSnapValue();
+		int modX = ((mx%snap) + snap)%snap;
+		int modY = ((my%snap) + snap)%snap;
+		mx -= modX;
+		my -= modY;
 		
-		super.initTool(ui);
+		nQuest.xPosition = mx;
+		nQuest.yPosition = my;
+		
+		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
-	public void deactivateTool()
+	public void disableTool()
 	{
 		if(nQuest != null)
 		{
-			ui.getButtons().remove(nQuest);
+			gui.getQuestLine().getButtonTree().remove(nQuest);
 			nQuest = null;
 		}
 	}
@@ -75,45 +65,70 @@ public class ToolboxToolNew extends ToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0 || !screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		if(click != 0)
 		{
 			return;
 		}
 		
 		int snap = ToolboxGuiMain.getSnapValue();
-		int rmx = ui.getRelativeX(mx);
-		int rmy = ui.getRelativeY(my);
-		int modX = ((rmx%snap) + snap)%snap;
-		int modY = ((rmy%snap) + snap)%snap;
-		rmx -= modX;
-		rmy -= modY;
+		int modX = ((mx%snap) + snap)%snap;
+		int modY = ((my%snap) + snap)%snap;
+		mx -= modX;
+		my -= modY;
 		
-		QuestLine qLine = ui.getQuestLine();
-		QuestInstance q = new QuestInstance(QuestDatabase.getUniqueID(), true);
-		QuestLineEntry qe = new QuestLineEntry(q, rmx, rmy);
-		qLine.questList.add(qe);
+		// Pre-sync
+		IQuestLineContainer qLine = gui.getQuestLine().getQuestLine();
+		IQuestContainer quest = new QuestInstance();
+		int qID = QuestDatabase.INSTANCE.nextID();
+		int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
+		QuestLineEntry qe = new QuestLineEntry(mx, my, 24);
+		qLine.add(qe, qID);
 		
-		NBTTagCompound tag = new NBTTagCompound();
-		JsonObject jd = new JsonObject();
-		JsonObject jp = new JsonObject();
-		QuestDatabase.writeToJson(jd);
-		QuestDatabase.writeToJson_Progression(jp);
-		tag.setTag("Data", NBTConverter.JSONtoNBT_Object(jd, new NBTTagCompound()));
-		tag.setTag("Progress", NBTConverter.JSONtoNBT_Object(jp, new NBTTagCompound()));
-		tag.setInteger("action", 2);
-		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tag);
+		// Sync Quest
+		NBTTagCompound tag1 = new NBTTagCompound();
+		JsonObject base1 = new JsonObject();
+		base1.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		tag1.setTag("data", NBTConverter.JSONtoNBT_Object(base1, new NBTTagCompound()));
+		tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
+		tag1.setInteger("questID", qID);
+		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+		
+		// Sync Line
+		NBTTagCompound tag2 = new NBTTagCompound();
+		JsonObject base2 = new JsonObject();
+		base2.add("line", qLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
+		tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+		tag2.setInteger("lineID", lID);
+		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
 	}
 	
 	@Override
-	public boolean showTooltips()
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+	
+	@Override
+	public void onKeyPressed(char c, int keyCode)
+	{
+	}
+	
+	@Override
+	public boolean allowTooltips()
 	{
 		return false;
 	}
 	
 	@Override
-	public boolean allowDragging(int click)
+	public boolean allowScrolling(int click)
 	{
 		return click == 2;
+	}
+	
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
 	}
 	
 	@Override

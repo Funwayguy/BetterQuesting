@@ -14,12 +14,18 @@ public class QuestPropertyBoolean extends QuestPropertyBase<Boolean>
 	@Override
 	public Boolean readValue(JsonElement json)
 	{
-		if(json == null || !json.isJsonPrimitive() || !json.getAsJsonPrimitive().isBoolean())
+		if(json == null || !json.isJsonPrimitive())
 		{
-			this.getDefault();
+			return this.getDefault();
 		}
 		
-		return json.getAsBoolean();
+		try
+		{
+			return json.getAsBoolean();
+		} catch(Exception e)
+		{
+			return this.getDefault();
+		}
 	}
 	
 	@Override

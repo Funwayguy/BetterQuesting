@@ -98,7 +98,11 @@ public class PartyInstance implements IParty
 		
 		members.remove(uuid);
 		
-		if(old == EnumPartyStatus.OWNER)
+		if(members.size() <= 0)
+		{
+			PartyManager.INSTANCE.remove(this);
+			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
+		} else if(old == EnumPartyStatus.OWNER)
 		{
 			hostMigrate();
 		}
@@ -220,6 +224,8 @@ public class PartyInstance implements IParty
 		JsonObject base = new JsonObject();
 		base.add("party", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(this));
+		
 		return new PreparedPayload(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
 	}
 	

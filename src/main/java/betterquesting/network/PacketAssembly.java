@@ -72,7 +72,7 @@ public final class PacketAssembly
 	 */
 	public NBTTagCompound assemblePacket(NBTTagCompound tags)
 	{
-		int bId = tags.getInteger("id");
+		int bId = tags.getInteger("buffer");
 		int size = tags.getInteger("size");
 		int index = tags.getInteger("index");
 		boolean end = tags.getBoolean("end");

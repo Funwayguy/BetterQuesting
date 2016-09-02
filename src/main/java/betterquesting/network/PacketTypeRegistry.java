@@ -7,12 +7,16 @@ import betterquesting.api.registry.IPacketRegistry;
 import betterquesting.network.handlers.PktHandlerClaim;
 import betterquesting.network.handlers.PktHandlerDetect;
 import betterquesting.network.handlers.PktHandlerLineEdit;
+import betterquesting.network.handlers.PktHandlerLineSync;
 import betterquesting.network.handlers.PktHandlerLives;
+import betterquesting.network.handlers.PktHandlerNameCache;
 import betterquesting.network.handlers.PktHandlerNotification;
 import betterquesting.network.handlers.PktHandlerPartyAction;
 import betterquesting.network.handlers.PktHandlerPartyDB;
+import betterquesting.network.handlers.PktHandlerPartySync;
 import betterquesting.network.handlers.PktHandlerQuestDB;
 import betterquesting.network.handlers.PktHandlerQuestEdit;
+import betterquesting.network.handlers.PktHandlerLineDB;
 import betterquesting.network.handlers.PktHandlerQuestSync;
 import betterquesting.network.handlers.PktHandlerTileEdit;
 
@@ -25,16 +29,24 @@ public class PacketTypeRegistry implements IPacketRegistry
 	private PacketTypeRegistry()
 	{
 		registerHandler(new PktHandlerQuestDB());
-		registerHandler(new PktHandlerPartyDB());
 		registerHandler(new PktHandlerQuestSync());
 		registerHandler(new PktHandlerQuestEdit());
+		
+		registerHandler(new PktHandlerLineDB());
 		registerHandler(new PktHandlerLineEdit());
+		registerHandler(new PktHandlerLineSync());
+		
+		registerHandler(new PktHandlerPartyDB());
+		registerHandler(new PktHandlerPartyAction());
+		registerHandler(new PktHandlerPartySync());
+		
 		registerHandler(new PktHandlerDetect());
 		registerHandler(new PktHandlerClaim());
-		registerHandler(new PktHandlerPartyAction());
+		
 		registerHandler(new PktHandlerLives());
 		registerHandler(new PktHandlerNotification());
 		registerHandler(new PktHandlerTileEdit());
+		registerHandler(new PktHandlerNameCache());
 	}
 	
 	@Override

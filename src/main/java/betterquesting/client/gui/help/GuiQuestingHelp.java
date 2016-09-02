@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.client.gui.misc.GuiScrollingText;
@@ -87,24 +86,17 @@ public class GuiQuestingHelp extends GuiScreenThemed
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, helpTopics.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, helpTopics.size() - maxRows));
     		RefreshColumns();
         }
-    }
+	}
 	
 	public void RefreshColumns()
 	{

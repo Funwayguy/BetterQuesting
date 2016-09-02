@@ -9,7 +9,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.IVolatileScreen;
@@ -27,9 +26,7 @@ import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.client.gui.misc.ITextEditor;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLineDatabase;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -153,22 +150,25 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 	{
 		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
 		
-		if(action == null || questLine == null)
+		if(action == null)
 		{
 			return;
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
 		
-		if(action == EnumPacketAction.EDIT)
+		if(action == EnumPacketAction.EDIT && questLine != null)
 		{
 			JsonObject base = new JsonObject();
-			base.add("line", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			base.add("line", questLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		}
 		
-		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(questLine));
+		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
 		tags.setInteger("action", action.ordinal());
+		
+		System.out.println("Sending action " + action + " with ID " + lineID);
+		System.out.println("Payload: " + tags);
 		
 		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
@@ -281,24 +281,17 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 		}
     }
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, questList.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, questList.size() - maxRows));
     		RefreshColumns();
         }
-    }
+	}
 	
 	public void RefreshColumns()
 	{
@@ -325,7 +318,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 			{
 				if(n3 >= 0 && n3 < questList.size())
 				{
-					btn.displayString = I18n.format(QuestDatabase.INSTANCE.getValue(questList.get(n3)).getUnlocalisedName());
+					btn.displayString = I18n.format(QuestLineDatabase.INSTANCE.getValue(questList.get(n3)).getUnlocalisedName());
 					btn.visible = true;
 					btn.enabled = questList.get(n3) != selID;
 				} else

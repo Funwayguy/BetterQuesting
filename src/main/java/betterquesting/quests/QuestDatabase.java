@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.events.QuestDataEvent;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestContainer;
@@ -171,8 +169,6 @@ public final class QuestDatabase implements IQuestDatabase
 			default:
 				break;
 		}
-		
-		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
 	}
 	
 	private JsonArray writeToJson_Config(JsonArray json)
@@ -208,6 +204,7 @@ public final class QuestDatabase implements IQuestDatabase
 			IQuestContainer quest = getValue(qID);
 			quest = quest != null? quest : new QuestInstance();
 			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
+			database.put(qID, quest);
 		}
 	}
 	
@@ -241,8 +238,11 @@ public final class QuestDatabase implements IQuestDatabase
 			}
 			
 			IQuestContainer quest = getValue(qID);
-			quest = quest != null? quest : new QuestInstance();
-			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.PROGRESS);
+			
+			if(quest != null)
+			{
+				quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.PROGRESS);
+			}
 		}
 	}
 }

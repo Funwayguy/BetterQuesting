@@ -26,6 +26,7 @@ public class GuiBigTextField extends GuiTextField
 	
 	public GuiBigTextField enableBigEdit(ITextEditor host, int id)
 	{
+		bigEdit = new GuiButtonThemed(0, this.xPosition + width - 19, this.yPosition - 1, 20, height + 2, "Aa", true);
 		this.host = host;
 		this.hostID = id;
 		return this;
@@ -46,6 +47,7 @@ public class GuiBigTextField extends GuiTextField
         if(bigEdit != null && bigEdit.mousePressed(Minecraft.getMinecraft(), mx, my))
         {
         	editor = new GuiTextEditor(Minecraft.getMinecraft().currentScreen, getText()).setHost(host, hostID);
+        	bigEdit.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
         	Minecraft.getMinecraft().displayGuiScreen(editor);
         	return;
         } else if(host != null)
@@ -84,6 +86,9 @@ public class GuiBigTextField extends GuiTextField
 	{
 		if(bigEdit != null)
 		{
+			bigEdit.xPosition = this.xPosition + width - 19;
+			bigEdit.yPosition = this.yPosition - 1;
+			bigEdit.height = this.height + 2;
 	        bigEdit.drawButton(Minecraft.getMinecraft(), mx, my);
 		}
 		

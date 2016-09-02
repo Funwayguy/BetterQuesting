@@ -3,7 +3,6 @@ package betterquesting.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -15,6 +14,7 @@ import betterquesting.api.client.gui.quest.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.quests.IQuestContainer;
 import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.utils.RenderUtils;
 
 public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 {
@@ -22,9 +22,6 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	private int posY = 0;
 	private int sizeX = 128;
 	private int sizeY = 128;
-	/**
-	 * Graph level of zoom out of 100
-	 */
 	private int zoom = 100;
 	private int scrollX = 0;
 	private int scrollY = 0;
@@ -35,6 +32,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	private IQuestLineContainer qLine;
 	private List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
 	private QuestLineButtonTree buttonTree = null;
+	
+	List<String> curTooltip = null;
 	
 	public GuiQuestLinesEmbedded(int posX, int posY, int sizeX, int sizeY)
 	{
@@ -56,7 +55,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		
 		if(tool != null)
 		{
-			tool.initTool(qLine);
+			tool.initTool(this);
 		}
 	}
 	
@@ -72,22 +71,30 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		this.zoom = old.getZoom();
 		this.scrollX = old.getScrollX();
 		this.scrollY = old.getScrollY();
-		this.setActiveTool(old.getActiveTool());
+		
+		if(old.getActiveTool() != null)
+		{
+			old.getActiveTool().disableTool();
+			this.setActiveTool(old.getActiveTool());
+		}
 	}
-
+	
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		handleMouse();
+		mouseDrag(mx, my);
 		
 		Minecraft mc = Minecraft.getMinecraft();
+		double scaleX = sizeX/128D;
+		double scaleY = sizeY/128D;
+		float zs = zoom/100F;
+		int rmx = getRelativeX(mx);
+		int rmy = getRelativeY(my);
 		
 		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		GL11.glPushMatrix();
-		double scaleX = sizeX/128D;
-		double scaleY = sizeY/128D;
 		GL11.glScaled(scaleX, scaleY, 1F);
 		GL11.glTranslated(posX/scaleX, posY/scaleY, 0);
 		drawTexturedModalRect(0, 0, 0, 128, 128, 128);
@@ -98,24 +105,22 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		if(qLine != null)
 		{
 			GL11.glPushMatrix();
-			GL11.glTranslatef(posX, posY, 0);
-			float zs = zoom/100F;
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			GL11.glTranslatef(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GL11.glScalef(zs, zs, 1F);
-			int rw = (int)(sizeX / zs);
-			int rh = (int)(sizeY / zs);
-			int rmx = (int)((mx - posX)/zs);
-			int rmy = (int)((my - posY)/zs);
 			
 			for(GuiButtonQuestInstance btnQuest : qBtns)
 			{
 				btnQuest.drawButton(mc, rmx, rmy);
 				
-				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
+				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.xPosition, btnQuest.yPosition, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
 				{
 					qTooltip = btnQuest.getQuest();
 				}
 			}
 			
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GL11.glPopMatrix();
 			
 			GL11.glPushMatrix();
@@ -128,79 +133,64 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		
 		if(curTool != null)
 		{
-			curTool.drawTool(mx, my, partialTick);
+			GL11.glPushMatrix();
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			GL11.glTranslatef(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
+			GL11.glScalef(zs, zs, 1F);
+			curTool.drawTool(rmx, rmy, partialTick);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			GL11.glPopMatrix();
 		}
 		
 		if(qTooltip != null && (curTool == null || curTool.allowTooltips()))
 		{
-			/*if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
-			{
-				drawTooltip(qTooltip.getAdvancedTooltip(mc.thePlayer), mx, my);
-			} else
-			{
-				drawTooltip(qTooltip.getStandardTooltip(mc.thePlayer), mx, my);
-			}*/
+			curTooltip = qTooltip.getTooltip(mc.thePlayer);
+		} else
+		{
+			curTooltip = null;
 		}
 	}
 	
 	@Override
 	public void drawForeground(int mx, int my, float partialTick)
 	{
-		
+		if(curTooltip != null && curTooltip.size() > 0)
+		{
+			drawTooltip(curTooltip, mx, my, Minecraft.getMinecraft().fontRenderer);
+			GL11.glDisable(GL11.GL_LIGHTING);
+		}
 	}
-	
-	/*
-	 * Returns quest button under the mouse
-	 */
-	/*public GuiButtonQuestInstance getClickedQuest(int mx, int my)
-	{
-		if(!screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
-		{
-			return null;
-		}
-		
-		float zs = zoom/100F;
-		int rmx = (int)((mx - posX)/zs);
-		int rmy = (int)((my - posY)/zs);
-		
-		for(GuiButtonQuestInstance b : qBtns)
-		{
-			if(b.mousePressed(screen.mc, rmx, rmy))
-			{
-				return b;
-			}
-		}
-		
-		return null;
-	}*/
 	
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(curTool != null)
-		{
-			curTool.onMouseClick(mx, my, click);
-		}
-		
-		if(!isWithin(mx, my, 0, 0, sizeX, sizeY))
+		if(!isWithin(mx, my, posX, posY, sizeX, sizeY))
 		{
 			noScroll = true;
 			return;
 		}
 		
-		noScroll = curTool != null && !curTool.allowDragging(click);
+		if(curTool != null)
+		{
+			int rmx = getRelativeX(mx);
+			int rmy = getRelativeY(my);
+			curTool.onMouseClick(rmx, rmy, click);
+		}
+		
+		noScroll = curTool != null && !curTool.allowScrolling(click);
 	}
 	
 	@Override
 	public void onMouseScroll(int mx, int my, int SDX)
 	{
-        if(SDX != 0 && isWithin(mx, my, 0, 0, sizeX, sizeY))
+        if(SDX != 0 && isWithin(mx, my, posX, posY, sizeX, sizeY))
         {
             if(curTool != null)
             {
-            	curTool.onMouseScroll(mx, my, SDX);
+            	curTool.onMouseScroll(getRelativeX(mx), getRelativeY(my), SDX);
             	
-            	if(!curTool.allowScrolling())
+            	if(!curTool.allowZoom())
             	{
             		return; // No zoom for you
             	}
@@ -223,7 +213,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	{
 		zoom = MathHelper.clamp_int(value, 50, 200);
 		
-		if(curTool == null || !curTool.allowScrolling())
+		if(curTool == null || !curTool.allowZoom())
 		{
 			clampScroll();
 		}
@@ -235,39 +225,46 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	}
 	
 	@Override
-	public void setQuestLine(QuestLineButtonTree tree)
+	public void setQuestLine(QuestLineButtonTree tree, boolean resetView)
 	{
-		zoom = 100;
 		buttonTree = tree;
 		
 		if(tree == null)
 		{
 			this.qLine = null;
-			this.qBtns = new ArrayList<GuiButtonQuestInstance>();
+			this.qBtns.clear();;
 		} else
 		{
 			this.qLine = tree.getQuestLine();
 			this.qBtns = tree.getButtonTree();
 			
-			//autoAlign(false);
+			maxX = tree.getWidth();
+			maxY = tree.getHeight();
 			
-			scrollX = Math.abs(sizeX - maxX)/2;
-			scrollY = 16;
+			if(resetView)
+			{
+				zoom = 100;
+				scrollX = Math.abs(sizeX - maxX)/2;
+				scrollY = 16;
+			}
 		}
 	}
 	
-	private void handleMouse()
+	private int lastMX = 0;
+	private int lastMY = 0;
+	
+	private void mouseDrag(int mx, int my)
 	{
-    	Minecraft mc = Minecraft.getMinecraft();
-    	ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-        int sw = scaledresolution.getScaledWidth();
-        int sh = scaledresolution.getScaledHeight();
-        
+		int mdx = mx - lastMX;
+		int mdy = my - lastMY;
+		lastMX = mx;
+		lastMY = my;
+		
     	if((Mouse.isButtonDown(0) && !noScroll) || Mouse.isButtonDown(2))
     	{
 			float zs = zoom/100F;
-    		scrollX += (Mouse.getEventDX() * sw / mc.displayWidth)/zs;
-    		scrollY -= (Mouse.getEventDY() * sh / mc.displayHeight)/zs;
+    		scrollX += mdx/zs;
+    		scrollY += mdy/zs;
     		
     		if(curTool == null || curTool.clampScrolling())
     		{
@@ -294,6 +291,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	/**
 	 * Convert normal coordinates to canvas coordinates
 	 */
+	@Override
 	public int getRelativeX(int x)
 	{
 		float zs = zoom/100F;
@@ -303,6 +301,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	/**
 	 * Convert normal coordinates to canvas coordinates
 	 */
+	@Override
 	public int getRelativeY(int y)
 	{
 		float zs = zoom/100F;
@@ -312,6 +311,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	/**
 	 * Convert canvas coordinates to normal coordinates
 	 */
+	@Override
 	public int getScreenX(int x)
 	{
 		float zs = zoom/100F;
@@ -321,37 +321,44 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	/**
 	 * Convert canvas coordinates to normal coordinates
 	 */
+	@Override
 	public int getScreenY(int y)
 	{
 		float zs = zoom/100F;
 		return (int)((y + scrollY)*zs) + posY;
 	}
 	
+	@Override
 	public int getPosX()
 	{
 		return posX;
 	}
 	
+	@Override
 	public int getPosY()
 	{
 		return posY;
 	}
 	
+	@Override
 	public int getWidth()
 	{
 		return sizeX;
 	}
 	
+	@Override
 	public int getHeight()
 	{
 		return sizeY;
 	}
 	
+	@Override
 	public int getScrollX()
 	{
 		return scrollX;
 	}
 	
+	@Override
 	public int getScrollY()
 	{
 		return scrollY;

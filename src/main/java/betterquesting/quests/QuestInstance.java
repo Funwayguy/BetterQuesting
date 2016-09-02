@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
+import org.lwjgl.input.Keyboard;
 import betterquesting.api.database.IRegStorage;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
@@ -40,8 +41,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class QuestInstance implements IQuestContainer
 {
-	private BigItemStack itemIcon = new BigItemStack(Items.nether_star);
-	
 	private final TaskStorage tasks = new TaskStorage();
 	private final RewardStorage rewards = new RewardStorage();
 	
@@ -82,7 +81,15 @@ public class QuestInstance implements IQuestContainer
 	@Override
 	public BigItemStack getItemIcon()
 	{
-		return itemIcon;
+		BigItemStack def = new BigItemStack(Items.nether_star);
+		
+		if(!qInfo.hasProperty(QuestProperties.ICON))
+		{
+			qInfo.setProperty(QuestProperties.ICON, def);
+			return def;
+		}
+		
+		return qInfo.getProperty(QuestProperties.ICON, def);
 	}
 	
 	@Override
@@ -144,7 +151,7 @@ public class QuestInstance implements IQuestContainer
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
-					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
@@ -207,7 +214,7 @@ public class QuestInstance implements IQuestContainer
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getCompleteSound());
-					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
@@ -232,7 +239,7 @@ public class QuestInstance implements IQuestContainer
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
-					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
@@ -293,7 +300,7 @@ public class QuestInstance implements IQuestContainer
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getCompleteSound());
-					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
@@ -316,7 +323,7 @@ public class QuestInstance implements IQuestContainer
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qSounds.getUpdateSound());
-					tags.setTag("Icon", itemIcon.writeToNBT(new NBTTagCompound()));
+					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(QuestProperties.GLOBAL))
@@ -461,8 +468,20 @@ public class QuestInstance implements IQuestContainer
 		return total / tasks.size();
 	}
 	
+	@Override
+	public List<String> getTooltip(EntityPlayer player)
+	{
+		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		{
+			return this.getAdvancedTooltip(player);
+		} else
+		{
+			return this.getStandardTooltip(player);
+		}
+	}
+	
 	@SideOnly(Side.CLIENT)
-	public ArrayList<String> getStandardTooltip(EntityPlayer player)
+	private List<String> getStandardTooltip(EntityPlayer player)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -513,7 +532,7 @@ public class QuestInstance implements IQuestContainer
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public ArrayList<String> getAdvancedTooltip(EntityPlayer player)
+	private List<String> getAdvancedTooltip(EntityPlayer player)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -845,7 +864,7 @@ public class QuestInstance implements IQuestContainer
 			if(tmp == null)
 			{
 				tmp = new QuestInstance();
-				QuestDatabase.INSTANCE.add(tmp, QuestDatabase.INSTANCE.nextID());
+				QuestDatabase.INSTANCE.add(tmp, entry.getAsInt());
 			}
 			
 			preRequisites.add(tmp);

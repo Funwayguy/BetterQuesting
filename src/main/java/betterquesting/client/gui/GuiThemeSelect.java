@@ -10,7 +10,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
@@ -133,24 +132,15 @@ public class GuiThemeSelect extends GuiScreenThemed
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, themeList.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, themeList.size() - maxRows));
     		RefreshColumns();
         }
-    }
+	}
 	
 	public void RefreshColumns()
 	{

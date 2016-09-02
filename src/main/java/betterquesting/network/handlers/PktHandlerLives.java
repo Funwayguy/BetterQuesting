@@ -3,6 +3,8 @@ package betterquesting.network.handlers;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import betterquesting.api.events.QuestDataEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.lives.LifeDatabase;
@@ -27,5 +29,6 @@ public class PktHandlerLives implements IPacketHandler
 	public void handleClient(NBTTagCompound data)
 	{
 		LifeDatabase.INSTANCE.readPacket(data);
+		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
 	}
 }

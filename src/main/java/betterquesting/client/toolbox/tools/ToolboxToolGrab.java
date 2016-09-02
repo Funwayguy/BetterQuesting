@@ -1,26 +1,32 @@
 package betterquesting.client.toolbox.tools;
 
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.quest.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.PacketTypeNative;
+import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLineContainer;
 import betterquesting.api.quests.IQuestLineEntry;
-import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.toolbox.ToolboxTool;
-import betterquesting.quests.QuestLine.QuestLineEntry;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketSender;
+import betterquesting.quests.QuestDatabase;
+import betterquesting.quests.QuestLineDatabase;
+import com.google.gson.JsonObject;
 
 public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 {
+	IGuiQuestLine gui;
 	int grabID = -1;
-	IQuestLineEntry grabbed = null;
-	IQuestLineContainer questLine;
+	GuiButtonQuestInstance grabbed;
 	
 	@Override
-	public void initTool(IQuestLineContainer line)
+	public void initTool(IGuiQuestLine gui)
 	{
-		this.questLine = line;
+		this.gui = gui;
 		grabbed = null;
 		grabID = -1;
 	}
@@ -30,13 +36,13 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 	{
 		if(grabbed != null)
 		{
-			IQuestLineEntry qle = questLine.getValue(grabbed.quest.questID);
+			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			
 			if(qle != null)
 			{
 				// Reset position
-				grabbed.xPosition = qle.posX;
-				grabbed.yPosition = qle.posY;
+				grabbed.xPosition = qle.getPosX();
+				grabbed.yPosition = qle.getPosY();
 			}
 		}
 		
@@ -47,40 +53,32 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 	@Override
 	public void drawTool(int mx, int my, float partialTick)
 	{
-		int rmx = ui.getRelativeX(mx);
-		int rmy = ui.getRelativeY(my);
-		
 		if(grabbed != null)
 		{
 			int snap = ToolboxGuiMain.getSnapValue();
-			grabbed.xPosition = rmx;
-			grabbed.yPosition = rmy;
+			grabbed.xPosition = mx;
+			grabbed.yPosition = my;
 			int modX = ((grabbed.xPosition%snap) + snap)%snap;
 			int modY = ((grabbed.yPosition%snap) + snap)%snap;
 			grabbed.xPosition -= modX;
 			grabbed.yPosition -= modY;
 		}
 		
-		ToolboxGuiMain.drawGrid(ui);
+		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
-		{
-			return;
-		}
-		
 		if(click == 1)
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			
 			if(qle != null)
 			{
 				// Reset position
-				grabbed.xPosition = qle.posX;
-				grabbed.yPosition = qle.posY;
+				grabbed.xPosition = qle.getPosX();
+				grabbed.yPosition = qle.getPosY();
 			}
 			
 			grabbed = null;
@@ -92,31 +90,64 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 		
 		if(grabbed == null)
 		{
-			grabbed = ui.getClickedQuest(mx, my);
+			grabbed = gui.getQuestLine().getButtonAt(mx, my);
+			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getKey(grabbed.getQuest());
 		} else
 		{
-			QuestLineEntry qle = ui.getQuestLine().getEntryByID(grabbed.quest.questID);
+			IQuestLineContainer qLine = gui.getQuestLine().getQuestLine();
+			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
+			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			
 			if(qle != null)
 			{
-				qle.posX = grabbed.xPosition;
-				qle.posY = grabbed.yPosition;
-				ui.autoAlign(true);
+				qle.setPosition(grabbed.xPosition, grabbed.yPosition);
+				
+				// Sync Line
+				NBTTagCompound tag2 = new NBTTagCompound();
+				JsonObject base2 = new JsonObject();
+				base2.add("line", qLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
+				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+				tag2.setInteger("lineID", lID);
+				PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
 			}
 			
 			grabbed = null;
+			grabID = -1;
 		}
 	}
 	
 	@Override
-	public boolean showTooltips()
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+	
+	@Override
+	public void onKeyPressed(char c, int keyCode)
+	{
+	}
+	
+	@Override
+	public boolean allowTooltips()
 	{
 		return grabbed == null;
 	}
 	
 	@Override
-	public boolean allowDragging(int click)
+	public boolean allowScrolling(int click)
 	{
 		return grabbed == null || click == 2;
+	}
+	
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean clampScrolling()
+	{
+		return false;
 	}
 }

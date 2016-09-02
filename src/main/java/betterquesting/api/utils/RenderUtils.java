@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -59,6 +60,8 @@ public class RenderUtils
 		}
 		
 		GL11.glPushMatrix();
+		
+		float preZ = itemRender.zLevel;
         
 		try
 		{
@@ -73,12 +76,13 @@ public class RenderUtils
 		    if (font == null) font = mc.fontRenderer;
 		    itemRender.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), rStack, x, y);
 		    itemRender.renderItemOverlayIntoGUI(font, mc.getTextureManager(), rStack, x, y, text);
-		    itemRender.zLevel = 0.0F;
 		    
-		   RenderHelper.disableStandardItemLighting();
+		    RenderHelper.disableStandardItemLighting();
 		} catch(Exception e)
 		{
 		}
+		
+		itemRender.zLevel = preZ;
 		
         GL11.glPopMatrix();
 	}
@@ -164,5 +168,16 @@ public class RenderUtils
 			
 			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
 		}
+	}
+	
+	/**
+	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution
+	 */
+	public static void guiScissor(Minecraft mc, int x, int y, int w, int h)
+	{
+		ScaledResolution r = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+		int f = r.getScaleFactor();
+		
+		GL11.glScissor(x * f, (r.getScaledHeight() - y - h)*f, w * f, h * f);
 	}
 }

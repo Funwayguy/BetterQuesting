@@ -8,7 +8,6 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
@@ -21,7 +20,7 @@ import betterquesting.party.PartyManager;
 
 public class GuiPartyInvite extends GuiScreenThemed
 {
-	int scroll = 0;
+	int listScroll = 0;
 	int maxRows = 0;
 	IParty party;
 	List<GuiPlayerInfo> playerList;
@@ -79,7 +78,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 		}
 		
 		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)scroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)listScroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
 	}
 	
 	public void actionPerformed(GuiButton button)
@@ -97,7 +96,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 		{
 			int n1 = button.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
-			int n3 = n1%(maxRows*3) + scroll; // Format index
+			int n3 = n1%(maxRows*3) + listScroll; // Format index
 			
 			if(n2 == 0)
 			{
@@ -125,17 +124,13 @@ public class GuiPartyInvite extends GuiScreenThemed
 	}
 	
 	@Override
-	public void handleMouseInput()
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
+        if(scroll != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
         {
-    		scroll = Math.max(0, MathHelper.clamp_int(scroll + SDX*3, 0, playerList.size() - maxRows*3));
+    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll*3, 0, playerList.size() - maxRows*3));
     		RefreshColumns();
         }
 	}
@@ -164,7 +159,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 	
 	public void RefreshColumns()
 	{
-		scroll = Math.max(0, MathHelper.clamp_int(scroll, 0, playerList.size() - maxRows*3));
+		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, playerList.size() - maxRows*3));
 
 		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
@@ -174,7 +169,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 			GuiButton btn = btnList.get(i);
 			int n1 = btn.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
-			int n3 = n1%(maxRows*3) + scroll; // Format index
+			int n3 = n1%(maxRows*3) + listScroll; // Format index
 			
 			if(n2 == 0)
 			{

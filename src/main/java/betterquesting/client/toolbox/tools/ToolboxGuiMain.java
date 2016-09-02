@@ -1,118 +1,116 @@
 package betterquesting.client.toolbox.tools;
 
 import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.quest.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.editors.GuiQuestLineDesigner;
-import betterquesting.client.toolbox.ToolboxTool;
 import betterquesting.core.BetterQuesting;
-import betterquesting.registry.ThemeRegistry;
 
-public class ToolboxGuiMain implements IGuiEmbedded
+public class ToolboxGuiMain extends GuiElement implements IGuiEmbedded
 {
-	ArrayList<GuiButtonThemed> list = new ArrayList<GuiButtonThemed>();
+	private IGuiQuestLine gui;
+	
+	private ArrayList<GuiButtonThemed> list = new ArrayList<GuiButtonThemed>();
 	private static int dragSnap = 2;
 	private static int[] snaps = new int[]{1,4,6,8,12,24};
 	
-	GuiButtonThemed btnOpen;
-	GuiButtonThemed btnNew;
-	GuiButtonThemed btnGrab;
-	GuiButtonThemed btnSnap;
-	GuiButtonThemed btnLink;
-	GuiButtonThemed btnCopy;
-	GuiButtonThemed btnRem;
-	GuiButtonThemed btnDel;
-	GuiButtonThemed btnCom;
-	GuiButtonThemed btnRes;
-	GuiButtonThemed btnIco;
+	private GuiButtonThemed btnOpen;
+	private GuiButtonThemed btnNew;
+	private GuiButtonThemed btnGrab;
+	private GuiButtonThemed btnSnap;
+	private GuiButtonThemed btnLink;
+	private GuiButtonThemed btnCopy;
+	private GuiButtonThemed btnRem;
+	private GuiButtonThemed btnDel;
+	private GuiButtonThemed btnCom;
+	private GuiButtonThemed btnRes;
+	private GuiButtonThemed btnIco;
 	
-	public ToolboxGuiMain(int posX, int posY, int sizeX, int sizeY)
+	public ToolboxGuiMain(IGuiQuestLine gui, int posX, int posY, int sizeX, int sizeY)
 	{
-	}
-	
-	@Override
-	public void refreshGui()
-	{
-		IToolboxTool curTool = designer.getEmbeddedGui().getCurrentTool();
+		this.gui = gui;
+		
+		IToolboxTool curTool = gui.getActiveTool();
 		
 		list.clear();
 		
-		btnOpen = new GuiButtonThemed(0, posX + 8, posY + 8, 20, 20, "");
+		btnOpen = new GuiButtonThemed(0, posX + 8, posY + 8, 20, 20, "", false);
 		btnOpen.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 112, 0, 16, 16, true);
 		setButtonTooltip(btnOpen, I18n.format("betterquesting.toolbox.tool.open.name"), I18n.format("betterquesting.toolbox.tool.open.desc"));
 		list.add(btnOpen);
 		btnOpen.enabled = curTool != ToolboxTabMain.instance.toolOpen;
 		
-		btnNew = new GuiButtonThemed(1, posX + 36, posY + 8, 20, 20, "");
+		btnNew = new GuiButtonThemed(1, posX + 36, posY + 8, 20, 20, "", false);
 		btnNew.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 48, 16, 16, 16, true);
 		setButtonTooltip(btnNew, I18n.format("betterquesting.toolbox.tool.new.name"), I18n.format("betterquesting.toolbox.tool.new.desc"));
 		list.add(btnNew);
 		btnNew.enabled = curTool != ToolboxTabMain.instance.toolNew;
 		
-		btnGrab = new GuiButtonThemed(2, posX + 8, posY + 36, 20, 20, "");
+		btnGrab = new GuiButtonThemed(2, posX + 8, posY + 36, 20, 20, "", false);
 		btnGrab.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 48, 0, 16, 16, true);
 		setButtonTooltip(btnGrab, I18n.format("betterquesting.toolbox.tool.grab.name"), I18n.format("betterquesting.toolbox.tool.grab.desc"));
 		list.add(btnGrab);
 		btnGrab.enabled = curTool != ToolboxTabMain.instance.toolGrab;
 		
-		btnSnap = new GuiButtonThemed(2, posX + 36, posY + 36, 20, 20, EnumChatFormatting.BLACK.toString() + dragSnap);
+		btnSnap = new GuiButtonThemed(2, posX + 36, posY + 36, 20, 20, EnumChatFormatting.BLACK.toString() + dragSnap, false);
 		btnSnap.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 64, 0, 16, 16, true);
 		setButtonTooltip(btnSnap, I18n.format("betterquesting.toolbox.tool.snap.name"), I18n.format("betterquesting.toolbox.tool.snap.desc"));
-		btnSnap.disableShadow();
 		list.add(btnSnap);
 		
-		btnLink = new GuiButtonThemed(2, posX + 8, posY + 64, 20, 20, "");
+		btnLink = new GuiButtonThemed(2, posX + 8, posY + 64, 20, 20, "", false);
 		btnLink.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 80, 0, 16, 16, true);
 		setButtonTooltip(btnLink, I18n.format("betterquesting.toolbox.tool.link.name"), I18n.format("betterquesting.toolbox.tool.link.desc"));
 		list.add(btnLink);
 		btnLink.enabled = curTool != ToolboxTabMain.instance.toolLink;
 		
-		btnCopy = new GuiButtonThemed(2, posX + 36, posY + 64, 20, 20, "");
+		btnCopy = new GuiButtonThemed(2, posX + 36, posY + 64, 20, 20, "", false);
 		btnCopy.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 32, 0, 16, 16, true);
 		setButtonTooltip(btnCopy, I18n.format("betterquesting.toolbox.tool.copy.name"), I18n.format("betterquesting.toolbox.tool.copy.desc"));
 		list.add(btnCopy);
 		btnCopy.enabled = curTool != ToolboxTabMain.instance.toolCopy;
 		
-		btnRem = new GuiButtonThemed(2, posX + 8, posY + 92, 20, 20, "");
+		btnRem = new GuiButtonThemed(2, posX + 8, posY + 92, 20, 20, "", false);
 		btnRem.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 112, 16, 16, 16, true);
 		setButtonTooltip(btnRem, I18n.format("betterquesting.toolbox.tool.remove.name"), I18n.format("betterquesting.toolbox.tool.remove.desc"));
 		list.add(btnRem);
 		btnRem.enabled = curTool != ToolboxTabMain.instance.toolRem;
 		
-		btnDel = new GuiButtonThemed(2, posX + 36, posY + 92, 20, 20, "");
+		btnDel = new GuiButtonThemed(2, posX + 36, posY + 92, 20, 20, "", false);
 		btnDel.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 16, 0, 16, 16, true);
 		setButtonTooltip(btnDel, I18n.format("betterquesting.toolbox.tool.delete.name"), I18n.format("betterquesting.toolbox.tool.delete.desc"));
 		list.add(btnDel);
 		btnDel.enabled = curTool != ToolboxTabMain.instance.toolDel;
 		
-		btnCom = new GuiButtonThemed(2, posX + 8, posY + 120, 20, 20, "");
+		btnCom = new GuiButtonThemed(2, posX + 8, posY + 120, 20, 20, "", false);
 		btnCom.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 128, 0, 16, 16, true);
 		setButtonTooltip(btnCom, I18n.format("betterquesting.toolbox.tool.complete.name"), I18n.format("betterquesting.toolbox.tool.complete.desc"));
 		list.add(btnCom);
 		btnCom.enabled = curTool != ToolboxTabMain.instance.toolCom;
 		
-		btnRes = new GuiButtonThemed(2, posX + 36, posY + 120, 20, 20, "");
+		btnRes = new GuiButtonThemed(2, posX + 36, posY + 120, 20, 20, "", false);
 		btnRes.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 128, 16, 16, 16, true);
 		setButtonTooltip(btnRes, I18n.format("betterquesting.toolbox.tool.reset.name"), I18n.format("betterquesting.toolbox.tool.reset.desc"));
 		list.add(btnRes);
 		btnRes.enabled = curTool != ToolboxTabMain.instance.toolRes;
 		
-		btnIco = new GuiButtonThemed(2, posX + 8, posY + 148, 20, 20, "");
+		btnIco = new GuiButtonThemed(2, posX + 8, posY + 148, 20, 20, "", false);
 		btnIco.setIcon(new ResourceLocation(BetterQuesting.MODID + ":textures/gui/editor_icons.png"), 144, 0, 16, 16, true);
 		setButtonTooltip(btnIco, I18n.format("betterquesting.toolbox.tool.icon.name"), I18n.format("betterquesting.toolbox.tool.icon.desc"));
 		list.add(btnIco);
 		btnIco.enabled = curTool != ToolboxTabMain.instance.toolIco;
 		
-		if(designer.getEmbeddedGui() != null && designer.getEmbeddedGui().getCurrentTool() == null)
+		if(gui.getActiveTool() == null)
 		{
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolOpen);
+			gui.setActiveTool(ToolboxTabMain.instance.toolOpen);
 			resetButtons();
 			btnOpen.enabled = false;
 		}
@@ -129,23 +127,25 @@ public class ToolboxGuiMain implements IGuiEmbedded
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		btnOpen.drawButton(screen.mc, mx, my);
-		btnNew.drawButton(screen.mc, mx, my);
-		btnGrab.drawButton(screen.mc, mx, my);
-		btnSnap.drawButton(screen.mc, mx, my);
-		btnLink.drawButton(screen.mc, mx, my);
-		btnCopy.drawButton(screen.mc, mx, my);
-		btnRem.drawButton(screen.mc, mx, my);
-		btnDel.drawButton(screen.mc, mx, my);
-		btnCom.drawButton(screen.mc, mx, my);
-		btnRes.drawButton(screen.mc, mx, my);
-		btnIco.drawButton(screen.mc, mx, my);
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		btnOpen.drawButton(mc, mx, my);
+		btnNew.drawButton(mc, mx, my);
+		btnGrab.drawButton(mc, mx, my);
+		btnSnap.drawButton(mc, mx, my);
+		btnLink.drawButton(mc, mx, my);
+		btnCopy.drawButton(mc, mx, my);
+		btnRem.drawButton(mc, mx, my);
+		btnDel.drawButton(mc, mx, my);
+		btnCom.drawButton(mc, mx, my);
+		btnRes.drawButton(mc, mx, my);
+		btnIco.drawButton(mc, mx, my);
 	}
 	
 	@Override
 	public void drawForeground(int mx, int my, float partialTick)
 	{
-		GuiButtonQuesting bTip = null;
+		GuiButtonThemed bTip = null;
 		
 		bTip = btnOpen.func_146115_a()? btnOpen : bTip;
 		bTip = btnNew.func_146115_a()? btnNew : bTip;
@@ -161,11 +161,11 @@ public class ToolboxGuiMain implements IGuiEmbedded
 		
 		if(bTip != null)
 		{
-			ArrayList<String> sTip = bTip.getTooltip();
+			List<String> sTip = bTip.getTooltip();
 			
 			if(sTip != null && sTip.size() > 0)
 			{
-				designer.drawTooltip(bTip.getTooltip(), mx, my);
+				drawTooltip(bTip.getTooltip(), mx, my, Minecraft.getMinecraft().fontRenderer);
 			}
 		}
 	}
@@ -173,21 +173,20 @@ public class ToolboxGuiMain implements IGuiEmbedded
 	/**
 	 * Draws the active snap grid (called from supported tools)
 	 */
-	public static void drawGrid(GuiQuestLinesEmbedded ui)
+	public static void drawGrid(IGuiQuestLine ui)
 	{
 		if(getSnapValue() <= 1)
 		{
 			return;
 		}
 		
-		int minI = ui.getRelativeX(ui.getPosX());
-		int minJ = ui.getRelativeY(ui.getPosY());
-		minI -= minI%getSnapValue();
-		minJ -= minJ%getSnapValue();
-		int maxI = ui.getRelativeX(ui.getPosX() + ui.getWidth());
-		int maxJ = ui.getRelativeY(ui.getPosY() + ui.getHeight());
+		float zs = ui.getZoom()/100F;
+		int minI = -ui.getScrollX();
+		int minJ = -ui.getScrollY();
+		int maxI = minI + (int)(ui.getWidth()/zs);
+		int maxJ = minJ + (int)(ui.getHeight()/zs);
 		
-		for(int i = minI; i < maxI; i += getSnapValue())
+		for(int i = minI - minI%getSnapValue(); i < maxI; i += getSnapValue())
 		{
 			GL11.glPushMatrix();
 			GL11.glEnable(GL11.GL_LINE_STIPPLE);
@@ -196,13 +195,13 @@ public class ToolboxGuiMain implements IGuiEmbedded
 				//GL11.glLineStipple(2, (short)0b1010101010101010); // 1.7 upward only
 				GL11.glLineStipple(2, (short)43690);
 			}
-			RenderUtils.DrawLine(ui.getScreenX(i), ui.getPosY(), ui.getScreenX(i), ui.getPosY() + ui.getHeight(), i == 0? 2F : 1F, ThemeRegistry.curTheme().textColor());
+			RenderUtils.DrawLine(i, minJ, i, maxJ, i == 0? 2F : 1F, getTextColor());
 			GL11.glLineStipple(1, (short)0xFFFF);
 			GL11.glDisable(GL11.GL_LINE_STIPPLE);
 			GL11.glPopMatrix();
 		}
 		
-		for(int j = minJ; j < maxJ; j += getSnapValue())
+		for(int j = minJ - minJ%getSnapValue(); j < maxJ; j += getSnapValue())
 		{
 			GL11.glPushMatrix();
 			GL11.glEnable(GL11.GL_LINE_STIPPLE);
@@ -211,7 +210,7 @@ public class ToolboxGuiMain implements IGuiEmbedded
 				//GL11.glLineStipple(2, (short)0b1010101010101010); // 1.7 upward only
 				GL11.glLineStipple(2, (short)43690);
 			}
-			RenderUtils.DrawLine(ui.getPosX(), ui.getScreenY(j), ui.getPosX() + ui.getWidth(), ui.getScreenY(j), j == 0? 2F : 1F, ThemeRegistry.curTheme().textColor());
+			RenderUtils.DrawLine(minI, j, maxI, j, j == 0? 2F : 1F, getTextColor());
 			GL11.glLineStipple(1, (short)0xFFFF);
 			GL11.glDisable(GL11.GL_LINE_STIPPLE);
 			GL11.glPopMatrix();
@@ -221,72 +220,82 @@ public class ToolboxGuiMain implements IGuiEmbedded
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(btnOpen.mousePressed(screen.mc, mx, my))
+		if(btnOpen.mousePressed(btnOpen.mc, mx, my))
 		{
 			resetButtons();
-			btnOpen.func_146113_a(screen.mc.getSoundHandler());
+			btnOpen.func_146113_a(btnOpen.mc.getSoundHandler());
 			btnOpen.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolOpen);
-		} else if(btnSnap.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolOpen);
+		} else if(btnSnap.mousePressed(btnSnap.mc, mx, my))
 		{
-			btnSnap.func_146113_a(screen.mc.getSoundHandler());
+			btnSnap.func_146113_a(btnSnap.mc.getSoundHandler());
 			toggleSnap();
 			btnSnap.displayString = EnumChatFormatting.BLACK.toString() + dragSnap;
-		} else if(btnGrab.mousePressed(screen.mc, mx, my))
+		} else if(btnGrab.mousePressed(btnGrab.mc, mx, my))
 		{
 			resetButtons();
-			btnGrab.func_146113_a(screen.mc.getSoundHandler());
+			btnGrab.func_146113_a(btnGrab.mc.getSoundHandler());
 			btnGrab.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolGrab);
-		} else if(btnNew.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolGrab);
+		} else if(btnNew.mousePressed(btnNew.mc, mx, my))
 		{
 			resetButtons();
-			btnNew.func_146113_a(screen.mc.getSoundHandler());
+			btnNew.func_146113_a(btnNew.mc.getSoundHandler());
 			btnNew.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolNew);
-		} else if(btnCopy.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolNew);
+		} else if(btnCopy.mousePressed(btnCopy.mc, mx, my))
 		{
 			resetButtons();
-			btnCopy.func_146113_a(screen.mc.getSoundHandler());
+			btnCopy.func_146113_a(btnCopy.mc.getSoundHandler());
 			btnCopy.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolCopy);
-		} else if(btnLink.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolCopy);
+		} else if(btnLink.mousePressed(btnLink.mc, mx, my))
 		{
 			resetButtons();
-			btnLink.func_146113_a(screen.mc.getSoundHandler());
+			btnLink.func_146113_a(btnLink.mc.getSoundHandler());
 			btnLink.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolLink);
-		} else if(btnDel.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolLink);
+		} else if(btnDel.mousePressed(btnDel.mc, mx, my))
 		{
 			resetButtons();
-			btnDel.func_146113_a(screen.mc.getSoundHandler());
+			btnDel.func_146113_a(btnDel.mc.getSoundHandler());
 			btnDel.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolDel);
-		} else if(btnRem.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolDel);
+		} else if(btnRem.mousePressed(btnRem.mc, mx, my))
 		{
 			resetButtons();
-			btnRem.func_146113_a(screen.mc.getSoundHandler());
+			btnRem.func_146113_a(btnRem.mc.getSoundHandler());
 			btnRem.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolRem);
-		} else if(btnCom.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolRem);
+		} else if(btnCom.mousePressed(btnCom.mc, mx, my))
 		{
 			resetButtons();
-			btnCom.func_146113_a(screen.mc.getSoundHandler());
+			btnCom.func_146113_a(btnCom.mc.getSoundHandler());
 			btnCom.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolCom);
-		} else if(btnRes.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolCom);
+		} else if(btnRes.mousePressed(btnRes.mc, mx, my))
 		{
 			resetButtons();
-			btnRes.func_146113_a(screen.mc.getSoundHandler());
+			btnRes.func_146113_a(btnRes.mc.getSoundHandler());
 			btnRes.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolRes);
-		} else if(btnIco.mousePressed(screen.mc, mx, my))
+			gui.setActiveTool(ToolboxTabMain.instance.toolRes);
+		} else if(btnIco.mousePressed(btnIco.mc, mx, my))
 		{
 			resetButtons();
-			btnIco.func_146113_a(screen.mc.getSoundHandler());
+			btnIco.func_146113_a(btnIco.mc.getSoundHandler());
 			btnIco.enabled = false;
-			designer.getEmbeddedGui().setCurrentTool(ToolboxTabMain.instance.toolIco);
+			gui.setActiveTool(ToolboxTabMain.instance.toolIco);
 		}
+	}
+	
+	@Override
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+	
+	@Override
+	public void onKeyTyped(char c, int keyCode)
+	{
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -294,7 +303,7 @@ public class ToolboxGuiMain implements IGuiEmbedded
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(title);
-		list.addAll(designer.mc.fontRenderer.listFormattedStringToWidth(EnumChatFormatting.GRAY + desc, 128));
+		list.addAll(btn.mc.fontRenderer.listFormattedStringToWidth(EnumChatFormatting.GRAY + desc, 128));
 		btn.setTooltip(list);
 	}
 	

@@ -78,9 +78,15 @@ public class JsonHelper
 			return def;
 		}
 		
-		if(json.has(id) && json.get(id).isJsonPrimitive() && json.get(id).getAsJsonPrimitive().isNumber())
+		if(json.has(id) && json.get(id).isJsonPrimitive())
 		{
-			return json.get(id).getAsInt();
+			try
+			{
+				return json.get(id).getAsNumber();
+			} catch(Exception e)
+			{
+				return def;
+			}
 		} else
 		{
 			return def;
@@ -96,7 +102,7 @@ public class JsonHelper
 		
 		if(json.has(id) && json.get(id).isJsonPrimitive())
 		{
-			try // Booleans can be stored as strings so there is no quick way of determining whether it is valid or not
+			try
 			{
 				return json.get(id).getAsBoolean();
 			} catch(Exception e)

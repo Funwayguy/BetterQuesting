@@ -11,10 +11,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
@@ -55,7 +55,6 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		super.initGui();
 		
 		party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
-		status = party.getStatus(mc.thePlayer.getUniqueID());
 		
 		if(party == null)
 		{
@@ -63,6 +62,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			return;
 		}
 		
+		status = NameCache.INSTANCE.isOP(mc.thePlayer.getUniqueID())? EnumPartyStatus.OWNER : party.getStatus(mc.thePlayer.getUniqueID());
 		heart = new ItemStack(BetterQuesting.extraLife);
 		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getUniqueID());
 		memList = party.getMembers();
@@ -163,9 +163,9 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		if(button.id == 1) // Leave party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 1);
+			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-			tags.setString("Member", mc.thePlayer.getUniqueID().toString());
+			tags.setString("target", mc.thePlayer.getUniqueID().toString());
 			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id == 2 && status.ordinal() >= 3) // Share loot
 		{
@@ -189,9 +189,9 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 				if(n3 >= 0 && n3 < memList.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 1);
+					tags.setInteger("action", EnumPacketAction.KICK.ordinal());
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-					tags.setString("Member", memList.get(n3).toString());
+					tags.setString("target", memList.get(n3).toString());
 					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
@@ -233,35 +233,31 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, memList.size() - maxRows));
+    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, memList.size() - maxRows));
     		RefreshColumns();
         }
 	}
 	
 	public void SendChanges() // Use this if the name is being edited
 	{
-		if(status.ordinal() < 2)
+		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(mc.thePlayer.getUniqueID()))
 		{
-			return; // Not allowed to edit the party
+			return; // Not allowed to edit the party (Operators may force edit)
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", 2);
+		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-		tags.setString("Member", mc.thePlayer.getUniqueID().toString());
-		JsonObject pJson = new JsonObject();
-		party.writeToJson(pJson, EnumSaveType.CONFIG);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(pJson, new NBTTagCompound()));
+		//tags.setString("target", mc.thePlayer.getUniqueID().toString());
+		JsonObject base = new JsonObject();
+		base.add("party", party.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}
 	

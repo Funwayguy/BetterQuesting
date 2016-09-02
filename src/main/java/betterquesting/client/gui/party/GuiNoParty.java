@@ -10,10 +10,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.party.IParty;
@@ -148,7 +148,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 		if(button.id == 1) // Create party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 0);
+			tags.setInteger("action", EnumPacketAction.ADD.ordinal());
 			tags.setString("Party", fieldName.getText());
 			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1) // Join party
@@ -162,7 +162,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 				if(n3 >= 0 && n3 < invites.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 3);
+					tags.setInteger("action", EnumPacketAction.JOIN.ordinal());
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(invites.get(n3)));
 					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
@@ -195,17 +195,13 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
     }
 	
 	@Override
-	public void handleMouseInput()
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, invites.size() - maxRows));
+    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, invites.size() - maxRows));
     		RefreshColumns();
         }
 	}
@@ -233,6 +229,9 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 				{
 					btn.visible = btn.enabled = false;
 				}
+			} else
+			{
+				System.out.println("N1: " + n1 + ", N2: " + n2 + ", N3: " + n3 + ", Rows: " + maxRows);
 			}
 		}
 	}

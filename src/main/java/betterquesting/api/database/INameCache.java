@@ -15,4 +15,6 @@ public interface INameCache extends IJsonSaveLoad<JsonArray>, IDataSync
 	public boolean isOP(UUID uuid);
 	
 	public void updateNames(MinecraftServer server);
+	
+	public int size();
 }

@@ -83,13 +83,13 @@ public class ThemeStandard implements IThemeBase
 	@Override
 	public short getLineStipple(IQuestContainer quest, EnumQuestState state)
 	{
-		return (short)0xAAAA;
+		return (short)0xFFFF;
 	}
 	
 	@Override
 	public float getLineWidth(IQuestContainer quest, EnumQuestState state)
 	{
-		return quest.getInfo().getProperty(QuestProperties.MAIN)? 4F : 2F;
+		return quest.getInfo().getProperty(QuestProperties.MAIN)? 8F : 4F;
 	}
 	
 	@Override

@@ -30,7 +30,7 @@ public final class NameCache implements INameCache
 	@Override
 	public String getName(UUID uuid)
 	{
-		if(cache.containsKey(uuid))
+		if(!cache.containsKey(uuid))
 		{
 			return uuid.toString();
 		} else
@@ -70,10 +70,10 @@ public final class NameCache implements INameCache
 			
 			if(prof != null)
 			{
-				if(!name.equalsIgnoreCase(getName(prof.getId())))
+				if(!prof.getName().equalsIgnoreCase(getName(prof.getId())))
 				{
 					JsonObject json = new JsonObject();
-					json.addProperty("name", name);
+					json.addProperty("name", prof.getName());
 					json.addProperty("isOP", server.getConfigurationManager().func_152596_g(prof));
 					cache.put(prof.getId(), json);
 					flag = true;
@@ -88,11 +88,17 @@ public final class NameCache implements INameCache
 	}
 	
 	@Override
+	public int size()
+	{
+		return cache.size();
+	}
+	
+	@Override
 	public PreparedPayload getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json = new JsonObject();
-		json.add("data", this.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+		json.add("cache", this.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
 		return new PreparedPayload(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}

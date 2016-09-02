@@ -1,12 +1,15 @@
 package betterquesting.api.quests.properties;
 
+import net.minecraft.init.Items;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.quests.properties.basic.QuestPropertyBoolean;
 import betterquesting.api.quests.properties.basic.QuestPropertyEnum;
+import betterquesting.api.quests.properties.basic.QuestPropertyItemStack;
 import betterquesting.api.quests.properties.basic.QuestPropertyNumber;
 import betterquesting.api.quests.properties.basic.QuestPropertyString;
+import betterquesting.api.utils.BigItemStack;
 
 /**
  * List of standard properties quests can have
@@ -30,4 +33,6 @@ public class QuestProperties
 	
 	public static final IQuestProperty<Number> REPEAT_TIME =				new QuestPropertyNumber(new ResourceLocation("betterquesting:repeatTime"), -1);
 	public static final IQuestProperty<Number> PARTICIPATION =				new QuestPropertyNumber(new ResourceLocation("betterquesting:participation"), 1F);
+	
+	public static final IQuestProperty<BigItemStack> ICON =					new QuestPropertyItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.nether_star));
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.resources.I18n;
@@ -70,11 +71,11 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		
 		Keyboard.enableRepeatEvents(true);
 		
-		this.buttonList.add(new GuiButtonThemed(0, guiLeft + sizeX/2 - 100, guiTop + sizeY - 16, 200, 20, "gui.done", true));
+		this.buttonList.clear();
+		this.buttonList.add(new GuiButtonThemed(0, guiLeft + sizeX/2 - 100, guiTop + sizeY - 16, 200, 20, I18n.format("gui.done"), true));
 	}
 	
-	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
 		this.drawDefaultBackground();
 		
@@ -110,10 +111,18 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		String tmp = I18n.format(title);
 		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
+		GL11.glColor4f(1F, 1F, 1F, 1F);
+		
 		for(IGuiEmbedded e : embedded)
 		{
 			e.drawBackground(mx, my, partialTick);
 		}
+	}
+	
+	@Override
+	public void drawScreen(int mx, int my, float partialTick)
+	{
+		this.drawBackPanel(mx, my, partialTick);
 		
 		super.drawScreen(mx, my, partialTick);
 		
@@ -124,6 +133,15 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		
 		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		GL11.glColor4f(1F, 1F, 1F, 1F);
+	}
+	
+	@Override
+	public void actionPerformed(GuiButton button)
+	{
+		if(button.id == 0)
+		{
+			mc.displayGuiScreen(parent);
+		}
 	}
 	
 	@Override
@@ -149,9 +167,17 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	        {
 	        	gui.onMouseClick(i, j, k);
 	        }
-	        
-	        gui.onMouseScroll(i, j, SDX);
         }
+        
+        this.mouseScroll(i, j, SDX);
+	}
+	
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		for(IGuiEmbedded gui : embedded)
+		{
+			gui.onMouseScroll(mx, my, scroll);
+		}
 	}
 	
 	@Override
@@ -270,5 +296,11 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
     	{
     		return mx >= startX && my >= startY && mx < startX + sizeX && my < startY + sizeY;
     	}
+    }
+    
+    @Override
+    public boolean doesGuiPauseGame()
+    {
+        return false; // Minecraft will halt editor packet handling if paused
     }
 }
