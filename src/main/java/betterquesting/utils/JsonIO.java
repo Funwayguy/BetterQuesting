@@ -1,9 +1,16 @@
 package betterquesting.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
@@ -44,7 +51,8 @@ public class JsonIO
 		
 		try
 		{
-			FileReader fr = new FileReader(file);
+			//FileReader fr = new FileReader(file);
+			Reader fr = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
 			JsonObject json = new Gson().fromJson(fr, JsonObject.class);
 			fr.close();
 			return json;
@@ -81,7 +89,8 @@ public class JsonIO
 				file.createNewFile();
 			}
 			
-			FileWriter fw = new FileWriter(file);
+			//FileWriter fw = new FileWriter(file);
+			OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file),Charset.forName("UTF-8"));
 			new GsonBuilder().setPrettyPrinting().create().toJson(jObj, fw);
 			fw.close();
 		} catch(Exception e)
