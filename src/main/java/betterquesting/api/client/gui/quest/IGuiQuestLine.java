@@ -1,7 +1,7 @@
 package betterquesting.api.client.gui.quest;
 
+import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.IGuiEmbedded;
-import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.toolbox.IToolboxTool;
 
 public interface IGuiQuestLine extends IGuiEmbedded
@@ -12,6 +12,8 @@ public interface IGuiQuestLine extends IGuiEmbedded
 	// Can be used to modify button positions without making permanent changes
 	public QuestLineButtonTree getQuestLine();
 	public void setQuestLine(QuestLineButtonTree line, boolean resetView);
+	
+	public void setBackground(ResourceLocation image, int size);
 	
 	public int getRelativeX(int mx);
 	public int getRelativeY(int my);

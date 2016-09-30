@@ -9,7 +9,7 @@ import betterquesting.api.database.IQuestLineDatabase;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -23,7 +23,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	/** 
 	 * NOTE: The keys used in this database represent questIDs and are NOT unique identifiers
 	 */
-	private final ConcurrentHashMap<Integer, IQuestLineContainer> questLines = new ConcurrentHashMap<Integer, IQuestLineContainer>();
+	private final ConcurrentHashMap<Integer, IQuestLine> questLines = new ConcurrentHashMap<Integer, IQuestLine>();
 	
 	private QuestLineDatabase()
 	{
@@ -32,14 +32,14 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	@Override
 	public void removeQuest(int questID)
 	{
-		for(IQuestLineContainer ql : getAllValues())
+		for(IQuestLine ql : getAllValues())
 		{
-			ql.remove(questID);
+			ql.removeKey(questID);
 		}
 	}
 	
 	@Override
-	public int nextID()
+	public Integer nextKey()
 	{
 		int id = 0;
 		
@@ -52,7 +52,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public boolean add(IQuestLineContainer questLine, int id)
+	public boolean add(IQuestLine questLine, Integer id)
 	{
 		if(id < 0 || questLine == null || questLines.containsValue(questLine) || questLines.containsKey(id))
 		{
@@ -64,21 +64,21 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public boolean remove(int lineId)
+	public boolean removeKey(Integer lineId)
 	{
 		return questLines.remove(lineId) != null;
 	}
 	
 	@Override
-	public boolean remove(IQuestLineContainer quest)
+	public boolean removeValue(IQuestLine quest)
 	{
-		return remove(getKey(quest));
+		return removeKey(getKey(quest));
 	}
 	
 	@Override
-	public int getKey(IQuestLineContainer questLine)
+	public Integer getKey(IQuestLine questLine)
 	{
-		for(Entry<Integer,IQuestLineContainer> entry  : questLines.entrySet())
+		for(Entry<Integer,IQuestLine> entry  : questLines.entrySet())
 		{
 			if(entry.getValue() == questLine)
 			{
@@ -90,15 +90,15 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public IQuestLineContainer getValue(int lineId)
+	public IQuestLine getValue(Integer lineId)
 	{
 		return questLines.get(lineId);
 	}
 	
 	@Override
-	public List<IQuestLineContainer> getAllValues()
+	public List<IQuestLine> getAllValues()
 	{
-		return new ArrayList<IQuestLineContainer>(questLines.values());
+		return new ArrayList<IQuestLine>(questLines.values());
 	}
 	
 	@Override
@@ -145,7 +145,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 			return json;
 		}
 		
-		for(Entry<Integer,IQuestLineContainer> entry : questLines.entrySet())
+		for(Entry<Integer,IQuestLine> entry : questLines.entrySet())
 		{
 			if(entry.getValue() == null)
 			{
@@ -168,7 +168,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 			return;
 		}
 		
-		ArrayList<IQuestLineContainer> unassigned = new ArrayList<IQuestLineContainer>();
+		ArrayList<IQuestLine> unassigned = new ArrayList<IQuestLine>();
 		
 		for(JsonElement entry : json)
 		{
@@ -193,9 +193,9 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 		}
 		
 		// Legacy support ONLY
-		for(IQuestLineContainer q : unassigned)
+		for(IQuestLine q : unassigned)
 		{
-			questLines.put(this.nextID(), q);
+			questLines.put(this.nextKey(), q);
 		}
 	}
 }

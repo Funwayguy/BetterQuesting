@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.database.IJsonSaveLoad;
-import betterquesting.api.database.IRegStorage;
+import betterquesting.api.database.IRegStorageBase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.registry.TaskRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonArray>
+public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoad<JsonArray>
 {
-	private final HashMap<Integer,ITaskBase> database = new HashMap<Integer,ITaskBase>();
+	private final HashMap<Integer,ITask> database = new HashMap<Integer,ITask>();
 	
 	@Override
-	public int nextID()
+	public Integer nextKey()
 	{
 		int id = 0;
 		
@@ -33,7 +33,7 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	}
 
 	@Override
-	public boolean add(ITaskBase obj, int id)
+	public boolean add(ITask obj, Integer id)
 	{
 		if(obj == null || database.containsKey(id) || database.containsKey(id))
 		{
@@ -45,29 +45,29 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	}
 	
 	@Override
-	public boolean remove(int id)
+	public boolean removeKey(Integer id)
 	{
 		return database.remove(id) != null;
 	}
 	
 	@Override
-	public boolean remove(ITaskBase task)
+	public boolean removeValue(ITask task)
 	{
-		return remove(getKey(task));
+		return removeKey(getKey(task));
 	}
 	
 	@Override
-	public ITaskBase getValue(int id)
+	public ITask getValue(Integer id)
 	{
 		return database.get(id);
 	}
 
 	@Override
-	public int getKey(ITaskBase obj)
+	public Integer getKey(ITask obj)
 	{
 		int id = -1;
 		
-		for(Entry<Integer,ITaskBase> entry : database.entrySet())
+		for(Entry<Integer,ITask> entry : database.entrySet())
 		{
 			if(entry.getValue() == obj)
 			{
@@ -79,9 +79,9 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	}
 
 	@Override
-	public List<ITaskBase> getAllValues()
+	public List<ITask> getAllValues()
 	{
-		return new ArrayList<ITaskBase>(database.values());
+		return new ArrayList<ITask>(database.values());
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	
 	private JsonArray writeToJson_Config(JsonArray json)
 	{
-		for(Entry<Integer,ITaskBase> entry : database.entrySet())
+		for(Entry<Integer,ITask> entry : database.entrySet())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
@@ -153,7 +153,7 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 	
 	private void readFromJson_Config(JsonArray json)
 	{
-		ArrayList<ITaskBase> unassigned = new ArrayList<ITaskBase>();
+		ArrayList<ITask> unassigned = new ArrayList<ITask>();
 		
 		for(JsonElement entry : json)
 		{
@@ -165,7 +165,7 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 			JsonObject jsonTask = entry.getAsJsonObject();
 			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
-			ITaskBase task = TaskRegistry.INSTANCE.createTask(loc);
+			ITask task = TaskRegistry.INSTANCE.createTask(loc);
 			
 			if(task != null)
 			{
@@ -181,15 +181,15 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 			}
 		}
 		
-		for(ITaskBase t : unassigned)
+		for(ITask t : unassigned)
 		{
-			add(t, nextID());
+			add(t, nextKey());
 		}
 	}
 	
 	private JsonArray writeToJson_Progress(JsonArray json)
 	{
-		for(Entry<Integer,ITaskBase> entry : database.entrySet())
+		for(Entry<Integer,ITask> entry : database.entrySet())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
@@ -214,7 +214,7 @@ public class TaskStorage implements IRegStorage<ITaskBase>, IJsonSaveLoad<JsonAr
 			
 			JsonObject jsonTask = entry.getAsJsonObject();
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
-			ITaskBase task = getValue(index);
+			ITask task = getValue(index);
 			
 			if(task != null)
 			{

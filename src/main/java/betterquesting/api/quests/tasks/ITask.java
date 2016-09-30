@@ -6,18 +6,18 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.database.IJsonSaveLoad;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public interface ITaskBase extends IJsonSaveLoad<JsonObject>
+public interface ITask extends IJsonSaveLoad<JsonObject>
 {
 	public String getUnlocalisedName();
 	public ResourceLocation getFactoryID();
 	
-	public void update(EntityPlayer player, IQuestContainer quest);
-	public void detect(EntityPlayer player, IQuestContainer quest);
+	public void update(EntityPlayer player, IQuest quest);
+	public void detect(EntityPlayer player, IQuest quest);
 	
 	public boolean isComplete(UUID uuid);
 	public void setComplete(UUID uuid);
@@ -26,8 +26,8 @@ public interface ITaskBase extends IJsonSaveLoad<JsonObject>
 	public void resetAll();
 	
 	@SideOnly(Side.CLIENT)
-	public IGuiEmbedded getTaskGui(int x, int y, int w, int h, IQuestContainer quest);
+	public IGuiEmbedded getTaskGui(int x, int y, int w, int h, IQuest quest);
 	
 	@SideOnly(Side.CLIENT)
-	public GuiScreen getTaskEditor(GuiScreen parent, IQuestContainer quest);
+	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest);
 }

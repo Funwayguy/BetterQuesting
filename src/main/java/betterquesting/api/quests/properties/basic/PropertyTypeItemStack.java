@@ -6,9 +6,9 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 
-public class QuestPropertyItemStack extends QuestPropertyBase<BigItemStack>
+public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack>
 {
-	public QuestPropertyItemStack(ResourceLocation key, BigItemStack def)
+	public PropertyTypeItemStack(ResourceLocation key, BigItemStack def)
 	{
 		super(key, def);
 	}

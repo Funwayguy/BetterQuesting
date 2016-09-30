@@ -5,15 +5,17 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.quest.IGuiQuestLine;
+import betterquesting.api.client.gui.quest.QuestLineButtonTree;
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
@@ -29,9 +31,12 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	private int maxY = 0;
 	private boolean noScroll = false;
 	private IToolboxTool curTool = null;
-	private IQuestLineContainer qLine;
+	private IQuestLine qLine;
 	private List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
 	private QuestLineButtonTree buttonTree = null;
+	
+	private ResourceLocation bgImg = null;
+	private int bgSize = 1024;
 	
 	List<String> curTooltip = null;
 	
@@ -41,6 +46,19 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		this.posY = posY;
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
+	}
+	
+	@Override
+	public void setBackground(ResourceLocation image, int size)
+	{
+		this.bgImg = image;
+		this.bgSize = Math.max(1, size);
+		
+		if(bgImg != null)
+		{
+			this.maxX = Math.max(bgSize, maxX);
+			this.maxY = Math.max(bgSize, maxY);
+		}
 	}
 	
 	@Override
@@ -100,7 +118,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		drawTexturedModalRect(0, 0, 0, 128, 128, 128);
 		GL11.glPopMatrix();
 		
-		IQuestContainer qTooltip = null;
+		IQuest qTooltip = null;
 		
 		if(qLine != null)
 		{
@@ -109,6 +127,15 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
 			GL11.glTranslatef(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GL11.glScalef(zs, zs, 1F);
+			
+			if(bgImg != null)
+			{
+				GL11.glPushMatrix();
+				GL11.glScalef(bgSize/256F, bgSize/256F, 1F);
+				mc.renderEngine.bindTexture(bgImg);
+				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+				GL11.glPopMatrix();
+			}
 			
 			for(GuiButtonQuestInstance btnQuest : qBtns)
 			{
@@ -121,13 +148,6 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			}
 			
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
-			GL11.glPopMatrix();
-			
-			GL11.glPushMatrix();
-			float scale = sizeX > 600? 1.5F : 1F;
-			GL11.glScalef(scale, scale, scale);
-			drawString(mc.fontRenderer, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), getTextColor(), false);
-			drawString(mc.fontRenderer, zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), getTextColor(), false);
 			GL11.glPopMatrix();
 		}
 		
@@ -155,6 +175,18 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	@Override
 	public void drawForeground(int mx, int my, float partialTick)
 	{
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		if(qLine != null)
+		{
+			GL11.glPushMatrix();
+			float scale = sizeX > 600? 1.5F : 1F;
+			GL11.glScalef(scale, scale, scale);
+			drawString(mc.fontRenderer, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), getTextColor(), false);
+			drawString(mc.fontRenderer, zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), getTextColor(), false);
+			GL11.glPopMatrix();
+		}
+		
 		if(curTooltip != null && curTooltip.size() > 0)
 		{
 			drawTooltip(curTooltip, mx, my, Minecraft.getMinecraft().fontRenderer);
@@ -209,7 +241,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		}
 	}
 	
-	public void setZoom(int value)
+	private void setZoom(int value)
 	{
 		zoom = MathHelper.clamp_int(value, 50, 200);
 		
@@ -219,6 +251,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		}
 	}
 	
+	@Override
 	public int getZoom()
 	{
 		return zoom;
@@ -232,14 +265,30 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		if(tree == null)
 		{
 			this.qLine = null;
-			this.qBtns.clear();;
+			this.qBtns.clear();
+			this.setBackground(null, 256);
 		} else
 		{
 			this.qLine = tree.getQuestLine();
 			this.qBtns = tree.getButtonTree();
+
+			String bgn = tree.getQuestLine().getProperties().getProperty(NativePropertyTypes.BG_IMAGE, "");
+			int bgs = tree.getQuestLine().getProperties().getProperty(NativePropertyTypes.BG_SIZE, 256).intValue();
 			
-			maxX = tree.getWidth();
-			maxY = tree.getHeight();
+			if(bgn.length() > 0)
+			{
+				setBackground(new ResourceLocation(bgn), bgs);
+			}
+			
+			if(bgImg == null)
+			{
+				maxX = tree.getWidth();
+				maxY = tree.getHeight();
+			} else
+			{
+				maxX = Math.max(bgSize, tree.getWidth());
+				maxY = Math.max(bgSize, tree.getHeight());
+			}
 			
 			if(resetView)
 			{
@@ -255,8 +304,15 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	
 	private void mouseDrag(int mx, int my)
 	{
-		int mdx = mx - lastMX;
-		int mdy = my - lastMY;
+		int mdx = 0;
+		int mdy = 0;
+		
+		if(lastMX != 0 || lastMY != 0)
+		{
+			mdx = mx - lastMX;
+			mdy = my - lastMY;
+		}
+		
 		lastMX = mx;
 		lastMY = my;
 		

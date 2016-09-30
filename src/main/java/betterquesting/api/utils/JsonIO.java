@@ -1,9 +1,12 @@
 package betterquesting.api.utils;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.ExpansionAPI;
@@ -30,7 +33,7 @@ public class JsonIO
 			return (ArrayList<JsonElement>)field.get(array);
 		} catch(Exception e)
 		{
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "Unable to retrieve underlying JsonArray:", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Unable to retrieve underlying JsonArray:", e);
 		}
 		
 		return null;
@@ -45,13 +48,13 @@ public class JsonIO
 		
 		try
 		{
-			FileReader fr = new FileReader(file);
+			InputStreamReader fr = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 			JsonObject json = new Gson().fromJson(fr, JsonObject.class);
 			fr.close();
 			return json;
 		} catch(Exception e)
 		{
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
 			
 			int i = 0;
 			File bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
@@ -62,7 +65,7 @@ public class JsonIO
 				bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
 			}
 			
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
 			CopyPaste(file, bkup);
 			
 			return new JsonObject(); // Just a safety measure against NPEs
@@ -82,12 +85,12 @@ public class JsonIO
 				file.createNewFile();
 			}
 			
-			FileWriter fw = new FileWriter(file);
+			OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 			new GsonBuilder().setPrettyPrinting().create().toJson(jObj, fw);
 			fw.close();
 		} catch(Exception e)
 		{
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
 			return;
 		}
 	}
@@ -96,8 +99,8 @@ public class JsonIO
 	{
 		try
 		{
-			FileReader fr = new FileReader(fileIn);
-			FileWriter fw = new FileWriter(fileOut);
+			InputStreamReader fr = new InputStreamReader(new FileInputStream(fileIn), StandardCharsets.UTF_8);
+			OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(fileOut), StandardCharsets.UTF_8);
 			
 			char[] buf = new char[256];
 			while(fr.ready())
@@ -110,7 +113,7 @@ public class JsonIO
 			fw.close();
 		} catch(Exception e)
 		{
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "Failed copy paste", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Failed copy paste", e);
 		}
 	}
 }

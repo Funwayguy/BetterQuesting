@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.client.gui.misc.GuiScrollingText;
 
 public class GuiQuestingHelp extends GuiScreenThemed
 {
@@ -35,6 +35,9 @@ public class GuiQuestingHelp extends GuiScreenThemed
 			buttonList.add(new GuiButtonThemed(i + 1, guiLeft + 16, guiTop + 32 + i*20, 100, 20, "NULL", true));
 		}
 		
+		curPage = new GuiScrollingText(mc, guiLeft + 124, guiTop + 32, sizeX - 148, sizeY - 64, "");
+		this.embedded.add(curPage);
+		
 		RefreshColumns();
 	}
 	
@@ -53,11 +56,6 @@ public class GuiQuestingHelp extends GuiScreenThemed
 		}
 		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + 116, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(helpTopics.size() - maxRows)), 248, 60, 8, 20);
-		
-		if(curPage != null)
-		{
-			curPage.drawScreen(mx, my, partialTick);
-		}
 	}
 	
 	@Override
@@ -75,10 +73,10 @@ public class GuiQuestingHelp extends GuiScreenThemed
 			{
 				if(n3 >= 0 && n3 < helpTopics.size())
 				{
-					curPage = new GuiScrollingText(guiLeft + 124, guiTop + 32, sizeX - 148, sizeY - 64, helpTopics.get(n3).getParagraph());
+					curPage.SetText(helpTopics.get(n3).getParagraph());
 				} else
 				{
-					curPage = null;
+					curPage.SetText("");
 				}
 				
 				RefreshColumns();

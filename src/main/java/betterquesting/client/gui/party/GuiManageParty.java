@@ -20,6 +20,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.party.IParty;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
@@ -108,7 +109,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestSettings.INSTANCE.isHardcore())
+		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE))
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
 			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());

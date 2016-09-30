@@ -3,18 +3,18 @@ package betterquesting.quests;
 import java.util.Map.Entry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.properties.IQuestInfo;
-import betterquesting.api.quests.properties.IQuestProperty;
+import betterquesting.api.quests.properties.IPropertyContainer;
+import betterquesting.api.quests.properties.IPropertyType;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class QuestInfo implements IQuestInfo
+public class PropertyContainer implements IPropertyContainer
 {
 	private JsonObject jInfo = new JsonObject();
 	
 	@Override
-	public <T> T getProperty(IQuestProperty<T> prop)
+	public <T> T getProperty(IPropertyType<T> prop)
 	{
 		if(prop == null)
 		{
@@ -25,7 +25,7 @@ public class QuestInfo implements IQuestInfo
 	}
 	
 	@Override
-	public <T> T getProperty(IQuestProperty<T> prop, T def)
+	public <T> T getProperty(IPropertyType<T> prop, T def)
 	{
 		if(prop == null)
 		{
@@ -43,7 +43,7 @@ public class QuestInfo implements IQuestInfo
 	}
 	
 	@Override
-	public boolean hasProperty(IQuestProperty<?> prop)
+	public boolean hasProperty(IPropertyType<?> prop)
 	{
 		if(prop == null)
 		{
@@ -54,7 +54,7 @@ public class QuestInfo implements IQuestInfo
 	}
 	
 	@Override
-	public <T> void setProperty(IQuestProperty<T> prop, T value)
+	public <T> void setProperty(IPropertyType<T> prop, T value)
 	{
 		if(prop == null || value == null)
 		{

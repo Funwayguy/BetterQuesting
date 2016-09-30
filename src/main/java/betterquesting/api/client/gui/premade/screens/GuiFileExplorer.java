@@ -21,6 +21,7 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 	File directory;
 	File[] contents;
 	FileFilter filter;
+	boolean multiSelect = true;
 	
 	int leftScroll = 0;
 	int rightScroll = 0;
@@ -40,6 +41,12 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 	public GuiFileExplorer setSelected(ArrayList<File> prevSelect)
 	{
 		selected = prevSelect;
+		return this;
+	}
+	
+	public GuiFileExplorer setMultiSelect(boolean enabled)
+	{
+		this.multiSelect = enabled;
 		return this;
 	}
 	
@@ -184,6 +191,11 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 					
 					if(f != null)
 					{
+						if(!multiSelect)
+						{
+							selected.clear();
+						}
+						
 						selected.add(f);
 						RefreshColumns();
 					}

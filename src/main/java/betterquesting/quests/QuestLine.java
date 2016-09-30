@@ -8,51 +8,58 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;
-import betterquesting.api.quests.properties.IQuestInfo;
-import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.properties.IPropertyContainer;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class QuestLine implements IQuestLineContainer
+public class QuestLine implements IQuestLine
 {
-	private IQuestInfo info = new QuestInfo();
+	private IPropertyContainer info = new PropertyContainer();
 	private final HashMap<Integer,IQuestLineEntry> questList = new HashMap<Integer,IQuestLineEntry>();
+	
+	public QuestLine()
+	{
+		// Init some stuff
+		this.info.setProperty(NativePropertyTypes.BG_IMAGE, "");
+		this.info.setProperty(NativePropertyTypes.BG_SIZE, 256);
+	}
 	
 	@Override
 	public String getUnlocalisedName()
 	{
-		String def = "questline.untitled.name";
+		String def = "New Quest Line";
 		
-		if(!info.hasProperty(QuestProperties.NAME))
+		if(!info.hasProperty(NativePropertyTypes.NAME))
 		{
-			info.setProperty(QuestProperties.NAME, def);
+			info.setProperty(NativePropertyTypes.NAME, def);
 			return def;
 		}
 		
-		return info.getProperty(QuestProperties.NAME, def);
+		return info.getProperty(NativePropertyTypes.NAME, def);
 	}
 	
 	@Override
 	public String getUnlocalisedDescription()
 	{
-		String def = "questline.untitled.desc";
+		String def = "No Description";
 		
-		if(!info.hasProperty(QuestProperties.DESC))
+		if(!info.hasProperty(NativePropertyTypes.DESC))
 		{
-			info.setProperty(QuestProperties.DESC, def);
+			info.setProperty(NativePropertyTypes.DESC, def);
 			return def;
 		}
 		
-		return info.getProperty(QuestProperties.DESC, def);
+		return info.getProperty(NativePropertyTypes.DESC, def);
 	}
 	
 	@Override
-	public IQuestInfo getInfo()
+	public IPropertyContainer getProperties()
 	{
 		return info;
 	}
@@ -81,13 +88,13 @@ public class QuestLine implements IQuestLineContainer
 	 */
 	@Override
 	@Deprecated
-	public int nextID()
+	public Integer nextKey()
 	{
 		return -1;
 	}
 	
 	@Override
-	public boolean add(IQuestLineEntry entry, int questID)
+	public boolean add(IQuestLineEntry entry, Integer questID)
 	{
 		if(questID < 0 || entry == null || questList.containsKey(questID) || questList.containsValue(entry))
 		{
@@ -99,25 +106,25 @@ public class QuestLine implements IQuestLineContainer
 	}
 	
 	@Override
-	public boolean remove(int questID)
+	public boolean removeKey(Integer questID)
 	{
 		return questList.remove(questID) != null;
 	}
 	
 	@Override
-	public boolean remove(IQuestLineEntry entry)
+	public boolean removeValue(IQuestLineEntry entry)
 	{
-		return remove(getKey(entry));
+		return removeKey(getKey(entry));
 	}
 	
 	@Override
-	public IQuestLineEntry getValue(int questID)
+	public IQuestLineEntry getValue(Integer questID)
 	{
 		return questList.get(questID);
 	}
 	
 	@Override
-	public int getKey(IQuestLineEntry entry)
+	public Integer getKey(IQuestLineEntry entry)
 	{
 		for(Entry<Integer,IQuestLineEntry> list : questList.entrySet())
 		{

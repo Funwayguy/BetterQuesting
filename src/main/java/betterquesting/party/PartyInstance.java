@@ -100,7 +100,7 @@ public class PartyInstance implements IParty
 		
 		if(members.size() <= 0)
 		{
-			PartyManager.INSTANCE.remove(this);
+			PartyManager.INSTANCE.removeValue(this);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 		} else if(old == EnumPartyStatus.OWNER)
 		{

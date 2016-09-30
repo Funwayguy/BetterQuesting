@@ -13,6 +13,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.party.IParty;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestSettings;
@@ -42,7 +43,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     	
     	this.buttonList.clear();
 
-        if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.isHardcore() && lifeCache <= 0))
+        if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE) && lifeCache <= 0))
         {
         	int i = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled()? 1 : 0;
             if (this.mc.isIntegratedServerRunning())
@@ -117,7 +118,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
         GL11.glPushMatrix();
         GL11.glScalef(2.0F, 2.0F, 2.0F);
-        boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.isHardcore() && lifeCache <= 0);
+        boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE) && lifeCache <= 0);
         String s = flag ? I18n.format("deathScreen.title.hardcore", new Object[0]) : I18n.format("deathScreen.title", new Object[0]);
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
         GL11.glPopMatrix();
@@ -129,7 +130,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score", new Object[0]) + ": " + EnumChatFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
         
-        if(QuestSettings.INSTANCE.isHardcore())
+        if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE))
         {
         	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + lifeCache), this.width / 2, 112, 16777215);
         }

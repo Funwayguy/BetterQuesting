@@ -5,17 +5,17 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import betterquesting.api.database.IDataSync;
 import betterquesting.api.database.IJsonSaveLoad;
-import betterquesting.api.database.IRegStorage;
+import betterquesting.api.database.IRegStorageBase;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.quests.properties.IQuestInfo;
-import betterquesting.api.quests.rewards.IRewardBase;
-import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.quests.properties.IPropertyContainer;
+import betterquesting.api.quests.rewards.IReward;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public interface IQuestContainer extends IJsonSaveLoad<JsonObject>, IDataSync
+public interface IQuest extends IJsonSaveLoad<JsonObject>, IDataSync
 {
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
@@ -25,8 +25,7 @@ public interface IQuestContainer extends IJsonSaveLoad<JsonObject>, IDataSync
 	
 	public BigItemStack getItemIcon();
 	
-	public IQuestInfo getInfo();
-	public IQuestSound getSounds();
+	public IPropertyContainer getProperties();
 	
 	public EnumQuestState getState(UUID uuid);
 	
@@ -46,8 +45,8 @@ public interface IQuestContainer extends IJsonSaveLoad<JsonObject>, IDataSync
 	public void resetUser(UUID uuid, boolean fullReset);
 	public void resetAll(boolean fullReset);
 	
-	public IRegStorage<ITaskBase> getTasks();
-	public IRegStorage<IRewardBase> getRewards();
+	public IRegStorageBase<Integer,ITask> getTasks();
+	public IRegStorageBase<Integer,IReward> getRewards();
 	
-	public List<IQuestContainer> getPrerequisites();
+	public List<IQuest> getPrerequisites();
 }

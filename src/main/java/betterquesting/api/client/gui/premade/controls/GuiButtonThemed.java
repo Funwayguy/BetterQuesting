@@ -37,6 +37,11 @@ public class GuiButtonThemed extends GuiButton
 		this(id, posX, posY, 200, 20, text, true);
 	}
 	
+	public GuiButtonThemed(int id, int posX, int posY, int width, int height, String text)
+	{
+		this(id, posX, posY, width, height, text, true);
+	}
+	
 	public GuiButtonThemed(int id, int posX, int posY, int width, int height, String text, boolean shadow)
 	{
 		super(id, posX, posY, width, height, text);
@@ -166,7 +171,7 @@ public class GuiButtonThemed extends GuiButton
 	{
 		if(ExpansionAPI.isReady())
 		{
-			return ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme();
+			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
 		} else
 		{
 			return DummyTheme.INSTANCE;

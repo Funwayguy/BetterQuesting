@@ -17,9 +17,9 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.tasks.ITaskBase;
-import betterquesting.api.quests.tasks.ITaskFactory;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.utils.IFactory;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.network.PacketSender;
@@ -32,16 +32,16 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<ITaskFactory<? extends ITaskBase>> taskTypes = new ArrayList<ITaskFactory<? extends ITaskBase>>();
+	private List<IFactory<ITask>> taskTypes = new ArrayList<IFactory<ITask>>();
 	private List<Integer> taskIDs = new ArrayList<Integer>();
-	private IQuestContainer quest;
+	private IQuest quest;
 	private int qId = -1;
 	
 	private int leftScroll = 0;
 	private int rightScroll = 0;
 	private int maxRows = 0;
 	
-	public GuiTaskEditor(GuiScreen parent, IQuestContainer quest)
+	public GuiTaskEditor(GuiScreen parent, IQuest quest)
 	{
 		super(parent, I18n.format("betterquesting.title.edit_tasks", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
@@ -86,7 +86,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	@Override
 	public void refreshGui()
 	{
-		IQuestContainer tmp = QuestDatabase.INSTANCE.getValue(qId);
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(qId);
 		
 		if(tmp == null)
 		{
@@ -157,14 +157,14 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		{
 			if(!(n3 < 0 || n3 >= taskIDs.size()))
 			{
-				quest.getTasks().remove(taskIDs.get(n3));
+				quest.getTasks().removeKey(taskIDs.get(n3));
 				SendChanges();
 			}
 		} else if(n2 == 2) // Add reward
 		{
 			if(!(n4 < 0 || n4 >= taskTypes.size()))
 			{
-				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(n4).getRegistryName()), quest.getTasks().nextID());
+				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(n4).getRegistryName()), quest.getTasks().nextKey());
 				SendChanges();
 			}
 		}

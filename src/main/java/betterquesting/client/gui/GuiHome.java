@@ -74,6 +74,7 @@ public class GuiHome extends GuiScreenThemed
 			} else
 			{
 				mc.displayGuiScreen(new GuiQuestLinesMain(this));
+				//mc.displayGuiScreen(new betterquesting.api.client.gui.premade.screens.GuiTestScreen(this));
 			}
 		} else if(button.id == 2)
 		{

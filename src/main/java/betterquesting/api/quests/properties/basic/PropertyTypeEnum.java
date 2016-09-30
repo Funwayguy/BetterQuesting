@@ -4,11 +4,11 @@ import net.minecraft.util.ResourceLocation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-public class QuestPropertyEnum<E extends Enum<E>> extends QuestPropertyBase<E>
+public class PropertyTypeEnum<E extends Enum<E>> extends PropertyTypeBase<E>
 {
 	private final Class<E> eClazz;
 	
-	public QuestPropertyEnum(ResourceLocation key, E def)
+	public PropertyTypeEnum(ResourceLocation key, E def)
 	{
 		super(key, def);
 		

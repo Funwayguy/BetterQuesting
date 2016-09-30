@@ -1,10 +1,9 @@
 package betterquesting.api.client.themes;
 
 import java.awt.Color;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 
 /**
  * A dummy theme used by GuiElements when BetterQuesting isn't loaded
@@ -39,13 +38,13 @@ public final class DummyTheme implements IThemeBase
 	}
 	
 	@Override
-	public int getQuestIconColor(IQuestContainer quest, EnumQuestState state, int hoverState)
+	public int getQuestIconColor(IQuest quest, EnumQuestState state, int hoverState)
 	{
 		return Color.GRAY.getRGB();
 	}
 	
 	@Override
-	public int getQuestLineColor(IQuestContainer quest, EnumQuestState state)
+	public int getQuestLineColor(IQuest quest, EnumQuestState state)
 	{
 		return Color.GRAY.getRGB();
 	}
@@ -57,21 +56,15 @@ public final class DummyTheme implements IThemeBase
 	}
 	
 	@Override
-	public short getLineStipple(IQuestContainer quest, EnumQuestState state)
+	public short getLineStipple(IQuest quest, EnumQuestState state)
 	{
 		return (short)0xAAAA;
 	}
 	
 	@Override
-	public float getLineWidth(IQuestContainer quest, EnumQuestState state)
+	public float getLineWidth(IQuest quest, EnumQuestState state)
 	{
 		return 4F;
-	}
-	
-	@Override
-	public GuiScreen getGuiOverride(GuiScreen gui)
-	{
-		return gui;
 	}
 
 	@Override

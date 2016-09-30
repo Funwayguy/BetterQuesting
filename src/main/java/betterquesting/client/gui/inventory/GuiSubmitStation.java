@@ -12,10 +12,10 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.tasks.IFluidTask;
 import betterquesting.api.quests.tasks.IItemTask;
-import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.gui.misc.GuiContainerThemed;
 import betterquesting.quests.QuestDatabase;
@@ -23,11 +23,11 @@ import betterquesting.quests.QuestDatabase;
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
 	TileSubmitStation tile;
-	ArrayList<IQuestContainer> activeQuests = new ArrayList<IQuestContainer>();
+	ArrayList<IQuest> activeQuests = new ArrayList<IQuest>();
 	int selQuest = 0;
-	IQuestContainer quest;
+	IQuest quest;
 	int selTask = 0;
-	ITaskBase task;
+	ITask task;
 	
 	IGuiEmbedded taskUI;
 	GuiButtonThemed btnSelect;
@@ -59,7 +59,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		
 		activeQuests.clear();
 		UUID pID = mc.thePlayer.getUniqueID();
-		for(IQuestContainer q : QuestDatabase.INSTANCE.getAllValues())
+		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
 		{
 			if(q.isUnlocked(pID) && !q.isComplete(pID))
 			{

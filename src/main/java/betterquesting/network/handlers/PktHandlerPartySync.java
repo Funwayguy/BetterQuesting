@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.events.QuestDataEvent;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.party.IParty;
@@ -37,6 +37,6 @@ public class PktHandlerPartySync implements IPacketHandler
 		}
 		
 		party.readPacket(tag);
-		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
 	}
 }

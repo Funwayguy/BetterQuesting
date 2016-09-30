@@ -1,7 +1,9 @@
 package betterquesting.client.gui.editors.json;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -15,8 +17,9 @@ import betterquesting.api.client.gui.premade.controls.GuiButtonJson;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.controls.GuiNumberField;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.jdoc.IJsonDoc;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.ITextCallback;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,22 +28,31 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVolatileScreen
+public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVolatileScreen
 {
-	HashMap<Integer,String> idMap = new HashMap<Integer,String>();
-	int scrollPos = 0;
-	JsonObject settings;
-	boolean allowEdit = true;
+	private HashMap<Integer,String> idMap = new HashMap<Integer,String>();
+	private int scrollPos = 0;
+	private int maxRows = 0;
+	private JsonObject settings;
+	private boolean allowEdit = true;
+	private IJsonDoc jdoc = null;
 	
 	/**
 	 * List of GuiTextFields and GuiButtons
 	 */
-	HashMap<String, JsonControlSet> editables = new HashMap<String, JsonControlSet>();
+	private HashMap<String, JsonControlSet> editables = new HashMap<String, JsonControlSet>();
 	
+	@Deprecated
 	public GuiJsonObject(GuiScreen parent, JsonObject settings)
+	{
+		this(parent, settings, null);
+	}
+	
+	public GuiJsonObject(GuiScreen parent, JsonObject settings, IJsonDoc jdoc)
 	{
 		super(parent, "betterquesting.title.json_object");
 		this.settings = settings;
+		this.jdoc = jdoc;
 	}
 	
 	/**
@@ -60,9 +72,14 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 	{
 		super.initGui();
 		
+		if(jdoc != null)
+		{
+			this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+		}
+		
 		idMap = new HashMap<Integer,String>();
 		editables = new HashMap<String, JsonControlSet>();
-		int maxRows = (this.sizeY - 84)/20;
+		maxRows = (this.sizeY - 84)/20;
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
@@ -109,18 +126,8 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 	}
 	
 	@Override
-	public void onGuiClosed()
-	{
-		Keyboard.enableRepeatEvents(false);
-		// >> Send new settings to the server here <<
-	}
-	
-	@Override
 	public void actionPerformed(GuiButton button)
 	{
-        //int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
-        //int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
-        
 		if(button.id == 0)
 		{
 			this.mc.displayGuiScreen(parent);
@@ -168,6 +175,8 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 					GuiButtonJson<JsonElement> jsonButton = (GuiButtonJson<JsonElement>)button;
 					JsonElement element = jsonButton.getStored();
 					
+					IJsonDoc childDoc = jdoc == null? null : jdoc.getChildDoc(key);
+					
 					/*GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
 					
 					if(jGui != null)
@@ -178,10 +187,10 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())
 					{
-						this.mc.displayGuiScreen(new GuiJsonObject(this, element.getAsJsonObject()).SetEditMode(this.allowEdit));
+						this.mc.displayGuiScreen(new GuiJsonObject(this, element.getAsJsonObject(), childDoc).SetEditMode(this.allowEdit));
 					} else if(element.isJsonArray())
 					{
-						this.mc.displayGuiScreen(new GuiJsonArray(this, element.getAsJsonArray()).SetEditMode(this.allowEdit));
+						this.mc.displayGuiScreen(new GuiJsonArray(this, element.getAsJsonArray(), childDoc).SetEditMode(this.allowEdit));
 					} else if(element.isJsonPrimitive())
 					{
 						if(element.getAsJsonPrimitive().isBoolean())
@@ -203,9 +212,9 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		int maxRows = (this.sizeY - 84)/20;
-		
 		String[] keys = editables.keySet().toArray(new String[]{});
+		
+		String keyDesc = null;
 		
 		for(int i = 0; i < keys.length; i++)
 		{
@@ -228,14 +237,34 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextEditor, IVola
 			} else
 			{
 				controls.Disable();
+				continue;
 			}
 			
-			this.fontRendererObj.drawString(keys[i], this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keys[i]) - 8, posY + 4, getTextColor(), false);
+			String keyName = keys[i];
+			
+			if(jdoc != null)
+			{
+				keyName = I18n.format(jdoc.getUnlocalisedName(keys[i]));
+				
+				if(this.isWithin(mx, my, this.guiLeft, posY, sizeX/2, 20, false))
+				{
+					keyDesc = I18n.format(jdoc.getUnlocalisedDesc(keys[i]));
+				}
+			}
+			
+			this.fontRendererObj.drawString(keyName, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keyName) - 8, posY + 4, getTextColor(), false);
 		}
 		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
 		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
+		
+		if(keyDesc != null)
+		{
+			List<String> tooltip = new ArrayList<String>();
+			tooltip.add(keyDesc);
+			this.drawTooltip(tooltip, mx, my);
+		}
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -62,8 +62,8 @@ public class QuestCommandDelete extends QuestCommandBase
 			try
 			{
 				int id = Integer.parseInt(args[1].trim());
-				IQuestContainer quest = QuestDatabase.INSTANCE.getValue(id);
-				QuestDatabase.INSTANCE.remove(id);
+				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+				QuestDatabase.INSTANCE.removeKey(id);
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.getUnlocalisedName())));

@@ -4,10 +4,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.events.QuestDataEvent;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 
@@ -28,7 +28,7 @@ public class PktHandlerQuestSync implements IPacketHandler
 	public void handleClient(NBTTagCompound data)
 	{
 		int questID = !data.hasKey("questID")? -1 : data.getInteger("questID");
-		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(questID);
+		IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
 		
 		if(quest == null)
 		{
@@ -37,6 +37,6 @@ public class PktHandlerQuestSync implements IPacketHandler
 		}
 		
 		quest.readPacket(data);
-		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
 	}
 }

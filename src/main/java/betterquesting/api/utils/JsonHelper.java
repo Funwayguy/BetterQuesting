@@ -165,7 +165,7 @@ public class JsonHelper
 			tags = NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "tag"), new NBTTagCompound(), true);
 		}
 		
-		return ExpansionAPI.INSTANCE.getPlaceholderMaker().convertPlaceholder(item, jID.getAsString(), count, damage, oreDict, tags);
+		return ExpansionAPI.getAPI().getPlaceholderMaker().convertPlaceholder(item, jID.getAsString(), count, damage, oreDict, tags);
 	}
 	
 	/**
@@ -202,7 +202,7 @@ public class JsonHelper
 		
 		Fluid fluid = FluidRegistry.getFluid(name);
 		
-		return ExpansionAPI.INSTANCE.getPlaceholderMaker().convertPlaceholder(fluid, name, amount, tags);
+		return ExpansionAPI.getAPI().getPlaceholderMaker().convertPlaceholder(fluid, name, amount, tags);
 	}
 	
 	public static JsonObject FluidStackToJson(FluidStack stack, JsonObject json)
@@ -237,7 +237,7 @@ public class JsonHelper
 			entity = EntityList.createEntityFromNBT(tags, world);
 		}
 		
-		return ExpansionAPI.INSTANCE.getPlaceholderMaker().convertPlaceholder(entity, world, tags);
+		return ExpansionAPI.getAPI().getPlaceholderMaker().convertPlaceholder(entity, world, tags);
 	}
 	
 	public static JsonObject EntityToJson(Entity entity, JsonObject json)

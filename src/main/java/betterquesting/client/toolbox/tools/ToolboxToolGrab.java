@@ -9,7 +9,7 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
@@ -94,7 +94,7 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getKey(grabbed.getQuest());
 		} else
 		{
-			IQuestLineContainer qLine = gui.getQuestLine().getQuestLine();
+			IQuestLine qLine = gui.getQuestLine().getQuestLine();
 			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
 			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			

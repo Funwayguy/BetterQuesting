@@ -1,0 +1,48 @@
+package betterquesting.api.quests.properties;
+
+import net.minecraft.init.Items;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.enums.EnumLogic;
+import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.quests.properties.basic.PropertyTypeBoolean;
+import betterquesting.api.quests.properties.basic.PropertyTypeEnum;
+import betterquesting.api.quests.properties.basic.PropertyTypeItemStack;
+import betterquesting.api.quests.properties.basic.PropertyTypeNumber;
+import betterquesting.api.quests.properties.basic.PropertyTypeString;
+import betterquesting.api.utils.BigItemStack;
+
+/**
+ * List of standard properties quests can have
+ */
+public class NativePropertyTypes
+{
+	public static final IPropertyType<String> NAME =						new PropertyTypeString(new ResourceLocation("betterquesting:name"), "untitled.name");
+	public static final IPropertyType<String> DESC =						new PropertyTypeString(new ResourceLocation("betterquesting:desc"), "untitled.desc");
+	
+	public static final IPropertyType<Boolean> MAIN =						new PropertyTypeBoolean(new ResourceLocation("betterquesting:isMain"), false);
+	public static final IPropertyType<Boolean> GLOBAL =						new PropertyTypeBoolean(new ResourceLocation("betterquesting:isGlobal"), false);
+	public static final IPropertyType<Boolean> GLOBAL_SHARE =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:globalShare"), false);
+	public static final IPropertyType<Boolean> SILENT =						new PropertyTypeBoolean(new ResourceLocation("betterquesting:isSilent"), false);
+	public static final IPropertyType<Boolean> AUTO_CLAIM =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:autoClaim"), false);
+	public static final IPropertyType<Boolean> LOCKED_PROGRESS =			new PropertyTypeBoolean(new ResourceLocation("betterquesting:lockedProgress"), false);
+	public static final IPropertyType<Boolean> SIMULTANEOUS =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:simultaneous"), false);
+	
+	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<EnumQuestVisibility>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
+	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
+	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
+	
+	public static final IPropertyType<Number> REPEAT_TIME =					new PropertyTypeNumber(new ResourceLocation("betterquesting:repeatTime"), -1);
+	public static final IPropertyType<Number> PARTICIPATION =				new PropertyTypeNumber(new ResourceLocation("betterquesting:participation"), 1F);
+	
+	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "random.click");
+	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "random.levelup");
+	public static final IPropertyType<String> SOUND_COMPLETE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_complete"), "random.levelup");
+	
+	public static final IPropertyType<BigItemStack> ICON =					new PropertyTypeItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.nether_star));
+	
+	public static final IPropertyType<String> BG_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:bg_image"), "");
+	public static final IPropertyType<Number> BG_SIZE =						new PropertyTypeNumber(new ResourceLocation("betterquesting:bg_size"), 256);
+	
+	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
+	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), false);
+}

@@ -11,7 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
@@ -19,9 +18,10 @@ import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.events.QuestDataEvent;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.party.IParty;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.JsonIO;
 import betterquesting.client.BQ_Keybindings;
@@ -36,7 +36,6 @@ import betterquesting.quests.NameCache;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
-import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.client.event.ConfigChangedEvent;
@@ -74,7 +73,7 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			for(IQuestContainer quest : QuestDatabase.INSTANCE.getAllValues())
+			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
 			{
 				quest.update((EntityPlayer)event.entityLiving);
 			}
@@ -100,14 +99,9 @@ public class EventHandler
 			
 			JsonObject jsonCon = new JsonObject();
 			
-			JsonArray jsonQ = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG);
-			jsonCon.add("questDatabase", jsonQ);
-			
-			JsonArray jsonL = QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG);
-			jsonCon.add("questLines", jsonL);
-			
-			// Will likely be moved at a later date, but for the sake of compatibility
-			QuestSettings.INSTANCE.writeToJson(jsonCon, EnumSaveType.CONFIG);
+			jsonCon.add("questSettings", QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+			jsonCon.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			jsonCon.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			
 			jsonCon.addProperty("format", BetterQuesting.FORMAT);
 			
@@ -117,21 +111,24 @@ public class EventHandler
 			
 			JsonObject jsonProg = new JsonObject();
 			
-			JsonArray jsonQP = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
-			jsonProg.add("questProgress", jsonQP);
+			jsonProg.add("questProgress", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
 			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonProg);
 			
 			// === PARTIES ===
 			
 			JsonObject jsonP = new JsonObject();
+			
 			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
 			
 			// === NAMES ===
 			
 			JsonObject jsonN = new JsonObject();
+			
 			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
 		}
 	}
@@ -255,7 +252,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		if(QuestSettings.INSTANCE.isHardcore() && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
+		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
@@ -298,7 +295,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.isHardcore())
+		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE))
 		{
 			return;
 		}
@@ -333,15 +330,7 @@ public class EventHandler
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onGuiOpen(GuiOpenEvent event)
-	{
-		// Hook for theme GUI replacements
-		event.gui = ThemeRegistry.INSTANCE.getCurrentTheme().getGuiOverride(event.gui);
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onDataUpdated(QuestDataEvent.DatabaseUpdated event)
+	public void onDataUpdated(DatabaseEvent.DatabaseUpdated event)
 	{
 		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
 		

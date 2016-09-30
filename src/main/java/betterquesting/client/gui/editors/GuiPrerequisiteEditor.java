@@ -16,7 +16,7 @@ import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
@@ -31,15 +31,15 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
 	int id = -1;
-	IQuestContainer quest;
+	IQuest quest;
 	int leftScroll = 0;
 	int rightScroll = 0;
 	int maxRowsL = 0;
 	int maxRowsR = 0;
 	GuiBigTextField searchBox;
-	List<IQuestContainer> searchResults = new ArrayList<IQuestContainer>();
+	List<IQuest> searchResults = new ArrayList<IQuest>();
 	
-	public GuiPrerequisiteEditor(GuiScreen parent, IQuestContainer quest)
+	public GuiPrerequisiteEditor(GuiScreen parent, IQuest quest)
 	{
 		super(parent, "betterquesting.title.pre_requisites");
 		this.quest = quest;
@@ -108,7 +108,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	@Override
 	public void refreshGui()
 	{
-		IQuestContainer tmp = QuestDatabase.INSTANCE.getValue(id);
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(id);
 		
 		if(tmp == null)
 		{
@@ -303,7 +303,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					IQuestContainer q = searchResults.get(n4);
+					IQuest q = searchResults.get(n4);
 					btn.visible = btn.enabled = true;
 					btn.displayString = q.getUnlocalisedName();
 				}
@@ -317,7 +317,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					IQuestContainer q = searchResults.get(n4);
+					IQuest q = searchResults.get(n4);
 					btn.visible = true;
 					btn.enabled = quest != null && !quest.getPrerequisites().contains(q) && quest != q;
 				}
@@ -345,10 +345,10 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	
 	public void RefreshSearch()
 	{
-		searchResults = new ArrayList<IQuestContainer>();
+		searchResults = new ArrayList<IQuest>();
 		String query = searchBox.getText().toLowerCase();
 		
-		for(IQuestContainer q : QuestDatabase.INSTANCE.getAllValues())
+		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
 		{
 			if(q == null)
 			{

@@ -5,23 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.quests.rewards.IRewardBase;
-import betterquesting.api.quests.rewards.IRewardFactory;
+import betterquesting.api.quests.rewards.IReward;
 import betterquesting.api.registry.IRewardRegistry;
+import betterquesting.api.utils.IFactory;
 import betterquesting.core.BetterQuesting;
 
 public class RewardRegistry implements IRewardRegistry
 {
 	public static final RewardRegistry INSTANCE = new RewardRegistry();
 	
-	private HashMap<ResourceLocation, IRewardFactory<? extends IRewardBase>> rewardRegistry = new HashMap<ResourceLocation, IRewardFactory<? extends IRewardBase>>();
+	private HashMap<ResourceLocation, IFactory<IReward>> rewardRegistry = new HashMap<ResourceLocation, IFactory<IReward>>();
 	
 	private RewardRegistry()
 	{
 	}
 	
 	@Override
-	public void registerReward(IRewardFactory<? extends IRewardBase> factory)
+	public void registerReward(IFactory<IReward> factory)
 	{
 		if(factory == null)
 		{
@@ -40,23 +40,23 @@ public class RewardRegistry implements IRewardRegistry
 	}
 	
 	@Override
-	public IRewardFactory<? extends IRewardBase> getFactory(ResourceLocation registryName)
+	public IFactory<IReward> getFactory(ResourceLocation registryName)
 	{
 		return rewardRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IRewardFactory<? extends IRewardBase>> getAll()
+	public List<IFactory<IReward>> getAll()
 	{
-		return new ArrayList<IRewardFactory<? extends IRewardBase>>(rewardRegistry.values());
+		return new ArrayList<IFactory<IReward>>(rewardRegistry.values());
 	}
 	
 	@Override
-	public IRewardBase createReward(ResourceLocation registryName)
+	public IReward createReward(ResourceLocation registryName)
 	{
 		try
 		{
-			IRewardFactory<? extends IRewardBase> reward = getFactory(registryName);
+			IFactory<? extends IReward> reward = getFactory(registryName);
 			
 			if(reward == null)
 			{
@@ -64,7 +64,7 @@ public class RewardRegistry implements IRewardRegistry
 				return null;
 			}
 			
-			return reward.CreateReward();
+			return reward.createNew();
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate reward: " + registryName, e);

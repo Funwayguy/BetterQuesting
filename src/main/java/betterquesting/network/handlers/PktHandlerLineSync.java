@@ -4,10 +4,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.events.QuestDataEvent;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLine;
 import betterquesting.quests.QuestLineDatabase;
@@ -29,7 +29,7 @@ public class PktHandlerLineSync implements IPacketHandler
 		}
 		
 		int id = !tag.hasKey("lineID")? -1 : tag.getInteger("lineID");
-		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(id);
+		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(id);
 		
 		if(questLine != null)
 		{
@@ -41,7 +41,7 @@ public class PktHandlerLineSync implements IPacketHandler
 	public void handleClient(NBTTagCompound tag)
 	{
 		int id = !tag.hasKey("lineID")? -1 : tag.getInteger("lineID");
-		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(id);
+		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(id);
 		
 		if(questLine == null)
 		{
@@ -50,6 +50,6 @@ public class PktHandlerLineSync implements IPacketHandler
 		}
 		
 		questLine.readPacket(tag);
-		MinecraftForge.EVENT_BUS.post(new QuestDataEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
 	}
 }

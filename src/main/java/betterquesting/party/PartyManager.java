@@ -61,7 +61,7 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public int nextID()
+	public Integer nextKey()
 	{
 		int i = 0;
 		
@@ -74,7 +74,7 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public boolean add(IParty party, int id)
+	public boolean add(IParty party, Integer id)
 	{
 		if(party == null || id < 0 || partyList.containsKey(id) || partyList.containsValue(party))
 		{
@@ -86,25 +86,25 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public boolean remove(int id)
+	public boolean removeKey(Integer id)
 	{
 		return partyList.remove(id) != null;
 	}
 	
 	@Override
-	public boolean remove(IParty party)
+	public boolean removeValue(IParty party)
 	{
-		return remove(getKey(party));
+		return removeKey(getKey(party));
 	}
 	
 	@Override
-	public IParty getValue(int id)
+	public IParty getValue(Integer id)
 	{
 		return partyList.get(id);
 	}
 	
 	@Override
-	public int getKey(IParty party)
+	public Integer getKey(IParty party)
 	{
 		for(Entry<Integer,IParty> entry : partyList.entrySet())
 		{

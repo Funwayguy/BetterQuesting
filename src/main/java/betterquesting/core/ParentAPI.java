@@ -16,6 +16,7 @@ import betterquesting.api.registry.IThemeRegistry;
 import betterquesting.api.registry.IToolRegistry;
 import betterquesting.api.utils.IGuiBuilder;
 import betterquesting.api.utils.IMakePlaceholder;
+import betterquesting.client.GuiBuilder;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
@@ -83,7 +84,7 @@ public final class ParentAPI implements IQuestingAPI
 	@SideOnly(Side.CLIENT)
 	public IGuiBuilder getGuiBuilder()
 	{
-		return null;
+		return GuiBuilder.INSTANCE;
 	}
 
 	@Override
@@ -123,7 +124,7 @@ public final class ParentAPI implements IQuestingAPI
 	}
 	
 	@Override
-	public IQuestSettings getProperties()
+	public IQuestSettings getSettings()
 	{
 		return QuestSettings.INSTANCE;
 	}

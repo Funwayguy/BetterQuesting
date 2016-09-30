@@ -86,12 +86,12 @@ public class PktHandlerPartyAction implements IPacketHandler
 			IParty nParty = new PartyInstance();
 			nParty.setName(name);
 			nParty.inviteUser(sender.getUniqueID());
-			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextID());
+			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextKey());
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.REMOVE && tarParty != null && status == EnumPartyStatus.OWNER) // Operator force deletes party or owner disbands it
 		{
-			PartyManager.INSTANCE.remove(partyID);
+			PartyManager.INSTANCE.removeKey(partyID);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == sender.getUniqueID())) // Kick/leave party

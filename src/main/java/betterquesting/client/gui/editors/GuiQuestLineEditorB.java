@@ -17,8 +17,8 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
@@ -36,7 +36,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
 	int lineID = -1;
-	IQuestLineContainer line;
+	IQuestLine line;
 	int leftScroll = 0;
 	int rightScroll = 0;
 	int maxRowsL = 0;
@@ -45,7 +45,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	List<Integer> searchResults = new ArrayList<Integer>();
 	List<Integer> lineQuests = new ArrayList<Integer>();
 	
-	public GuiQuestLineEditorB(GuiScreen parent, IQuestLineContainer line)
+	public GuiQuestLineEditorB(GuiScreen parent, IQuestLine line)
 	{
 		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.getUnlocalisedName())));
 		this.line = line;
@@ -191,7 +191,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			{
 				if(line != null && n3 >= 0 && n3 < lineQuests.size())
 				{
-					IQuestContainer q = QuestDatabase.INSTANCE.getValue(searchResults.get(n3));
+					IQuest q = QuestDatabase.INSTANCE.getValue(searchResults.get(n3));
 					
 					if(q != null)
 					{
@@ -202,14 +202,14 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			{
 				if(!(line == null || n3 < 0 || n3 >= lineQuests.size()))
 				{
-					line.remove(lineQuests.get(n3));
+					line.removeKey(lineQuests.get(n3));
 					RefreshColumns();
 				}
 			} else if(n2 == 2) // Edit quest
 			{
 				if(!(n4 < 0 || n4 >= searchResults.size()))
 				{
-					IQuestContainer q = QuestDatabase.INSTANCE.getValue(searchResults.get(n4));
+					IQuest q = QuestDatabase.INSTANCE.getValue(searchResults.get(n4));
 					
 					if(q != null)
 					{
@@ -347,7 +347,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					IQuestContainer q = QuestDatabase.INSTANCE.getValue(lineQuests.get(n3));
+					IQuest q = QuestDatabase.INSTANCE.getValue(lineQuests.get(n3));
 					btn.visible = btn.enabled = q != null;
 					btn.displayString = q == null? "NULL" : I18n.format(q.getUnlocalisedName());
 				}
@@ -362,7 +362,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 					btn.visible = btn.enabled = false;
 				} else
 				{
-					IQuestContainer q = QuestDatabase.INSTANCE.getValue(searchResults.get(n4));
+					IQuest q = QuestDatabase.INSTANCE.getValue(searchResults.get(n4));
 					btn.visible = btn.enabled = true;//q != null;
 					btn.displayString = q == null? "NULL" : I18n.format(q.getUnlocalisedName());
 				}
@@ -409,7 +409,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		for(int id : QuestDatabase.INSTANCE.getAllKeys())
 		{
-			IQuestContainer q = QuestDatabase.INSTANCE.getValue(id);
+			IQuest q = QuestDatabase.INSTANCE.getValue(id);
 			
 			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
 			{

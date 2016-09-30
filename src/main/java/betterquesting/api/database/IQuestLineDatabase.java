@@ -1,9 +1,9 @@
 package betterquesting.api.database;
 
 import com.google.gson.JsonArray;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 
-public interface IQuestLineDatabase extends IRegStorage<IQuestLineContainer>, IJsonSaveLoad<JsonArray>, IDataSync
+public interface IQuestLineDatabase extends IRegStorageBase<Integer,IQuestLine>, IJsonSaveLoad<JsonArray>, IDataSync
 {
 	/**
 	 * Deletes quest from all quest lines

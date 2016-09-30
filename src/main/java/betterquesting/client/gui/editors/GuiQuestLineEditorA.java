@@ -18,12 +18,12 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLineContainer;
-import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.ITextCallback;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLineDatabase;
@@ -32,13 +32,13 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor, IVolatileScreen, INeedsRefresh
+public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallback, IVolatileScreen, INeedsRefresh
 {
 	private List<Integer> questList = new ArrayList<Integer>();
 	private GuiButtonThemed btnDesign;
 	private GuiTextField lineTitle;
 	private GuiBigTextField lineDesc;
-	private IQuestLineContainer selected;
+	private IQuestLine selected;
 	//int selIndex = -1;
 	int selID = -1;
 	int leftScroll = 0;
@@ -141,14 +141,14 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
-	public void SendChanges(EnumPacketAction action, IQuestLineContainer questLine)
+	public void SendChanges(EnumPacketAction action, IQuestLine questLine)
 	{
 		SendChanges(action, QuestLineDatabase.INSTANCE.getKey(questLine));
 	}
 	
 	public void SendChanges(EnumPacketAction action, int lineID)
 	{
-		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
+		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
 		
 		if(action == null)
 		{
@@ -166,9 +166,6 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 		
 		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
 		tags.setInteger("action", action.ordinal());
-		
-		System.out.println("Sending action " + action + " with ID " + lineID);
-		System.out.println("Payload: " + tags);
 		
 		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
@@ -264,13 +261,13 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 			
 			if(!lineTitle.isFocused() && !lineTitle.getText().equals(selected.getUnlocalisedName()))
 			{
-				selected.getInfo().setProperty(QuestProperties.NAME, lineTitle.getText());
+				selected.getProperties().setProperty(NativePropertyTypes.NAME, lineTitle.getText());
 				flag = true;
 			}
 			
 			if(!lineDesc.isFocused() && !lineDesc.getText().equals(selected.getUnlocalisedDescription()))
 			{
-				selected.getInfo().setProperty(QuestProperties.DESC, lineDesc.getText());
+				selected.getProperties().setProperty(NativePropertyTypes.DESC, lineDesc.getText());
 				flag = true;
 			}
 			
@@ -359,7 +356,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextEditor,
 			
 			if(selected != null)
 			{
-				selected.getInfo().setProperty(QuestProperties.DESC, text);
+				selected.getProperties().setProperty(NativePropertyTypes.DESC, text);
 				SendChanges(EnumPacketAction.EDIT, selected);
 			}
 		}

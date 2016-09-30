@@ -10,9 +10,9 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.properties.QuestProperties;
-import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
@@ -45,7 +45,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
 		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
-		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(qID);
+		IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
 		
 		EnumPacketAction action = null;
 		
@@ -70,7 +70,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			}
 			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getCommandSenderName() + " deleted quest " + quest.getUnlocalisedName());
-			QuestDatabase.INSTANCE.remove(qID);
+			QuestDatabase.INSTANCE.removeKey(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
@@ -81,14 +81,14 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				
 				int done = 0;
 				
-				if(!quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
+				if(!quest.getProperties().getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
 				{
-					for(ITaskBase task : quest.getTasks().getAllValues())
+					for(ITask task : quest.getTasks().getAllValues())
 					{
 						task.setComplete(sender.getUniqueID());
 						done += 1;
 						
-						if(quest.getInfo().getProperty(QuestProperties.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+						if(quest.getProperties().getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
 						{
 							break; // Only complete enough quests to claim the reward
 						}
@@ -103,8 +103,8 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.ADD)
 		{
-			IQuestContainer nq = new QuestInstance();
-			int nID = QuestDatabase.INSTANCE.nextID();
+			IQuest nq = new QuestInstance();
+			int nID = QuestDatabase.INSTANCE.nextKey();
 			
 			if(data.hasKey("data") && data.hasKey("questID"))
 			{

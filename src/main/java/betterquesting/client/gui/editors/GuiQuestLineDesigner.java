@@ -12,11 +12,11 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.quest.QuestLineButtonTree;
 import betterquesting.api.client.toolbox.IToolboxTab;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
 import betterquesting.quests.QuestLineDatabase;
@@ -26,13 +26,13 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 {
 	private List<IToolboxTab> tabList = new ArrayList<IToolboxTab>();
 	private int lineID = -1;
-	private IQuestLineContainer qLine;
+	private IQuestLine qLine;
 	private GuiQuestLinesEmbedded qlGui;
 	private int tabIndex = 0;
 	private IToolboxTab toolTab = null;
 	private IGuiEmbedded tabGui = null;
 	
-	public GuiQuestLineDesigner(GuiScreen parent, IQuestLineContainer qLine)
+	public GuiQuestLineDesigner(GuiScreen parent, IQuestLine qLine)
 	{
 		super(parent, "betterquesting.title.designer"); // This title won't be shown but for the sake of labels...
 		this.qLine = qLine;

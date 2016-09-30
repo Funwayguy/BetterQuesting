@@ -12,6 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import betterquesting.api.party.IParty;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
@@ -50,7 +51,7 @@ public class ItemExtraLife extends Item
     	if(stack.getItemDamage() != 0)
     	{
     		return stack;
-    	} else if(QuestSettings.INSTANCE.isHardcore())
+    	} else if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE))
     	{
     		if(!player.capabilities.isCreativeMode)
     		{

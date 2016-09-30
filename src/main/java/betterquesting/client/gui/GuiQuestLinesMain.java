@@ -9,11 +9,14 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.client.gui.quest.QuestLineButtonTree;
+import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.client.gui.misc.GuiButtonQuestLine;
-import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
@@ -29,6 +32,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 	
 	GuiButtonQuestLine selected;
 	ArrayList<GuiButtonQuestLine> qlBtns = new ArrayList<GuiButtonQuestLine>();
+	GuiScrollingButtons qlBtnList;
 	int listScroll = 0;
 	int maxRows = 0;
 	GuiQuestLinesEmbedded qlGui;
@@ -51,28 +55,28 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		listScroll = 0;
 		maxRows = (sizeY - 64)/20;
 		
-		if(QuestSettings.INSTANCE.isEditMode())
+		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonThemed btnEdit = new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
-		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.isEditMode();
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE);
 		this.buttonList.add(btnEdit);
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
 		qlGui = new GuiQuestLinesEmbedded(guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
-		qlDesc = new GuiScrollingText(guiLeft + 174, guiTop + 32 + sizeY - 64 - 32, sizeX - (32 + 150 + 8), 48);
+		qlDesc = new GuiScrollingText(mc, guiLeft + 174, guiTop + 32 + sizeY - 64 - 32, sizeX - (32 + 150 + 8), 48);
 		
 		boolean reset = true;
 		
 		int i = 0;
 		for(int j = 0; j < QuestLineDatabase.INSTANCE.getAllValues().size(); j++)
 		{
-			IQuestLineContainer line = QuestLineDatabase.INSTANCE.getAllValues().get(j);
+			IQuestLine line = QuestLineDatabase.INSTANCE.getAllValues().get(j);
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.isEditMode();
+			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE);
 			
 			if(selected != null && selected.getQuestLine().getUnlocalisedName().equals(line.getUnlocalisedName()))
 			{
@@ -102,7 +106,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			selected = null;
 		} else
 		{
-			qlDesc.SetText(selected.getQuestLine().getUnlocalisedDescription());
+			qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
 			qlGui.setQuestLine(selected.getButtonTree(), true);
 		}
 		
@@ -113,6 +117,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		}
 		
 		this.embedded.add(qlGui);
+		this.embedded.add(qlDesc);
 		
 		UpdateScroll();
 	}
@@ -167,6 +172,26 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			{
 				qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
 				qlGui.setQuestLine(selected.getButtonTree(), true);
+			}
+		}
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click)
+	{
+		super.mouseClicked(mx, my, click);
+		
+		QuestLineButtonTree tree = qlGui.getQuestLine();
+		
+		if(tree != null)
+		{
+			GuiButtonQuestInstance btn = tree.getButtonAt(qlGui.getRelativeX(mx), qlGui.getRelativeY(my));
+			
+			if(btn != null)
+			{
+				btn.func_146113_a(mc.getSoundHandler());
+				bookmarked = new GuiQuestInstance(this, btn.getQuest());
+				mc.displayGuiScreen(bookmarked);
 			}
 		}
 	}

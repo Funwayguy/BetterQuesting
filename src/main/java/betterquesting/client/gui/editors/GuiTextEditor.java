@@ -10,21 +10,21 @@ import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
-import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.client.gui.misc.ITextEditor;
+import betterquesting.client.gui.misc.ITextCallback;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 {
-	int hostID;
-	ITextEditor host;
-	public String text = "";
-	int listScroll = 0;
-	int maxRows = 0;
-	GuiScrollingText scrollingText;
+	private int hostID;
+	private ITextCallback host;
+	private String text = "";
+	private int listScroll = 0;
+	private int maxRows = 0;
+	private GuiScrollingText scrollingText;
 	
     private int cursorPosition;
 	
@@ -35,7 +35,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
     	this.text = text;
     }
     
-    public GuiTextEditor setHost(ITextEditor host, int hostID)
+    public GuiTextEditor setHost(ITextCallback host, int hostID)
     {
     	this.host = host;
     	this.hostID = hostID;
@@ -58,8 +58,9 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 			this.buttonList.add(btn);
 		}
 		
-		scrollingText = new GuiScrollingText(guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64);
+		scrollingText = new GuiScrollingText(mc, guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64);
 		scrollingText.SetText(text);
+		this.embedded.add(scrollingText);
     	cursorPosition = text.length();
 		
 		RefreshColumns();
@@ -321,7 +322,6 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
         }
         
         scrollingText.SetText(s1 + s2);
-        scrollingText.drawScreen(mx, my, partialTick);
     }
 	
 	@Override

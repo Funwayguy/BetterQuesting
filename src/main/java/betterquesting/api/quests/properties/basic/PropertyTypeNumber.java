@@ -4,9 +4,9 @@ import net.minecraft.util.ResourceLocation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-public class QuestPropertyNumber extends QuestPropertyBase<Number>
+public class PropertyTypeNumber extends PropertyTypeBase<Number>
 {
-	public QuestPropertyNumber(ResourceLocation key, Number def)
+	public PropertyTypeNumber(ResourceLocation key, Number def)
 	{
 		super(key, def);
 	}

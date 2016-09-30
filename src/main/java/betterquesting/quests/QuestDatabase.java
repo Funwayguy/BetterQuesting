@@ -9,7 +9,7 @@ import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -20,14 +20,14 @@ public final class QuestDatabase implements IQuestDatabase
 {
 	public static final QuestDatabase INSTANCE = new QuestDatabase();
 	
-	private final ConcurrentHashMap<Integer, IQuestContainer> database = new ConcurrentHashMap<Integer, IQuestContainer>();
+	private final ConcurrentHashMap<Integer, IQuest> database = new ConcurrentHashMap<Integer, IQuest>();
 	
 	private QuestDatabase()
 	{
 	}
 	
 	@Override
-	public int nextID()
+	public Integer nextKey()
 	{
 		int id = 0;
 		
@@ -40,7 +40,7 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
-	public boolean add(IQuestContainer obj, int id)
+	public boolean add(IQuest obj, Integer id)
 	{
 		if(id < 0 || obj == null || database.containsKey(id) || database.containsValue(obj))
 		{
@@ -52,7 +52,7 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
-	public boolean remove(int id)
+	public boolean removeKey(Integer id)
 	{
 		boolean flag = database.remove(id) != null;
 		
@@ -66,23 +66,23 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
-	public boolean remove(IQuestContainer quest)
+	public boolean removeValue(IQuest quest)
 	{
 		int id = getKey(quest);
 		
-		return remove(id);
+		return removeKey(id);
 	}
 	
 	@Override
-	public IQuestContainer getValue(int id)
+	public IQuest getValue(Integer id)
 	{
 		return database.get(id);
 	}
 	
 	@Override
-	public int getKey(IQuestContainer quest)
+	public Integer getKey(IQuest quest)
 	{
-		for(Entry<Integer,IQuestContainer> entry : database.entrySet())
+		for(Entry<Integer,IQuest> entry : database.entrySet())
 		{
 			if(entry.getValue() == quest)
 			{
@@ -94,9 +94,9 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
-	public List<IQuestContainer> getAllValues()
+	public List<IQuest> getAllValues()
 	{
-		return new ArrayList<IQuestContainer>(database.values());
+		return new ArrayList<IQuest>(database.values());
 	}
 	
 	@Override
@@ -173,7 +173,7 @@ public final class QuestDatabase implements IQuestDatabase
 	
 	private JsonArray writeToJson_Config(JsonArray json)
 	{
-		for(Entry<Integer,IQuestContainer> entry : database.entrySet())
+		for(Entry<Integer,IQuest> entry : database.entrySet())
 		{
 			JsonObject jq = new JsonObject();
 			entry.getValue().writeToJson(jq, EnumSaveType.CONFIG);
@@ -201,7 +201,7 @@ public final class QuestDatabase implements IQuestDatabase
 				continue;
 			}
 			
-			IQuestContainer quest = getValue(qID);
+			IQuest quest = getValue(qID);
 			quest = quest != null? quest : new QuestInstance();
 			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
 			database.put(qID, quest);
@@ -210,7 +210,7 @@ public final class QuestDatabase implements IQuestDatabase
 	
 	private JsonArray writeToJson_Progress(JsonArray json)
 	{
-		for(Entry<Integer,IQuestContainer> entry : database.entrySet())
+		for(Entry<Integer,IQuest> entry : database.entrySet())
 		{
 			JsonObject jq = new JsonObject();
 			entry.getValue().writeToJson(jq, EnumSaveType.PROGRESS);
@@ -237,7 +237,7 @@ public final class QuestDatabase implements IQuestDatabase
 				continue;
 			}
 			
-			IQuestContainer quest = getValue(qID);
+			IQuest quest = getValue(qID);
 			
 			if(quest != null)
 			{

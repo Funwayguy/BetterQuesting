@@ -10,13 +10,13 @@ import betterquesting.client.gui.editors.GuiTextEditor;
 
 public class GuiBigTextField extends GuiTextField
 {
-	GuiButtonThemed bigEdit;
-	int hostID;
-	ITextEditor host;
-	GuiTextEditor editor;
-	FontRenderer fontrenderer;
-	String watermark = "";
-	Color wmColor = new Color(96, 96, 96);
+	private GuiButtonThemed bigEdit;
+	private int hostID;
+	private ITextCallback host;
+	private GuiTextEditor editor;
+	private FontRenderer fontrenderer;
+	private String watermark = "";
+	private Color wmColor = new Color(96, 96, 96);
 	
 	public GuiBigTextField(FontRenderer fontrenderer, int posX, int posY, int width, int height)
 	{
@@ -24,7 +24,7 @@ public class GuiBigTextField extends GuiTextField
 		this.fontrenderer = fontrenderer;
 	}
 	
-	public GuiBigTextField enableBigEdit(ITextEditor host, int id)
+	public GuiBigTextField enableBigEdit(ITextCallback host, int id)
 	{
 		bigEdit = new GuiButtonThemed(0, this.xPosition + width - 19, this.yPosition - 1, 20, height + 2, "Aa", true);
 		this.host = host;

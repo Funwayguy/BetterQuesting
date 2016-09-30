@@ -9,8 +9,8 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.ExpansionAPI;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.RenderUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -18,10 +18,10 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiButtonQuestInstance extends GuiButtonThemed
 {
-	private IQuestContainer quest;
+	private IQuest quest;
 	private List<GuiButtonQuestInstance> parents = new ArrayList<GuiButtonQuestInstance>();
 	
-	public GuiButtonQuestInstance(int id, int x, int y, int w, int h, IQuestContainer quest)
+	public GuiButtonQuestInstance(int id, int x, int y, int w, int h, IQuest quest)
 	{
 		super(id, x, y, w, h, "", false);
 		this.quest = quest;
@@ -37,7 +37,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 		return parents;
 	}
 	
-	public IQuestContainer getQuest()
+	public IQuest getQuest()
 	{
 		return quest;
 	}
@@ -48,7 +48,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
-		if(ExpansionAPI.INSTANCE.getProperties().isEditMode())
+		if(ExpansionAPI.getAPI().getSettings().getProperty(NativePropertyTypes.HARDCORE))
 		{
 			this.enabled = this.visible = true;
 		} else if(mc.thePlayer == null)
@@ -82,20 +82,25 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         		
         		float lsx = p.xPosition + p.width/2F;
         		float lsy = p.yPosition + p.height/2F;
+        		float lsw = p.width/2F;
+        		float lsh = p.height/2F;
         		float lex = xPosition + width/2F;
         		float ley = yPosition + height/2F;
+        		float lew = width/2F;
+        		float leh = height/2F;
         		
         		double la = Math.atan2(ley - lsy, lex - lsx);
         		double dx = Math.cos(la) * 16;
         		double dy = Math.sin(la) * 16;
-        		lsx += MathHelper.clamp_float((float)dx, -12, 12);
-        		lsy += MathHelper.clamp_float((float)dy, -12, 12);
+        		
+        		lsx += MathHelper.clamp_float((float)dx, -lsw, lsw);
+        		lsy += MathHelper.clamp_float((float)dy, -lsh, lsh);
         		
         		la = Math.atan2(lsy - ley, lsx - lex);
         		dx = Math.cos(la) * 16;
         		dy = Math.sin(la) * 16;
-        		lex += MathHelper.clamp_float((float)dx, -12, 12);
-        		ley += MathHelper.clamp_float((float)dy, -12, 12);
+        		lex += MathHelper.clamp_float((float)dx, -lew, lew);
+        		ley += MathHelper.clamp_float((float)dy, -leh, leh);
         		
         		GL11.glPushMatrix();
         		
@@ -135,7 +140,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         	float sw = width / 24;
         	float sh = height / 24;
         	GL11.glScalef(sw, sh, 1F);
-        	this.drawTexturedModalRect(0, 0, (quest.getInfo().getProperty(QuestProperties.MAIN)? 24 : 0), 104, 24, 24);
+        	this.drawTexturedModalRect(0, 0, (quest.getProperties().getProperty(NativePropertyTypes.MAIN)? 24 : 0), 104, 24, 24);
         	
         	if(quest.getItemIcon() != null)
         	{
@@ -150,16 +155,16 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	
 	public boolean isQuestShown(UUID uuid)
 	{
-		if(ExpansionAPI.INSTANCE.getProperties().isEditMode() || quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.ALWAYS)
+		if(ExpansionAPI.getAPI().getSettings().getProperty(NativePropertyTypes.EDIT_MODE) || quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.ALWAYS)
 		{
 			return true;
-		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.HIDDEN)
+		} else if(quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.HIDDEN)
 		{
 			return false;
-		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.UNLOCKED)
+		} else if(quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.UNLOCKED)
 		{
 			return quest.isUnlocked(uuid) || quest.isComplete(uuid);
-		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.NORMAL)
+		} else if(quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.NORMAL)
 		{
 			if(!quest.isComplete(uuid))
 			{
@@ -173,10 +178,10 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 			}
 			
 			return true;
-		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.COMPLETED)
+		} else if(quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.COMPLETED)
 		{
 			return quest.isComplete(uuid);
-		} else if(quest.getInfo().getProperty(QuestProperties.VISIBILITY) == EnumQuestVisibility.CHAIN)
+		} else if(quest.getProperties().getProperty(NativePropertyTypes.VISIBILITY) == EnumQuestVisibility.CHAIN)
 		{
 			for(GuiButtonQuestInstance q : parents)
 			{

@@ -1,11 +1,11 @@
-package betterquesting.api.client.gui;
+package betterquesting.api.client.gui.quest;
 
 import java.util.ArrayList;
 import java.util.List;
 import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -18,12 +18,12 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class QuestLineButtonTree
 {
-	private IQuestLineContainer line;
+	private IQuestLine line;
 	private ArrayList<GuiButtonQuestInstance> buttonTree = new ArrayList<GuiButtonQuestInstance>();
 	private int treeW = 0;
 	private int treeH = 0;
 	
-	public QuestLineButtonTree(IQuestLineContainer line)
+	public QuestLineButtonTree(IQuestLine line)
 	{
 		this.line = line;
 		RebuildTree();
@@ -39,7 +39,7 @@ public class QuestLineButtonTree
 		return treeH;
 	}
 	
-	public IQuestLineContainer getQuestLine()
+	public IQuestLine getQuestLine()
 	{
 		return line;
 	}
@@ -57,7 +57,7 @@ public class QuestLineButtonTree
 		}
 		
 		int id = line.getQuestAt(x, y);
-		IQuestContainer quest = ExpansionAPI.INSTANCE.getQuestDB().getValue(id);
+		IQuest quest = ExpansionAPI.getAPI().getQuestDB().getValue(id);
 		
 		if(quest == null)
 		{
@@ -88,7 +88,7 @@ public class QuestLineButtonTree
 		
 		for(int id : line.getAllKeys())
 		{
-			IQuestContainer quest = ExpansionAPI.INSTANCE.getQuestDB().getValue(id);
+			IQuest quest = ExpansionAPI.getAPI().getQuestDB().getValue(id);
 			IQuestLineEntry entry = line.getValue(id);
 			
 			if(quest != null && entry != null)

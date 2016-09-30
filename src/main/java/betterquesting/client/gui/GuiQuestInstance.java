@@ -10,15 +10,16 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
 import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.rewards.IRewardBase;
-import betterquesting.api.quests.tasks.ITaskBase;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.rewards.IReward;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.GuiQuestEditor;
-import betterquesting.client.gui.misc.GuiScrollingText;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestSettings;
@@ -29,12 +30,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 {
 	int id = -1;
-	IQuestContainer quest;
+	IQuest quest;
 	int selTask = 0;
 	IGuiEmbedded taskRender = null;
 	int selReward = 0;
 	IGuiEmbedded rewardRender = null;
-	GuiScrollingText desc;
 	GuiButtonThemed btnTLeft;
 	GuiButtonThemed btnTRight;
 	GuiButtonThemed btnRLeft;
@@ -46,7 +46,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	 */
 	NBTTagList choiceData = new NBTTagList();
 	
-	public GuiQuestInstance(GuiScreen parent, IQuestContainer quest)
+	public GuiQuestInstance(GuiScreen parent, IQuest quest)
 	{
 		super(parent, I18n.format(quest.getUnlocalisedName()));
 		this.quest = quest;
@@ -78,18 +78,18 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		this.selTask = 0;
 		this.rewardRender = null;
 		
-		if(QuestSettings.INSTANCE.isEditMode())
+		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonThemed btnEdit = new GuiButtonThemed(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
-		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.isEditMode();
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE);
 		this.buttonList.add(btnEdit);
 		
 		this.setTitle(I18n.format(quest.getUnlocalisedName()));
-		desc = new GuiScrollingText(this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 24, quest.getRewards().size() > 0? sizeY/2 - 48 : sizeY - 64, I18n.format(quest.getUnlocalisedDescription()));
+		this.embedded.add(new GuiScrollingText(mc, this.guiLeft + 16, this.guiTop + 32, sizeX/2 - 24, quest.getRewards().size() > 0? sizeY/2 - 48 : sizeY - 64, I18n.format(quest.getUnlocalisedDescription())));
 		
 		btnTLeft = new GuiButtonThemed(1, this.guiLeft + (sizeX/4)*3 - 70, this.guiTop + sizeY - 48, 20, 20, "<", true);
 		btnTLeft.enabled = selTask > 0;
@@ -122,8 +122,6 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
-		
-		desc.drawScreen(mx, my, partialTick);
 		
 		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 24, 1, getTextColor());
 		
@@ -218,7 +216,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		int tSize = quest.getTasks().size();
 		if(taskRender == null && tSize > 0)
 		{
-			ITaskBase task = quest.getTasks().getAllValues().get(selTask%tSize);
+			ITask task = quest.getTasks().getAllValues().get(selTask%tSize);
 			
 			if(task != null)
 			{
@@ -240,7 +238,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		int rSize = quest.getRewards().size();
 		if(rewardRender == null && rSize > 0)
 		{
-			IRewardBase reward = quest.getRewards().getAllValues().get(selReward%rSize);
+			IReward reward = quest.getRewards().getAllValues().get(selReward%rSize);
 			
 			if(reward != null)
 			{

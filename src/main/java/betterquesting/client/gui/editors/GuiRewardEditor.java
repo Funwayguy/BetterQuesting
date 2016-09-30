@@ -17,9 +17,9 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.rewards.IRewardBase;
-import betterquesting.api.quests.rewards.IRewardFactory;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.rewards.IReward;
+import betterquesting.api.utils.IFactory;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.network.PacketSender;
@@ -32,16 +32,16 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IRewardFactory<? extends IRewardBase>> rewardTypes = new ArrayList<IRewardFactory<? extends IRewardBase>>();
+	private List<IFactory<IReward>> rewardTypes = new ArrayList<IFactory<IReward>>();
 	private List<Integer> rewardIDs = new ArrayList<Integer>();
-	private IQuestContainer quest;
+	private IQuest quest;
 	private int qID = -1;
 	
 	private int leftScroll = 0;
 	private int rightScroll = 0;
 	private int maxRows = 0;
 	
-	public GuiRewardEditor(GuiScreen parent, IQuestContainer quest)
+	public GuiRewardEditor(GuiScreen parent, IQuest quest)
 	{
 		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
@@ -86,7 +86,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	@Override
 	public void refreshGui()
 	{
-		IQuestContainer tmp = QuestDatabase.INSTANCE.getValue(qID);
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(qID);
 		
 		if(tmp == null)
 		{
@@ -152,14 +152,14 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		{
 			if(!(n3 < 0 || n3 >= rewardIDs.size()))
 			{
-				quest.getRewards().remove(rewardIDs.get(n3));
+				quest.getRewards().removeKey(rewardIDs.get(n3));
 				SendChanges();
 			}
 		} else if(n2 == 2) // Add reward
 		{
 			if(!(n4 < 0 || n4 >= rewardTypes.size()))
 			{
-				quest.getRewards().add(RewardRegistry.INSTANCE.createReward(rewardTypes.get(n4).getRegistryName()), quest.getRewards().nextID());
+				quest.getRewards().add(RewardRegistry.INSTANCE.createReward(rewardTypes.get(n4).getRegistryName()), quest.getRewards().nextKey());
 				SendChanges();
 			}
 		}

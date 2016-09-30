@@ -8,8 +8,8 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -20,16 +20,16 @@ import com.google.gson.JsonObject;
 
 public class GuiToolIconProxy extends GuiScreenThemed
 {
-	private final IQuestContainer quest;
+	private final IQuest quest;
 	private BigItemStack stack;
 	private final JsonObject jIcon;
 	boolean flag = false;
 	
-	public GuiToolIconProxy(GuiScreen parent, IQuestContainer quest)
+	public GuiToolIconProxy(GuiScreen parent, IQuest quest)
 	{
 		super(parent, "");
 		this.quest = quest;
-		stack = quest.getInfo().getProperty(QuestProperties.ICON);
+		stack = quest.getProperties().getProperty(NativePropertyTypes.ICON);
 		stack = stack != null? stack : new BigItemStack(Items.nether_star);
 		jIcon = JsonHelper.ItemStackToJson(stack, new JsonObject());
 	}
@@ -41,7 +41,7 @@ public class GuiToolIconProxy extends GuiScreenThemed
 		{
 			stack = JsonHelper.JsonToItemStack(jIcon);
 			stack = stack != null? stack : new BigItemStack(Items.nether_star);
-			quest.getInfo().setProperty(QuestProperties.ICON, stack);
+			quest.getProperties().setProperty(NativePropertyTypes.ICON, stack);
 			SendChanges();
 			this.mc.displayGuiScreen(parent);
 			return;

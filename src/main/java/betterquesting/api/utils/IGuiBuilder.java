@@ -1,24 +1,29 @@
 package betterquesting.api.utils;
 
+import java.io.File;
+import java.io.FileFilter;
+import net.minecraft.client.gui.GuiScreen;
 import betterquesting.api.client.IFileCallback;
+import betterquesting.api.client.jdoc.IJsonDoc;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.IQuestLine;
+import betterquesting.client.gui.misc.ITextCallback;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import net.minecraft.client.gui.GuiScreen;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public interface IGuiBuilder
 {
-	public GuiScreen openTextEditor(GuiScreen parent, IJsonCallback<JsonPrimitive> json);
-	public GuiScreen openJsonEditor(GuiScreen parent, IJsonCallback<JsonElement> json, String docPrefix);
-	public GuiScreen openItemEditor(GuiScreen parent, IJsonCallback<JsonObject> json);
-	public GuiScreen openFluidEditor(GuiScreen parent, IJsonCallback<JsonObject> json);
-	public GuiScreen openEntityEditor(GuiScreen parent, IJsonCallback<JsonObject> json);
+	public GuiScreen getJsonEditor(GuiScreen parent, JsonElement json, IJsonDoc jdoc);
+	public GuiScreen getItemEditor(GuiScreen parent, JsonObject json);
+	public GuiScreen getFluidEditor(GuiScreen parent, JsonObject json);
+	public GuiScreen getEntityEditor(GuiScreen parent, JsonObject json);
 	
-	public GuiScreen openQuestEditor(GuiScreen parent, int questId);
-	public GuiScreen openLineEditor(GuiScreen parnet, int questLineId);
+	public GuiScreen getQuestEditor(GuiScreen parent, IQuest quest);
+	public GuiScreen getLineEditor(GuiScreen parent, IQuestLine questLine);
 	
-	public GuiScreen openFileExplorer(GuiScreen parent, IFileCallback callback, boolean singleFile);
+	public GuiScreen getTextEditor(GuiScreen parent, String text, ITextCallback editor, int id);
+	public GuiScreen getFileExplorer(GuiScreen parent, IFileCallback callback, File rootDir, FileFilter filter, boolean multiSelect);
 }

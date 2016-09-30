@@ -1,14 +1,14 @@
 package betterquesting.api.quests.properties.basic;
 
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.quests.properties.IQuestProperty;
+import betterquesting.api.quests.properties.IPropertyType;
 
-public abstract class QuestPropertyBase<T> implements IQuestProperty<T>
+public abstract class PropertyTypeBase<T> implements IPropertyType<T>
 {
 	private final ResourceLocation key;
 	private final T def;
 	
-	public QuestPropertyBase(ResourceLocation key, T def)
+	public PropertyTypeBase(ResourceLocation key, T def)
 	{
 		this.key = key;
 		this.def = def;

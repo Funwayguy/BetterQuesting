@@ -3,7 +3,7 @@ package betterquesting.api.quests.properties;
 import net.minecraft.util.ResourceLocation;
 import com.google.gson.JsonElement;
 
-public interface IQuestProperty<T>
+public interface IPropertyType<T>
 {
 	public ResourceLocation getKey();
 	public T getDefault();

@@ -30,7 +30,7 @@ public abstract class GuiElement
 	{
 		if(ExpansionAPI.isReady())
 		{
-			return ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme();
+			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
 		} else
 		{
 			return DummyTheme.INSTANCE;

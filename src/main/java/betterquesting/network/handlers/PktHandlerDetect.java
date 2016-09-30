@@ -5,7 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.quests.QuestDatabase;
 
 public class PktHandlerDetect implements IPacketHandler
@@ -24,7 +24,7 @@ public class PktHandlerDetect implements IPacketHandler
 			return;
 		}
 		
-		IQuestContainer quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
+		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
 		if(quest != null)
 		{

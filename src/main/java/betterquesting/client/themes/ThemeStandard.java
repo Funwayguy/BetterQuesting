@@ -2,12 +2,11 @@ package betterquesting.client.themes;
 
 import java.awt.Color;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.IThemeBase;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.properties.QuestProperties;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.properties.NativePropertyTypes;
 
 public class ThemeStandard implements IThemeBase
 {
@@ -81,19 +80,19 @@ public class ThemeStandard implements IThemeBase
 	}
 	
 	@Override
-	public short getLineStipple(IQuestContainer quest, EnumQuestState state)
+	public short getLineStipple(IQuest quest, EnumQuestState state)
 	{
 		return (short)0xFFFF;
 	}
 	
 	@Override
-	public float getLineWidth(IQuestContainer quest, EnumQuestState state)
+	public float getLineWidth(IQuest quest, EnumQuestState state)
 	{
-		return quest.getInfo().getProperty(QuestProperties.MAIN)? 8F : 4F;
+		return quest.getProperties().getProperty(NativePropertyTypes.MAIN)? 8F : 4F;
 	}
 	
 	@Override
-	public int getQuestLineColor(IQuestContainer quest, EnumQuestState state)
+	public int getQuestLineColor(IQuest quest, EnumQuestState state)
 	{
 		Color c = new Color(lineColors[state.ordinal()]);
 		
@@ -106,7 +105,7 @@ public class ThemeStandard implements IThemeBase
 	}
 	
 	@Override
-	public int getQuestIconColor(IQuestContainer quest, EnumQuestState state, int hoverState)
+	public int getQuestIconColor(IQuest quest, EnumQuestState state, int hoverState)
 	{
 		Color c = new Color(iconColors[state.ordinal()]);
 		
@@ -116,12 +115,6 @@ public class ThemeStandard implements IThemeBase
 		}
 		
 		return c.getRGB();
-	}
-	
-	@Override
-	public GuiScreen getGuiOverride(GuiScreen gui)
-	{
-		return gui;
 	}
 
 	@Override

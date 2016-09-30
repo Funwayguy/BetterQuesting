@@ -26,11 +26,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 {
-	JsonObject json;
-	FluidStack fluid;
-	BigItemStack stack;
-	Entity entity;
-	EditType lastType = EditType.NONE;
+	private JsonObject json;
+	private FluidStack fluid;
+	private BigItemStack stack;
+	private Entity entity;
+	private EditType lastType = EditType.NONE;
 	
 	public GuiJsonTypeMenu(GuiScreen parent, JsonObject json)
 	{
@@ -108,11 +108,6 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		GuiButtonThemed fluidButton = new GuiButtonThemed(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid"), true); // Fluid Editor
 		GuiButtonThemed entityButton = new GuiButtonThemed(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity"), true); // Entity Selector
 		
-		//itemButton.displayString = I18n.format("betterquesting.btn.item");
-		//entityButton.displayString = I18n.format("betterquesting.btn.entity");
-		//editButton.displayString = I18n.format("betterquesting.btn.raw_nbt");
-		//fluidButton.displayString = I18n.format("betterquesting.btn.fluid");
-		
 		this.buttonList.add(itemButton);
 		this.buttonList.add(entityButton);
 		this.buttonList.add(editButton);
@@ -141,7 +136,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		} else if(button.id == 3)
 		{
 			this.lastType = EditType.NONE;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json));
+			this.mc.displayGuiScreen(new GuiJsonObject(this, json, null));
 		} else if(button.id == 4)
 		{
 			this.lastType = EditType.FLUID;

@@ -8,7 +8,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.quests.IQuestContainer;
+import betterquesting.api.quests.IQuest;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -83,7 +83,7 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(IQuestContainer quest : QuestDatabase.INSTANCE.getAllValues())
+			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
 			{
 				if(uuid != null)
 				{
@@ -106,7 +106,7 @@ public class QuestCommandReset extends QuestCommandBase
 			try
 			{
 				int id = Integer.parseInt(action.trim());
-				IQuestContainer quest = QuestDatabase.INSTANCE.getValue(id);
+				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
 				
 				if(uuid != null)
 				{

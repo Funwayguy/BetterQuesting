@@ -1,6 +1,6 @@
 package betterquesting.client.gui.misc;
 
-public interface ITextEditor
+public interface ITextCallback
 {
 	public void setText(int id, String text);
 }

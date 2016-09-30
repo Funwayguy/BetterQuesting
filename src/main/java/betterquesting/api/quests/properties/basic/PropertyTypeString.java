@@ -1,35 +1,29 @@
 package betterquesting.api.quests.properties.basic;
 
-import net.minecraft.util.ResourceLocation;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.util.ResourceLocation;
 
-public class QuestPropertyBoolean extends QuestPropertyBase<Boolean>
+public class PropertyTypeString extends PropertyTypeBase<String>
 {
-	public QuestPropertyBoolean(ResourceLocation key, Boolean def)
+	public PropertyTypeString(ResourceLocation key, String def)
 	{
 		super(key, def);
 	}
 	
 	@Override
-	public Boolean readValue(JsonElement json)
+	public String readValue(JsonElement json)
 	{
 		if(json == null || !json.isJsonPrimitive())
 		{
 			return this.getDefault();
 		}
 		
-		try
-		{
-			return json.getAsBoolean();
-		} catch(Exception e)
-		{
-			return this.getDefault();
-		}
+		return json.getAsString();
 	}
 	
 	@Override
-	public JsonElement writeValue(Boolean value)
+	public JsonElement writeValue(String value)
 	{
 		if(value == null)
 		{

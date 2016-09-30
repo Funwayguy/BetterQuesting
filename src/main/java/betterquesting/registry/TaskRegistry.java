@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.quests.tasks.ITaskBase;
-import betterquesting.api.quests.tasks.ITaskFactory;
+import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.registry.ITaskRegistry;
+import betterquesting.api.utils.IFactory;
 import betterquesting.core.BetterQuesting;
 
 /**
@@ -17,14 +17,14 @@ public class TaskRegistry implements ITaskRegistry
 {
 	public static final TaskRegistry INSTANCE = new TaskRegistry();
 	
-	private HashMap<ResourceLocation, ITaskFactory<? extends ITaskBase>> taskRegistry = new HashMap<ResourceLocation, ITaskFactory<? extends ITaskBase>>();
+	private HashMap<ResourceLocation, IFactory<ITask>> taskRegistry = new HashMap<ResourceLocation, IFactory<ITask>>();
 	
 	private TaskRegistry()
 	{
 	}
 	
 	@Override
-	public void registerTask(ITaskFactory<? extends ITaskBase> factory)
+	public void registerTask(IFactory<ITask> factory)
 	{
 		if(factory == null)
 		{
@@ -43,22 +43,22 @@ public class TaskRegistry implements ITaskRegistry
 	}
 	
 	@Override
-	public ITaskFactory<? extends ITaskBase> getFactory(ResourceLocation registryName)
+	public IFactory<ITask> getFactory(ResourceLocation registryName)
 	{
 		return taskRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<ITaskFactory<? extends ITaskBase>> getAll()
+	public List<IFactory<ITask>> getAll()
 	{
-		return new ArrayList<ITaskFactory<? extends ITaskBase>>(taskRegistry.values());
+		return new ArrayList<IFactory<ITask>>(taskRegistry.values());
 	}
 	
-	public ITaskBase createTask(ResourceLocation registryName)
+	public ITask createTask(ResourceLocation registryName)
 	{
 		try
 		{
-			ITaskFactory<? extends ITaskBase> factory = getFactory(registryName);
+			IFactory<ITask> factory = getFactory(registryName);
 			
 			if(factory == null)
 			{
@@ -66,7 +66,7 @@ public class TaskRegistry implements ITaskRegistry
 				return null;
 			}
 			
-			return factory.createTask();
+			return factory.createNew();
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate task: " + registryName, e);

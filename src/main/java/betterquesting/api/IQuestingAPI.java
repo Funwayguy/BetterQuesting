@@ -48,7 +48,7 @@ public interface IQuestingAPI
 	public IPartyDatabase getPartyDB();
 	public ILifeDatabase getLifeDB();
 	
-	public IQuestSettings getProperties();
+	public IQuestSettings getSettings();
 	
 	public Logger getLogger();
 }

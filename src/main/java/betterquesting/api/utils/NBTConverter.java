@@ -151,7 +151,7 @@ public class NBTConverter
 				{
 					if(tags.hasKey(key))
 					{
-						ExpansionAPI.INSTANCE.getLogger().log(Level.WARN, "JSON/NBT formatting conflict on key '" + key + "'. Skipping...");
+						ExpansionAPI.getAPI().getLogger().log(Level.WARN, "JSON/NBT formatting conflict on key '" + key + "'. Skipping...");
 						continue;
 					}
 				}
@@ -225,10 +225,10 @@ public class NBTConverter
 			}
 		} catch(Exception e)
 		{
-			ExpansionAPI.INSTANCE.getLogger().log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
 		}
 		
-		ExpansionAPI.INSTANCE.getLogger().log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
+		ExpansionAPI.getAPI().getLogger().log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
 		return new NBTTagString();
 	}
 	

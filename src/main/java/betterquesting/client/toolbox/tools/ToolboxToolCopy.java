@@ -8,8 +8,8 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestContainer;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuest;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -92,9 +92,9 @@ public class ToolboxToolCopy implements IToolboxTool
 		} else
 		{
 			// Pre-sync
-			IQuestContainer quest = btnQuest.getQuest();
-			IQuestLineContainer qLine = gui.getQuestLine().getQuestLine();
-			int qID = QuestDatabase.INSTANCE.nextID();
+			IQuest quest = btnQuest.getQuest();
+			IQuestLine qLine = gui.getQuestLine().getQuestLine();
+			int qID = QuestDatabase.INSTANCE.nextKey();
 			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
 			QuestLineEntry qe = new QuestLineEntry(mx, my, 24);
 			qLine.add(qe, qID);

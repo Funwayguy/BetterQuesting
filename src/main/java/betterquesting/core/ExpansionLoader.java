@@ -25,7 +25,7 @@ public class ExpansionLoader
 	{
 		expansions.clear();
 		
-		new ExpansionAPI(ParentAPI.API);
+		ExpansionAPI.initAPI(ParentAPI.API);
 		
 		for(ASMDataTable.ASMData data : asmData.getAll(QuestExpansion.class.getCanonicalName()))
 		{

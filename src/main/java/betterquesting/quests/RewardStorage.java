@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.database.IJsonSaveLoad;
-import betterquesting.api.database.IRegStorage;
+import betterquesting.api.database.IRegStorageBase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.rewards.IRewardBase;
+import betterquesting.api.quests.rewards.IReward;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.registry.RewardRegistry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<JsonArray>
+public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSaveLoad<JsonArray>
 {
-	private final HashMap<Integer,IRewardBase> database = new HashMap<Integer,IRewardBase>();
+	private final HashMap<Integer,IReward> database = new HashMap<Integer,IReward>();
 	
 	@Override
-	public int nextID()
+	public Integer nextKey()
 	{
 		int id = 0;
 		
@@ -33,7 +33,7 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 	}
 	
 	@Override
-	public boolean add(IRewardBase obj, int id)
+	public boolean add(IReward obj, Integer id)
 	{
 		if(obj == null || database.containsKey(id) || database.containsKey(id))
 		{
@@ -45,29 +45,29 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 	}
 	
 	@Override
-	public boolean remove(int id)
+	public boolean removeKey(Integer id)
 	{
 		return database.remove(id) != null;
 	}
 	
 	@Override
-	public boolean remove(IRewardBase reward)
+	public boolean removeValue(IReward reward)
 	{
-		return remove(getKey(reward));
+		return removeKey(getKey(reward));
 	}
 	
 	@Override
-	public IRewardBase getValue(int id)
+	public IReward getValue(Integer id)
 	{
 		return database.get(id);
 	}
 	
 	@Override
-	public int getKey(IRewardBase obj)
+	public Integer getKey(IReward obj)
 	{
 		int id = -1;
 		
-		for(Entry<Integer,IRewardBase> entry : database.entrySet())
+		for(Entry<Integer,IReward> entry : database.entrySet())
 		{
 			if(entry.getValue() == obj)
 			{
@@ -79,9 +79,9 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 	}
 	
 	@Override
-	public List<IRewardBase> getAllValues()
+	public List<IReward> getAllValues()
 	{
-		return new ArrayList<IRewardBase>(database.values());
+		return new ArrayList<IReward>(database.values());
 	}
 	
 	@Override
@@ -110,7 +110,7 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 			return json;
 		}
 		
-		for(Entry<Integer,IRewardBase> rew : database.entrySet())
+		for(Entry<Integer,IReward> rew : database.entrySet())
 		{
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
 			
@@ -131,7 +131,7 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 			return;
 		}
 		
-		ArrayList<IRewardBase> unassigned = new ArrayList<IRewardBase>();
+		ArrayList<IReward> unassigned = new ArrayList<IReward>();
 		
 		for(JsonElement entry : json)
 		{
@@ -143,7 +143,7 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 			JsonObject jsonReward = entry.getAsJsonObject();
 			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
 			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
-			IRewardBase reward = RewardRegistry.INSTANCE.createReward(loc);
+			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
 			
 			if(reward != null)
 			{
@@ -159,9 +159,9 @@ public class RewardStorage implements IRegStorage<IRewardBase>, IJsonSaveLoad<Js
 			}
 		}
 		
-		for(IRewardBase r : unassigned)
+		for(IReward r : unassigned)
 		{
-			add(r, nextID());
+			add(r, nextKey());
 		}
 	}
 }

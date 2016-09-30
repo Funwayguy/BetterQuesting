@@ -230,7 +230,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	{
 		if(ExpansionAPI.isReady())
 		{
-			return ExpansionAPI.INSTANCE.getThemeRegistry().getCurrentTheme();
+			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
 		} else
 		{
 			return DummyTheme.INSTANCE;

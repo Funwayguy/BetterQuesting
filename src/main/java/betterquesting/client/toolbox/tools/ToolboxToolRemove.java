@@ -8,7 +8,7 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestDatabase;
@@ -38,13 +38,13 @@ public class ToolboxToolRemove implements IToolboxTool
 			return;
 		}
 		
-		IQuestLineContainer line = gui.getQuestLine().getQuestLine();
+		IQuestLine line = gui.getQuestLine().getQuestLine();
 		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
 		
 		if(line != null && btn != null)
 		{
 			int qID = QuestDatabase.INSTANCE.getKey(btn.getQuest());
-			line.remove(qID);
+			line.removeKey(qID);
 			
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());

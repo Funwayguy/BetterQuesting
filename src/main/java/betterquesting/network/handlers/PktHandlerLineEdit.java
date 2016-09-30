@@ -12,7 +12,7 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuestLineContainer;
+import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
@@ -47,7 +47,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
 		int lID = !data.hasKey("lineID")? -1 : data.getInteger("lineID");
-		IQuestLineContainer questLine = QuestLineDatabase.INSTANCE.getValue(lID);
+		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(lID);
 		
 		if(aID < 0 || aID >= EnumPacketAction.values().length)
 		{
@@ -58,8 +58,8 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		if(action == EnumPacketAction.ADD) 
 		{
-			IQuestLineContainer nq = new QuestLine();
-			int nID = QuestLineDatabase.INSTANCE.nextID();
+			IQuestLine nq = new QuestLine();
+			int nID = QuestLineDatabase.INSTANCE.nextKey();
 			
 			if(data.hasKey("data") && lID >= 0)
 			{
@@ -79,7 +79,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
-			QuestLineDatabase.INSTANCE.remove(lID);
+			QuestLineDatabase.INSTANCE.removeKey(lID);
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			return;
 		}

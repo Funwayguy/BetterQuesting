@@ -49,7 +49,7 @@ public class PacketQuesting implements IMessage
 			}
 			
 			EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(packet.tags);
+			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : sender.getUniqueID(),packet.tags);
 			
 			if(message == null)
 			{
@@ -86,7 +86,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(packet.tags);
+			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
 			
 			if(message == null)
 			{
