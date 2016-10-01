@@ -328,7 +328,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 			int bID = (5 + qlid) << 2; // Offsets the quest line ID to avoid conflict with existing button IDs and reserves 2 bits for column index
 			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 40, 20, I18n.format(line.getUnlocalisedName()));
 			btn1.enabled = line != selected;
-			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "X");
+			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x");
 			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "^");
 			
 			btnList.addButtonRow(btn1, btn2, btn3);
