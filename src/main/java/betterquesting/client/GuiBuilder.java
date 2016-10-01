@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiScreen;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import betterquesting.api.client.IFileCallback;
-import betterquesting.api.client.gui.premade.screens.GuiFileExplorer;
+import betterquesting.api.client.ITextCallback;
 import betterquesting.api.client.jdoc.IJsonDoc;
 import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.IQuestLine;
@@ -20,7 +20,7 @@ import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
-import betterquesting.client.gui.misc.ITextCallback;
+import betterquesting.client.gui.misc.GuiFileExplorer;
 
 public final class GuiBuilder implements IGuiBuilder
 {

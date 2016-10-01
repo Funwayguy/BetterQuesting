@@ -1,11 +1,9 @@
-package betterquesting.api.client.gui.premade.lists;
+package betterquesting.api.client.gui.lists;
 
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.GuiScrollingBase;
-import betterquesting.api.client.gui.IScrollingEntry;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
 
 public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.ScrollingEntryButtonRow>
 {

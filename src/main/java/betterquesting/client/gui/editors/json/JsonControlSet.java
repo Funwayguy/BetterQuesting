@@ -2,7 +2,7 @@ package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.List;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;

@@ -2,12 +2,21 @@ package betterquesting.api.events;
 
 import cpw.mods.fml.common.eventhandler.Event;
 
+/**
+ * Fired when the whole questing database for world is modified, loaded or saved.
+ * Can be used to save/load custom databases in expansions or update dependent GUIs
+ */
 public abstract class DatabaseEvent extends Event
 {
-	public static class DatabaseUpdated extends DatabaseEvent
+	public static class Update extends DatabaseEvent
 	{
-		public DatabaseUpdated()
-		{
-		}
+	}
+	
+	public static class Load extends DatabaseEvent
+	{
+	}
+	
+	public static class Save extends DatabaseEvent
+	{
 	}
 }

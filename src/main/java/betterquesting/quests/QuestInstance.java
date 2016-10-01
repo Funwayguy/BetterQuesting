@@ -20,7 +20,7 @@ import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.properties.IPropertyContainer;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.quests.rewards.IReward;
 import betterquesting.api.quests.tasks.IProgression;
 import betterquesting.api.quests.tasks.ITask;
@@ -58,13 +58,13 @@ public class QuestInstance implements IQuest
 	{
 		String def = "New Quest";
 		
-		if(!qInfo.hasProperty(NativePropertyTypes.NAME))
+		if(!qInfo.hasProperty(NativeProps.NAME))
 		{
-			qInfo.setProperty(NativePropertyTypes.NAME, def);
+			qInfo.setProperty(NativeProps.NAME, def);
 			return def;
 		}
 		
-		return qInfo.getProperty(NativePropertyTypes.NAME, def);
+		return qInfo.getProperty(NativeProps.NAME, def);
 	}
 	
 	@Override
@@ -72,13 +72,13 @@ public class QuestInstance implements IQuest
 	{
 		String def = "No Description";
 		
-		if(!qInfo.hasProperty(NativePropertyTypes.DESC))
+		if(!qInfo.hasProperty(NativeProps.DESC))
 		{
-			qInfo.setProperty(NativePropertyTypes.DESC, def);
+			qInfo.setProperty(NativeProps.DESC, def);
 			return def;
 		}
 		
-		return qInfo.getProperty(NativePropertyTypes.DESC, def);
+		return qInfo.getProperty(NativeProps.DESC, def);
 	}
 	
 	@Override
@@ -86,13 +86,13 @@ public class QuestInstance implements IQuest
 	{
 		BigItemStack def = new BigItemStack(Items.nether_star);
 		
-		if(!qInfo.hasProperty(NativePropertyTypes.ICON))
+		if(!qInfo.hasProperty(NativeProps.ICON))
 		{
-			qInfo.setProperty(NativePropertyTypes.ICON, def);
+			qInfo.setProperty(NativeProps.ICON, def);
 			return def;
 		}
 		
-		return qInfo.getProperty(NativePropertyTypes.ICON, def);
+		return qInfo.getProperty(NativeProps.ICON, def);
 	}
 	
 	@Override
@@ -117,13 +117,13 @@ public class QuestInstance implements IQuest
 				{
 					// Quest is complete and pending claim.
 					// Task logic is not required to run.
-					if(qInfo.getProperty(NativePropertyTypes.AUTO_CLAIM) && player.ticksExisted%20 == 0)
+					if(qInfo.getProperty(NativeProps.AUTO_CLAIM) && player.ticksExisted%20 == 0)
 					{
 						claimReward(player);
 					}
 					
 					return;
-				} else if(qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0)
+				} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0)
 				{
 					// Task is non repeatable or has no rewards to claim
 					return;
@@ -131,10 +131,10 @@ public class QuestInstance implements IQuest
 				{
 					// Task logic will now run for repeat quest
 				}
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() >= 0 && player.worldObj.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue())
+			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 && player.worldObj.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME).intValue())
 			{
 				// Task is scheduled to reset
-				if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+				if(qInfo.getProperty(NativeProps.GLOBAL))
 				{
 					resetAll(false);
 				} else
@@ -142,16 +142,16 @@ public class QuestInstance implements IQuest
 					resetUser(player.getUniqueID(), false);
 				}
 				
-				if(!QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE) && !qInfo.getProperty(NativePropertyTypes.SILENT))
+				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativePropertyTypes.SOUND_UPDATE));
+					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
-					if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
 						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
@@ -169,7 +169,7 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		if(isUnlocked(player.getUniqueID()) || qInfo.getProperty(NativePropertyTypes.LOCKED_PROGRESS))
+		if(isUnlocked(player.getUniqueID()) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
 		{
 			int done = 0;
 			boolean update = false;
@@ -199,22 +199,22 @@ public class QuestInstance implements IQuest
 				}
 				
 				return;
-			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE)) && qInfo.getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, tasks.size()))
+			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
-				if(!QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE) && !qInfo.getProperty(NativePropertyTypes.SILENT))
+				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativePropertyTypes.SOUND_COMPLETE));
+					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
-					if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
 						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
@@ -222,7 +222,7 @@ public class QuestInstance implements IQuest
 						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
-			} else if(update && qInfo.getProperty(NativePropertyTypes.SIMULTANEOUS))
+			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(player.getUniqueID(), false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -230,16 +230,16 @@ public class QuestInstance implements IQuest
 			{
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
-				if(!QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE) && !qInfo.getProperty(NativePropertyTypes.SILENT))
+				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativePropertyTypes.SOUND_UPDATE));
+					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
-					if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
 						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
@@ -257,7 +257,7 @@ public class QuestInstance implements IQuest
 	@Override
 	public void detect(EntityPlayer player)
 	{
-		if(isComplete(player.getUniqueID()) && (qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
+		if(isComplete(player.getUniqueID()) && (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
 		{
 			return;
 		} else if(!canSubmit(player))
@@ -265,7 +265,7 @@ public class QuestInstance implements IQuest
 			return;
 		}
 		
-		if(isUnlocked(player.getUniqueID()) || QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE))
+		if(isUnlocked(player.getUniqueID()) || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
 		{
 			int done = 0;
 			boolean update = false;
@@ -287,20 +287,20 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE)) && qInfo.getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, tasks.size()))
+			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
-				if(!QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE) && !qInfo.getProperty(NativePropertyTypes.SILENT))
+				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.complete");
 					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativePropertyTypes.SOUND_COMPLETE));
+					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
-					if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
 						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
@@ -308,22 +308,22 @@ public class QuestInstance implements IQuest
 						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 					}
 				}
-			} else if(update && qInfo.getProperty(NativePropertyTypes.SIMULTANEOUS))
+			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(player.getUniqueID(), false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
-				if(!QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE) && !qInfo.getProperty(NativePropertyTypes.SILENT))
+				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setString("Main", "betterquesting.notice.update");
 					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativePropertyTypes.SOUND_UPDATE));
+					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
 					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
-					if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
 						PacketSender.INSTANCE.sendToAll(payload);
 					} else if(player instanceof EntityPlayerMP)
@@ -345,12 +345,12 @@ public class QuestInstance implements IQuest
 			return true;
 		}
 				
-		if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
-			if(GetParticipation(uuid) < qInfo.getProperty(NativePropertyTypes.PARTICIPATION).floatValue())
+			if(GetParticipation(uuid) < qInfo.getProperty(NativeProps.PARTICIPATION).floatValue())
 			{
 				return true;
-			} else if(!qInfo.getProperty(NativePropertyTypes.GLOBAL_SHARE))
+			} else if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE))
 			{
 				for(UserEntry entry : completeUsers)
 				{
@@ -438,7 +438,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			return !qInfo.getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, tasks.size());
+			return !qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size());
 		} else
 		{
 			return false;
@@ -491,7 +491,7 @@ public class QuestInstance implements IQuest
 			if(!hasClaimed(player.getUniqueID()))
 			{
 				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
-			} else if(qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() > 0)
+			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() > 0)
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
@@ -499,7 +499,7 @@ public class QuestInstance implements IQuest
 			}
 		} else if(!isUnlocked(player.getUniqueID()))
 		{
-			list.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + StatCollector.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativePropertyTypes.LOGIC_QUEST).toString().toUpperCase() + ")");
+			list.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + StatCollector.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
 			
 			for(IQuest req : preRequisites)
 			{
@@ -535,19 +535,19 @@ public class QuestInstance implements IQuest
 		
 		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()) + " #" + QuestDatabase.INSTANCE.getKey(this));
 		
-		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", qInfo.getProperty(NativePropertyTypes.MAIN)));
-		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", qInfo.getProperty(NativePropertyTypes.GLOBAL)));
-		if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
+		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
-			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_share", qInfo.getProperty(NativePropertyTypes.GLOBAL_SHARE)));
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_share", qInfo.getProperty(NativeProps.GLOBAL_SHARE)));
 		}
-		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.task_logic", qInfo.getProperty(NativePropertyTypes.LOGIC_QUEST).toString().toUpperCase()));
-		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.simultaneous", qInfo.getProperty(NativePropertyTypes.SIMULTANEOUS)));
-		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativePropertyTypes.AUTO_CLAIM)));
-		if(qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() >= 0)
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.task_logic", qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.simultaneous", qInfo.getProperty(NativeProps.SIMULTANEOUS)));
+		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
+		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
 		{
 			DecimalFormat df = new DecimalFormat("00");
-			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", (qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue()/60) + "m " + df.format(qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue()%60) + "s"));
+			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/60) + "m " + df.format(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()%60) + "s"));
 		} else
 		{
 			list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", false));
@@ -559,7 +559,7 @@ public class QuestInstance implements IQuest
 	@SideOnly(Side.CLIENT)
 	public long getRepeatSeconds(EntityPlayer player)
 	{
-		if(qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() < 0)
+		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0)
 		{
 			return -1;
 		}
@@ -571,7 +571,7 @@ public class QuestInstance implements IQuest
 			return 0;
 		} else
 		{
-			return (qInfo.getProperty(NativePropertyTypes.REPEAT_TIME).intValue() - (player.worldObj.getTotalWorldTime() - ue.getTimestamp()))/20L;
+			return (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() - (player.worldObj.getTotalWorldTime() - ue.getTimestamp()))/20L;
 		}
 	}
 	
@@ -615,7 +615,7 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		return qInfo.getProperty(NativePropertyTypes.LOGIC_QUEST).GetResult(A, B);
+		return qInfo.getProperty(NativeProps.LOGIC_QUEST).GetResult(A, B);
 	}
 	
 	@Override
@@ -657,7 +657,7 @@ public class QuestInstance implements IQuest
 	@Override
 	public boolean isComplete(UUID uuid)
 	{
-		if(qInfo.getProperty(NativePropertyTypes.GLOBAL))
+		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
 			return completeUsers.size() > 0;
 		} else

@@ -29,6 +29,6 @@ public class PktHandlerLives implements IPacketHandler
 	public void handleClient(NBTTagCompound data)
 	{
 		LifeDatabase.INSTANCE.readPacket(data);
-		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
 	}
 }

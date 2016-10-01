@@ -10,14 +10,13 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.IGuiEmbedded;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.tasks.IFluidTask;
 import betterquesting.api.quests.tasks.IItemTask;
 import betterquesting.api.quests.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui.misc.GuiContainerThemed;
 import betterquesting.quests.QuestDatabase;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh

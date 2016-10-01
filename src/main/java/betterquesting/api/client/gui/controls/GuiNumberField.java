@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.controls;
+package betterquesting.api.client.gui.controls;
 
 import java.text.NumberFormat;
 import net.minecraft.client.gui.FontRenderer;

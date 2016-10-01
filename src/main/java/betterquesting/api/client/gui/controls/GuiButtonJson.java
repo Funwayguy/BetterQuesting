@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.controls;
+package betterquesting.api.client.gui.controls;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;

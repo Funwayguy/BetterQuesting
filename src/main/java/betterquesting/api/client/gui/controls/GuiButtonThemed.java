@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.controls;
+package betterquesting.api.client.gui.controls;
 
 import java.util.ArrayList;
 import java.util.List;

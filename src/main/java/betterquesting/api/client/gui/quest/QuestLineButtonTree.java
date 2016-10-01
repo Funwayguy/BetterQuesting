@@ -3,7 +3,7 @@ package betterquesting.api.client.gui.quest;
 import java.util.ArrayList;
 import java.util.List;
 import betterquesting.api.ExpansionAPI;
-import betterquesting.api.client.gui.premade.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;

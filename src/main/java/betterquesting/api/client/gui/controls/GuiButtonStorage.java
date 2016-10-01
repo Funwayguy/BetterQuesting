@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.controls;
+package betterquesting.api.client.gui.controls;
 
 /**
  * Variant of GuiButtonThemed that can store an arbitrary value

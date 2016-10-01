@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui;
+package betterquesting.api.client.gui.lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.utils.RenderUtils;
 
 @SideOnly(Side.CLIENT)

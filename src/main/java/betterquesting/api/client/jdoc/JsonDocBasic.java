@@ -43,7 +43,7 @@ public class JsonDocBasic implements IJsonDoc
 	{
 		JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(this, prefix + "." + child));
 		MinecraftForge.EVENT_BUS.post(event);
-		return event.getJsonDoc();
+		return event.getJdocResult();
 	}
 	
 }

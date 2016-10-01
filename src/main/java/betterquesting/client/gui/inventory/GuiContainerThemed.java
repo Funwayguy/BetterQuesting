@@ -1,4 +1,4 @@
-package betterquesting.client.gui.misc;
+package betterquesting.client.gui.inventory;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

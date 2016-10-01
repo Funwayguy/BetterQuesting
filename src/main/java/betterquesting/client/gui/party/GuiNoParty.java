@@ -10,14 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.party.IParty;
-import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeDatabase;
@@ -92,7 +91,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE))
+		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
 			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());

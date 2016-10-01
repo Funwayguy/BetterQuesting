@@ -1,19 +1,19 @@
-package betterquesting.client.gui.misc;
+package betterquesting.api.client.gui.controls;
 
 import java.awt.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Mouse;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.client.gui.editors.GuiTextEditor;
+import betterquesting.api.ExpansionAPI;
+import betterquesting.api.client.ITextCallback;
 
 public class GuiBigTextField extends GuiTextField
 {
 	private GuiButtonThemed bigEdit;
 	private int hostID;
 	private ITextCallback host;
-	private GuiTextEditor editor;
 	private FontRenderer fontrenderer;
 	private String watermark = "";
 	private Color wmColor = new Color(96, 96, 96);
@@ -44,11 +44,17 @@ public class GuiBigTextField extends GuiTextField
 	@Override
     public void mouseClicked(int mx, int my, int p_146192_3_)
     {
-        if(bigEdit != null && bigEdit.mousePressed(Minecraft.getMinecraft(), mx, my))
+		Minecraft mc = Minecraft.getMinecraft();
+		
+        if(bigEdit != null && bigEdit.mousePressed(mc, mx, my))
         {
-        	editor = new GuiTextEditor(Minecraft.getMinecraft().currentScreen, getText()).setHost(host, hostID);
-        	bigEdit.func_146113_a(Minecraft.getMinecraft().getSoundHandler());
-        	Minecraft.getMinecraft().displayGuiScreen(editor);
+        	GuiScreen editorGui = ExpansionAPI.getAPI().getGuiBuilder().getTextEditor(mc.currentScreen, getText(), host, hostID);
+        	bigEdit.func_146113_a(mc.getSoundHandler());
+        	
+        	if(editorGui != null)
+        	{
+        		Minecraft.getMinecraft().displayGuiScreen(editorGui);
+        	}
         	return;
         } else if(host != null)
         {

@@ -8,22 +8,23 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.ITextCallback;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.ITextCallback;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLineDatabase;
@@ -39,10 +40,9 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	private GuiTextField lineTitle;
 	private GuiBigTextField lineDesc;
 	private IQuestLine selected;
-	//int selIndex = -1;
 	int selID = -1;
-	int leftScroll = 0;
-	int maxRows = 0;
+	
+	private GuiScrollingButtons btnList;
 	
 	public GuiQuestLineEditorA(GuiScreen parent)
 	{
@@ -55,7 +55,6 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	{
 		super.initGui();
 		
-		maxRows = (sizeY - 80)/20;
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
@@ -73,25 +72,13 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		btnDesign = new GuiButtonThemed(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer"), true);
 		this.buttonList.add(btnDesign);
 		
-		// Quest Line - Main
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16 + 20, guiTop + 32 + (i*20), btnWidth - 56, 20, "NULL", true);
-			this.buttonList.add(btn);
-		}
+		btnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, btnWidth - 8, sizeY - 80);
+		this.embedded.add(btnList);
 		
-		// Quest Line - Delete
-		for(int i = 0; i < maxRows; i++)
+		if(selected != null)
 		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x", true);
-			this.buttonList.add(btn);
-		}
-		
-		// Quest Line - Shift Up
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16 + 20 + btnWidth - 56, guiTop + 32 + (i*20), 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "^", true);
-			this.buttonList.add(btn);
+			lineTitle.setText(selected.getUnlocalisedName());
+			lineDesc.setText(selected.getUnlocalisedDescription());
 		}
 		
 		RefreshColumns();
@@ -102,6 +89,12 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	{
 		selected = QuestLineDatabase.INSTANCE.getValue(selID);
 		
+		if(selected != null)
+		{
+			lineTitle.setText(selected.getUnlocalisedName());
+			lineDesc.setText(selected.getUnlocalisedDescription());
+		}
+		
 		RefreshColumns();
 	}
 	
@@ -111,18 +104,6 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		super.drawScreen(mx, my, partialTick);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(QuestLineDatabase.INSTANCE.size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, getTextColor());
 		
@@ -194,16 +175,21 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
 		} else if(btn.id > 4)
 		{
-			int n1 = btn.id - 5; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
+			int n2 = btn.id&3; // Line listing (0 = line, 1 = delete, 2 shift)
+			int n3 = (btn.id >> 2) - 5; // Quest list index
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < questList.size())
+				if(n3 >= 0)
 				{
-					selected = QuestLineDatabase.INSTANCE.getValue(questList.get(n3));
-					selID = QuestLineDatabase.INSTANCE.getKey(selected);
+					selected = QuestLineDatabase.INSTANCE.getValue(n3);
+					selID = n3;
+					
+					if(selected != null)
+					{
+						lineTitle.setText(selected.getUnlocalisedName());
+						lineDesc.setText(selected.getUnlocalisedDescription());
+					}
 				} else
 				{
 					selected = null;
@@ -213,9 +199,9 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 				RefreshColumns();
 			} else if(n2 == 1)
 			{
-				if(n3 >= 0 && n3 < questList.size())
+				if(n3 >= 0)
 				{
-					SendChanges(EnumPacketAction.REMOVE, questList.get(n3));
+					SendChanges(EnumPacketAction.REMOVE, n3);
 				}
 			} else if(n2 == 2)
 			{
@@ -241,6 +227,38 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
         {
         	lineDesc.textboxKeyTyped(character, keyCode);
         	lineTitle.textboxKeyTyped(character, keyCode);
+        	
+        	if(keyCode == Keyboard.KEY_RETURN)
+        	{
+    			boolean flag = false;
+    			
+        		if(lineTitle.isFocused())
+    			{
+        			if(!lineTitle.getText().equals(selected.getUnlocalisedName()))
+        			{
+	    				selected.getProperties().setProperty(NativeProps.NAME, lineTitle.getText());
+	    				flag = true;
+        			}
+        			
+    				lineTitle.setFocused(false);
+    			}
+    			
+    			if(lineDesc.isFocused())
+    			{
+    				if(!lineDesc.getText().equals(selected.getUnlocalisedDescription()))
+    				{
+	    				selected.getProperties().setProperty(NativeProps.DESC, lineDesc.getText());
+	    				flag = true;
+    				}
+    				
+    				lineDesc.setFocused(false);
+    			}
+    			
+    			if(flag)
+    			{
+    				SendChanges(EnumPacketAction.EDIT, selected);
+    			}
+        	}
         }
     }
 	
@@ -250,8 +268,6 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	@Override
     protected void mouseClicked(int mx, int my, int click)
     {
-		super.mouseClicked(mx, my, click);
-		
 		lineTitle.mouseClicked(mx, my, click);
 		lineDesc.mouseClicked(mx, my, click);
 		
@@ -261,13 +277,13 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 			
 			if(!lineTitle.isFocused() && !lineTitle.getText().equals(selected.getUnlocalisedName()))
 			{
-				selected.getProperties().setProperty(NativePropertyTypes.NAME, lineTitle.getText());
+				selected.getProperties().setProperty(NativeProps.NAME, lineTitle.getText());
 				flag = true;
 			}
 			
 			if(!lineDesc.isFocused() && !lineDesc.getText().equals(selected.getUnlocalisedDescription()))
 			{
-				selected.getProperties().setProperty(NativePropertyTypes.DESC, lineDesc.getText());
+				selected.getProperties().setProperty(NativeProps.DESC, lineDesc.getText());
 				flag = true;
 			}
 			
@@ -276,71 +292,46 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 				SendChanges(EnumPacketAction.EDIT, selected);
 			}
 		}
+		
+		super.mouseClicked(mx, my, click);
+		
+		GuiButtonThemed btn = click != 0? null : btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null)
+		{
+			btn.func_146113_a(mc.getSoundHandler());
+			this.actionPerformed(btn);
+		}
     }
-	
-	@Override
-	public void mouseScroll(int mx, int my, int scroll)
-	{
-		super.mouseScroll(mx, my, scroll);
-        
-        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, questList.size() - maxRows));
-    		RefreshColumns();
-        }
-	}
 	
 	public void RefreshColumns()
 	{
 		questList = QuestLineDatabase.INSTANCE.getAllKeys();
 		
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, questList.size() - maxRows));
-		
 		if(btnDesign != null)
 		{
 			btnDesign.enabled = selected != null;
 		}
-
-		@SuppressWarnings("unchecked")
-		List<GuiButton> btnList = this.buttonList;
 		
-		for(int i = 5; i < btnList.size(); i++)
+		btnList.getEntryList().clear();
+		
+		for(int qlid : questList)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 5; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete, 2 = move up)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
+			IQuestLine line = QuestLineDatabase.INSTANCE.getValue(qlid);
 			
-			if(n2 == 0)
+			if(line == null)
 			{
-				if(n3 >= 0 && n3 < questList.size())
-				{
-					btn.displayString = I18n.format(QuestLineDatabase.INSTANCE.getValue(questList.get(n3)).getUnlocalisedName());
-					btn.visible = true;
-					btn.enabled = questList.get(n3) != selID;
-				} else
-				{
-					btn.displayString = "NULL";
-					btn.enabled = btn.visible = false;
-				}
-			} else if(n2 == 1 || n2 == 2)
-			{
-				btn.enabled = btn.visible = n3 >= 0 && n3 < questList.size();
+				continue;
 			}
-		}
-		
-		if(selected == null)
-		{
-			lineTitle.setText("");
-			lineTitle.setEnabled(false);
-			lineDesc.setText("");
-			lineDesc.setEnabled(false);
-		} else
-		{
-			lineTitle.setText(selected.getUnlocalisedName());
-			lineTitle.setEnabled(true);
-			lineDesc.setText(selected.getUnlocalisedDescription());
-			lineDesc.setEnabled(true);
+			
+			int bWidth = btnList.getListWidth();
+			int bID = (5 + qlid) << 2; // Offsets the quest line ID to avoid conflict with existing button IDs and reserves 2 bits for column index
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 40, 20, I18n.format(line.getUnlocalisedName()));
+			btn1.enabled = line != selected;
+			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "X");
+			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, "" + EnumChatFormatting.YELLOW + EnumChatFormatting.BOLD + "^");
+			
+			btnList.addButtonRow(btn1, btn2, btn3);
 		}
 	}
 
@@ -356,7 +347,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 			
 			if(selected != null)
 			{
-				selected.getProperties().setProperty(NativePropertyTypes.DESC, text);
+				selected.getProperties().setProperty(NativeProps.DESC, text);
 				SendChanges(EnumPacketAction.EDIT, selected);
 			}
 		}

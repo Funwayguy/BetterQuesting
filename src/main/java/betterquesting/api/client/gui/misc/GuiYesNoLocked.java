@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.screens;
+package betterquesting.api.client.gui.misc;
 
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;

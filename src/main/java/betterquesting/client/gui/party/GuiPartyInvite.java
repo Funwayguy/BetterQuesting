@@ -9,12 +9,12 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.party.IParty;
-import betterquesting.client.gui.misc.GuiBigTextField;
 import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
 

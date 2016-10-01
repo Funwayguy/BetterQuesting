@@ -11,7 +11,7 @@ import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.quests.IQuestLineEntry;
 import betterquesting.api.quests.properties.IPropertyContainer;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
@@ -26,8 +26,8 @@ public class QuestLine implements IQuestLine
 	public QuestLine()
 	{
 		// Init some stuff
-		this.info.setProperty(NativePropertyTypes.BG_IMAGE, "");
-		this.info.setProperty(NativePropertyTypes.BG_SIZE, 256);
+		this.info.setProperty(NativeProps.BG_IMAGE, "");
+		this.info.setProperty(NativeProps.BG_SIZE, 256);
 	}
 	
 	@Override
@@ -35,13 +35,13 @@ public class QuestLine implements IQuestLine
 	{
 		String def = "New Quest Line";
 		
-		if(!info.hasProperty(NativePropertyTypes.NAME))
+		if(!info.hasProperty(NativeProps.NAME))
 		{
-			info.setProperty(NativePropertyTypes.NAME, def);
+			info.setProperty(NativeProps.NAME, def);
 			return def;
 		}
 		
-		return info.getProperty(NativePropertyTypes.NAME, def);
+		return info.getProperty(NativeProps.NAME, def);
 	}
 	
 	@Override
@@ -49,13 +49,13 @@ public class QuestLine implements IQuestLine
 	{
 		String def = "No Description";
 		
-		if(!info.hasProperty(NativePropertyTypes.DESC))
+		if(!info.hasProperty(NativeProps.DESC))
 		{
-			info.setProperty(NativePropertyTypes.DESC, def);
+			info.setProperty(NativeProps.DESC, def);
 			return def;
 		}
 		
-		return info.getProperty(NativePropertyTypes.DESC, def);
+		return info.getProperty(NativeProps.DESC, def);
 	}
 	
 	@Override

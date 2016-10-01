@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.screens;
+package betterquesting.api.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import scala.actors.threadpool.Arrays;
 import betterquesting.api.ExpansionAPI;
-import betterquesting.api.client.gui.IGuiEmbedded;
-import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.GuiYesNoLocked;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.client.themes.DummyTheme;
 import betterquesting.api.client.themes.IThemeBase;
 

@@ -11,7 +11,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -81,14 +81,14 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				
 				int done = 0;
 				
-				if(!quest.getProperties().getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
+				if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
 				{
 					for(ITask task : quest.getTasks().getAllValues())
 					{
 						task.setComplete(sender.getUniqueID());
 						done += 1;
 						
-						if(quest.getProperties().getProperty(NativePropertyTypes.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
 						{
 							break; // Only complete enough quests to claim the reward
 						}

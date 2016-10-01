@@ -10,7 +10,7 @@ public interface INameCache extends IJsonSaveLoad<JsonArray>, IDataSync
 	public UUID getUUID(String name);
 	
 	/**
-	 * Used primarily to know if a user is an OP client side
+	 * Used primarily to know if a user is an OP client side<br>
 	 */
 	public boolean isOP(UUID uuid);
 	

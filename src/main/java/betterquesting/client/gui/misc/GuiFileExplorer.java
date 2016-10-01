@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.screens;
+package betterquesting.client.gui.misc;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -11,8 +11,9 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.IFileCallback;
-import betterquesting.api.client.gui.IVolatileScreen;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen

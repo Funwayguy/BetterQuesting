@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui;
+package betterquesting.api.client.gui.lists;
 
 public interface IScrollingEntry
 {

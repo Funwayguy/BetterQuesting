@@ -12,9 +12,9 @@ import betterquesting.api.quests.properties.basic.PropertyTypeString;
 import betterquesting.api.utils.BigItemStack;
 
 /**
- * List of standard properties quests can have
+ * List of native properties used in BetterQuesting
  */
-public class NativePropertyTypes
+public class NativeProps
 {
 	public static final IPropertyType<String> NAME =						new PropertyTypeString(new ResourceLocation("betterquesting:name"), "untitled.name");
 	public static final IPropertyType<String> DESC =						new PropertyTypeString(new ResourceLocation("betterquesting:desc"), "untitled.desc");
@@ -44,5 +44,5 @@ public class NativePropertyTypes
 	public static final IPropertyType<Number> BG_SIZE =						new PropertyTypeNumber(new ResourceLocation("betterquesting:bg_size"), 256);
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
-	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), false);
+	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
 }

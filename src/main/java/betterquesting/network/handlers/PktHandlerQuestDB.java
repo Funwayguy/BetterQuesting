@@ -33,6 +33,6 @@ public class PktHandlerQuestDB implements IPacketHandler
 	public void handleClient(NBTTagCompound data) // Client side sync
 	{
 		QuestDatabase.INSTANCE.readPacket(data);
-		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
 	}
 }

@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.IThemeBase;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 
 public class ThemeStandard implements IThemeBase
 {
@@ -88,7 +88,7 @@ public class ThemeStandard implements IThemeBase
 	@Override
 	public float getLineWidth(IQuest quest, EnumQuestState state)
 	{
-		return quest.getProperties().getProperty(NativePropertyTypes.MAIN)? 8F : 4F;
+		return quest.getProperties().getProperty(NativeProps.MAIN)? 8F : 4F;
 	}
 	
 	@Override

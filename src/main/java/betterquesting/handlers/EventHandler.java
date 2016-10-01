@@ -12,16 +12,17 @@ import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.JsonIO;
 import betterquesting.client.BQ_Keybindings;
@@ -130,6 +131,8 @@ public class EventHandler
 			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			
 			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
+		    
+		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
 		}
 	}
 	
@@ -184,6 +187,7 @@ public class EventHandler
 		
 		if(loader == null)
 		{
+			QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
 			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
 			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
 		} else
@@ -203,8 +207,7 @@ public class EventHandler
 		
 		if(loader == null)
 		{
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questDatabase"), EnumSaveType.PROGRESS);
-			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questLines"), EnumSaveType.PROGRESS);
+			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questProgress"), EnumSaveType.PROGRESS);
 		} else
 		{
 			loader.readFromJson(j2, EnumSaveType.PROGRESS);
@@ -238,6 +241,8 @@ public class EventHandler
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + PartyManager.INSTANCE.size() + " parties");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + NameCache.INSTANCE.size() + " names");
+	    
+	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load());
 	}
 	
 	@SubscribeEvent
@@ -252,7 +257,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
+		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
@@ -295,7 +300,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.getProperty(NativePropertyTypes.HARDCORE))
+		if(event.entityLiving.worldObj.isRemote || !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
 		{
 			return;
 		}
@@ -330,7 +335,7 @@ public class EventHandler
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onDataUpdated(DatabaseEvent.DatabaseUpdated event)
+	public void onDataUpdated(DatabaseEvent.Update event)
 	{
 		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
 		

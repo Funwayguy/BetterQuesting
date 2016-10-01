@@ -3,13 +3,13 @@ package betterquesting.client.toolbox.tools;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -29,7 +29,7 @@ public class GuiToolIconProxy extends GuiScreenThemed
 	{
 		super(parent, "");
 		this.quest = quest;
-		stack = quest.getProperties().getProperty(NativePropertyTypes.ICON);
+		stack = quest.getProperties().getProperty(NativeProps.ICON);
 		stack = stack != null? stack : new BigItemStack(Items.nether_star);
 		jIcon = JsonHelper.ItemStackToJson(stack, new JsonObject());
 	}
@@ -41,7 +41,7 @@ public class GuiToolIconProxy extends GuiScreenThemed
 		{
 			stack = JsonHelper.JsonToItemStack(jIcon);
 			stack = stack != null? stack : new BigItemStack(Items.nether_star);
-			quest.getProperties().setProperty(NativePropertyTypes.ICON, stack);
+			quest.getProperties().setProperty(NativeProps.ICON, stack);
 			SendChanges();
 			this.mc.displayGuiScreen(parent);
 			return;

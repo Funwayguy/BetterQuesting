@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.lists;
+package betterquesting.api.client.gui.lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.GuiScrollingBase;
-import betterquesting.api.client.gui.IScrollingEntry;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
 

@@ -3,7 +3,7 @@ package betterquesting.commands.admin;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.quests.properties.NativePropertyTypes;
+import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestSettings;
@@ -19,8 +19,8 @@ public class QuestCommandEdit extends QuestCommandBase
 	@Override
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
-		QuestSettings.INSTANCE.setProperty(NativePropertyTypes.EDIT_MODE, !QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE));
-		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE)? "options.on" : "options.off")));
+		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE));
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)? "options.on" : "options.off")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

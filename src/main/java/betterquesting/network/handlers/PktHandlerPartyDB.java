@@ -33,6 +33,6 @@ public class PktHandlerPartyDB implements IPacketHandler
 	public void handleClient(NBTTagCompound data)
 	{
 		PartyManager.INSTANCE.readPacket(data);
-		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.DatabaseUpdated());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
 	}
 }

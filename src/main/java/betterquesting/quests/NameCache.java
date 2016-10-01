@@ -56,7 +56,13 @@ public final class NameCache implements INameCache
 	@Override
 	public boolean isOP(UUID uuid)
 	{
-		return false;
+		if(!cache.containsKey(uuid))
+		{
+			return false;
+		} else
+		{
+			return JsonHelper.GetBoolean(cache.get(uuid), "isOP", false);
+		}
 	}
 	
 	@Override

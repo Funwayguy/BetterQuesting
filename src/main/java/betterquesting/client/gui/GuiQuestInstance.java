@@ -7,15 +7,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.IGuiEmbedded;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingText;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativePropertyTypes;
 import betterquesting.api.quests.rewards.IReward;
 import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.RenderUtils;
@@ -78,14 +77,14 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		this.selTask = 0;
 		this.rewardRender = null;
 		
-		if(QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE))
+		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonThemed btnEdit = new GuiButtonThemed(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
-		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.getProperty(NativePropertyTypes.EDIT_MODE);
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
 		this.buttonList.add(btnEdit);
 		
 		this.setTitle(I18n.format(quest.getUnlocalisedName()));

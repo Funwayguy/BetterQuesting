@@ -1,4 +1,4 @@
-package betterquesting.api.client.gui.premade.lists;
+package betterquesting.api.client.gui.lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,6 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.GuiScrollingBase;
-import betterquesting.api.client.gui.IScrollingEntry;
 import betterquesting.api.utils.RenderUtils;
 import com.mojang.realmsclient.gui.ChatFormatting;
 

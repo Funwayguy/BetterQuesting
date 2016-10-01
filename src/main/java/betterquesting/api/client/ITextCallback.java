@@ -1,4 +1,4 @@
-package betterquesting.client.gui.misc;
+package betterquesting.api.client;
 
 public interface ITextCallback
 {

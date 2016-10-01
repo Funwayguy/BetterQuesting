@@ -1,4 +1,4 @@
-package betterquesting.client.gui.help;
+package betterquesting.client.gui.misc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
-import betterquesting.api.client.gui.premade.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.premade.lists.GuiScrollingText;
-import betterquesting.api.client.gui.premade.screens.GuiScreenThemed;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingText;
 
 public class GuiQuestingHelp extends GuiScreenThemed
 {
