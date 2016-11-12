@@ -12,8 +12,8 @@ import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolLink extends GuiElement implements IToolboxTool

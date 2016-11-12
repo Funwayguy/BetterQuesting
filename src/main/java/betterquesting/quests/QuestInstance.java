@@ -28,6 +28,7 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
 import betterquesting.utils.UserEntry;
@@ -199,7 +200,7 @@ public class QuestInstance implements IQuest
 				}
 				
 				return;
-			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size()))
+			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -287,7 +288,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size()))
+			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
 				setComplete(player.getUniqueID(), player.worldObj.getTotalWorldTime());
 				
@@ -438,7 +439,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			return !qInfo.getProperty(NativeProps.LOGIC_TASK).GetResult(done, tasks.size());
+			return !qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size());
 		} else
 		{
 			return false;
@@ -615,7 +616,7 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		return qInfo.getProperty(NativeProps.LOGIC_QUEST).GetResult(A, B);
+		return qInfo.getProperty(NativeProps.LOGIC_QUEST).getResult(A, B);
 	}
 	
 	@Override

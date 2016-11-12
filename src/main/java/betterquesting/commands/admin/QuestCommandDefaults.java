@@ -9,12 +9,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.JsonIO;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
+import betterquesting.database.QuestDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLineDatabase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -57,7 +56,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			JsonObject base = new JsonObject();
 			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			JsonIO.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), base);
+			JsonHelper.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), base);
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.default.save"));
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
@@ -67,7 +66,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			
 			if(f1.exists())
 			{
-				j1 = JsonIO.ReadFromFile(f1);
+				j1 = JsonHelper.ReadFromFile(f1);
 				QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
 				QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromJson(jsonP, EnumSaveType.PROGRESS);

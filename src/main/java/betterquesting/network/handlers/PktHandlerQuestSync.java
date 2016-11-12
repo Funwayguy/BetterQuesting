@@ -8,7 +8,7 @@ import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuest;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.database.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 
 public class PktHandlerQuestSync implements IPacketHandler

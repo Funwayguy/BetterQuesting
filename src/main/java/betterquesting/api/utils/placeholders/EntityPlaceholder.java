@@ -1,6 +1,5 @@
-package betterquesting;
+package betterquesting.api.utils.placeholders;
 
-import betterquesting.core.BetterQuesting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
@@ -16,7 +15,7 @@ public class EntityPlaceholder extends Entity
 	{
 		super(world);
 		eItem = new EntityItem(world);
-		eItem.setEntityItemStack(new ItemStack(BetterQuesting.placeholder));
+		eItem.setEntityItemStack(new ItemStack(ItemPlaceholder.placeholder));
 	}
 	
 	public EntityPlaceholder SetOriginalTags(NBTTagCompound tags)

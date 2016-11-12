@@ -16,7 +16,7 @@ import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.client.jdoc.IJsonDoc;
-import betterquesting.api.utils.JsonIO;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -68,7 +68,13 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 		
 		if(jdoc != null)
 		{
-			this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+			String ulTitle = jdoc.getUnlocalisedTitle();
+			String lTitle = I18n.format(ulTitle);
+			
+			if(!ulTitle.equals(lTitle))
+			{
+				this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+			}
 		}
 		
 		editables = new ArrayList<JsonControlSet>();
@@ -156,7 +162,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 					break;
 				} else if(button == controls.removeButton)
 				{
-					ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(this.settings);
+					ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(this.settings);
 					list.remove(key);
 					this.buttonList.remove(controls.addButton);
 					this.buttonList.remove(controls.removeButton);
@@ -191,7 +197,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 							
 							// Make shift 'put' method for out dated GSON library
 							
-							ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
+							ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(settings);
 							
 							if(list != null)
 							{
@@ -271,7 +277,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
     {
 		super.keyTyped(character, num);
 		
-		ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
+		ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(settings);
 		
 		if(list == null)
 		{
@@ -314,7 +320,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 	@Override
 	public void setText(int id, String text)
 	{
-		ArrayList<JsonElement> list = settings == null? null : JsonIO.GetUnderlyingArray(settings);
+		ArrayList<JsonElement> list = settings == null? null : JsonHelper.GetUnderlyingArray(settings);
 		
 		if(list == null || id < 0 || id >= list.size())
 		{

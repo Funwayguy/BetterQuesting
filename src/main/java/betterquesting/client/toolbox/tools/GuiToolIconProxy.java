@@ -14,8 +14,8 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 import com.google.gson.JsonObject;
 
 public class GuiToolIconProxy extends GuiScreenThemed

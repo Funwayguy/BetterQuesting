@@ -9,7 +9,7 @@ public enum EnumLogic
 	XOR, // Only one true
 	XNOR; // Only one false
 	
-	public boolean GetResult(int inputs, int total)
+	public boolean getResult(int inputs, int total)
 	{
 		switch(this)
 		{

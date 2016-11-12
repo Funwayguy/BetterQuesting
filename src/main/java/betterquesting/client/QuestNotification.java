@@ -89,7 +89,7 @@ public class QuestNotification
 		txtW = mc.fontRenderer.getStringWidth(tmp);
 		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
-		GL11.glDisable(GL11.GL_BLEND);
+		//GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();
 	}
 	

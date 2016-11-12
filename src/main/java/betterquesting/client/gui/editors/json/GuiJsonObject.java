@@ -74,7 +74,13 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 		
 		if(jdoc != null)
 		{
-			this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+			String ulTitle = jdoc.getUnlocalisedTitle();
+			String lTitle = I18n.format(ulTitle);
+			
+			if(!ulTitle.equals(lTitle))
+			{
+				this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+			}
 		}
 		
 		idMap = new HashMap<Integer,String>();
@@ -244,11 +250,17 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 			
 			if(jdoc != null)
 			{
-				keyName = I18n.format(jdoc.getUnlocalisedName(keys[i]));
+				String ulKey = jdoc.getUnlocalisedName(keys[i]);
+				String lKey = I18n.format(ulKey);
 				
-				if(this.isWithin(mx, my, this.guiLeft, posY, sizeX/2, 20, false))
+				if(!lKey.equalsIgnoreCase(ulKey))
 				{
-					keyDesc = I18n.format(jdoc.getUnlocalisedDesc(keys[i]));
+					keyName = lKey;
+					
+					if(this.isWithin(mx, my, this.guiLeft, posY, sizeX/2, 20, false))
+					{
+						keyDesc = I18n.format(jdoc.getUnlocalisedDesc(keys[i]));
+					}
 				}
 			}
 			

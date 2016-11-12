@@ -7,8 +7,8 @@ import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 
 public class ToolboxToolReset implements IToolboxTool
 {

@@ -15,7 +15,7 @@ import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.quest.QuestLineButtonTree;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
-import betterquesting.quests.QuestLineDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

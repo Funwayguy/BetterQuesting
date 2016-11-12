@@ -23,8 +23,8 @@ import betterquesting.api.quests.tasks.IFluidTask;
 import betterquesting.api.quests.tasks.IItemTask;
 import betterquesting.api.quests.tasks.ITask;
 import betterquesting.core.BetterQuesting;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
 {

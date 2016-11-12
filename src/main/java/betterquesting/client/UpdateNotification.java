@@ -34,7 +34,7 @@ public class UpdateNotification
 		
 		try
 		{
-			String[] data = getNotification("http://bit.ly/1YddmJP", true);
+			String[] data = getNotification("http://bit.ly/1YddmJP", true).split("\\n");
 			
 			if(BQ_Settings.hideUpdates)
 			{
@@ -113,7 +113,7 @@ public class UpdateNotification
 		}
 	}
 	
-	public static String[] getNotification(String link, boolean doRedirect) throws Exception
+	public static String getNotification(String link, boolean doRedirect) throws Exception
 	{
 		URL url = new URL(link);
 		HttpURLConnection.setFollowRedirects(false);
@@ -157,8 +157,6 @@ public class UpdateNotification
 		}
 		final String page = buffer.toString();
 		
-		String[] pageSplit = page.split("\\n");
-		
-		return pageSplit;
+		return page;
 	}
 }

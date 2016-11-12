@@ -1,8 +1,6 @@
 package betterquesting.api;
 
 import org.apache.logging.log4j.Logger;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import betterquesting.api.database.ILifeDatabase;
 import betterquesting.api.database.IPartyDatabase;
 import betterquesting.api.database.IQuestDatabase;
@@ -16,7 +14,8 @@ import betterquesting.api.registry.ITaskRegistry;
 import betterquesting.api.registry.IThemeRegistry;
 import betterquesting.api.registry.IToolRegistry;
 import betterquesting.api.utils.IGuiBuilder;
-import betterquesting.api.utils.IMakePlaceholder;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Contains all the API calls an expansion may need to make such as accessing the quest database or party information.
@@ -41,7 +40,6 @@ public interface IQuestingAPI
 	public IGuiBuilder getGuiBuilder();
 	
 	public IPacketSender getPacketSender();
-	public IMakePlaceholder getPlaceholderMaker();
 	
 	public IQuestLineDatabase getQuestLineDB();
 	public IQuestDatabase getQuestDB();

@@ -7,8 +7,8 @@ import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestLineDatabase;
 
 public class PktHandlerLineDB implements IPacketHandler
 {

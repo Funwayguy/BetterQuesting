@@ -16,9 +16,9 @@ import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLineDatabase;
 
 public class PktHandlerLineEdit implements IPacketHandler
 {

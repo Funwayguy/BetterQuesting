@@ -19,7 +19,7 @@ import betterquesting.api.client.toolbox.IToolboxTab;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.quests.QuestLineDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.registry.ToolboxRegistry;
 
 public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh

@@ -10,8 +10,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.quests.IQuest;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 
 public class QuestCommandReset extends QuestCommandBase
 {

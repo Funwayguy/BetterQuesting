@@ -8,9 +8,9 @@ import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuestLine;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLineDatabase;
 
 public class PktHandlerLineSync implements IPacketHandler
 {

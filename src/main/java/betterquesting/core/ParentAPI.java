@@ -15,21 +15,19 @@ import betterquesting.api.registry.ITaskRegistry;
 import betterquesting.api.registry.IThemeRegistry;
 import betterquesting.api.registry.IToolRegistry;
 import betterquesting.api.utils.IGuiBuilder;
-import betterquesting.api.utils.IMakePlaceholder;
 import betterquesting.client.GuiBuilder;
+import betterquesting.database.QuestDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
 import betterquesting.registry.RewardRegistry;
 import betterquesting.registry.TaskRegistry;
 import betterquesting.registry.ThemeRegistry;
 import betterquesting.registry.ToolboxRegistry;
-import betterquesting.utils.MakePlaceholder;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -91,12 +89,6 @@ public final class ParentAPI implements IQuestingAPI
 	public IPacketSender getPacketSender()
 	{
 		return PacketSender.INSTANCE;
-	}
-
-	@Override
-	public IMakePlaceholder getPlaceholderMaker()
-	{
-		return MakePlaceholder.INSTANCE;
 	}
 
 	@Override

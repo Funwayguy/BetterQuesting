@@ -33,20 +33,21 @@ import com.google.gson.JsonObject;
 
 public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 {
-	ItemStack heart;
-	int lives = 1;
-	int partyID = -1;
-	IParty party;
-	EnumPartyStatus status;
-	int rightScroll = 0; // Member list
-	int maxRows = 0;
-	GuiTextField fieldName;
-	List<UUID> memList = new ArrayList<UUID>();
+	private ItemStack heart;
+	private int lives = 1;
+	private int partyID = -1;
+	private IParty party;
+	private EnumPartyStatus status;
+	private int rightScroll = 0; // Member list
+	private int maxRows = 0;
+	private GuiTextField fieldName;
+	private List<UUID> memList = new ArrayList<UUID>();
 	
 	public GuiManageParty(GuiScreen parent, IParty party)
 	{
 		super(parent, I18n.format("betterquesting.title.party", party.getName()));
 		this.party = party;
+		this.partyID = PartyManager.INSTANCE.getKey(party);
 	}
 	
 	@Override
@@ -54,9 +55,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	public void initGui()
 	{
 		super.initGui();
-		
-		party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
-		
+			
 		if(party == null)
 		{
 			mc.displayGuiScreen(new GuiNoParty(parent));
@@ -101,6 +100,15 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	@Override
 	public void refreshGui()
 	{
+		if(!NameCache.INSTANCE.isOP(mc.thePlayer.getUniqueID()))
+		{
+			this.party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
+			this.partyID = PartyManager.INSTANCE.getKey(this.party);
+		} else
+		{
+			this.party = PartyManager.INSTANCE.getValue(partyID);
+		}
+		
 		this.initGui();
 	}
 	

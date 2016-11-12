@@ -2,26 +2,36 @@ package betterquesting.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import betterquesting.commands.admin.QuestCommandComplete;
+import betterquesting.commands.admin.QuestCommandDefaults;
+import betterquesting.commands.admin.QuestCommandDelete;
+import betterquesting.commands.admin.QuestCommandEdit;
+import betterquesting.commands.admin.QuestCommandHardcore;
+import betterquesting.commands.admin.QuestCommandLives;
+import betterquesting.commands.admin.QuestCommandReset;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import betterquesting.commands.user.QuestCommandHelp;
-import betterquesting.commands.user.QuestCommandRefresh;
 
-public class BQ_CommandsUser extends CommandBase
+public class BQ_CommandAdmin extends CommandBase
 {
 	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
 	
-	public BQ_CommandsUser()
+	public BQ_CommandAdmin()
 	{
-		coms.add(new QuestCommandHelp());
-		coms.add(new QuestCommandRefresh());
+		coms.add(new QuestCommandEdit());
+		coms.add(new QuestCommandHardcore());
+		coms.add(new QuestCommandReset());
+		coms.add(new QuestCommandComplete());
+		coms.add(new QuestCommandDelete());
+		coms.add(new QuestCommandDefaults());
+		coms.add(new QuestCommandLives());
 	}
 	
 	@Override
 	public String getCommandName()
 	{
-		return "bq_user";
+		return "bq_admin";
 	}
 	
 	@Override
@@ -32,7 +42,7 @@ public class BQ_CommandsUser extends CommandBase
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_user " + c.getCommand();
+			txt += "/bq_admin " + c.getCommand();
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
@@ -51,8 +61,8 @@ public class BQ_CommandsUser extends CommandBase
     /**
      * Adds the strings available in this command to the given list of tab completion options.
      */
-	@Override
 	@SuppressWarnings("unchecked")
+	@Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
     {
 		if(strings.length == 1)
@@ -76,22 +86,13 @@ public class BQ_CommandsUser extends CommandBase
 		
 		return new ArrayList<String>();
     }
-
-    /**
-     * Return the required permission level for this command.
-     */
+	
 	@Override
     public int getRequiredPermissionLevel()
     {
-        return 0;
+        return 2;
     }
-	
-	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender sender)
-	{
-		return true;
-	}
-	
+
 	@Override
 	public void processCommand(ICommandSender sender, String[] args)
 	{

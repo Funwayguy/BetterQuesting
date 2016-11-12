@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuest;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.database.QuestDatabase;
 
 public class PktHandlerClaim implements IPacketHandler
 {

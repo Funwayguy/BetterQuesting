@@ -14,6 +14,7 @@ import betterquesting.api.quests.properties.IPropertyContainer;
 import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.database.QuestLineDatabase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

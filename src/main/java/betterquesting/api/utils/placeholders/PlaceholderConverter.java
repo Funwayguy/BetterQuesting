@@ -1,4 +1,4 @@
-package betterquesting.utils;
+package betterquesting.api.utils.placeholders;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -8,21 +8,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import betterquesting.EntityPlaceholder;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.IMakePlaceholder;
-import betterquesting.core.BetterQuesting;
 
-public class MakePlaceholder implements IMakePlaceholder
+/**
+ * In charge of safely converting to or from placeholder objects
+ */
+public class PlaceholderConverter
 {
-	public static final MakePlaceholder INSTANCE = new MakePlaceholder();
-	
-	private MakePlaceholder()
-	{
-	}
-	
-	@Override
-	public Entity convertPlaceholder(Entity orig, World world, NBTTagCompound nbt)
+	public static Entity convertPlaceholder(Entity orig, World world, NBTTagCompound nbt)
 	{
 		Entity entity = orig;
 		
@@ -40,12 +33,11 @@ public class MakePlaceholder implements IMakePlaceholder
 		return entity;
 	}
 	
-	@Override
-	public BigItemStack convertPlaceholder(Item item, String name, int count, int damage, String oreDict, NBTTagCompound nbt)
+	public static BigItemStack convertPlaceholder(Item item, String name, int count, int damage, String oreDict, NBTTagCompound nbt)
 	{
 		if(item == null)
 		{
-			BigItemStack stack = new BigItemStack(BetterQuesting.placeholder, count, damage);
+			BigItemStack stack = new BigItemStack(ItemPlaceholder.placeholder, count, damage);
 			stack.oreDict = oreDict;
 			stack.SetTagCompound(new NBTTagCompound());
 			stack.GetTagCompound().setString("orig_id", name);
@@ -54,7 +46,7 @@ public class MakePlaceholder implements IMakePlaceholder
 				stack.GetTagCompound().setTag("orig_tag", nbt);
 			}
 			return stack;
-		} else if(item == BetterQuesting.placeholder)
+		} else if(item == ItemPlaceholder.placeholder)
 		{
 			if(nbt != null)
 			{
@@ -86,12 +78,11 @@ public class MakePlaceholder implements IMakePlaceholder
 		return stack;
 	}
 	
-	@Override
-	public FluidStack convertPlaceholder(Fluid fluid, String name, int amount, NBTTagCompound nbt)
+	public static FluidStack convertPlaceholder(Fluid fluid, String name, int amount, NBTTagCompound nbt)
 	{
 		if(fluid == null)
 		{
-			FluidStack stack = new FluidStack(BetterQuesting.fluidPlaceholder, amount);
+			FluidStack stack = new FluidStack(FluidPlaceholder.fluidPlaceholder, amount);
 			NBTTagCompound orig = new NBTTagCompound();
 			orig.setString("orig_id", name);
 			if(nbt != null)
@@ -100,7 +91,7 @@ public class MakePlaceholder implements IMakePlaceholder
 			}
 			stack.tag = orig;
 			return stack;
-		} else if(fluid == BetterQuesting.fluidPlaceholder && nbt != null)
+		} else if(fluid == FluidPlaceholder.fluidPlaceholder && nbt != null)
 		{
 			Fluid restored = FluidRegistry.getFluid(nbt.getString("orig_id"));
 			
@@ -126,5 +117,4 @@ public class MakePlaceholder implements IMakePlaceholder
 		
 		return stack;
 	}
-	
 }

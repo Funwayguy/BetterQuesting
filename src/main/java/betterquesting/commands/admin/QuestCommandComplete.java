@@ -12,8 +12,8 @@ import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.quests.tasks.ITask;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -82,14 +82,14 @@ public class QuestCommandComplete extends QuestCommandBase
 			
 			int done = 0;
 			
-			if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
+			if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 			{
 				for(ITask task : quest.getTasks().getAllValues())
 				{
 					task.setComplete(uuid);
 					done += 1;
 					
-					if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+					if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
 					{
 						break; // Only complete enough quests to claim the reward
 					}

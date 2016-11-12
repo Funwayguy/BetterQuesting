@@ -1,4 +1,4 @@
-package betterquesting.quests;
+package betterquesting.database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.quests.QuestLine;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

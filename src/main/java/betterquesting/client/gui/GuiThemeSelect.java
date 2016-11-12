@@ -9,10 +9,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiButtonStorage;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.themes.IThemeBase;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.utils.RenderUtils;
@@ -23,16 +23,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiThemeSelect extends GuiScreenThemed
 {
-	List<IThemeBase> themeList = new ArrayList<IThemeBase>();
-	int leftScroll = 0;
-	int maxRows = 0;
+	private GuiScrollingButtons btnList;
+	private List<IThemeBase> themeList = new ArrayList<IThemeBase>();
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
 		super(parent, I18n.format("betterquesting.title.select_theme"));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
@@ -42,15 +40,8 @@ public class GuiThemeSelect extends GuiScreenThemed
 		themeList.clear();
 		themeList.addAll(ThemeRegistry.INSTANCE.getAllThemes());
 		
-		maxRows = (sizeY - 80)/20;
-		int btnWidth = sizeX/2 - 32;
-		
-		// Quest Line - Main
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), btnWidth, 20, "NULL", true);
-			this.buttonList.add(btn);
-		}
+		btnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
+		this.embedded.add(btnList);
 		
 		RefreshColumns();
 	}
@@ -61,24 +52,12 @@ public class GuiThemeSelect extends GuiScreenThemed
 		super.drawScreen(mx, my, partialTick);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
-		int btnWidth = sizeX/2 - 32;
-		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(themeList.size() - maxRows)), 248, 60, 8, 20);
-		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, getTextColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		GL11.glPushMatrix();
+		
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		float scale = ((sizeX - 32)/2)/128F;
 		scale = Math.min(scale, (sizeY - 64)/128F);
 		
@@ -120,56 +99,21 @@ public class GuiThemeSelect extends GuiScreenThemed
 		
 		if(btn.id > 0)
 		{
-			int n1 = btn.id - 1; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = main)
-			int n3 = n1%maxRows + leftScroll; // Theme list index
-			
-			if(n2 == 0)
-			{
-				ThemeRegistry.INSTANCE.setCurrentTheme(themeList.get(n3));
-				RefreshColumns();
-			}
+			ThemeRegistry.INSTANCE.setCurrentTheme(themeList.get(btn.id - 1));
 		}
 	}
 	
-	@Override
-	public void mouseScroll(int mx, int my, int scroll)
-	{
-		if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, themeList.size() - maxRows));
-    		RefreshColumns();
-        }
-	}
-	
+	//@SuppressWarnings("unchecked")
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, themeList.size() - maxRows));
+		btnList.getEntryList().clear();
 		
-		@SuppressWarnings("unchecked")
-		List<GuiButton> btnList = this.buttonList;
-		
-		for(int i = 1; i < btnList.size(); i++)
+		for(int i = 0; i < themeList.size(); i++)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 1; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
-			
-			if(n2 == 0)
-			{
-				if(n3 >= 0 && n3 < themeList.size())
-				{
-					IThemeBase theme = themeList.get(n3);
-					btn.displayString = theme.getDisplayName();
-					btn.visible = true;
-					btn.enabled = currentTheme() != theme;
-				} else
-				{
-					btn.displayString = "NULL";
-					btn.enabled = btn.visible = false;
-				}
-			}
+			IThemeBase th = themeList.get(i);
+			GuiButtonStorage<IThemeBase> btn = new GuiButtonStorage<IThemeBase>(1 + i, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
+			btn.setStored(th);
+			btnList.addButtonRow(btn);
 		}
 	}
 }

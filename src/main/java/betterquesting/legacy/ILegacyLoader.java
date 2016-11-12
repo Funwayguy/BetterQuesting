@@ -1,9 +1,9 @@
 package betterquesting.legacy;
 
 import betterquesting.api.enums.EnumSaveType;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 public interface ILegacyLoader
 {
-	public void readFromJson(JsonObject json, EnumSaveType saveType);
+	public void readFromJson(JsonElement json, EnumSaveType saveType);
 }

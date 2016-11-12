@@ -16,7 +16,7 @@ import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.utils.JsonIO;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -210,7 +210,7 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 					} else if(json.isJsonArray())
 					{
 						// Insert function for array
-						ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(json.getAsJsonArray());
+						ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json.getAsJsonArray());
 						
 						if(list != null)
 						{

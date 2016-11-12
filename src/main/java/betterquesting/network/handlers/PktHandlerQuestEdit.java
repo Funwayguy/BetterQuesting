@@ -16,8 +16,8 @@ import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
+import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
 import betterquesting.quests.QuestInstance;
 
 public class PktHandlerQuestEdit implements IPacketHandler
@@ -81,14 +81,14 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				
 				int done = 0;
 				
-				if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size())) // Preliminary check
+				if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 				{
 					for(ITask task : quest.getTasks().getAllValues())
 					{
 						task.setComplete(sender.getUniqueID());
 						done += 1;
 						
-						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).GetResult(done, quest.getTasks().size()))
+						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
 						{
 							break; // Only complete enough quests to claim the reward
 						}

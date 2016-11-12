@@ -1,4 +1,4 @@
-package betterquesting.items;
+package betterquesting.api.utils.placeholders;
 
 import java.util.List;
 import net.minecraft.entity.Entity;
@@ -13,6 +13,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemPlaceholder extends Item
 {
+	public static Item placeholder = new ItemPlaceholder();
+	
 	// Used solely for retaining info to missing items
 	public ItemPlaceholder()
 	{

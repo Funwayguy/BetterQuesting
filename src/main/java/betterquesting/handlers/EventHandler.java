@@ -24,18 +24,18 @@ import betterquesting.api.party.IParty;
 import betterquesting.api.quests.IQuest;
 import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.JsonIO;
+import betterquesting.api.utils.placeholders.FluidPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
+import betterquesting.database.QuestDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.NameCache;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -106,7 +106,7 @@ public class EventHandler
 			
 			jsonCon.addProperty("format", BetterQuesting.FORMAT);
 			
-			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
 			
 			// === PROGRESS ===
 			
@@ -114,7 +114,7 @@ public class EventHandler
 			
 			jsonProg.add("questProgress", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
 			
-			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonProg);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonProg);
 			
 			// === PARTIES ===
 			
@@ -122,7 +122,7 @@ public class EventHandler
 			
 			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			
-			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
 			
 			// === NAMES ===
 			
@@ -130,7 +130,7 @@ public class EventHandler
 			
 			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			
-			JsonIO.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
 		    
 		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
 		}
@@ -155,29 +155,50 @@ public class EventHandler
 		
 		MinecraftServer server = MinecraftServer.getServer();
 		
+		File readDir;
+		
 		if(BetterQuesting.proxy.isClient())
 		{
 			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName() + "/betterquesting");
+			readDir = server.getFile("saves/" + server.getFolderName());
 		} else
 		{
 			BQ_Settings.curWorldDir = server.getFile(server.getFolderName() + "/betterquesting");
+			readDir = server.getFile(server.getFolderName());
 		}
     	
+		// Workaround for old files
+		boolean rename = false;
+		File legFile = new File(readDir, "QuestDatabase.json");
+		if(legFile.exists())
+		{
+			rename = true;
+		} else
+		{
+			readDir = BQ_Settings.curWorldDir;
+		}
+		
 		// === CONFIG ===
 		
-    	File f1 = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
+    	File f1 = new File(readDir, "QuestDatabase.json");
 		JsonObject j1 = new JsonObject();
 		
 		if(f1.exists())
 		{
-			j1 = JsonIO.ReadFromFile(f1);
+			j1 = JsonHelper.ReadFromFile(f1);
+			
+			if(rename)
+			{
+				JsonHelper.CopyPaste(f1, new File(readDir, "QuestDatabase_Legacy.json"));
+				f1.delete();
+			}
 		} else
 		{
 			f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 			
 			if(f1.exists())
 			{
-				j1 = JsonIO.ReadFromFile(f1);
+				j1 = JsonHelper.ReadFromFile(f1);
 			}
 		}
 		
@@ -197,12 +218,18 @@ public class EventHandler
     	
 		// === PROGRESS ===
 		
-    	File f2 = new File(BQ_Settings.curWorldDir, "QuestProgress.json");
+    	File f2 = new File(readDir, "QuestProgress.json");
 		JsonObject j2 = new JsonObject();
 		
 		if(f2.exists())
 		{
-			j2 = JsonIO.ReadFromFile(f2);
+			j2 = JsonHelper.ReadFromFile(f2);
+			
+			if(rename)
+			{
+				JsonHelper.CopyPaste(f2, new File(readDir, "QuestDatabase_Legacy.json"));
+				f2.delete();
+			}
 		}
 		
 		if(loader == null)
@@ -220,7 +247,7 @@ public class EventHandler
 	    
 	    if(f3.exists())
 	    {
-	    	j3 = JsonIO.ReadFromFile(f3);
+	    	j3 = JsonHelper.ReadFromFile(f3);
 	    }
 	    
 	    PartyManager.INSTANCE.readFromJson(JsonHelper.GetArray(j3, "parties"), EnumSaveType.CONFIG);
@@ -232,7 +259,7 @@ public class EventHandler
 	    
 	    if(f4.exists())
 	    {
-	    	j4 = JsonIO.ReadFromFile(f4);
+	    	j4 = JsonHelper.ReadFromFile(f4);
 	    }
 	    
 	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
@@ -329,7 +356,7 @@ public class EventHandler
 		if(event.map.getTextureType() == 0)
 		{
 			IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
-			BetterQuesting.fluidPlaceholder.setIcons(icon);
+			FluidPlaceholder.fluidPlaceholder.setIcons(icon);
 		}
 	}
 	

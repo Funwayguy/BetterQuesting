@@ -10,9 +10,9 @@ import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.database.QuestDatabase;
+import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLineDatabase;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolRemove implements IToolboxTool
