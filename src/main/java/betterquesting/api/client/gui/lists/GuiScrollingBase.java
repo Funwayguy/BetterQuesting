@@ -98,27 +98,30 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 		
 		if(!hideBounds)
 		{
-			RenderUtils.DrawLine(posX, posY, posX + width - 8, posY, 2F, getTextColor());
-			RenderUtils.DrawLine(posX, posY + height, posX + width - 8, posY + height, 2F, getTextColor());
+			RenderUtils.DrawLine(posX, posY, posX + width - 8, posY, 1F, getTextColor());
+			RenderUtils.DrawLine(posX, posY + height, posX + width - 8, posY + height, 1F, getTextColor());
 		}
 		
 		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
-		this.drawTexturedModalRect(posX + width - 8, posY, 248, 0, 8, 20);
-		int n = 20;
-		while(n + 20 < height)
+		if(maxScroll > 0)
 		{
-			this.drawTexturedModalRect(posX + width - 8, posY + n, 248, 20, 8, 20);
-			n += 20;
+			this.drawTexturedModalRect(posX + width - 8, posY, 248, 0, 8, 20);
+			int n = 20;
+			while(n + 20 < height)
+			{
+				this.drawTexturedModalRect(posX + width - 8, posY + n, 248, 20, 8, 20);
+				n += 20;
+			}
+			
+			if(height%20 != 0)
+			{
+				// Little bit of trickery here to neaten things up
+				n -= 20 - height%20;
+			}
+			this.drawTexturedModalRect(posX + width - 8, posY + n, 248, 40, 8, 20);
+			this.drawTexturedModalRect(posX + width - 8, posY + (int)Math.max(0, n * (float)scroll/(float)maxScroll), 248, 60, 8, 20);
 		}
-		
-		if(height%20 != 0)
-		{
-			// Little bit of trickery here to neaten things up
-			n -= 20 - height%20;
-		}
-		this.drawTexturedModalRect(posX + width - 8, posY + n, 248, 40, 8, 20);
-		this.drawTexturedModalRect(posX + width - 8, posY + (int)Math.max(0, n * (float)scroll/(float)maxScroll), 248, 60, 8, 20);
 		
 		GL11.glPopMatrix();
 	}

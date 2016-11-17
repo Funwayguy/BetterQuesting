@@ -93,7 +93,15 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 			return I18n.format("betterquesting.btn.list") + "...";
 		} else if(json instanceof JsonPrimitive)
 		{
-			return I18n.format("betterquesting.btn.text"); // An editable text field should have been used
+			JsonPrimitive jPrim = json.getAsJsonPrimitive();
+			
+			if(jPrim.isBoolean())
+			{
+				return "" + jPrim.getAsBoolean();
+			} else
+			{
+				return I18n.format("betterquesting.btn.text"); // An editable text field should have been used
+			}
 		}
 		
 		return json.getClass().getSimpleName();

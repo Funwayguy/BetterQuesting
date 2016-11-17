@@ -120,6 +120,11 @@ public class ThemeRegistry implements IThemeRegistry
 	@Override
 	public IThemeBase getCurrentTheme()
 	{
+		if(currentTheme == null)
+		{
+			currentTheme = this.getTheme(new ResourceLocation(BQ_Settings.curTheme));
+		}
+		
 		return currentTheme != null? currentTheme : fallbackTheme;
 	}
 	
@@ -128,6 +133,7 @@ public class ThemeRegistry implements IThemeRegistry
 	{
 		if(theme == null)
 		{
+			BetterQuesting.logger.log(Level.WARN, "Tried to set theme to NULL");
 			return;
 		}
 		
@@ -138,6 +144,7 @@ public class ThemeRegistry implements IThemeRegistry
 		{
 			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(BQ_Settings.curTheme);
 			ConfigHandler.config.save();
+			BetterQuesting.logger.log(Level.INFO, "Theme set to " + currentTheme.getDisplayName());
 		} else
 		{
 			BetterQuesting.logger.log(Level.WARN, "Unable to save theme setting");

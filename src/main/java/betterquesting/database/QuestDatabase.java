@@ -2,6 +2,7 @@ package betterquesting.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
@@ -103,7 +104,7 @@ public final class QuestDatabase implements IQuestDatabase
 	@Override
 	public List<Integer> getAllKeys()
 	{
-		return new ArrayList<Integer>(database.keySet());
+		return new ArrayList<Integer>(((Map<Integer,IQuest>)database).keySet());
 	}
 	
 	@Override

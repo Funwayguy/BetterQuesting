@@ -44,6 +44,10 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 	{
 		super.initGui();
 		
+		fluid = null;
+		stack = null;
+		entity = null;
+		
 		if(json != null)
 		{
 			if(json.has("id") && json.has("Damage") && json.has("Count")) // Must have at least these 3 to be considered a valid 'item'
@@ -101,6 +105,11 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 			{
 				BetterQuesting.logger.log(Level.ERROR, "An error occured while reading JSON entity", e);
 			}
+		}
+		
+		if(lastType != EditType.NONE)
+		{
+			mc.displayGuiScreen(parent);
 		}
 
 		GuiButtonThemed editButton = new GuiButtonThemed(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt"), true); // JSON Editor

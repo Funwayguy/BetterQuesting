@@ -22,6 +22,7 @@ import betterquesting.api.quests.tasks.ITask;
 import betterquesting.api.utils.IFactory;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.editors.tasks.GuiTaskEditDefault;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.registry.TaskRegistry;
@@ -45,6 +46,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	{
 		super(parent, I18n.format("betterquesting.title.edit_tasks", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
+		this.qId = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
@@ -146,11 +148,15 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		{
 			if(n3 >= 0 && n3 < taskIDs.size())
 			{
-				GuiScreen editor = quest.getTasks().getValue(taskIDs.get(n3)).getTaskEditor(this, quest);
+				ITask task = quest.getTasks().getValue(taskIDs.get(n3));
+				GuiScreen editor = task.getTaskEditor(this, quest);
 				
 				if(editor != null)
 				{
 					mc.displayGuiScreen(editor);
+				} else
+				{
+					mc.displayGuiScreen(new GuiTaskEditDefault(this, task));
 				}
 			}
 		} else if(n2 == 1) // Delete reward
@@ -239,7 +245,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = taskTypes.get(n4).toString();
+					btn.displayString = taskTypes.get(n4).getRegistryName().toString();
 				}
 			}
 		}

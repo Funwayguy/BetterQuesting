@@ -6,18 +6,17 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -185,19 +184,20 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 					}
 					case 4:
 					{
-						newObj = NBTConverter.NBTtoJSON_Compound(new ItemStack(Blocks.stone).writeToNBT(new NBTTagCompound()), new JsonObject());
+						BigItemStack stack = new BigItemStack(Blocks.stone);
+						newObj = JsonHelper.ItemStackToJson(stack, new JsonObject());
 						break;
 					}
 					case 5:
 					{
-						newObj = NBTConverter.NBTtoJSON_Compound(new FluidStack(FluidRegistry.WATER, 1000).writeToNBT(new NBTTagCompound()), new JsonObject());
+						FluidStack fluid = new FluidStack(FluidRegistry.WATER, 1000);
+						newObj = JsonHelper.FluidStackToJson(fluid, new JsonObject());
 						break;
 					}
 					case 6:
 					{
-						NBTTagCompound tmp = new NBTTagCompound();
-						new EntityPig(mc.theWorld).writeToNBTOptional(tmp);
-						newObj = NBTConverter.NBTtoJSON_Compound(tmp, new JsonObject());
+						Entity entity = new EntityPig(mc.theWorld);
+						newObj = JsonHelper.EntityToJson(entity, new JsonObject());
 						break;
 					}
 				}

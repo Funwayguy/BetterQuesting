@@ -128,7 +128,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 				
 				try
 				{
-					RenderUtils.RenderItemStack(mc, tmpStack, 1, 1, "" + stack.stackSize);
+					RenderUtils.RenderItemStack(mc, tmpStack, 1, 1, stack.stackSize > 1? "" + stack.stackSize : "");
 				} catch(Exception e){}
 			}
 			

@@ -22,6 +22,7 @@ import betterquesting.api.quests.rewards.IReward;
 import betterquesting.api.utils.IFactory;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.editors.rewards.GuiRewardEditDefault;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.registry.RewardRegistry;
@@ -45,6 +46,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	{
 		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
+		this.qID = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
@@ -146,7 +148,16 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		{
 			if(n3 >= 0 && n3 < rewardIDs.size())
 			{
-				mc.displayGuiScreen(quest.getRewards().getValue(rewardIDs.get(n3)).getRewardEditor(this, quest));
+				IReward reward = quest.getRewards().getValue(rewardIDs.get(n3));
+				GuiScreen editor = reward.getRewardEditor(this, quest);
+				
+				if(editor != null)
+				{
+					mc.displayGuiScreen(editor);
+				} else
+				{
+					mc.displayGuiScreen(new GuiRewardEditDefault(this, reward));
+				}
 			}
 		} else if(n2 == 1) // Delete reward
 		{
@@ -234,7 +245,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = rewardTypes.get(n4).toString();
+					btn.displayString = rewardTypes.get(n4).getRegistryName().toString();
 				}
 			}
 		}

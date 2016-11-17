@@ -12,6 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonStorage;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.themes.IThemeBase;
 import betterquesting.api.enums.EnumQuestState;
@@ -114,6 +115,20 @@ public class GuiThemeSelect extends GuiScreenThemed
 			GuiButtonStorage<IThemeBase> btn = new GuiButtonStorage<IThemeBase>(1 + i, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
 			btn.setStored(th);
 			btnList.addButtonRow(btn);
+		}
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click)
+	{
+		super.mouseClicked(mx, my, click);
+		
+		GuiButtonThemed btn = btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null && btn.mousePressed(mc, mx, my))
+		{
+			btn.func_146113_a(mc.getSoundHandler());
+			actionPerformed(btn);
 		}
 	}
 }

@@ -115,20 +115,32 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		
 		for(IGuiEmbedded e : embedded)
 		{
+			GL11.glPushMatrix();
 			e.drawBackground(mx, my, partialTick);
+			GL11.glPopMatrix();
+			
+			GL11.glColor4f(1F, 1F, 1F, 1F);
 		}
 	}
 	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
+		GL11.glPushMatrix();
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		this.drawBackPanel(mx, my, partialTick);
-		
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		super.drawScreen(mx, my, partialTick);
+		GL11.glPopMatrix();
+		
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		for(IGuiEmbedded e : embedded)
 		{
+			GL11.glPushMatrix();
 			e.drawForeground(mx, my, partialTick);
+			GL11.glColor4f(1F, 1F, 1F, 1F);
+			GL11.glPopMatrix();
 		}
 		
 		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());

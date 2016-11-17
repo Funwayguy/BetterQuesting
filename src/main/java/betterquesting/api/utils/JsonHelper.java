@@ -227,7 +227,18 @@ public class JsonHelper
 	
 	public static boolean isItem(JsonObject json)
 	{
-		return json != null && json.has("id") && json.has("Count") && json.has("Damage") && Item.itemRegistry.containsKey(GetString(json, "id", ""));
+		if(json != null && json.has("id") && json.has("Count") && json.has("Damage") && json.get("id").isJsonPrimitive())
+		{
+			if(!json.get("id").getAsJsonPrimitive().isNumber())
+			{
+				 return Item.itemRegistry.containsKey(json.get("id").getAsString());
+			} else
+			{
+				return Item.itemRegistry.containsId(json.get("id").getAsNumber().intValue());
+			}
+		}
+		
+		return false;
 	}
 	
 	public static boolean isFluid(JsonObject json)

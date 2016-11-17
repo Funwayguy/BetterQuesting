@@ -296,7 +296,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 				{
 					this.stackSelect = FluidContainerRegistry.getFluidForFilledItem(invoStack).copy();
 					this.json.entrySet().clear();
-					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
+					NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 					numberBox.setText("" + stackSelect.amount);
 				}
 			}
@@ -315,7 +315,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 				{
 					this.stackSelect = searchFluid.copy();
 					this.json.entrySet().clear();
-					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
+					NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 					numberBox.setText("" + stackSelect.amount);
 				}
 			}
