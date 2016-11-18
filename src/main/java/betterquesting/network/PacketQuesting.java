@@ -49,7 +49,7 @@ public class PacketQuesting implements IMessage
 			}
 			
 			EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : sender.getUniqueID(),packet.tags);
+			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : sender.getGameProfile().getId(),packet.tags);
 			
 			if(message == null)
 			{

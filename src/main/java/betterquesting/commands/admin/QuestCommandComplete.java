@@ -71,7 +71,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = player.getUniqueID();
+			uuid = player.getGameProfile().getId();
 		}
 		
 		try

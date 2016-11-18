@@ -288,8 +288,8 @@ public class EventHandler
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
-			IParty party = PartyManager.INSTANCE.getUserParty(mpPlayer.getUniqueID());
-			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(mpPlayer.getUniqueID()) : LifeDatabase.INSTANCE.getLives(party);
+			IParty party = PartyManager.INSTANCE.getUserParty(mpPlayer.getGameProfile().getId());
+			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(mpPlayer.getGameProfile().getId()) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -334,12 +334,12 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			UUID uuid = event.entityLiving.getUniqueID();
+			UUID uuid = ((EntityPlayer)event.entityLiving).getGameProfile().getId();
 			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
 			if(party == null || !party.getShareLives())
 			{
-				int lives = LifeDatabase.INSTANCE.getLives(event.entityLiving.getUniqueID());
+				int lives = LifeDatabase.INSTANCE.getLives(((EntityPlayer)event.entityLiving).getGameProfile().getId());
 				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
 			} else
 			{

@@ -170,6 +170,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 			return;
 		}
 		
+		questLines.clear();
 		ArrayList<IQuestLine> unassigned = new ArrayList<IQuestLine>();
 		
 		for(JsonElement entry : json)

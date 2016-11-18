@@ -75,7 +75,7 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			} else
 			{
-				uuid = player.getUniqueID();
+				uuid = player.getGameProfile().getId();
 			}
 		}
 		

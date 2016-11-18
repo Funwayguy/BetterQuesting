@@ -149,7 +149,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		if(owner == null || player.getUniqueID().equals(owner))
+		if(owner == null || player.getGameProfile().getId().equals(owner))
 		{
 			return true;
 		}

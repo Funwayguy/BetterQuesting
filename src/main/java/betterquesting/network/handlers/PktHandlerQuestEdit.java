@@ -77,7 +77,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		{
 			if(data.getBoolean("state"))
 			{
-				quest.setComplete(sender.getUniqueID(), 0);
+				quest.setComplete(sender.getGameProfile().getId(), 0);
 				
 				int done = 0;
 				
@@ -85,7 +85,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				{
 					for(ITask task : quest.getTasks().getAllValues())
 					{
-						task.setComplete(sender.getUniqueID());
+						task.setComplete(sender.getGameProfile().getId());
 						done += 1;
 						
 						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))

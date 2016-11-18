@@ -1,5 +1,7 @@
 package betterquesting.api.utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,7 +10,6 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import org.apache.logging.log4j.Level;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
@@ -19,6 +20,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.logging.log4j.Level;
 import betterquesting.api.ExpansionAPI;
 import betterquesting.api.utils.placeholders.PlaceholderConverter;
 import com.google.gson.Gson;
@@ -205,23 +207,32 @@ public class JsonHelper
 	
 	public static void CopyPaste(File fileIn, File fileOut)
 	{
+		//final int bufferSize = 0x100000;
+		
+		BufferedReader fr = null;
+		BufferedWriter fw = null;
+		
 		try
 		{
-			InputStreamReader fr = new InputStreamReader(new FileInputStream(fileIn), StandardCharsets.UTF_8);
-			OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(fileOut), StandardCharsets.UTF_8);
+			fr = new BufferedReader(new InputStreamReader(new FileInputStream(fileIn), StandardCharsets.UTF_8));
+			fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileOut), StandardCharsets.UTF_8));
 			
-			char[] buf = new char[256];
-			while(fr.ready())
+			char[] buffer = new char[256];
+			int read;
+			while((read = fr.read(buffer)) != -1)
 			{
-				fr.read(buf);
-				fw.write(buf);
+				fw.write(buffer, 0, read);
 			}
-			
-			fr.close();
-			fw.close();
-		} catch(Exception e)
+		} catch(Exception e1)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Failed copy paste", e);
+			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Failed copy paste", e1);
+		} finally
+		{
+			try
+			{
+				fr.close();
+				fw.close();
+			} catch(Exception e2){}
 		}
 	}
 	

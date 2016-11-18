@@ -26,7 +26,7 @@ public class PktHandlerClaim implements IPacketHandler
 		
 		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
-		if(quest != null && !quest.hasClaimed(sender.getUniqueID()) && quest.canClaim(sender))
+		if(quest != null && !quest.hasClaimed(sender.getGameProfile().getId()) && quest.canClaim(sender))
 		{
 			quest.claimReward(sender);
 		}

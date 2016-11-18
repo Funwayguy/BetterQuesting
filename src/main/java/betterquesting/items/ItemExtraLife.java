@@ -59,11 +59,11 @@ public class ItemExtraLife extends Item
     		}
     		
     		int lives = 0;
-    		IParty party = PartyManager.INSTANCE.getUserParty(player.getUniqueID());
+    		IParty party = PartyManager.INSTANCE.getUserParty(player.getGameProfile().getId());
     		
     		if(party == null || !party.getShareLives())
     		{
-    			lives = LifeDatabase.INSTANCE.getLives(player.getUniqueID());
+    			lives = LifeDatabase.INSTANCE.getLives(player.getGameProfile().getId());
     		} else
     		{
     			lives = LifeDatabase.INSTANCE.getLives(party);
@@ -85,7 +85,7 @@ public class ItemExtraLife extends Item
     		{
     			if(party == null || !party.getShareLives())
     			{
-    				LifeDatabase.INSTANCE.setLives(player.getUniqueID(), lives + 1);
+    				LifeDatabase.INSTANCE.setLives(player.getGameProfile().getId(), lives + 1);
     			} else
     			{
     				LifeDatabase.INSTANCE.setLives(party, lives + 1);

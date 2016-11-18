@@ -57,8 +57,8 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 			this.visible = true;
 		} else
 		{
-			this.visible = isQuestShown(mc.thePlayer.getUniqueID());
-			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getUniqueID());
+			this.visible = isQuestShown(mc.thePlayer.getGameProfile().getId());
+			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getGameProfile().getId());
 		}
 		
         if (this.visible)
@@ -71,7 +71,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
             //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             
-        	EnumQuestState questState = quest.getState(mc.thePlayer.getUniqueID());
+        	EnumQuestState questState = quest.getState(mc.thePlayer.getGameProfile().getId());
         	
         	for(GuiButtonQuestInstance p : parents)
         	{

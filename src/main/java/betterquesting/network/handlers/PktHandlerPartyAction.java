@@ -62,12 +62,12 @@ public class PktHandlerPartyAction implements IPacketHandler
 				tarParty = PartyManager.INSTANCE.getValue(partyID);
 			} else
 			{
-				tarParty = PartyManager.INSTANCE.getUserParty(sender.getUniqueID());
+				tarParty = PartyManager.INSTANCE.getUserParty(sender.getGameProfile().getId());
 			}
 			
 			if(tarParty != null)
 			{
-				status = tarParty.getStatus(sender.getUniqueID());
+				status = tarParty.getStatus(sender.getGameProfile().getId());
 			}
 		}
 		
@@ -85,7 +85,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			name = name.length() > 0? name : "New Party";
 			IParty nParty = new PartyInstance();
 			nParty.setName(name);
-			nParty.inviteUser(sender.getUniqueID());
+			nParty.inviteUser(sender.getGameProfile().getId());
 			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextKey());
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
@@ -94,7 +94,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			PartyManager.INSTANCE.removeKey(partyID);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
-		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == sender.getUniqueID())) // Kick/leave party
+		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == sender.getGameProfile().getId())) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
@@ -106,7 +106,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.JOIN && tarParty != null && status != null) // Join party
 		{
-			tarParty.setStatus(sender.getUniqueID(), EnumPartyStatus.MEMBER);
+			tarParty.setStatus(sender.getGameProfile().getId(), EnumPartyStatus.MEMBER);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status.ordinal() >= 2) // Invite to party

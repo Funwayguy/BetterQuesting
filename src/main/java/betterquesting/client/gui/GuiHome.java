@@ -78,7 +78,7 @@ public class GuiHome extends GuiScreenThemed
 			}
 		} else if(button.id == 2)
 		{
-			IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
+			IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
 			
 			if(party != null)
 			{

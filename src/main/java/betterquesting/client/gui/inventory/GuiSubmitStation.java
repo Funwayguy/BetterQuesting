@@ -57,7 +57,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		selTask = 0;
 		
 		activeQuests.clear();
-		UUID pID = mc.thePlayer.getUniqueID();
+		UUID pID = mc.thePlayer.getGameProfile().getId();
 		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
 		{
 			if(q.isUnlocked(pID) && !q.isComplete(pID))
@@ -196,7 +196,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			RefreshValues();
 		} else if(button.id == 5) // Select
 		{
-			tile.setupTask(mc.thePlayer.getUniqueID(), quest, task);
+			tile.setupTask(mc.thePlayer.getGameProfile().getId(), quest, task);
 			tile.SyncTile(null);
 			RefreshValues();
 		} else if(button.id == 6)
@@ -273,7 +273,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(mc.thePlayer.getUniqueID());
+		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(mc.thePlayer.getGameProfile().getId());
 	}
 	
 	/**

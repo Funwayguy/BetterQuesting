@@ -89,7 +89,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			{
 				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{
-					if((p.getQuest().isComplete(mc.thePlayer.getUniqueID()) || p.getQuest().isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.getQuestLine() != line))
+					if((p.getQuest().isComplete(mc.thePlayer.getGameProfile().getId()) || p.getQuest().isUnlocked(mc.thePlayer.getGameProfile().getId())) && (selected == null || selected.getQuestLine() != line))
 					{
 						btnLine.enabled = true;
 						break;

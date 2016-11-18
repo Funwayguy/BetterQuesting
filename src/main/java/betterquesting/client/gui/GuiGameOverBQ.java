@@ -31,11 +31,11 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     @SuppressWarnings("unchecked")
 	public void initGui()
     {
-    	IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
+    	IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
     	
     	if(party == null || !party.getShareLives())
     	{
-    		lifeCache = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getUniqueID());
+    		lifeCache = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getGameProfile().getId());
     	} else
     	{
     		lifeCache = LifeDatabase.INSTANCE.getLives(party);

@@ -46,7 +46,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getUniqueID());
+		IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
 		if(party != null)
 		{
 			mc.displayGuiScreen(new GuiManageParty(parent, party));
@@ -54,9 +54,9 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 		}
 		
 		heart = new ItemStack(BetterQuesting.extraLife);
-		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getUniqueID());
+		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getGameProfile().getId());
 		invites.clear();
-		for(int i : PartyManager.INSTANCE.getPartyInvites(mc.thePlayer.getUniqueID()))
+		for(int i : PartyManager.INSTANCE.getPartyInvites(mc.thePlayer.getGameProfile().getId()))
 		{
 			invites.add(PartyManager.INSTANCE.getValue(i));
 		}

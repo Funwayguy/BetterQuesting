@@ -73,13 +73,13 @@ public class QuestCommandLives extends QuestCommandBase
 			value = Math.max(1, value);
 			if(player != null)
 			{
-				LifeDatabase.INSTANCE.setLives(player.getUniqueID(), value);
+				LifeDatabase.INSTANCE.setLives(player.getGameProfile().getId(), value);
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_player", player.getCommandSenderName(), value));
 			} else if(args.length == 3)
 			{
 				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
 				{
-					LifeDatabase.INSTANCE.setLives(p.getUniqueID(), value);
+					LifeDatabase.INSTANCE.setLives(p.getGameProfile().getId(), value);
 				}
 				
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_all", value));
@@ -90,9 +90,9 @@ public class QuestCommandLives extends QuestCommandBase
 		{
 			if(player != null)
 			{
-				int lives = LifeDatabase.INSTANCE.getLives(player.getUniqueID());
-				LifeDatabase.INSTANCE.setLives(player.getUniqueID(), lives + value);
-				lives = LifeDatabase.INSTANCE.getLives(player.getUniqueID());
+				int lives = LifeDatabase.INSTANCE.getLives(player.getGameProfile().getId());
+				LifeDatabase.INSTANCE.setLives(player.getGameProfile().getId(), lives + value);
+				lives = LifeDatabase.INSTANCE.getLives(player.getGameProfile().getId());
 				
 				if(value >= 0)
 				{
@@ -105,8 +105,8 @@ public class QuestCommandLives extends QuestCommandBase
 			{
 				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
 				{
-					int lives = LifeDatabase.INSTANCE.getLives(p.getUniqueID());
-					LifeDatabase.INSTANCE.setLives(p.getUniqueID(), lives + value);
+					int lives = LifeDatabase.INSTANCE.getLives(p.getGameProfile().getId());
+					LifeDatabase.INSTANCE.setLives(p.getGameProfile().getId(), lives + value);
 				}
 				
 				if(value >= 0)

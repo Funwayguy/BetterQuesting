@@ -45,6 +45,6 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 			return false;
 		}
 		
-		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(player.getUniqueID());
+		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(player.getGameProfile().getId());
 	}
 }
