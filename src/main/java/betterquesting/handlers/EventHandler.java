@@ -34,6 +34,7 @@ import betterquesting.database.QuestLineDatabase;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.lives.LifeDatabase;
+import betterquesting.network.PacketSender;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.NameCache;
 import betterquesting.quests.QuestSettings;
@@ -277,7 +278,12 @@ public class EventHandler
 	{
 		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 		{
+			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
+			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+			PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
 		}
 	}
 	

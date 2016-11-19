@@ -19,8 +19,14 @@ public interface IThemeBase
 	public int getQuestLineColor(@Nullable IQuest quest, EnumQuestState state);
 	public int getTextColor();
 	
+	@Deprecated
 	public short getLineStipple(@Nullable IQuest quest, EnumQuestState state);
+	@Deprecated
 	public float getLineWidth(@Nullable IQuest quest, EnumQuestState state);
-	
+	@Deprecated
 	public ResourceLocation getButtonSound();
+	
+	// COMING SOON
+	//public IThemeRenderer getRenderer();
+	//public ResourceLocation getButtonSound(GuiButton button);
 }
