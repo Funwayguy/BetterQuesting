@@ -10,6 +10,7 @@ import betterquesting.database.QuestLineDatabase;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.NameCache;
+import betterquesting.quests.QuestSettings;
 
 public class QuestCommandRefresh extends QuestCommandBase
 {
@@ -29,6 +30,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), player);
+			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), player);
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}

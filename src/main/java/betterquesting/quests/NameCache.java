@@ -68,29 +68,20 @@ public final class NameCache implements INameCache
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
-		boolean flag = false;
-		
 		for(String name : server.func_152358_ax().func_152654_a())
 		{
 			GameProfile prof = server.func_152358_ax().func_152655_a(name);
 			
 			if(prof != null)
 			{
-				if(!prof.getName().equalsIgnoreCase(getName(prof.getId())))
-				{
-					JsonObject json = new JsonObject();
-					json.addProperty("name", prof.getName());
-					json.addProperty("isOP", server.getConfigurationManager().func_152596_g(prof));
-					cache.put(prof.getId(), json);
-					flag = true;
-				}
+				JsonObject json = new JsonObject();
+				json.addProperty("name", prof.getName());
+				json.addProperty("isOP", server.getConfigurationManager().func_152596_g(prof));
+				cache.put(prof.getId(), json);
 			}
 		}
 		
-		if(flag)
-		{
-			PacketSender.INSTANCE.sendToAll(getSyncPacket());
-		}
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
 	@Override
@@ -170,5 +161,10 @@ public final class NameCache implements INameCache
 				continue;
 			}
 		}
+	}
+
+	public void reset()
+	{
+		cache.clear();
 	}
 }

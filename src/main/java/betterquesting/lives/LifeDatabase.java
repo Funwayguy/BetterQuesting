@@ -248,4 +248,10 @@ public final class LifeDatabase implements ILifeDatabase
 			}
 		}
 	}
+
+	public void reset()
+	{
+		playerLives.clear();
+		partyLives.clear();
+	}
 }

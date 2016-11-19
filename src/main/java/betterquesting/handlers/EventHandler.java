@@ -143,6 +143,12 @@ public class EventHandler
 		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
 		{
 			BQ_Settings.curWorldDir = null;
+			
+			QuestSettings.INSTANCE.reset();
+			QuestDatabase.INSTANCE.reset();
+			QuestLineDatabase.INSTANCE.reset();
+			LifeDatabase.INSTANCE.reset();
+			NameCache.INSTANCE.reset();
 		}
 	}
 	
@@ -153,6 +159,12 @@ public class EventHandler
 		{
 			return;
 		}
+		
+		QuestSettings.INSTANCE.reset();
+		QuestDatabase.INSTANCE.reset();
+		QuestLineDatabase.INSTANCE.reset();
+		LifeDatabase.INSTANCE.reset();
+		NameCache.INSTANCE.reset();
 		
 		MinecraftServer server = MinecraftServer.getServer();
 		
@@ -279,7 +291,9 @@ public class EventHandler
 		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+			
 			NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
+			
 			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
