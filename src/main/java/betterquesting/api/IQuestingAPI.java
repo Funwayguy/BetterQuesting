@@ -2,6 +2,7 @@ package betterquesting.api;
 
 import org.apache.logging.log4j.Logger;
 import betterquesting.api.database.ILifeDatabase;
+import betterquesting.api.database.INameCache;
 import betterquesting.api.database.IPartyDatabase;
 import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.database.IQuestLineDatabase;
@@ -45,6 +46,7 @@ public interface IQuestingAPI
 	public IQuestDatabase getQuestDB();
 	public IPartyDatabase getPartyDB();
 	public ILifeDatabase getLifeDB();
+	public INameCache getNameCache();
 	
 	public IQuestSettings getSettings();
 	

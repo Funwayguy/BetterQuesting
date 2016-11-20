@@ -3,6 +3,7 @@ package betterquesting.core;
 import org.apache.logging.log4j.Logger;
 import betterquesting.api.IQuestingAPI;
 import betterquesting.api.database.ILifeDatabase;
+import betterquesting.api.database.INameCache;
 import betterquesting.api.database.IPartyDatabase;
 import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.database.IQuestLineDatabase;
@@ -23,6 +24,7 @@ import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.party.PartyManager;
+import betterquesting.quests.NameCache;
 import betterquesting.quests.QuestSettings;
 import betterquesting.registry.RewardRegistry;
 import betterquesting.registry.TaskRegistry;
@@ -125,6 +127,12 @@ public final class ParentAPI implements IQuestingAPI
 	public Logger getLogger()
 	{
 		return BetterQuesting.logger;
+	}
+
+	@Override
+	public INameCache getNameCache()
+	{
+		return NameCache.INSTANCE;
 	}
 	
 }

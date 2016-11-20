@@ -2,6 +2,7 @@ package betterquesting.client.gui.party;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -10,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -46,7 +48,9 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		
+		IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 		if(party != null)
 		{
 			mc.displayGuiScreen(new GuiManageParty(parent, party));
@@ -54,9 +58,9 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 		}
 		
 		heart = new ItemStack(BetterQuesting.extraLife);
-		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getGameProfile().getId());
+		lives = LifeDatabase.INSTANCE.getLives(playerID);
 		invites.clear();
-		for(int i : PartyManager.INSTANCE.getPartyInvites(mc.thePlayer.getGameProfile().getId()))
+		for(int i : PartyManager.INSTANCE.getPartyInvites(playerID))
 		{
 			invites.add(PartyManager.INSTANCE.getValue(i));
 		}

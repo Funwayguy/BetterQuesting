@@ -48,6 +48,8 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		
 		if(ExpansionAPI.getAPI().getSettings().getProperty(NativeProps.HARDCORE))
 		{
 			this.enabled = this.visible = true;
@@ -57,8 +59,8 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 			this.visible = true;
 		} else
 		{
-			this.visible = isQuestShown(mc.thePlayer.getGameProfile().getId());
-			this.enabled = this.visible && quest.isUnlocked(mc.thePlayer.getGameProfile().getId());
+			this.visible = isQuestShown(playerID);
+			this.enabled = this.visible && quest.isUnlocked(playerID);
 		}
 		
         if (this.visible)
@@ -71,7 +73,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
             //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
             //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             
-        	EnumQuestState questState = quest.getState(mc.thePlayer.getGameProfile().getId());
+        	EnumQuestState questState = quest.getState(playerID);
         	
         	for(GuiButtonQuestInstance p : parents)
         	{

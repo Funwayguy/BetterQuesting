@@ -3,6 +3,7 @@ package betterquesting.network.handlers;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.quests.IQuest;
@@ -26,7 +27,7 @@ public class PktHandlerClaim implements IPacketHandler
 		
 		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
-		if(quest != null && !quest.hasClaimed(sender.getGameProfile().getId()) && quest.canClaim(sender))
+		if(quest != null && !quest.hasClaimed(ExpansionAPI.getAPI().getNameCache().getQuestingID(sender)) && quest.canClaim(sender))
 		{
 			quest.claimReward(sender);
 		}

@@ -1,11 +1,13 @@
 package betterquesting.network.handlers;
 
+import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 import com.google.gson.JsonObject;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
@@ -77,7 +79,9 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		{
 			if(data.getBoolean("state"))
 			{
-				quest.setComplete(sender.getGameProfile().getId(), 0);
+				UUID senderID = ExpansionAPI.getAPI().getNameCache().getQuestingID(sender);
+				
+				quest.setComplete(senderID, 0);
 				
 				int done = 0;
 				
@@ -85,7 +89,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				{
 					for(ITask task : quest.getTasks().getAllValues())
 					{
-						task.setComplete(sender.getGameProfile().getId());
+						task.setComplete(senderID);
 						done += 1;
 						
 						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))

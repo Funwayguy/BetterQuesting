@@ -1,6 +1,7 @@
 package betterquesting.client.gui;
 
 import java.util.Iterator;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiLabel;
@@ -12,6 +13,7 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.party.IParty;
 import betterquesting.api.quests.properties.NativeProps;
 import betterquesting.lives.LifeDatabase;
@@ -31,11 +33,13 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     @SuppressWarnings("unchecked")
 	public void initGui()
     {
-    	IParty party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
+    	UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+    	
+    	IParty party = PartyManager.INSTANCE.getUserParty(playerID);
     	
     	if(party == null || !party.getShareLives())
     	{
-    		lifeCache = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getGameProfile().getId());
+    		lifeCache = LifeDatabase.INSTANCE.getLives(playerID);
     	} else
     	{
     		lifeCache = LifeDatabase.INSTANCE.getLives(party);

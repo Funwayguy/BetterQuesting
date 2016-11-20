@@ -9,6 +9,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -57,7 +58,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		selTask = 0;
 		
 		activeQuests.clear();
-		UUID pID = mc.thePlayer.getGameProfile().getId();
+		UUID pID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
 		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
 		{
 			if(q.isUnlocked(pID) && !q.isComplete(pID))
@@ -196,7 +197,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			RefreshValues();
 		} else if(button.id == 5) // Select
 		{
-			tile.setupTask(mc.thePlayer.getGameProfile().getId(), quest, task);
+			tile.setupTask(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer), quest, task);
 			tile.SyncTile(null);
 			RefreshValues();
 		} else if(button.id == 6)
@@ -273,7 +274,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(mc.thePlayer.getGameProfile().getId());
+		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer));
 	}
 	
 	/**

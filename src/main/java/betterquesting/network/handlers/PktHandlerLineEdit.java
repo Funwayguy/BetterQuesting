@@ -8,6 +8,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 import com.google.gson.JsonObject;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
@@ -40,7 +41,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		if(!isOP)
 		{
-			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + sender.getGameProfile().getId() + ") tried to edit quest lines without OP permissions!");
+			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + ExpansionAPI.getAPI().getNameCache().getQuestingID(sender) + ") tried to edit quest lines without OP permissions!");
 			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
 			return; // Player is not operator. Do nothing
 		}

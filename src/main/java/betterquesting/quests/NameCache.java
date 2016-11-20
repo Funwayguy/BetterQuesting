@@ -3,10 +3,7 @@ package betterquesting.quests;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import betterquesting.api.database.INameCache;
@@ -16,6 +13,10 @@ import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
 
 public final class NameCache implements INameCache
 {
@@ -166,5 +167,26 @@ public final class NameCache implements INameCache
 	public void reset()
 	{
 		cache.clear();
+	}
+	
+	@Override
+	public UUID getQuestingID(EntityPlayer player)
+	{
+		if(player == null)
+		{
+			return null;
+		}
+		
+		if(player.worldObj.isRemote)
+		{
+			UUID uuid = this.getUUID(player.getGameProfile().getName());
+			
+			if(uuid != null)
+			{
+				return uuid;
+			}
+		}
+		
+		return player.getGameProfile().getId();
 	}
 }

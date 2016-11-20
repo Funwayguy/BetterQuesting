@@ -2,9 +2,11 @@ package betterquesting.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.controls.GuiButtonQuestLine;
@@ -87,9 +89,11 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			if(!btnLine.enabled)
 			{
+				UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+				
 				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{
-					if((p.getQuest().isComplete(mc.thePlayer.getGameProfile().getId()) || p.getQuest().isUnlocked(mc.thePlayer.getGameProfile().getId())) && (selected == null || selected.getQuestLine() != line))
+					if((p.getQuest().isComplete(playerID) || p.getQuest().isUnlocked(playerID)) && (selected == null || selected.getQuestLine() != line))
 					{
 						btnLine.enabled = true;
 						break;

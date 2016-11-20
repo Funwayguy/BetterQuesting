@@ -12,6 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.database.IRegStorageBase;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
@@ -108,11 +109,13 @@ public class QuestInstance implements IQuest
 	@Override
 	public void update(EntityPlayer player)
 	{
-		if(isComplete(player.getGameProfile().getId()))
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		
+		if(isComplete(playerID))
 		{
-			UserEntry entry = GetUserEntry(player.getGameProfile().getId());
+			UserEntry entry = GetUserEntry(playerID);
 			
-			if(!hasClaimed(player.getGameProfile().getId()))
+			if(!hasClaimed(playerID))
 			{
 				if(canClaim(player))
 				{
@@ -140,7 +143,7 @@ public class QuestInstance implements IQuest
 					resetAll(false);
 				} else
 				{
-					resetUser(player.getGameProfile().getId(), false);
+					resetUser(playerID, false);
 				}
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
@@ -170,18 +173,18 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		if(isUnlocked(player.getGameProfile().getId()) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
+		if(isUnlocked(playerID) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
 		{
 			int done = 0;
 			boolean update = false;
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				boolean flag = !tsk.isComplete(player.getGameProfile().getId());
+				boolean flag = !tsk.isComplete(playerID);
 				
 				tsk.update(player, this);
 				
-				if(tsk.isComplete(player.getGameProfile().getId()))
+				if(tsk.isComplete(playerID))
 				{
 					done += 1;
 					
@@ -192,7 +195,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			if(!isUnlocked(player.getGameProfile().getId()))
+			if(!isUnlocked(playerID))
 			{
 				if(update)
 				{
@@ -202,7 +205,7 @@ public class QuestInstance implements IQuest
 				return;
 			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(player.getGameProfile().getId(), player.worldObj.getTotalWorldTime());
+				setComplete(playerID, player.worldObj.getTotalWorldTime());
 				
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
@@ -225,7 +228,7 @@ public class QuestInstance implements IQuest
 				}
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
-				resetUser(player.getGameProfile().getId(), false);
+				resetUser(playerID, false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
@@ -258,7 +261,9 @@ public class QuestInstance implements IQuest
 	@Override
 	public void detect(EntityPlayer player)
 	{
-		if(isComplete(player.getGameProfile().getId()) && (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		
+		if(isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
 		{
 			return;
 		} else if(!canSubmit(player))
@@ -266,18 +271,18 @@ public class QuestInstance implements IQuest
 			return;
 		}
 		
-		if(isUnlocked(player.getGameProfile().getId()) || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+		if(isUnlocked(playerID) || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
 		{
 			int done = 0;
 			boolean update = false;
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				boolean flag = !tsk.isComplete(player.getGameProfile().getId());
+				boolean flag = !tsk.isComplete(playerID);
 				
 				tsk.detect(player, this);
 				
-				if(tsk.isComplete(player.getGameProfile().getId()))
+				if(tsk.isComplete(playerID))
 				{
 					done += 1;
 					
@@ -290,7 +295,7 @@ public class QuestInstance implements IQuest
 			
 			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(player.getGameProfile().getId(), player.worldObj.getTotalWorldTime());
+				setComplete(playerID, player.worldObj.getTotalWorldTime());
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
@@ -311,7 +316,7 @@ public class QuestInstance implements IQuest
 				}
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
-				resetUser(player.getGameProfile().getId(), false);
+				resetUser(playerID, false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
@@ -378,9 +383,9 @@ public class QuestInstance implements IQuest
 	@Override
 	public boolean canClaim(EntityPlayer player)
 	{
-		UserEntry entry = GetUserEntry(player.getGameProfile().getId());
+		UserEntry entry = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
 		
-		if(entry == null || hasClaimed(player.getGameProfile().getId()))
+		if(entry == null || hasClaimed(ExpansionAPI.getAPI().getNameCache().getQuestingID(player)))
 		{
 			return false;
 		} else if(canSubmit(player))
@@ -408,7 +413,7 @@ public class QuestInstance implements IQuest
 			rew.claimReward(player, this);
 		}
 		
-		UserEntry entry = GetUserEntry(player.getGameProfile().getId());
+		UserEntry entry = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
 		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -422,7 +427,9 @@ public class QuestInstance implements IQuest
 			return false;
 		}
 		
-		UserEntry entry = this.GetUserEntry(player.getGameProfile().getId());
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		
+		UserEntry entry = this.GetUserEntry(playerID);
 		
 		if(entry == null)
 		{
@@ -433,7 +440,7 @@ public class QuestInstance implements IQuest
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				if(tsk.isComplete(player.getGameProfile().getId()))
+				if(tsk.isComplete(playerID))
 				{
 					done += 1;
 				}
@@ -485,11 +492,13 @@ public class QuestInstance implements IQuest
 		
 		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()));
 		
-		if(isComplete(player.getGameProfile().getId()))
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		
+		if(isComplete(playerID))
 		{
 			list.add(EnumChatFormatting.GREEN + StatCollector.translateToLocalFormatted("betterquesting.tooltip.complete"));
 			
-			if(!hasClaimed(player.getGameProfile().getId()))
+			if(!hasClaimed(playerID))
 			{
 				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.rewards_pending"));
 			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() > 0)
@@ -498,13 +507,13 @@ public class QuestInstance implements IQuest
 				DecimalFormat df = new DecimalFormat("00");
 				list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.repeat", (time/60) + "m " + df.format(time%60) + "s"));
 			}
-		} else if(!isUnlocked(player.getGameProfile().getId()))
+		} else if(!isUnlocked(playerID))
 		{
 			list.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + StatCollector.translateToLocalFormatted("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
 			
 			for(IQuest req : preRequisites)
 			{
-				if(!req.isComplete(player.getGameProfile().getId()))
+				if(!req.isComplete(playerID))
 				{
 					list.add(EnumChatFormatting.RED + "- " + StatCollector.translateToLocalFormatted(req.getUnlocalisedName()));
 				}
@@ -515,7 +524,7 @@ public class QuestInstance implements IQuest
 			
 			for(ITask task : tasks.getAllValues())
 			{
-				if(task.isComplete(player.getGameProfile().getId()))
+				if(task.isComplete(playerID))
 				{
 					n++;
 				}
@@ -565,7 +574,7 @@ public class QuestInstance implements IQuest
 			return -1;
 		}
 		
-		UserEntry ue = GetUserEntry(player.getGameProfile().getId());
+		UserEntry ue = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
 		
 		if(ue == null)
 		{

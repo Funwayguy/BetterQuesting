@@ -17,6 +17,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
@@ -308,8 +309,8 @@ public class EventHandler
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
-			IParty party = PartyManager.INSTANCE.getUserParty(mpPlayer.getGameProfile().getId());
-			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(mpPlayer.getGameProfile().getId()) : LifeDatabase.INSTANCE.getLives(party);
+			IParty party = PartyManager.INSTANCE.getUserParty(ExpansionAPI.getAPI().getNameCache().getQuestingID(mpPlayer));
+			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -354,12 +355,12 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			UUID uuid = ((EntityPlayer)event.entityLiving).getGameProfile().getId();
+			UUID uuid = ExpansionAPI.getAPI().getNameCache().getQuestingID(((EntityPlayer)event.entityLiving));
 			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
 			if(party == null || !party.getShareLives())
 			{
-				int lives = LifeDatabase.INSTANCE.getLives(((EntityPlayer)event.entityLiving).getGameProfile().getId());
+				int lives = LifeDatabase.INSTANCE.getLives(uuid);
 				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
 			} else
 			{

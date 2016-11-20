@@ -2,6 +2,7 @@ package betterquesting.quests;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.database.IQuestSettings;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.PacketTypeNative;
@@ -45,7 +46,7 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 			return false;
 		}
 		
-		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(player.getGameProfile().getId());
+		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
 	}
 
 	public void reset()

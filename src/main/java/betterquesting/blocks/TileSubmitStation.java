@@ -16,6 +16,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.network.PacketTypeNative;
 import betterquesting.api.network.PreparedPayload;
 import betterquesting.api.quests.IQuest;
@@ -149,7 +150,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		if(owner == null || player.getGameProfile().getId().equals(owner))
+		if(owner == null || ExpansionAPI.getAPI().getNameCache().getQuestingID(player).equals(owner))
 		{
 			return true;
 		}

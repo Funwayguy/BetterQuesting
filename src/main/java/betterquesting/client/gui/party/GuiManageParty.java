@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -62,9 +63,11 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			return;
 		}
 		
-		status = NameCache.INSTANCE.isOP(mc.thePlayer.getGameProfile().getId())? EnumPartyStatus.OWNER : party.getStatus(mc.thePlayer.getGameProfile().getId());
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		
+		status = NameCache.INSTANCE.isOP(playerID)? EnumPartyStatus.OWNER : party.getStatus(playerID);
 		heart = new ItemStack(BetterQuesting.extraLife);
-		lives = LifeDatabase.INSTANCE.getLives(mc.thePlayer.getGameProfile().getId());
+		lives = LifeDatabase.INSTANCE.getLives(playerID);
 		memList = party.getMembers();
 		
 		setTitle(I18n.format("betterquesting.title.party", party.getName()));
@@ -100,9 +103,11 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	@Override
 	public void refreshGui()
 	{
-		if(!NameCache.INSTANCE.isOP(mc.thePlayer.getGameProfile().getId()))
+		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		
+		if(!NameCache.INSTANCE.isOP(playerID))
 		{
-			this.party = PartyManager.INSTANCE.getUserParty(mc.thePlayer.getGameProfile().getId());
+			this.party = PartyManager.INSTANCE.getUserParty(playerID);
 			this.partyID = PartyManager.INSTANCE.getKey(this.party);
 		} else
 		{
@@ -174,7 +179,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-			tags.setString("target", mc.thePlayer.getGameProfile().getId().toString());
+			tags.setString("target", ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer).toString());
 			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id == 2 && status.ordinal() >= 3) // Share loot
 		{
@@ -255,7 +260,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	
 	public void SendChanges() // Use this if the name is being edited
 	{
-		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(mc.thePlayer.getGameProfile().getId()))
+		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer)))
 		{
 			return; // Not allowed to edit the party (Operators may force edit)
 		}
@@ -263,7 +268,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-		//tags.setString("target", mc.thePlayer.getGameProfile().getId().toString());
+		//tags.setString("target", mc.thePlayerExpansionAPI.getAPI().getNameCache().getQuestingID(player).toString());
 		JsonObject base = new JsonObject();
 		base.add("party", party.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));

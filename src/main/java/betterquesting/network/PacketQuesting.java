@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -49,7 +50,7 @@ public class PacketQuesting implements IMessage
 			}
 			
 			EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : sender.getGameProfile().getId(),packet.tags);
+			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : ExpansionAPI.getAPI().getNameCache().getQuestingID(sender),packet.tags);
 			
 			if(message == null)
 			{

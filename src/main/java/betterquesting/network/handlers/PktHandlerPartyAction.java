@@ -5,6 +5,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import betterquesting.api.ExpansionAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.IPacketHandler;
@@ -51,6 +52,8 @@ public class PktHandlerPartyAction implements IPacketHandler
 		IParty tarParty = null;
 		EnumPartyStatus status = null;
 		
+		UUID senderID = ExpansionAPI.getAPI().getNameCache().getQuestingID(sender);
+		
 		if(isOp)
 		{
 			tarParty = PartyManager.INSTANCE.getValue(partyID);
@@ -62,12 +65,12 @@ public class PktHandlerPartyAction implements IPacketHandler
 				tarParty = PartyManager.INSTANCE.getValue(partyID);
 			} else
 			{
-				tarParty = PartyManager.INSTANCE.getUserParty(sender.getGameProfile().getId());
+				tarParty = PartyManager.INSTANCE.getUserParty(senderID);
 			}
 			
 			if(tarParty != null)
 			{
-				status = tarParty.getStatus(sender.getGameProfile().getId());
+				status = tarParty.getStatus(senderID);
 			}
 		}
 		
@@ -85,7 +88,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			name = name.length() > 0? name : "New Party";
 			IParty nParty = new PartyInstance();
 			nParty.setName(name);
-			nParty.inviteUser(sender.getGameProfile().getId());
+			nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextKey());
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
@@ -94,7 +97,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			PartyManager.INSTANCE.removeKey(partyID);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
 			return;
-		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == sender.getGameProfile().getId())) // Kick/leave party
+		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == senderID)) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
@@ -106,7 +109,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.JOIN && tarParty != null && status != null) // Join party
 		{
-			tarParty.setStatus(sender.getGameProfile().getId(), EnumPartyStatus.MEMBER);
+			tarParty.setStatus(senderID, EnumPartyStatus.MEMBER);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status.ordinal() >= 2) // Invite to party
