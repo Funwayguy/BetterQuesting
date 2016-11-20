@@ -10,19 +10,19 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -174,7 +174,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", 1);
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Line index
@@ -215,7 +215,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", 1); // Delete quest
 					tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(searchResults.get(n4)));
-					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 				}
 			} else if(n2 == 4) // Add quest
 			{
@@ -255,7 +255,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
 		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()

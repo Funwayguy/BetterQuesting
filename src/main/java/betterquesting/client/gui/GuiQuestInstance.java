@@ -8,18 +8,18 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.rewards.IReward;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -177,7 +177,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.DETECT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.DETECT.GetLocation(), tags));
 		} else if(btn.id == 3) // Task right
 		{
 			selTaskId++;
@@ -191,7 +191,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.CLAIM.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
 		} else if(btn.id == 6)
 		{
 			selRewardId--;

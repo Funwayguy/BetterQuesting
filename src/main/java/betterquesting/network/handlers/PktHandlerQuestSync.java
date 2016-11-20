@@ -6,9 +6,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuest;
+import betterquesting.api.questing.IQuest;
 import betterquesting.database.QuestDatabase;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestInstance;
 
 public class PktHandlerQuestSync implements IPacketHandler

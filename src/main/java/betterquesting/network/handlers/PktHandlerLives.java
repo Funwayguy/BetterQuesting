@@ -6,8 +6,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
 import betterquesting.lives.LifeDatabase;
+import betterquesting.network.PacketTypeNative;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

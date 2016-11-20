@@ -11,9 +11,9 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.client.themes.IThemeLoader;
-import betterquesting.api.registry.IThemeRegistry;
+import betterquesting.api.client.themes.IThemeRegistry;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.themes.ThemeLoaderStandard;
 import betterquesting.client.themes.ThemeStandard;
@@ -33,11 +33,11 @@ public class ThemeRegistry implements IThemeRegistry
 {
 	public static final ThemeRegistry INSTANCE = new ThemeRegistry();
 	
-	private final IThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_gui.png"), new ResourceLocation(BetterQuesting.MODID + ":fallback"));
-	private IThemeBase currentTheme = null;
+	private final ITheme fallbackTheme = new ThemeStandard("Standard", new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_gui.png"), new ResourceLocation(BetterQuesting.MODID + ":fallback"));
+	private ITheme currentTheme = null;
 	
-	private final HashMap<ResourceLocation,IThemeBase> themeList = new HashMap<ResourceLocation,IThemeBase>();
-	private final HashMap<ResourceLocation,IThemeBase> resThemes = new HashMap<ResourceLocation,IThemeBase>();
+	private final HashMap<ResourceLocation,ITheme> themeList = new HashMap<ResourceLocation,ITheme>();
+	private final HashMap<ResourceLocation,ITheme> resThemes = new HashMap<ResourceLocation,ITheme>();
 	private final HashMap<ResourceLocation,IThemeLoader> themeLoaders = new HashMap<ResourceLocation,IThemeLoader>();
 	
 	private ThemeRegistry()
@@ -46,7 +46,7 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public void registerTheme(IThemeBase theme)
+	public void registerTheme(ITheme theme)
 	{
 		if(theme == null)
 		{
@@ -70,17 +70,17 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public IThemeBase getTheme(ResourceLocation name)
+	public ITheme getTheme(ResourceLocation name)
 	{
-		IThemeBase tmp = themeList.get(name);
+		ITheme tmp = themeList.get(name);
 		tmp = tmp != null? tmp : resThemes.get(name);
 		return tmp;
 	}
 	
 	@Override
-	public List<IThemeBase> getAllThemes()
+	public List<ITheme> getAllThemes()
 	{
-		ArrayList<IThemeBase> list = new ArrayList<IThemeBase>();
+		ArrayList<ITheme> list = new ArrayList<ITheme>();
 		list.addAll(themeList.values());
 		list.addAll(resThemes.values());
 		return list;
@@ -118,7 +118,7 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public IThemeBase getCurrentTheme()
+	public ITheme getCurrentTheme()
 	{
 		if(currentTheme == null)
 		{
@@ -129,7 +129,7 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public void setCurrentTheme(IThemeBase theme)
+	public void setCurrentTheme(ITheme theme)
 	{
 		if(theme == null)
 		{
@@ -201,7 +201,7 @@ public class ThemeRegistry implements IThemeRegistry
                         		continue;
                         	}
                         	
-                        	IThemeBase theme = loader.loadTheme(jThm, domain);
+                        	ITheme theme = loader.loadTheme(jThm, domain);
                         	
                         	if(theme != null)
                         	{

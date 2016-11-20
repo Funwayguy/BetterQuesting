@@ -6,26 +6,26 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.client.ITextCallback;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.jdoc.JsonDocBasic;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.JsonDocEvent;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.jdoc.JsonDocBasic;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.other.ITextCallback;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -73,7 +73,7 @@ public class GuiQuestEditor extends GuiScreenThemed implements ITextCallback, IV
 		titleField.setMaxStringLength(Integer.MAX_VALUE);
 		titleField.setText(quest.getUnlocalisedName());
 		
-		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this, 0);
+		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this);
 		descField.setMaxStringLength(Integer.MAX_VALUE);
 		descField.setText(quest.getUnlocalisedDescription());
 		
@@ -228,21 +228,18 @@ public class GuiQuestEditor extends GuiScreenThemed implements ITextCallback, IV
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", id);
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 
 	@Override
-	public void setText(int id, String text)
+	public void setText(String text)
 	{
-		if(id == 0)
+		if(descField != null)
 		{
-			if(descField != null)
-			{
-				descField.setText(text);
-			}
-			
-			quest.getProperties().setProperty(NativeProps.DESC, text);
-			SendChanges();
+			descField.setText(text);
 		}
+		
+		quest.getProperties().setProperty(NativeProps.DESC, text);
+		SendChanges();
 	}
 }

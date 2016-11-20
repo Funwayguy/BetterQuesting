@@ -6,12 +6,11 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
-import betterquesting.api.utils.RenderUtils;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -48,9 +47,9 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 		
-		if(ExpansionAPI.getAPI().getSettings().getProperty(NativeProps.HARDCORE))
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.HARDCORE))
 		{
 			this.enabled = this.visible = true;
 		} else if(mc.thePlayer == null)
@@ -68,12 +67,6 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
             mc.getTextureManager().bindTexture(currentTheme().getGuiTexture());
             GL11.glColor4f(1F, 1F, 1F, 1F);
             this.field_146123_n = this.mousePressed(mc, mx, my);
-            int state = this.getHoverState(this.field_146123_n);
-            //GL11.glEnable(GL11.GL_BLEND);
-            //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            
-        	EnumQuestState questState = quest.getState(playerID);
         	
         	for(GuiButtonQuestInstance p : parents)
         	{
@@ -102,54 +95,11 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         		dx = Math.cos(la) * 16;
         		dy = Math.sin(la) * 16;
         		lex += MathHelper.clamp_float((float)dx, -lew, lew);
-        		ley += MathHelper.clamp_float((float)dy, -leh, leh);
-        		
-        		GL11.glPushMatrix();
-        		
-        		GL11.glDisable(GL11.GL_TEXTURE_2D);
-        		
-            	int cl = currentTheme().getQuestLineColor(quest, questState);
-        		float lr = (float)(cl >> 16 & 255) / 255.0F;
-                float lg = (float)(cl >> 8 & 255) / 255.0F;
-                float lb = (float)(cl & 255) / 255.0F;
-            	GL11.glColor4f(lr, lg, lb, 1F);
-        		
-        		GL11.glLineWidth(currentTheme().getLineWidth(quest, questState));
-        		GL11.glEnable(GL11.GL_LINE_STIPPLE);
-        		GL11.glLineStipple(8, currentTheme().getLineStipple(quest, questState));
-        		GL11.glBegin(GL11.GL_LINES);
-        		
-        		GL11.glVertex2f(lsx, lsy);
-        		GL11.glVertex2f(lex, ley);
-        		GL11.glEnd();
-        		
-        		GL11.glLineStipple(1, Short.MAX_VALUE);
-        		GL11.glDisable(GL11.GL_LINE_STIPPLE);
-        		GL11.glEnable(GL11.GL_TEXTURE_2D);
-        		GL11.glColor4f(1F, 1F, 1F, 1F);
-        		
-        		GL11.glPopMatrix();
+        		ley += MathHelper.clamp_float((float)dy, -leh, leh);        		
+        		currentTheme().getRenderer().drawLine(quest, playerID, lsx, lsy, lex, ley, mx, my, 1F);
         	}
-            
-        	int ci = currentTheme().getQuestIconColor(quest, questState, state);
-    		float ir = (float)(ci >> 16 & 255) / 255.0F;
-            float ig = (float)(ci >> 8 & 255) / 255.0F;
-            float ib = (float)(ci & 255) / 255.0F;
-        	GL11.glColor4f(ir, ig, ib, 1F);
-        	
-        	GL11.glPushMatrix();
-        	GL11.glTranslatef(this.xPosition, this.yPosition, 0F);
-        	float sw = width / 24;
-        	float sh = height / 24;
-        	GL11.glScalef(sw, sh, 1F);
-        	this.drawTexturedModalRect(0, 0, (quest.getProperties().getProperty(NativeProps.MAIN)? 24 : 0), 104, 24, 24);
-        	
-        	if(quest.getItemIcon() != null)
-        	{
-        		RenderUtils.RenderItemStack(mc, quest.getItemIcon().getBaseStack(), 4, 4, "");
-        	}
-        	
-        	GL11.glPopMatrix();
+    		
+    		currentTheme().getRenderer().drawIcon(quest, playerID, xPosition, yPosition, width, height, mx, my, 1F);
         	
         	this.mouseDragged(mc, mx, my);
         }
@@ -157,7 +107,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	
 	public boolean isQuestShown(UUID uuid)
 	{
-		if(ExpansionAPI.getAPI().getSettings().canUserEdit(mc.thePlayer) || quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.ALWAYS)
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.thePlayer) || quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.ALWAYS)
 		{
 			return true;
 		} else if(quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)

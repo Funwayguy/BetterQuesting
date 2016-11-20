@@ -3,7 +3,7 @@ package betterquesting.network;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.network.IPacketSender;
-import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
@@ -16,7 +16,7 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToPlayer(PreparedPayload payload, EntityPlayerMP player)
+	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
@@ -27,7 +27,7 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToAll(PreparedPayload payload)
+	public void sendToAll(QuestingPacket payload)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
@@ -38,7 +38,7 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToServer(PreparedPayload payload)
+	public void sendToServer(QuestingPacket payload)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
@@ -49,7 +49,7 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToAround(PreparedPayload payload, TargetPoint point)
+	public void sendToAround(QuestingPacket payload, TargetPoint point)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
@@ -60,7 +60,7 @@ public class PacketSender implements IPacketSender
 	}
 	
 	@Override
-	public void sendToDimension(PreparedPayload payload, int dimension)
+	public void sendToDimension(QuestingPacket payload, int dimension)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		

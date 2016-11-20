@@ -13,12 +13,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import scala.actors.threadpool.Arrays;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.GuiYesNoLocked;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.themes.DummyTheme;
-import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.placeholders.ThemeDummy;
 
 public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 {
@@ -238,14 +237,14 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	/**
 	 * Shortcut method for obtaining the current BetterQuesting theme.
 	 */
-	public IThemeBase currentTheme()
+	public ITheme currentTheme()
 	{
-		if(ExpansionAPI.isReady())
+		if(QuestingAPI.getAPI(ApiReference.THEME_REG) != null)
 		{
-			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
+			return QuestingAPI.getAPI(ApiReference.THEME_REG).getCurrentTheme();
 		} else
 		{
-			return DummyTheme.INSTANCE;
+			return ThemeDummy.INSTANCE;
 		}
 	}
 	

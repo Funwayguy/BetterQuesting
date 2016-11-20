@@ -5,13 +5,13 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.party.IParty;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.party.PartyInstance;
 import betterquesting.party.PartyManager;
 
@@ -52,7 +52,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 		IParty tarParty = null;
 		EnumPartyStatus status = null;
 		
-		UUID senderID = ExpansionAPI.getAPI().getNameCache().getQuestingID(sender);
+		UUID senderID = QuestingAPI.getQuestingUUID(sender);
 		
 		if(isOp)
 		{

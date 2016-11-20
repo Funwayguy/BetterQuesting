@@ -1,9 +1,9 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.client.Minecraft;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.toolbox.IToolboxTool;
 
 public class ToolboxToolIcon implements IToolboxTool
 {

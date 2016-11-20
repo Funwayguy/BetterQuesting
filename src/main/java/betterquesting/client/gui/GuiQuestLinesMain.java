@@ -6,16 +6,16 @@ import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.controls.GuiButtonQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.quest.QuestLineButtonTree;
-import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.questing.IQuestLine;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.quests.QuestSettings;
@@ -89,7 +89,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			if(!btnLine.enabled)
 			{
-				UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+				UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 				
 				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{

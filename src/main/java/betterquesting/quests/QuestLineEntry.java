@@ -1,7 +1,7 @@
 package betterquesting.quests;
 
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.IQuestLineEntry;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonObject;
 

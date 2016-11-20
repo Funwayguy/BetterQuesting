@@ -9,24 +9,24 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.IQuestLineEntry;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestLineEntry;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -149,7 +149,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				NBTTagCompound tags = new NBTTagCompound();
 				tags.setInteger("action", 1); // Delete quest
 				tags.setInteger("questID", id);
-				PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 			} else if(column == 2 && line != null && id >= 0) // Add quest
 			{
 				IQuestLineEntry qe = new QuestLineEntry(0, 0);
@@ -194,7 +194,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		tag.setInteger("action", EnumPacketAction.ADD.ordinal());
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
 	}
 	
 	public void SendChanges(EnumPacketAction action, int lineID)
@@ -216,7 +216,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		tags.setInteger("action", action.ordinal());
 		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
 		
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()

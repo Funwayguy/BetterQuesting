@@ -2,7 +2,7 @@ package betterquesting.client.themes;
 
 import java.awt.Color;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
@@ -20,7 +20,7 @@ public class ThemeLoaderStandard implements IThemeLoader
 	}
 	
 	@Override
-	public IThemeBase loadTheme(JsonObject json, String domain)
+	public ITheme loadTheme(JsonObject json, String domain)
 	{
 		if(json == null)
 		{
@@ -31,7 +31,6 @@ public class ThemeLoaderStandard implements IThemeLoader
 		String texture = JsonHelper.GetString(json, "texture", "betterquesting:textures/gui/editor_gui.png");
 		
 		int tColor = JsonHelper.GetNumber(json, "textColor", Color.BLACK.getRGB()).intValue();
-		String btnSound = JsonHelper.GetString(json, "buttonSound", "minecraft:gui.button.press");
 		
 		JsonObject jl = JsonHelper.GetObject(json, "lineColor");
 		int lLocked = JsonHelper.GetNumber(jl, "locked", new Color(0.75F, 0F, 0F).getRGB()).intValue();
@@ -61,7 +60,6 @@ public class ThemeLoaderStandard implements IThemeLoader
 		
 		ThemeStandard theme = new ThemeStandard(name, new ResourceLocation(texture), regName);
 		theme.setTextColor(tColor);
-		theme.setButtonSound(new ResourceLocation(btnSound));
 		theme.setLineColors(lLocked, lPending, lComplete);
 		theme.setIconColors(iLocked, iPending, iUnclaimed, iComplete);
 		

@@ -11,18 +11,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.party.IParty;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestSettings;
 
@@ -48,7 +48,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 		
 		IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 		if(party != null)
@@ -154,7 +154,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.ADD.ordinal());
 			tags.setString("Party", fieldName.getText());
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1) // Join party
 		{
 			int n1 = button.id - 2; // Button index
@@ -168,7 +168,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", EnumPacketAction.JOIN.ordinal());
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(invites.get(n3)));
-					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}

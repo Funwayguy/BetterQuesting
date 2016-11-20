@@ -10,9 +10,10 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.client.themes.DummyTheme;
-import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.placeholders.ThemeDummy;
 
 /**
  * Version of GuiButton that uses BetterQuesting theme and scales better
@@ -164,17 +165,17 @@ public class GuiButtonThemed extends GuiButton
 	@Override
 	public void func_146113_a(SoundHandler p_146113_1_)
     {
-        p_146113_1_.playSound(PositionedSoundRecord.func_147674_a(currentTheme().getButtonSound(), 1.0F));
+        p_146113_1_.playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
     }
     
-	public IThemeBase currentTheme()
+	public ITheme currentTheme()
 	{
-		if(ExpansionAPI.isReady())
+		if(QuestingAPI.getAPI(ApiReference.THEME_REG) != null)
 		{
-			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
+			return QuestingAPI.getAPI(ApiReference.THEME_REG).getCurrentTheme();
 		} else
 		{
-			return DummyTheme.INSTANCE;
+			return ThemeDummy.INSTANCE;
 		}
 	}
 }

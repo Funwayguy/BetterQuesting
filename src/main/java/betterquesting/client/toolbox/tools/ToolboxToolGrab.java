@@ -2,19 +2,19 @@ package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.IQuestLineEntry;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolGrab extends GuiElement implements IToolboxTool
@@ -109,7 +109,7 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag2.setInteger("lineID", lID);
-				PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
 			}
 			
 			grabbed = null;

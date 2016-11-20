@@ -5,10 +5,10 @@ import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 
 public interface IPacketSender
 {
-	public void sendToPlayer(PreparedPayload payload, EntityPlayerMP player);
-	public void sendToAll(PreparedPayload payload);
-	public void sendToServer(PreparedPayload payload);
+	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player);
+	public void sendToAll(QuestingPacket payload);
+	public void sendToServer(QuestingPacket payload);
 	
-	public void sendToAround(PreparedPayload payload, TargetPoint point);
-	public void sendToDimension(PreparedPayload payload, int dimension);
+	public void sendToAround(QuestingPacket payload, TargetPoint point);
+	public void sendToDimension(QuestingPacket payload, int dimension);
 }

@@ -11,9 +11,9 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.party.IParty;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
@@ -60,11 +60,11 @@ public class ItemExtraLife extends Item
     		}
     		
     		int lives = 0;
-    		IParty party = PartyManager.INSTANCE.getUserParty(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
+    		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
     		
     		if(party == null || !party.getShareLives())
     		{
-    			lives = LifeDatabase.INSTANCE.getLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
+    			lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
     		} else
     		{
     			lives = LifeDatabase.INSTANCE.getLives(party);
@@ -86,7 +86,7 @@ public class ItemExtraLife extends Item
     		{
     			if(party == null || !party.getShareLives())
     			{
-    				LifeDatabase.INSTANCE.setLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(player), lives + 1);
+    				LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
     			} else
     			{
     				LifeDatabase.INSTANCE.setLives(party, lives + 1);

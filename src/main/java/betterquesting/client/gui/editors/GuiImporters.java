@@ -8,7 +8,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.io.IQuestIO;
+import betterquesting.api.io.IQuestIO;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.importers.ImporterRegistry;
 

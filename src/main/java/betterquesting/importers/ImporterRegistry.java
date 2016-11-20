@@ -2,12 +2,12 @@ package betterquesting.importers;
 
 import java.util.ArrayList;
 import java.util.List;
-import betterquesting.api.client.io.IQuestIO;
-import betterquesting.api.registry.IQuestIORegistry;
+import betterquesting.api.io.IQuestIO;
+import betterquesting.api.io.IQuestIORegistry;
 
 public final class ImporterRegistry implements IQuestIORegistry
 {
-	public static ImporterRegistry INSTANCE = new ImporterRegistry();
+	public static final ImporterRegistry INSTANCE = new ImporterRegistry();
 	
 	private ArrayList<IQuestIO> importers = new ArrayList<IQuestIO>();
 	private ArrayList<IQuestIO> exporters = new ArrayList<IQuestIO>();

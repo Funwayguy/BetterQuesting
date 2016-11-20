@@ -9,14 +9,14 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.tasks.IFluidTask;
-import betterquesting.api.quests.tasks.IItemTask;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IFluidTask;
+import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.database.QuestDatabase;
 
@@ -58,7 +58,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		selTask = 0;
 		
 		activeQuests.clear();
-		UUID pID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+		UUID pID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
 		{
 			if(q.isUnlocked(pID) && !q.isComplete(pID))
@@ -197,7 +197,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			RefreshValues();
 		} else if(button.id == 5) // Select
 		{
-			tile.setupTask(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer), quest, task);
+			tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quest, task);
 			tile.SyncTile(null);
 			RefreshValues();
 		} else if(button.id == 6)
@@ -274,7 +274,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer));
+		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer));
 	}
 	
 	/**

@@ -8,13 +8,13 @@ import net.minecraft.util.MathHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import betterquesting.api.database.ILifeDatabase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.party.IParty;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.registry.ILifeDatabase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.party.PartyManager;
 
 public final class LifeDatabase implements ILifeDatabase
@@ -116,14 +116,14 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject base = new JsonObject();
 		base.add("config", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		base.add("lives", writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		return new PreparedPayload(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override

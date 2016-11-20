@@ -1,14 +1,14 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 
 public class ToolboxToolReset implements IToolboxTool
 {
@@ -42,7 +42,7 @@ public class ToolboxToolReset implements IToolboxTool
 			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(btn.getQuest()));
 			tags.setBoolean("status", false);
 			
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 		}
 	}
 

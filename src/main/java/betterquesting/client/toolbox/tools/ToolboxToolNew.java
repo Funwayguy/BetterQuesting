@@ -1,19 +1,19 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestInstance;
 import betterquesting.quests.QuestLineEntry;
 import com.google.gson.JsonObject;
@@ -91,7 +91,7 @@ public class ToolboxToolNew implements IToolboxTool
 		tag1.setTag("data", NBTConverter.JSONtoNBT_Object(base1, new NBTTagCompound()));
 		tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
 		tag1.setInteger("questID", qID);
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
 		
 		// Sync Line
 		NBTTagCompound tag2 = new NBTTagCompound();
@@ -100,7 +100,7 @@ public class ToolboxToolNew implements IToolboxTool
 		tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
 		tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tag2.setInteger("lineID", lID);
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
 	}
 	
 	@Override

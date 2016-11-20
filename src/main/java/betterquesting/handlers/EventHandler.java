@@ -17,15 +17,15 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
-import betterquesting.api.party.IParty;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.placeholders.FluidPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.core.BQ_Settings;
@@ -309,8 +309,8 @@ public class EventHandler
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
-			IParty party = PartyManager.INSTANCE.getUserParty(ExpansionAPI.getAPI().getNameCache().getQuestingID(mpPlayer));
-			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
+			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -355,7 +355,7 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			UUID uuid = ExpansionAPI.getAPI().getNameCache().getQuestingID(((EntityPlayer)event.entityLiving));
+			UUID uuid = QuestingAPI.getQuestingUUID(((EntityPlayer)event.entityLiving));
 			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
 			if(party == null || !party.getShareLives())

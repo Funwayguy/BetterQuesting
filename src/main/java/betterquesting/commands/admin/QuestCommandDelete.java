@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.quests.IQuest;
+import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;

@@ -1,22 +1,17 @@
 package betterquesting.client.themes;
 
 import java.awt.Color;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.themes.IThemeBase;
-import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.client.themes.IThemeRenderer;
 
-public class ThemeStandard implements IThemeBase
+public class ThemeStandard implements ITheme
 {
+	private final ThemeRenderStandard renderer = new ThemeRenderStandard();
 	private final ResourceLocation regName;
 	private final String name;
 	private final ResourceLocation guiTexture;
-	private ResourceLocation btnSound = new ResourceLocation("gui.button.press");
 	private int txtColor = Color.BLACK.getRGB();
-	private int[] lineColors = new int[]{new Color(0.75F, 0F, 0F).getRGB(), Color.YELLOW.getRGB(), Color.GREEN.getRGB(), Color.GREEN.getRGB()};
-	private int[] iconColors = new int[]{Color.GRAY.getRGB(), new Color(0.75F, 0F, 0F).getRGB(), new Color(0F, 1F, 1F).getRGB(), Color.GREEN.getRGB()};
 	
 	public ThemeStandard(String name, ResourceLocation texture, ResourceLocation regName)
 	{
@@ -51,25 +46,13 @@ public class ThemeStandard implements IThemeBase
 	
 	public ThemeStandard setLineColors(int locked, int incomplete, int complete)
 	{
-		lineColors[0] = locked;
-		lineColors[1] = incomplete;
-		lineColors[2] = complete;
-		lineColors[3] = complete;
+		renderer.setLineColors(locked, incomplete, complete);
 		return this;
 	}
 	
 	public ThemeStandard setIconColors(int locked, int incomplete, int pending, int complete)
 	{
-		iconColors[0] = locked;
-		iconColors[1] = incomplete;
-		iconColors[2] = pending;
-		iconColors[3] = complete;
-		return this;
-	}
-	
-	public ThemeStandard setButtonSound(ResourceLocation sound)
-	{
-		this.btnSound = sound;
+		renderer.setIconColors(locked, incomplete, pending, complete);
 		return this;
 	}
 	
@@ -78,48 +61,10 @@ public class ThemeStandard implements IThemeBase
 	{
 		return txtColor;
 	}
-	
-	@Override
-	public short getLineStipple(IQuest quest, EnumQuestState state)
-	{
-		return (short)0xFFFF;
-	}
-	
-	@Override
-	public float getLineWidth(IQuest quest, EnumQuestState state)
-	{
-		return quest.getProperties().getProperty(NativeProps.MAIN)? 8F : 4F;
-	}
-	
-	@Override
-	public int getQuestLineColor(IQuest quest, EnumQuestState state)
-	{
-		Color c = new Color(lineColors[state.ordinal()]);
-		
-		if(state == EnumQuestState.UNLOCKED && (Minecraft.getSystemTime()/1000)%2 == 0)
-		{
-			return new Color(c.getRed()/255F*0.5F, c.getGreen()/255F*0.5F, c.getBlue()/255F*0.5F).getRGB();
-		}
-		
-		return c.getRGB();
-	}
-	
-	@Override
-	public int getQuestIconColor(IQuest quest, EnumQuestState state, int hoverState)
-	{
-		Color c = new Color(iconColors[state.ordinal()]);
-		
-		if(hoverState == 1)
-		{
-			return new Color(c.getRed()/255F*0.75F, c.getGreen()/255F*0.75F, c.getBlue()/255F*0.75F).getRGB();
-		}
-		
-		return c.getRGB();
-	}
 
 	@Override
-	public ResourceLocation getButtonSound()
+	public IThemeRenderer getRenderer()
 	{
-		return btnSound;
+		return renderer;
 	}
 }

@@ -10,21 +10,21 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.rewards.IReward;
-import betterquesting.api.utils.IFactory;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.other.IFactory;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.rewards.GuiRewardEditDefault;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.registry.RewardRegistry;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
@@ -203,7 +203,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()

@@ -5,10 +5,10 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.party.IParty;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
@@ -79,7 +79,7 @@ public class GuiHome extends GuiScreenThemed
 			}
 		} else if(button.id == 2)
 		{
-			IParty party = PartyManager.INSTANCE.getUserParty(ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer));
+			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.thePlayer));
 			
 			if(party != null)
 			{

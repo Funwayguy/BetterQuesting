@@ -2,8 +2,8 @@ package betterquesting.registry;
 
 import java.util.ArrayList;
 import java.util.List;
-import betterquesting.api.client.toolbox.IToolboxTab;
-import betterquesting.api.registry.IToolRegistry;
+import betterquesting.api.toolbox.IToolRegistry;
+import betterquesting.api.toolbox.IToolboxTab;
 
 public class ToolboxRegistry implements IToolRegistry
 {

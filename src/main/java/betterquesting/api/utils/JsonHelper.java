@@ -21,8 +21,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.utils.placeholders.PlaceholderConverter;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.placeholders.PlaceholderConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -143,7 +143,7 @@ public class JsonHelper
 			return (ArrayList<JsonElement>)field.get(array);
 		} catch(Exception e)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Unable to retrieve underlying JsonArray:", e);
+			QuestingAPI.getLogger().log(Level.ERROR, "Unable to retrieve underlying JsonArray:", e);
 		}
 		
 		return null;
@@ -164,7 +164,7 @@ public class JsonHelper
 			return json;
 		} catch(Exception e)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
+			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
 			
 			int i = 0;
 			File bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
@@ -175,7 +175,7 @@ public class JsonHelper
 				bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
 			}
 			
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
+			QuestingAPI.getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
 			CopyPaste(file, bkup);
 			
 			return new JsonObject(); // Just a safety measure against NPEs
@@ -200,7 +200,7 @@ public class JsonHelper
 			fw.close();
 		} catch(Exception e)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
 			return;
 		}
 	}
@@ -225,7 +225,7 @@ public class JsonHelper
 			}
 		} catch(Exception e1)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "Failed copy paste", e1);
+			QuestingAPI.getLogger().log(Level.ERROR, "Failed copy paste", e1);
 		} finally
 		{
 			try

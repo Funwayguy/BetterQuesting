@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.database.IQuestDatabase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestInstance;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -120,14 +120,14 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject base = new JsonObject();
 		base.add("config", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 		base.add("progress", writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		return new PreparedPayload(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override

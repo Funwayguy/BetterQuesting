@@ -3,7 +3,7 @@ package betterquesting.network;
 import java.util.HashMap;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.registry.IPacketRegistry;
+import betterquesting.api.network.IPacketRegistry;
 import betterquesting.network.handlers.PktHandlerClaim;
 import betterquesting.network.handlers.PktHandlerDetect;
 import betterquesting.network.handlers.PktHandlerLineEdit;

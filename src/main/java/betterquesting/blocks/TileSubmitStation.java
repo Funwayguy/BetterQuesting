@@ -16,16 +16,16 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.tasks.IFluidTask;
-import betterquesting.api.quests.tasks.IItemTask;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IFluidTask;
+import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.core.BetterQuesting;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
 {
@@ -150,7 +150,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		if(owner == null || ExpansionAPI.getAPI().getNameCache().getQuestingID(player).equals(owner))
+		if(owner == null || QuestingAPI.getQuestingUUID(player).equals(owner))
 		{
 			return true;
 		}
@@ -372,7 +372,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
     	}
     }
 	

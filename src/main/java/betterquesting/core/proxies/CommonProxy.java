@@ -1,11 +1,10 @@
 package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.IQuestingExpansion;
+import betterquesting.api.api.IQuestExpansion;
 import betterquesting.client.UpdateNotification;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
-import betterquesting.core.ParentAPI;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -28,13 +27,15 @@ public class CommonProxy
 		FMLCommonHandler.instance().bus().register(new UpdateNotification());
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
+		
+		ExpansionLoader.INSTANCE.initCommonAPIs();
 	}
 	
 	public void registerExpansions()
 	{
-		for(IQuestingExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
+		for(IQuestExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
 		{
-			exp.registerCommon(ParentAPI.API);
+			exp.loadExpansion();
 		}
 	}
 }

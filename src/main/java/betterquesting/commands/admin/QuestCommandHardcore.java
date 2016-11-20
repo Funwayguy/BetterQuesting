@@ -3,7 +3,7 @@ package betterquesting.commands.admin;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.quests.QuestSettings;

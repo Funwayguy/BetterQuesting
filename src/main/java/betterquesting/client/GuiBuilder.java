@@ -2,18 +2,12 @@ package betterquesting.client;
 
 import java.io.File;
 import java.io.FileFilter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import betterquesting.api.client.IFileCallback;
-import betterquesting.api.client.ITextCallback;
-import betterquesting.api.client.jdoc.IJsonDoc;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.utils.IGuiBuilder;
-import betterquesting.client.gui.editors.GuiQuestEditor;
-import betterquesting.client.gui.editors.GuiQuestLineEditorA;
-import betterquesting.client.gui.editors.GuiQuestLineEditorB;
+import betterquesting.api.client.gui.IGuiHelper;
+import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.other.IFileCallback;
+import betterquesting.api.other.ITextCallback;
 import betterquesting.client.gui.editors.GuiTextEditor;
 import betterquesting.client.gui.editors.json.GuiJsonArray;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
@@ -21,82 +15,69 @@ import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 import betterquesting.client.gui.misc.GuiFileExplorer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-public final class GuiBuilder implements IGuiBuilder
+public final class GuiBuilder implements IGuiHelper
 {
 	public static final GuiBuilder INSTANCE = new GuiBuilder();
 	
+	private final Minecraft mc;
+	
 	private GuiBuilder()
 	{
+		this.mc = Minecraft.getMinecraft();
 	}
 	
 	@Override
-	public GuiScreen getJsonEditor(GuiScreen parent, JsonElement json, IJsonDoc jdoc)
+	public void openJsonEditor(GuiScreen parent, JsonElement json, IJsonDoc jdoc)
 	{
 		if(json.isJsonArray())
 		{
-			new GuiJsonArray(parent, json.getAsJsonArray(), jdoc);
+			mc.displayGuiScreen(new GuiJsonArray(parent, json.getAsJsonArray(), jdoc));
 		} else if(json.isJsonObject())
 		{
-			new GuiJsonObject(parent, json.getAsJsonObject(), jdoc);
+			mc.displayGuiScreen(new GuiJsonObject(parent, json.getAsJsonObject(), jdoc));
 		}
 		
-		return null;
+		return;
 	}
 	
 	@Override
-	public GuiScreen getItemEditor(GuiScreen parent, JsonObject json)
+	public void openItemEditor(GuiScreen parent, JsonObject json)
 	{
-		return new GuiJsonItemSelection(parent, json);
+		mc.displayGuiScreen(new GuiJsonItemSelection(parent, json));
 	}
 	
 	@Override
-	public GuiScreen getFluidEditor(GuiScreen parent, JsonObject json)
+	public void openFluidEditor(GuiScreen parent, JsonObject json)
 	{
-		return new GuiJsonFluidSelection(parent, json);
+		mc.displayGuiScreen(new GuiJsonFluidSelection(parent, json));
 	}
 	
 	@Override
-	public GuiScreen getEntityEditor(GuiScreen parent, JsonObject json)
+	public void openEntityEditor(GuiScreen parent, JsonObject json)
 	{
-		return new GuiJsonEntitySelection(parent, json);
+		mc.displayGuiScreen(new GuiJsonEntitySelection(parent, json));
 	}
 	
 	@Override
-	public GuiScreen getQuestEditor(GuiScreen parent, IQuest quest)
-	{
-		return new GuiQuestEditor(parent, quest);
-	}
-	
-	@Override
-	public GuiScreen getLineEditor(GuiScreen parent, IQuestLine questLine)
-	{
-		if(questLine == null)
-		{
-			return new GuiQuestLineEditorA(parent);
-		} else
-		{
-			return new GuiQuestLineEditorB(parent, questLine);
-		}
-	}
-	
-	@Override
-	public GuiScreen getTextEditor(GuiScreen parent, String text, ITextCallback editor, int id)
+	public void openTextEditor(GuiScreen parent, ITextCallback editor, String text)
 	{
 		GuiTextEditor gui = new GuiTextEditor(parent, text);
 		
 		if(editor != null)
 		{
-			gui.setHost(editor, id);
+			gui.setHost(editor);
 		}
 		
-		return gui;
+		mc.displayGuiScreen(gui);
 	}
 	
 	@Override
-	public GuiScreen getFileExplorer(GuiScreen parent, IFileCallback callback, File rootDir, FileFilter filter, boolean multiSelect)
+	public void openFileExplorer(GuiScreen parent, IFileCallback callback, File rootDir, FileFilter filter, boolean multiSelect)
 	{
-		return new GuiFileExplorer(parent, callback, rootDir, filter).setMultiSelect(multiSelect);
+		mc.displayGuiScreen(new GuiFileExplorer(parent, callback, rootDir, filter).setMultiSelect(multiSelect));
 	}
 	
 }

@@ -2,7 +2,6 @@ package betterquesting.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -14,10 +13,11 @@ import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonStorage;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
-import betterquesting.api.client.themes.IThemeBase;
-import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.registry.ThemeRegistry;
+import betterquesting.utils.DummyQuest;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -25,7 +25,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class GuiThemeSelect extends GuiScreenThemed
 {
 	private GuiScrollingButtons btnList;
-	private List<IThemeBase> themeList = new ArrayList<IThemeBase>();
+	private List<ITheme> themeList = new ArrayList<ITheme>();
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
@@ -71,17 +71,12 @@ public class GuiThemeSelect extends GuiScreenThemed
 		
 		this.drawTexturedModalRect(cx - 9, cy - 24, 0, 48, 18, 18);
 		
-    	int ci = currentTheme().getQuestIconColor(null, EnumQuestState.values()[(int)(Minecraft.getSystemTime()/2000)%4], (int)(Minecraft.getSystemTime()/1000)%2 + 1);
-		float r = (float)(ci >> 16 & 255) / 255.0F;
-        float g = (float)(ci >> 8 & 255) / 255.0F;
-        float b = (float)(ci & 255) / 255.0F;
-    	GL11.glColor4f(r, g, b, 1F);
-    	
-		this.drawTexturedModalRect(cx + 16, cy + 8, 0, 104, 24, 24);
-		this.drawTexturedModalRect(cx - 40, cy + 8, 24, 104, 24, 24);
+		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, true);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx + 16, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
+		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, false);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 40, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
 		
-    	int cl = currentTheme().getQuestLineColor(null, EnumQuestState.values()[(int)(Minecraft.getSystemTime()/2000)%4]);
-    	RenderUtils.DrawLine(cx - 16, cy + 20, cx + 16, cy + 20, 4, cl);
+		currentTheme().getRenderer().drawLine(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 16, cy + 20, cx + 16, cy + 20, mx, my, partialTick);
     	
     	GL11.glColor4f(1F, 1F, 1F, 1F);
     	
@@ -111,8 +106,8 @@ public class GuiThemeSelect extends GuiScreenThemed
 		
 		for(int i = 0; i < themeList.size(); i++)
 		{
-			IThemeBase th = themeList.get(i);
-			GuiButtonStorage<IThemeBase> btn = new GuiButtonStorage<IThemeBase>(1 + i, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
+			ITheme th = themeList.get(i);
+			GuiButtonStorage<ITheme> btn = new GuiButtonStorage<ITheme>(1 + i, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
 			btn.setStored(th);
 			btnList.addButtonRow(btn);
 		}

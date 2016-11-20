@@ -9,13 +9,13 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.IGuiQuestLine;
+import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.gui.quest.QuestLineButtonTree;
-import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine

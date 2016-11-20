@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.quests.rewards.IReward;
-import betterquesting.api.registry.IRewardRegistry;
-import betterquesting.api.utils.IFactory;
+import betterquesting.api.other.IFactory;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.rewards.IRewardRegistry;
 import betterquesting.core.BetterQuesting;
 
 public class RewardRegistry implements IRewardRegistry

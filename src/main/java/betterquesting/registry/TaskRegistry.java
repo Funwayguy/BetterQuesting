@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.quests.tasks.ITask;
-import betterquesting.api.registry.ITaskRegistry;
-import betterquesting.api.utils.IFactory;
+import betterquesting.api.other.IFactory;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.questing.tasks.ITaskRegistry;
 import betterquesting.core.BetterQuesting;
 
 /**

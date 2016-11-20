@@ -1,8 +1,8 @@
 package betterquesting.api.client.gui.controls;
 
 import net.minecraft.client.resources.I18n;
-import betterquesting.api.client.gui.quest.QuestLineButtonTree;
-import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.client.gui.QuestLineButtonTree;
+import betterquesting.api.questing.IQuestLine;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

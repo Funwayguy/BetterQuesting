@@ -9,9 +9,9 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
 

@@ -12,14 +12,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
-import betterquesting.api.client.ITextCallback;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonJson;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,12 +27,11 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVolatileScreen
+public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 {
-	private HashMap<Integer,String> idMap = new HashMap<Integer,String>();
 	private int scrollPos = 0;
 	private int maxRows = 0;
-	private JsonObject settings;
+	private final JsonObject settings;
 	private boolean allowEdit = true;
 	private IJsonDoc jdoc = null;
 	
@@ -83,7 +81,6 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 			}
 		}
 		
-		idMap = new HashMap<Integer,String>();
 		editables = new HashMap<String, JsonControlSet>();
 		maxRows = (this.sizeY - 84)/20;
 		
@@ -95,11 +92,8 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 		
         Keyboard.enableRepeatEvents(true);
         
-        int i = -1;
 		for(Entry<String,JsonElement> entry : settings.entrySet())
 		{
-			i++;
-			idMap.put(i, entry.getKey());
 			if(entry.getValue().isJsonPrimitive())
 			{
 				JsonPrimitive jPrim = entry.getValue().getAsJsonPrimitive();
@@ -116,7 +110,7 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 					continue;
 				} else
 				{
-					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(this, i);
+					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(new TextCallbackJsonObject(settings, entry.getKey()));
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -328,17 +322,4 @@ public class GuiJsonObject extends GuiScreenThemed implements ITextCallback, IVo
 			}
 		}
     }
-
-	@Override
-	public void setText(int id, String text)
-	{
-		if(settings == null || !idMap.containsKey(id))
-		{
-			return;
-		}
-		
-		String key = idMap.get(id);
-		
-		settings.addProperty(key, text);
-	}
 }

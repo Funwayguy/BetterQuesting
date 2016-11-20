@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.database.IQuestLineDatabase;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestLine;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -122,13 +122,13 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject base = new JsonObject();
 		base.add("questLines", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		return new PreparedPayload(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override

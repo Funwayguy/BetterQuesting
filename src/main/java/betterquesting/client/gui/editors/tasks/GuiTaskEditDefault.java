@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiScreen;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 
 public class GuiTaskEditDefault extends GuiScreenThemed

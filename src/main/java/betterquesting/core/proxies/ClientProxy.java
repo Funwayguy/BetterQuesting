@@ -5,15 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.IQuestingExpansion;
-import betterquesting.api.utils.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.EntityPlaceholderRenderer;
 import betterquesting.client.toolbox.tools.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
-import betterquesting.core.ParentAPI;
 import betterquesting.registry.ToolboxRegistry;
 import betterquesting.utils.QuestResourcesFile;
 import betterquesting.utils.QuestResourcesFolder;
@@ -33,6 +31,7 @@ public class ClientProxy extends CommonProxy
 	public void registerHandlers()
 	{
 		super.registerHandlers();
+		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());
 		BQ_Keybindings.RegisterKeys();
 		
@@ -53,16 +52,7 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
 		
 		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
-	}
-	
-	@Override
-	public void registerExpansions()
-	{
-		super.registerExpansions();
 		
-		for(IQuestingExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
-		{
-			exp.registerClient(ParentAPI.API);
-		}
+		ExpansionLoader.INSTANCE.initClientAPIs();
 	}
 }

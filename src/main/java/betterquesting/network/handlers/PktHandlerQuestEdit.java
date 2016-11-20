@@ -6,21 +6,21 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import com.google.gson.JsonObject;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.quests.QuestInstance;
+import com.google.gson.JsonObject;
 
 public class PktHandlerQuestEdit implements IPacketHandler
 {
@@ -79,7 +79,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		{
 			if(data.getBoolean("state"))
 			{
-				UUID senderID = ExpansionAPI.getAPI().getNameCache().getQuestingID(sender);
+				UUID senderID = QuestingAPI.getQuestingUUID(sender);
 				
 				quest.setComplete(senderID, 0);
 				

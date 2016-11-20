@@ -12,10 +12,10 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.party.IParty;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.party.PartyManager;
 
 public class GuiPartyInvite extends GuiScreenThemed
@@ -91,7 +91,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 			tags.setInteger("action", 4);
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 			tags.setString("Member", txtManual.getText());
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Button index
@@ -106,7 +106,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 					tags.setInteger("action", 4);
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 					tags.setString("Member", button.displayString);
-					PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}

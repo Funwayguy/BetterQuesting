@@ -16,7 +16,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -151,7 +151,7 @@ public class NBTConverter
 				{
 					if(tags.hasKey(key))
 					{
-						ExpansionAPI.getAPI().getLogger().log(Level.WARN, "JSON/NBT formatting conflict on key '" + key + "'. Skipping...");
+						QuestingAPI.getLogger().log(Level.WARN, "JSON/NBT formatting conflict on key '" + key + "'. Skipping...");
 						continue;
 					}
 				}
@@ -225,10 +225,10 @@ public class NBTConverter
 			}
 		} catch(Exception e)
 		{
-			ExpansionAPI.getAPI().getLogger().log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
+			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while parsing JsonElement to NBTBase (" + tagID + "):", e);
 		}
 		
-		ExpansionAPI.getAPI().getLogger().log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
+		QuestingAPI.getLogger().log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
 		return new NBTTagString();
 	}
 	

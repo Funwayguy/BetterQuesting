@@ -6,14 +6,14 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.database.IPartyDatabase;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.party.IParty;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -142,13 +142,13 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json = new JsonObject();
 		json.add("parties", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		return new PreparedPayload(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override

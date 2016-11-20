@@ -11,9 +11,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.client.themes.DummyTheme;
-import betterquesting.api.client.themes.IThemeBase;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.placeholders.ThemeDummy;
 
 /**
  * Functions similar to a standard Gui.class with some
@@ -26,14 +27,14 @@ public abstract class GuiElement
 	/**
 	 * Shortcut method for obtaining the current theme.
 	 */
-	public static IThemeBase currentTheme()
+	public static ITheme currentTheme()
 	{
-		if(ExpansionAPI.isReady())
+		if(QuestingAPI.getAPI(ApiReference.THEME_REG) != null)
 		{
-			return ExpansionAPI.getAPI().getThemeRegistry().getCurrentTheme();
+			return QuestingAPI.getAPI(ApiReference.THEME_REG).getCurrentTheme();
 		} else
 		{
-			return DummyTheme.INSTANCE;
+			return ThemeDummy.INSTANCE;
 		}
 	}
 	

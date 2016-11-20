@@ -8,14 +8,13 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.client.ITextCallback;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonJson;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonArray;
@@ -25,7 +24,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVolatileScreen
+public class GuiJsonArray extends GuiScreenThemed implements IVolatileScreen
 {
 	private int scrollPos = 0;
 	private final JsonArray settings;
@@ -105,7 +104,7 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 					continue;
 				} else
 				{
-					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(this, i);
+					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(new TextCallbackJsonArray(settings, i));
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -316,18 +315,4 @@ public class GuiJsonArray extends GuiScreenThemed implements ITextCallback, IVol
 			}
 		}
     }
-
-	@Override
-	public void setText(int id, String text)
-	{
-		ArrayList<JsonElement> list = settings == null? null : JsonHelper.GetUnderlyingArray(settings);
-		
-		if(list == null || id < 0 || id >= list.size())
-		{
-			return;
-		}
-		
-		list.set(id, new JsonPrimitive(text));
-		this.initGui(); // Refresh the listing
-	}
 }

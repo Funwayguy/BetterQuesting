@@ -1,18 +1,18 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLine;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolRemove implements IToolboxTool
@@ -52,7 +52,7 @@ public class ToolboxToolRemove implements IToolboxTool
 			base.add("line", line.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
-			PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 		}
 	}
 

@@ -3,16 +3,15 @@ package betterquesting.quests;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
-import betterquesting.api.database.INameCache;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.registry.INameCache;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -92,13 +91,13 @@ public final class NameCache implements INameCache
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject json = new JsonObject();
 		json.add("cache", this.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		return new PreparedPayload(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	
 	@Override
@@ -167,26 +166,5 @@ public final class NameCache implements INameCache
 	public void reset()
 	{
 		cache.clear();
-	}
-	
-	@Override
-	public UUID getQuestingID(EntityPlayer player)
-	{
-		if(player == null)
-		{
-			return null;
-		}
-		
-		if(player.worldObj.isRemote)
-		{
-			UUID uuid = this.getUUID(player.getGameProfile().getName());
-			
-			if(uuid != null)
-			{
-				return uuid;
-			}
-		}
-		
-		return player.getGameProfile().getId();
 	}
 }

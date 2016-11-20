@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.ExpansionAPI;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
@@ -70,7 +70,7 @@ public class QuestCommandLives extends QuestCommandBase
 			throw getException(command);
 		}
 		
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		if(action.equalsIgnoreCase("set"))
 		{
@@ -84,7 +84,7 @@ public class QuestCommandLives extends QuestCommandBase
 			{
 				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
 				{
-					LifeDatabase.INSTANCE.setLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(p), value);
+					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
 				}
 				
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_all", value));
@@ -110,8 +110,8 @@ public class QuestCommandLives extends QuestCommandBase
 			{
 				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
 				{
-					int lives = LifeDatabase.INSTANCE.getLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(p));
-					LifeDatabase.INSTANCE.setLives(ExpansionAPI.getAPI().getNameCache().getQuestingID(p), lives + value);
+					int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(p));
+					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
 				}
 				
 				if(value >= 0)

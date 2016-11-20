@@ -13,9 +13,9 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.party.IParty;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.lives.LifeDatabase;
 import betterquesting.party.PartyManager;
 import betterquesting.quests.QuestSettings;
@@ -33,7 +33,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     @SuppressWarnings("unchecked")
 	public void initGui()
     {
-    	UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(mc.thePlayer);
+    	UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
     	
     	IParty party = PartyManager.INSTANCE.getUserParty(playerID);
     	

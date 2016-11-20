@@ -1,7 +1,7 @@
 package betterquesting.api.events;
 
 import cpw.mods.fml.common.eventhandler.Event;
-import betterquesting.api.client.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.IJsonDoc;
 
 /**
  * Can be used to override the JsonDocs in the editors with custom ones.

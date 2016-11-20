@@ -12,25 +12,25 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.database.IRegStorageBase;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.party.IParty;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.IPropertyContainer;
-import betterquesting.api.quests.properties.NativeProps;
-import betterquesting.api.quests.rewards.IReward;
-import betterquesting.api.quests.tasks.IProgression;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.IProgression;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.registry.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.party.PartyManager;
 import betterquesting.utils.UserEntry;
 import com.google.gson.JsonArray;
@@ -109,7 +109,7 @@ public class QuestInstance implements IQuest
 	@Override
 	public void update(EntityPlayer player)
 	{
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		if(isComplete(playerID))
 		{
@@ -153,7 +153,7 @@ public class QuestInstance implements IQuest
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
@@ -216,7 +216,7 @@ public class QuestInstance implements IQuest
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
@@ -241,7 +241,7 @@ public class QuestInstance implements IQuest
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
@@ -261,7 +261,7 @@ public class QuestInstance implements IQuest
 	@Override
 	public void detect(EntityPlayer player)
 	{
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		if(isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
 		{
@@ -304,7 +304,7 @@ public class QuestInstance implements IQuest
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
@@ -327,7 +327,7 @@ public class QuestInstance implements IQuest
 					tags.setString("Sub", getUnlocalisedName());
 					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
 					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					PreparedPayload payload = new PreparedPayload(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
 					
 					if(qInfo.getProperty(NativeProps.GLOBAL))
 					{
@@ -383,9 +383,9 @@ public class QuestInstance implements IQuest
 	@Override
 	public boolean canClaim(EntityPlayer player)
 	{
-		UserEntry entry = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
+		UserEntry entry = GetUserEntry(QuestingAPI.getQuestingUUID(player));
 		
-		if(entry == null || hasClaimed(ExpansionAPI.getAPI().getNameCache().getQuestingID(player)))
+		if(entry == null || hasClaimed(QuestingAPI.getQuestingUUID(player)))
 		{
 			return false;
 		} else if(canSubmit(player))
@@ -413,7 +413,7 @@ public class QuestInstance implements IQuest
 			rew.claimReward(player, this);
 		}
 		
-		UserEntry entry = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
+		UserEntry entry = GetUserEntry(QuestingAPI.getQuestingUUID(player));
 		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -427,7 +427,7 @@ public class QuestInstance implements IQuest
 			return false;
 		}
 		
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		UserEntry entry = this.GetUserEntry(playerID);
 		
@@ -492,7 +492,7 @@ public class QuestInstance implements IQuest
 		
 		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()));
 		
-		UUID playerID = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		if(isComplete(playerID))
 		{
@@ -574,7 +574,7 @@ public class QuestInstance implements IQuest
 			return -1;
 		}
 		
-		UserEntry ue = GetUserEntry(ExpansionAPI.getAPI().getNameCache().getQuestingID(player));
+		UserEntry ue = GetUserEntry(QuestingAPI.getQuestingUUID(player));
 		
 		if(ue == null)
 		{
@@ -586,7 +586,7 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject base = new JsonObject();
@@ -595,7 +595,7 @@ public class QuestInstance implements IQuest
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(this));
 		
-		return new PreparedPayload(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
 	
 	@Override

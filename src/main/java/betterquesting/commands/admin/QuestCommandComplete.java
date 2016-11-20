@@ -8,10 +8,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.ExpansionAPI;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
-import betterquesting.api.quests.tasks.ITask;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
@@ -72,7 +72,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = ExpansionAPI.getAPI().getNameCache().getQuestingID(player);
+			uuid = QuestingAPI.getQuestingUUID(player);
 		}
 		
 		try

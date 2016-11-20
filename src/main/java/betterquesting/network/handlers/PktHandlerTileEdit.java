@@ -5,8 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.network.PacketTypeNative;
 
 public class PktHandlerTileEdit implements IPacketHandler
 {

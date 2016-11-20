@@ -3,7 +3,7 @@ package betterquesting.client.gui.editors.rewards;
 import net.minecraft.client.gui.GuiScreen;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.quests.rewards.IReward;
+import betterquesting.api.questing.rewards.IReward;
 import betterquesting.client.gui.editors.json.GuiJsonObject;
 import com.google.gson.JsonObject;
 

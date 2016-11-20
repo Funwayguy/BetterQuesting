@@ -13,9 +13,9 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import betterquesting.api.utils.placeholders.EntityPlaceholder;
-import betterquesting.api.utils.placeholders.FluidPlaceholder;
-import betterquesting.api.utils.placeholders.ItemPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.blocks.BlockSubmitStation;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
@@ -78,9 +78,9 @@ public class BetterQuesting
     	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
     	ConfigHandler.initConfigs();
     	
-    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
-    	
     	proxy.registerHandlers();
+    	
+    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
     	
     	if(PacketTypeRegistry.INSTANCE == null)
     	{

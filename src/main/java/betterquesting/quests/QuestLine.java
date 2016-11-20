@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.IQuestLineEntry;
-import betterquesting.api.quests.properties.IPropertyContainer;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.database.QuestLineDatabase;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -163,7 +163,7 @@ public class QuestLine implements IQuestLine
 	}
 	
 	@Override
-	public PreparedPayload getSyncPacket()
+	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		JsonObject base = new JsonObject();
@@ -171,7 +171,7 @@ public class QuestLine implements IQuestLine
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(this));
 		
-		return new PreparedPayload(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
+		return new QuestingPacket(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
 	}
 	
 	@Override

@@ -1,19 +1,19 @@
 package betterquesting.client.toolbox.tools;
 
+import java.awt.Color;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.quest.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolLink extends GuiElement implements IToolboxTool
@@ -42,7 +42,7 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 			return;
 		}
 		
-		RenderUtils.DrawLine(b1.xPosition + b1.width/2, b1.yPosition + b1.height/2, mx, my, 4F, currentTheme().getQuestLineColor(b1.getQuest(), EnumQuestState.COMPLETED));
+		RenderUtils.DrawLine(b1.xPosition + b1.width/2, b1.yPosition + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
 	}
 	
 	@Override
@@ -101,8 +101,8 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag2.setInteger("questID", QuestDatabase.INSTANCE.getKey(b2.getQuest()));
 				
-				PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
-				PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
 				
 				b1 = null;
 			}

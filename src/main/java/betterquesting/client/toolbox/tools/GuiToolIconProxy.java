@@ -6,16 +6,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuest;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 
 public class GuiToolIconProxy extends GuiScreenThemed
@@ -63,6 +63,6 @@ public class GuiToolIconProxy extends GuiScreenThemed
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 		
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 }

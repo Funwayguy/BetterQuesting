@@ -10,24 +10,24 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api.client.ITextCallback;
 import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.PacketTypeNative;
-import betterquesting.api.network.PreparedPayload;
-import betterquesting.api.quests.IQuestLine;
-import betterquesting.api.quests.properties.NativeProps;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.other.ITextCallback;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -61,7 +61,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		lineTitle = new GuiTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
 		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
 		
-		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this, 0);
+		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
 		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new"), true));
@@ -119,7 +119,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", 1);
 		tags.setInteger("questID", id);
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
 	public void SendChanges(EnumPacketAction action, IQuestLine questLine)
@@ -148,7 +148,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
 		tags.setInteger("action", action.ordinal());
 		
-		PacketSender.INSTANCE.sendToServer(new PreparedPayload(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
 	
 	@Override
@@ -336,20 +336,17 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	}
 
 	@Override
-	public void setText(int id, String text)
+	public void setText(String text)
 	{
-		if(id == 0)
+		if(lineDesc != null)
 		{
-			if(lineDesc != null)
-			{
-				lineDesc.setText(text);
-			}
-			
-			if(selected != null)
-			{
-				selected.getProperties().setProperty(NativeProps.DESC, text);
-				SendChanges(EnumPacketAction.EDIT, selected);
-			}
+			lineDesc.setText(text);
+		}
+		
+		if(selected != null)
+		{
+			selected.getProperties().setProperty(NativeProps.DESC, text);
+			SendChanges(EnumPacketAction.EDIT, selected);
 		}
 	}
 }

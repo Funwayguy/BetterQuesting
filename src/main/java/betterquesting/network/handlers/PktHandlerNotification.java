@@ -5,8 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.network.PacketTypeNative;
 import betterquesting.client.QuestNotification;
+import betterquesting.network.PacketTypeNative;
 
 public class PktHandlerNotification implements IPacketHandler
 {
