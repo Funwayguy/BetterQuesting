@@ -32,6 +32,12 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	}
 	
 	@Override
+	public IQuestLine createNew()
+	{
+		return new QuestLine();
+	}
+	
+	@Override
 	public void removeQuest(int questID)
 	{
 		for(IQuestLine ql : getAllValues())

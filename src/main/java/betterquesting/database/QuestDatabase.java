@@ -29,6 +29,12 @@ public final class QuestDatabase implements IQuestDatabase
 	}
 	
 	@Override
+	public IQuest createNew()
+	{
+		return new QuestInstance();
+	}
+	
+	@Override
 	public Integer nextKey()
 	{
 		int id = 0;
@@ -70,9 +76,7 @@ public final class QuestDatabase implements IQuestDatabase
 	@Override
 	public boolean removeValue(IQuest quest)
 	{
-		int id = getKey(quest);
-		
-		return removeKey(id);
+		return removeKey(getKey(quest));
 	}
 	
 	@Override

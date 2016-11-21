@@ -19,10 +19,18 @@ public enum PacketTypeNative
 	EDIT_STATION,
 	NAME_CACHE,
 	NOTIFICATION,
-	SETTINGS;
+	SETTINGS,
+	IMPORT;
+	
+	private final ResourceLocation ID;
+	
+	private PacketTypeNative()
+	{
+		this.ID = new ResourceLocation("betterquesting:" + this.toString().toLowerCase());
+	}
 	
 	public ResourceLocation GetLocation()
 	{
-		return new ResourceLocation("betterquesting:" + this.toString().toLowerCase());
+		return ID;
 	}
 }

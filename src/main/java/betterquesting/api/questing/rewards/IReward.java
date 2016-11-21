@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.other.IJsonSaveLoad;
 import betterquesting.api.questing.IQuest;
 import com.google.gson.JsonObject;
@@ -18,6 +19,8 @@ public interface IReward extends IJsonSaveLoad<JsonObject>
 	
 	public boolean canClaim(EntityPlayer player, IQuest quest);
 	public void claimReward(EntityPlayer player, IQuest quest);
+	
+	public IJsonDoc getDocumentation();
 	
 	@SideOnly(Side.CLIENT)
 	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuest quest);

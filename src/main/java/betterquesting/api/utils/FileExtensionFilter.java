@@ -3,11 +3,11 @@ package betterquesting.api.utils;
 import java.io.File;
 import java.io.FileFilter;
 
-public class FileExtentionFilter implements FileFilter
+public class FileExtensionFilter implements FileFilter
 {
 	public final String ext;
 	
-	public FileExtentionFilter(String extension)
+	public FileExtensionFilter(String extension)
 	{
 		ext = extension.startsWith(".")? extension : "." + extension;
 	}

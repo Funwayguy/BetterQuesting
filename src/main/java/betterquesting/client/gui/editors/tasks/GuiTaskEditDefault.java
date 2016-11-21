@@ -29,7 +29,7 @@ public class GuiTaskEditDefault extends GuiScreenThemed
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json, null));
+			this.mc.displayGuiScreen(new GuiJsonObject(this, json, task.getDocumentation()));
 		} else
 		{
 			this.task.readFromJson(json, EnumSaveType.CONFIG);

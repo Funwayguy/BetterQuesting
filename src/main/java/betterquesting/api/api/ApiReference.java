@@ -2,7 +2,7 @@ package betterquesting.api.api;
 
 import betterquesting.api.client.gui.IGuiHelper;
 import betterquesting.api.client.themes.IThemeRegistry;
-import betterquesting.api.io.IQuestIORegistry;
+import betterquesting.api.importer.IImportRegistry;
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.api.network.IPacketSender;
 import betterquesting.api.questing.IQuestDatabase;
@@ -40,5 +40,5 @@ public class ApiReference
 	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IToolRegistry> TOOL_REG = new ApiKey<IToolRegistry>();
 	@SideOnly(Side.CLIENT)
-	public static final ApiKey<IQuestIORegistry> IO_REG = new ApiKey<IQuestIORegistry>();
+	public static final ApiKey<IImportRegistry> IMPORT_REG = new ApiKey<IImportRegistry>();
 }

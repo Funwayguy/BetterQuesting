@@ -80,6 +80,6 @@ public class ExpansionLoader
 		QuestingAPI.registerAPI(ApiReference.THEME_REG, ThemeRegistry.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.GUI_HELPER, GuiBuilder.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.TOOL_REG, ToolboxRegistry.INSTANCE);
-		QuestingAPI.registerAPI(ApiReference.IO_REG, ImporterRegistry.INSTANCE);
+		QuestingAPI.registerAPI(ApiReference.IMPORT_REG, ImporterRegistry.INSTANCE);
 	}
 }

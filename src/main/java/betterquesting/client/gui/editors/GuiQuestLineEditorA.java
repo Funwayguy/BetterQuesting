@@ -25,7 +25,6 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.database.QuestLineDatabase;
-import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
@@ -66,7 +65,6 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 		 
 		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new"), true));
 		GuiButtonThemed btnImport = new GuiButtonThemed(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.import"), true);
-		btnImport.enabled = ImporterRegistry.INSTANCE.getImporters().size() > 0 && mc.isIntegratedServerRunning();
 		this.buttonList.add(btnImport);
 		this.buttonList.add(new GuiButtonThemed(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests"), true));
 		btnDesign = new GuiButtonThemed(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer"), true);

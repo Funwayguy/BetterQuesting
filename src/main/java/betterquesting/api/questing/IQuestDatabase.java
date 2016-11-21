@@ -7,4 +7,5 @@ import com.google.gson.JsonArray;
 
 public interface IQuestDatabase extends IRegStorageBase<Integer,IQuest>, IJsonSaveLoad<JsonArray>, IDataSync
 {
+	public IQuest createNew();
 }

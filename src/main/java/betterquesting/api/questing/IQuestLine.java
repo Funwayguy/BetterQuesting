@@ -14,4 +14,6 @@ public interface IQuestLine extends IDataSync, IJsonSaveLoad<JsonObject>, IRegSt
 	public IPropertyContainer getProperties();
 	
 	public int getQuestAt(int x, int y);
+	
+	public IQuestLineEntry createNewEntry();
 }

@@ -60,6 +60,12 @@ public class QuestLine implements IQuestLine
 	}
 	
 	@Override
+	public IQuestLineEntry createNewEntry()
+	{
+		return new QuestLineEntry(0, 0, 24);
+	}
+	
+	@Override
 	public IPropertyContainer getProperties()
 	{
 		return info;

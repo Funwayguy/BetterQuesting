@@ -11,4 +11,6 @@ public interface IQuestLineDatabase extends IRegStorageBase<Integer,IQuestLine>,
 	 * Deletes quest from all quest lines
 	 */
 	public void removeQuest(int questID);
+	
+	public IQuestLine createNew();
 }

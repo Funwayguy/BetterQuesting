@@ -29,7 +29,7 @@ public class GuiRewardEditDefault extends GuiScreenThemed
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json, null));
+			this.mc.displayGuiScreen(new GuiJsonObject(this, json, reward.getDocumentation()));
 		} else
 		{
 			this.reward.readFromJson(json, EnumSaveType.CONFIG);

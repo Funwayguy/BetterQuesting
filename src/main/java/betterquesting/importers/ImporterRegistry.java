@@ -2,22 +2,21 @@ package betterquesting.importers;
 
 import java.util.ArrayList;
 import java.util.List;
-import betterquesting.api.io.IQuestIO;
-import betterquesting.api.io.IQuestIORegistry;
+import betterquesting.api.importer.IImporter;
+import betterquesting.api.importer.IImportRegistry;
 
-public final class ImporterRegistry implements IQuestIORegistry
+public final class ImporterRegistry implements IImportRegistry
 {
 	public static final ImporterRegistry INSTANCE = new ImporterRegistry();
 	
-	private ArrayList<IQuestIO> importers = new ArrayList<IQuestIO>();
-	private ArrayList<IQuestIO> exporters = new ArrayList<IQuestIO>();
+	private ArrayList<IImporter> importers = new ArrayList<IImporter>();
 	
 	private ImporterRegistry()
 	{
 	}
 	
 	@Override
-	public void registerImporter(IQuestIO imp)
+	public void registerImporter(IImporter imp)
 	{
 		if(imp == null)
 		{
@@ -33,30 +32,8 @@ public final class ImporterRegistry implements IQuestIORegistry
 	}
 	
 	@Override
-	public List<IQuestIO> getImporters()
+	public List<IImporter> getImporters()
 	{
 		return importers;
-	}
-	
-	@Override
-	public void registerExporter(IQuestIO exp)
-	{
-		if(exp == null)
-		{
-			throw new NullPointerException("Tried to register null quest exporter");
-		}
-		
-		if(importers.contains(exp))
-		{
-			throw new IllegalArgumentException("Unable to register duplicate quest exporter");
-		}
-		
-		exporters.add(exp);
-	}
-	
-	@Override
-	public List<IQuestIO> getExporters()
-	{
-		return exporters;
 	}
 }
