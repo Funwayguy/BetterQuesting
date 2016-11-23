@@ -1,6 +1,6 @@
 package betterquesting.api.api;
 
-import betterquesting.api.client.gui.IGuiHelper;
+import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.client.themes.IThemeRegistry;
 import betterquesting.api.importer.IImportRegistry;
 import betterquesting.api.network.IPacketRegistry;
@@ -14,8 +14,6 @@ import betterquesting.api.registry.ILifeDatabase;
 import betterquesting.api.registry.INameCache;
 import betterquesting.api.registry.IQuestSettings;
 import betterquesting.api.toolbox.IToolRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class ApiReference
 {
@@ -33,12 +31,8 @@ public class ApiReference
 	public static final ApiKey<IQuestSettings> SETTINGS = new ApiKey<IQuestSettings>();
 	public static final ApiKey<INameCache> NAME_CACHE = new ApiKey<INameCache>();
 	
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IThemeRegistry> THEME_REG = new ApiKey<IThemeRegistry>();
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IGuiHelper> GUI_HELPER = new ApiKey<IGuiHelper>();
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IToolRegistry> TOOL_REG = new ApiKey<IToolRegistry>();
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IImportRegistry> IMPORT_REG = new ApiKey<IImportRegistry>();
 }

@@ -9,11 +9,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -35,12 +35,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	int lineID = -1;
-	IQuestLine line;
-	int leftScroll = 0;
-	int rightScroll = 0;
-	int maxRowsL = 0;
-	int maxRowsR = 0;
+	private int lineID = -1;
+	private IQuestLine line;
+	
 	GuiBigTextField searchBox;
 	List<Integer> searchResults = new ArrayList<Integer>();
 	List<Integer> lineQuests = new ArrayList<Integer>();
@@ -61,8 +58,6 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	{
 		super.initGui();
 		
-		maxRowsL = (sizeY - 96)/20;
-		maxRowsR = (sizeY - 116)/20;
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
@@ -142,12 +137,12 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			} else if(column == 1 && line != null) // Remove quest
 			{
 				line.removeKey(id);
-				RefreshColumns();
+				//RefreshColumns();
 				SendChanges(EnumPacketAction.EDIT, lineID);
 			} else if(column == 4 && id >= 0) // Delete quest
 			{
 				NBTTagCompound tags = new NBTTagCompound();
-				tags.setInteger("action", 1); // Delete quest
+				tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
 				tags.setInteger("questID", id);
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 			} else if(column == 2 && line != null && id >= 0) // Add quest

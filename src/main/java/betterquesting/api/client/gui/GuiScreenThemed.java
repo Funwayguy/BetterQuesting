@@ -16,6 +16,8 @@ import scala.actors.threadpool.Arrays;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.placeholders.ThemeDummy;
 

@@ -1,7 +1,7 @@
 package betterquesting.client.toolbox.tools;
 
-import betterquesting.api.client.gui.IGuiEmbedded;
-import betterquesting.api.client.gui.IGuiQuestLine;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.toolbox.IToolboxTab;
 import betterquesting.api.toolbox.IToolboxTool;
 

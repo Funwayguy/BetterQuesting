@@ -9,17 +9,17 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
-import betterquesting.api.other.ITextCallback;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.other.ICallback;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 {
-	private ITextCallback host;
+	private ICallback<String> host;
 	private String text = "";
 	private int listScroll = 0;
 	private int maxRows = 0;
@@ -34,7 +34,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
     	this.text = text;
     }
     
-    public GuiTextEditor setHost(ITextCallback host)
+    public GuiTextEditor setHost(ICallback<String> host)
     {
     	this.host = host;
     	return this;
@@ -93,7 +93,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
         
         if(host != null)
         {
-        	host.setText(text);
+        	host.setValue(text);
         }
     }
 

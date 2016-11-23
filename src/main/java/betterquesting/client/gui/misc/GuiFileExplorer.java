@@ -11,14 +11,14 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.other.IFileCallback;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.other.IMultiCallback;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 {
-	IFileCallback callback;
+	IMultiCallback<File> callback;
 	File directory;
 	File[] contents;
 	FileFilter filter;
@@ -31,7 +31,7 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 	
 	ArrayList<File> selected = new ArrayList<File>();
 	
-	public GuiFileExplorer(GuiScreen parent, IFileCallback callback, File directory, FileFilter filter)
+	public GuiFileExplorer(GuiScreen parent, IMultiCallback<File> callback, File directory, FileFilter filter)
 	{
 		super(parent, directory.getAbsolutePath());
 		this.callback = callback;
@@ -146,7 +146,7 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 		{
 			if(callback != null)
 	    	{
-	    		callback.setFiles(selected.toArray(new File[0]));
+	    		callback.setValues(selected.toArray(new File[0]));
 	    	}
 		} else if(button.id == 1)
 		{

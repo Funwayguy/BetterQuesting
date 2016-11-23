@@ -2,8 +2,8 @@ package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;

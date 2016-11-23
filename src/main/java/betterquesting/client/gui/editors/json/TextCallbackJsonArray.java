@@ -1,13 +1,13 @@
 package betterquesting.client.gui.editors.json;
 
 import java.util.ArrayList;
+import betterquesting.api.other.ICallback;
+import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import betterquesting.api.other.ITextCallback;
-import betterquesting.api.utils.JsonHelper;
 
-public class TextCallbackJsonArray implements ITextCallback
+public class TextCallbackJsonArray implements ICallback<String>
 {
 	private final JsonArray json;
 	private final int index;
@@ -19,7 +19,7 @@ public class TextCallbackJsonArray implements ITextCallback
 	}
 	
 	@Override
-	public void setText(String text)
+	public void setValue(String text)
 	{
 		ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json);
 		

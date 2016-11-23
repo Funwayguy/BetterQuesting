@@ -11,15 +11,15 @@ import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.other.ITextCallback;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
@@ -32,7 +32,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallback, IVolatileScreen, INeedsRefresh
+public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
 	private List<Integer> questList = new ArrayList<Integer>();
 	private GuiButtonThemed btnDesign;
@@ -334,7 +334,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ITextCallbac
 	}
 
 	@Override
-	public void setText(String text)
+	public void setValue(String text)
 	{
 		if(lineDesc != null)
 		{

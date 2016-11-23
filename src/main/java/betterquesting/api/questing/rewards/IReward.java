@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.other.IJsonSaveLoad;
 import betterquesting.api.questing.IQuest;

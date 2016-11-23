@@ -18,7 +18,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.INeedsRefresh;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.placeholders.FluidPlaceholder;

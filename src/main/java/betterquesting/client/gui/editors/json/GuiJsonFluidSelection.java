@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
@@ -16,37 +15,39 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.core.BetterQuesting;
-import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileScreen
+public class GuiJsonFluidSelection extends GuiScreenThemed
 {
-	FluidStack stackSelect;
-	JsonObject json;
-	GuiBigTextField searchBox;
-	GuiNumberField numberBox;
-	ArrayList<FluidStack> searchResults = new ArrayList<FluidStack>();
-	int searchPage = 0;
-	int rows = 1;
-	int columns = 1;
+	private FluidStack stackSelect;
+	private ICallback<FluidStack> callback;
 	
-	public GuiJsonFluidSelection(GuiScreen parent, JsonObject json)
+	private GuiBigTextField searchBox;
+	private GuiNumberField numberBox;
+	private ArrayList<FluidStack> searchResults = new ArrayList<FluidStack>();
+	private int searchPage = 0;
+	private int rows = 1;
+	private int columns = 1;
+	
+	public GuiJsonFluidSelection(GuiScreen parent, ICallback<FluidStack> callback, FluidStack stack)
 	{
 		super(parent, "betterquesting.title.select_fluid");
-		this.json = json;
+		this.stackSelect = stack;
+		this.callback = callback;
+		
+		if(stackSelect == null)
+		{
+			stackSelect = new FluidStack(FluidRegistry.WATER, 1000);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -64,28 +65,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 		
 		searchResults.clear();
 		searching = FluidRegistry.getRegisteredFluids().values().iterator();
-		
-		if(json != null)
-		{
-			stackSelect = JsonHelper.JsonToFluidStack(json);
-		} else if(stackSelect != null)
-		{
-			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
-		}
-		
-		if(stackSelect == null)
-		{
-			BetterQuesting.logger.log(Level.ERROR, "The JSON editor was unable to parse fluid NBTs! Reverting to water...");
-			stackSelect = new FluidStack(FluidRegistry.WATER, 1000);
-		} else // Ensure all necessary NBTs are present
-		{
-			json.entrySet().clear();
-			JsonHelper.FluidStackToJson(stackSelect, json);
-			numberBox.setText("" + stackSelect.amount);
-		}
-		
-		NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
 		
 		columns = (sizeX/2 - 32)/18;
 		rows = (sizeY - (48 + 48))/18;
@@ -254,7 +233,10 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1 && searchPage > 0)
+		if(button.id == 0 && callback != null)
+		{
+			callback.setValue(stackSelect);
+		} else if(button.id == 1 && searchPage > 0)
 		{
 			searchPage--;
 		} else if(button.id == 2)
@@ -295,8 +277,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 				if(invoStack != null && FluidContainerRegistry.isFilledContainer(invoStack))
 				{
 					this.stackSelect = FluidContainerRegistry.getFluidForFilledItem(invoStack).copy();
-					this.json.entrySet().clear();
-					NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 					numberBox.setText("" + stackSelect.amount);
 				}
 			}
@@ -314,8 +294,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 				if(searchFluid != null)
 				{
 					this.stackSelect = searchFluid.copy();
-					this.json.entrySet().clear();
-					NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 					numberBox.setText("" + stackSelect.amount);
 				}
 			}
@@ -324,8 +302,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed implements IVolatileS
 			int i = Math.max(1, numberBox.getNumber().intValue());
 			numberBox.setText("" + i);
 			stackSelect.amount = i;
-			json.entrySet().clear();
-			json = NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
 		}
 	}
 	

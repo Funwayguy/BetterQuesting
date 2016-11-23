@@ -12,43 +12,44 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.core.BetterQuesting;
-import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileScreen
+public class GuiJsonItemSelection extends GuiScreenThemed
 {
-	BigItemStack stackSelect;
-	JsonObject json;
-	GuiBigTextField searchBox;
-	GuiNumberField numberBox;
-	ArrayList<ItemStack> searchResults = new ArrayList<ItemStack>();
-	int searchPage = 0;
-	int rows = 1;
-	int columns = 1;
-	int oreDictIdx = 0;
+	private BigItemStack stackSelect;
+	private ICallback<BigItemStack> callback;
 	
-	public GuiJsonItemSelection(GuiScreen parent, JsonObject json)
+	private GuiBigTextField searchBox;
+	private GuiNumberField numberBox;
+	private ArrayList<ItemStack> searchResults = new ArrayList<ItemStack>();
+	private int searchPage = 0;
+	private int rows = 1;
+	private int columns = 1;
+	private int oreDictIdx = 0;
+	
+	public GuiJsonItemSelection(GuiScreen parent, ICallback<BigItemStack> callback, BigItemStack stack)
 	{
 		super(parent, "betterquesting.title.select_item");
-		this.json = json;
+		this.stackSelect = stack;
+		this.callback = callback;
+		
+		if(stackSelect == null)
+		{
+			stackSelect = new BigItemStack(Blocks.stone);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -66,28 +67,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 		
 		searchResults.clear();
 		searching = Item.itemRegistry.iterator();
-		
-		if(json != null)
-		{
-			stackSelect = JsonHelper.JsonToItemStack(json);
-		} else if(stackSelect != null)
-		{
-			json.entrySet().clear();
-			JsonHelper.ItemStackToJson(stackSelect, json);
-		}
-		
-		if(stackSelect == null)
-		{
-			BetterQuesting.logger.log(Level.ERROR, "The JSON editor was unable to parse item NBTs! Reverting to stone...");
-			stackSelect = new BigItemStack(Blocks.stone);
-			json.entrySet().clear();
-			JsonHelper.ItemStackToJson(stackSelect, json);
-		} else // Ensure all necessary NBTs are present
-		{
-			json.entrySet().clear();
-			JsonHelper.ItemStackToJson(stackSelect, json);
-			numberBox.setText("" + stackSelect.stackSize);
-		}
 		
 		columns = (sizeX/2 - 32)/18;
 		rows = (sizeY - (48 + 48))/18;
@@ -233,7 +212,10 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1 && searchPage > 0)
+		if(button.id == 0 && callback != null)
+		{
+			callback.setValue(stackSelect);
+		} else if(button.id == 1 && searchPage > 0)
 		{
 			searchPage--;
 		} else if(button.id == 2)
@@ -261,9 +243,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 					stackSelect.oreDict = OreDictionary.getOreName(oreId[oreDictIdx]);
 					button.displayString = "OreDict: " + stackSelect.oreDict;
 				}
-				
-				this.json.entrySet().clear();
-				this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 			}
 		}
 	}
@@ -301,9 +280,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 					
 					oreDictIdx = -1;
 					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
-					
-					this.json.entrySet().clear();
-					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}
 			}
 		} else if(this.isWithin(mx, my, this.sizeX/2 + 8, 48, columns * 18, rows * 18))
@@ -324,9 +300,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 					
 					oreDictIdx = -1;
 					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
-					
-					this.json.entrySet().clear();
-					this.json = NBTConverter.NBTtoJSON_Compound(this.stackSelect.writeToNBT(new NBTTagCompound()), this.json);
 				}
 			}
 		} else if(!numberBox.isFocused() && stackSelect != null && stackSelect.stackSize != numberBox.getNumber().intValue())
@@ -334,8 +307,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed implements IVolatileSc
 			int i = Math.max(1, numberBox.getNumber().intValue());
 			numberBox.setText("" + i);
 			stackSelect.stackSize = i;
-			json.entrySet().clear();
-			json = NBTConverter.NBTtoJSON_Compound(stackSelect.writeToNBT(new NBTTagCompound()), json);
 		}
 	}
 	

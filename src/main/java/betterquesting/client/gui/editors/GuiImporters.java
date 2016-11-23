@@ -1,21 +1,19 @@
 package betterquesting.client.gui.editors;
 
 import java.io.File;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IGuiEmbedded;
 import betterquesting.api.client.gui.controls.GuiButtonStorage;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.importer.IImporter;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.other.IFileCallback;
+import betterquesting.api.other.IMultiCallback;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.utils.NBTConverter;
@@ -26,8 +24,10 @@ import betterquesting.importers.ImportedQuests;
 import betterquesting.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-public class GuiImporters extends GuiScreenThemed implements IFileCallback
+public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File>
 {
 	private GuiScrollingButtons btnList;
 	private IGuiEmbedded impGui = null;
@@ -109,7 +109,7 @@ public class GuiImporters extends GuiScreenThemed implements IFileCallback
 	}
 
 	@Override
-	public void setFiles(File... files)
+	public void setValues(File... files)
 	{
 		if(selected != null)
 		{

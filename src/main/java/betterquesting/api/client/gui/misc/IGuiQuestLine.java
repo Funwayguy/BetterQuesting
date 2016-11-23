@@ -1,6 +1,7 @@
-package betterquesting.api.client.gui;
+package betterquesting.api.client.gui.misc;
 
 import net.minecraft.util.ResourceLocation;
+import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.toolbox.IToolboxTool;
 
 public interface IGuiQuestLine extends IGuiEmbedded

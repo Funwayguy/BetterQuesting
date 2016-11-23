@@ -1,9 +1,9 @@
 package betterquesting.client.gui.editors.json;
 
-import betterquesting.api.other.ITextCallback;
+import betterquesting.api.other.ICallback;
 import com.google.gson.JsonObject;
 
-public class TextCallbackJsonObject implements ITextCallback
+public class TextCallbackJsonObject implements ICallback<String>
 {
 	private final JsonObject json;
 	private final String key;
@@ -15,7 +15,7 @@ public class TextCallbackJsonObject implements ITextCallback
 	}
 	
 	@Override
-	public void setText(String text)
+	public void setValue(String text)
 	{
 		this.json.addProperty(key, text);
 	}

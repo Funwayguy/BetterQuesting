@@ -7,12 +7,12 @@ import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Mouse;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.other.ITextCallback;
+import betterquesting.api.other.ICallback;
 
 public class GuiBigTextField extends GuiTextField
 {
 	private GuiButtonThemed bigEdit;
-	private ITextCallback host;
+	private ICallback<String> host;
 	private FontRenderer fontrenderer;
 	private String watermark = "";
 	private Color wmColor = new Color(96, 96, 96);
@@ -23,7 +23,7 @@ public class GuiBigTextField extends GuiTextField
 		this.fontrenderer = fontrenderer;
 	}
 	
-	public GuiBigTextField enableBigEdit(ITextCallback host)
+	public GuiBigTextField enableBigEdit(ICallback<String> host)
 	{
 		bigEdit = new GuiButtonThemed(0, this.xPosition + width - 19, this.yPosition - 1, 20, height + 2, "Aa", true);
 		this.host = host;

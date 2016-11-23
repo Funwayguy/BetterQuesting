@@ -7,10 +7,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.INeedsRefresh;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumQuestVisibility;
@@ -18,7 +18,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.JsonDocEvent;
 import betterquesting.api.jdoc.JsonDocBasic;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.other.ITextCallback;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.NBTConverter;
@@ -31,7 +31,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestEditor extends GuiScreenThemed implements ITextCallback, IVolatileScreen, INeedsRefresh
+public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
 	private JsonObject lastEdit;
 	private int id = -1;
@@ -232,7 +232,7 @@ public class GuiQuestEditor extends GuiScreenThemed implements ITextCallback, IV
 	}
 
 	@Override
-	public void setText(String text)
+	public void setValue(String text)
 	{
 		if(descField != null)
 		{

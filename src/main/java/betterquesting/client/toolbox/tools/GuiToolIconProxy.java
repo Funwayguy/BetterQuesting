@@ -7,10 +7,10 @@ import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.database.QuestDatabase;
@@ -18,20 +18,15 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonObject;
 
-public class GuiToolIconProxy extends GuiScreenThemed
+public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigItemStack>
 {
 	private final IQuest quest;
-	private BigItemStack stack;
-	private final JsonObject jIcon;
 	boolean flag = false;
 	
 	public GuiToolIconProxy(GuiScreen parent, IQuest quest)
 	{
 		super(parent, "");
 		this.quest = quest;
-		stack = quest.getProperties().getProperty(NativeProps.ICON);
-		stack = stack != null? stack : new BigItemStack(Items.nether_star);
-		jIcon = JsonHelper.ItemStackToJson(stack, new JsonObject());
 	}
 	
 	@Override
@@ -39,16 +34,12 @@ public class GuiToolIconProxy extends GuiScreenThemed
 	{
 		if(flag)
 		{
-			stack = JsonHelper.JsonToItemStack(jIcon);
-			stack = stack != null? stack : new BigItemStack(Items.nether_star);
-			quest.getProperties().setProperty(NativeProps.ICON, stack);
-			SendChanges();
 			this.mc.displayGuiScreen(parent);
 			return;
 		} else
 		{
 			flag = true;
-			mc.displayGuiScreen(new GuiJsonItemSelection(this, jIcon));
+			mc.displayGuiScreen(new GuiJsonItemSelection(this, this, quest.getItemIcon()));
 		}
 	}
 	
@@ -64,5 +55,13 @@ public class GuiToolIconProxy extends GuiScreenThemed
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 		
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+	}
+
+	@Override
+	public void setValue(BigItemStack value)
+	{
+		BigItemStack stack = value != null? value : new BigItemStack(Items.nether_star);
+		quest.getProperties().setProperty(NativeProps.ICON, stack);
+		SendChanges();
 	}
 }

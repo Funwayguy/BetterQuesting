@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.utils.RenderUtils;
 
 @SideOnly(Side.CLIENT)

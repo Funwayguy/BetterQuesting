@@ -14,26 +14,31 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.IVolatileScreen;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.other.ICallback;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
-import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatileScreen
+public class GuiJsonEntitySelection extends GuiScreenThemed
 {
-	JsonObject json;
-	Entity entity;
-	int scrollPos = 0;
+	private Entity entity;
+	private ICallback<Entity> callback;
 	
-	public GuiJsonEntitySelection(GuiScreen parent, JsonObject json)
+	private int scrollPos = 0;
+	
+	public GuiJsonEntitySelection(GuiScreen parent, ICallback<Entity> callback, Entity entity)
 	{
 		super(parent, "betterquesting.title.select_entity");
-		this.json = json;
+		this.entity = entity;
+		this.callback = callback;
+		
+		if(this.entity == null)
+		{
+			this.entity = new EntityPig(Minecraft.getMinecraft().theWorld);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -41,15 +46,6 @@ public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatile
 	public void initGui()
 	{
 		super.initGui();
-		
-		entity = JsonHelper.JsonToEntity(json, this.mc.theWorld, false);
-		
-		if(entity == null)
-		{
-			entity = new EntityPig(Minecraft.getMinecraft().theWorld);
-			this.json.entrySet().clear();
-			JsonHelper.EntityToJson(entity, json);
-		}
 		
 		scrollPos = 0;
 		
@@ -108,7 +104,10 @@ public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatile
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1)
+		if(button.id == 0 && callback != null)
+		{
+			callback.setValue(entity);
+		} else if(button.id == 1)
 		{
 			if(scrollPos > 0)
 			{
@@ -135,7 +134,6 @@ public class GuiJsonEntitySelection extends GuiScreenThemed implements IVolatile
 				{
 					tmpE.readFromNBT(new NBTTagCompound()); // Solves some instantiation issues
 					tmpE.isDead = false; // Some entities instantiate dead or die when ticked
-					JsonHelper.EntityToJson(tmpE, json);
 					entity = tmpE;
 				} catch(Exception e)
 				{

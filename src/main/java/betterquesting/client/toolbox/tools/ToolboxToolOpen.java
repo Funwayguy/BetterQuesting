@@ -1,8 +1,8 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.client.Minecraft;
-import betterquesting.api.client.gui.IGuiQuestLine;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.client.gui.GuiQuestInstance;
 

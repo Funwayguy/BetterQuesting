@@ -19,6 +19,8 @@ public class CommonProxy
 	
 	public void registerHandlers()
 	{
+		ExpansionLoader.INSTANCE.initCommonAPIs();
+		
 		EventHandler handler = new EventHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
@@ -27,8 +29,6 @@ public class CommonProxy
 		FMLCommonHandler.instance().bus().register(new UpdateNotification());
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
-		
-		ExpansionLoader.INSTANCE.initCommonAPIs();
 	}
 	
 	public void registerExpansions()

@@ -32,6 +32,8 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
+		ExpansionLoader.INSTANCE.initClientAPIs();
+		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());
 		BQ_Keybindings.RegisterKeys();
 		
@@ -52,7 +54,5 @@ public class ClientProxy extends CommonProxy
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
 		
 		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
-		
-		ExpansionLoader.INSTANCE.initClientAPIs();
 	}
 }
