@@ -11,6 +11,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
+import betterquesting.core.BetterQuesting;
 import betterquesting.database.QuestDatabase;
 import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
@@ -56,6 +57,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			JsonObject base = new JsonObject();
 			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			base.addProperty("format", BetterQuesting.FORMAT);
 			JsonHelper.WriteToFile(new File(MinecraftServer.getServer().getFile("config/betterquesting/"), "DefaultQuests.json"), base);
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.default.save"));
 		} else if(args[1].equalsIgnoreCase("load"))

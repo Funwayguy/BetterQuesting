@@ -13,6 +13,7 @@ import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -52,7 +53,25 @@ public class QuestInstance implements IQuest
 	
 	public QuestInstance()
 	{
+		qInfo.setProperty(NativeProps.NAME, "New Quest");
+		qInfo.setProperty(NativeProps.DESC, "No Description");
 		
+		qInfo.setProperty(NativeProps.ICON, new BigItemStack(Items.nether_star));
+		
+		qInfo.setProperty(NativeProps.SOUND_COMPLETE, NativeProps.SOUND_COMPLETE.getDefault());
+		qInfo.setProperty(NativeProps.SOUND_UPDATE, NativeProps.SOUND_UPDATE.getDefault());
+		//qInfo.setProperty(NativeProps.SOUND_UNLOCK, NativeProps.SOUND_UNLOCK.getDefault());
+		
+		qInfo.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.AND);
+		qInfo.setProperty(NativeProps.LOGIC_TASK, EnumLogic.AND);
+		
+		qInfo.setProperty(NativeProps.REPEAT_TIME, -1);
+		qInfo.setProperty(NativeProps.LOCKED_PROGRESS, false);
+		qInfo.setProperty(NativeProps.AUTO_CLAIM, false);
+		qInfo.setProperty(NativeProps.SILENT, false);
+		qInfo.setProperty(NativeProps.MAIN, false);
+		qInfo.setProperty(NativeProps.GLOBAL_SHARE, false);
+		qInfo.setProperty(NativeProps.SIMULTANEOUS, false);
 	}
 	
 	@Override
