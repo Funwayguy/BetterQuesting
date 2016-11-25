@@ -5,7 +5,7 @@ import net.minecraft.client.resources.I18n;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.importer.IImporter;
+import betterquesting.api.client.importers.IImporter;
 
 public class GuiImporterEmbedded extends GuiElement implements IGuiEmbedded
 {

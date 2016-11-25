@@ -1,8 +1,9 @@
 package betterquesting.api.api;
 
 import betterquesting.api.client.gui.misc.IGuiHelper;
+import betterquesting.api.client.importers.IImportRegistry;
 import betterquesting.api.client.themes.IThemeRegistry;
-import betterquesting.api.importer.IImportRegistry;
+import betterquesting.api.client.toolbox.IToolRegistry;
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.api.network.IPacketSender;
 import betterquesting.api.questing.IQuestDatabase;
@@ -10,10 +11,9 @@ import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api.questing.rewards.IRewardRegistry;
 import betterquesting.api.questing.tasks.ITaskRegistry;
-import betterquesting.api.registry.ILifeDatabase;
-import betterquesting.api.registry.INameCache;
-import betterquesting.api.registry.IQuestSettings;
-import betterquesting.api.toolbox.IToolRegistry;
+import betterquesting.api.storage.ILifeDatabase;
+import betterquesting.api.storage.INameCache;
+import betterquesting.api.storage.IQuestSettings;
 
 public class ApiReference
 {

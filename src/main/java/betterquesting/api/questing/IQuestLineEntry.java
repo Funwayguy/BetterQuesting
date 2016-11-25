@@ -1,6 +1,6 @@
 package betterquesting.api.questing;
 
-import betterquesting.api.other.IJsonSaveLoad;
+import betterquesting.api.misc.IJsonSaveLoad;
 import com.google.gson.JsonObject;
 
 public interface IQuestLineEntry extends IJsonSaveLoad<JsonObject>

@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.other.IMultiCallback;
+import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen

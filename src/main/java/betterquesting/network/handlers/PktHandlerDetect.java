@@ -5,8 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuest;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
 public class PktHandlerDetect implements IPacketHandler
 {

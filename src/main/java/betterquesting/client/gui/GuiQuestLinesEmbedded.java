@@ -12,10 +12,10 @@ import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.RenderUtils;
 
 public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine

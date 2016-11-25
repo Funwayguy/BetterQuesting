@@ -2,7 +2,7 @@ package betterquesting.client.gui.editors.json.callback;
 
 import net.minecraft.init.Blocks;
 import com.google.gson.JsonObject;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 

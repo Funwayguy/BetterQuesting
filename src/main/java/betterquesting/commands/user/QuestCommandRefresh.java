@@ -5,12 +5,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.database.QuestDatabase;
-import betterquesting.database.QuestLineDatabase;
-import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.NameCache;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 
 public class QuestCommandRefresh extends QuestCommandBase
 {

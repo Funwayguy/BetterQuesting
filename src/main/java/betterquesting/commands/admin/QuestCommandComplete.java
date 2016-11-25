@@ -13,8 +13,8 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
 
 public class QuestCommandComplete extends QuestCommandBase
 {

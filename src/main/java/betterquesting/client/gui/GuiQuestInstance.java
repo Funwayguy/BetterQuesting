@@ -17,10 +17,10 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.editors.GuiQuestEditor;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

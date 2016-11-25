@@ -1,6 +1,6 @@
 package betterquesting.api.properties;
 
-import betterquesting.api.other.IJsonSaveLoad;
+import betterquesting.api.misc.IJsonSaveLoad;
 import com.google.gson.JsonObject;
 
 public interface IPropertyContainer extends IJsonSaveLoad<JsonObject>

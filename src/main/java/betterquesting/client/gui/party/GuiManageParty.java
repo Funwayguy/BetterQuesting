@@ -24,12 +24,12 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.party.PartyManager;
-import betterquesting.quests.NameCache;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
 
 public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh

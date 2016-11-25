@@ -3,8 +3,8 @@ package betterquesting.api.questing.party;
 import java.util.List;
 import java.util.UUID;
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.other.IDataSync;
-import betterquesting.api.other.IJsonSaveLoad;
+import betterquesting.api.misc.IDataSync;
+import betterquesting.api.misc.IJsonSaveLoad;
 import com.google.gson.JsonObject;
 
 public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync

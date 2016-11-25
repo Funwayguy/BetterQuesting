@@ -15,10 +15,10 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
-import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.quests.QuestLine;
+import betterquesting.questing.QuestLine;
+import betterquesting.questing.QuestLineDatabase;
 import com.google.gson.JsonObject;
 
 public class PktHandlerLineEdit implements IPacketHandler
@@ -48,6 +48,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
 		int lID = !data.hasKey("lineID")? -1 : data.getInteger("lineID");
+		int idx = !data.hasKey("order")? -1 : data.getInteger("order");
 		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(lID);
 		
 		if(aID < 0 || aID >= EnumPacketAction.values().length)
@@ -76,7 +77,15 @@ public class PktHandlerLineEdit implements IPacketHandler
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{
 			questLine.readPacket(data);
-			PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket());
+			
+			if(idx >= 0 && QuestLineDatabase.INSTANCE.getOrderIndex(lID) != idx)
+			{
+				QuestLineDatabase.INSTANCE.setOrderIndex(lID, idx);
+				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+			} else
+			{
+				PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket());
+			}
 			return;
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{

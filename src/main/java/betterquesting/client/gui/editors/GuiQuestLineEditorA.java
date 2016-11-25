@@ -18,15 +18,15 @@ import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.other.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestLineDatabase;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -124,8 +124,13 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 	{
 		SendChanges(action, QuestLineDatabase.INSTANCE.getKey(questLine));
 	}
-	
+
 	public void SendChanges(EnumPacketAction action, int lineID)
+	{
+		SendChanges(action, lineID, QuestLineDatabase.INSTANCE.getOrderIndex(lineID));
+	}
+	
+	public void SendChanges(EnumPacketAction action, int lineID, int order)
 	{
 		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
 		
@@ -144,6 +149,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		}
 		
 		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
+		tags.setInteger("order", order);
 		tags.setInteger("action", action.ordinal());
 		
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
@@ -203,11 +209,14 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 				}
 			} else if(n2 == 2)
 			{
-				if(n3 >= 1 && n3 < questList.size())
+				if(n3 >= 0)
 				{
-					// Order changing may not work with HashMaps
-					//QuestDatabase.questLines.add(n3 - 1, QuestDatabase.questLines.remove(n3));
-					//SendChanges(2);
+					int order = QuestLineDatabase.INSTANCE.getOrderIndex(n3);
+					
+					if(order > 0)
+					{
+						SendChanges(EnumPacketAction.EDIT, n3, order - 1);
+					}
 				}
 			}
 		}

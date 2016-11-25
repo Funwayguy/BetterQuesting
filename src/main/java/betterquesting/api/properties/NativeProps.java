@@ -45,4 +45,10 @@ public class NativeProps
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
+	
+	public static final IPropertyType<String> HOME_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:home_image"), "betterquesting:textures/gui/default_title.png");
+	public static final IPropertyType<Number> HOME_ANC_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_x"), 0.5F);
+	public static final IPropertyType<Number> HOME_ANC_Y =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_y"), 0F);
+	public static final IPropertyType<Number> HOME_OFF_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_offset_x"), -128);
+	public static final IPropertyType<Number> HOME_OFF_Y =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_offset_y"), 0);
 }

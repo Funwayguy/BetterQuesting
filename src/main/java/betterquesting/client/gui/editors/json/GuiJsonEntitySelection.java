@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.relauncher.Side;

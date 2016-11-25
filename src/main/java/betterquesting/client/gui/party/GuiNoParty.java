@@ -20,11 +20,11 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
 
 public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 {

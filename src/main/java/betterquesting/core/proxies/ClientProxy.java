@@ -9,12 +9,12 @@ import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.EntityPlaceholderRenderer;
-import betterquesting.client.toolbox.tools.ToolboxTabMain;
+import betterquesting.client.toolbox.ToolboxRegistry;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
-import betterquesting.registry.ToolboxRegistry;
-import betterquesting.utils.QuestResourcesFile;
-import betterquesting.utils.QuestResourcesFolder;
+import betterquesting.misc.QuestResourcesFile;
+import betterquesting.misc.QuestResourcesFolder;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 

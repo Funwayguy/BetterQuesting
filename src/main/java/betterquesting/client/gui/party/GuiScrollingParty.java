@@ -10,7 +10,7 @@ import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingBase;
 import betterquesting.api.client.gui.lists.IScrollingEntry;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.quests.NameCache;
+import betterquesting.storage.NameCache;
 
 public class GuiScrollingParty extends GuiScrollingBase<GuiScrollingParty.ScrollingEntryParty>
 {

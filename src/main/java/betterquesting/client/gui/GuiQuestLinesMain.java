@@ -17,8 +17,8 @@ import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
-import betterquesting.database.QuestLineDatabase;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -81,7 +81,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(2, 0, 0, 142, 20, line);
 			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
 			
-			if(selected != null && selected.getQuestLine().getUnlocalisedName().equals(line.getUnlocalisedName()))
+			if(selected != null && QuestLineDatabase.INSTANCE.getKey(selected.getQuestLine()) == lID)
 			{
 				reset = false;
 				selected = btnLine;
@@ -111,6 +111,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		{
 			qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
 			qlGui.setQuestLine(selected.getButtonTree(), true);
+			selected.enabled = false;
 		}
 		
 		if(oldGui != null) // Preserve old settings
@@ -185,7 +186,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		
 		GuiButtonThemed btn = qlBtnList.getButtonUnderMouse(mx, my);
 		
-		if(btn != null)
+		if(btn != null && btn.mousePressed(mc, mx, my))
 		{
 			btn.func_146113_a(mc.getSoundHandler());
 			this.actionPerformed(btn);

@@ -1,9 +1,9 @@
 package betterquesting.api.questing;
 
-import betterquesting.api.other.IDataSync;
-import betterquesting.api.other.IJsonSaveLoad;
+import betterquesting.api.misc.IDataSync;
+import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
-import betterquesting.api.registry.IRegStorageBase;
+import betterquesting.api.storage.IRegStorageBase;
 import com.google.gson.JsonObject;
 
 public interface IQuestLine extends IDataSync, IJsonSaveLoad<JsonObject>, IRegStorageBase<Integer,IQuestLineEntry>

@@ -12,9 +12,9 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
-import betterquesting.database.QuestDatabase;
-import betterquesting.database.QuestLineDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 

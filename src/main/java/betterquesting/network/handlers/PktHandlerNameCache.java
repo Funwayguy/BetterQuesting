@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.quests.NameCache;
+import betterquesting.storage.NameCache;
 
 public class PktHandlerNameCache implements IPacketHandler
 {

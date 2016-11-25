@@ -5,15 +5,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.toolbox.IToolboxTool;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 import com.google.gson.JsonObject;
 
 public class ToolboxToolLink extends GuiElement implements IToolboxTool

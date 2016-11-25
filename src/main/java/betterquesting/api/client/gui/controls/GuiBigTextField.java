@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Mouse;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 
 public class GuiBigTextField extends GuiTextField
 {

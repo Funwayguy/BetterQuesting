@@ -8,15 +8,21 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.core.BQ_Settings;
-import betterquesting.party.PartyManager;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.QuestSettings;
 
 public class GuiHome extends GuiScreenThemed
 {
-	ResourceLocation homeGui = new ResourceLocation(BQ_Settings.titleCard);
+	private ResourceLocation homeGui;
+	private float ancX = 0.5F;
+	private float ancY = 0.5F;
+	private int offX = 0;
+	private int offY = 0;
 	
 	public GuiHome(GuiScreen parent)
 	{
@@ -29,6 +35,12 @@ public class GuiHome extends GuiScreenThemed
 	{
 		super.initGui();
 		this.buttonList.clear(); // We need to move some buttons around so we're starting over
+		
+		homeGui = new ResourceLocation(QuestSettings.INSTANCE.getProperty(NativeProps.HOME_IMAGE));
+		ancX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_X).floatValue();
+		ancY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_Y).floatValue();
+		offX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_X).intValue();
+		offY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_Y).intValue();
 		
 		int bw = (sizeX - 32)/4;
 		
@@ -57,8 +69,8 @@ public class GuiHome extends GuiScreenThemed
 		this.drawTexturedModalRect(0, 0, 0, 0, 256, 128);
 		GL11.glPopMatrix();
 		
-		int tx = (int)((sizeX - 32) * BQ_Settings.titleAlignX) + BQ_Settings.titleOffX + guiLeft + 16;
-		int ty = (int)((sizeY - 64) * BQ_Settings.titleAlignY) + BQ_Settings.titleOffY + guiTop + 16;
+		int tx = (int)((sizeX - 32) * ancX) + offX + guiLeft + 16;
+		int ty = (int)((sizeY - 64) * ancY) + offY + guiTop + 16;
 		this.drawTexturedModalRect(tx, ty, 0, 128, 256, 128);
 	}
 	

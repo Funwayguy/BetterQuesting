@@ -6,7 +6,7 @@ import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
-import betterquesting.quests.QuestSettings;
+import betterquesting.storage.QuestSettings;
 
 public class QuestCommandHardcore extends QuestCommandBase
 {

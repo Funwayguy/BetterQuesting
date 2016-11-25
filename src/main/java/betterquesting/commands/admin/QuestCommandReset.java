@@ -11,8 +11,8 @@ import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
 
 public class QuestCommandReset extends QuestCommandBase
 {

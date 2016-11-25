@@ -3,7 +3,7 @@ package betterquesting.client.gui.editors.json.callback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityPig;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonObject;
 

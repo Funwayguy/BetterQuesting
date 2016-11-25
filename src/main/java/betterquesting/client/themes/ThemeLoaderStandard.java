@@ -6,7 +6,6 @@ import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
-import betterquesting.registry.ThemeRegistry;
 import com.google.gson.JsonObject;
 
 public class ThemeLoaderStandard implements IThemeLoader

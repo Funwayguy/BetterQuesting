@@ -15,12 +15,12 @@ import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.client.toolbox.IToolboxTab;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.toolbox.IToolboxTab;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.database.QuestLineDatabase;
-import betterquesting.registry.ToolboxRegistry;
+import betterquesting.client.toolbox.ToolboxRegistry;
+import betterquesting.questing.QuestLineDatabase;
 
 public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {

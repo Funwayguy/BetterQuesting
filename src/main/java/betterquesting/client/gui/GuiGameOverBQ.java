@@ -16,9 +16,9 @@ import org.lwjgl.opengl.GL11;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.lives.LifeDatabase;
-import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestSettings;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

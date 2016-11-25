@@ -10,18 +10,18 @@ import betterquesting.api.client.gui.controls.GuiButtonStorage;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.importers.IImporter;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.importer.IImporter;
+import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.other.IMultiCallback;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiFileExplorer;
-import betterquesting.importers.ImportedQuestLines;
-import betterquesting.importers.ImportedQuests;
-import betterquesting.importers.ImporterRegistry;
+import betterquesting.client.importers.ImportedQuestLines;
+import betterquesting.client.importers.ImportedQuests;
+import betterquesting.client.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import com.google.gson.JsonArray;
@@ -109,7 +109,7 @@ public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File
 	}
 
 	@Override
-	public void setValues(File... files)
+	public void setValues(File[] files)
 	{
 		if(selected != null)
 		{

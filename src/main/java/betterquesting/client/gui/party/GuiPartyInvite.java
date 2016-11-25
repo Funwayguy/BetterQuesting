@@ -16,7 +16,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.party.PartyManager;
+import betterquesting.questing.party.PartyManager;
 
 public class GuiPartyInvite extends GuiScreenThemed
 {

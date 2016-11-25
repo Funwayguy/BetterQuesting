@@ -11,8 +11,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.lives.LifeDatabase;
 import betterquesting.network.PacketSender;
+import betterquesting.storage.LifeDatabase;
 
 public class QuestCommandLives extends QuestCommandBase
 {

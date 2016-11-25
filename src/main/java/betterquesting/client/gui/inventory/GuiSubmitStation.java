@@ -18,7 +18,7 @@ import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.database.QuestDatabase;
+import betterquesting.questing.QuestDatabase;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {

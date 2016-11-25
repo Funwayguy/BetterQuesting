@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.other.IJsonSaveLoad;
+import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.questing.IQuest;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;

@@ -20,12 +20,12 @@ import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.client.importers.ImportedQuestLines;
+import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
-import betterquesting.database.QuestDatabase;
-import betterquesting.database.QuestLineDatabase;
-import betterquesting.importers.ImportedQuestLines;
-import betterquesting.importers.ImportedQuests;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
 
 public class PktHandlerImport implements IPacketHandler
 {

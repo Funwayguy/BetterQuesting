@@ -1,7 +1,7 @@
 package betterquesting.client.gui.editors.json;
 
 import java.util.ArrayList;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

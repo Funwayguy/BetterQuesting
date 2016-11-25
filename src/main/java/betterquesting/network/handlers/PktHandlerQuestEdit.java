@@ -16,10 +16,10 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
-import betterquesting.database.QuestDatabase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.quests.QuestInstance;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestInstance;
 import com.google.gson.JsonObject;
 
 public class PktHandlerQuestEdit implements IPacketHandler

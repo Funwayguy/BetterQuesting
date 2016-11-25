@@ -2,7 +2,7 @@ package betterquesting.api.questing.rewards;
 
 import java.util.List;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.other.IFactory;
+import betterquesting.api.misc.IFactory;
 
 public interface IRewardRegistry
 {

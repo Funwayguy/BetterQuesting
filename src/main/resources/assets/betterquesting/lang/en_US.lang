@@ -149,6 +149,10 @@ betterquesting.toolbox.tool.reset.name=Reset Quest
 betterquesting.toolbox.tool.reset.desc=Resets completion status and all task progress
 betterquesting.toolbox.tool.icon.name=Select Icon
 betterquesting.toolbox.tool.icon.desc=Changes the quest's icon
+betterquesting.toolbox.tool.scale.name=Scale Icon
+betterquesting.toolbox.tool.scale.desc=Scales the quest icons up or down
+betterquesting.toolbox.tool.raw.name=Edit Raw
+betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editing. Includes additional hidden settings such as changing the background
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default

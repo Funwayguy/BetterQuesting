@@ -2,7 +2,7 @@ package betterquesting.client.gui.editors.json.callback;
 
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonObject;
 

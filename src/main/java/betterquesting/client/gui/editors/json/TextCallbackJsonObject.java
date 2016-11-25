@@ -1,6 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import com.google.gson.JsonObject;
 
 public class TextCallbackJsonObject implements ICallback<String>

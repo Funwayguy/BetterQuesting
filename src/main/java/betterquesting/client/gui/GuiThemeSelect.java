@@ -16,8 +16,8 @@ import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.registry.ThemeRegistry;
-import betterquesting.utils.DummyQuest;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.misc.DummyQuest;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -93,9 +93,13 @@ public class GuiThemeSelect extends GuiScreenThemed
 	{
 		super.actionPerformed(btn);
 		
-		if(btn.id > 0)
+		if(btn.id == 1)
 		{
-			ThemeRegistry.INSTANCE.setCurrentTheme(themeList.get(btn.id - 1));
+			@SuppressWarnings("unchecked")
+			GuiButtonStorage<ITheme> btnTheme = (GuiButtonStorage<ITheme>)btn;
+			ThemeRegistry.INSTANCE.setCurrentTheme(btnTheme.getStored());
+			
+			RefreshColumns();
 		}
 	}
 	
@@ -104,11 +108,11 @@ public class GuiThemeSelect extends GuiScreenThemed
 	{
 		btnList.getEntryList().clear();
 		
-		for(int i = 0; i < themeList.size(); i++)
+		for(ITheme th : themeList)
 		{
-			ITheme th = themeList.get(i);
-			GuiButtonStorage<ITheme> btn = new GuiButtonStorage<ITheme>(1 + i, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
+			GuiButtonStorage<ITheme> btn = new GuiButtonStorage<ITheme>(1, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
 			btn.setStored(th);
+			btn.enabled = th != currentTheme();
 			btnList.addButtonRow(btn);
 		}
 	}

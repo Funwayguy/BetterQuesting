@@ -12,7 +12,7 @@ import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.other.ICallback;
+import betterquesting.api.misc.ICallback;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 

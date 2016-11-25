@@ -8,8 +8,8 @@ import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.party.PartyInstance;
-import betterquesting.party.PartyManager;
+import betterquesting.questing.party.PartyInstance;
+import betterquesting.questing.party.PartyManager;
 
 public class PktHandlerPartySync implements IPacketHandler
 {
