@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class GuiJsonArray extends GuiScreenThemed implements IVolatileScreen
 {

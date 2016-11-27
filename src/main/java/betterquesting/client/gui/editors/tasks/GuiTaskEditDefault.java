@@ -1,11 +1,11 @@
 package betterquesting.client.gui.editors.tasks;
 
-import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiScreen;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
+import com.google.gson.JsonObject;
 
 public class GuiTaskEditDefault extends GuiScreenThemed
 {
@@ -29,7 +29,7 @@ public class GuiTaskEditDefault extends GuiScreenThemed
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json, task.getDocumentation()));
+			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation()));
 		} else
 		{
 			this.task.readFromJson(json, EnumSaveType.CONFIG);

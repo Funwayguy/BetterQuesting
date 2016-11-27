@@ -26,6 +26,7 @@ import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 {

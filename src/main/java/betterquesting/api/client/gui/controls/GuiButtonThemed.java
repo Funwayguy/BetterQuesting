@@ -95,7 +95,7 @@ public class GuiButtonThemed extends GuiButton
             float px = xPosition/sw;
             GL11.glScalef(sw, sh, 1F);
             
-            if(width > 200) // Could use 396 but limiting it to 200 this makes things look nicer
+            if(width >= 196)
             {
                 GL11.glTranslatef(px, py, 0F); // Fixes floating point errors related to position
             	this.drawTexturedModalRect(0, 0, 48, k * 20, 200, 20);

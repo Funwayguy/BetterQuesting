@@ -20,6 +20,7 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
 import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -138,7 +139,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		} else if(button.id == 3)
 		{
 			this.lastType = EditType.NONE;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json, null));
+			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, null));
 		} else if(button.id == 4)
 		{
 			this.lastType = EditType.FLUID;

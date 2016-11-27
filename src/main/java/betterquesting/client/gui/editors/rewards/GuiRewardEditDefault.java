@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiScreen;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import com.google.gson.JsonObject;
 
 public class GuiRewardEditDefault extends GuiScreenThemed
@@ -29,7 +29,7 @@ public class GuiRewardEditDefault extends GuiScreenThemed
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json, reward.getDocumentation()));
+			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, reward.getDocumentation()));
 		} else
 		{
 			this.reward.readFromJson(json, EnumSaveType.CONFIG);

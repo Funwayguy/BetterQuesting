@@ -22,7 +22,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -147,7 +147,7 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 			quest.writeToJson(lastEdit, EnumSaveType.CONFIG);
 			JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(null, "jdoc.betterquesting.quest"));
 			MinecraftForge.EVENT_BUS.post(event);
-			mc.displayGuiScreen(new GuiJsonObject(this, lastEdit, event.getJdocResult()));
+			mc.displayGuiScreen(new GuiJsonEditor(this, lastEdit, event.getJdocResult()));
 		} else if(button.id == 5)
 		{
 			boolean main = !quest.getProperties().getProperty(NativeProps.MAIN);

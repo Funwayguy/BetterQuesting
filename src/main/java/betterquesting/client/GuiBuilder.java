@@ -12,13 +12,14 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.client.gui.editors.GuiTextEditor;
-import betterquesting.client.gui.editors.json.GuiJsonArray;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
-import betterquesting.client.gui.editors.json.GuiJsonObject;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.misc.GuiFileExplorer;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public final class GuiBuilder implements IGuiHelper
 {
@@ -32,14 +33,15 @@ public final class GuiBuilder implements IGuiHelper
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends JsonElement> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, IJsonDoc jdoc)
 	{
 		if(json.isJsonArray())
 		{
-			mc.displayGuiScreen(new GuiJsonArray(parent, json.getAsJsonArray(), jdoc));
+			mc.displayGuiScreen(new GuiJsonEditor(parent, json.getAsJsonArray(), jdoc, (ICallback<JsonArray>)callback));
 		} else if(json.isJsonObject())
 		{
-			mc.displayGuiScreen(new GuiJsonObject(parent, json.getAsJsonObject(), jdoc));
+			mc.displayGuiScreen(new GuiJsonEditor(parent, json.getAsJsonObject(), jdoc, (ICallback<JsonObject>)callback));
 		}
 		
 		return;
