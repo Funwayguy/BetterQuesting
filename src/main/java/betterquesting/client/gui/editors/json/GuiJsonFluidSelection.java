@@ -9,7 +9,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -18,10 +17,10 @@ import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
-import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.controls.GuiNumberField;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.editors.json.scrolling.GuiScrollingFluidGrid;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -33,10 +32,8 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	
 	private GuiBigTextField searchBox;
 	private GuiNumberField numberBox;
-	private ArrayList<FluidStack> searchResults = new ArrayList<FluidStack>();
-	private int searchPage = 0;
-	private int rows = 1;
-	private int columns = 1;
+	
+	private GuiScrollingFluidGrid fluidGrid;
 	
 	public GuiJsonFluidSelection(GuiScreen parent, ICallback<FluidStack> callback, FluidStack stack)
 	{
@@ -50,39 +47,34 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initGui()
 	{
 		super.initGui();
 		
-		int srcW = sizeX/2 - 34 - (sizeX/2 - 32)%18;
-		this.searchBox = new GuiBigTextField(fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, srcW, 14);
+		this.searchBox = new GuiBigTextField(fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
+		this.fluidGrid = new GuiScrollingFluidGrid(mc, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
+		this.embedded.add(fluidGrid);
+		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
 		
-		searchResults.clear();
+		if(stackSelect != null)
+		{
+			numberBox.setText("" + stackSelect.amount);
+		}
+		
 		searching = FluidRegistry.getRegisteredFluids().values().iterator();
-		
-		columns = (sizeX/2 - 32)/18;
-		rows = (sizeY - (48 + 48))/18;
-		
-		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
-		this.buttonList.add(leftBtn);
-		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">", true);
-		this.buttonList.add(rightBtn);
 	}
 	
 	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
-		super.drawScreen(mx, my, partialTick);
+		super.drawBackPanel(mx, my, partialTick);
 		
-		doSearch();
-		
-		FluidStack ttStack = null;
+		ttStack = null;
 		int btnWidth = sizeX/2 - 16;
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
@@ -165,59 +157,18 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
-		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
-		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, getTextColor(), false);
-		
 		this.searchBox.drawTextBox(mx, my, partialTick);
 		this.numberBox.drawTextBox();
+	}
+	
+	private FluidStack ttStack;
+	
+	@Override
+	public void drawScreen(int mx, int my, float partialTick)
+	{
+		doSearch();
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		
-		int x = 0;
-		int y = 0;
-		
-		for(int i = (columns * rows * searchPage); i < searchResults.size(); i++)
-		{
-			int n = i - (columns * rows * searchPage);
-			x = n%columns * 18;
-			y = (n - n%columns)/columns * 18;
-			
-			if(y > this.sizeY - (48 + 48 + 18))
-			{
-				break;
-			}
-			
-			this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-			
-			FluidStack resultStack = searchResults.get(i);
-			
-			if(resultStack != null)
-			{
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				this.drawTexturedModalRect(guiLeft + sizeX/2 + x + 8, guiTop + 48 + y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				
-				mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-				GL11.glColor4f(1F, 1F, 1F, 1F);
-				
-				try
-				{
-					if(resultStack.getFluid().getIcon() != null)
-					{
-						RenderUtils.itemRender.renderIcon(guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, resultStack.getFluid().getIcon(), 16, 16);
-					} else
-					{
-			            IIcon missing = ((TextureMap)mc.renderEngine.getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
-						RenderUtils.itemRender.renderIcon(guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, missing, 16, 16);
-					}
-				} catch(Exception e){}
-				
-				if(this.isWithin(mx, my, this.sizeX/2 + x + 9, 49 + y, 16, 16))
-				{
-					ttStack = resultStack;
-				}
-			}
-		}
+		super.drawScreen(mx, my, partialTick);
 		
 		if(ttStack != null)
 		{
@@ -236,15 +187,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
-		} else if(button.id == 1 && searchPage > 0)
-		{
-			searchPage--;
-		} else if(button.id == 2)
-		{
-			if(columns * rows * (searchPage + 1) < searchResults.size())
-			{
-				searchPage++;
-			}
 		}
 	}
 	
@@ -252,6 +194,9 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	public void mouseClicked(int mx, int my, int type)
 	{
 		super.mouseClicked(mx, my, type);
+		
+		FluidStack gStack = fluidGrid.getStackUnderMouse(mx, my);
+		
 		this.searchBox.mouseClicked(mx, my, type);
 		this.numberBox.mouseClicked(mx, my, type);
 		
@@ -263,7 +208,11 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 		int ipy = guiTop + sizeY/2;
 		
-		if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
+		if(gStack != null)
+		{
+			this.stackSelect = gStack.copy();
+			numberBox.setText("" + stackSelect.amount);
+		} else if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
 		{
 			int idxSize = (int)(18*scale);
 			int sx = (mx - ipx)/idxSize;
@@ -277,23 +226,6 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 				if(invoStack != null && FluidContainerRegistry.isFilledContainer(invoStack))
 				{
 					this.stackSelect = FluidContainerRegistry.getFluidForFilledItem(invoStack).copy();
-					numberBox.setText("" + stackSelect.amount);
-				}
-			}
-		} else if(this.isWithin(mx, my, this.sizeX/2, 48, columns * 18, rows * 18))
-		{
-
-			int sx = (mx - (this.guiLeft + this.sizeX/2 + 8))/18;
-			int sy = (my - (this.guiTop + 48))/18;
-			int index = sx + (sy * columns) + (searchPage * columns * rows);
-			
-			if(index >= 0 && index < this.searchResults.size())
-			{
-				FluidStack searchFluid = this.searchResults.get(index);
-				
-				if(searchFluid != null)
-				{
-					this.stackSelect = searchFluid.copy();
 					numberBox.setText("" + stackSelect.amount);
 				}
 			}
@@ -339,7 +271,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			
 			if(baseFluid.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseFluid.getUnlocalizedName()).toLowerCase().contains(searchTxt) || FluidRegistry.getDefaultFluidName(baseFluid).toLowerCase().contains(searchTxt))
 			{
-				searchResults.add(new FluidStack(baseFluid, 1000));
+				fluidGrid.getFluidList().add(new FluidStack(baseFluid, 1000));
 			}
 		}
 	}
@@ -358,8 +290,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		
 		if(!searchBox.getText().equalsIgnoreCase(prevTxt))
 		{
-			searchPage = 0;
-			searchResults.clear();
+			fluidGrid.getFluidList().clear();
 			searchTxt = searchBox.getText().toLowerCase();
 			searching = FluidRegistry.getRegisteredFluids().values().iterator();
 		}

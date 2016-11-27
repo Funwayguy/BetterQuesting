@@ -94,10 +94,10 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		this.idx = index;
 		this.jDoc = jDoc;
 		
-		this.name = "#" + index;
-		
-		this.je = json.get(index);
+		this.je = index < 0 || index >= json.size()? null : json.get(index);
 		this.allowEdit = allowEdit;
+		
+		this.name = je == null? "" : ("#" + index);
 	}
 	
 	public void setupEntry(int px, int width)
@@ -106,9 +106,9 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		int ctrlSpace = MathHelper.ceiling_float_int((width/3F)*2F);
 		int n = 0;
 		
-		if(allowEdit)
+		if(allowEdit && je != null)
 		{
-			n += 20;
+			n = 20;
 			btnDel = new GuiButtonThemed(3, px + width - n, 0, 20, 20, "x");
 			btnDel.packedFGColour = Color.RED.getRGB();
 			btnList.add(btnDel);
@@ -116,13 +116,16 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		
 		if(allowEdit)
 		{
-			n += 20;
+			n = 40;
 			btnAdd = new GuiButtonThemed(2, px + width - n, 0, 20, 20, "+");
 			btnAdd.packedFGColour = Color.GREEN.getRGB();
 			btnList.add(btnAdd);
 		}
 		
-		if(je.isJsonArray())
+		if(je == null)
+		{
+			return;
+		} else if(je.isJsonArray())
 		{
 			btnMain = new GuiButtonJson<JsonArray>(0, margin, 0, ctrlSpace - n, 20, je.getAsJsonArray(), false);
 			btnList.add(btnMain);
@@ -188,7 +191,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		}
 		
 		int length = mc.fontRenderer.getStringWidth(name);
-		mc.fontRenderer.drawString(name, margin - 8 - length, py + 4, getTextColor(), false);
+		mc.fontRenderer.drawString(name, margin - 8 - length, py + 6, getTextColor(), false);
 	}
 	
 	@Override
@@ -222,12 +225,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	
 	public void onActionPerformed(GuiButtonThemed btn)
 	{
-		if(je == null)
-		{
-			return;
-		}
-		
-		if(btn.id == 3) // Delete Entry
+		if(je != null && btn.id == 3) // Delete Entry
 		{
 			if(json.isJsonObject())
 			{
@@ -253,7 +251,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 				mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, json.getAsJsonObject()));
 				return;
 			}
-		} else if(je.isJsonObject())
+		} else if(je != null && je.isJsonObject())
 		{
 			JsonObject jo = je.getAsJsonObject();
 			
@@ -278,10 +276,10 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 			{
 				mc.displayGuiScreen(new GuiJsonEditor(mc.currentScreen, jo, childDoc));
 			}
-		} else if(je.isJsonArray())
+		} else if(je != null && je.isJsonArray())
 		{
 			mc.displayGuiScreen(new GuiJsonEditor(mc.currentScreen, je.getAsJsonArray(), jDoc));
-		} else if(je.isJsonPrimitive() && je.getAsJsonPrimitive().isBoolean())
+		} else if(je != null && je.isJsonPrimitive() && je.getAsJsonPrimitive().isBoolean())
 		{
 			if(json.isJsonObject())
 			{

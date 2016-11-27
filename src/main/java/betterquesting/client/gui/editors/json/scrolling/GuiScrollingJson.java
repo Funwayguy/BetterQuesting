@@ -78,6 +78,10 @@ public class GuiScrollingJson extends GuiScrollingBase<ScrollingJsonEntry>
 				sje.setupEntry(posX, width);
 				this.getEntryList().add(sje);
 			}
+			
+			ScrollingJsonEntry sje = new ScrollingJsonEntry(this, ja, ja.size(), null, allowEdit);
+			sje.setupEntry(posX, width);
+			this.getEntryList().add(sje);
 		} else if(json.isJsonObject())
 		{
 			JsonObject jo = json.getAsJsonObject();
@@ -88,6 +92,10 @@ public class GuiScrollingJson extends GuiScrollingBase<ScrollingJsonEntry>
 				sje.setupEntry(posX, width);
 				this.getEntryList().add(sje);
 			}
+			
+			ScrollingJsonEntry sje = new ScrollingJsonEntry(this, jo, "", null, allowEdit);
+			sje.setupEntry(posX, width);
+			this.getEntryList().add(sje);
 		}
 	}
 }

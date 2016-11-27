@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
@@ -27,7 +28,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 	private Entity entity;
 	private ICallback<Entity> callback;
 	
-	private int scrollPos = 0;
+	private GuiScrollingButtons btnList;
 	
 	public GuiJsonEntitySelection(GuiScreen parent, ICallback<Entity> callback, Entity entity)
 	{
@@ -46,56 +47,31 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 	public void initGui()
 	{
 		super.initGui();
-		
-		scrollPos = 0;
-		
-		int bSize = sizeX/2 - 16;
-		
-		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
-		this.buttonList.add(leftBtn);
-		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + (bSize - 20), this.guiTop + this.sizeY - 48, 20, 20, ">", true);
-		this.buttonList.add(rightBtn);
-		
-		int i = 0;
-		
 		ArrayList<String> sortedNames = new ArrayList<String>((Collection<String>)EntityList.stringToClassMapping.keySet());
-		
 		Collections.sort(sortedNames);
+		
+		btnList = new GuiScrollingButtons(mc, guiLeft + sizeX/2, guiTop + 32, sizeX/2 - 16, sizeY - 64);
+		int btnWidth = btnList.getListWidth();
 		
 		for(String key : sortedNames)
 		{
-			this.buttonList.add(new GuiButtonThemed(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key, true));
-			i++;
+			btnList.addButtonRow(new GuiButtonThemed(1, 0, 0, btnWidth, 20, key));
 		}
 		
-		UpdateScroll();
+		this.embedded.add(btnList);
 	}
 	
-	public void UpdateScroll()
+	@Override
+	public void mouseClicked(int mx, int my, int click)
 	{
-		int maxRows = (this.sizeY - 80)/20;
+		super.mouseClicked(mx, my, click);
 		
-		for(int i = 3; i < this.buttonList.size(); i++)
+		GuiButtonThemed btn = btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null && btn.mousePressed(mc, mx, my) && click == 0)
 		{
-			Object obj = this.buttonList.get(i);
-			
-			if(obj == null || !(obj instanceof GuiButton))
-			{
-				continue;
-			}
-			
-			GuiButton button = (GuiButton)obj;
-			int n = (i - 3) - (scrollPos * maxRows);
-			
-			if(n < 0 || n >= maxRows)
-			{
-				button.xPosition = -9999;
-				button.yPosition = -9999;
-			} else
-			{
-				button.xPosition = this.guiLeft + this.sizeX/2;
-				button.yPosition = this.guiTop + 32 + (n * 20);
-			}
+			btn.func_146113_a(mc.getSoundHandler());
+			actionPerformed(btn);
 		}
 	}
 	
@@ -108,23 +84,6 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 		{
 			callback.setValue(entity);
 		} else if(button.id == 1)
-		{
-			if(scrollPos > 0)
-			{
-				scrollPos--;
-				UpdateScroll();
-			}
-		} else if(button.id == 2)
-		{
-			int maxRows = (this.sizeY - 80)/20;
-			int maxPages = MathHelper.ceiling_float_int(EntityList.stringToClassMapping.size()/(float)maxRows);
-			
-			if(scrollPos + 1 < maxPages)
-			{
-				scrollPos++;
-				UpdateScroll();
-			}
-		} else if(button.id >= 3)
 		{
 			Entity tmpE = EntityList.createEntityByName(button.displayString, this.mc.theWorld);
 			

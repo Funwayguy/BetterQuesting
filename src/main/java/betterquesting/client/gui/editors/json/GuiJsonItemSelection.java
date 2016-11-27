@@ -12,7 +12,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.opengl.GL11;
@@ -23,6 +22,7 @@ import betterquesting.api.client.gui.controls.GuiNumberField;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.editors.json.scrolling.GuiScrollingItemGrid;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -34,11 +34,11 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	
 	private GuiBigTextField searchBox;
 	private GuiNumberField numberBox;
-	private ArrayList<ItemStack> searchResults = new ArrayList<ItemStack>();
-	private int searchPage = 0;
-	private int rows = 1;
-	private int columns = 1;
+	
+	private GuiButtonThemed btnOreDict;
 	private int oreDictIdx = 0;
+	
+	private GuiScrollingItemGrid itemGrid;
 	
 	public GuiJsonItemSelection(GuiScreen parent, ICallback<BigItemStack> callback, BigItemStack stack)
 	{
@@ -58,35 +58,32 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	{
 		super.initGui();
 		
-		int srcW = sizeX/2 - 34 - (sizeX/2 - 32)%18;
-		this.searchBox = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, srcW, 14);
+		this.searchBox = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
+		this.itemGrid = new GuiScrollingItemGrid(mc, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
+		this.embedded.add(itemGrid);
+		
 		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 77, guiTop + 49, 98, 14);
 		
-		searchResults.clear();
+		if(stackSelect != null)
+		{
+			numberBox.setText("" + stackSelect.stackSize);
+		}
+		
 		searching = Item.itemRegistry.iterator();
 		
-		columns = (sizeX/2 - 32)/18;
-		rows = (sizeY - (48 + 48))/18;
-		
-		GuiButtonThemed leftBtn = new GuiButtonThemed(1, this.guiLeft + this.sizeX/2 + 8, this.guiTop + this.sizeY - 48, 20, 20, "<", true);
-		this.buttonList.add(leftBtn);
-		GuiButtonThemed rightBtn = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 + 8 + columns*18 - 20, this.guiTop + this.sizeY - 48, 20, 20, ">", true);
-		this.buttonList.add(rightBtn);
-		GuiButtonThemed oreDictBtn = new GuiButtonThemed(3, guiLeft + 76, guiTop + 64, 100, 20, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict), true);
-		this.buttonList.add(oreDictBtn);
+		btnOreDict = new GuiButtonThemed(3, guiLeft + 76, guiTop + 64, 100, 20, "OreDict: " + (stackSelect.oreDict.length() <= 0? "NONE" : stackSelect.oreDict), true);
+		this.buttonList.add(btnOreDict);
 	}
 	
 	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
-		super.drawScreen(mx, my, partialTick);
+		super.drawBackPanel(mx, my, partialTick);
 		
-		doSearch();
-		
-		BigItemStack ttStack = null;
+		ttStack = null;
 		int btnWidth = sizeX/2 - 16;
 		
 		GL11.glColor4f(1f, 1f, 1f, 1f);
@@ -103,7 +100,9 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		
 		if(this.stackSelect != null)
 		{
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
 			RenderUtils.RenderItemStack(this.mc, this.stackSelect.getBaseStack(), (guiLeft + 26)/2, (guiTop + 50)/2, "");
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			
 			if(this.isWithin(mx, my, 25, 49, 32, 32))
 			{
@@ -157,45 +156,18 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
-		int mxPage = Math.max(MathHelper.ceiling_float_int(searchResults.size()/(float)(columns * rows)), 1);
-		this.fontRendererObj.drawString((searchPage + 1) + "/" + mxPage, guiLeft + 16 + (sizeX - 32)/4*3, guiTop + sizeY - 42, getTextColor(), false);
-		
 		this.searchBox.drawTextBox(mx, my, partialTick);
 		this.numberBox.drawTextBox();
+	}
+	
+	private BigItemStack ttStack = null;
+	
+	@Override
+	public void drawScreen(int mx, int my, float partialTick)
+	{
+		doSearch();
 		
-		GL11.glColor4f(1f, 1f, 1f, 1f);
-		
-		int x = 0;
-		int y = 0;
-		
-		for(int i = (columns * rows * searchPage); i < searchResults.size(); i++)
-		{
-			int n = i - (columns * rows * searchPage);
-			x = n%columns * 18;
-			y = (n - n%columns)/columns * 18;
-			
-			if(y > this.sizeY - (48 + 48 + 18))
-			{
-				break;
-			}
-			
-			this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-			
-			ItemStack resultStack = searchResults.get(i);
-			
-			if(resultStack != null)
-			{
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				this.drawTexturedModalRect(guiLeft + sizeX/2 + x + 8, guiTop + 48 + y, 0, 48, 18, 18);
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
-				RenderUtils.RenderItemStack(mc, resultStack, guiLeft + sizeX/2 + 9 + x, guiTop + 49 + y, "");
-				
-				if(this.isWithin(mx, my, this.sizeX/2 + x + 9, 49 + y, 16, 16))
-				{
-					ttStack = new BigItemStack(resultStack);
-				}
-			}
-		}
+		super.drawScreen(mx, my, partialTick);
 		
 		if(ttStack != null)
 		{
@@ -215,15 +187,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
-		} else if(button.id == 1 && searchPage > 0)
-		{
-			searchPage--;
-		} else if(button.id == 2)
-		{
-			if(columns * rows * (searchPage + 1) < searchResults.size())
-			{
-				searchPage++;
-			}
 		} else if(button.id == 3)
 		{
 			if(stackSelect != null)
@@ -251,6 +214,9 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	public void mouseClicked(int mx, int my, int type)
 	{
 		super.mouseClicked(mx, my, type);
+		
+		ItemStack gStack = itemGrid.getStackUnderMouse(mx, my);
+		
 		this.searchBox.mouseClicked(mx, my, type);
 		this.numberBox.mouseClicked(mx, my, type);
 		
@@ -262,7 +228,14 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		int ipx = guiLeft + 16 + btnWidth/2 - (int)(isx/2*scale);
 		int ipy = guiTop + sizeY/2;
 		
-		if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
+		if(gStack != null)
+		{
+			this.stackSelect = new BigItemStack(gStack.copy());
+			numberBox.setText("" + stackSelect.stackSize);
+			
+			oreDictIdx = -1;
+			btnOreDict.displayString = "OreDict: NONE";
+		} else if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
 		{
 			int idxSize = (int)(18*scale);
 			int sx = (mx - ipx)/idxSize;
@@ -279,27 +252,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 					numberBox.setText("" + stackSelect.stackSize);
 					
 					oreDictIdx = -1;
-					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
-				}
-			}
-		} else if(this.isWithin(mx, my, this.sizeX/2 + 8, 48, columns * 18, rows * 18))
-		{
-
-			int sx = (mx - (this.guiLeft + this.sizeX/2 + 8))/18;
-			int sy = (my - (this.guiTop + 48))/18;
-			int index = sx + (sy * columns) + (searchPage * columns * rows);
-			
-			if(index >= 0 && index < this.searchResults.size())
-			{
-				ItemStack searchItem = this.searchResults.get(index);
-				
-				if(searchItem != null)
-				{
-					this.stackSelect = new BigItemStack(searchItem.copy());
-					numberBox.setText("" + stackSelect.stackSize);
-					
-					oreDictIdx = -1;
-					((GuiButton)buttonList.get(3)).displayString = "OreDict: NONE";
+					btnOreDict.displayString = "OreDict: NONE";
 				}
 			}
 		} else if(!numberBox.isFocused() && stackSelect != null && stackSelect.stackSize != numberBox.getNumber().intValue())
@@ -366,7 +319,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			
 			if(baseItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || StatCollector.translateToLocal(baseItem.getUnlocalizedName()).toLowerCase().contains(searchTxt) || Item.itemRegistry.getNameForObject(baseItem).toLowerCase().contains(searchTxt))
 			{
-				searchResults.addAll(subList);
+				itemGrid.getItemList().addAll(subList);
 			} else
 			{
 				for(ItemStack subItem : subList)
@@ -380,7 +333,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 						
 						if(subItem.getUnlocalizedName().toLowerCase().contains(searchTxt) || subItem.getDisplayName().toLowerCase().contains(searchTxt))
 						{
-							searchResults.add(subItem);
+							itemGrid.getItemList().add(subItem);
 						} else
 						{
 							@SuppressWarnings("unchecked")
@@ -390,7 +343,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 							{
 								if(line.toLowerCase().contains(searchTxt))
 								{
-									searchResults.add(subItem);
+									itemGrid.getItemList().add(subItem);
 									break;
 								}
 							}
@@ -419,8 +372,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		
 		if(!searchBox.getText().equalsIgnoreCase(prevTxt))
 		{
-			searchPage = 0;
-			searchResults.clear();
+			itemGrid.getItemList().clear();
 			searchTxt = searchBox.getText().toLowerCase();
 			searching = Item.itemRegistry.iterator();
 		}
