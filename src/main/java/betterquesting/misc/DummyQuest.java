@@ -13,6 +13,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
@@ -25,6 +26,11 @@ public class DummyQuest implements IQuest
 	public static UUID dummyID = UUID.randomUUID();
 	
 	private PropertyContainer propContainer = new PropertyContainer();
+	
+	@Override
+	public void setParentDatabase(IQuestDatabase questDB)
+	{
+	}
 	
 	@Override
 	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)

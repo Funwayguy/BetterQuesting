@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.misc.IFactory;
+import betterquesting.api.placeholders.rewards.FactoryRewardPlaceholder;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.rewards.IRewardRegistry;
 import betterquesting.core.BetterQuesting;
@@ -14,14 +15,14 @@ public class RewardRegistry implements IRewardRegistry
 {
 	public static final RewardRegistry INSTANCE = new RewardRegistry();
 	
-	private HashMap<ResourceLocation, IFactory<IReward>> rewardRegistry = new HashMap<ResourceLocation, IFactory<IReward>>();
+	private HashMap<ResourceLocation, IFactory<? extends IReward>> rewardRegistry = new HashMap<ResourceLocation, IFactory<? extends IReward>>();
 	
 	private RewardRegistry()
 	{
 	}
 	
 	@Override
-	public void registerReward(IFactory<IReward> factory)
+	public void registerReward(IFactory<? extends IReward> factory)
 	{
 		if(factory == null)
 		{
@@ -40,15 +41,15 @@ public class RewardRegistry implements IRewardRegistry
 	}
 	
 	@Override
-	public IFactory<IReward> getFactory(ResourceLocation registryName)
+	public IFactory<? extends IReward> getFactory(ResourceLocation registryName)
 	{
 		return rewardRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IFactory<IReward>> getAll()
+	public List<IFactory<? extends IReward>> getAll()
 	{
-		return new ArrayList<IFactory<IReward>>(rewardRegistry.values());
+		return new ArrayList<IFactory<? extends IReward>>(rewardRegistry.values());
 	}
 	
 	@Override
@@ -56,15 +57,23 @@ public class RewardRegistry implements IRewardRegistry
 	{
 		try
 		{
-			IFactory<? extends IReward> reward = getFactory(registryName);
+			IFactory<? extends IReward> factory = null;
 			
-			if(reward == null)
+			if(FactoryRewardPlaceholder.INSTANCE.getRegistryName().equals(registryName))
+			{
+				factory = FactoryRewardPlaceholder.INSTANCE;
+			} else
+			{
+				factory = getFactory(registryName);
+			}
+			
+			if(factory == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "Tried to load missing reward type '" + registryName + "'! Are you missing an expansion pack?");
 				return null;
 			}
 			
-			return reward.createNew();
+			return factory.createNew();
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "Unable to instatiate reward: " + registryName, e);

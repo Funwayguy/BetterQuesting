@@ -163,6 +163,8 @@ public class ImportedQuests implements IQuestDatabase
 	@Override
 	public IQuest createNew()
 	{
-		return new QuestInstance();
+		IQuest q = new QuestInstance();
+		q.setParentDatabase(this);
+		return q;
 	}
 }

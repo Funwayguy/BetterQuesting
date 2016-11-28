@@ -33,7 +33,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IFactory<IReward>> rewardTypes = new ArrayList<IFactory<IReward>>();
+	private List<IFactory<? extends IReward>> rewardTypes = new ArrayList<IFactory<? extends IReward>>();
 	private List<Integer> rewardIDs = new ArrayList<Integer>();
 	private IQuest quest;
 	private int qID = -1;

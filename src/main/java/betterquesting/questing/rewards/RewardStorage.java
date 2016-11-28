@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.JsonHelper;
@@ -144,6 +145,19 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
 			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
 			
+			if(reward instanceof RewardPlaceholder)
+			{
+				JsonObject jr2 = JsonHelper.GetObject(jsonReward, "orig_data");
+				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jr2, "rewardID", ""));
+				IReward r2 = RewardRegistry.INSTANCE.createReward(loc2);
+				
+				if(r2 != null)
+				{
+					jsonReward = jr2;
+					reward = r2;
+				}
+			}
+			
 			if(reward != null)
 			{
 				reward.readFromJson(jsonReward, EnumSaveType.CONFIG);
@@ -154,6 +168,18 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 				} else
 				{
 					unassigned.add(reward);
+				}
+			} else
+			{
+				RewardPlaceholder rph = new RewardPlaceholder();
+				rph.setRewardData(jsonReward, EnumSaveType.CONFIG);
+				
+				if(index >= 0)
+				{
+					add(rph, index);
+				} else
+				{
+					unassigned.add(rph);
 				}
 			}
 		}

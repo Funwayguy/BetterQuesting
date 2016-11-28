@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
+import betterquesting.api.placeholders.tasks.TaskPlaceholder;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.JsonHelper;
@@ -166,6 +168,19 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
 			ITask task = TaskRegistry.INSTANCE.createTask(loc);
 			
+			if(task instanceof TaskPlaceholder)
+			{
+				JsonObject jt2 = JsonHelper.GetObject(jsonTask, "orig_data");
+				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jt2, "taskID", ""));
+				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
+				
+				if(t2 != null) // Restored original task
+				{
+					jsonTask = jt2;
+					task = t2;
+				}
+			}
+			
 			if(task != null)
 			{
 				task.readFromJson(jsonTask, EnumSaveType.CONFIG);
@@ -176,6 +191,18 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 				} else
 				{
 					unassigned.add(task);
+				}
+			} else
+			{
+				TaskPlaceholder tph = new TaskPlaceholder();
+				tph.setTaskData(jsonTask, EnumSaveType.CONFIG);
+				
+				if(index >= 0)
+				{
+					add(tph, index);
+				} else
+				{
+					unassigned.add(tph);
 				}
 			}
 		}
@@ -213,11 +240,27 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 			
 			JsonObject jsonTask = entry.getAsJsonObject();
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
+			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
 			ITask task = getValue(index);
 			
-			if(task != null)
+			if(task instanceof TaskPlaceholder)
 			{
-				task.readFromJson(jsonTask, EnumSaveType.PROGRESS);
+				if(!task.getFactoryID().equals(loc))
+				{
+					((TaskPlaceholder)task).setTaskData(jsonTask, EnumSaveType.PROGRESS);
+				} else
+				{
+					task.readFromJson(jsonTask, EnumSaveType.PROGRESS);
+				}
+			} else if(task != null)
+			{
+				if(task.getFactoryID().equals(loc))
+				{
+					task.readFromJson(jsonTask, EnumSaveType.PROGRESS);
+				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
+				{
+					task.readFromJson(JsonHelper.GetObject(jsonTask, "orig_prog"), EnumSaveType.PROGRESS);
+				}
 			}
 		}
 	}

@@ -20,6 +20,9 @@ public interface IQuest extends IJsonSaveLoad<JsonObject>, IDataSync
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
 	
+	// Defaults to the API if not used
+	public void setParentDatabase(IQuestDatabase questDB);
+	
 	@SideOnly(Side.CLIENT)
 	public List<String> getTooltip(EntityPlayer player);
 	

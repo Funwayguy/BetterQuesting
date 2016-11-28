@@ -33,7 +33,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IFactory<ITask>> taskTypes = new ArrayList<IFactory<ITask>>();
+	private List<IFactory<? extends ITask>> taskTypes = new ArrayList<IFactory<? extends ITask>>();
 	private List<Integer> taskIDs = new ArrayList<Integer>();
 	private IQuest quest;
 	private int qId = -1;

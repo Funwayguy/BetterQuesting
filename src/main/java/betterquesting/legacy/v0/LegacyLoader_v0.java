@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.placeholders.rewards.RewardPlaceholder;
+import betterquesting.api.placeholders.tasks.TaskPlaceholder;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -154,6 +156,19 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
 			ITask task = TaskRegistry.INSTANCE.createTask(loc);
 			
+			if(task instanceof TaskPlaceholder)
+			{
+				JsonObject jt2 = JsonHelper.GetObject(jsonTask, "orig_data");
+				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jt2, "taskID", ""));
+				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
+				
+				if(t2 != null) // Restored original task
+				{
+					jsonTask = jt2;
+					task = t2;
+				}
+			}
+			
 			if(task != null)
 			{
 				task.readFromJson(jsonTask, EnumSaveType.CONFIG);
@@ -164,6 +179,18 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				} else
 				{
 					uaTasks.add(task);
+				}
+			} else
+			{
+				TaskPlaceholder tph = new TaskPlaceholder();
+				tph.setTaskData(jsonTask, EnumSaveType.CONFIG);
+				
+				if(index >= 0)
+				{
+					taskDB.add(tph, index);
+				} else
+				{
+					uaTasks.add(tph);
 				}
 			}
 		}
@@ -188,6 +215,19 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
 			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
 			
+			if(reward instanceof RewardPlaceholder)
+			{
+				JsonObject jr2 = JsonHelper.GetObject(jsonReward, "orig_data");
+				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jr2, "rewardID", ""));
+				IReward r2 = RewardRegistry.INSTANCE.createReward(loc2);
+				
+				if(r2 != null)
+				{
+					jsonReward = jr2;
+					reward = r2;
+				}
+			}
+			
 			if(reward != null)
 			{
 				reward.readFromJson(jsonReward, EnumSaveType.CONFIG);
@@ -198,6 +238,18 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				} else
 				{
 					unassigned.add(reward);
+				}
+			} else
+			{
+				RewardPlaceholder rph = new RewardPlaceholder();
+				rph.setRewardData(jsonReward, EnumSaveType.CONFIG);
+				
+				if(index >= 0)
+				{
+					rewardDB.add(rph, index);
+				} else
+				{
+					unassigned.add(rph);
 				}
 			}
 		}

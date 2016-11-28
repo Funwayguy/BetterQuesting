@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -24,11 +27,20 @@ public class QuestLine implements IQuestLine
 	private IPropertyContainer info = new PropertyContainer();
 	private final HashMap<Integer,IQuestLineEntry> questList = new HashMap<Integer,IQuestLineEntry>();
 	
+	private IQuestLineDatabase parentDB;
+	
 	public QuestLine()
 	{
+		parentDB = QuestingAPI.getAPI(ApiReference.LINE_DB);
 		// Init some stuff
 		this.info.setProperty(NativeProps.BG_IMAGE, "");
 		this.info.setProperty(NativeProps.BG_SIZE, 256);
+	}
+	
+	@Override
+	public void setParentDatabase(IQuestLineDatabase lineDB)
+	{
+		this.parentDB = lineDB;
 	}
 	
 	@Override
@@ -175,7 +187,7 @@ public class QuestLine implements IQuestLine
 		JsonObject base = new JsonObject();
 		base.add("line", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(this));
+		tags.setInteger("lineID", parentDB.getKey(this));
 		
 		return new QuestingPacket(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
 	}

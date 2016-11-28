@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.misc.IFactory;
+import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.questing.tasks.ITaskRegistry;
 import betterquesting.core.BetterQuesting;
@@ -17,14 +18,14 @@ public class TaskRegistry implements ITaskRegistry
 {
 	public static final TaskRegistry INSTANCE = new TaskRegistry();
 	
-	private HashMap<ResourceLocation, IFactory<ITask>> taskRegistry = new HashMap<ResourceLocation, IFactory<ITask>>();
+	private HashMap<ResourceLocation, IFactory<? extends ITask>> taskRegistry = new HashMap<ResourceLocation, IFactory<? extends ITask>>();
 	
 	private TaskRegistry()
 	{
 	}
 	
 	@Override
-	public void registerTask(IFactory<ITask> factory)
+	public void registerTask(IFactory<? extends ITask> factory)
 	{
 		if(factory == null)
 		{
@@ -43,22 +44,30 @@ public class TaskRegistry implements ITaskRegistry
 	}
 	
 	@Override
-	public IFactory<ITask> getFactory(ResourceLocation registryName)
+	public IFactory<? extends ITask> getFactory(ResourceLocation registryName)
 	{
 		return taskRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IFactory<ITask>> getAll()
+	public List<IFactory<? extends ITask>> getAll()
 	{
-		return new ArrayList<IFactory<ITask>>(taskRegistry.values());
+		return new ArrayList<IFactory<? extends ITask>>(taskRegistry.values());
 	}
 	
 	public ITask createTask(ResourceLocation registryName)
 	{
 		try
 		{
-			IFactory<ITask> factory = getFactory(registryName);
+			IFactory<? extends ITask> factory = null;
+			
+			if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(registryName))
+			{
+				factory = FactoryTaskPlaceholder.INSTANCE;
+			} else
+			{
+				getFactory(registryName);
+			}
 			
 			if(factory == null)
 			{

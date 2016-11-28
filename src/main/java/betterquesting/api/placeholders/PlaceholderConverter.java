@@ -15,7 +15,7 @@ import betterquesting.api.utils.BigItemStack;
  */
 public class PlaceholderConverter
 {
-	public static Entity convertPlaceholder(Entity orig, World world, NBTTagCompound nbt)
+	public static Entity convertEntity(Entity orig, World world, NBTTagCompound nbt)
 	{
 		Entity entity = orig;
 		
@@ -33,7 +33,7 @@ public class PlaceholderConverter
 		return entity;
 	}
 	
-	public static BigItemStack convertPlaceholder(Item item, String name, int count, int damage, String oreDict, NBTTagCompound nbt)
+	public static BigItemStack convertItem(Item item, String name, int count, int damage, String oreDict, NBTTagCompound nbt)
 	{
 		if(item == null)
 		{
@@ -78,7 +78,7 @@ public class PlaceholderConverter
 		return stack;
 	}
 	
-	public static FluidStack convertPlaceholder(Fluid fluid, String name, int amount, NBTTagCompound nbt)
+	public static FluidStack convertFluid(Fluid fluid, String name, int amount, NBTTagCompound nbt)
 	{
 		if(fluid == null)
 		{

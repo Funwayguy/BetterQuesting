@@ -11,6 +11,9 @@ public interface IQuestLine extends IDataSync, IJsonSaveLoad<JsonObject>, IRegSt
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();
 	
+	// Defaults to the API if not used
+	public void setParentDatabase(IQuestLineDatabase questDB);
+	
 	public IPropertyContainer getProperties();
 	
 	public int getQuestAt(int x, int y);

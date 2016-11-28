@@ -12,6 +12,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
+import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestState;
@@ -20,6 +21,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
@@ -54,8 +56,12 @@ public class QuestInstance implements IQuest
 	
 	private PropertyContainer qInfo = new PropertyContainer();
 	
+	private IQuestDatabase parentDB;
+	
 	public QuestInstance()
 	{
+		parentDB = QuestingAPI.getAPI(ApiReference.QUEST_DB);
+		
 		qInfo.setProperty(NativeProps.NAME, "New Quest");
 		qInfo.setProperty(NativeProps.DESC, "No Description");
 		
@@ -75,6 +81,12 @@ public class QuestInstance implements IQuest
 		qInfo.setProperty(NativeProps.MAIN, false);
 		qInfo.setProperty(NativeProps.GLOBAL_SHARE, false);
 		qInfo.setProperty(NativeProps.SIMULTANEOUS, false);
+	}
+	
+	@Override
+	public void setParentDatabase(IQuestDatabase questDB)
+	{
+		this.parentDB = questDB;
 	}
 	
 	@Override
@@ -565,7 +577,7 @@ public class QuestInstance implements IQuest
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()) + " #" + QuestDatabase.INSTANCE.getKey(this));
+		list.add(StatCollector.translateToLocalFormatted(getUnlocalisedName()) + " #" + parentDB.getKey(this));
 		
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
 		list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
@@ -615,7 +627,7 @@ public class QuestInstance implements IQuest
 		base.add("config", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		base.add("progress", writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(this));
+		tags.setInteger("questID", parentDB.getKey(this));
 		
 		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
@@ -865,7 +877,7 @@ public class QuestInstance implements IQuest
 		JsonArray reqJson = new JsonArray();
 		for(IQuest quest : preRequisites)
 		{
-			reqJson.add(new JsonPrimitive(QuestDatabase.INSTANCE.getKey(quest)));
+			reqJson.add(new JsonPrimitive(parentDB.getKey(quest)));
 		}
 		jObj.add("preRequisites", reqJson);
 		
@@ -886,12 +898,12 @@ public class QuestInstance implements IQuest
 				continue;
 			}
 			
-			IQuest tmp = QuestDatabase.INSTANCE.getValue(entry.getAsInt());
+			IQuest tmp = parentDB.getValue(entry.getAsInt());
 			
 			if(tmp == null)
 			{
 				tmp = new QuestInstance();
-				QuestDatabase.INSTANCE.add(tmp, entry.getAsInt());
+				parentDB.add(tmp, entry.getAsInt());
 			}
 			
 			preRequisites.add(tmp);

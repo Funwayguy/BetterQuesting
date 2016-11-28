@@ -218,6 +218,8 @@ public class ImportedQuestLines implements IQuestLineDatabase
 	@Override
 	public IQuestLine createNew()
 	{
-		return new QuestLine();
+		QuestLine ql = new QuestLine();
+		ql.setParentDatabase(this);
+		return ql;
 	}
 }
