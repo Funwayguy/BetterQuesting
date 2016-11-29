@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -114,7 +115,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		
 		if(this.mc.thePlayer != null)
 		{
-			ItemStack[] invoStacks = this.mc.thePlayer.inventory.mainInventory;
+			NonNullList<ItemStack> invoStacks = this.mc.thePlayer.inventory.mainInventory;
 			
 			int isx = (18 * 9);
 			int isy = (18 * 4);
@@ -125,7 +126,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(ipx, ipy, 0F);
 			GlStateManager.scale(scale, scale, 1F);
-			for(int i = 0; i < invoStacks.length && i < 9 * 4; i++)
+			for(int i = 0; i < invoStacks.size() && i < 9 * 4; i++)
 			{
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
@@ -135,11 +136,11 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
 				GlStateManager.enableDepth();
 				
-				ItemStack stack = invoStacks[i];
+				ItemStack stack = invoStacks.get(i);
 				
 				if(stack != null)
 				{
-					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.stackSize > 1? stack.stackSize : ""));
+					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.func_190916_E() > 1? stack.func_190916_E() : ""));
 					FluidStack fluidStack = FluidUtil.getFluidContained(stack);
 					
 					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false) && fluidStack != null)
@@ -215,9 +216,9 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			int sy = (my - ipy)/idxSize;
 			int index = sx + (sy * 9);
 			
-			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.length)
+			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.size())
 			{
-				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory[index];
+				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory.get(index);
 				FluidStack fluidStack = invoStack == null? null : FluidUtil.getFluidContained(invoStack);
 				
 				if(fluidStack != null)

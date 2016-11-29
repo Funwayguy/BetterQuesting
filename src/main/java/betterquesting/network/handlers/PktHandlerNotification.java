@@ -24,7 +24,7 @@ public class PktHandlerNotification implements IPacketHandler
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		ItemStack stack = ItemStack.loadItemStackFromNBT(data.getCompoundTag("Icon"));
+		ItemStack stack = new ItemStack(data.getCompoundTag("Icon"));
 		String mainTxt = data.getString("Main");
 		String subTxt = data.getString("Sub");
 		String sound = data.getString("Sound");

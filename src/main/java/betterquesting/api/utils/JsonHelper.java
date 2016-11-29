@@ -260,7 +260,7 @@ public class JsonHelper
 	
 	public static boolean isEntity(JsonObject json)
 	{
-		return json != null && json.has("id") && EntityList.NAME_TO_CLASS.containsKey(GetString(json, "id", ""));
+		return json != null && json.has("id") && EntityList.isStringValidEntityName(new ResourceLocation(GetString(json, "id", "")));
 	}
 	
 	/**
@@ -363,7 +363,7 @@ public class JsonHelper
 		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
 		Entity entity = null;
 		
-		if(tags.hasKey("id") && EntityList.NAME_TO_CLASS.containsKey(tags.getString("id")))
+		if(tags.hasKey("id") && EntityList.isStringValidEntityName(new ResourceLocation(tags.getString("id"))))
 		{
 			entity = EntityList.createEntityFromNBT(tags, world);
 		}

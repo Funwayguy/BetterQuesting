@@ -1,7 +1,6 @@
 package betterquesting.api.utils;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -14,6 +13,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -48,7 +48,7 @@ public class RenderUtils
 		
 		if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 		{
-			ArrayList<ItemStack> tmp = new ArrayList<ItemStack>();
+			NonNullList<ItemStack> tmp = NonNullList.func_191196_a();
 			
 			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.SEARCH, tmp);
 			

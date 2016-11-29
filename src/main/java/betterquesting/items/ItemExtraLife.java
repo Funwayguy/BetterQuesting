@@ -46,8 +46,10 @@ public class ItemExtraLife extends Item
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+    	ItemStack stack = player.getHeldItem(hand);
+    	
     	if(stack.getItemDamage() != 0 || hand != EnumHand.MAIN_HAND)
     	{
     		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -55,7 +57,7 @@ public class ItemExtraLife extends Item
     	{
     		if(!player.capabilities.isCreativeMode)
     		{
-    			stack.stackSize--;
+    			stack.func_190917_f(-1);
     		}
     		
     		int lives = 0;
@@ -73,7 +75,7 @@ public class ItemExtraLife extends Item
     		{
     			if(!world.isRemote)
     			{
-    	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")));
+    	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")), true);
     			}
 	    		
 	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
@@ -91,11 +93,11 @@ public class ItemExtraLife extends Item
     				LifeDatabase.INSTANCE.setLives(party, lives + 1);
     			}
     			
-    			player.addChatComponentMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)));
+    			player.addChatComponentMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)), true);
     		}
     	} else if(!world.isRemote)
     	{
-    		player.addChatComponentMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"));
+    		player.addChatComponentMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"), true);
     	}
     	
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

@@ -47,7 +47,7 @@ public class PktHandlerImport implements IPacketHandler
 		if(!isOP)
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to import quests without OP permissions!");
-			sender.addChatComponentMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"));
+			sender.addChatComponentMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"), false);
 			return; // Player is not operator. Do nothing
 		}
 		

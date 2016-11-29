@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -46,7 +47,14 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 	public void initGui()
 	{
 		super.initGui();
-		ArrayList<String> sortedNames = new ArrayList<String>(EntityList.NAME_TO_CLASS.keySet());
+		
+		ArrayList<String> sortedNames = new ArrayList<String>();
+		
+		for(ResourceLocation loc : EntityList.getEntityNameList())
+		{
+			sortedNames.add(loc.toString());
+		}
+		
 		Collections.sort(sortedNames);
 		
 		btnList = new GuiScrollingButtons(mc, guiLeft + sizeX/2, guiTop + 32, sizeX/2 - 16, sizeY - 64);
@@ -84,7 +92,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 			callback.setValue(entity);
 		} else if(button.id == 1)
 		{
-			Entity tmpE = EntityList.createEntityByName(button.displayString, this.mc.theWorld);
+			Entity tmpE = EntityList.createEntityByIDFromName(new ResourceLocation(button.displayString), this.mc.theWorld);
 			
 			if(tmpE != null)
 			{

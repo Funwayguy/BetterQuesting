@@ -20,8 +20,8 @@ public class BigItemStack
 	public BigItemStack(ItemStack stack)
 	{
 		baseStack = stack.copy();
-		this.stackSize = baseStack.stackSize;
-		baseStack.stackSize = 1;
+		this.stackSize = baseStack.func_190916_E();
+		baseStack.func_190920_e(1);
 	}
 	
 	public BigItemStack(Block block)
@@ -99,7 +99,7 @@ public class BigItemStack
 		{
 			int size = Math.min(tmp1, baseStack.getMaxStackSize());
 			ItemStack stack = baseStack.copy();
-			stack.stackSize = size;
+			stack.func_190920_e(size);
 			list.add(stack);
 			tmp1 -= size;
 		}
@@ -130,7 +130,7 @@ public class BigItemStack
 	{
 		int count = tags.getInteger("Count");
 		String dict = tags.getString("OreDict");
-		ItemStack miniStack = ItemStack.loadItemStackFromNBT(tags);
+		ItemStack miniStack = new ItemStack(tags);
 		BigItemStack bigStack = new BigItemStack(miniStack);
 		bigStack.stackSize = count;
 		bigStack.oreDict = dict;
@@ -141,7 +141,7 @@ public class BigItemStack
 	{
 		stackSize = tags.getInteger("Count");
 		oreDict = tags.getString("OreDict");
-		baseStack.readFromNBT(tags);
+		baseStack = new ItemStack(tags);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound tags)

@@ -120,7 +120,7 @@ public class BetterQuesting
     	
     	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.BOOK), new ItemStack(Blocks.CHEST), new ItemStack(Blocks.GLASS));
     	
-    	EntityRegistry.registerModEntity(EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
+    	EntityRegistry.registerModEntity(new ResourceLocation(MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     	
     	proxy.registerRenderers();
     }

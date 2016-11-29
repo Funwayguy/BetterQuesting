@@ -124,7 +124,7 @@ public class ContainerSubmitStation extends Container
                 return null;
             }
 
-            if (itemstack1.stackSize == 0)
+            if (itemstack1.func_190916_E() == 0)
             {
                 slot.putStack((ItemStack)null);
             }
@@ -133,12 +133,12 @@ public class ContainerSubmitStation extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.stackSize == itemstack.stackSize)
+            if (itemstack1.func_190916_E() == itemstack.func_190916_E())
             {
                 return null;
             }
-
-            slot.onPickupFromSlot(player, itemstack1);
+            
+            slot.func_190901_a(player, itemstack1);
         }
 
         return itemstack;

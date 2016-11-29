@@ -58,7 +58,7 @@ public class ItemPlaceholder extends Item
     	
     	if(i != null)
     	{
-    		ItemStack converted = new ItemStack(i, stack.stackSize, stack.getItemDamage());
+    		ItemStack converted = new ItemStack(i, stack.func_190916_E(), stack.getItemDamage());
     		converted.setTagCompound(t);
     		player.inventory.setInventorySlotContents(slot, converted);
     	}

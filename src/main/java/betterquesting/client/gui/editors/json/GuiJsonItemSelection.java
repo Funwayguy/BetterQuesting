@@ -1,7 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
@@ -14,6 +13,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -116,7 +116,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		
 		if(this.mc.thePlayer != null)
 		{
-			ItemStack[] invoStacks = this.mc.thePlayer.inventory.mainInventory;
+			NonNullList<ItemStack> invoStacks = this.mc.thePlayer.inventory.mainInventory;
 			
 			int isx = (18 * 9);
 			int isy = (18 * 4);
@@ -127,7 +127,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(ipx, ipy, 0F);
 			GlStateManager.scale(scale, scale, 1F);
-			for(int i = 0; i < invoStacks.length && i < 9 * 4; i++) // Intentionally limited to vanilla size for UI neatness
+			for(int i = 0; i < invoStacks.size() && i < 9 * 4; i++) // Intentionally limited to vanilla size for UI neatness
 			{
 				int x = i%9 * 18;
 				int y = (i - i%9)/9 * 18;
@@ -138,11 +138,11 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 				this.drawTexturedModalRect(x, y, 0, 48, 18, 18);
 				GlStateManager.enableDepth();
 				
-				ItemStack stack = invoStacks[i];
+				ItemStack stack = invoStacks.get(i);
 				
 				if(stack != null)
 				{
-					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.stackSize > 1? stack.stackSize : ""));
+					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.func_190916_E() > 1? stack.func_190916_E() : ""));
 					
 					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false))
 					{
@@ -241,9 +241,9 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			int sy = (my - ipy)/idxSize;
 			int index = sx + (sy * 9);
 			
-			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.length)
+			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.size())
 			{
-				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory[index];
+				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory.get(index);
 				
 				if(invoStack != null)
 				{
@@ -289,7 +289,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			
 			pass++;
 			
-			ArrayList<ItemStack> subList = new ArrayList<ItemStack>();
+			NonNullList<ItemStack> subList = NonNullList.func_191196_a();
 			
 			if(baseItem == Items.ENCHANTED_BOOK)
 			{

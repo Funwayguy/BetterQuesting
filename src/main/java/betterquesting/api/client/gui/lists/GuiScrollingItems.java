@@ -1,12 +1,11 @@
 package betterquesting.api.client.gui.lists;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.oredict.OreDictionary;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.BigItemStack;
@@ -39,7 +38,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		private BigItemStack stack;
 		private String desc = "";
 		
-		private List<ItemStack> subStacks = new ArrayList<ItemStack>();
+		private NonNullList<ItemStack> subStacks = NonNullList.func_191196_a();
 		
 		public ScrollingEntryItem(Minecraft mc, BigItemStack stack, String desc)
 		{
@@ -64,7 +63,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 					
 					Item oItem = oreStack.getItem();
 					
-					List<ItemStack> tmp = new ArrayList<ItemStack>();
+					NonNullList<ItemStack> tmp = NonNullList.func_191196_a();
 					
 					if(oreStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 					{

@@ -23,8 +23,10 @@ public class ItemGuideBook extends Item
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+    	ItemStack stack = player.getHeldItem(hand);
+    	
     	if(world.isRemote && hand == EnumHand.MAIN_HAND)
     	{
     		player.openGui(BetterQuesting.instance, 1, world, 0, 0, 0);

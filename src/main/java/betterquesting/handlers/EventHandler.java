@@ -325,10 +325,10 @@ public class EventHandler
 			{
 				if(lives == 1)
 				{
-					mpPlayer.addChatComponentMessage(new TextComponentString("This is your last life!"));
+					mpPlayer.addChatComponentMessage(new TextComponentString("This is your last life!"), true);
 				} else
 				{
-					mpPlayer.addChatComponentMessage(new TextComponentString(lives + " lives remaining!"));
+					mpPlayer.addChatComponentMessage(new TextComponentString(lives + " lives remaining!"), true);
 				}
 			}
 		}

@@ -71,7 +71,7 @@ public class ScrollingItemGrid extends GuiElement implements IScrollingEntry
 				mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 				drawTexturedModalRect(px + i * 18, py + j * 18, 0, 48, 18, 18);
 				GlStateManager.enableDepth();
-				RenderUtils.RenderItemStack(mc, stack, px + i * 18 + 1, py + j * 18 + 1, stack.stackSize > 1? "" + stack.stackSize : "");
+				RenderUtils.RenderItemStack(mc, stack, px + i * 18 + 1, py + j * 18 + 1, stack.func_190916_E() > 1? "" + stack.func_190916_E() : "");
 				GlStateManager.disableDepth();
 				GlStateManager.popMatrix();
 			}
