@@ -71,7 +71,7 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(click == 1)
+		if(click == 1 && grabbed != null)
 		{
 			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			

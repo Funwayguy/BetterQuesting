@@ -87,7 +87,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			{
 				QuestInstance tmpQ = new QuestInstance(); // Unregistered but setup
 				tmpQ.readFromJson(tmpBtn.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG), EnumSaveType.CONFIG);
-				btnQuest = new GuiButtonQuestInstance(0, mx, my, 24, 24, tmpQ);
+				btnQuest = new GuiButtonQuestInstance(0, mx, my, tmpBtn.width, tmpBtn.height, tmpQ);
 				gui.getQuestLine().getButtonTree().add(btnQuest);
 			}
 		} else
@@ -97,7 +97,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			IQuestLine qLine = gui.getQuestLine().getQuestLine();
 			int qID = QuestDatabase.INSTANCE.nextKey();
 			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
-			QuestLineEntry qe = new QuestLineEntry(mx, my, 24);
+			QuestLineEntry qe = new QuestLineEntry(mx, my, Math.max(btnQuest.width, btnQuest.height));
 			qLine.add(qe, qID);
 			btnQuest = null;
 			
