@@ -76,11 +76,6 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		/*this.selReward = 0;
-		this.taskRender = null;
-		this.selTask = 0;
-		this.rewardRender = null;*/
-		
 		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
