@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
 
 public class EntityPlaceholderRenderer extends Render<EntityPlaceholder>
 {
@@ -24,5 +24,6 @@ public class EntityPlaceholderRenderer extends Render<EntityPlaceholder>
 	protected ResourceLocation getEntityTexture(EntityPlaceholder entity)
 	{
 		return null;
-	}	
+	}
+	
 }

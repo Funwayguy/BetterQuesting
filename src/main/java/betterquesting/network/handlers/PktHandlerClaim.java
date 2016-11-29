@@ -2,27 +2,34 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.questing.IQuest;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
-public class PktHandlerClaim extends PktHandler
+public class PktHandlerClaim implements IPacketHandler
 {
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.CLAIM.GetLocation();
+	}
 	
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 		if(sender == null)
 		{
 			return;
 		}
 		
-		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
-		NBTTagList choiceData = data.getTagList("ChoiceData", 10);
+		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
-		if(quest != null && !quest.HasClaimed(sender.getUniqueID()) && quest.CanClaim(sender, choiceData))
+		if(quest != null && !quest.hasClaimed(QuestingAPI.getQuestingUUID(sender)) && quest.canClaim(sender))
 		{
-			quest.Claim(sender, choiceData);
+			quest.claimReward(sender);
 		}
 	}
 	
@@ -30,5 +37,4 @@ public class PktHandlerClaim extends PktHandler
 	public void handleClient(NBTTagCompound data)
 	{
 	}
-	
 }

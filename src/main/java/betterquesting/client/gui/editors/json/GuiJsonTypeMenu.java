@@ -13,24 +13,30 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.core.BetterQuesting;
-import betterquesting.utils.BigItemStack;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.NBTConverter;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
+import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
+import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
+public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 {
-	JsonObject json;
-	FluidStack fluid;
-	BigItemStack stack;
-	Entity entity;
-	EditType lastType = EditType.NONE;
+	private final JsonObject json;
+	private FluidStack fluid;
+	private BigItemStack stack;
+	private Entity entity;
+	private EditType lastType = EditType.NONE;
+	
+	private JsonItemCallback itemCallback;
+	private JsonFluidCallback fluidCallback;
+	private JsonEntityCallback entityCallback;
 	
 	public GuiJsonTypeMenu(GuiScreen parent, JsonObject json)
 	{
@@ -43,19 +49,23 @@ public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
 	{
 		super.initGui();
 		
+		fluid = null;
+		stack = null;
+		entity = null;
+		
 		if(json != null)
 		{
-			if(json.has("id") && json.has("Damage") && json.has("Count")) // Must have at least these 3 to be considered a valid 'item'
+			if(JsonHelper.isItem(json)) // Must have at least these 3 to be considered a valid 'item'
 			{
 				stack = JsonHelper.JsonToItemStack(json);
 			}
 			
-			if(stack == null && json.has("id") && EntityList.NAME_TO_CLASS.get(JsonHelper.GetString(json, "id", "Pig")) != null)
+			if(stack == null && JsonHelper.isEntity(json))
 			{
 				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
 			}
 			
-			if(stack == null && entity == null && json.has("FluidName") && json.has("Amount"))
+			if(stack == null && entity == null && JsonHelper.isFluid(json))
 			{
 				fluid = JsonHelper.JsonToFluidStack(json);
 			}
@@ -87,35 +97,31 @@ public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
 		} else if(lastType == EditType.FLUID)
 		{
 			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(fluid.writeToNBT(new NBTTagCompound()), json);
+			JsonHelper.FluidStackToJson(fluid, json);
 		} else if(lastType == EditType.ENTITY)
 		{
-			try
-			{
-				NBTTagCompound eTags = new NBTTagCompound();
-				entity.writeToNBTOptional(eTags);
-				json.entrySet().clear();
-				NBTConverter.NBTtoJSON_Compound(eTags, json);
-			} catch(Exception e)
-			{
-				BetterQuesting.logger.log(Level.ERROR, "An error occured while reading JSON entity", e);
-			}
+			json.entrySet().clear();
+			JsonHelper.EntityToJson(entity, json);
+		}
+		
+		if(lastType != EditType.NONE)
+		{
+			mc.displayGuiScreen(parent);
 		}
 
-		GuiButtonQuesting editButton = new GuiButtonQuesting(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt")); // JSON Editor
-		GuiButtonQuesting itemButton = new GuiButtonQuesting(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item")); // Item Selector
-		GuiButtonQuesting fluidButton = new GuiButtonQuesting(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid")); // Fluid Editor
-		GuiButtonQuesting entityButton = new GuiButtonQuesting(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity")); // Entity Selector
-		
-		//itemButton.displayString = I18n.format("betterquesting.btn.item");
-		//entityButton.displayString = I18n.format("betterquesting.btn.entity");
-		//editButton.displayString = I18n.format("betterquesting.btn.raw_nbt");
-		//fluidButton.displayString = I18n.format("betterquesting.btn.fluid");
+		GuiButtonThemed editButton = new GuiButtonThemed(3, this.width/2 - 100, this.height/2 - 40, 200, 20, I18n.format("betterquesting.btn.raw_nbt"), true); // JSON Editor
+		GuiButtonThemed itemButton = new GuiButtonThemed(1, this.width/2 - 100, this.height/2 - 20, 200, 20, I18n.format("betterquesting.btn.item"), true); // Item Selector
+		GuiButtonThemed fluidButton = new GuiButtonThemed(4, this.width/2 - 100, this.height/2 + 00, 200, 20, I18n.format("betterquesting.btn.fluid"), true); // Fluid Editor
+		GuiButtonThemed entityButton = new GuiButtonThemed(2, this.width/2 - 100, this.height/2 + 20, 200, 20, I18n.format("betterquesting.btn.entity"), true); // Entity Selector
 		
 		this.buttonList.add(itemButton);
 		this.buttonList.add(entityButton);
 		this.buttonList.add(editButton);
 		this.buttonList.add(fluidButton);
+		
+		itemCallback = new JsonItemCallback(json, stack);
+		fluidCallback = new JsonFluidCallback(json, fluid);
+		entityCallback = new JsonEntityCallback(json, entity);
 	}
 	
 	@Override
@@ -124,30 +130,19 @@ public class GuiJsonTypeMenu extends GuiQuesting implements IVolatileScreen
 		if(button.id == 1)
 		{
 			this.lastType = EditType.ITEM;
-			json.entrySet().clear();
-			JsonHelper.ItemStackToJson(stack, json);
-			
-			this.mc.displayGuiScreen(new GuiJsonItemSelection(this, json));
+			this.mc.displayGuiScreen(new GuiJsonItemSelection(this, itemCallback, stack));
 		} else if(button.id == 2)
 		{
 			this.lastType = EditType.ENTITY;
-			json.entrySet().clear();
-			NBTTagCompound eTags = new NBTTagCompound();
-			entity.writeToNBTOptional(eTags);
-			NBTConverter.NBTtoJSON_Compound(eTags, json);
-			
-			this.mc.displayGuiScreen(new GuiJsonEntitySelection(this, json));
+			this.mc.displayGuiScreen(new GuiJsonEntitySelection(this, entityCallback, entity));
 		} else if(button.id == 3)
 		{
 			this.lastType = EditType.NONE;
-			this.mc.displayGuiScreen(new GuiJsonObject(this, json));
+			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, null));
 		} else if(button.id == 4)
 		{
 			this.lastType = EditType.FLUID;
-			json.entrySet().clear();
-			NBTConverter.NBTtoJSON_Compound(fluid.writeToNBT(new NBTTagCompound()), json);
-			
-			this.mc.displayGuiScreen(new GuiJsonFluidSelection(this, json));
+			this.mc.displayGuiScreen(new GuiJsonFluidSelection(this, fluidCallback, fluid));
 		} else
 		{
 			this.lastType = EditType.NONE;

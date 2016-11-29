@@ -1,30 +1,32 @@
 package betterquesting.client.gui;
 
-import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeBase;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonStorage;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.RenderUtils;
+import betterquesting.misc.DummyQuest;
 
 @SideOnly(Side.CLIENT)
-public class GuiThemeSelect extends GuiQuesting
+public class GuiThemeSelect extends GuiScreenThemed
 {
-	int leftScroll = 0;
-	int maxRows = 0;
+	private GuiScrollingButtons btnList;
+	private List<ITheme> themeList = new ArrayList<ITheme>();
 	
 	public GuiThemeSelect(GuiScreen parent)
 	{
@@ -36,17 +38,12 @@ public class GuiThemeSelect extends GuiQuesting
 	{
 		super.initGui();
 		
-		ThemeRegistry.RefreshResourceThemes();
+		ThemeRegistry.INSTANCE.reloadThemes();
+		themeList.clear();
+		themeList.addAll(ThemeRegistry.INSTANCE.getAllThemes());
 		
-		maxRows = (sizeY - 80)/20;
-		int btnWidth = sizeX/2 - 32;
-		
-		// Quest Line - Main
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), btnWidth, 20, "NULL");
-			this.buttonList.add(btn);
-		}
+		btnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
+		this.embedded.add(btnList);
 		
 		RefreshColumns();
 	}
@@ -57,24 +54,12 @@ public class GuiThemeSelect extends GuiQuesting
 		super.drawScreen(mx, my, partialTick);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		int btnWidth = sizeX/2 - 32;
-		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 16 + btnWidth, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(ThemeRegistry.GetAllThemes().size() - maxRows)), 248, 60, 8, 20);
-		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		GlStateManager.pushMatrix();
+		
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		float scale = ((sizeX - 32)/2)/128F;
 		scale = Math.min(scale, (sizeY - 64)/128F);
 		
@@ -87,19 +72,17 @@ public class GuiThemeSelect extends GuiQuesting
 		
 		this.drawTexturedModalRect(cx - 9, cy - 24, 0, 48, 18, 18);
 		
-    	Color ci = ThemeRegistry.curTheme().getIconColor((int)(Minecraft.getSystemTime()/1000)%2 + 1, (int)(Minecraft.getSystemTime()/2000)%4, (Minecraft.getSystemTime()/8000)%2 == 0);
-    	GlStateManager.color(ci.getRed()/255F, ci.getGreen()/255F, ci.getBlue()/255F, 1F);
-    	
-		this.drawTexturedModalRect(cx + 16, cy + 8, 0, 104, 24, 24);
-		this.drawTexturedModalRect(cx - 40, cy + 8, 24, 104, 24, 24);
+		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, true);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx + 16, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
+		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, false);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 40, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
 		
-    	Color cl = ThemeRegistry.curTheme().getLineColor(MathHelper.clamp_int((int)(Minecraft.getSystemTime()/2000)%4, 0, 2), (Minecraft.getSystemTime()/8000)%2 == 0);
-    	RenderUtils.DrawLine(cx - 16, cy + 20, cx + 16, cy + 20, 4, cl);
+		currentTheme().getRenderer().drawLine(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 16, cy + 20, cx + 16, cy + 20, mx, my, partialTick);
     	
     	GlStateManager.color(1F, 1F, 1F, 1F);
     	
     	String txt = TextFormatting.BOLD + "EXAMPLE";
-    	mc.fontRendererObj.drawString(txt, cx - mc.fontRendererObj.getStringWidth(txt)/2, cy - 32 - mc.fontRendererObj.FONT_HEIGHT, ThemeRegistry.curTheme().textColor().getRGB());
+    	mc.fontRendererObj.drawString(txt, cx - mc.fontRendererObj.getStringWidth(txt)/2, cy - 32 - mc.fontRendererObj.FONT_HEIGHT, getTextColor());
     	
     	RenderUtils.RenderItemStack(mc, new ItemStack(Items.ENCHANTED_BOOK), cx - 8, cy - 23, "");
 		
@@ -111,66 +94,41 @@ public class GuiThemeSelect extends GuiQuesting
 	{
 		super.actionPerformed(btn);
 		
-		if(btn.id > 0)
+		if(btn.id == 1)
 		{
-			int n1 = btn.id - 1; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = main)
-			int n3 = n1%maxRows + leftScroll; // Theme list index
+			@SuppressWarnings("unchecked")
+			GuiButtonStorage<ITheme> btnTheme = (GuiButtonStorage<ITheme>)btn;
+			ThemeRegistry.INSTANCE.setCurrentTheme(btnTheme.getStored());
 			
-			if(n2 == 0)
-			{
-				ThemeRegistry.setTheme(ThemeRegistry.getId(ThemeRegistry.GetAllThemes().get(n3)));
-				RefreshColumns();
-			}
+			RefreshColumns();
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
-	@Override
-    public void handleMouseInput() throws IOException
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, ThemeRegistry.GetAllThemes().size() - maxRows));
-    		RefreshColumns();
-        }
-    }
-	
+	//@SuppressWarnings("unchecked")
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, ThemeRegistry.GetAllThemes().size() - maxRows));
+		btnList.getEntryList().clear();
 		
-		List<GuiButton> btnList = this.buttonList;
-		
-		for(int i = 1; i < btnList.size(); i++)
+		for(ITheme th : themeList)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 1; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
-			
-			if(n2 == 0)
-			{
-				if(n3 >= 0 && n3 < ThemeRegistry.GetAllThemes().size())
-				{
-					ThemeBase theme = ThemeRegistry.GetAllThemes().get(n3);
-					btn.displayString = theme.GetName();
-					btn.visible = true;
-					btn.enabled = ThemeRegistry.curTheme() != theme;
-				} else
-				{
-					btn.displayString = "NULL";
-					btn.enabled = btn.visible = false;
-				}
-			}
+			GuiButtonStorage<ITheme> btn = new GuiButtonStorage<ITheme>(1, 0, 0, btnList.getListWidth(), 20, th.getDisplayName());
+			btn.setStored(th);
+			btn.enabled = th != currentTheme();
+			btnList.addButtonRow(btn);
+		}
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click) throws IOException
+	{
+		super.mouseClicked(mx, my, click);
+		
+		GuiButtonThemed btn = btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null && btn.mousePressed(mc, mx, my))
+		{
+			btn.playPressSound(mc.getSoundHandler());
+			actionPerformed(btn);
 		}
 	}
 }

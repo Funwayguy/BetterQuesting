@@ -1,7 +1,7 @@
 package betterquesting.client.gui.editors.json;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -15,90 +15,62 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.misc.ICallback;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonHelper;
-import betterquesting.utils.RenderUtils;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScreen
+public class GuiJsonEntitySelection extends GuiScreenThemed
 {
-	JsonObject json;
-	Entity entity;
-	int scrollPos = 0;
+	private Entity entity;
+	private ICallback<Entity> callback;
 	
-	public GuiJsonEntitySelection(GuiScreen parent, JsonObject json)
+	private GuiScrollingButtons btnList;
+	
+	public GuiJsonEntitySelection(GuiScreen parent, ICallback<Entity> callback, Entity entity)
 	{
 		super(parent, "betterquesting.title.select_entity");
-		this.json = json;
+		this.entity = entity;
+		this.callback = callback;
+		
+		if(this.entity == null)
+		{
+			this.entity = new EntityPig(Minecraft.getMinecraft().theWorld);
+		}
 	}
 	
 	@Override
 	public void initGui()
 	{
 		super.initGui();
-		
-		entity = JsonHelper.JsonToEntity(json, this.mc.theWorld, false);
-		
-		if(entity == null)
-		{
-			entity = new EntityPig(Minecraft.getMinecraft().theWorld);
-			this.json.entrySet().clear();
-			JsonHelper.EntityToJson(entity, json);
-		}
-		
-		scrollPos = 0;
-		
-		int bSize = sizeX/2 - 16;
-		
-		GuiButtonQuesting leftBtn = new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 48, 20, 20, "<");
-		this.buttonList.add(leftBtn);
-		GuiButtonQuesting rightBtn = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 + (bSize - 20), this.guiTop + this.sizeY - 48, 20, 20, ">");
-		this.buttonList.add(rightBtn);
-		
-		int i = 0;
-		
-		ArrayList<String> sortedNames = new ArrayList<String>((Collection<String>)EntityList.NAME_TO_CLASS.keySet());
-		
+		ArrayList<String> sortedNames = new ArrayList<String>(EntityList.NAME_TO_CLASS.keySet());
 		Collections.sort(sortedNames);
+		
+		btnList = new GuiScrollingButtons(mc, guiLeft + sizeX/2, guiTop + 32, sizeX/2 - 16, sizeY - 64);
+		int btnWidth = btnList.getListWidth();
 		
 		for(String key : sortedNames)
 		{
-			this.buttonList.add(new GuiButtonQuesting(this.buttonList.size(), this.guiLeft + this.sizeX/2, this.guiTop + 32 + (i * 20), bSize, 20, key));
-			i++;
+			btnList.addButtonRow(new GuiButtonThemed(1, 0, 0, btnWidth, 20, key));
 		}
 		
-		UpdateScroll();
+		this.embedded.add(btnList);
 	}
 	
-	public void UpdateScroll()
+	@Override
+	public void mouseClicked(int mx, int my, int click) throws IOException
 	{
-		int maxRows = (this.sizeY - 80)/20;
+		super.mouseClicked(mx, my, click);
 		
-		for(int i = 3; i < this.buttonList.size(); i++)
+		GuiButtonThemed btn = btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null && btn.mousePressed(mc, mx, my) && click == 0)
 		{
-			Object obj = this.buttonList.get(i);
-			
-			if(obj == null || !(obj instanceof GuiButton))
-			{
-				continue;
-			}
-			
-			GuiButton button = (GuiButton)obj;
-			int n = (i - 3) - (scrollPos * maxRows);
-			
-			if(n < 0 || n >= maxRows)
-			{
-				button.xPosition = -9999;
-				button.yPosition = -9999;
-			} else
-			{
-				button.xPosition = this.guiLeft + this.sizeX/2;
-				button.yPosition = this.guiTop + 32 + (n * 20);
-			}
+			btn.playPressSound(mc.getSoundHandler());
+			actionPerformed(btn);
 		}
 	}
 	
@@ -107,24 +79,10 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1)
+		if(button.id == 0 && callback != null)
 		{
-			if(scrollPos > 0)
-			{
-				scrollPos--;
-				UpdateScroll();
-			}
-		} else if(button.id == 2)
-		{
-			int maxRows = (this.sizeY - 80)/20;
-			int maxPages = MathHelper.ceiling_float_int(EntityList.NAME_TO_CLASS.size()/(float)maxRows);
-			
-			if(scrollPos + 1 < maxPages)
-			{
-				scrollPos++;
-				UpdateScroll();
-			}
-		} else if(button.id >= 3)
+			callback.setValue(entity);
+		} else if(button.id == 1)
 		{
 			Entity tmpE = EntityList.createEntityByName(button.displayString, this.mc.theWorld);
 			
@@ -134,7 +92,6 @@ public class GuiJsonEntitySelection extends GuiQuesting implements IVolatileScre
 				{
 					tmpE.readFromNBT(new NBTTagCompound()); // Solves some instantiation issues
 					tmpE.isDead = false; // Some entities instantiate dead or die when ticked
-					JsonHelper.EntityToJson(tmpE, json);
 					entity = tmpE;
 				} catch(Exception e)
 				{

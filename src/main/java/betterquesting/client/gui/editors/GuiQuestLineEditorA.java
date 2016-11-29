@@ -1,6 +1,7 @@
 package betterquesting.client.gui.editors;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -8,36 +9,40 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.importers.ImporterRegistry;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLine;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import org.lwjgl.input.Keyboard;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.misc.ICallback;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestLineDatabase;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVolatileScreen
+public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
-	GuiButtonQuesting btnDesign;
-	GuiTextField lineTitle;
-	GuiBigTextField lineDesc;
-	QuestLine selected;
-	int selIndex = -1;
-	int leftScroll = 0;
-	int maxRows = 0;
+	private List<Integer> questList = new ArrayList<Integer>();
+	private GuiButtonThemed btnDesign;
+	private GuiTextField lineTitle;
+	private GuiBigTextField lineDesc;
+	private IQuestLine selected;
+	int selID = -1;
+	
+	private GuiScrollingButtons btnList;
 	
 	public GuiQuestLineEditorA(GuiScreen parent)
 	{
@@ -49,43 +54,43 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 	{
 		super.initGui();
 		
-		maxRows = (sizeY - 80)/20;
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
 		lineTitle = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
 		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
 		
-		lineDesc = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this, 0);
+		lineDesc = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new")));
-		GuiButtonQuesting btnImport = new GuiButtonQuesting(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.import"));
-		btnImport.enabled = ImporterRegistry.getImporters().size() > 0 && mc.isIntegratedServerRunning();
+		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new"), true));
+		GuiButtonThemed btnImport = new GuiButtonThemed(3, guiLeft + 16 + (btnWidth - 16)/2, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.import"), true);
 		this.buttonList.add(btnImport);
-		this.buttonList.add(new GuiButtonQuesting(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests")));
-		btnDesign = new GuiButtonQuesting(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer"));
+		this.buttonList.add(new GuiButtonThemed(2, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 20, 150, 20, I18n.format("betterquesting.btn.add_remove_quests"), true));
+		btnDesign = new GuiButtonThemed(4, guiLeft + 16 + sx/4*3 - 75, guiTop + sizeY/2 + 40, 150, 20, I18n.format("betterquesting.btn.designer"), true);
 		this.buttonList.add(btnDesign);
 		
-		// Quest Line - Main
-		for(int i = 0; i < maxRows; i++)
+		btnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, btnWidth - 8, sizeY - 80);
+		this.embedded.add(btnList);
+		
+		if(selected != null)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + 20, guiTop + 32 + (i*20), btnWidth - 56, 20, "NULL");
-			this.buttonList.add(btn);
+			lineTitle.setText(selected.getUnlocalisedName());
+			lineDesc.setText(selected.getUnlocalisedDescription());
 		}
 		
-		// Quest Line - Delete
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
-			this.buttonList.add(btn);
-		}
+		RefreshColumns();
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		selected = QuestLineDatabase.INSTANCE.getValue(selID);
 		
-		// Quest Line - Shift Up
-		for(int i = 0; i < maxRows; i++)
+		if(selected != null)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + 20 + btnWidth - 56, guiTop + 32 + (i*20), 20, 20, "" + TextFormatting.YELLOW + TextFormatting.BOLD + "^");
-			this.buttonList.add(btn);
+			lineTitle.setText(selected.getUnlocalisedName());
+			lineDesc.setText(selected.getUnlocalisedDescription());
 		}
 		
 		RefreshColumns();
@@ -96,33 +101,15 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestDatabase.updateUI)
-		{
-			RefreshColumns();
-			QuestDatabase.updateUI = false;
-		}
-		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(QuestDatabase.questLines.size() - maxRows)), 248, 60, 8, 20);
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, getTextColor());
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, ThemeRegistry.curTheme().textColor());
-		
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, getTextColor(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, getTextColor(), false);
 		
 		lineTitle.drawTextBox();
-		lineDesc.drawTextBox();
+		lineDesc.drawTextBox(mx, my, partialTick);
 	}
 	
 	public void DeleteQuest(int id)
@@ -130,27 +117,42 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", 1);
 		tags.setInteger("questID", id);
-		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
-	public void SendChanges(int action)
+	public void SendChanges(EnumPacketAction action, IQuestLine questLine)
 	{
-		if(action < 0 || action > 2)
+		SendChanges(action, QuestLineDatabase.INSTANCE.getKey(questLine));
+	}
+
+	public void SendChanges(EnumPacketAction action, int lineID)
+	{
+		SendChanges(action, lineID, QuestLineDatabase.INSTANCE.getOrderIndex(lineID));
+	}
+	
+	public void SendChanges(EnumPacketAction action, int lineID, int order)
+	{
+		IQuestLine questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
+		
+		if(action == null)
 		{
 			return;
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", action);
 		
-		if(action == 2)
+		if(action == EnumPacketAction.EDIT && questLine != null)
 		{
-			JsonObject json = new JsonObject();
-			QuestDatabase.writeToJson_Lines(json);
-			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+			JsonObject base = new JsonObject();
+			base.add("line", questLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		}
-
-		PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
+		
+		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
+		tags.setInteger("order", order);
+		tags.setInteger("action", action.ordinal());
+		
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
 	
 	@Override
@@ -160,7 +162,7 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		
 		if(btn.id == 1) // Add quest line
 		{
-			SendChanges(0);
+			SendChanges(EnumPacketAction.ADD, -1);
 			RefreshColumns();
 		} else if(btn.id == 2)
 		{
@@ -177,36 +179,44 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
 		} else if(btn.id > 4)
 		{
-			int n1 = btn.id - 5; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
+			int n2 = btn.id&3; // Line listing (0 = line, 1 = delete, 2 shift)
+			int n3 = (btn.id >> 2) - 5; // Quest list index
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < QuestDatabase.questLines.size())
+				if(n3 >= 0)
 				{
-					selected = QuestDatabase.questLines.get(n3);
-					selIndex = n3;
+					selected = QuestLineDatabase.INSTANCE.getValue(n3);
+					selID = n3;
+					
+					if(selected != null)
+					{
+						lineTitle.setText(selected.getUnlocalisedName());
+						lineDesc.setText(selected.getUnlocalisedDescription());
+					}
 				} else
 				{
 					selected = null;
-					selIndex = -1;
+					selID = -1;
 				}
 				
 				RefreshColumns();
 			} else if(n2 == 1)
 			{
-				if(n3 >= 0 && n3 < QuestDatabase.questLines.size())
+				if(n3 >= 0)
 				{
-					QuestDatabase.questLines.remove(n3);
-					SendChanges(2);
+					SendChanges(EnumPacketAction.REMOVE, n3);
 				}
 			} else if(n2 == 2)
 			{
-				if(n3 >= 1 && n3 < QuestDatabase.questLines.size())
+				if(n3 >= 0)
 				{
-					QuestDatabase.questLines.add(n3 - 1, QuestDatabase.questLines.remove(n3));
-					SendChanges(2);
+					int order = QuestLineDatabase.INSTANCE.getOrderIndex(n3);
+					
+					if(order > 0)
+					{
+						SendChanges(EnumPacketAction.EDIT, n3, order - 1);
+					}
 				}
 			}
 		}
@@ -224,6 +234,38 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
         {
         	lineDesc.textboxKeyTyped(character, keyCode);
         	lineTitle.textboxKeyTyped(character, keyCode);
+        	
+        	if(keyCode == Keyboard.KEY_RETURN)
+        	{
+    			boolean flag = false;
+    			
+        		if(lineTitle.isFocused())
+    			{
+        			if(!lineTitle.getText().equals(selected.getUnlocalisedName()))
+        			{
+	    				selected.getProperties().setProperty(NativeProps.NAME, lineTitle.getText());
+	    				flag = true;
+        			}
+        			
+    				lineTitle.setFocused(false);
+    			}
+    			
+    			if(lineDesc.isFocused())
+    			{
+    				if(!lineDesc.getText().equals(selected.getUnlocalisedDescription()))
+    				{
+	    				selected.getProperties().setProperty(NativeProps.DESC, lineDesc.getText());
+	    				flag = true;
+    				}
+    				
+    				lineDesc.setFocused(false);
+    			}
+    			
+    			if(flag)
+    			{
+    				SendChanges(EnumPacketAction.EDIT, selected);
+    			}
+        	}
         }
     }
 	
@@ -233,8 +275,6 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 	@Override
     protected void mouseClicked(int mx, int my, int click) throws IOException
     {
-		super.mouseClicked(mx, my, click);
-		
 		lineTitle.mouseClicked(mx, my, click);
 		lineDesc.mouseClicked(mx, my, click);
 		
@@ -242,121 +282,78 @@ public class GuiQuestLineEditorA extends GuiQuesting implements ITextEditor, IVo
 		{
 			boolean flag = false;
 			
-			if(!lineTitle.isFocused() && !lineTitle.getText().equals(selected.name))
+			if(!lineTitle.isFocused() && !lineTitle.getText().equals(selected.getUnlocalisedName()))
 			{
-				selected.name = lineTitle.getText();
+				selected.getProperties().setProperty(NativeProps.NAME, lineTitle.getText());
 				flag = true;
 			}
 			
-			if(!lineDesc.isFocused() && !lineDesc.getText().equals(selected.description))
+			if(!lineDesc.isFocused() && !lineDesc.getText().equals(selected.getUnlocalisedDescription()))
 			{
-				selected.description = lineDesc.getText();
+				selected.getProperties().setProperty(NativeProps.DESC, lineDesc.getText());
 				flag = true;
 			}
 			
 			if(flag)
 			{
-				SendChanges(2);
+				SendChanges(EnumPacketAction.EDIT, selected);
 			}
 		}
-    }
-	
-    /**
-     * Handles mouse input.
-     */
-	@Override
-    public void handleMouseInput() throws IOException
-    {
-		super.handleMouseInput();
 		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, QuestDatabase.questLines.size() - maxRows));
-    		RefreshColumns();
-        }
+		super.mouseClicked(mx, my, click);
+		
+		GuiButtonThemed btn = click != 0? null : btnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null)
+		{
+			btn.playPressSound(mc.getSoundHandler());
+			this.actionPerformed(btn);
+		}
     }
 	
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, QuestDatabase.questLines.size() - maxRows));
-		
-		if(selected != null && !QuestDatabase.questLines.contains(selected))
-		{
-			if(selIndex >= 0 && selIndex < QuestDatabase.questLines.size())
-			{
-				selected = QuestDatabase.questLines.get(selIndex);
-			} else
-			{
-				selected = null;
-				selIndex = -1;
-			}
-		}
+		questList = QuestLineDatabase.INSTANCE.getAllKeys();
 		
 		if(btnDesign != null)
 		{
 			btnDesign.enabled = selected != null;
 		}
-
-		List<GuiButton> btnList = this.buttonList;
 		
-		for(int i = 5; i < btnList.size(); i++)
+		btnList.getEntryList().clear();
+		
+		for(int qlid : questList)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = btn.id - 5; // Line index
-			int n2 = n1/maxRows; // Line listing (0 = line, 1 = delete)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
+			IQuestLine line = QuestLineDatabase.INSTANCE.getValue(qlid);
 			
-			if(n2 == 0)
+			if(line == null)
 			{
-				if(n3 >= 0 && n3 < QuestDatabase.questLines.size())
-				{
-					btn.displayString = I18n.format(QuestDatabase.questLines.get(n3).name);
-					btn.enabled = btn.visible = true;
-				} else
-				{
-					btn.displayString = "NULL";
-					btn.enabled = btn.visible = false;
-				}
-			} else if(n2 == 1 || n2 == 2)
-			{
-				btn.enabled = btn.visible = n3 >= 0 && n3 < QuestDatabase.questLines.size();
+				continue;
 			}
-		}
-		
-		if(selected == null)
-		{
-			lineTitle.setText("");
-			lineTitle.setEnabled(false);
-			lineDesc.setText("");
-			lineDesc.setEnabled(false);
-		} else
-		{
-			lineTitle.setText(selected.name);
-			lineTitle.setEnabled(true);
-			lineDesc.setText(selected.description);
-			lineDesc.setEnabled(true);
+			
+			int bWidth = btnList.getListWidth();
+			int bID = (5 + qlid) << 2; // Offsets the quest line ID to avoid conflict with existing button IDs and reserves 2 bits for column index
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 40, 20, I18n.format(line.getUnlocalisedName()));
+			btn1.enabled = line != selected;
+			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
+			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, "" + TextFormatting.YELLOW + TextFormatting.BOLD + "^");
+			
+			btnList.addButtonRow(btn1, btn2, btn3);
 		}
 	}
 
 	@Override
-	public void setText(int id, String text)
+	public void setValue(String text)
 	{
-		if(id == 0)
+		if(lineDesc != null)
 		{
-			if(lineDesc != null)
-			{
-				lineDesc.setText(text);
-			}
-			
-			if(selected != null)
-			{
-				selected.description = text;
-				SendChanges(2);
-			}
+			lineDesc.setText(text);
+		}
+		
+		if(selected != null)
+		{
+			selected.getProperties().setProperty(NativeProps.DESC, text);
+			SendChanges(EnumPacketAction.EDIT, selected);
 		}
 	}
 }

@@ -6,9 +6,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui.help.GuiQuestingHelp;
 import betterquesting.client.gui.inventory.ContainerSubmitStation;
 import betterquesting.client.gui.inventory.GuiSubmitStation;
+import betterquesting.client.gui.misc.GuiQuestingHelp;
 
 public class GuiHandler implements IGuiHandler
 {

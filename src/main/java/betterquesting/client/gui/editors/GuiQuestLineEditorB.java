@@ -8,44 +8,49 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLine.QuestLineEntry;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.questing.QuestLineEntry;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
+public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	int selIndex = -1;
-	QuestLine line;
-	int leftScroll = 0;
-	int rightScroll = 0;
-	int maxRowsL = 0;
-	int maxRowsR = 0;
-	GuiBigTextField searchBox;
-	ArrayList<QuestInstance> searchResults = new ArrayList<QuestInstance>();
+	private int lineID = -1;
+	private IQuestLine line;
 	
-	public GuiQuestLineEditorB(GuiScreen parent, QuestLine line)
+	GuiBigTextField searchBox;
+	List<Integer> searchResults = new ArrayList<Integer>();
+	List<Integer> lineQuests = new ArrayList<Integer>();
+	
+	private GuiScrollingButtons dbBtnList;
+	private GuiScrollingButtons qlBtnList;
+	
+	public GuiQuestLineEditorB(GuiScreen parent, IQuestLine line)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name)));
+		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.getUnlocalisedName())));
 		this.line = line;
-		selIndex = line == null? -1 : QuestDatabase.questLines.indexOf(line);
+		this.lineID = QuestLineDatabase.INSTANCE.getKey(line);
 	}
 	
 	@Override
@@ -53,51 +58,34 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	{
 		super.initGui();
 		
-		this.title = I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.name));
-		
-		maxRowsL = (sizeY - 96)/20;
-		maxRowsR = (sizeY - 116)/20;
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.searchBox = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 8, guiTop + 48, btnWidth - 16, 20);
+		this.searchBox = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 49, btnWidth - 18, 18);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new")));
+		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new"), true));
 		
-		// Left main buttons
-		for(int i = 0; i < maxRowsL; i++)
+		qlBtnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 48, btnWidth - 8, sizeY - 96);
+		dbBtnList = new GuiScrollingButtons(mc, guiLeft + sizeX/2 + 8, guiTop + 68, btnWidth - 8, sizeY - 116);
+		this.embedded.add(qlBtnList);
+		this.embedded.add(dbBtnList);
+		
+		RefreshSearch();
+		RefreshColumns();
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		this.line = QuestLineDatabase.INSTANCE.getValue(lineID);
+		
+		if(lineID >= 0 && line == null)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 48 + (i*20), btnWidth - 36, 20, "NULL");
-			this.buttonList.add(btn);
+			mc.displayGuiScreen(parent);
+			return;
 		}
 		
-		// Left delete buttons
-		for(int i = 0; i < maxRowsL; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16 + btnWidth - 36, guiTop + 48 + (i*20), 20, 20, "" + TextFormatting.YELLOW + TextFormatting.BOLD + ">");
-			this.buttonList.add(btn);
-		}
-		
-		// Right main buttons
-		for(int i = 0; i < maxRowsR; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28, guiTop + 68 + (i*20), btnWidth - 56, 20, "NULL");
-			this.buttonList.add(btn);
-		}
-		
-		// Right delete buttons
-		for(int i = 0; i < maxRowsR; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 28 + btnWidth - 56, guiTop + 68 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
-			this.buttonList.add(btn);
-		}
-		
-		// Right add buttons
-		for(int i = 0; i < maxRowsR; i++)
-		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 68 + (i*20), 20, 20, "" + TextFormatting.GREEN + TextFormatting.BOLD + "<");
-			this.buttonList.add(btn);
-		}
+		setTitle(I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.getUnlocalisedName())));
 		
 		RefreshSearch();
 		RefreshColumns();
@@ -108,48 +96,18 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestDatabase.updateUI)
-		{
-			QuestDatabase.updateUI = false;
-			RefreshSearch();
-			RefreshColumns();
-		}
-		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRowsL - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 48 + (int)Math.max(0, s * (float)leftScroll/(line == null? 1 : line.questList.size() - maxRowsL)), 248, 60, 8, 20);
-		
-		// Right scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68, 248, 0, 8, 20);
-		s = 20;
-		while(s < (maxRowsR - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 68 + (int)Math.max(0, s * (float)rightScroll/(searchResults.size() - maxRowsL)), 248, 60, 8, 20);
-		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format("betterquesting.gui.quest_line");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		txt = I18n.format("betterquesting.gui.database");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		
-		searchBox.drawTextBox();
+		searchBox.drawTextBox(mx, my, partialTick);
 	}
 	
 	@Override
@@ -157,205 +115,153 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 0)
+		if(button.id == 1)
 		{
-			SendChanges(2); // We do this upon exiting because the screen relies on this instance of the quest line and cannot recover if it is update early
-		} else if(button.id == 1)
-		{
-			SendChanges(1);
+			createQuest();
 		} else if(button.id > 1)
 		{
-			int n1 = button.id - 2; // Line index
-			int n2 = n1/maxRowsL; // Line listing (0 = quest, 1 = quest delete, 2 = registry)
-			int n3 = n1%maxRowsL + leftScroll; // Quest list index
-			int n4 = n1%maxRowsL + rightScroll; // Registry list index
+			int column = button.id&7; // Line listing (0 = quest, 1 = quest delete, 2 = registry)
+			int id = (button.id >> 3) - 2;
 			
-			if(n2 >= 2) // Right list needs some modifications to work properly
+			if(column == 0 || column == 3) // Edit quest
 			{
-				n1 -= maxRowsL*2;
-				n2 = 2 + n1/maxRowsR;
-				n4 = n1%maxRowsR + rightScroll;
-			}
-			
-			if(n2 == 0) // Edit quest
-			{
-				if(line != null && n3 >= 0 && n3 < line.questList.size())
+				if(id >= 0)
 				{
-					mc.displayGuiScreen(new GuiQuestInstance(this, line.questList.get(n3).quest));
-				}
-			} else if(n2 == 1) // Remove quest
-			{
-				if(!(line == null || n3 < 0 || n3 >= line.questList.size()))
-				{
-					line.questList.remove(n3);
-					RefreshColumns();
-				}
-			} else if(n2 == 2) // Edit quest
-			{
-				if(!(n4 < 0 || n4 >= searchResults.size()))
-				{
-					mc.displayGuiScreen(new GuiQuestInstance(this, searchResults.get(n4)));
-				}
-			} else if(n2 == 3) // Delete quest
-			{
-				if(!(n4 < 0 || n4 >= searchResults.size()))
-				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 1); // Delete quest
-					tags.setInteger("questID", searchResults.get(n4).questID);
-		    		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
-				}
-			} else if(n2 == 4) // Add quest
-			{
-				if(!(line == null || n4 < 0 || n4 >= searchResults.size()))
-				{
-					QuestLineEntry qe = new QuestLineEntry(searchResults.get(n4), 0, 0);
+					IQuest q = QuestDatabase.INSTANCE.getValue(id);
 					
-					topLoop:
-					while(true)
+					if(q != null)
 					{
-						for(QuestLineEntry qe2 : line.questList)
-						{
-							if(qe.posX >= qe2.posX && qe.posX < qe2.posX + 24 && qe.posY >= qe2.posY && qe.posY < qe2.posY + 24)
-							{
-								qe.posX += 24;
-								qe.posY += 24;
-								continue topLoop; // We're in the way, move over and try again
-							}
-						}
+						mc.displayGuiScreen(new GuiQuestInstance(this, q));
+					}
+				}
+			} else if(column == 1 && line != null) // Remove quest
+			{
+				line.removeKey(id);
+				//RefreshColumns();
+				SendChanges(EnumPacketAction.EDIT, lineID);
+			} else if(column == 4 && id >= 0) // Delete quest
+			{
+				NBTTagCompound tags = new NBTTagCompound();
+				tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
+				tags.setInteger("questID", id);
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+			} else if(column == 2 && line != null && id >= 0) // Add quest
+			{
+				IQuestLineEntry qe = new QuestLineEntry(0, 0);
+				int x1 = 0;
+				int y1 = 0;
+				
+				topLoop:
+				while(true)
+				{
+					for(IQuestLineEntry qe2 : line.getAllValues())
+					{
+						int x2 = qe2.getPosX();
+						int y2 = qe2.getPosY();
+						int s2 = qe2.getSize();
 						
-						break;
+						if(x1 >= x2 && x1 < x2 + s2 && y1 >= y2 && y1 < y2 + s2)
+						{
+							x1 += s2;
+							x2 += s2;
+							continue topLoop; // We're in the way, move over and try again
+						}
 					}
 					
-					if(qe.quest != null)
-					{
-						line.questList.add(qe);
-						RefreshColumns();
-					}
+					break;
 				}
+				
+				qe.setPosition(x1, y1);
+				line.add(qe, id);
+				RefreshColumns();
+				SendChanges(EnumPacketAction.EDIT, lineID);
 			}
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput() throws IOException
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, line.questList.size() - maxRowsL));
-    		RefreshColumns();
-        }
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
-        {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, searchResults.size() - maxRowsR));
-        	RefreshColumns();
-        }
-    }
-	
-	public void SendChanges(int action)
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		if(action < 0 || action > 2)
+		super.mouseScroll(mx, my, scroll);
+	}
+	
+	public void createQuest()
+	{
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("action", EnumPacketAction.ADD.ordinal());
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
+	}
+	
+	public void SendChanges(EnumPacketAction action, int lineID)
+	{
+		if(action == null)
 		{
 			return;
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", action);
 		
-		if(action == 2)
+		if(action == EnumPacketAction.EDIT && line != null)
 		{
-			JsonObject json = new JsonObject();
-			QuestDatabase.writeToJson_Lines(json);
-			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+			JsonObject base = new JsonObject();
+			base.add("line", line.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		}
-
-		PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
+		
+		tags.setInteger("action", action.ordinal());
+		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
+		
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()
 	{
-		leftScroll = line == null? 0 : Math.max(0, MathHelper.clamp_int(leftScroll, 0, line.questList.size() - maxRowsL));
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, searchResults.size() - maxRowsR));
-    	
-    	if(line != null && !QuestDatabase.questLines.contains(line))
+		if(line == null)
 		{
-			if(selIndex >= 0 && selIndex < QuestDatabase.questLines.size())
-			{
-				line = QuestDatabase.questLines.get(selIndex);
-			} else
-			{
-				mc.displayGuiScreen(parent);
-			}
+			lineQuests.clear();
+		} else
+		{
+			lineQuests = line.getAllKeys();
 		}
     	
-		List<GuiButton> btnList = this.buttonList;
+		qlBtnList.getEntryList().clear();
 		
-		for(int i = 2; i < btnList.size(); i++)
+		for(int qID : lineQuests)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = i - 2;
-			int n2 = n1/maxRowsL; // Button listing (0 = quest, 1 = quest delete, 2 = registry)
-			int n3 = n1%maxRowsL + leftScroll; // Quest list index
-			int n4 = n1%maxRowsL + rightScroll; // Registry list index
+			IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
 			
-			if(n2 >= 2) // Right list needs some modifications to work properly
+			if(quest == null)
 			{
-				n1 -= maxRowsL*2;
-				n2 = 2 + n1/maxRowsR;
-				n4 = n1%maxRowsR + rightScroll;
+				continue;
 			}
 			
-			if(n2 == 0) // Edit quest
+			int bWidth = qlBtnList.getListWidth();
+			int bID = (2 + qID) << 3; // First 3 bits reserved for column index
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 20, 20, I18n.format(quest.getUnlocalisedName()));
+			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, TextFormatting.YELLOW + ">");
+			
+			qlBtnList.addButtonRow(btn1, btn2);
+		}
+    	
+		dbBtnList.getEntryList().clear();
+		
+		for(int qID : searchResults)
+		{
+			IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
+			
+			if(quest == null)
 			{
-				if(line == null || n3 < 0 || n3 >= line.questList.size())
-				{
-					btn.displayString = "NULL";
-					btn.visible = btn.enabled = false;
-				} else
-				{
-					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(line.questList.get(n3).quest.name);
-				}
-			} else if(n2 == 1) // Remove quest
-			{
-				btn.visible = btn.enabled = line != null && !(n3 < 0 || n3 >= line.questList.size());
-			} else if(n2 == 2) // Edit quest
-			{
-				if(n4 < 0 || n4 >= searchResults.size())
-				{
-					btn.displayString = "NULL";
-					btn.visible = btn.enabled = false;
-				} else
-				{
-					QuestInstance q = searchResults.get(n4);
-					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(q.name);
-				}
-			} else if(n2 == 3) // Delete quest
-			{
-				btn.visible = btn.enabled = !(n4 < 0 || n4 >= searchResults.size());
-			} else if(n2 == 4) // Add quest
-			{
-				if(n4 < 0 || n4 >= searchResults.size())
-				{
-					btn.visible = btn.enabled = false;
-				} else
-				{
-					QuestInstance q = searchResults.get(n4);
-					btn.visible = true;
-					btn.enabled = line != null && line.getEntryByID(q.questID) == null;
-				}
+				continue;
 			}
+			
+			int bWidth = dbBtnList.getListWidth();
+			int bID = (2 + qID) << 3; // First 3 bits reserved for column index
+			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, TextFormatting.GREEN + "<");
+			btn3.enabled = line != null && !lineQuests.contains(qID);
+			GuiButtonThemed btn4 = new GuiButtonThemed(bID + 3, 0, 0, bWidth - 40, 20, I18n.format(quest.getUnlocalisedName()));
+			GuiButtonThemed btn5 = new GuiButtonThemed(bID + 4, 0, 0, 20, 20, "" + TextFormatting.BOLD + TextFormatting.RED + "x");
+			
+			dbBtnList.addButtonRow(btn3, btn4, btn5);
 		}
 	}
 	
@@ -379,19 +285,16 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	
 	public void RefreshSearch()
 	{
-		searchResults = new ArrayList<QuestInstance>();
+		searchResults = new ArrayList<Integer>();
 		String query = searchBox.getText().toLowerCase();
 		
-		for(QuestInstance q : QuestDatabase.questDB.values())
+		for(int id : QuestDatabase.INSTANCE.getAllKeys())
 		{
-			if(q == null)
-			{
-				continue;
-			}
+			IQuest q = QuestDatabase.INSTANCE.getValue(id);
 			
-			if(q.name.toLowerCase().contains(query) || I18n.format(q.name).toLowerCase().contains(query) || query.equalsIgnoreCase("" + q.questID))
+			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
 			{
-				searchResults.add(q);
+				searchResults.add(id);
 			}
 		}
 	}
@@ -401,5 +304,28 @@ public class GuiQuestLineEditorB extends GuiQuesting implements IVolatileScreen
 	{
 		super.mouseClicked(mx, my, type);
 		this.searchBox.mouseClicked(mx, my, type);
+		
+		if(type != 0)
+		{
+			return;
+		}
+		
+		GuiButtonThemed btn1 = qlBtnList.getButtonUnderMouse(mx, my);
+		
+		if(btn1 != null)
+		{
+			btn1.playPressSound(mc.getSoundHandler());
+			this.actionPerformed(btn1);
+			return;
+		}
+		
+		GuiButtonThemed btn2 = dbBtnList.getButtonUnderMouse(mx, my);
+		
+		if(btn2 != null)
+		{
+			btn2.playPressSound(mc.getSoundHandler());
+			this.actionPerformed(btn2);
+			return;
+		}
 	}
 }

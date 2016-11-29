@@ -9,10 +9,13 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -32,13 +35,13 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		if(args.length == 2)
 		{
-			for(int i : QuestDatabase.questDB.keySet())
+			for(int i : QuestDatabase.INSTANCE.getAllKeys())
 			{
 				list.add("" + i);
 			}
 		} else if(args.length == 3)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, sender.getEntityWorld().getMinecraftServer().getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
 		}
 		
 		return list;
@@ -69,37 +72,37 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = player.getUniqueID();
+			uuid = QuestingAPI.getQuestingUUID(player);
 		}
 		
 		try
 		{
 			int id = Integer.parseInt(args[1].trim());
-			QuestInstance quest = QuestDatabase.getQuestByID(id);
+			IQuest quest = QuestDatabase.INSTANCE.getValue(id);
 			quest.setComplete(uuid, 0);
 			
 			int done = 0;
 			
-			if(!quest.logic.GetResult(done, quest.tasks.size())) // Preliminary check
+			if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 			{
-				for(TaskBase task : quest.tasks)
+				for(ITask task : quest.getTasks().getAllValues())
 				{
-					task.setCompletion(uuid, true);
+					task.setComplete(uuid);
 					done += 1;
 					
-					if(quest.logic.GetResult(done, quest.tasks.size()))
+					if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
 					{
 						break; // Only complete enough quests to claim the reward
 					}
 				}
 			}
 			
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.name), player.getName()));
+			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getUnlocalisedName()), player.getName()));
 		} catch(Exception e)
 		{
 			throw getException(command);
 		}
 		
-		QuestDatabase.UpdateClients();
+		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 }

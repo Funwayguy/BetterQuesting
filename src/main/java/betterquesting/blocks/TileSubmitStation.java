@@ -3,33 +3,35 @@ package betterquesting.blocks;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import net.minecraftforge.fluids.capability.TileFluidHandler;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IFluidTask;
+import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.advanced.IContainerTask;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
-public class TileSubmitStation extends TileFluidHandler implements IFluidHandler, ISidedInventory, ITickable, IItemHandlerModifiable, IFluidTankProperties
+@SuppressWarnings("deprecation")
+public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IItemHandlerModifiable
 {
 	ItemStack[] itemStack = new ItemStack[2];
 	boolean needsUpdate = false;
@@ -37,29 +39,40 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 	public int questID;
 	public int taskID;
 	
-	public QuestInstance getQuest()
+	public IQuest getQuest()
 	{
 		if(questID < 0)
 		{
 			return null;
 		} else
 		{
-			return QuestDatabase.getQuestByID(questID);
+			return QuestDatabase.INSTANCE.getValue(questID);
 		}
 	}
 	
-	public IContainerTask getTask()
+	public ITask getRawTask()
 	{
-		QuestInstance q = getQuest();
+		IQuest q = getQuest();
 		
-		if(q == null || taskID < 0 || taskID >= q.tasks.size())
+		if(q == null || taskID < 0 || taskID >= q.getTasks().size())
 		{
 			return null;
 		} else
 		{
-			TaskBase t = q.tasks.get(taskID);
-			return t instanceof IContainerTask? (IContainerTask)t : null;
+			return q.getTasks().getValue(taskID);
 		}
+	}
+	
+	public IItemTask getItemTask()
+	{
+		ITask t = getRawTask();
+		return t == null? null : (t instanceof IItemTask? (IItemTask)t : null);
+	}
+	
+	public IFluidTask getFluidTask()
+	{
+		ITask t = getRawTask();
+		return t == null? null : (t instanceof IFluidTask? (IFluidTask)t : null);
 	}
 	
 	@Override
@@ -161,22 +174,16 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 			return false;
 		}
 		
-		IContainerTask t = getTask();
+		IItemTask t = getItemTask();
 		
-		return t != null && itemStack[1] == null && !((TaskBase)t).isComplete(owner) && t.canAcceptItem(owner, stack);
+		return t != null && itemStack[1] == null && !((ITask)t).isComplete(owner) && t.canAcceptItem(owner, stack);
 	}
-	
+
 	@Override
-	public IFluidTankProperties[] getTankProperties()
+	public int fill(EnumFacing from, FluidStack fluid, boolean doFill)
 	{
-		return new IFluidTankProperties[]{this};
-	}
-	
-	@Override
-	public int fill(FluidStack fluid, boolean doFill)
-	{
-		QuestInstance q = getQuest();
-		IContainerTask t = getTask();
+		IQuest q = getQuest();
+		IFluidTask t = getFluidTask();
 		
 		if(q == null || t == null || fluid == null)
 		{
@@ -190,9 +197,9 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 		{
 			remainder = t.submitFluid(owner, fluid);
 		
-			if(((TaskBase)t).isComplete(owner))
+			if(((ITask)t).isComplete(owner))
 			{
-				q.UpdateClients();
+				PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				reset();
 				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 			} else
@@ -203,55 +210,37 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 		
 		return remainder != null? amount - remainder.amount : amount;
 	}
-	
+
 	@Override
-	public FluidStack drain(FluidStack fluid, boolean doDrain)
+	public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
 	{
 		return null;
 	}
-	
+
 	@Override
-	public FluidStack drain(int maxDrain, boolean doDrain)
+	public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
 	{
 		return null;
 	}
-	
+
 	@Override
-	public FluidStack getContents()
+	public boolean canFill(EnumFacing from, Fluid fluid)
 	{
-		return null;
-	}
-	
-	@Override
-	public int getCapacity()
-	{
-		return Integer.MAX_VALUE;
-	}
-	
-	@Override
-	public boolean canFill()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean canDrain()
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean canFillFluidType(FluidStack fluid)
-	{
-		IContainerTask t = getTask();
+		IFluidTask t = getFluidTask();
 		
-		return t != null && fluid != null && !((TaskBase)t).isComplete(owner) && t.canAcceptFluid(owner, fluid.getFluid());
+		return t != null && !((ITask)t).isComplete(owner) && t.canAcceptFluid(owner, new FluidStack(fluid, 1));
 	}
-	
+
 	@Override
-	public boolean canDrainFluidType(FluidStack fluid)
+	public boolean canDrain(EnumFacing from, Fluid fluid)
 	{
 		return false;
+	}
+
+	@Override
+	public FluidTankInfo[] getTankInfo(EnumFacing from)
+	{
+		return new FluidTankInfo[0];
 	}
 	
 	@Override
@@ -262,28 +251,32 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 			return;
 		}
 		
-		QuestInstance q = getQuest();
-		IContainerTask t = getTask();
+		IQuest q = getQuest();
+		IItemTask t = getItemTask();
 		
 		if(worldObj.getTotalWorldTime()%10 == 0)
 		{
-			if(owner != null && q != null && t != null && owner != null && itemStack[0] != null)
+			if(owner != null && q != null && t != null && owner != null && itemStack[0] != null && itemStack[1] == null)
 			{
-				if(t.canAcceptItem(owner, itemStack[0]))
+				ItemStack inStack = itemStack[0].copy();
+				
+				if(t.canAcceptItem(owner, inStack))
 				{
-					Slot sIn = new Slot(this, 0, 0, 0);
-					Slot sOut = new Slot(this, 1, 0, 0);
-					t.submitItem(owner, sIn, sOut);
+					itemStack[0] = t.submitItem(owner, inStack); // Even if this returns an invalid item for submission it will be moved next pass
 					
-					if(((TaskBase)t).isComplete(owner))
+					if(((ITask)t).isComplete(owner))
 					{
-						q.UpdateClients();
+						PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 						reset();
 						worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 					} else
 					{
 						needsUpdate = true;
 					}
+				} else
+				{
+					itemStack[1] = inStack;
+					itemStack[0] = null;
 				}
 			}
 			
@@ -293,26 +286,34 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 				
 				if(q != null && !worldObj.isRemote)
 				{
-					q.UpdateClients();
+					PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				}
-			} else if(t != null && ((TaskBase)t).isComplete(owner))
+			} else if(t != null && ((ITask)t).isComplete(owner))
 			{
 				reset();
-	    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
+				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
 			}
 		}
 	}
 	
-	public void setupTask(UUID owner, QuestInstance quest, IContainerTask task)
+	public void setupTask(UUID owner, IQuest quest, ITask task)
 	{
 		if(owner == null || quest == null || task == null)
 		{
 			reset();
+			return;
+		}
+		
+		this.questID = QuestDatabase.INSTANCE.getKey(quest);
+		this.taskID = quest.getTasks().getKey(task);
+		
+		if(this.questID < 0 || this.taskID < 0)
+		{
+			reset();
+			return;
 		}
 		
 		this.owner = owner;
-		this.questID = quest.questID;
-		this.taskID = quest.tasks.indexOf(task);
 		this.markDirty();
 	}
 	
@@ -371,7 +372,7 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-    		PacketAssembly.SendToServer(BQPacketType.EDIT_STATION.GetLocation(), payload);
+    		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
     	}
     }
 	
@@ -563,9 +564,6 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
 			return true;
-		} else if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-		{
-			return true;
 		}
 		
         return super.hasCapability(capability, facing);
@@ -577,9 +575,6 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
 			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this);
-		} else if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-		{
-			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(this);
 		}
 		
         return super.getCapability(capability, facing);

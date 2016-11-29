@@ -1,6 +1,6 @@
 package betterquesting.client.gui.editors;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -11,35 +11,42 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.rewards.RewardBase;
-import betterquesting.quests.rewards.RewardRegistry;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.misc.IFactory;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.editors.rewards.GuiRewardEditDefault;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.rewards.RewardRegistry;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
+public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	RewardBase lastReward = null;
-	JsonObject lastEdit = null;
-	QuestInstance quest;
-	int leftScroll = 0;
-	int rightScroll = 0;
-	int maxRows = 0;
+	private List<IFactory<? extends IReward>> rewardTypes = new ArrayList<IFactory<? extends IReward>>();
+	private List<Integer> rewardIDs = new ArrayList<Integer>();
+	private IQuest quest;
+	private int qID = -1;
 	
-	public GuiRewardEditor(GuiScreen parent, QuestInstance quest)
+	private int leftScroll = 0;
+	private int rightScroll = 0;
+	private int maxRows = 0;
+	
+	public GuiRewardEditor(GuiScreen parent, IQuest quest)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.name)));
+		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
+		this.qID = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
@@ -47,17 +54,8 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 	{
 		super.initGui();
 		
-		if(lastEdit != null && lastReward != null)
-		{
-			if(QuestDatabase.questDB.containsValue(quest) && quest.rewards.contains(lastReward))
-			{
-				lastReward.readFromJson(lastEdit);
-				SendChanges();
-			}
-		}
-		
-		lastEdit = null;
-		lastReward = null;
+		rewardTypes = RewardRegistry.INSTANCE.getAll();
+		rewardIDs = quest.getRewards().getAllKeys();
 		
 		maxRows = (sizeY - 64)/20;
 		int btnWidth = sizeX/2 - 16;
@@ -65,24 +63,40 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 		// Left main buttons
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 36, guiTop + 32 + (i*20), btnWidth - 36, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 36, guiTop + 32 + (i*20), btnWidth - 36, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		
 		// Left delete buttons
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x", true);
 			this.buttonList.add(btn);
 		}
 		
 		// Right main buttons
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 32 + (i*20), btnWidth - 16, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 32 + (i*20), btnWidth - 16, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		
+		RefreshColumns();
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(qID);
+		
+		if(tmp == null)
+		{
+			mc.displayGuiScreen(parent);
+			return;
+		}
+		
+		this.quest = tmp;
+		this.rewardIDs = quest.getRewards().getAllKeys();
 		RefreshColumns();
 	}
 	
@@ -91,20 +105,8 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestDatabase.updateUI)
-		{
-			if(!QuestDatabase.questDB.containsValue(quest))
-			{
-				mc.displayGuiScreen(parent);
-				return;
-			}
-			
-			QuestDatabase.updateUI = false;
-			RefreshColumns();
-		}
-		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		// Left scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32, 248, 0, 8, 20);
@@ -115,7 +117,7 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(quest.rewards.size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(rewardIDs.size() - maxRows)), 248, 60, 8, 20);
 		
 		// Right scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32, 248, 0, 8, 20);
@@ -126,9 +128,9 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(RewardRegistry.GetNameList().size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(rewardTypes.size() - maxRows)), 248, 60, 8, 20);
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 	}
 	
 	@Override
@@ -143,73 +145,70 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 		
 		if(n2 == 0) // Edit reward
 		{
-			if(n3 >= 0 && n3 < quest.rewards.size())
+			if(n3 >= 0 && n3 < rewardIDs.size())
 			{
-				lastEdit = new JsonObject();
-				lastReward = quest.rewards.get(n3);
-				lastReward.writeToJson(lastEdit);
-				mc.displayGuiScreen(lastReward.GetEditor(this, lastEdit));
+				IReward reward = quest.getRewards().getValue(rewardIDs.get(n3));
+				GuiScreen editor = reward.getRewardEditor(this, quest);
+				
+				if(editor != null)
+				{
+					mc.displayGuiScreen(editor);
+				} else
+				{
+					mc.displayGuiScreen(new GuiRewardEditDefault(this, reward));
+				}
 			}
 		} else if(n2 == 1) // Delete reward
 		{
-			if(!(n3 < 0 || n3 >= quest.rewards.size()))
+			if(!(n3 < 0 || n3 >= rewardIDs.size()))
 			{
-				quest.rewards.remove(n3);
+				quest.getRewards().removeKey(rewardIDs.get(n3));
 				SendChanges();
 			}
 		} else if(n2 == 2) // Add reward
 		{
-			if(!(n4 < 0 || n4 >= RewardRegistry.GetNameList().size()))
+			if(!(n4 < 0 || n4 >= rewardTypes.size()))
 			{
-				quest.rewards.add(RewardRegistry.InstatiateReward(RewardRegistry.GetNameList().get(n4)));
+				quest.getRewards().add(RewardRegistry.INSTANCE.createReward(rewardTypes.get(n4).getRegistryName()), quest.getRewards().nextKey());
 				SendChanges();
 			}
 		}
 	}
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput() throws IOException
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + SDX, 0, quest.rewards.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, rewardIDs.size() - maxRows));
     		RefreshColumns();
         }
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, RewardRegistry.GetNameList().size() - maxRows));
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, rewardTypes.size() - maxRows));
         	RefreshColumns();
         }
-    }
+	}
 	
 	public void SendChanges()
 	{
-		JsonObject json1 = new JsonObject();
-		quest.writeToJSON(json1);
-		JsonObject json2 = new JsonObject();
-		quest.writeProgressToJSON(json2);
+		JsonObject base = new JsonObject();
+		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", 0); // Action: Update data
-		tags.setInteger("questID", quest.questID);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
+		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()
 	{
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, RewardRegistry.GetNameList().size() - maxRows));
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.rewards.size() - maxRows));
+    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, rewardTypes.size() - maxRows));
+		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, rewardIDs.size() - maxRows));
 		
 		List<GuiButton> btnList = this.buttonList;
 		
@@ -223,28 +222,28 @@ public class GuiRewardEditor extends GuiQuesting implements IVolatileScreen
 			
 			if(n2 == 0) // Edit reward
 			{
-				if(n3 < 0 || n3 >= quest.rewards.size())
+				if(n3 < 0 || n3 >= rewardIDs.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = quest.rewards.get(n3).getDisplayName();
+					btn.displayString = I18n.format(quest.getRewards().getValue(rewardIDs.get(n3)).getUnlocalisedName());
 				}
 			} else if(n2 == 1) // Delete reward
 			{
-				btn.visible = btn.enabled = !(n3 < 0 || n3 >= quest.rewards.size());
+				btn.visible = btn.enabled = !(n3 < 0 || n3 >= rewardIDs.size());
 			} else if(n2 == 2) // Add reward
 			{
-				if(n4 < 0 || n4 >= RewardRegistry.GetNameList().size())
+				if(n4 < 0 || n4 >= rewardTypes.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = RewardRegistry.GetNameList().get(n4).toString();
+					btn.displayString = rewardTypes.get(n4).getRegistryName().toString();
 				}
 			}
 		}

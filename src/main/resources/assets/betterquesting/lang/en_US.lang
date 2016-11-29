@@ -87,7 +87,7 @@ betterquesting.notice.complete=Quest Complete
 betterquesting.notice.update=Quest Updated
 betterquesting.notice.unlock=Quest Unlocked
 
-betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq hardcore" to toggle it
+betterquesting.msg.heart_disabled=Hardcore lives are not enabled. Use "/bq_admin hardcore" to toggle it
 
 key.betterquesting.quests=Open Quests
 key.betterquesting.party=Party Manager
@@ -149,6 +149,10 @@ betterquesting.toolbox.tool.reset.name=Reset Quest
 betterquesting.toolbox.tool.reset.desc=Resets completion status and all task progress
 betterquesting.toolbox.tool.icon.name=Select Icon
 betterquesting.toolbox.tool.icon.desc=Changes the quest's icon
+betterquesting.toolbox.tool.scale.name=Scale Icon
+betterquesting.toolbox.tool.scale.desc=Scales the quest icons up or down
+betterquesting.toolbox.tool.raw.name=Edit Raw
+betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editing. Includes additional hidden settings such as changing the background
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default
@@ -173,3 +177,16 @@ betterquesting.cmd.reset.player_all=Reset all quests for %s
 betterquesting.cmd.reset.all_single=Reset quest '%s' for everyone
 betterquesting.cmd.reset.all_all=Reset all quests for everyone
 betterquesting.cmd.refresh=Refreshing local database...
+
+json.betterquesting.quest.name=Quest Data
+jdoc.betterquesting.quest.rewards.name=Rewards
+jdoc.betterquesting.quest.rewards.desc=List of configurable rewards types
+jdoc.betterquesting.quest.tasks.name=Tasks
+jdoc.betterquesting.quest.tasks.desc=List of configurable task types
+jdoc.betterquesting.quest.preRequisites.name=Pre-Requisites
+jdoc.betterquesting.quest.preRequisites.desc=List of parent quest IDs used to unlock this quest
+jdoc.betterquesting.quest.properties.name=Properties
+jdoc.betterquesting.quest.properties.desc=Properties defining the quest's appearance and functionality
+
+jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
+jdoc.betterquesting.quest.properties.betterquesting.desc=BetterQuesting properties

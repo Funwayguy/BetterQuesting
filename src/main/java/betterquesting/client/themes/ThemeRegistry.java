@@ -5,161 +5,152 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.client.themes.IThemeLoader;
+import betterquesting.api.client.themes.IThemeRegistry;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.core.BQ_Settings;
+import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.ConfigHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import betterquesting.core.BQ_Settings;
-import betterquesting.core.BetterQuesting;
-import betterquesting.handlers.ConfigHandler;
+import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class ThemeRegistry
+public class ThemeRegistry implements IThemeRegistry
 {
-	/**
-	 * In the event the player's theme is invalid or no longer available, the UI will use this one instead (DO NOT REGISTER THIS THEME)
-	 */
-	static ThemeBase fallbackTheme = new ThemeStandard("Standard", new ResourceLocation("betterquesting", "textures/gui/editor_gui.png"));
-	static HashMap<String,ThemeBase> themeList = new HashMap<String,ThemeBase>();
-	static HashMap<String,ThemeBase> resThemes = new HashMap<String,ThemeBase>();
+	public static final ThemeRegistry INSTANCE = new ThemeRegistry();
 	
-	public static void RegisterThemeManual(ThemeBase theme, String domain, String idName)
+	private final ITheme fallbackTheme = new ThemeStandard("Standard", new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_gui.png"), new ResourceLocation(BetterQuesting.MODID + ":fallback"));
+	private ITheme currentTheme = null;
+	
+	private final HashMap<ResourceLocation,ITheme> themeList = new HashMap<ResourceLocation,ITheme>();
+	private final HashMap<ResourceLocation,ITheme> resThemes = new HashMap<ResourceLocation,ITheme>();
+	private final HashMap<ResourceLocation,IThemeLoader> themeLoaders = new HashMap<ResourceLocation,IThemeLoader>();
+	
+	private ThemeRegistry()
 	{
-		try
+		registerLoader(new ThemeLoaderStandard());
+	}
+	
+	@Override
+	public void registerTheme(ITheme theme)
+	{
+		if(theme == null)
 		{
-			if(idName.contains(":"))
-			{
-				throw new IllegalArgumentException("Illegal character(s) used in theme ID name");
-			}
-			
-			if(theme == null)
-			{
-				throw new NullPointerException("Tried to register null theme");
-			}
-			
-			String fullName = domain + ":" + idName;
-			
-			if(themeList.containsKey(fullName) || themeList.containsValue(theme))
-			{
-				throw new IllegalArgumentException("Cannot register dupliate theme '" + fullName + "'");
-			}
-			
-			themeList.put(fullName, theme);
-		} catch(Exception e)
+			throw new NullPointerException("Tried to register null theme");
+		} else if(theme.getThemeID() == null)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register theme", e);
+			throw new IllegalArgumentException("Tried to register a theme with a null name");
 		}
-	}
-	
-	public static void RegisterTheme(ThemeBase theme, String idName)
-	{
-		try
+		
+		if(themeList.containsKey(theme.getThemeID()) || themeList.containsValue(theme))
 		{
-			ModContainer mod = Loader.instance().activeModContainer();
-			
-			if(idName.contains(":"))
-			{
-				throw new IllegalArgumentException("Illegal character(s) used in theme ID name");
-			}
-			
-			if(theme == null)
-			{
-				throw new NullPointerException("Tried to register null theme");
-			} else if(mod == null)
-			{
-				throw new IllegalArgumentException("Tried to register a theme without an active mod instance");
-			}
-			
-			String fullName = mod.getModId() + ":" + idName;
-			
-			if(themeList.containsKey(fullName) || themeList.containsValue(theme))
-			{
-				throw new IllegalArgumentException("Cannot register dupliate theme '" + fullName + "'");
-			}
-			
-			themeList.put(fullName, theme);
-        	BetterQuesting.logger.log(Level.INFO, "Registered theme '" + theme.GetName() + "' (" + fullName + ")");
-		} catch(Exception e)
-		{
-			BetterQuesting.logger.log(Level.ERROR, "An error occured while trying to register theme", e);
+			throw new IllegalArgumentException("Cannot register dupliate theme '" + theme.getThemeID() + "'");
 		}
+		
+		if(resThemes.containsKey(theme.getThemeID()) || resThemes.containsValue(theme))
+		{
+			throw new IllegalArgumentException("Cannot register dupliate theme '" + theme.getThemeID() + "'");
+		}
+		
+		themeList.put(theme.getThemeID(), theme);
 	}
 	
-	/**
-	 * Shortcut method for obtaining the currently selected theme
-	 */
-	public static ThemeBase curTheme()
+	@Override
+	public ITheme getTheme(ResourceLocation name)
 	{
-		return getTheme(BQ_Settings.curTheme);
+		ITheme tmp = themeList.get(name);
+		tmp = tmp != null? tmp : resThemes.get(name);
+		return tmp;
 	}
 	
-	public static ThemeBase getTheme(String id)
+	@Override
+	public List<ITheme> getAllThemes()
 	{
-		ThemeBase tmp = themeList.get(id);
-		tmp = tmp != null? tmp : resThemes.get(id);
-		return tmp != null? tmp : fallbackTheme;
+		ArrayList<ITheme> list = new ArrayList<ITheme>();
+		list.addAll(themeList.values());
+		list.addAll(resThemes.values());
+		return list;
 	}
 	
-	public static boolean themeExists(String id)
+	@Override
+	public void registerLoader(IThemeLoader loader)
 	{
-		return themeList.get(id) != null || resThemes.get(id) != null;
+		if(loader == null)
+		{
+			throw new NullPointerException("Tried to register null theme loader");
+		} else if(loader.getLoaderID() == null)
+		{
+			throw new IllegalArgumentException("Tried to register a theme loader with a null name");
+		}
+		
+		if(themeLoaders.containsKey(loader.getLoaderID()) || themeList.containsValue(loader))
+		{
+			throw new IllegalArgumentException("Cannot register dupliate theme loader '" + loader.getLoaderID() + "'");
+		}
+		
+		themeLoaders.put(loader.getLoaderID(), loader);
 	}
 	
-	public static void setTheme(String id)
+	@Override
+	public IThemeLoader getLoader(ResourceLocation name)
 	{
-		BQ_Settings.curTheme = id;
+		return themeLoaders.get(name);
+	}
+	
+	@Override
+	public List<IThemeLoader> getAllLoaders()
+	{
+		return new ArrayList<IThemeLoader>(themeLoaders.values());
+	}
+	
+	@Override
+	public ITheme getCurrentTheme()
+	{
+		if(currentTheme == null)
+		{
+			currentTheme = this.getTheme(new ResourceLocation(BQ_Settings.curTheme));
+		}
+		
+		return currentTheme != null? currentTheme : fallbackTheme;
+	}
+	
+	@Override
+	public void setCurrentTheme(ITheme theme)
+	{
+		if(theme == null)
+		{
+			BetterQuesting.logger.log(Level.WARN, "Tried to set theme to NULL");
+			return;
+		}
+		
+		currentTheme = theme;
+		BQ_Settings.curTheme = theme.getThemeID().toString();
 		
 		if(ConfigHandler.config != null)
 		{
-			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(id);
+			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(BQ_Settings.curTheme);
 			ConfigHandler.config.save();
+			BetterQuesting.logger.log(Level.INFO, "Theme set to " + currentTheme.getDisplayName());
 		} else
 		{
 			BetterQuesting.logger.log(Level.WARN, "Unable to save theme setting");
 		}
 	}
 	
-	public static String getId(ThemeBase theme)
-	{
-		for(Entry<String,ThemeBase> entry : themeList.entrySet())
-		{
-			if(entry.getValue() == theme)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		for(Entry<String,ThemeBase> entry : resThemes.entrySet())
-		{
-			if(entry.getValue() == theme)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return "";
-	}
-	
-	public static ArrayList<ThemeBase> GetAllThemes()
-	{
-		ArrayList<ThemeBase> list = new ArrayList<ThemeBase>();
-		list.addAll(themeList.values());
-		list.addAll(resThemes.values());
-		return list;
-	}
-	
-	public static void RefreshResourceThemes()
+	@Override
+	public void reloadThemes()
 	{
 		resThemes.clear();
 		
@@ -177,11 +168,11 @@ public class ThemeRegistry
             	ResourceLocation res = new ResourceLocation(domain, "bq_themes.json");
                 List<IResource> list = resManager.getAllResources(res);
                 Iterator<IResource> iterator1 = list.iterator();
-
+                
                 while (iterator1.hasNext())
                 {
                     IResource iresource = (IResource)iterator1.next();
-
+                    
                     try
                     {
                     	InputStreamReader isr = new InputStreamReader(iresource.getInputStream());
@@ -192,30 +183,30 @@ public class ThemeRegistry
                         {
                         	if(je == null || !je.isJsonObject())
                         	{
-                        		BetterQuesting.logger.log(Level.WARN, "Invalid entry in bq_themes.json");
+                        		BetterQuesting.logger.log(Level.WARN, "Invalid theme in " + domain);
                         		continue;
                         	}
                         	
-                        	ThemeStandard theme = ThemeStandard.fromJson(je.getAsJsonObject());
-                        	String id = theme.GetName().toLowerCase().trim().replaceAll(" ", "_"); // Generate a 'neater' ID name
+                        	JsonObject jThm = je.getAsJsonObject();
                         	
-                        	if(themeExists(domain + ":" + id))
+                        	ResourceLocation loadID = new ResourceLocation(JsonHelper.GetString(jThm, "themeType", "betterquesting:standard"));
+                        	IThemeLoader loader = getLoader(loadID);
+                        	
+                        	if(loader == null)
                         	{
-                        		int i = 2;
-                        		
-	                        	while(themeExists(domain + ":" + id + "_" + i))
-	                        	{
-	                        		i++;
-	                        	}
-	                        	
-	                        	id = id + "_" + i;
+                        		continue;
                         	}
                         	
-                        	resThemes.put(domain + ":" + id, theme);
+                        	ITheme theme = loader.loadTheme(jThm, domain);
+                        	
+                        	if(theme != null)
+                        	{
+                        		resThemes.put(theme.getThemeID(), theme);
+                        	}
                         }
                     } catch (Exception e)
                     {
-                        BetterQuesting.logger.log(Level.WARN, "Invalid bq_themes.json", e);
+                        BetterQuesting.logger.log(Level.ERROR, "Error reading bq_themes.json from " + domain, e);
                     }
                 }
             } catch (Exception e){}
