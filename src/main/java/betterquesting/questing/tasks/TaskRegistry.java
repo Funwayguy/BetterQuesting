@@ -66,7 +66,7 @@ public class TaskRegistry implements ITaskRegistry
 				factory = FactoryTaskPlaceholder.INSTANCE;
 			} else
 			{
-				getFactory(registryName);
+				factory = getFactory(registryName);
 			}
 			
 			if(factory == null)
