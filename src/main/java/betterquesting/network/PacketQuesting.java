@@ -47,8 +47,8 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			NBTTagCompound message = PacketAssembly.AssemblePacket(packet.tags);
+			final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+			final NBTTagCompound message = PacketAssembly.AssemblePacket(packet.tags);
 			
 			if(message == null)
 			{
@@ -59,15 +59,22 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
+			final PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
 			
 			if(handler == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
-			} else
+			} else if(sender != null)
 			{
-				handler.handleServer(sender, message);
+				sender.getServer().addScheduledTask(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						handler.handleServer(sender, message);
+					}
+				});
 			}
 			
 			return null;
