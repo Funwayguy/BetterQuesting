@@ -77,7 +77,7 @@ public class QuestNotification
 		{
 			RenderUtils.RenderItemStack(mc, notice.icon, width/2 - 8, height/4 - 20, "",  new Color(1F, 1F, 1F, alpha));
 		}
-
+		
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
      	
@@ -89,7 +89,7 @@ public class QuestNotification
 		txtW = mc.fontRenderer.getStringWidth(tmp);
 		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
-		GL11.glDisable(GL11.GL_BLEND);
+		//GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPopMatrix();
 	}
 	
