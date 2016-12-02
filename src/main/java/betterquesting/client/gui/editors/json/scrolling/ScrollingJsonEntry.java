@@ -300,6 +300,28 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		if(txtMain != null)
 		{
 			txtMain.textboxKeyTyped(c, keyCode);
+			
+			if(json.isJsonArray())
+			{
+				ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json.getAsJsonArray());
+				
+				if(txtMain instanceof GuiNumberField)
+				{
+					list.set(idx, new JsonPrimitive(((GuiNumberField)txtMain).getNumber()));
+				} else
+				{
+					list.set(idx, new JsonPrimitive(txtMain.getText()));
+				}
+			} else if(json.isJsonObject())
+			{
+				if(txtMain instanceof GuiNumberField)
+				{
+					json.getAsJsonObject().addProperty(key, ((GuiNumberField)txtMain).getNumber());
+				} else
+				{
+					json.getAsJsonObject().addProperty(key, txtMain.getText());
+				}
+			}
 		}
 	}
 	

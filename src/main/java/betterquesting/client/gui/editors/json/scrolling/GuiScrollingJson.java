@@ -1,12 +1,12 @@
 package betterquesting.client.gui.editors.json.scrolling;
 
 import java.util.Map.Entry;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import betterquesting.api.client.gui.lists.GuiScrollingBase;
 import betterquesting.api.jdoc.IJsonDoc;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class GuiScrollingJson extends GuiScrollingBase<ScrollingJsonEntry>
 {
@@ -52,8 +52,9 @@ public class GuiScrollingJson extends GuiScrollingBase<ScrollingJsonEntry>
 	{
 		super.onKeyTyped(c, keyCode);
 		
-		for(ScrollingJsonEntry sje : this.getEntryList())
+		for(int i = this.getEntryList().size() - 1; i >= 0; i--)
 		{
+			ScrollingJsonEntry sje = this.getEntryList().get(i);
 			sje.onKeyTyped(c, keyCode);
 		}
 	}

@@ -73,7 +73,7 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 		} else if(isEntity)
 		{
 			Entity entity = JsonHelper.JsonToEntity(json.getAsJsonObject(), this.mc.theWorld);
-			this.displayString = I18n.format("betterquesting.btn.entity") + ":" + entity.getCommandSenderName();
+			this.displayString = I18n.format("betterquesting.btn.entity") + ": " + entity.getCommandSenderName();
 		} else
 		{
 			this.displayString = getJsonName();
