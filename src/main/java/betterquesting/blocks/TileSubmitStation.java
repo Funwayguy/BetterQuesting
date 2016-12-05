@@ -19,7 +19,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.TileFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.Level;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketAssembly;
@@ -29,13 +29,19 @@ import betterquesting.quests.QuestInstance;
 import betterquesting.quests.tasks.TaskBase;
 import betterquesting.quests.tasks.advanced.IContainerTask;
 
-public class TileSubmitStation extends TileFluidHandler implements IFluidHandler, ISidedInventory, ITickable, IItemHandlerModifiable, IFluidTankProperties
+public class TileSubmitStation extends TileFluidHandler implements IFluidHandler, ISidedInventory, ITickable, IFluidTankProperties
 {
-	ItemStack[] itemStack = new ItemStack[2];
+	private final IItemHandler itemHandler;
+	private ItemStack[] itemStack = new ItemStack[2];
 	boolean needsUpdate = false;
 	public UUID owner;
 	public int questID;
 	public int taskID;
+	
+	public TileSubmitStation()
+	{
+		this.itemHandler = new SSItemHandler(this);
+	}
 	
 	public QuestInstance getQuest()
 	{
@@ -468,94 +474,6 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
 	{
 		return new TextComponentString(BetterQuesting.submitStation.getLocalizedName());
 	}
-
-	@Override
-	public int getSlots()
-	{
-		return getSizeInventory();
-	}
-
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-	{
-		if(stack == null)
-		{
-			return null;
-		} else if(!isItemValidForSlot(slot, stack))
-		{
-			return stack;
-		}
-		
-		// Existing stack
-		ItemStack ts1 = getStackInSlot(slot);
-		
-		if(ts1 != null && !stack.isItemEqual(ts1))
-		{
-			return stack;
-		}
-		
-		int inMax = Math.min(stack.stackSize, stack.getMaxStackSize() - (ts1 == null? 0 : ts1.stackSize));
-		// Input stack
-		ItemStack ts2 = stack.copy();
-		ts2.stackSize = inMax;
-		
-		if(!simulate)
-		{
-			if(ts1 == null)
-			{
-				ts1 = ts2;
-			} else
-			{
-				ts1.stackSize += ts2.stackSize;
-			}
-			
-			setInventorySlotContents(slot, ts1);
-		}
-		
-		if(stack.stackSize > inMax)
-		{
-			// Left over stack
-			ItemStack ts3 = stack.copy();
-			ts3.stackSize = stack.stackSize - inMax;
-			return ts3;
-		}
-		
-		return null;
-	}
-
-	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate)
-	{
-		if(slot != 1 || amount <= 0)
-		{
-			return null;
-		}
-		
-		if(!simulate)
-		{
-			return decrStackSize(slot, amount);
-		}
-		
-		ItemStack stack = getStackInSlot(slot);
-		
-		if(stack == null)
-		{
-			return null;
-		}
-		
-		int outMax = Math.min(stack.stackSize, amount);
-		
-		ItemStack ts1 = stack.copy();
-		ts1.stackSize = outMax;
-		
-		return ts1;
-	}
-
-	@Override
-	public void setStackInSlot(int slot, ItemStack stack)
-	{
-		this.setInventorySlotContents(slot, stack);
-	}
 	
 	@Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing)
@@ -576,7 +494,7 @@ public class TileSubmitStation extends TileFluidHandler implements IFluidHandler
     {
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
-			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this);
+			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(itemHandler);
 		} else if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
 		{
 			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(this);
