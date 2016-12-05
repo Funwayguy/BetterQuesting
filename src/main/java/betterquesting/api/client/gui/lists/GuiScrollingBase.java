@@ -167,7 +167,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 	{
 		int listY = posY - scroll;
 		
-		for(int i = 0; i < entries.size(); i++)
+		for(int i = entries.size() - 1; i >= 0; i--)
 		{
 			if(listY > posY + height)
 			{
