@@ -260,7 +260,8 @@ public class JsonHelper
 	
 	public static boolean isEntity(JsonObject json)
 	{
-		return json != null && json.has("id") && EntityList.isStringValidEntityName(new ResourceLocation(GetString(json, "id", "")));
+		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
+		return tags.hasKey("id") && EntityList.isStringValidEntityName(new ResourceLocation(tags.getString("id")));
 	}
 	
 	/**

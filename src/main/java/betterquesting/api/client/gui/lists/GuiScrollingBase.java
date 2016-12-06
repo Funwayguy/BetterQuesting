@@ -165,14 +165,9 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(!isWithin(mx, my, posX, posY, width - 8, height))
-		{
-			return;
-		}
-		
 		int listY = posY - scroll;
 		
-		for(int i = 0; i < entries.size(); i++)
+		for(int i = entries.size() - 1; i >= 0; i--)
 		{
 			if(listY > posY + height)
 			{
@@ -180,13 +175,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			}
 			
 			IScrollingEntry e = entries.get(i);
-			
-			if(my >= listY && my < listY + e.getHeight())
-			{
-				e.onMouseClick(mx, my, posX, listY, click, i);
-				return;
-			}
-			
+			e.onMouseClick(mx, my, posX, listY, click, i);
 			listY += e.getHeight();
 		}
 	}

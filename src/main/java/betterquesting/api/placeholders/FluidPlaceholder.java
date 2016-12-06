@@ -2,7 +2,6 @@ package betterquesting.api.placeholders;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
-import betterquesting.core.BetterQuesting;
 
 public class FluidPlaceholder extends Fluid
 {
@@ -10,6 +9,6 @@ public class FluidPlaceholder extends Fluid
 	
 	public FluidPlaceholder()
 	{
-		super("betterquesting.placeholder", new ResourceLocation(BetterQuesting.MODID + ":blocks/fluid_placeholder"), new ResourceLocation(BetterQuesting.MODID + ":blocks/fluid_placeholder"));
+		super("betterquesting.placeholder", new ResourceLocation("betterquesting:blocks/fluid_placeholder"), new ResourceLocation("betterquesting:blocks/fluid_placeholder"));
 	}
 }

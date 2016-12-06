@@ -5,7 +5,7 @@ FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
 CHANGE_LOG=`git log $DRONE_BRANCH -1 --pretty=format:"%B"`
 
 #See https://github.com/curseforge/api for how to retrieve game version numbers
-JSON=`printf '{"changelog": "%s", "gameVersions": [6170], "releaseType": "beta"}' "$CHANGE_LOG"`
+JSON=`printf '{"changelog": "%s", "gameVersions": [6317], "releaseType": "alpha"}' "$CHANGE_LOG"`
 
 echo "Uploading $FILE_NAME to Curse Forge..."
 echo
