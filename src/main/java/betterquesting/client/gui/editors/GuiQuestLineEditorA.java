@@ -304,7 +304,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		
 		GuiButtonThemed btn = click != 0? null : btnList.getButtonUnderMouse(mx, my);
 		
-		if(btn != null)
+		if(btn != null && btn.mousePressed(mc, mx, my))
 		{
 			btn.func_146113_a(mc.getSoundHandler());
 			this.actionPerformed(btn);

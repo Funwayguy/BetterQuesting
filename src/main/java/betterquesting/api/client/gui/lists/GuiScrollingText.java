@@ -3,6 +3,7 @@ package betterquesting.api.client.gui.lists;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.util.MathHelper;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.RenderUtils;
 
@@ -46,11 +47,24 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 		return rawText;
 	}
 	
+	public int getCursorPos(int mx, int my)
+	{
+		if(this.getEntryList().size() > 0)
+		{
+			return this.getEntryList().get(0).getCursorPos(mx, my);
+		}
+		
+		return 0;
+	}
+	
 	public static class ScrollingEntryText extends GuiElement implements IScrollingEntry
 	{
 		private final FontRenderer font;
 		private String text = "";
-		private int lastHeight = 8;
+		private int lw = 1;
+		private int lh = 8;
+		private int lx = 0;
+		private int ly = 0;
 		
 		public ScrollingEntryText(FontRenderer font, String text, int width)
 		{
@@ -68,7 +82,10 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 		{
 			List<?> tLines = font.listFormattedStringToWidth(text, width);
 			
-			lastHeight = tLines.size() * font.FONT_HEIGHT + 2;
+			lw = width;
+			lh = tLines.size() * font.FONT_HEIGHT + 2;
+			lx = px;
+			ly = py;
 			
 			RenderUtils.drawSplitString(font, text, px, py + 2, width, getTextColor(), false);
 		}
@@ -83,10 +100,47 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 		{
 		}
 		
+		public int getCursorPos(int mx, int my)
+		{
+			List<String> tLines = RenderUtils.splitStringWithoutFormat(text, lw, font);
+			
+			if(tLines.size() <= 0)
+			{
+				return 0;
+			}
+			
+			int idx = 0;
+			
+			int row = MathHelper.clamp_int((my - ly - 2)/font.FONT_HEIGHT, 0, tLines.size() - 1);
+			String lastFormat = "";
+			
+			for(int i = 0; i < row; i++)
+			{
+				String line = tLines.get(i);
+				idx += line.length();
+				lastFormat = RenderUtils.getFormatFromString(lastFormat + line);
+			}
+			
+			String line = tLines.get(row);
+			
+			for(int i = 0; i < line.length(); i++)
+			{
+				if(font.getStringWidth(lastFormat + line.substring(0, i + 1)) > mx - lx)
+				{
+					break;
+				} else
+				{
+					idx++;
+				}
+			}
+			
+			return idx;
+		}
+		
 		@Override
 		public int getHeight()
 		{
-			return lastHeight;
+			return lh;
 		}
 		
 		@Override

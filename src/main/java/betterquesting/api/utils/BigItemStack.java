@@ -111,6 +111,7 @@ public class BigItemStack
 	{
 		BigItemStack stack = new BigItemStack(baseStack.copy());
 		stack.stackSize = this.stackSize;
+		stack.oreDict = this.oreDict;
 		return stack;
 	}
 	
@@ -119,7 +120,7 @@ public class BigItemStack
 	{
 		if(stack instanceof ItemStack)
 		{
-			return baseStack.equals(stack);
+			return baseStack.isItemEqual((ItemStack)stack) && ItemStack.areItemStackTagsEqual(baseStack, (ItemStack)stack);
 		} else
 		{
 			return super.equals(stack);

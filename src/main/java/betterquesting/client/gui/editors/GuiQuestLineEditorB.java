@@ -38,9 +38,9 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	private int lineID = -1;
 	private IQuestLine line;
 	
-	GuiBigTextField searchBox;
-	List<Integer> searchResults = new ArrayList<Integer>();
-	List<Integer> lineQuests = new ArrayList<Integer>();
+	private GuiBigTextField searchBox;
+	private List<Integer> searchResults = new ArrayList<Integer>();
+	private List<Integer> lineQuests = new ArrayList<Integer>();
 	
 	private GuiScrollingButtons dbBtnList;
 	private GuiScrollingButtons qlBtnList;
@@ -120,7 +120,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			createQuest();
 		} else if(button.id > 1)
 		{
-			int column = button.id&7; // Line listing (0 = quest, 1 = quest delete, 2 = registry)
+			int column = button.id&7;
 			int id = (button.id >> 3) - 2;
 			
 			if(column == 0 || column == 3) // Edit quest
@@ -137,7 +137,6 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			} else if(column == 1 && line != null) // Remove quest
 			{
 				line.removeKey(id);
-				//RefreshColumns();
 				SendChanges(EnumPacketAction.EDIT, lineID);
 			} else if(column == 4 && id >= 0) // Delete quest
 			{
@@ -177,12 +176,6 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				SendChanges(EnumPacketAction.EDIT, lineID);
 			}
 		}
-	}
-	
-	@Override
-	public void mouseScroll(int mx, int my, int scroll)
-	{
-		super.mouseScroll(mx, my, scroll);
 	}
 	
 	public void createQuest()
@@ -285,7 +278,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	
 	public void RefreshSearch()
 	{
-		searchResults = new ArrayList<Integer>();
+		searchResults.clear();
 		String query = searchBox.getText().toLowerCase();
 		
 		for(int id : QuestDatabase.INSTANCE.getAllKeys())
@@ -312,7 +305,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		GuiButtonThemed btn1 = qlBtnList.getButtonUnderMouse(mx, my);
 		
-		if(btn1 != null)
+		if(btn1 != null && btn1.mousePressed(mc, mx, my))
 		{
 			btn1.func_146113_a(mc.getSoundHandler());
 			this.actionPerformed(btn1);
@@ -321,7 +314,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		GuiButtonThemed btn2 = dbBtnList.getButtonUnderMouse(mx, my);
 		
-		if(btn2 != null)
+		if(btn2 != null && btn2.mousePressed(mc, mx, my))
 		{
 			btn2.func_146113_a(mc.getSoundHandler());
 			this.actionPerformed(btn2);

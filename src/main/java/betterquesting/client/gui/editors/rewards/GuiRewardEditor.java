@@ -1,4 +1,4 @@
-package betterquesting.client.gui.editors;
+package betterquesting.client.gui.editors.rewards;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,6 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.editors.rewards.GuiRewardEditDefault;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
