@@ -14,27 +14,34 @@ import net.minecraft.util.math.MathHelper;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
 
-public class GuiPartyInvite extends GuiScreenThemed
+public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 {
-	int listScroll = 0;
-	int maxRows = 0;
-	IParty party;
-	List<NetworkPlayerInfo> playerList;
-	GuiBigTextField txtManual;
-	GuiButtonThemed btnManual;
+	private final int partyID;
+	private IParty party;
+	
+	private int listScroll = 0;
+	private int maxRows = 0;
+	
+	private List<NetworkPlayerInfo> playerList;
+	private GuiBigTextField txtManual;
+	private GuiButtonThemed btnManual;
 	
 	public GuiPartyInvite(GuiScreen parent, IParty party)
 	{
 		super(parent, "betterquesting.title.party_invite");
 		this.party = party;
+		this.partyID = PartyManager.INSTANCE.getKey(party);
 	}
 	
+	@Override
 	public void initGui()
 	{
 		super.initGui();
@@ -57,6 +64,18 @@ public class GuiPartyInvite extends GuiScreenThemed
 		RefreshColumns();
 	}
 	
+	@Override
+	public void refreshGui()
+	{
+		this.party = PartyManager.INSTANCE.getValue(partyID);
+		
+        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.connection;
+		playerList = new ArrayList<NetworkPlayerInfo>(nethandlerplayclient.getPlayerInfoMap());
+		
+		RefreshColumns();
+	}
+	
+	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
@@ -82,6 +101,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)listScroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
 	}
 	
+	@Override
 	public void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
@@ -89,7 +109,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 		if(button.id == 1)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 4);
+			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 			tags.setString("Member", txtManual.getText());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
@@ -104,7 +124,7 @@ public class GuiPartyInvite extends GuiScreenThemed
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 4);
+					tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 					tags.setString("Member", button.displayString);
 					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));

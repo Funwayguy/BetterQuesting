@@ -178,4 +178,107 @@ public class RenderUtils
 		
 		GL11.glScissor(x * f, (r.getScaledHeight() - y - h)*f, w * f, h * f);
 	}
+	
+	/**
+	 * Similar to normally splitting a string with the fontRenderer however this variant preserves
+	 * the original characters (including new line) and does not not attempt to preserver the format
+	 * between lines.
+	 */
+	public static List<String> splitStringWithoutFormat(String str, int wrapWidth, FontRenderer font)
+	{
+		List<String> list = new ArrayList<String>();
+		
+		String lastFormat = ""; // Formatting like bold can affect the wrapping width
+		
+		String[] nlSplit = str.split("\n");
+		
+		for(int i = 0; i < nlSplit.length; i++)
+		{
+			String s = nlSplit[i] + (i + 1 < nlSplit.length? "\n" : ""); // Preserve new line characters for indexing accuracy
+			
+			while(font.getStringWidth(s) >= wrapWidth)
+			{
+				lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
+				int n = sizeStringToWidth(lastFormat + s, wrapWidth, font);
+				n -= lastFormat.length();
+				n = Math.max(1, n);
+				String subTxt = s.substring(0, n);
+				list.add(subTxt);
+				s = s.replaceFirst(subTxt, "");
+			}
+			
+			list.add(s);
+		}
+        
+        return list;
+	}
+	
+    private static int sizeStringToWidth(String str, int wrapWidth, FontRenderer font)
+    {
+        int i = str.length();
+        int j = 0;
+        int k = 0;
+        int l = -1;
+
+        for (boolean flag = false; k < i; ++k)
+        {
+            char c0 = str.charAt(k);
+
+            switch (c0)
+            {
+                case '\n':
+                    --k;
+                    break;
+                case ' ':
+                    l = k;
+                default:
+                    j += font.getCharWidth(c0);
+
+                    if (flag)
+                    {
+                        ++j;
+                    }
+
+                    break;
+                case '\u00a7':
+
+                    if (k < i - 1)
+                    {
+                        ++k;
+                        char c1 = str.charAt(k);
+
+                        if (c1 != 108 && c1 != 76)
+                        {
+                            if (c1 == 114 || c1 == 82 || isFormatColor(c1))
+                            {
+                                flag = false;
+                            }
+                        }
+                        else
+                        {
+                            flag = true;
+                        }
+                    }
+            }
+
+            if (c0 == 10)
+            {
+                ++k;
+                l = k;
+                break;
+            }
+
+            if (j > wrapWidth)
+            {
+                break;
+            }
+        }
+
+        return k != i && l != -1 && l < k ? l : k;
+    }
+    
+    private static boolean isFormatColor(char colorChar)
+    {
+        return colorChar >= 48 && colorChar <= 57 || colorChar >= 97 && colorChar <= 102 || colorChar >= 65 && colorChar <= 70;
+    }
 }

@@ -13,12 +13,10 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.wrappers.FluidHandlerWrapper;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.Level;
@@ -32,8 +30,7 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 
-@SuppressWarnings("deprecation")
-public class TileSubmitStation extends TileEntity implements net.minecraftforge.fluids.IFluidHandler, ISidedInventory, ITickable
+public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IFluidTankProperties
 {
 	private final IItemHandler itemHandler;
 	private final IFluidHandler fluidHandler;
@@ -48,7 +45,7 @@ public class TileSubmitStation extends TileEntity implements net.minecraftforge.
 		super();
 		
 		this.itemHandler = new SSItemHandler(this);
-		this.fluidHandler = new FluidHandlerWrapper(this, null);
+		this.fluidHandler = this;
 	}
 	
 	public IQuest getQuest()
@@ -192,7 +189,7 @@ public class TileSubmitStation extends TileEntity implements net.minecraftforge.
 	}
 
 	@Override
-	public int fill(EnumFacing from, FluidStack fluid, boolean doFill)
+	public int fill(FluidStack fluid, boolean doFill)
 	{
 		IQuest q = getQuest();
 		IFluidTask t = getFluidTask();
@@ -224,35 +221,59 @@ public class TileSubmitStation extends TileEntity implements net.minecraftforge.
 	}
 
 	@Override
-	public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
+	public FluidStack drain(FluidStack resource, boolean doDrain)
 	{
 		return null;
 	}
 
 	@Override
-	public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
+	public FluidStack drain(int maxDrain, boolean doDrain)
 	{
 		return null;
 	}
+	
+	@Override
+	public boolean canFill()
+	{
+		return true;
+	}
 
 	@Override
-	public boolean canFill(EnumFacing from, Fluid fluid)
+	public boolean canFillFluidType(FluidStack fluid)
 	{
 		IFluidTask t = getFluidTask();
 		
 		return t != null && !((ITask)t).isComplete(owner) && t.canAcceptFluid(owner, new FluidStack(fluid, 1));
 	}
-
+	
 	@Override
-	public boolean canDrain(EnumFacing from, Fluid fluid)
+	public boolean canDrain()
 	{
 		return false;
 	}
 
 	@Override
-	public FluidTankInfo[] getTankInfo(EnumFacing from)
+	public boolean canDrainFluidType(FluidStack fluid)
 	{
-		return new FluidTankInfo[0];
+		return false;
+	}
+	
+	@Override
+	public int getCapacity()
+	{
+		return Integer.MAX_VALUE;
+	}
+	
+	@Override
+	public FluidStack getContents()
+	{
+		return null;
+	}
+
+	@Override
+	public IFluidTankProperties[] getTankProperties()
+	{
+		return new IFluidTankProperties[]{this};
 	}
 	
 	@Override

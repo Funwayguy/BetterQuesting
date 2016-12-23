@@ -123,8 +123,6 @@ public class JsonHelper
 				return json.get(id).getAsBoolean();
 			} catch(Exception e)
 			{
-				JsonPrimitive prim = new JsonPrimitive(def);
-				json.add(id, prim);
 				return def;
 			}
 		} else
