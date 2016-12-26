@@ -1,40 +1,41 @@
 package betterquesting.client.gui.editors;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.QuestLineButtonTree;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.client.toolbox.IToolboxTab;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.gui.misc.QuestLineButtonTree;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.client.toolbox.ToolboxGui;
 import betterquesting.client.toolbox.ToolboxRegistry;
-import betterquesting.client.toolbox.ToolboxTab;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLine;
-import betterquesting.utils.RenderUtils;
+import betterquesting.questing.QuestLineDatabase;
 
-public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
+public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	int qIndex = -1;
-	QuestLine qLine;
-	GuiQuestLinesEmbedded qlGui;
-	int tabIndex = 0;
-	ToolboxTab toolTab = null;
-	ToolboxGui tabGui = null;
+	private List<IToolboxTab> tabList = new ArrayList<IToolboxTab>();
+	private int lineID = -1;
+	private IQuestLine qLine;
+	private GuiQuestLinesEmbedded qlGui;
+	private int tabIndex = 0;
+	private IToolboxTab toolTab = null;
+	private IGuiEmbedded tabGui = null;
 	
-	public GuiQuestLineDesigner(GuiScreen parent, QuestLine qLine)
+	public GuiQuestLineDesigner(GuiScreen parent, IQuestLine qLine)
 	{
 		super(parent, "betterquesting.title.designer"); // This title won't be shown but for the sake of labels...
 		this.qLine = qLine;
-		this.qIndex = QuestDatabase.questLines.indexOf(qLine);
+		this.lineID = QuestLineDatabase.INSTANCE.getKey(qLine);
 	}
 	
 	public GuiQuestLinesEmbedded getEmbeddedGui()
@@ -50,50 +51,43 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 		this.sizeX -= 96;
 		((GuiButton)this.buttonList.get(0)).xPosition = guiLeft + sizeX/2 - 100;
 		
-		if(qIndex < 0 || qIndex >= QuestDatabase.questLines.size())
-		{
-			mc.displayGuiScreen(parent);
-			return;
-		} else
-		{
-			qLine = QuestDatabase.questLines.get(qIndex);
-		}
-		
 		GuiQuestLinesEmbedded oldGui = qlGui;
-		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 16, guiTop + 16, sizeX - 32, sizeY - 32);
-		qlGui.setQuestLine(new QuestLineButtonTree(qLine));
+		qlGui = new GuiQuestLinesEmbedded(guiLeft + 16, guiTop + 16, sizeX - 32, sizeY - 32);
+		qlGui.setQuestLine(new QuestLineButtonTree(qLine), true);
 		
 		if(oldGui != null) // Preserve old settings
 		{
+			embedded.remove(oldGui);
 			qlGui.copySettings(oldGui);
 		}
 		
 		qlGui.clampScroll();
+		embedded.add(qlGui);
 		
-		ArrayList<ToolboxTab> tabList = ToolboxRegistry.getList();
+		this.tabList.clear();
+		this.tabList.addAll(ToolboxRegistry.INSTANCE.getAllTools());
 		
-		if(tabGui == null && tabList.size() > tabIndex)
+		this.tabIndex = MathHelper.clamp_int(tabIndex, 0, Math.max(0, tabList.size() - 1));
+		
+		for(IToolboxTab tab : tabList)
+		{
+			tab.initTools(this.qlGui);
+		}
+		
+		if(tabList.size() > 0)
 		{
 			toolTab = tabList.get(tabIndex);
 			
-			if(!toolTab.hasInit(this))
-			{
-				toolTab.init_(this);
-			}
-			
-			tabGui = toolTab.getTabGui(this, guiLeft + sizeX + 16, guiTop + 32, 64, sizeY - 48);
+			tabGui = toolTab.getTabGui(guiLeft + sizeX + 16, guiTop + 32, 64, sizeY - 48);
 			
 			if(tabGui != null)
 			{
-				tabGui.refreshGui();
+				embedded.add(tabGui);
 			}
-		} else if(tabGui != null)
-		{
-			tabGui.refresh_(this, guiLeft + sizeX + 16, guiTop + 32, 64, sizeY - 48);
 		}
 		
-		GuiButtonQuesting btnLeft = new GuiButtonQuesting(1, guiLeft + sizeX, guiTop + 16, 16, 16, "<");
-		GuiButtonQuesting btnRight = new GuiButtonQuesting(2, guiLeft + sizeX + 80, guiTop + 16, 16, 16, ">");
+		GuiButtonThemed btnLeft = new GuiButtonThemed(1, guiLeft + sizeX, guiTop + 16, 16, 16, "<", true);
+		GuiButtonThemed btnRight = new GuiButtonThemed(2, guiLeft + sizeX + 80, guiTop + 16, 16, 16, ">", true);
 		
 		if(tabList.size() <= 1)
 		{
@@ -105,125 +99,50 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 		buttonList.add(btnRight);
 	}
 	
-	/**
-	 * Modified version of super method to support extra toolbar
-	 */
-	public void drawScreen_(int mx, int my, float partialTick)
+	@Override
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
 		this.drawDefaultBackground();
 		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		currentTheme().getRenderer().drawThemedPanel(guiLeft + sizeX, guiTop, 96, sizeY);
+		currentTheme().getRenderer().drawThemedPanel(guiLeft, guiTop, sizeX, sizeY);
 		
-		for(int i = 0; i < 96; i += 16)
-		{
-			for(int j = 0; j < sizeY; j += 16)
-			{
-				int tx = 16;
-				int ty = 16;
-				
-				if(i == 0)
-				{
-					tx -= 16;
-				} else if(i == 80)
-				{
-					tx += 16;
-				}
-				
-				if(j == 0)
-				{
-					ty -= 16;
-				} else if(j == sizeY - 16)
-				{
-					ty += 16;
-				}
-				
-				this.drawTexturedModalRect(guiLeft + sizeX + i, guiTop + j, tx, ty, 16, 16);
-			}
-		}
+		String tmp = I18n.format("betterquesting.title.designer");
+		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
-		for(int i = 0; i < this.sizeX; i += 16)
-		{
-			for(int j = 0; j < this.sizeY; j += 16)
-			{
-				int tx = 16;
-				int ty = 16;
-				
-				if(i == 0)
-				{
-					tx -= 16;
-				} else if(i == this.sizeX - 16)
-				{
-					tx += 16;
-				}
-				
-				if(j == 0)
-				{
-					ty -= 16;
-				} else if(j == this.sizeY - 16)
-				{
-					ty += 16;
-				}
-				
-				this.drawTexturedModalRect(i + this.guiLeft, j + this.guiTop, tx, ty, 16, 16);
-			}
-		}
-		
-		String tmp = I18n.format(title);
-		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		
-        int k;
-        
-        for (k = 0; k < this.buttonList.size(); ++k)
-        {
-            ((GuiButton)this.buttonList.get(k)).drawButton(this.mc, mx, my);
-        }
-        
-        for (k = 0; k < this.labelList.size(); ++k)
-        {
-            ((GuiLabel)this.labelList.get(k)).drawLabel(this.mc, mx, my);
-        }
-		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
 		GlStateManager.color(1F, 1F, 1F, 1F);
-	}
-	
-	@Override
-	public void drawScreen(int mx, int my, float partialTick)
-	{
-		drawScreen_(mx, my, partialTick);
 		
-		if(QuestDatabase.updateUI)
+		for(IGuiEmbedded e : embedded)
 		{
-			initGui();
-			QuestDatabase.updateUI = false;
+			GlStateManager.pushMatrix();
+			e.drawBackground(mx, my, partialTick);
+			GlStateManager.popMatrix();
+			
+			GlStateManager.color(1F, 1F, 1F, 1F);
 		}
 		
-		RenderUtils.DrawLine(guiLeft + sizeX + 16, guiTop + 32, guiLeft + sizeX + 80, guiTop + 32, partialTick, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(guiLeft + sizeX + 16, guiTop + 32, guiLeft + sizeX + 80, guiTop + 32, partialTick, getTextColor());
 		
 		if(toolTab != null)
 		{
-			String tabTitle = TextFormatting.UNDERLINE + toolTab.getDisplayName();
-			this.fontRendererObj.drawString(tabTitle, guiLeft + sizeX + 48 - fontRendererObj.getStringWidth(tabTitle)/2, guiTop + 16 + 2, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			String tabTitle = TextFormatting.UNDERLINE + I18n.format(toolTab.getUnlocalisedName());
+			this.fontRendererObj.drawString(tabTitle, guiLeft + sizeX + 48 - fontRendererObj.getStringWidth(tabTitle)/2, guiTop + 16 + 2, getTextColor(), false);
+		}
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		qLine = QuestLineDatabase.INSTANCE.getValue(lineID);
+		
+		if(qLine == null)
+		{
+			mc.displayGuiScreen(parent);
+			return;
 		}
 		
-		if(tabGui != null)
-		{
-			tabGui.drawGui(mx, my, partialTick);
-		}
-		
-		if(qlGui != null)
-		{
-			GlStateManager.pushMatrix();
-			GlStateManager.color(1F, 1F, 1F, 1F);
-			GlStateManager.enableDepth();
-			qlGui.drawGui(mx, my, partialTick);
-			GlStateManager.popMatrix();
-		}
-		
-		if(tabGui != null)
-		{
-			tabGui.drawOverlays(mx, my, partialTick);
-		}
+		qlGui.setQuestLine(new QuestLineButtonTree(qLine), false);
+		qlGui.setActiveTool(qlGui.getActiveTool());
 	}
 	
 	@Override
@@ -231,7 +150,6 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 	{
 		super.actionPerformed(button);
 		
-		ArrayList<ToolboxTab> tabList = ToolboxRegistry.getList();
 		int ts = tabList.size();
 		
 		if(ts > 1)
@@ -252,34 +170,18 @@ public class GuiQuestLineDesigner extends GuiQuesting implements IVolatileScreen
 			{
 				toolTab = tabList.get(tabIndex);
 				
-				if(!toolTab.hasInit(this))
+				if(tabGui != null)
 				{
-					toolTab.init_(this);
+					embedded.remove(tabGui);
 				}
 				
-				tabGui = toolTab.getTabGui(this, guiLeft + sizeX + 16, guiTop + 32, 64, sizeY - 48);
+				tabGui = toolTab.getTabGui(guiLeft + sizeX + 16, guiTop + 32, 64, sizeY - 48);
 				
 				if(tabGui != null)
 				{
-					tabGui.refreshGui();
+					embedded.add(tabGui);
 				}
 			}
 		}
 	}
-	
-	@Override
-	public void handleMouseInput() throws IOException
-    {
-		super.handleMouseInput();
-		
-		if(qlGui != null)
-		{
-			qlGui.handleMouse();
-		}
-		
-		if(tabGui != null)
-		{
-			tabGui.handleMouse();
-		}
-    }
 }

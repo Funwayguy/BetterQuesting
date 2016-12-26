@@ -3,13 +3,15 @@ package betterquesting.network;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.network.IPacketHandler;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.handlers.PktHandler;
 
 public class PacketQuesting implements IMessage
 {
@@ -48,7 +50,7 @@ public class PacketQuesting implements IMessage
 			}
 			
 			final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			final NBTTagCompound message = PacketAssembly.AssemblePacket(packet.tags);
+			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
 			
 			if(message == null)
 			{
@@ -59,7 +61,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
+			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{
@@ -72,7 +74,7 @@ public class PacketQuesting implements IMessage
 					@Override
 					public void run()
 					{
-						handler.handleServer(sender, message);
+						handler.handleServer(message, sender);
 					}
 				});
 			}
@@ -92,7 +94,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			NBTTagCompound message = PacketAssembly.AssemblePacket(packet.tags);
+			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
 			
 			if(message == null)
 			{
@@ -103,7 +105,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			PktHandler handler = PacketTypeRegistry.GetHandler(message.getString("ID"));
+			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{

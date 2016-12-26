@@ -15,7 +15,6 @@ public class ItemGuideBook extends Item
 {
 	public ItemGuideBook()
 	{
-		//this.setTextureName("book_written");
 		this.setUnlocalizedName("betterquesting.guide");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 	}

@@ -13,16 +13,17 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import betterquesting.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
-import betterquesting.client.toolbox.tools.ToolboxTabMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.QuestResourcesFile;
-import betterquesting.utils.QuestResourcesFolder;
+import betterquesting.core.ExpansionLoader;
+import betterquesting.misc.QuestResourcesFile;
+import betterquesting.misc.QuestResourcesFolder;
 
 public class ClientProxy extends CommonProxy
 {
@@ -37,6 +38,9 @@ public class ClientProxy extends CommonProxy
 	public void registerHandlers()
 	{
 		super.registerHandlers();
+		
+		ExpansionLoader.INSTANCE.initClientAPIs();
+		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());
 		BQ_Keybindings.RegisterKeys();
 		
@@ -56,13 +60,7 @@ public class ClientProxy extends CommonProxy
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new PlaceholderRenderFactory());
 		
-		ToolboxRegistry.registerToolTab(ToolboxTabMain.instance);
-	}
-	
-	@Override
-	public void registerThemes()
-	{
-		ThemeRegistry.RefreshResourceThemes();
+		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
 	}
 	
 	@Override
@@ -71,7 +69,7 @@ public class ClientProxy extends CommonProxy
 		super.registerRenderers();
 		
 		registerBlockModel(BetterQuesting.submitStation);
-		registerItemModel(BetterQuesting.placeholder);
+		registerItemModel(ItemPlaceholder.placeholder);
 		registerItemModel(BetterQuesting.extraLife, 0, BetterQuesting.MODID + ":heart_full");
 		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
 		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");

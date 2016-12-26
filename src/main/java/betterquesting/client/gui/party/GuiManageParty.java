@@ -1,7 +1,9 @@
 package betterquesting.client.gui.party;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -10,80 +12,88 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
-import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeManager;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.party.PartyInstance;
-import betterquesting.party.PartyInstance.PartyMember;
-import betterquesting.party.PartyManager;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
 
-public class GuiManageParty extends GuiQuesting
+public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 {
-	ItemStack heart;
-	int lives = 1;
+	private ItemStack heart;
+	private int lives = 1;
+	private int partyID = -1;
+	private IParty party;
+	private EnumPartyStatus status;
+	private int rightScroll = 0; // Member list
+	private int maxRows = 0;
+	private GuiTextField fieldName;
+	private List<UUID> memList = new ArrayList<UUID>();
 	
-	PartyInstance party;
-	PartyMember member;
-	int rightScroll = 0; // Member list
-	int maxRows = 0;
-	GuiTextField fieldName;
-	
-	public GuiManageParty(GuiScreen parent, PartyInstance party)
+	public GuiManageParty(GuiScreen parent, IParty party)
 	{
-		super(parent, I18n.format("betterquesting.title.party", party.name));
+		super(parent, I18n.format("betterquesting.title.party", party.getName()));
 		this.party = party;
+		this.partyID = PartyManager.INSTANCE.getKey(party);
 	}
 	
 	@Override
 	public void initGui()
 	{
 		super.initGui();
-		
-		party = PartyManager.GetParty(mc.thePlayer.getUniqueID());
-		member = party == null? null : party.GetMemberData(mc.thePlayer.getUniqueID());
-		
-		if(member == null)
+			
+		if(party == null)
 		{
 			mc.displayGuiScreen(new GuiNoParty(parent));
 			return;
 		}
 		
-		heart = new ItemStack(BetterQuesting.extraLife);
-		lives = LifeManager.getLives(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 		
-		title = I18n.format("betterquesting.title.party", party.name);
+		status = NameCache.INSTANCE.isOP(playerID)? EnumPartyStatus.OWNER : party.getStatus(playerID);
+		heart = new ItemStack(BetterQuesting.extraLife);
+		lives = LifeDatabase.INSTANCE.getLives(playerID);
+		memList = party.getMembers();
+		
+		setTitle(I18n.format("betterquesting.title.party", party.getName()));
 		
 		rightScroll = 0;
 		maxRows = (sizeY - 72)/20;
 		
-		this.buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/4 - 75, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_leave")));
-		GuiButtonQuesting lootBtn = new GuiButtonQuesting(2, guiLeft + sizeX/4 - 75, height/2 - 20, 150, 20, I18n.format("betterquesting.btn.party_share_loot") + ": " + party.lootShare);
-		lootBtn.enabled = member.GetPrivilege() == 2;
+		this.buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/4 - 75, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_leave"), true));
+		GuiButtonThemed lootBtn = new GuiButtonThemed(2, guiLeft + sizeX/4 - 75, height/2 - 20, 150, 20, I18n.format("betterquesting.btn.party_share_loot") + ": " + party.getShareReward(), true);
+		lootBtn.enabled = status.ordinal() >= 3;
 		this.buttonList.add(lootBtn);
-		GuiButtonQuesting lifeBtn = new GuiButtonQuesting(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.format("betterquesting.btn.party_share_lives") + ": " + party.lifeShare);
-		lifeBtn.enabled = member.GetPrivilege() == 2;
+		GuiButtonThemed lifeBtn = new GuiButtonThemed(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.format("betterquesting.btn.party_share_lives") + ": " + party.getShareLives(), true);
+		lifeBtn.enabled = status.ordinal() >= 3;
 		this.buttonList.add(lifeBtn);
-		GuiButtonQuesting invBtn = new GuiButtonQuesting(4, guiLeft + sizeX/4 + 5, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_invite"));
-		invBtn.enabled = member.GetPrivilege() == 2;
+		GuiButtonThemed invBtn = new GuiButtonThemed(4, guiLeft + sizeX/4 + 5, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_invite"), true);
+		invBtn.enabled = status.ordinal() >= 2;
 		this.buttonList.add(invBtn);
 		
 		fieldName = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/4 - 74, height/2 - 59, 148, 18);
-		fieldName.setText(party.name);
-		fieldName.setEnabled(member.GetPrivilege() == 2);
+		fieldName.setText(party.getName());
+		fieldName.setEnabled(status.ordinal() >= 3);
 		
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_kick"));
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_kick"), true);
 			this.buttonList.add(btn);
 		}
 		
@@ -91,53 +101,56 @@ public class GuiManageParty extends GuiQuesting
 	}
 	
 	@Override
+	public void refreshGui()
+	{
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		
+		if(!NameCache.INSTANCE.isOP(playerID))
+		{
+			this.party = PartyManager.INSTANCE.getUserParty(playerID);
+			this.partyID = PartyManager.INSTANCE.getKey(this.party);
+		} else
+		{
+			this.party = PartyManager.INSTANCE.getValue(partyID);
+		}
+		
+		this.initGui();
+	}
+	
+	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(PartyManager.updateUI)
-		{
-			PartyManager.updateUI = false;
-			this.initGui();
-			return;
-		}
-		
-		if(party == null)
-		{ 
-			mc.displayGuiScreen(null);
-			return;
-		}
-		
-		if(QuestDatabase.bqHardcore)
+		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
-			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, ThemeRegistry.curTheme().textColor().getRGB());
+			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());
 		}
 		
 		String memTitle = TextFormatting.UNDERLINE + I18n.format("betterquesting.gui.party_members");
-		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, getTextColor(), false);
 		
 		int dotL = mc.fontRendererObj.getStringWidth("...");
 		
-		for(int i = 0; i < party.GetMembers().size(); i++)
+		for(int i = 0; i < memList.size(); i++)
 		{
 			int n = i + rightScroll;
 			
-			if(n < 0 || n >= party.GetMembers().size() || i >= maxRows)
+			if(n < 0 || n >= memList.size() || i >= maxRows)
 			{
 				continue;
 			}
 			
-			PartyMember m = party.GetMembers().get(n);
-			String name = PartyManager.GetUsername(null, m.userID);
+			String name = NameCache.INSTANCE.getName(memList.get(n));
 			if(mc.fontRendererObj.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
 			{
 				name = mc.fontRendererObj.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
 			}
-			mc.fontRendererObj.drawString(name, guiLeft + sizeX - 82 - mc.fontRendererObj.getStringWidth(name), guiTop + 48 + (i*20) + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRendererObj.drawString(name, guiLeft + sizeX - 82 - mc.fontRendererObj.getStringWidth(name), guiTop + 48 + (i*20) + 4, getTextColor(), false);
 		}
 		
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48, 248, 0, 8, 20);
 		int s = 20;
@@ -147,13 +160,13 @@ public class GuiManageParty extends GuiQuesting
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(party.GetMembers().size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(memList.size() - maxRows)), 248, 60, 8, 20);
 		
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, getTextColor(), false);
 		
 		fieldName.drawTextBox();
 		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 	}
 	
 	@Override
@@ -164,19 +177,19 @@ public class GuiManageParty extends GuiQuesting
 		if(button.id == 1) // Leave party
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 1);
-			tags.setString("Party", party.name);
-			tags.setString("Member", member.userID.toString());
-    		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
-		} else if(button.id == 2 && member.GetPrivilege() == 2) // Share loot
+			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
+			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+			tags.setString("target", QuestingAPI.getQuestingUUID(mc.thePlayer).toString());
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+		} else if(button.id == 2 && status.ordinal() >= 3) // Share loot
 		{
-			party.lootShare = !party.lootShare;
+			party.setShareReward(!party.getShareReward());
 			SendChanges();
-		} else if(button.id == 3 && member.GetPrivilege() == 2) // Share life
+		} else if(button.id == 3 && status.ordinal() >= 3) // Share life
 		{
-			party.lifeShare = !party.lifeShare;
+			party.setShareLives(!party.getShareLives());
 			SendChanges();
-		} else if(button.id == 4 && member.GetPrivilege() == 2) // Invite
+		} else if(button.id == 4 && status.ordinal() >= 3) // Invite
 		{
 			mc.displayGuiScreen(new GuiPartyInvite(this, party));
 		} else if(button.id > 4) // Kick
@@ -187,14 +200,13 @@ public class GuiManageParty extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < party.GetMembers().size())
+				if(n3 >= 0 && n3 < memList.size())
 				{
-					PartyMember pMem = party.GetMembers().get(n3);
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 1);
-					tags.setString("Party", party.name);
-					tags.setString("Member", pMem.userID.toString());
-		    		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+					tags.setInteger("action", EnumPacketAction.KICK.ordinal());
+					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+					tags.setString("target", memList.get(n3).toString());
+					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}
@@ -219,15 +231,14 @@ public class GuiManageParty extends GuiQuesting
     {
 		super.mouseClicked(mx, my, click);
 		
-		if(member.GetPrivilege() == 2)
+		if(status.ordinal() >= 3)
 		{
 			fieldName.mouseClicked(mx, my, click);
 			
-			if(!fieldName.isFocused() && !fieldName.getText().equals(party.name))
+			if(!fieldName.isFocused() && !fieldName.getText().equals(party.getName()))
 			{
-				String oldName = party.name;
-				party.name = fieldName.getText();
-				SendChanges(oldName);
+				party.setName(fieldName.getText());
+				SendChanges();
 			}
 		} else
 		{
@@ -236,45 +247,37 @@ public class GuiManageParty extends GuiQuesting
     }
 	
 	@Override
-	public void handleMouseInput() throws IOException
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + SDX, 0, party.GetMembers().size() - maxRows));
+    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, memList.size() - maxRows));
     		RefreshColumns();
         }
 	}
-	public void SendChanges()
-	{
-		SendChanges(party.name);
-	}
 	
-	public void SendChanges(String name) // Use this if the name is being edited
+	public void SendChanges() // Use this if the name is being edited
 	{
-		if(member == null || member.GetPrivilege() != 2)
+		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(mc.thePlayer)))
 		{
-			return; // Not allowed to edit the party
+			return; // Not allowed to edit the party (Operators may force edit)
 		}
 		
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", 2);
-		tags.setString("Party", name);
-		tags.setString("Member", member.userID.toString());
-		JsonObject pJson = new JsonObject();
-		party.writeToJson(pJson);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(pJson, new NBTTagCompound()));
-		PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
+		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+		//tags.setString("target", mc.thePlayerQuestingAPI.getQuestingUUID(player).toString());
+		JsonObject base = new JsonObject();
+		base.add("party", party.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}
 	
 	public void RefreshColumns()
 	{
-		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, party.GetMembers().size() - maxRows));
+		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, memList.size() - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		
@@ -287,10 +290,10 @@ public class GuiManageParty extends GuiQuesting
 			
 			if(n2 == 0)
 			{
-				if(n3 >= 0 && n3 < party.GetMembers().size())
+				if(n3 >= 0 && n3 < memList.size())
 				{
 					btn.visible = true;
-					btn.enabled = member.GetPrivilege() == 2;
+					btn.enabled = status.ordinal() >= 2;
 					// Kick #n3 member of the party
 				} else
 				{

@@ -2,29 +2,37 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.party.PartyManager;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonObject;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.party.PartyManager;
 
-public class PktHandlerPartyDB extends PktHandler
+public class PktHandlerPartyDB implements IPacketHandler
 {
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data) // Sync request
+	public ResourceLocation getRegistryName()
 	{
-		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		PartyManager.writeToJson(json);
-		tags.setTag("Parties", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-		PacketAssembly.SendTo(BQPacketType.PARTY_DATABASE.GetLocation(), tags, sender);
+		return PacketTypeNative.PARTY_DATABASE.GetLocation();
+	}
+	
+	@Override
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender) // Sync request
+	{
+		if(sender == null)
+		{
+			return;
+		}
+		
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), sender);
 	}
 	
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		JsonObject json = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("Parties"), new JsonObject());
-		PartyManager.readFromJson(json);
+		PartyManager.INSTANCE.readPacket(data);
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
 	}
-	
 }

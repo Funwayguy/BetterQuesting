@@ -1,58 +1,73 @@
 package betterquesting.client.gui;
 
 import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.client.gui.misc.QuestLineButtonTree;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.client.toolbox.ToolboxTool;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestLine;
-import betterquesting.quests.QuestLine.QuestLineEntry;
-import betterquesting.utils.NBTConverter;
-import com.google.gson.JsonObject;
+import org.lwjgl.opengl.GL11;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.QuestLineButtonTree;
+import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.utils.RenderUtils;
 
-public class GuiQuestLinesEmbedded extends GuiEmbedded
+public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 {
-	/**
-	 * Graph level of zoom out of 100%
-	 */
-	public int zoom = 100;
-	public int scrollX = 0;
-	public int scrollY = 0;
-	int maxX = 0;
-	int maxY = 0;
-	boolean noScroll = false;
-	ToolboxTool curTool = null;
-	QuestLine qLine;
-	ArrayList<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
+	private int posX = 0;
+	private int posY = 0;
+	private int sizeX = 128;
+	private int sizeY = 128;
+	private int zoom = 100;
+	private int scrollX = 0;
+	private int scrollY = 0;
+	private int maxX = 0;
+	private int maxY = 0;
+	private boolean noScroll = false;
+	private IToolboxTool curTool = null;
+	private IQuestLine qLine;
+	private final List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
+	private QuestLineButtonTree buttonTree = null;
 	
-	public GuiQuestLinesEmbedded(GuiQuesting screen, int posX, int posY, int sizeX, int sizeY)
+	private ResourceLocation bgImg = null;
+	private int bgSize = 1024;
+	
+	List<String> curTooltip = null;
+	
+	public GuiQuestLinesEmbedded(int posX, int posY, int sizeX, int sizeY)
 	{
-		super(screen, posX, posY, sizeX, sizeY);
+		this.posX = posX;
+		this.posY = posY;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
 	}
 	
-	public void setCurrentTool(ToolboxTool tool)
+	@Override
+	public void setBackground(ResourceLocation image, int size)
+	{
+		this.bgImg = image;
+		this.bgSize = Math.max(1, size);
+		
+		if(bgImg != null)
+		{
+			this.maxX = Math.max(bgSize, maxX);
+			this.maxY = Math.max(bgSize, maxY);
+		}
+	}
+	
+	@Override
+	public void setActiveTool(IToolboxTool tool)
 	{
 		if(curTool != null)
 		{
-			curTool.deactivateTool();
-		}
-		
-		if(qLine == null)
-		{
-			curTool = null;
-			return;
+			curTool.disableTool();
 		}
 		
 		curTool = tool;
@@ -63,216 +78,152 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 		}
 	}
 	
-	public ToolboxTool getCurrentTool()
+	@Override
+	public IToolboxTool getActiveTool()
 	{
 		return curTool;
 	}
 	
-	public void copySettings(GuiQuestLinesEmbedded old)
-	{
-		this.zoom = old.zoom;
-		this.scrollX = old.scrollX;
-		this.scrollY = old.scrollY;
-		this.setCurrentTool(old.curTool);
-	}
-
 	@Override
-	public void drawGui(int mx, int my, float partialTick)
+	public void copySettings(IGuiQuestLine old)
 	{
-		screen.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		this.zoom = old.getZoom();
+		this.scrollX = old.getScrollX();
+		this.scrollY = old.getScrollY();
+		
+		if(old.getActiveTool() != null)
+		{
+			old.getActiveTool().disableTool();
+			this.setActiveTool(old.getActiveTool());
+		}
+	}
+	
+	@Override
+	public void drawBackground(int mx, int my, float partialTick)
+	{
+		mouseDrag(mx, my);
+		
+		Minecraft mc = Minecraft.getMinecraft();
+		double scaleX = sizeX/128D;
+		double scaleY = sizeY/128D;
+		float zs = zoom/100F;
+		int rmx = getRelativeX(mx);
+		int rmy = getRelativeY(my);
+		
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		GlStateManager.pushMatrix();
-		double scaleX = sizeX/128D;
-		double scaleY = sizeY/128D;
 		GlStateManager.scale(scaleX, scaleY, 1F);
 		GlStateManager.translate(posX/scaleX, posY/scaleY, 0);
-		screen.drawTexturedModalRect(0, 0, 0, 128, 128, 128);
+		drawTexturedModalRect(0, 0, 0, 128, 128, 128);
 		GlStateManager.popMatrix();
 		
-		QuestInstance qTooltip = null;
+		IQuest qTooltip = null;
 		
 		if(qLine != null)
 		{
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(posX, posY, 0);
-			float zs = zoom/100F;
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
-			int rw = (int)(sizeX / zs);
-			int rh = (int)(sizeY / zs);
-			int rmx = (int)((mx - posX)/zs);
-			int rmy = (int)((my - posY)/zs);
+			
+			if(bgImg != null)
+			{
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(bgSize/256F, bgSize/256F, 1F);
+				mc.renderEngine.bindTexture(bgImg);
+				this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+				GlStateManager.popMatrix();
+			}
 			
 			for(GuiButtonQuestInstance btnQuest : qBtns)
 			{
-				btnQuest.SetClampingBounds(0, 0, rw, rh);
-				btnQuest.SetScrollOffset(scrollX, scrollY);
-				btnQuest.drawButton(screen.mc, rmx, rmy);
+				btnQuest.drawButton(mc, rmx, rmy);
 				
-				if(btnQuest.visible && screen.isWithin(rmx, rmy, btnQuest.xPosition + scrollX, btnQuest.yPosition + scrollY, btnQuest.width, btnQuest.height, false) && screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
+				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.xPosition, btnQuest.yPosition, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
 				{
-					qTooltip = btnQuest.quest;
+					qTooltip = btnQuest.getQuest();
 				}
 			}
 			
-			GlStateManager.popMatrix();
-			
-			GlStateManager.pushMatrix();
-			float scale = sizeX > 600? 1.5F : 1F;
-			GlStateManager.scale(scale, scale, scale);
-			screen.mc.fontRendererObj.drawString(I18n.format(qLine.name), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
-			screen.mc.fontRendererObj.drawString(zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - screen.mc.fontRendererObj.FONT_HEIGHT)/scale), ThemeRegistry.curTheme().textColor().getRGB(), false);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 			GlStateManager.popMatrix();
 		}
 		
 		if(curTool != null)
 		{
-			if(qLine == null)
-			{
-				this.setCurrentTool(null);
-			} else
-			{
-				curTool.drawTool(mx, my, partialTick);
-			}
+			GlStateManager.pushMatrix();
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
+			GlStateManager.scale(zs, zs, 1F);
+			curTool.drawTool(rmx, rmy, partialTick);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			GlStateManager.popMatrix();
 		}
 		
-		if(qTooltip != null && (curTool == null || curTool.showTooltips()))
+		if(qTooltip != null && (curTool == null || curTool.allowTooltips()))
 		{
-			if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
-			{
-				screen.DrawTooltip(qTooltip.getAdvancedTooltip(screen.mc.thePlayer), mx, my);
-			} else
-			{
-				screen.DrawTooltip(qTooltip.getStandardTooltip(screen.mc.thePlayer), mx, my);
-			}
-		}
-	}
-	
-	public GuiButtonQuestInstance getClickedQuest(int mx, int my)
-	{
-		if(!screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
+			curTooltip = qTooltip.getTooltip(mc.thePlayer);
+		} else
 		{
-			return null;
+			curTooltip = null;
 		}
-		
-		float zs = zoom/100F;
-		int rmx = (int)((mx - posX)/zs);
-		int rmy = (int)((my - posY)/zs);
-		
-		for(GuiButtonQuestInstance b : qBtns)
-		{
-			if(b.mousePressed(Minecraft.getMinecraft(), rmx, rmy))
-			{
-				return b;
-			}
-		}
-		
-		return null;
 	}
 	
 	@Override
-	public void mouseClick(int mx, int my, int click)
+	public void drawForeground(int mx, int my, float partialTick)
 	{
-		if(curTool != null && curTool.isInitialised(this))
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		if(qLine != null)
 		{
-			curTool.onMouseClick(mx, my, click);
+			GlStateManager.pushMatrix();
+			float scale = sizeX > 600? 1.5F : 1F;
+			GlStateManager.scale(scale, scale, scale);
+			drawString(mc.fontRendererObj, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), getTextColor(), false);
+			drawString(mc.fontRendererObj, zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), getTextColor(), false);
+			GlStateManager.popMatrix();
 		}
 		
-		if(!screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
+		if(curTooltip != null && curTooltip.size() > 0)
+		{
+			drawTooltip(curTooltip, mx, my, Minecraft.getMinecraft().fontRendererObj);
+			GlStateManager.disableLighting();
+		}
+	}
+	
+	@Override
+	public void onMouseClick(int mx, int my, int click)
+	{
+		if(!isWithin(mx, my, posX, posY, sizeX, sizeY))
 		{
 			noScroll = true;
 			return;
 		}
 		
-		noScroll = curTool != null && !curTool.allowDragging(click);
-	}
-	
-	/**
-	 * Snaps everything relative to 0,0 and updates max bounds. Will send offset changes server side if told
-	 */
-	public void autoAlign(boolean applyEdits)
-	{
-		boolean set = false;
-		int xOff = 0;
-		int yOff = 0;
-		
-		for(GuiButtonQuestInstance b : qBtns)
+		if(curTool != null)
 		{
-			if(!set)
-			{
-				xOff = b.xPosition;
-				yOff = b.yPosition;
-				set = true;
-				continue;
-			}
-			
-			if(b.xPosition < xOff)
-			{
-				xOff = b.xPosition;
-			}
-			
-			if(b.yPosition < yOff)
-			{
-				yOff = b.yPosition;
-			}
+			int rmx = getRelativeX(mx);
+			int rmy = getRelativeY(my);
+			curTool.onMouseClick(rmx, rmy, click);
 		}
 		
-		maxX = 0;
-		maxY = 0;
-		
-		for(GuiButtonQuestInstance b : qBtns)
-		{
-			b.xPosition -= xOff;
-			b.yPosition -= yOff;
-			
-			if(b.xPosition + 24 > maxX)
-			{
-				maxX = b.xPosition + 24;
-			}
-			
-			if(b.yPosition + 24 > maxY)
-			{
-				maxY = b.yPosition + 24;
-			}
-			
-			if(applyEdits)
-			{
-				QuestLineEntry entry = qLine.getEntryByID(b.quest.questID);
-				
-				if(entry != null)
-				{
-					entry.posX = b.xPosition;
-					entry.posY = b.yPosition;
-				}
-			}
-		}
-		
-		if(curTool == null || curTool.clampScrolling())
-		{
-			clampScroll();
-		}
-		
-		if(applyEdits)
-		{
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 2);
-			JsonObject json = new JsonObject();
-			QuestDatabase.writeToJson_Lines(json);
-			tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
-    		PacketAssembly.SendToServer(BQPacketType.LINE_EDIT.GetLocation(), tags);
-		}
+		noScroll = curTool != null && !curTool.allowScrolling(click);
 	}
 	
 	@Override
-	public void mouseScroll(int mx, int my, int SDX)
+	public void onMouseScroll(int mx, int my, int SDX)
 	{
-        if(SDX != 0 && screen.isWithin(mx, my, posX, posY, sizeX, sizeY, false))
+        if(SDX != 0 && isWithin(mx, my, posX, posY, sizeX, sizeY))
         {
             if(curTool != null)
             {
-            	curTool.onMouseScroll(mx, my, SDX);
+            	curTool.onMouseScroll(getRelativeX(mx), getRelativeY(my), SDX);
             	
-            	if(!curTool.allowScrolling())
+            	if(!curTool.allowZoom())
             	{
             		return; // No zoom for you
             	}
@@ -282,50 +233,96 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
         }
 	}
 	
-	public void setZoom(int value)
+	@Override
+	public void onKeyTyped(char c, int key)
+	{
+		if(curTool != null)
+		{
+			curTool.onKeyPressed(c, key);
+		}
+	}
+	
+	private void setZoom(int value)
 	{
 		zoom = MathHelper.clamp_int(value, 50, 200);
 		
-		if(curTool == null || curTool.clampScrolling())
+		if(curTool == null || !curTool.allowZoom())
 		{
 			clampScroll();
 		}
 	}
 	
-	public void setQuestLine(QuestLineButtonTree tree)
+	@Override
+	public int getZoom()
 	{
-		zoom = 100;
+		return zoom;
+	}
+	
+	@Override
+	public void setQuestLine(QuestLineButtonTree tree, boolean resetView)
+	{
+		buttonTree = tree;
 		
 		if(tree == null)
 		{
 			this.qLine = null;
-			this.qBtns = new ArrayList<GuiButtonQuestInstance>();
-			
-			this.setCurrentTool(null);
+			this.qBtns.clear();
+			this.setBackground(null, 256);
 		} else
 		{
-			this.qLine = tree.line;
-			this.qBtns = tree.buttonTree;
+			this.qLine = tree.getQuestLine();
+			this.qBtns.clear();
+			this.qBtns.addAll(tree.getButtonTree());
+
+			String bgn = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_IMAGE, "");
+			int bgs = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_SIZE, 256).intValue();
 			
-			autoAlign(false);
+			if(bgn.length() > 0)
+			{
+				setBackground(new ResourceLocation(bgn), bgs);
+			}
 			
-			scrollX = Math.abs(sizeX - maxX)/2;
-			scrollY = 16;
+			if(bgImg == null)
+			{
+				maxX = tree.getWidth();
+				maxY = tree.getHeight();
+			} else
+			{
+				maxX = Math.max(bgSize, tree.getWidth());
+				maxY = Math.max(bgSize, tree.getHeight());
+			}
 			
-			this.setCurrentTool(this.getCurrentTool()); // Force refresh tool
+			if(resetView)
+			{
+				zoom = 100;
+				scrollX = Math.abs(sizeX - maxX)/2;
+				scrollY = 16;
+			}
 		}
 	}
 	
-	@Override
-	public void handleMouse()
+	private int lastMX = 0;
+	private int lastMY = 0;
+	
+	private void mouseDrag(int mx, int my)
 	{
-		super.handleMouse();
-        
+		int mdx = 0;
+		int mdy = 0;
+		
+		if(lastMX != 0 || lastMY != 0)
+		{
+			mdx = mx - lastMX;
+			mdy = my - lastMY;
+		}
+		
+		lastMX = mx;
+		lastMY = my;
+		
     	if((Mouse.isButtonDown(0) && !noScroll) || Mouse.isButtonDown(2))
     	{
 			float zs = zoom/100F;
-    		scrollX += (Mouse.getEventDX() * screen.width / screen.mc.displayWidth)/zs;
-    		scrollY -= (Mouse.getEventDY() * screen.height / screen.mc.displayHeight)/zs;
+    		scrollX += mdx/zs;
+    		scrollY += mdy/zs;
     		
     		if(curTool == null || curTool.clampScrolling())
     		{
@@ -352,6 +349,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	/**
 	 * Convert normal coordinates to canvas coordinates
 	 */
+	@Override
 	public int getRelativeX(int x)
 	{
 		float zs = zoom/100F;
@@ -361,6 +359,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	/**
 	 * Convert normal coordinates to canvas coordinates
 	 */
+	@Override
 	public int getRelativeY(int y)
 	{
 		float zs = zoom/100F;
@@ -370,6 +369,7 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	/**
 	 * Convert canvas coordinates to normal coordinates
 	 */
+	@Override
 	public int getScreenX(int x)
 	{
 		float zs = zoom/100F;
@@ -379,39 +379,52 @@ public class GuiQuestLinesEmbedded extends GuiEmbedded
 	/**
 	 * Convert canvas coordinates to normal coordinates
 	 */
+	@Override
 	public int getScreenY(int y)
 	{
 		float zs = zoom/100F;
 		return (int)((y + scrollY)*zs) + posY;
 	}
 	
+	@Override
 	public int getPosX()
 	{
 		return posX;
 	}
 	
+	@Override
 	public int getPosY()
 	{
 		return posY;
 	}
 	
+	@Override
 	public int getWidth()
 	{
 		return sizeX;
 	}
 	
+	@Override
 	public int getHeight()
 	{
 		return sizeY;
 	}
 	
-	public QuestLine getQuestLine()
+	@Override
+	public int getScrollX()
 	{
-		return qLine;
+		return scrollX;
 	}
 	
-	public ArrayList<GuiButtonQuestInstance> getButtons()
+	@Override
+	public int getScrollY()
 	{
-		return qBtns;
+		return scrollY;
+	}
+	
+	@Override
+	public QuestLineButtonTree getQuestLine()
+	{
+		return buttonTree;
 	}
 }

@@ -1,24 +1,37 @@
 package betterquesting.client.toolbox;
 
 import java.util.ArrayList;
+import java.util.List;
+import betterquesting.api.client.toolbox.IToolRegistry;
+import betterquesting.api.client.toolbox.IToolboxTab;
 
-public class ToolboxRegistry
+public class ToolboxRegistry implements IToolRegistry
 {
-	static ArrayList<ToolboxTab> toolTabs = new ArrayList<ToolboxTab>();
+	public static final ToolboxRegistry INSTANCE = new ToolboxRegistry();
 	
-	public static void registerToolTab(ToolboxTab tab)
+	private final ArrayList<IToolboxTab> toolTabs = new ArrayList<IToolboxTab>();
+	
+	private ToolboxRegistry()
 	{
-		if(toolTabs.contains(tab))
-		{
-			return;
-		}
-		
-		toolTabs.add(tab);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static ArrayList<ToolboxTab> getList()
+	@Override
+	public void registerToolbox(IToolboxTab toolbox)
 	{
-		return (ArrayList<ToolboxTab>)toolTabs.clone();
+		if(toolbox == null)
+		{
+			throw new NullPointerException("Tried to register null toolbox");
+		} else if(toolTabs.contains(toolbox))
+		{
+			throw new IllegalArgumentException("Cannot register duplicate toolbox: " + toolbox.getClass());
+		}
+		
+		toolTabs.add(toolbox);
+	}
+	
+	@Override
+	public List<IToolboxTab> getAllTools()
+	{
+		return toolTabs;
 	}
 }

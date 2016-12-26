@@ -8,10 +8,15 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.core.BQ_Settings;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.utils.JsonIO;
+import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
@@ -49,24 +54,27 @@ public class QuestCommandDefaults extends QuestCommandBase
 	{
 		if(args[1].equalsIgnoreCase("save"))
 		{
-			JsonObject jsonQ = new JsonObject();
-			QuestDatabase.writeToJson(jsonQ);
-			JsonIO.WriteToFile(new File(server.getFile("config/betterquesting/"), "DefaultQuests.json"), jsonQ);
+			JsonObject base = new JsonObject();
+			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			base.addProperty("format", BetterQuesting.FORMAT);
+			JsonHelper.WriteToFile(new File(server.getFile("config/betterquesting/"), "DefaultQuests.json"), base);
 			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
-			JsonObject jsonP = new JsonObject();
-			QuestDatabase.writeToJson_Progression(jsonP);
+			JsonArray jsonP = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
 	    	File f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 			JsonObject j1 = new JsonObject();
 			
 			if(f1.exists())
 			{
-				j1 = JsonIO.ReadFromFile(f1);
-				QuestDatabase.readFromJson(j1);
-				QuestDatabase.readFromJson_Progression(jsonP);
+				j1 = JsonHelper.ReadFromFile(f1);
+				QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
+				QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
+				QuestDatabase.INSTANCE.readFromJson(jsonP, EnumSaveType.PROGRESS);
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
-				QuestDatabase.UpdateClients();
+				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			} else
 			{
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));

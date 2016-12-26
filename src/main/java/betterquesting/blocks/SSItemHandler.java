@@ -11,7 +11,7 @@ public class SSItemHandler implements IItemHandlerModifiable
 	{
 		this.tile = tile;
 	}
-
+	
 	@Override
 	public int getSlots()
 	{
@@ -101,8 +101,8 @@ public class SSItemHandler implements IItemHandlerModifiable
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int slot)
+	public ItemStack getStackInSlot(int idx)
 	{
-		return tile.getStackInSlot(slot);
+		return tile.getStackInSlot(idx);
 	}
 }

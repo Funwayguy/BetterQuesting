@@ -11,37 +11,43 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.input.Mouse;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonJson;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiNumberField;
-import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonJson;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.controls.GuiNumberField;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.utils.JsonHelper;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.JsonIO;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
-public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileScreen
+public class GuiJsonArray extends GuiScreenThemed implements IVolatileScreen
 {
-	int scrollPos = 0;
-	JsonArray settings;
-	boolean allowEdit = true;
-	
+	private int scrollPos = 0;
+	private final JsonArray settings;
+	private boolean allowEdit = true;
+	private IJsonDoc jdoc = null;
 	/**
 	 * List of GuiTextFields and GuiButtons
 	 */
-	ArrayList<JsonControlSet> editables = new ArrayList<JsonControlSet>();
+	private ArrayList<JsonControlSet> editables = new ArrayList<JsonControlSet>();
 	
+	@Deprecated
 	public GuiJsonArray(GuiScreen parent, JsonArray settings)
+	{
+		this(parent, settings, null);
+	}
+	
+	public GuiJsonArray(GuiScreen parent, JsonArray settings, IJsonDoc jdoc)
 	{
 		super(parent, "betterquesting.title.json_array");
 		this.settings = settings;
+		this.jdoc = jdoc;
 	}
 	
 	/**
@@ -60,14 +66,25 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 	{
 		super.initGui();
 		
+		if(jdoc != null)
+		{
+			String ulTitle = jdoc.getUnlocalisedTitle();
+			String lTitle = I18n.format(ulTitle);
+			
+			if(!ulTitle.equals(lTitle))
+			{
+				this.setTitle(I18n.format(jdoc.getUnlocalisedTitle()));
+			}
+		}
+		
 		editables = new ArrayList<JsonControlSet>();
 		int maxRows = (this.sizeY - 84)/20;
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new")));
-		this.buttonList.add(new GuiButtonQuesting(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<"));
-		this.buttonList.add(new GuiButtonQuesting(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">"));
+		this.buttonList.add(new GuiButtonThemed(1, this.guiLeft + sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new"), true));
+		this.buttonList.add(new GuiButtonThemed(2, this.guiLeft + sizeX/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<", true));
+		this.buttonList.add(new GuiButtonThemed(3, this.guiLeft + sizeX - 36, this.guiTop + 32 + (maxRows * 20), 20, 20, ">", true));
 		
         for(int i = 0; i < settings.size(); i++)
 		{
@@ -82,13 +99,13 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 					txtBox.setText("" + jPrim.getAsNumber());
 				} else if(jPrim.isBoolean())
 				{
-					GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, jPrim);
+					GuiButtonJson<JsonPrimitive> button = new GuiButtonJson<JsonPrimitive>(buttonList.size(), -9999, -9999, 128, 20, jPrim, true);
 					editables.add(new JsonControlSet(this.buttonList, button, true, true));
 					this.buttonList.add(button);
 					continue;
 				} else
 				{
-					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(this, i);
+					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(new TextCallbackJsonArray(settings, i));
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -96,7 +113,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 				editables.add(new JsonControlSet(this.buttonList, txtBox, true, true));
 			} else
 			{
-				GuiButtonJson button = new GuiButtonJson(buttonList.size(), -9999, -9999, 128, 20, entry);
+				GuiButtonJson<JsonElement> button = new GuiButtonJson<JsonElement>(buttonList.size(), -9999, -9999, 128, 20, entry, true);
 				editables.add(new JsonControlSet(this.buttonList, button, true, true));
 				this.buttonList.add(button);
 			}
@@ -106,9 +123,6 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-        int mx = Mouse.getEventX() * mc.currentScreen.width / mc.displayWidth;
-        int my = mc.currentScreen.height - Mouse.getEventY() * mc.currentScreen.height / mc.displayHeight - 1;
-        
 		if(button.id == 0)
 		{
 			this.mc.displayGuiScreen(parent);
@@ -148,7 +162,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 					break;
 				} else if(button == controls.removeButton)
 				{
-					ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(this.settings);
+					ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(this.settings);
 					list.remove(key);
 					this.buttonList.remove(controls.addButton);
 					this.buttonList.remove(controls.removeButton);
@@ -157,23 +171,24 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 					break;
 				} else if(button == controls.jsonDisplay && button instanceof GuiButtonJson)
 				{
-					GuiButtonJson jsonButton = (GuiButtonJson)button;
-					JsonElement element = jsonButton.json;
+					@SuppressWarnings("unchecked")
+					GuiButtonJson<JsonElement> jsonButton = (GuiButtonJson<JsonElement>)button;
+					JsonElement element = jsonButton.getStored();
 					
-					GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
+					/*GuiScreen jGui = jsonButton.getJsonScreen(this, mx, my, allowEdit);
 					
 					if(jGui != null)
 					{
 						this.mc.displayGuiScreen(jGui);
-					} else if(jsonButton.isItemStack() || jsonButton.isEntity() || jsonButton.isFluid())
+					} else */if(jsonButton.isItem() || jsonButton.isEntity() || jsonButton.isFluid())
 					{
 						this.mc.displayGuiScreen(new GuiJsonTypeMenu(this, element.getAsJsonObject()));
 					} else if(element.isJsonObject())
 					{
-						this.mc.displayGuiScreen(new GuiJsonObject(this, element.getAsJsonObject()).SetEditMode(this.allowEdit));
+						this.mc.displayGuiScreen(new GuiJsonObject(this, element.getAsJsonObject(), jdoc).SetEditMode(this.allowEdit));
 					} else if(element.isJsonArray())
 					{
-						this.mc.displayGuiScreen(new GuiJsonArray(this, element.getAsJsonArray()).SetEditMode(this.allowEdit));
+						this.mc.displayGuiScreen(new GuiJsonArray(this, element.getAsJsonArray(), jdoc).SetEditMode(this.allowEdit));
 					} else if(element.isJsonPrimitive())
 					{
 						if(element.getAsJsonPrimitive().isBoolean())
@@ -182,7 +197,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 							
 							// Make shift 'put' method for out dated GSON library
 							
-							ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
+							ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(settings);
 							
 							if(list != null)
 							{
@@ -194,7 +209,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 							
 							
 							jsonButton.displayString = "" + jBool.getAsBoolean();
-							jsonButton.json = jBool;
+							jsonButton.setStored(jBool);
 						}
 					}
 					break;
@@ -221,7 +236,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 			if(n >= 0 && n < maxRows)
 			{
 				posY = this.guiTop + 32 + (n * 20);
-				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, ThemeRegistry.curTheme().textColor().getRGB(), false);
+				this.fontRendererObj.drawString("#" + i, posX - this.fontRendererObj.getStringWidth("#" + i) - 8, posY + 4, getTextColor(), false);
 				
 				if(controls != null)
 				{
@@ -235,7 +250,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 		
 		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
-		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, ThemeRegistry.curTheme().textColor().getRGB());
+		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
 	}
 	
 	@Override
@@ -262,7 +277,7 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
     {
 		super.keyTyped(character, num);
 		
-		ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(settings);
+		ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(settings);
 		
 		if(list == null)
 		{
@@ -301,18 +316,4 @@ public class GuiJsonArray extends GuiQuesting implements ITextEditor, IVolatileS
 			}
 		}
     }
-
-	@Override
-	public void setText(int id, String text)
-	{
-		ArrayList<JsonElement> list = settings == null? null : JsonIO.GetUnderlyingArray(settings);
-		
-		if(list == null || id < 0 || id >= list.size())
-		{
-			return;
-		}
-		
-		list.set(id, new JsonPrimitive(text));
-		this.initGui(); // Refresh the listing
-	}
 }

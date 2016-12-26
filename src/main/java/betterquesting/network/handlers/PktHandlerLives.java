@@ -1,31 +1,34 @@
 package betterquesting.network.handlers;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.lives.IHardcoreLives;
-import betterquesting.lives.LifeManager;
+import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.storage.LifeDatabase;
 
-public class PktHandlerLives extends PktHandler
+public class PktHandlerLives implements IPacketHandler
 {
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
+	public ResourceLocation getRegistryName()
 	{
-		return;
+		return PacketTypeNative.LIFE_DATABASE.GetLocation();
+	}
+	
+	@Override
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
+	{
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void handleClient(NBTTagCompound data)
 	{
-		IHardcoreLives tracker = Minecraft.getMinecraft().thePlayer.getCapability(LifeManager.LIFE_CAP, null);
-		
-		if(tracker != null)
-		{
-			tracker.readFromNBT(data.getCompoundTag("data"));
-		}
+		LifeDatabase.INSTANCE.readPacket(data);
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
 	}
-	
 }

@@ -1,27 +1,38 @@
 package betterquesting.client.gui.editors;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TextFormatting;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.importers.ImporterBase;
-import betterquesting.importers.ImporterRegistry;
-import betterquesting.utils.RenderUtils;
+import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonStorage;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.importers.IImporter;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.misc.IMultiCallback;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api.questing.IQuestLineDatabase;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.client.gui.misc.GuiFileExplorer;
+import betterquesting.client.importers.ImportedQuestLines;
+import betterquesting.client.importers.ImportedQuests;
+import betterquesting.client.importers.ImporterRegistry;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-public class GuiImporters extends GuiQuesting
+public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File>
 {
-	ArrayList<ImporterBase> cachedImporters = new ArrayList<ImporterBase>();
-	ImporterBase leftImp = null;
-	GuiEmbedded leftGui = null;
-	ImporterBase rightImp = null;
-	GuiEmbedded rightGui = null;
-	int scroll = 0;
+	private GuiScrollingButtons btnList;
+	private IGuiEmbedded impGui = null;
+	private IImporter selected = null;
 	
 	public GuiImporters(GuiScreen parent)
 	{
@@ -33,37 +44,33 @@ public class GuiImporters extends GuiQuesting
 	{
 		super.initGui();
 		
-		scroll = 0;
-		cachedImporters = ImporterRegistry.getImporters();
+		btnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(1, guiLeft - 4, height/2 - 10, 20, 20, "<");
-		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, guiLeft + sizeX - 16, height/2 - 10, 20, 20, ">");
-		this.buttonList.add(btn);
+		for(IImporter imp : ImporterRegistry.INSTANCE.getImporters())
+		{
+			GuiButtonStorage<IImporter> btnImp = new GuiButtonStorage<IImporter>(0, 0, 0, btnList.getListWidth(), 20, I18n.format(imp.getUnlocalisedName()));
+			btnImp.setStored(imp);
+			btnList.addButtonRow(btnImp);
+		}
 		
-		UpdateScroll();
+		this.embedded.add(btnList);
+		
+		int btnX = guiLeft + 16 + ((sizeX - 32)/4)*3 - 50;
+		this.buttonList.add(new GuiButtonThemed(1, btnX, guiTop + sizeY - 52, 100, 20, I18n.format("betterquesting.btn.import")));
+	}
+	
+	@Override
+	public void drawBackPanel(int mx, int my, float partialTick)
+	{
+		super.drawBackPanel(mx, my, partialTick);
+		
+		RenderUtils.DrawLine(guiLeft + sizeX/2, this.guiTop + 32, guiLeft + sizeX/2, this.guiTop + sizeY - 32, 2F, getTextColor());
 	}
 	
 	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
-		
-		if(leftGui != null && rightImp != null)
-		{
-			String txt = TextFormatting.UNDERLINE + I18n.format(leftImp.getUnlocalisedName());
-			mc.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
-			leftGui.drawGui(mx, my, partialTick);
-		}
-		
-		if(rightGui != null && rightImp != null)
-		{
-			String txt = TextFormatting.UNDERLINE + I18n.format(rightImp.getUnlocalisedName());
-			mc.fontRendererObj.drawString(txt, guiLeft + sizeX/2 + 8 + (sizeX/2 - 24)/2 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, ThemeRegistry.curTheme().textColor().getRGB());
-			rightGui.drawGui(mx, my, partialTick);
-		}
-		
-		RenderUtils.DrawLine(width/2, this.guiTop + 32, width/2, this.guiTop + sizeY - 32, 2F, ThemeRegistry.curTheme().textColor());
 	}
 	
 	@Override
@@ -71,74 +78,60 @@ public class GuiImporters extends GuiQuesting
 	{
 		super.actionPerformed(button);
 		
-		if(button.id >= 1 && button.id <= 2)
+		if(button.id == 1 && selected != null)
 		{
-			if(button.id == 1)
+			mc.displayGuiScreen(new GuiFileExplorer(this, this, new File("."), selected.getFileFilter()));
+		}
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click) throws IOException
+	{
+		super.mouseClicked(mx, my, click);
+		
+		GuiButtonThemed btn = this.btnList.getButtonUnderMouse(mx, my);
+		
+		if(click == 0 && btn != null && btn.mousePressed(mc, mx, my))
+		{
+			btn.playPressSound(mc.getSoundHandler());
+			@SuppressWarnings("unchecked")
+			IImporter imp = ((GuiButtonStorage<IImporter>)btn).getStored();
+			
+			this.selected = imp;
+			
+			if(impGui != null)
 			{
-				scroll--;
-			} else if(button.id == 2)
-			{
-				scroll++;
+				this.embedded.remove(impGui);
 			}
 			
-			int size = Math.max(1, cachedImporters.size());
-			scroll = (scroll%size + size)%size; // Fixes negative scroll
-			UpdateScroll();
+			this.embedded.add(new GuiImporterEmbedded(imp, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 84));
 		}
 	}
-	
+
 	@Override
-    protected void keyTyped(char character, int keyCode) throws IOException
-    {
-        super.keyTyped(character, keyCode);
-		
-		if(leftGui != null)
-		{
-			leftGui.keyTyped(character, keyCode);;
-		}
-		
-		if(rightGui != null)
-		{
-			rightGui.keyTyped(character, keyCode);;
-		}
-    }
-	
-	@Override
-	public void handleMouseInput() throws IOException
+	public void setValues(File[] files)
 	{
-		super.handleMouseInput();
-		
-		if(leftGui != null)
+		if(selected != null)
 		{
-			leftGui.handleMouse();
-		}
-		
-		if(rightGui != null)
-		{
-			rightGui.handleMouse();
-		}
-	}
-	
-	public void UpdateScroll()
-	{
-		scroll = scroll%Math.max(1, cachedImporters.size());
-		int s2 = (scroll + 1)%Math.max(1, cachedImporters.size());
-		
-		leftImp = null;
-		leftGui = null;
-		rightImp = null;
-		rightGui = null;
-		
-		if(scroll < cachedImporters.size())
-		{
-			leftImp = cachedImporters.get(scroll);
-			leftGui = leftImp.getGui(this, guiLeft + 16, guiTop + 48, sizeX/2 - 24, sizeY - 80);
-		}
-		
-		if(scroll != s2 && s2 < cachedImporters.size())
-		{
-			rightImp = cachedImporters.get(s2);
-			rightGui = rightImp.getGui(this, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
+			IQuestDatabase questDB = new ImportedQuests();
+			IQuestLineDatabase lineDB = new ImportedQuestLines();
+			
+			selected.loadFiles(questDB, lineDB, files);
+			
+			if(questDB.size() > 0 || lineDB.size() > 0)
+			{
+				// TODO: Open selection dialog
+				
+				JsonObject jsonBase = new JsonObject();
+				jsonBase.add("quests", questDB.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+				jsonBase.add("lines", lineDB.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+				
+				NBTTagCompound tag = new NBTTagCompound();
+				tag.setTag("data", NBTConverter.JSONtoNBT_Object(jsonBase, new NBTTagCompound()));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.IMPORT.GetLocation(), tag));
+				
+				mc.displayGuiScreen(parent);
+			}
 		}
 	}
 }

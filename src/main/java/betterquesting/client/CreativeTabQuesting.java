@@ -1,8 +1,8 @@
 package betterquesting.client;
 
-import betterquesting.core.BetterQuesting;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import betterquesting.core.BetterQuesting;
 
 public class CreativeTabQuesting extends CreativeTabs
 {

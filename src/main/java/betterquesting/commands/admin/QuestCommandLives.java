@@ -2,14 +2,18 @@ package betterquesting.commands.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.lives.LifeManager;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.LifeDatabase;
 
 public class QuestCommandLives extends QuestCommandBase
 {
@@ -29,7 +33,6 @@ public class QuestCommandLives extends QuestCommandBase
 		return args.length == 4 || args.length == 3;
 	}
 	
-	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -66,40 +69,48 @@ public class QuestCommandLives extends QuestCommandBase
 			throw getException(command);
 		}
 		
+		UUID playerID = QuestingAPI.getQuestingUUID(player);
+		
 		if(action.equalsIgnoreCase("set"))
 		{
 			value = Math.max(1, value);
+			
 			if(player != null)
 			{
-				LifeManager.setLives(player, value);
+				LifeDatabase.INSTANCE.setLives(playerID, value);
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", player.getName(), value));
 			} else if(args.length == 3)
 			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayerList())
+				for(EntityPlayer p : server.getPlayerList().getPlayerList())
 				{
-					LifeManager.setLives(p, value);
+					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
 				}
 				
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
+			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
+			return;
 		} else if(action.equalsIgnoreCase("add"))
 		{
 			if(player != null)
 			{
-				LifeManager.AddRemoveLives(player, value);
+				int lives = LifeDatabase.INSTANCE.getLives(playerID);
+				LifeDatabase.INSTANCE.setLives(playerID, lives + value);
+				lives = LifeDatabase.INSTANCE.getLives(playerID);
 				
 				if(value >= 0)
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, player.getName(), LifeManager.getLives(player)));
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, player.getName(), lives));
 				} else
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), player.getName(), LifeManager.getLives(player)));
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), player.getName(), lives));
 				}
 			} else
 			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayerList())
+				for(EntityPlayer p : server.getPlayerList().getPlayerList())
 				{
-					LifeManager.AddRemoveLives(p, value);
+					int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(p));
+					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
 				}
 				
 				if(value >= 0)
@@ -110,16 +121,23 @@ public class QuestCommandLives extends QuestCommandBase
 					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
 				}
 			}
+			
+			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
+			return;
 		} else if(action.equalsIgnoreCase("max"))
 		{
 			value = Math.max(1, value);
-			LifeManager.maxLives = value;
+			LifeDatabase.INSTANCE.setMaxLives(value);
 			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
+			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
+			return;
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
-			LifeManager.defLives = value;
+			LifeDatabase.INSTANCE.setDefaultLives(value);
 			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
+			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
+			return;
 		} else
 		{
 			throw getException(command);
