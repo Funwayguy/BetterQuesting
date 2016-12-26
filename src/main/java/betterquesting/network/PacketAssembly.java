@@ -1,29 +1,35 @@
 package betterquesting.network;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import betterquesting.core.BetterQuesting;
 
 /**
  * In charge of splitting up packets and reassembling them
+ * TODO: Make this thread safe
  */
-public class PacketAssembly
+public final class PacketAssembly
 {
-	// Set to handle a maximum of 100 unique packets before overwriting.
-	// If you hit that limit you've got bigger problems... seriously.
-	private static final ConcurrentHashMap<Integer,byte[]> buffer = new ConcurrentHashMap<Integer,byte[]>();
-	private static int id = 0;
+	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
-	public static ArrayList<NBTTagCompound> SplitPackets(NBTTagCompound tags)
+	// Player assigned packet buffers
+	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<UUID,byte[]>();
+	// Internal server packet buffer (server to server or client side)
+	private byte[] serverBuf = null;
+	private int id = 0;
+	
+	private PacketAssembly()
+	{
+	}
+	
+	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
 		ArrayList<NBTTagCompound> pkts = new ArrayList<NBTTagCompound>();
 		
@@ -44,7 +50,6 @@ public class PacketAssembly
 					part[n] = data[idx + n];
 				}
 				
-				container.setInteger("buffer", id); // Buffer ID
 				container.setInteger("size", data.length); // If the buffer isn't yet created, how big is it
 				container.setInteger("index", idx); // Where should this piece start writing too
 				container.setBoolean("end", p == req - 1);
@@ -66,20 +71,19 @@ public class PacketAssembly
 	/**
 	 * Appends a packet onto the buffer and returns an assembled NBTTagCompound when complete
 	 */
-	public static NBTTagCompound AssemblePacket(NBTTagCompound tags)
+	public NBTTagCompound assemblePacket(UUID owner, NBTTagCompound tags)
 	{
-		int bId = tags.getInteger("id");
 		int size = tags.getInteger("size");
 		int index = tags.getInteger("index");
 		boolean end = tags.getBoolean("end");
 		byte[] data = tags.getByteArray("data");
 		
-		byte[] tmp = buffer.get(bId);
+		byte[] tmp = getBuffer(owner);
 		
 		if(tmp == null || tmp.length != size)
 		{
 			tmp = new byte[size];
-			buffer.put(bId, tmp);
+			setBuffer(owner, tmp);
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)
@@ -89,7 +93,7 @@ public class PacketAssembly
 		
 		if(end)
 		{
-			buffer.remove(bId);
+			clearBuffer(owner);
 			
 			try
 			{
@@ -103,53 +107,36 @@ public class PacketAssembly
 		return null;
 	}
 	
-	public static void SendToAll(ResourceLocation type, NBTTagCompound payload)
+	public byte[] getBuffer(UUID owner)
 	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
+		if(owner == null)
 		{
-			BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
+			return serverBuf;
+		} else
+		{
+			return buffer.get(owner);
 		}
 	}
 	
-	public static void SendTo(ResourceLocation type, NBTTagCompound payload, EntityPlayerMP player)
+	public void setBuffer(UUID owner, byte[] value)
 	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
+		if(owner == null)
 		{
-			BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
+			serverBuf = value;
+		} else
+		{
+			buffer.put(owner, value);
 		}
 	}
 	
-	public static void SendToServer(ResourceLocation type, NBTTagCompound payload)
+	public void clearBuffer(UUID owner)
 	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
+		if(owner == null)
 		{
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
-		}
-	}
-	
-	public static void SendToAllArround(ResourceLocation type, NBTTagCompound payload, TargetPoint point)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
+			serverBuf = null;
+		} else
 		{
-			BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
-		}
-	}
-	
-	public static void SendToDimension(ResourceLocation type, NBTTagCompound payload, int dim)
-	{
-		payload.setString("ID", type.toString());
-		
-		for(NBTTagCompound p : SplitPackets(payload))
-		{
-			BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dim);
+			buffer.remove(owner);
 		}
 	}
 }

@@ -5,16 +5,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
-import betterquesting.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.EntityPlaceholderRenderer;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
-import betterquesting.client.toolbox.tools.ToolboxTabMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
-import betterquesting.utils.QuestResourcesFile;
-import betterquesting.utils.QuestResourcesFolder;
+import betterquesting.core.ExpansionLoader;
+import betterquesting.misc.QuestResourcesFile;
+import betterquesting.misc.QuestResourcesFolder;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 
@@ -31,6 +31,9 @@ public class ClientProxy extends CommonProxy
 	public void registerHandlers()
 	{
 		super.registerHandlers();
+		
+		ExpansionLoader.INSTANCE.initClientAPIs();
+		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());
 		BQ_Keybindings.RegisterKeys();
 		
@@ -50,12 +53,6 @@ public class ClientProxy extends CommonProxy
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
 		
-		ToolboxRegistry.registerToolTab(ToolboxTabMain.instance);
-	}
-	
-	@Override
-	public void registerThemes()
-	{
-		ThemeRegistry.RefreshResourceThemes();
+		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
 	}
 }

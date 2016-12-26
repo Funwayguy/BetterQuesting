@@ -8,31 +8,38 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.party.PartyInstance;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.NameCache;
 
-public class GuiPartyInvite extends GuiQuesting
+public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 {
-	int scroll = 0;
-	int maxRows = 0;
-	PartyInstance party;
-	List<GuiPlayerInfo> playerList;
-	GuiBigTextField txtManual;
-	GuiButtonQuesting btnManual;
+	private final int partyID;
+	private IParty party;
 	
-	public GuiPartyInvite(GuiScreen parent, PartyInstance party)
+	private int listScroll = 0;
+	private int maxRows = 0;
+	private List<GuiPlayerInfo> playerList;
+	private GuiBigTextField txtManual;
+	private GuiButtonThemed btnManual;
+	
+	public GuiPartyInvite(GuiScreen parent, IParty party)
 	{
 		super(parent, "betterquesting.title.party_invite");
 		this.party = party;
+		this.partyID = PartyManager.INSTANCE.getKey(party);
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
@@ -44,29 +51,42 @@ public class GuiPartyInvite extends GuiQuesting
 		
 		this.txtManual = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
 		this.txtManual.setWatermark("Username");
-		this.btnManual = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"));
+		this.btnManual = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"), true);
 		this.buttonList.add(btnManual);
 		
 		for(int i = 0; i < maxRows * 3; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username");
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username", true);
 			this.buttonList.add(btn);
 		}
 		
 		RefreshColumns();
 	}
 	
+	@Override
+	@SuppressWarnings("unchecked")
+	public void refreshGui()
+	{
+		this.party = PartyManager.INSTANCE.getValue(partyID);
+		
+        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
+		playerList = nethandlerplayclient.playerInfoList;
+		
+		RefreshColumns();
+	}
+	
+	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
 		
 		if(txtManual != null)
 		{
-			txtManual.drawTextBox();
+			txtManual.drawTextBox(mx, my, partialTick);
 		}
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		// Scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68, 248, 0, 8, 20);
@@ -78,35 +98,36 @@ public class GuiPartyInvite extends GuiQuesting
 		}
 		
 		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)scroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 + 150, this.guiTop + 68 + (int)Math.max(0, s * (float)listScroll/(playerList.size() - maxRows * 3)), 248, 60, 8, 20);
 	}
 	
+	@Override
 	public void actionPerformed(GuiButton button)
 	{
 		super.actionPerformed(button);
 		
-		if(button.id == 1)
+		if(button.id == 1 && txtManual.getText().length() > 0)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 4);
-			tags.setString("Party", party.name);
+			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
+			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 			tags.setString("Member", txtManual.getText());
-			PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1)
 		{
 			int n1 = button.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
-			int n3 = n1%(maxRows*3) + scroll; // Format index
+			int n3 = n1%(maxRows*3) + listScroll; // Format index
 			
 			if(n2 == 0)
 			{
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					NBTTagCompound tags = new NBTTagCompound();
-					tags.setInteger("action", 4);
-					tags.setString("Party", party.name);
+					tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
+					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 					tags.setString("Member", button.displayString);
-					PacketAssembly.SendToServer(BQPacketType.PARTY_ACTION.GetLocation(), tags);
+					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
 		}
@@ -124,17 +145,13 @@ public class GuiPartyInvite extends GuiQuesting
 	}
 	
 	@Override
-	public void handleMouseInput()
+	public void mouseScroll(int mx, int my, int scroll)
 	{
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
+        if(scroll != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
         {
-    		scroll = Math.max(0, MathHelper.clamp_int(scroll + SDX*3, 0, playerList.size() - maxRows*3));
+    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll*3, 0, playerList.size() - maxRows*3));
     		RefreshColumns();
         }
 	}
@@ -163,7 +180,7 @@ public class GuiPartyInvite extends GuiQuesting
 	
 	public void RefreshColumns()
 	{
-		scroll = Math.max(0, MathHelper.clamp_int(scroll, 0, playerList.size() - maxRows*3));
+		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, playerList.size() - maxRows*3));
 
 		@SuppressWarnings("unchecked")
 		List<GuiButton> btnList = this.buttonList;
@@ -173,13 +190,14 @@ public class GuiPartyInvite extends GuiQuesting
 			GuiButton btn = btnList.get(i);
 			int n1 = btn.id - 2; // Button index
 			int n2 = n1/(maxRows*3); // Column listing (0 = line)
-			int n3 = n1%(maxRows*3) + scroll; // Format index
+			int n3 = n1%(maxRows*3) + listScroll; // Format index
 			
 			if(n2 == 0)
 			{
 				if(n3 >= 0 && n3 < playerList.size())
 				{
-					btn.visible = btn.enabled = true;
+					btn.visible = true;
+					btn.enabled = party.getStatus(NameCache.INSTANCE.getUUID(playerList.get(n3).name)) == null;
 					btn.displayString = playerList.get(n3).name;
 				} else
 				{

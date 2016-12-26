@@ -3,8 +3,10 @@ package betterquesting.commands.admin;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.QuestSettings;
 
 public class QuestCommandHardcore extends QuestCommandBase
 {
@@ -17,8 +19,8 @@ public class QuestCommandHardcore extends QuestCommandBase
 	@Override
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
-		QuestDatabase.bqHardcore = !QuestDatabase.bqHardcore;
-		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestDatabase.bqHardcore? "options.on" : "options.off")));
-		QuestDatabase.UpdateClients();
+		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE));
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
+		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

@@ -1,37 +1,41 @@
 package betterquesting.client.gui;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.QuestLineButtonTree;
+import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.controls.GuiButtonQuestLine;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.client.gui.lists.GuiScrollingText;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.questing.IQuestLine;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.gui.misc.GuiButtonQuestLine;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestLine;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestLinesMain extends GuiQuesting
+public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 {
 	/**
 	 * Last opened quest screen from here
 	 */
 	public static GuiQuestInstance bookmarked;
 	
-	GuiButtonQuestLine selected;
-	ArrayList<GuiButtonQuestLine> qlBtns = new ArrayList<GuiButtonQuestLine>();
-	int listScroll = 0;
-	int maxRows = 0;
-	GuiQuestLinesEmbedded qlGui;
-	GuiScrollingText qlDesc;
+	private List<Integer> lineIDs = new ArrayList<Integer>();
+	
+	private GuiButtonQuestLine selected;
+	private GuiScrollingButtons qlBtnList;
+	private GuiQuestLinesEmbedded qlGui;
+	private GuiScrollingText qlDesc;
 	
 	public GuiQuestLinesMain(GuiScreen parent)
 	{
@@ -45,35 +49,39 @@ public class GuiQuestLinesMain extends GuiQuesting
 		super.initGui();
 		
 		bookmarked = null;
-		qlBtns.clear();
+		lineIDs = QuestLineDatabase.INSTANCE.getAllKeys();
 		
-		listScroll = 0;
-		maxRows = (sizeY - 64)/20;
-		
-		if(QuestDatabase.editMode)
+		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
-		GuiButtonQuesting btnEdit = new GuiButtonQuesting(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"));
-		btnEdit.enabled = btnEdit.visible = QuestDatabase.editMode;
+		GuiButtonThemed btnEdit = new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
 		this.buttonList.add(btnEdit);
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
-		qlGui = new GuiQuestLinesEmbedded(this, guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
-		qlDesc = new GuiScrollingText(this, sizeX - (32 + 150 + 8), 48, guiTop + 32 + sizeY - 64 - 32, guiLeft + 174);
+		qlGui = new GuiQuestLinesEmbedded(guiLeft + 174, guiTop + 32, sizeX - (32 + 150 + 8), sizeY - 64 - 32);
+		qlDesc = new GuiScrollingText(mc, guiLeft + 174, guiTop + 32 + sizeY - 64 - 32, sizeX - (32 + 150 + 8), 48);
+		qlBtnList = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, 150, sizeY - 48);
 		
 		boolean reset = true;
 		
-		int i = 0;
-		for(int j = 0; j < QuestDatabase.questLines.size(); j++)
+		for(int j = 0; j < lineIDs.size(); j++)
 		{
-			QuestLine line = QuestDatabase.questLines.get(j);
-			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(buttonList.size(), this.guiLeft + 16, this.guiTop + 32 + i, 142, 20, line);
-			btnLine.enabled = line.questList.size() <= 0 || QuestDatabase.editMode;
+			int lID = lineIDs.get(j);
+			IQuestLine line = QuestLineDatabase.INSTANCE.getValue(lID);
 			
-			if(selected != null && selected.line.name.equals(line.name))
+			if(line == null)
+			{
+				continue;
+			}
+			
+			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(2, 0, 0, 142, 20, line);
+			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
+			
+			if(selected != null && QuestLineDatabase.INSTANCE.getKey(selected.getQuestLine()) == lID)
 			{
 				reset = false;
 				selected = btnLine;
@@ -81,9 +89,11 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(!btnLine.enabled)
 			{
-				for(GuiButtonQuestInstance p : btnLine.tree.buttonTree)
+				UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+				
+				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{
-					if((p.quest.isComplete(mc.thePlayer.getUniqueID()) || p.quest.isUnlocked(mc.thePlayer.getUniqueID())) && (selected == null || selected.line != line))
+					if((p.getQuest().isComplete(playerID) || p.getQuest().isUnlocked(playerID)) && (selected == null || selected.getQuestLine() != line))
 					{
 						btnLine.enabled = true;
 						break;
@@ -91,9 +101,7 @@ public class GuiQuestLinesMain extends GuiQuesting
 				}
 			}
 			
-			buttonList.add(btnLine);
-			qlBtns.add(btnLine);
-			i += 20;
+			qlBtnList.addButtonRow(btnLine);
 		}
 		
 		if(reset || selected == null)
@@ -101,57 +109,26 @@ public class GuiQuestLinesMain extends GuiQuesting
 			selected = null;
 		} else
 		{
-			qlDesc.SetText(selected.line.description);
-			qlGui.setQuestLine(selected.tree);
+			qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
+			qlGui.setQuestLine(selected.getButtonTree(), true);
+			selected.enabled = false;
 		}
 		
 		if(oldGui != null) // Preserve old settings
 		{
 			qlGui.copySettings(oldGui);
+			this.embedded.remove(oldGui);
 		}
 		
-		UpdateScroll();
+		this.embedded.add(qlGui);
+		this.embedded.add(qlDesc);
+		this.embedded.add(qlBtnList);
 	}
 	
 	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void refreshGui()
 	{
-		super.drawScreen(mx, my, partialTick);
-		
-		if(QuestDatabase.updateUI)
-		{
-			QuestDatabase.updateUI = false;
-			this.initGui();
-		}
-		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
-		
-		this.mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
-		
-		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32, 248, 0, 8, 20);
-		int i = 20;
-		while(i < sizeY - 84)
-		{
-			this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 20, 8, 20);
-			i += 20;
-		}
-		this.drawTexturedModalRect(this.guiLeft + 16 + 142, this.guiTop + 32 + i, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + 16 + 142, this.guiTop + 32 + (int)Math.max(0, i * (float)listScroll/(float)(qlBtns.size() - maxRows)), 248, 60, 8, 20);
-		
-		
-		if(qlGui != null && qlDesc != null)
-		{
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
-			qlDesc.drawScreen(mx, my, partialTick);
-			GL11.glPopMatrix();
-			
-			GL11.glPushMatrix();
-			GL11.glColor4f(1F, 1F, 1F, 1f);
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-			qlGui.drawGui(mx, my, partialTick);
-			GL11.glPopMatrix();
-		}
+		initGui();
 	}
 	
 	@Override
@@ -176,68 +153,43 @@ public class GuiQuestLinesMain extends GuiQuesting
 			
 			if(selected != null)
 			{
-				qlDesc.SetText(I18n.format(selected.line.description));
-				qlGui.setQuestLine(selected.tree);
+				qlDesc.SetText(I18n.format(selected.getQuestLine().getUnlocalisedDescription()));
+				qlGui.setQuestLine(selected.getButtonTree(), true);
 			}
 		}
 	}
 	
 	@Override
-    protected void mouseClicked(int mx, int my, int type)
-    {
-		super.mouseClicked(mx, my, type);
+	public void mouseClicked(int mx, int my, int click)
+	{
+		super.mouseClicked(mx, my, click);
 		
-		if(qlGui != null && type == 0)
+		if(click != 0)
 		{
-			GuiButtonQuestInstance qBtn = qlGui.getClickedQuest(mx, my);
+			return;
+		}
+		
+		QuestLineButtonTree tree = qlGui.getQuestLine();
+		
+		if(tree != null)
+		{
+			GuiButtonQuestInstance btn = tree.getButtonAt(qlGui.getRelativeX(mx), qlGui.getRelativeY(my));
 			
-			if(qBtn != null)
+			if(btn != null)
 			{
-				qBtn.func_146113_a(this.mc.getSoundHandler());
-				bookmarked = new GuiQuestInstance(this, qBtn.quest);
+				btn.func_146113_a(mc.getSoundHandler());
+				bookmarked = new GuiQuestInstance(this, btn.getQuest());
 				mc.displayGuiScreen(bookmarked);
+				return;
 			}
 		}
-    }
-	
-	@Override
-	public void handleMouseInput()
-    {
-		super.handleMouseInput();
 		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 166, sizeY))
-        {
-    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + SDX, 0, qlBtns.size() - maxRows));
-    		UpdateScroll();
-        }
-        
-        if(qlGui != null)
-        {
-        	qlGui.handleMouse();
-        }
-    }
-	
-	public void UpdateScroll()
-	{
-		// All buttons are required to be present due to the button trees
-		// These are hidden and moved as necessary
-		for(int i = 0; i < qlBtns.size(); i++)
+		GuiButtonThemed btn = qlBtnList.getButtonUnderMouse(mx, my);
+		
+		if(btn != null && btn.mousePressed(mc, mx, my))
 		{
-			GuiButtonQuestLine btn = qlBtns.get(i);
-			int n = i - listScroll;
-			
-			if(n < 0 || n >= maxRows)
-			{
-				btn.visible = false;
-			} else
-			{
-				btn.visible = true;
-				btn.yPosition = this.guiTop + 32 + n*20;
-			}
+			btn.func_146113_a(mc.getSoundHandler());
+			this.actionPerformed(btn);
 		}
 	}
 }

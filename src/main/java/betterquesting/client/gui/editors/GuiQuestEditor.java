@@ -5,37 +5,52 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.editors.json.GuiJsonObject;
-import betterquesting.client.gui.misc.GuiBigTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.QuestInstance.IconVisibility;
-import betterquesting.quests.QuestInstance.QuestLogic;
-import betterquesting.utils.NBTConverter;
+import net.minecraftforge.common.MinecraftForge;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.enums.EnumLogic;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.events.JsonDocEvent;
+import betterquesting.api.jdoc.JsonDocBasic;
+import betterquesting.api.misc.ICallback;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
+import betterquesting.client.gui.editors.rewards.GuiRewardEditor;
+import betterquesting.client.gui.editors.tasks.GuiTaskEditor;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatileScreen
+public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
-	JsonObject lastEdit;
-	QuestInstance quest;
+	private JsonObject lastEdit;
+	private int id = -1;
+	private IQuest quest;
 	
-	GuiTextField titleField;
-	GuiBigTextField descField;
+	private GuiTextField titleField;
+	private GuiBigTextField descField;
 	
-	public GuiQuestEditor(GuiScreen parent, QuestInstance quest)
+	private GuiButtonThemed btnMain;
+	private GuiButtonThemed btnLogic;
+	private GuiButtonThemed btnVis;
+	
+	public GuiQuestEditor(GuiScreen parent, IQuest quest)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_quest", I18n.format(quest.name)));
+		super(parent, I18n.format("betterquesting.title.edit_quest", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
+		this.id = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
@@ -44,40 +59,62 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 	{
 		super.initGui();
 		
-		this.title = I18n.format("betterquesting.title.edit_quest", I18n.format(quest.name));
+		this.setTitle(I18n.format("betterquesting.title.edit_quest", I18n.format(quest.getUnlocalisedName())));
 		
 		if(lastEdit != null)
 		{
 			JsonObject prog = new JsonObject();
-			quest.writeProgressToJSON(prog);
-			quest.readFromJSON(lastEdit);
-			quest.readProgressFromJSON(prog);
+			quest.writeToJson(prog, EnumSaveType.PROGRESS);
+			quest.readFromJson(lastEdit, EnumSaveType.CONFIG);
+			quest.readFromJson(prog, EnumSaveType.PROGRESS);
 			lastEdit = null;
 			SendChanges();
 		}
 		
 		titleField = new GuiTextField(this.fontRendererObj, width/2 - 99, height/2 - 68 + 1, 198, 18);
 		titleField.setMaxStringLength(Integer.MAX_VALUE);
-		titleField.setText(quest.name);
+		titleField.setText(quest.getUnlocalisedName());
 		
-		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this, 0);
+		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this);
 		descField.setMaxStringLength(Integer.MAX_VALUE);
-		descField.setText(quest.description);
+		descField.setText(quest.getUnlocalisedDescription());
 		
-		GuiButtonQuesting btn = new GuiButtonQuesting(1, width/2, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.rewards"));
+		GuiButtonThemed btn = new GuiButtonThemed(1, width/2, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.rewards"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(2, width/2 - 100, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.tasks"));
+		btn = new GuiButtonThemed(2, width/2 - 100, height/2 + 28, 100, 20, I18n.format("betterquesting.btn.tasks"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(3, width/2 - 100, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.requirements"));
+		btn = new GuiButtonThemed(3, width/2 - 100, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.requirements"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(4, width/2, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.advanced"));
+		btn = new GuiButtonThemed(4, width/2, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.advanced"), true);
 		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.isMain);
-		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.logic);
-		this.buttonList.add(btn);
-		btn = new GuiButtonQuesting(7, width/2 - 100, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.show") + ": " + quest.visibility.toString());
-		this.buttonList.add(btn);
+		
+		btnMain = new GuiButtonThemed(5, width/2 - 100, height/2 + 8, 200, 20, I18n.format("betterquesting.btn.is_main") + ": " + quest.getProperties().getProperty(NativeProps.MAIN), true);
+		this.buttonList.add(btnMain);
+		btnLogic = new GuiButtonThemed(6, width/2, height/2 + 48, 100, 20, I18n.format("betterquesting.btn.logic") + ": " + quest.getProperties().getProperty(NativeProps.LOGIC_QUEST), true);
+		this.buttonList.add(btnLogic);
+		btnVis = new GuiButtonThemed(7, width/2 - 100, height/2 + 68, 100, 20, I18n.format("betterquesting.btn.show") + ": " + quest.getProperties().getProperty(NativeProps.VISIBILITY), true);
+		this.buttonList.add(btnVis);
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		this.quest = QuestDatabase.INSTANCE.getValue(id);
+		
+		if(quest == null)
+		{
+			mc.displayGuiScreen(parent);
+			return;
+		}
+		
+		lastEdit = null;
+		
+		titleField.setText(quest.getUnlocalisedName());
+		descField.setText(quest.getUnlocalisedDescription());
+		
+		btnMain.displayString = I18n.format("betterquesting.btn.is_main") + ": " + quest.getProperties().getProperty(NativeProps.MAIN);
+		btnLogic.displayString = I18n.format("betterquesting.btn.logic") + ": " + quest.getProperties().getProperty(NativeProps.LOGIC_QUEST);
+		btnVis.displayString = I18n.format("betterquesting.btn.show") + ": " + quest.getProperties().getProperty(NativeProps.VISIBILITY);
 	}
 	
 	@Override
@@ -85,18 +122,11 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestDatabase.updateUI)
-		{
-			QuestDatabase.updateUI = false;
-			lastEdit = null;
-			initGui();
-		}
-		
 		titleField.drawTextBox();
-		descField.drawTextBox();
+		descField.drawTextBox(mx, my, partialTick);
 
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, getTextColor(), false);
 	}
 	
 	@Override
@@ -116,24 +146,31 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 		} else if(button.id == 4) // Raw JSON
 		{
 			this.lastEdit = new JsonObject();
-			quest.writeToJSON(lastEdit);
-			mc.displayGuiScreen(new GuiJsonObject(this, lastEdit));
+			quest.writeToJson(lastEdit, EnumSaveType.CONFIG);
+			JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(null, "jdoc.betterquesting.quest"));
+			MinecraftForge.EVENT_BUS.post(event);
+			mc.displayGuiScreen(new GuiJsonEditor(this, lastEdit, event.getJdocResult()));
 		} else if(button.id == 5)
 		{
-			quest.isMain = !quest.isMain;
-			button.displayString = I18n.format("betterquesting.btn.is_main") + ": " + quest.isMain;
+			boolean main = !quest.getProperties().getProperty(NativeProps.MAIN);
+			quest.getProperties().setProperty(NativeProps.MAIN, main);
+			button.displayString = I18n.format("betterquesting.btn.is_main") + ": " + main;
 			SendChanges();
 		} else if(button.id == 6)
 		{
-			QuestLogic[] logic = QuestLogic.values();
-			quest.logic = logic[(quest.logic.ordinal() + 1)%logic.length];
-			button.displayString = I18n.format("betterquesting.btn.logic") + ": " + quest.logic;
+			EnumLogic[] logicList = EnumLogic.values();
+			EnumLogic logic = quest.getProperties().getProperty(NativeProps.LOGIC_QUEST);
+			logic = logicList[(logic.ordinal() + 1)%logicList.length];
+			quest.getProperties().setProperty(NativeProps.LOGIC_QUEST, logic);
+			button.displayString = I18n.format("betterquesting.btn.logic") + ": " + logic;
 			SendChanges();
 		} else if(button.id == 7)
 		{
-			IconVisibility[] vis = IconVisibility.values();
-			quest.visibility = vis[(quest.visibility.ordinal() + 1)%vis.length];
-			button.displayString =  I18n.format("betterquesting.btn.show") + ": " + quest.visibility.toString();
+			EnumQuestVisibility[] visList = EnumQuestVisibility.values();
+			EnumQuestVisibility vis = quest.getProperties().getProperty(NativeProps.VISIBILITY);
+			vis = visList[(vis.ordinal() + 1)%visList.length];
+			quest.getProperties().setProperty(NativeProps.VISIBILITY, vis);
+			button.displayString =  I18n.format("betterquesting.btn.show") + ": " + vis;
 			SendChanges();
 		}
 	}
@@ -163,17 +200,17 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 		
 		boolean flag = false; // Just in case measure to prevent multiple update calls
 		
-		if(!titleField.isFocused() && !titleField.getText().equals(quest.name))
+		if(!titleField.isFocused() && !titleField.getText().equals(quest.getUnlocalisedName()))
 		{
 			// Apply changes, this way is automatic and doesn't require pressing Enter
-			quest.name = titleField.getText();
+			quest.getProperties().setProperty(NativeProps.NAME, titleField.getText());
 			flag = true;
 		}
 		
-		if(!descField.isFocused() && !descField.getText().equals(quest.description))
+		if(!descField.isFocused() && !descField.getText().equals(quest.getUnlocalisedDescription()))
 		{
 			// Apply changes, this way is automatic and doesn't require pressing Enter
-			quest.description = descField.getText();
+			quest.getProperties().setProperty(NativeProps.DESC, descField.getText());
 			flag = true;
 		}
 		
@@ -186,30 +223,25 @@ public class GuiQuestEditor extends GuiQuesting implements ITextEditor, IVolatil
 	// If the changes are approved by the server, it will be broadcast to all players including the editor
 	public void SendChanges()
 	{
-		JsonObject json1 = new JsonObject();
-		quest.writeToJSON(json1);
-		JsonObject json2 = new JsonObject();
-		quest.writeProgressToJSON(json2);
+		JsonObject base = new JsonObject();
+		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", 0); // Action: Update data
-		tags.setInteger("questID", quest.questID);
-		tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-		tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-		PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
+		tags.setInteger("questID", id);
+		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 
 	@Override
-	public void setText(int id, String text)
+	public void setValue(String text)
 	{
-		if(id == 0)
+		if(descField != null)
 		{
-			if(descField != null)
-			{
-				descField.setText(text);
-			}
-			
-			quest.description = text;
-			SendChanges();
+			descField.setText(text);
 		}
+		
+		quest.getProperties().setProperty(NativeProps.DESC, text);
+		SendChanges();
 	}
 }

@@ -11,9 +11,13 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
-import betterquesting.lives.LifeManager;
-import betterquesting.quests.QuestDatabase;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -48,14 +52,25 @@ public class ItemExtraLife extends Item
     	if(stack.getItemDamage() != 0)
     	{
     		return stack;
-    	} else if(QuestDatabase.bqHardcore)
+    	} else if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
     	{
     		if(!player.capabilities.isCreativeMode)
     		{
     			stack.stackSize--;
     		}
     		
-    		if(LifeManager.getLives(player) >= LifeManager.maxLives)
+    		int lives = 0;
+    		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
+    		
+    		if(party == null || !party.getShareLives())
+    		{
+    			lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
+    		} else
+    		{
+    			lives = LifeDatabase.INSTANCE.getLives(party);
+    		}
+    		
+    		if(lives >= LifeDatabase.INSTANCE.getDefaultLives())
     		{
     			if(!world.isRemote)
     			{
@@ -69,8 +84,15 @@ public class ItemExtraLife extends Item
     		
     		if(!world.isRemote)
     		{
-	    		LifeManager.AddRemoveLives(player, 1);
-	    		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW.toString() + LifeManager.getLives(player)));
+    			if(party == null || !party.getShareLives())
+    			{
+    				LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
+    			} else
+    			{
+    				LifeDatabase.INSTANCE.setLives(party, lives + 1);
+    			}
+    			
+    			player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW.toString() + (lives + 1)));
     		}
     	} else if(!world.isRemote)
     	{

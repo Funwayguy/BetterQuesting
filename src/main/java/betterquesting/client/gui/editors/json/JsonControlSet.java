@@ -2,11 +2,11 @@ package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.List;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -45,14 +45,14 @@ public class JsonControlSet
 		
 		if(canAdd)
 		{
-			addButton = new GuiButtonQuesting(btnList.size(), -9999, -9999, 20, 20, "+");
+			addButton = new GuiButtonThemed(btnList.size(), -9999, -9999, 20, 20, "+", true);
 			addButton.packedFGColour = Color.GREEN.getRGB();
 			btnList.add(addButton);
 		}
 		
 		if(canRemove)
 		{
-			removeButton = new GuiButtonQuesting(btnList.size(), -9999, -9999, 20, 20, "x");
+			removeButton = new GuiButtonThemed(btnList.size(), -9999, -9999, 20, 20, "x", true);
 			removeButton.packedFGColour = Color.RED.getRGB();
 			btnList.add(removeButton);
 		}

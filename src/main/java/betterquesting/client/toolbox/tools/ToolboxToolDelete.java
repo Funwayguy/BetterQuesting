@@ -1,17 +1,33 @@
 package betterquesting.client.toolbox.tools;
 
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.toolbox.ToolboxTool;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
+import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
-public class ToolboxToolDelete extends ToolboxTool
+public class ToolboxToolDelete implements IToolboxTool
 {
-	public ToolboxToolDelete(GuiQuesting screen)
+	IGuiQuestLine gui;
+	
+	@Override
+	public void initTool(IGuiQuestLine gui)
 	{
-		super(screen);
+		this.gui = gui;
+	}
+
+	@Override
+	public void disableTool()
+	{
+	}
+
+	@Override
+	public void drawTool(int mx, int my, float partialTick)
+	{
 	}
 	
 	@Override
@@ -22,14 +38,48 @@ public class ToolboxToolDelete extends ToolboxTool
 			return;
 		}
 		
-		GuiButtonQuestInstance btn = ui.getClickedQuest(mx, my);
+		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
 		
 		if(btn != null)
 		{
 			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", 1); // Delete quest
-			tags.setInteger("questID", btn.quest.questID);
-			PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+			tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
+			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(btn.getQuest()));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 		}
+	}
+
+	@Override
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+
+	@Override
+	public void onKeyPressed(char c, int key)
+	{
+	}
+
+	@Override
+	public boolean allowTooltips()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowScrolling(int click)
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean clampScrolling()
+	{
+		return true;
 	}
 }

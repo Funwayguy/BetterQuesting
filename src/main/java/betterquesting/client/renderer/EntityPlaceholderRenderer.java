@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
 
 public class EntityPlaceholderRenderer extends Render
 {

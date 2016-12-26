@@ -8,9 +8,11 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
 
 public class QuestCommandReset extends QuestCommandBase
 {
@@ -33,7 +35,7 @@ public class QuestCommandReset extends QuestCommandBase
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.questDB.keySet())
+			for(int i : QuestDatabase.INSTANCE.getAllKeys())
 			{
 				list.add("" + i);
 			}
@@ -74,7 +76,7 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			} else
 			{
-				uuid = player.getUniqueID();
+				uuid = QuestingAPI.getQuestingUUID(player);
 			}
 		}
 		
@@ -82,14 +84,14 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(QuestInstance quest : QuestDatabase.questDB.values())
+			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
 			{
 				if(uuid != null)
 				{
-					quest.ResetQuest(uuid); // Clear progress and state
+					quest.resetUser(uuid, true); // Clear progress and state
 				} else
 				{
-					quest.ResetQuest();
+					quest.resetAll(true);
 				}
 			}
 			
@@ -105,16 +107,16 @@ public class QuestCommandReset extends QuestCommandBase
 			try
 			{
 				int id = Integer.parseInt(action.trim());
-				QuestInstance quest = QuestDatabase.getQuestByID(id);
+				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
 				
 				if(uuid != null)
 				{
-					quest.ResetQuest(uuid); // Clear progress and state
-					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.name), pName));
+					quest.resetUser(uuid, true); // Clear progress and state
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.getUnlocalisedName()), pName));
 				} else
 				{
-					quest.ResetQuest();
-					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_single", new ChatComponentTranslation(quest.name)));
+					quest.resetAll(true);
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_single", new ChatComponentTranslation(quest.getUnlocalisedName())));
 				}
 			} catch(Exception e)
 			{
@@ -122,6 +124,6 @@ public class QuestCommandReset extends QuestCommandBase
 			}
 		}
 		
-		QuestDatabase.UpdateClients();
+		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}	
 }

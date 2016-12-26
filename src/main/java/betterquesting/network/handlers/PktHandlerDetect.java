@@ -2,25 +2,33 @@ package betterquesting.network.handlers;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
+import net.minecraft.util.ResourceLocation;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.questing.IQuest;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
-public class PktHandlerDetect extends PktHandler
+public class PktHandlerDetect implements IPacketHandler
 {
+	@Override
+	public ResourceLocation getRegistryName()
+	{
+		return PacketTypeNative.DETECT.GetLocation();
+	}
 	
 	@Override
-	public void handleServer(EntityPlayerMP sender, NBTTagCompound data)
+	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 		if(sender == null)
 		{
 			return;
 		}
 		
-		QuestInstance quest = QuestDatabase.getQuestByID(data.getInteger("questID"));
+		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
 		
 		if(quest != null)
 		{
-			quest.Detect(sender);
+			quest.detect(sender);
 		}
 	}
 	
@@ -28,5 +36,4 @@ public class PktHandlerDetect extends PktHandler
 	public void handleClient(NBTTagCompound data)
 	{
 	}
-	
 }

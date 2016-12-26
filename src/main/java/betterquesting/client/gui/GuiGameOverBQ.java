@@ -1,10 +1,7 @@
 package betterquesting.client.gui;
 
-import betterquesting.lives.LifeManager;
-import betterquesting.quests.QuestDatabase;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import java.util.Iterator;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiLabel;
@@ -16,6 +13,14 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
@@ -28,10 +33,21 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     @SuppressWarnings("unchecked")
 	public void initGui()
     {
-    	lifeCache = LifeManager.getLives(mc.thePlayer);
-        this.buttonList.clear();
+    	UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+    	
+    	IParty party = PartyManager.INSTANCE.getUserParty(playerID);
+    	
+    	if(party == null || !party.getShareLives())
+    	{
+    		lifeCache = LifeDatabase.INSTANCE.getLives(playerID);
+    	} else
+    	{
+    		lifeCache = LifeDatabase.INSTANCE.getLives(party);
+    	}
+    	
+    	this.buttonList.clear();
 
-        if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0))
+        if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0))
         {
         	int i = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled()? 1 : 0;
             if (this.mc.isIntegratedServerRunning())
@@ -106,7 +122,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
         GL11.glPushMatrix();
         GL11.glScalef(2.0F, 2.0F, 2.0F);
-        boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestDatabase.bqHardcore && LifeManager.getLives(mc.thePlayer) <= 0);
+        boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0);
         String s = flag ? I18n.format("deathScreen.title.hardcore", new Object[0]) : I18n.format("deathScreen.title", new Object[0]);
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
         GL11.glPopMatrix();
@@ -118,9 +134,9 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score", new Object[0]) + ": " + EnumChatFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
         
-        if(QuestDatabase.bqHardcore)
+        if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
         {
-        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + LifeManager.getLives(mc.thePlayer)), this.width / 2, 112, 16777215);
+        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW + "" + lifeCache), this.width / 2, 112, 16777215);
         }
 
         int k;

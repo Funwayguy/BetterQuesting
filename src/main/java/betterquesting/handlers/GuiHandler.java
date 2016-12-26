@@ -4,9 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui.help.GuiQuestingHelp;
 import betterquesting.client.gui.inventory.ContainerSubmitStation;
 import betterquesting.client.gui.inventory.GuiSubmitStation;
+import betterquesting.client.gui.misc.GuiQuestingHelp;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandler implements IGuiHandler

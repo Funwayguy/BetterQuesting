@@ -2,34 +2,36 @@ package betterquesting.client.gui.inventory;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IFluidTask;
+import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiEmbedded;
-import betterquesting.client.gui.misc.GuiQuestingContainer;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.advanced.IContainerTask;
+import betterquesting.questing.QuestDatabase;
 
-public class GuiSubmitStation extends GuiQuestingContainer
+public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
 	TileSubmitStation tile;
-	ArrayList<QuestInstance> activeQuests = new ArrayList<QuestInstance>();
+	ArrayList<IQuest> activeQuests = new ArrayList<IQuest>();
 	int selQuest = 0;
-	QuestInstance quest;
+	IQuest quest;
 	int selTask = 0;
-	TaskBase task;
+	ITask task;
 	
-	GuiEmbedded taskUI;
-	GuiButtonQuesting btnSelect;
-	GuiButtonQuesting btnRemove;
+	IGuiEmbedded taskUI;
+	GuiButtonThemed btnSelect;
+	GuiButtonThemed btnRemove;
 	
 	ContainerSubmitStation subContainer;
 	
@@ -55,17 +57,25 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		selQuest = 0;
 		selTask = 0;
 		
-		activeQuests = QuestDatabase.getActiveQuests(mc.thePlayer.getUniqueID());
+		activeQuests.clear();
+		UUID pID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
+		{
+			if(q.isUnlocked(pID) && !q.isComplete(pID))
+			{
+				activeQuests.add(q);
+			}
+		}
 		
-		buttonList.add(new GuiButtonQuesting(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<")); // Prev Quest
-		buttonList.add(new GuiButtonQuesting(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">")); // Next Quest
-		buttonList.add(new GuiButtonQuesting(3, guiLeft + sizeX/2 - 120, guiTop + 52, 20, 20, "<")); // Prev Task
-		buttonList.add(new GuiButtonQuesting(4, guiLeft + sizeX/2 + 100, guiTop + 52, 20, 20, ">")); // Next Quest
-		btnSelect = new GuiButtonQuesting(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, EnumChatFormatting.GREEN + "\u2714"); // Select Task
-		btnRemove = new GuiButtonQuesting(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, EnumChatFormatting.RED + "x"); // Remove Task
+		buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<", true)); // Prev Quest
+		buttonList.add(new GuiButtonThemed(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">", true)); // Next Quest
+		buttonList.add(new GuiButtonThemed(3, guiLeft + sizeX/2 - 120, guiTop + 52, 20, 20, "<", true)); // Prev Task
+		buttonList.add(new GuiButtonThemed(4, guiLeft + sizeX/2 + 100, guiTop + 52, 20, 20, ">", true)); // Next Quest
+		btnSelect = new GuiButtonThemed(5, guiLeft + sizeX/2 - 20, guiTop + 72, 20, 20, EnumChatFormatting.GREEN + "\u2714", true); // Select Task
+		btnRemove = new GuiButtonThemed(6, guiLeft + sizeX/2 + 00, guiTop + 72, 20, 20, EnumChatFormatting.RED + "x", true); // Remove Task
 		buttonList.add(btnSelect);
 		buttonList.add(btnRemove);
-
+		
 		int invX = 16 + (sizeX/2 - 24)/2 - 162/2;
 		int invY = 92 + (sizeY - 108)/2 - 98/2 + 22;
 		
@@ -84,16 +94,15 @@ public class GuiSubmitStation extends GuiQuestingContainer
 	}
 	
 	@Override
+	public void refreshGui()
+	{
+		this.initGui();
+	}
+	
+	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
 	{
-		if(QuestDatabase.updateUI)
-		{
-			QuestDatabase.updateUI = false;
-			this.initGui();
-			return;
-		}
-		
-		mc.renderEngine.bindTexture(ThemeRegistry.curTheme().guiTexture());
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		int invX = guiLeft + 16 + (sizeX/2 - 24)/2 - 162/2;
 		int invY = guiTop + 92 + (sizeY - 108)/2 - 98/2 + 22;
@@ -121,45 +130,18 @@ public class GuiSubmitStation extends GuiQuestingContainer
 		this.drawTexturedModalRect(invX, invY, 0, 48, 18, 18);
 		
 		mc.fontRenderer.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
-		mc.fontRenderer.drawString("-->", invX - 17, invY + 6, ThemeRegistry.curTheme().textColor().getRGB(), false);
+		mc.fontRenderer.drawString("-->", invX - 17, invY + 6, getTextColor(), false);
 		
 		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		if(quest != null)
 		{
-			mc.fontRenderer.drawString(I18n.format(quest.name), guiLeft + sizeX/2 - 92, guiTop + 40, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(I18n.format(quest.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 40, getTextColor(), false);
 		}
 		
 		if(task != null)
 		{
-			mc.fontRenderer.drawString(task.getDisplayName(), guiLeft + sizeX/2 - 92, guiTop + 60, ThemeRegistry.curTheme().textColor().getRGB(), false);
-		}
-		
-		if(taskUI != null)
-		{
-			taskUI.drawGui(mx, my, partialTick);
-		}
-	}
-	
-	@Override
-	public void keyTyped(char character, int keyCode)
-	{
-		super.keyTyped(character, keyCode);
-		
-		if(taskUI != null)
-		{
-			taskUI.keyTyped(character, keyCode);
-		}
-	}
-	
-	@Override
-	public void handleMouseInput()
-	{
-		super.handleMouseInput();
-		
-		if(taskUI != null)
-		{
-			taskUI.handleMouse();
+			mc.fontRenderer.drawString(I18n.format(task.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 60, getTextColor(), false);
 		}
 	}
 	
@@ -190,9 +172,9 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			RefreshValues();
 		} else if(button.id == 3)
 		{
-			if(quest != null && quest.tasks.size() > 0)
+			if(quest != null && quest.getTasks().size() > 0)
 			{
-				selTask = PositiveModulo(selTask - 1, quest.tasks.size());
+				selTask = PositiveModulo(selTask - 1, quest.getTasks().size());
 			} else
 			{
 				selTask = 0;
@@ -200,9 +182,9 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			RefreshValues();
 		} else if(button.id == 4)
 		{
-			if(quest != null && quest.tasks.size() > 0)
+			if(quest != null && quest.getTasks().size() > 0)
 			{
-				selTask = PositiveModulo(selTask + 1, quest.tasks.size());
+				selTask = PositiveModulo(selTask + 1, quest.getTasks().size());
 			} else
 			{
 				selTask = 0;
@@ -210,7 +192,7 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			RefreshValues();
 		} else if(button.id == 5) // Select
 		{
-			tile.setupTask(mc.thePlayer.getUniqueID(), quest, (IContainerTask)task);
+			tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quest, task);
 			tile.SyncTile(null);
 			RefreshValues();
 		} else if(button.id == 6)
@@ -223,14 +205,21 @@ public class GuiSubmitStation extends GuiQuestingContainer
 	
 	public void RefreshValues()
 	{
-		if(tile.getTask() != null)
+		embedded.remove(taskUI);
+		
+		if(tile.getRawTask() != null)
 		{
 			quest = tile.getQuest();
-			task = (TaskBase)tile.getTask();
-			taskUI = task.getGui(quest, this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
+			task = tile.getRawTask();
+			taskUI = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			
+			if(taskUI != null)
+			{
+				embedded.add(taskUI);
+			}
 			
 			selQuest = Math.max(0, activeQuests.indexOf(quest));
-			selTask = Math.max(0, quest.tasks.indexOf(task));
+			selTask = Math.max(0, quest.getTasks().getAllValues().indexOf(task));
 			
 			for(int i = 1; i <= 4; i++)
 			{
@@ -259,12 +248,12 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			quest = activeQuests.get(selQuest);
 		}
 		
-		if(quest == null || selTask < 0 || selTask >= quest.tasks.size())
+		if(quest == null || selTask < 0 || selTask >= quest.getTasks().size())
 		{
 			task = null;
 		} else
 		{
-			task = quest.tasks.get(selTask);
+			task = quest.getTasks().getAllValues().get(selTask);
 		}
 		
 		if(task == null)
@@ -272,10 +261,15 @@ public class GuiSubmitStation extends GuiQuestingContainer
 			taskUI = null;
 		} else
 		{
-			taskUI = task.getGui(quest, this, guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16);
+			taskUI = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			
+			if(taskUI != null)
+			{
+				embedded.add(taskUI);
+			}
 		}
 		
-		btnSelect.enabled = task != null && task instanceof IContainerTask && !task.isComplete(mc.thePlayer.getUniqueID());
+		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer));
 	}
 	
 	/**

@@ -10,21 +10,22 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import betterquesting.EntityPlaceholder;
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.blocks.BlockSubmitStation;
-import betterquesting.blocks.FluidPlaceholder;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
-import betterquesting.commands.BQ_Commands;
-import betterquesting.commands.BQ_CommandsUser;
+import betterquesting.commands.BQ_CommandAdmin;
+import betterquesting.commands.BQ_CommandDebug;
+import betterquesting.commands.BQ_CommandUser;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
-import betterquesting.items.ItemPlaceholder;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
 import cpw.mods.fml.common.Mod;
@@ -51,6 +52,7 @@ public class BetterQuesting
     public static final String NAME = "BetterQuesting";
     public static final String PROXY = "betterquesting.core.proxies";
     public static final String CHANNEL = "BQ_NET_CHAN";
+    public static final String FORMAT = "1.0.0";
 	
 	@Instance(MODID)
 	public static BetterQuesting instance;
@@ -62,13 +64,10 @@ public class BetterQuesting
 	
 	public static CreativeTabs tabQuesting = new CreativeTabQuesting();
 	
-	public static Item placeholder = new ItemPlaceholder();
 	public static Item extraLife = new ItemExtraLife();
 	public static Item guideBook = new ItemGuideBook();
 	
 	public static Block submitStation = new BlockSubmitStation();
-	
-	public static Fluid fluidPlaceholder = new FluidPlaceholder();
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -80,7 +79,14 @@ public class BetterQuesting
     	ConfigHandler.initConfigs();
     	
     	proxy.registerHandlers();
-    	PacketTypeRegistry.RegisterNativeHandlers();
+    	
+    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
+    	
+    	if(PacketTypeRegistry.INSTANCE == null)
+    	{
+    		// Not actually required but for the sake of instantiating first...
+    		BetterQuesting.logger.log(Level.ERROR, "Unabled to instatiate packet registry");
+    	}
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
@@ -89,9 +95,9 @@ public class BetterQuesting
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-    	FluidRegistry.registerFluid(fluidPlaceholder);
+    	FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
     	
-    	GameRegistry.registerItem(placeholder, "placeholder");
+    	GameRegistry.registerItem(ItemPlaceholder.placeholder, "placeholder");
     	GameRegistry.registerItem(extraLife, "extra_life");
     	GameRegistry.registerItem(guideBook, "guide_book");
     	
@@ -117,7 +123,7 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-    	proxy.registerThemes();
+    	proxy.registerExpansions();
     }
 	
 	@EventHandler
@@ -127,7 +133,12 @@ public class BetterQuesting
 		ICommandManager command = server.getCommandManager();
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
-		manager.registerCommand(new BQ_Commands());
-		manager.registerCommand(new BQ_CommandsUser());
+		manager.registerCommand(new BQ_CommandAdmin());
+		manager.registerCommand(new BQ_CommandUser());
+		
+		if(BetterQuesting.VERSION == "CI_" + "MOD_VERSION")
+		{
+			manager.registerCommand(new BQ_CommandDebug());
+		}
 	}
 }

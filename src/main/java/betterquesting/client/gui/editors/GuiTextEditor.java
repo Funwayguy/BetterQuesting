@@ -7,25 +7,23 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.GuiScrollingText;
-import betterquesting.client.gui.misc.ITextEditor;
-import betterquesting.client.gui.misc.IVolatileScreen;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingText;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.misc.ICallback;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
+public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 {
-	int hostID;
-	ITextEditor host;
-	public String text = "";
-	int listScroll = 0;
-	int maxRows = 0;
-	GuiScrollingText scrollingText;
+	private ICallback<String> host;
+	private String text = "";
+	private int listScroll = 0;
+	private int maxRows = 0;
+	private GuiScrollingText scrollingText;
 	
     private int cursorPosition;
 	
@@ -36,10 +34,9 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
     	this.text = text;
     }
     
-    public GuiTextEditor setHost(ITextEditor host, int hostID)
+    public GuiTextEditor setHost(ICallback<String> host)
     {
     	this.host = host;
-    	this.hostID = hostID;
     	return this;
     }
 
@@ -55,12 +52,13 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
 		
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonQuesting btn = new GuiButtonQuesting(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL");
+			GuiButtonThemed btn = new GuiButtonThemed(i + 1, guiLeft + 16, guiTop + 32 + (i*20), 100, 20, "NULL", true);
 			this.buttonList.add(btn);
 		}
 		
-		scrollingText = new GuiScrollingText(this, sizeX - 148, sizeY - 64, guiTop + 32, guiLeft + 132);
+		scrollingText = new GuiScrollingText(mc, guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64);
 		scrollingText.SetText(text);
+		this.embedded.add(scrollingText);
     	cursorPosition = text.length();
 		
 		RefreshColumns();
@@ -95,7 +93,7 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
         
         if(host != null)
         {
-        	host.setText(hostID, text);
+        	host.setValue(text);
         }
     }
 
@@ -322,27 +320,30 @@ public class GuiTextEditor extends GuiQuesting implements IVolatileScreen
         }
         
         scrollingText.SetText(s1 + s2);
-        scrollingText.drawScreen(mx, my, partialTick);
     }
 	
-    /**
-     * Handles mouse input.
-     */
 	@Override
-    public void handleMouseInput()
-    {
-		super.handleMouseInput();
-		
-        int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
+	public void mouseScroll(int mx, int my, int scroll)
+	{
+		super.mouseScroll(mx, my, scroll);
         
-        if(SDX != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 116, sizeY))
+        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 116, sizeY))
         {
-        	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + SDX, 0, EnumChatFormatting.values().length - maxRows));
+        	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll, 0, EnumChatFormatting.values().length - maxRows));
     		RefreshColumns();
         }
-    }
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click)
+	{
+		super.mouseClicked(mx, my, click);
+		
+		if(isWithin(mx, my, guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64, false))
+		{
+			this.setCursorPosition(scrollingText.getCursorPos(mx, my));
+		}
+	}
 	
 	public void RefreshColumns()
 	{

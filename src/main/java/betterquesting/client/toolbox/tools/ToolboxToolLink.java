@@ -1,36 +1,35 @@
 package betterquesting.client.toolbox.tools;
 
+import java.awt.Color;
 import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.client.gui.GuiQuestLinesEmbedded;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuestInstance;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.client.toolbox.ToolboxTool;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.utils.NBTConverter;
-import betterquesting.utils.RenderUtils;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
+import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.utils.NBTConverter;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 import com.google.gson.JsonObject;
 
-public class ToolboxToolLink extends ToolboxTool
+public class ToolboxToolLink extends GuiElement implements IToolboxTool
 {
+	IGuiQuestLine gui;
 	GuiButtonQuestInstance b1;
 	
-	public ToolboxToolLink(GuiQuesting screen)
-	{
-		super(screen);
-	}
-	
 	@Override
-	public void initTool(GuiQuestLinesEmbedded ui)
+	public void initTool(IGuiQuestLine gui)
 	{
-		super.initTool(ui);
-		
+		this.gui = gui;
 		b1 = null;
 	}
 	
 	@Override
-	public void deactivateTool()
+	public void disableTool()
 	{
 		b1 = null;
 	}
@@ -38,25 +37,17 @@ public class ToolboxToolLink extends ToolboxTool
 	@Override
 	public void drawTool(int mx, int my, float partialTick)
 	{
-		if(b1 == null || !screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
+		if(b1 == null)
 		{
 			return;
 		}
 		
-		int amx = ui.getScreenX(b1.xPosition + 12);
-		int amy = ui.getScreenY(b1.yPosition + 12);
-		
-		RenderUtils.DrawLine(amx, amy, mx, my, 4F, ThemeRegistry.curTheme().getLineColor(2, false));
+		RenderUtils.DrawLine(b1.xPosition + b1.width/2, b1.yPosition + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
 	}
 	
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		if(!screen.isWithin(mx, my, ui.getPosX(), ui.getPosY(), ui.getWidth(), ui.getHeight()))
-		{
-			return;
-		}
-		
 		if(click == 1)
 		{
 			b1 = null;
@@ -68,10 +59,10 @@ public class ToolboxToolLink extends ToolboxTool
 		
 		if(b1 == null)
 		{
-			b1 = ui.getClickedQuest(mx, my);
+			b1 = gui.getQuestLine().getButtonAt(mx, my);
 		} else
 		{
-			GuiButtonQuestInstance b2 = ui.getClickedQuest(mx, my);
+			GuiButtonQuestInstance b2 = gui.getQuestLine().getButtonAt(mx, my);
 			
 			if(b1 == b2)
 			{
@@ -80,28 +71,38 @@ public class ToolboxToolLink extends ToolboxTool
 			{
 				// LINK!
 				
-				if(!b2.parents.contains(b1) && !b2.quest.preRequisites.contains(b1.quest) && !b1.parents.contains(b2) && !b1.quest.preRequisites.contains(b2.quest))
+				if(!b2.getParents().contains(b1) && !b2.getQuest().getPrerequisites().contains(b1.getQuest()) && !b1.getParents().contains(b2) && !b1.getQuest().getPrerequisites().contains(b2.getQuest()))
 				{
-					b2.parents.add(b1);
-					b2.quest.preRequisites.add(b1.quest);
+					b2.addParent(b1);
+					b2.getQuest().getPrerequisites().add(b1.getQuest());
 				} else
 				{
-					b2.parents.remove(b1);
-					b1.parents.remove(b2);
-					b2.quest.preRequisites.remove(b1.quest);
-					b1.quest.preRequisites.remove(b2.quest);
+					b2.getParents().remove(b1);
+					b1.getParents().remove(b2);
+					b2.getQuest().getPrerequisites().remove(b1.getQuest());
+					b1.getQuest().getPrerequisites().remove(b2.getQuest());
 				}
 				
-				JsonObject json1 = new JsonObject();
-				b2.quest.writeToJSON(json1);
-				JsonObject json2 = new JsonObject();
-				b2.quest.writeProgressToJSON(json2);
-				NBTTagCompound tags = new NBTTagCompound();
-				tags.setInteger("action", 0); // Action: Update data
-				tags.setInteger("questID", b2.quest.questID);
-				tags.setTag("Data", NBTConverter.JSONtoNBT_Object(json1, new NBTTagCompound()));
-				tags.setTag("Progress", NBTConverter.JSONtoNBT_Object(json2, new NBTTagCompound()));
-				PacketAssembly.SendToServer(BQPacketType.QUEST_EDIT.GetLocation(), tags);
+				// Sync Quest 1
+				NBTTagCompound tag1 = new NBTTagCompound();
+				JsonObject base1 = new JsonObject();
+				base1.add("config", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+				base1.add("progress", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+				tag1.setTag("data", NBTConverter.JSONtoNBT_Object(base1, new NBTTagCompound()));
+				tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
+				tag1.setInteger("questID", QuestDatabase.INSTANCE.getKey(b1.getQuest()));
+				
+				// Sync Quest 2
+				NBTTagCompound tag2 = new NBTTagCompound();
+				JsonObject base2 = new JsonObject();
+				base2.add("config", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+				base1.add("progress", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
+				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+				tag2.setInteger("questID", QuestDatabase.INSTANCE.getKey(b2.getQuest()));
+				
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
 				
 				b1 = null;
 			}
@@ -109,8 +110,36 @@ public class ToolboxToolLink extends ToolboxTool
 	}
 	
 	@Override
-	public boolean allowDragging(int click)
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+	
+	@Override
+	public void onKeyPressed(char c, int keyCode)
+	{
+	}
+	
+	@Override
+	public boolean allowTooltips()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean allowScrolling(int click)
 	{
 		return b1 == null || click == 2;
+	}
+	
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean clampScrolling()
+	{
+		return true;
 	}
 }

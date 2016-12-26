@@ -3,7 +3,6 @@ package betterquesting.blocks;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -17,13 +16,16 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import org.apache.logging.log4j.Level;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.IFluidTask;
+import betterquesting.api.questing.tasks.IItemTask;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketAssembly;
-import betterquesting.network.PacketTypeRegistry.BQPacketType;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
-import betterquesting.quests.tasks.TaskBase;
-import betterquesting.quests.tasks.advanced.IContainerTask;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
 {
@@ -33,29 +35,40 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	public int questID;
 	public int taskID;
 	
-	public QuestInstance getQuest()
+	public IQuest getQuest()
 	{
 		if(questID < 0)
 		{
 			return null;
 		} else
 		{
-			return QuestDatabase.getQuestByID(questID);
+			return QuestDatabase.INSTANCE.getValue(questID);
 		}
 	}
 	
-	public IContainerTask getTask()
+	public ITask getRawTask()
 	{
-		QuestInstance q = getQuest();
+		IQuest q = getQuest();
 		
-		if(q == null || taskID < 0 || taskID >= q.tasks.size())
+		if(q == null || taskID < 0 || taskID >= q.getTasks().size())
 		{
 			return null;
 		} else
 		{
-			TaskBase t = q.tasks.get(taskID);
-			return t instanceof IContainerTask? (IContainerTask)t : null;
+			return q.getTasks().getValue(taskID);
 		}
+	}
+	
+	public IItemTask getItemTask()
+	{
+		ITask t = getRawTask();
+		return t == null? null : (t instanceof IItemTask? (IItemTask)t : null);
+	}
+	
+	public IFluidTask getFluidTask()
+	{
+		ITask t = getRawTask();
+		return t == null? null : (t instanceof IFluidTask? (IFluidTask)t : null);
 	}
 	
 	@Override
@@ -137,7 +150,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-		if(owner == null || player.getUniqueID().equals(owner))
+		if(owner == null || QuestingAPI.getQuestingUUID(player).equals(owner))
 		{
 			return true;
 		}
@@ -163,16 +176,16 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			return false;
 		}
 		
-		IContainerTask t = getTask();
+		IItemTask t = getItemTask();
 		
-		return t != null && itemStack[1] == null && !((TaskBase)t).isComplete(owner) && t.canAcceptItem(owner, stack);
+		return t != null && itemStack[1] == null && !((ITask)t).isComplete(owner) && t.canAcceptItem(owner, stack);
 	}
 
 	@Override
 	public int fill(ForgeDirection from, FluidStack fluid, boolean doFill)
 	{
-		QuestInstance q = getQuest();
-		IContainerTask t = getTask();
+		IQuest q = getQuest();
+		IFluidTask t = getFluidTask();
 		
 		if(q == null || t == null || fluid == null)
 		{
@@ -186,9 +199,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		{
 			remainder = t.submitFluid(owner, fluid);
 		
-			if(((TaskBase)t).isComplete(owner))
+			if(((ITask)t).isComplete(owner))
 			{
-				q.UpdateClients();
+				PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				reset();
 	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
 			} else
@@ -215,9 +228,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean canFill(ForgeDirection from, Fluid fluid)
 	{
-		IContainerTask t = getTask();
+		IFluidTask t = getFluidTask();
 		
-		return t != null && !((TaskBase)t).isComplete(owner) && t.canAcceptFluid(owner, fluid);
+		return t != null && !((ITask)t).isComplete(owner) && t.canAcceptFluid(owner, new FluidStack(fluid, 1));
 	}
 
 	@Override
@@ -240,28 +253,32 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			return;
 		}
 		
-		QuestInstance q = getQuest();
-		IContainerTask t = getTask();
+		IQuest q = getQuest();
+		IItemTask t = getItemTask();
 		
 		if(worldObj.getTotalWorldTime()%10 == 0)
 		{
-			if(owner != null && q != null && t != null && owner != null && itemStack[0] != null)
+			if(owner != null && q != null && t != null && owner != null && itemStack[0] != null && itemStack[1] == null)
 			{
-				if(t.canAcceptItem(owner, itemStack[0]))
+				ItemStack inStack = itemStack[0].copy();
+				
+				if(t.canAcceptItem(owner, inStack))
 				{
-					Slot sIn = new Slot(this, 0, 0, 0);
-					Slot sOut = new Slot(this, 1, 0, 0);
-					t.submitItem(owner, sIn, sOut);
+					itemStack[0] = t.submitItem(owner, inStack); // Even if this returns an invalid item for submission it will be moved next pass
 					
-					if(((TaskBase)t).isComplete(owner))
+					if(((ITask)t).isComplete(owner))
 					{
-						q.UpdateClients();
+						PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 						reset();
 			    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
 					} else
 					{
 						needsUpdate = true;
 					}
+				} else
+				{
+					itemStack[1] = inStack;
+					itemStack[0] = null;
 				}
 			}
 			
@@ -271,9 +288,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 				
 				if(q != null && !worldObj.isRemote)
 				{
-					q.UpdateClients();
+					PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				}
-			} else if(t != null && ((TaskBase)t).isComplete(owner))
+			} else if(t != null && ((ITask)t).isComplete(owner))
 			{
 				reset();
 	    		MinecraftServer.getServer().getConfigurationManager().sendToAllNear(xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
@@ -281,16 +298,24 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		}
 	}
 	
-	public void setupTask(UUID owner, QuestInstance quest, IContainerTask task)
+	public void setupTask(UUID owner, IQuest quest, ITask task)
 	{
 		if(owner == null || quest == null || task == null)
 		{
 			reset();
+			return;
+		}
+		
+		this.questID = QuestDatabase.INSTANCE.getKey(quest);
+		this.taskID = quest.getTasks().getKey(task);
+		
+		if(this.questID < 0 || this.taskID < 0)
+		{
+			reset();
+			return;
 		}
 		
 		this.owner = owner;
-		this.questID = quest.questID;
-		this.taskID = quest.tasks.indexOf(task);
 		this.markDirty();
 	}
 	
@@ -347,7 +372,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		NBTTagCompound tileData = new NBTTagCompound();
     		this.writeToNBT(tileData);
     		payload.setTag("tile", tileData);
-			PacketAssembly.SendToServer(BQPacketType.EDIT_STATION.GetLocation(), payload);
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
     	}
     }
 	

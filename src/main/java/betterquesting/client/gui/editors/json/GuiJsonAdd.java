@@ -2,37 +2,35 @@ package betterquesting.client.gui.editors.json;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import betterquesting.client.gui.GuiQuesting;
-import betterquesting.client.gui.misc.GuiButtonQuesting;
-import betterquesting.client.gui.misc.IVolatileScreen;
-import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.utils.JsonIO;
-import betterquesting.utils.NBTConverter;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 
 @SideOnly(Side.CLIENT)
-public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
+public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 {
-	GuiTextField keyText;
-	JsonElement json;
-	int select = 0;
-	int insertIdx = 0;
+	private GuiTextField keyText;
+	private final JsonElement json;
+	private int select = 0;
+	private int insertIdx = 0;
 	
 	public GuiJsonAdd(GuiScreen parent, JsonArray json, int insertIdx) // JsonArray
 	{
@@ -59,7 +57,7 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 		
 		((GuiButton)this.buttonList.get(0)).xPosition = this.guiLeft + this.sizeX/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
-		this.buttonList.add(new GuiButtonQuesting(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel")));
+		this.buttonList.add(new GuiButtonThemed(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel"), true));
 		
 		int btnOff = -20;
 		
@@ -71,13 +69,13 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 			btnOff = 0;
 		}
 		
-		GuiButtonQuesting buttonStr = new GuiButtonQuesting(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.format("betterquesting.btn.text"));
-		GuiButtonQuesting buttonNum = new GuiButtonQuesting(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.format("betterquesting.btn.number"));
-		GuiButtonQuesting buttonObj = new GuiButtonQuesting(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.object"));
-		GuiButtonQuesting buttonArr = new GuiButtonQuesting(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.list"));
-		GuiButtonQuesting buttonEnt = new GuiButtonQuesting(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.format("betterquesting.btn.entity"));
-		GuiButtonQuesting buttonItm = new GuiButtonQuesting(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.item"));
-		GuiButtonQuesting buttonFlu = new GuiButtonQuesting(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.fluid"));
+		GuiButtonThemed buttonStr = new GuiButtonThemed(2, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 20 + btnOff, 200, 20, I18n.format("betterquesting.btn.text"), true);
+		GuiButtonThemed buttonNum = new GuiButtonThemed(3, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 00 + btnOff, 200, 20, I18n.format("betterquesting.btn.number"), true);
+		GuiButtonThemed buttonObj = new GuiButtonThemed(4, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.object"), true);
+		GuiButtonThemed buttonArr = new GuiButtonThemed(5, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 20 + btnOff, 100, 20, I18n.format("betterquesting.btn.list"), true);
+		GuiButtonThemed buttonEnt = new GuiButtonThemed(8, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 40 + btnOff, 200, 20, I18n.format("betterquesting.btn.entity"), true);
+		GuiButtonThemed buttonItm = new GuiButtonThemed(6, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.item"), true);
+		GuiButtonThemed buttonFlu = new GuiButtonThemed(7, this.guiLeft + this.sizeX/2 - 000, this.guiTop + this.sizeY/2 + 60 + btnOff, 100, 20, I18n.format("betterquesting.btn.fluid"), true);
 		
 		buttonStr.enabled = false; // Default selection, init disabled
 		
@@ -103,7 +101,7 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 		if(keyText != null)
 		{
 			String txt = I18n.format("betterquesting.gui.key");
-			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, ThemeRegistry.curTheme().textColor().getRGB(), false);
+			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, getTextColor(), false);
 			
 			if(keyText.getText().length() <= 0)
 			{
@@ -186,19 +184,20 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 					}
 					case 4:
 					{
-						newObj = NBTConverter.NBTtoJSON_Compound(new ItemStack(Blocks.stone).writeToNBT(new NBTTagCompound()), new JsonObject());
+						BigItemStack stack = new BigItemStack(Blocks.stone);
+						newObj = JsonHelper.ItemStackToJson(stack, new JsonObject());
 						break;
 					}
 					case 5:
 					{
-						newObj = NBTConverter.NBTtoJSON_Compound(new FluidStack(FluidRegistry.WATER, 1000).writeToNBT(new NBTTagCompound()), new JsonObject());
+						FluidStack fluid = new FluidStack(FluidRegistry.WATER, 1000);
+						newObj = JsonHelper.FluidStackToJson(fluid, new JsonObject());
 						break;
 					}
 					case 6:
 					{
-						NBTTagCompound tmp = new NBTTagCompound();
-						new EntityPig(mc.theWorld).writeToNBTOptional(tmp);
-						newObj = NBTConverter.NBTtoJSON_Compound(tmp, new JsonObject());
+						Entity entity = new EntityPig(mc.theWorld);
+						newObj = JsonHelper.EntityToJson(entity, new JsonObject());
 						break;
 					}
 				}
@@ -211,7 +210,7 @@ public class GuiJsonAdd extends GuiQuesting implements IVolatileScreen
 					} else if(json.isJsonArray())
 					{
 						// Insert function for array
-						ArrayList<JsonElement> list = JsonIO.GetUnderlyingArray(json.getAsJsonArray());
+						ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json.getAsJsonArray());
 						
 						if(list != null)
 						{

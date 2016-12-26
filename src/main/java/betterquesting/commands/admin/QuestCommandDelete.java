@@ -5,9 +5,11 @@ import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.quests.QuestDatabase;
-import betterquesting.quests.QuestInstance;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
 
 public class QuestCommandDelete extends QuestCommandBase
 {
@@ -29,7 +31,7 @@ public class QuestCommandDelete extends QuestCommandBase
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.questDB.keySet())
+			for(int i : QuestDatabase.INSTANCE.getAllKeys())
 			{
 				list.add("" + i);
 			}
@@ -49,9 +51,10 @@ public class QuestCommandDelete extends QuestCommandBase
 	{
 		if(args[1].equalsIgnoreCase("all"))
 		{
-			QuestDatabase.questDB.clear();
-			QuestDatabase.questLines.clear();
-			QuestDatabase.UpdateClients();
+			QuestDatabase.INSTANCE.reset();
+			QuestLineDatabase.INSTANCE.reset();
+			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 		    
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.all"));
 		} else
@@ -59,17 +62,16 @@ public class QuestCommandDelete extends QuestCommandBase
 			try
 			{
 				int id = Integer.parseInt(args[1].trim());
-				QuestInstance quest = QuestDatabase.getQuestByID(id);
-				QuestDatabase.DeleteQuest(id);
+				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+				QuestDatabase.INSTANCE.removeKey(id);
+				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
-				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.name)));
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.getUnlocalisedName())));
 			} catch(Exception e)
 			{
 				throw getException(command);
 			}
 		}
-		
-		QuestDatabase.UpdateClients();
 	}
 	
 }
