@@ -17,4 +17,9 @@ public final class ThemeRenderDummy implements IThemeRenderer
 	public void drawIcon(IQuest quest, UUID playerID, float px, float py, float sx, float sy, int mx, int my, float partialTick)
 	{
 	}
+
+	@Override
+	public void drawThemedPanel(int x, int y, int w, int h)
+	{
+	}
 }

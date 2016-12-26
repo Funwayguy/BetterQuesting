@@ -46,16 +46,31 @@ public class NBTConverter
 			return NBTtoJSON_Compound((NBTTagCompound)tag, new JsonObject(), format);
 		} else if(tag instanceof NBTTagList)
 		{
-			JsonArray jAry = new JsonArray();
-			
-			ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
-			
-			for(int i = 0; i < tagList.size(); i++)
+			if(format)
 			{
-				jAry.add(NBTtoJSON_Base(tagList.get(i), format));
+				JsonObject jAry = new JsonObject();
+				
+				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				
+				for(int i = 0; i < tagList.size(); i++)
+				{
+					jAry.add("" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), format));
+				}
+				
+				return jAry;
+			} else
+			{
+				JsonArray jAry = new JsonArray();
+				
+				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				
+				for(int i = 0; i < tagList.size(); i++)
+				{
+					jAry.add(NBTtoJSON_Base(tagList.get(i), format));
+				}
+				
+				return jAry;
 			}
-			
-			return jAry;
 		} else if(tag instanceof NBTTagByteArray)
 		{
 			JsonArray jAry = new JsonArray();
@@ -212,13 +227,32 @@ public class NBTConverter
 				return new NBTTagIntArray(iAry);
 			} else if(tagID == 9)
 			{
-				JsonArray jAry = jObj.getAsJsonArray();
 				NBTTagList tList = new NBTTagList();
 				
-				for(int i = 0; i < jAry.size(); i++)
+				if(jObj.isJsonArray())
 				{
-					JsonElement jElm = jAry.get(i);
-					tList.appendTag(JSONtoNBT_Element(jElm, (byte)0, format));
+					JsonArray jAry = jObj.getAsJsonArray();
+					
+					for(int i = 0; i < jAry.size(); i++)
+					{
+						JsonElement jElm = jAry.get(i);
+						tList.appendTag(JSONtoNBT_Element(jElm, (byte)0, format));
+					}
+				} else if(jObj.isJsonObject())
+				{
+					JsonObject jAry = jObj.getAsJsonObject();
+					
+					for(Entry<String,JsonElement> entry : jAry.entrySet())
+					{
+						try
+						{
+							tList.appendTag(JSONtoNBT_Element(entry.getValue(), Byte.parseByte(entry.getKey()), format));
+						} catch(Exception e)
+						{
+							tList.appendTag(JSONtoNBT_Element(entry.getValue(), (byte)0, format));
+							continue;
+						}
+					}
 				}
 				
 				return tList;

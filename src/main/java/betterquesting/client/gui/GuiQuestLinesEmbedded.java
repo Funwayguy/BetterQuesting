@@ -32,7 +32,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	private boolean noScroll = false;
 	private IToolboxTool curTool = null;
 	private IQuestLine qLine;
-	private List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
+	private final List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
 	private QuestLineButtonTree buttonTree = null;
 	
 	private ResourceLocation bgImg = null;
@@ -270,7 +270,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		} else
 		{
 			this.qLine = tree.getQuestLine();
-			this.qBtns = tree.getButtonTree();
+			this.qBtns.clear();
+			this.qBtns.addAll(tree.getButtonTree());
 
 			String bgn = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_IMAGE, "");
 			int bgs = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_SIZE, 256).intValue();

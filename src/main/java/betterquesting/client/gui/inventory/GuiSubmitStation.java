@@ -143,11 +143,6 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			mc.fontRenderer.drawString(I18n.format(task.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 60, getTextColor(), false);
 		}
-		
-		/*if(taskUI != null)
-		{
-			taskUI.drawGui(mx, my, partialTick);
-		}*/
 	}
 	
 	@Override

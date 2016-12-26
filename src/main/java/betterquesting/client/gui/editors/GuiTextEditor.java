@@ -1,6 +1,5 @@
 package betterquesting.client.gui.editors;
 
-import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;

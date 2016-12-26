@@ -19,6 +19,7 @@ import betterquesting.client.gui.editors.json.GuiJsonAdd;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
+import betterquesting.client.gui.editors.json.GuiJsonTypeMenu;
 import betterquesting.client.gui.editors.json.TextCallbackJsonArray;
 import betterquesting.client.gui.editors.json.TextCallbackJsonObject;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
@@ -274,7 +275,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 				}
 			} else if(btn.id == 1) // Advanced
 			{
-				mc.displayGuiScreen(new GuiJsonEditor(mc.currentScreen, jo, childDoc));
+				mc.displayGuiScreen(new GuiJsonTypeMenu(mc.currentScreen, jo));
 			}
 		} else if(je != null && je.isJsonArray())
 		{

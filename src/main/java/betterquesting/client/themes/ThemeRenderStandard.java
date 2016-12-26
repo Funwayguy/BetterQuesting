@@ -124,4 +124,41 @@ public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
 		
 		return c.getRGB();
 	}
+
+	@Override
+	public void drawThemedPanel(int x, int y, int w, int h)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
+		
+		int w2 = w - w%16;
+		int h2 = h - h%16;
+		
+		for(int i = 0; i < w2; i += 16)
+		{
+			for(int j = 0; j < h2; j += 16)
+			{
+				int tx = 16;
+				int ty = 16;
+				
+				if(i == 0)
+				{
+					tx -= 16;
+				} else if(i == w2 - 16)
+				{
+					tx += 16;
+				}
+				
+				if(j == 0)
+				{
+					ty -= 16;
+				} else if(j == h2 - 16)
+				{
+					ty += 16;
+				}
+				
+				this.drawTexturedModalRect(x + i, y + j, tx, ty, 16, 16);
+			}
+		}
+	}
 }

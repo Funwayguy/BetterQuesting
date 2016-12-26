@@ -20,6 +20,7 @@ import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.placeholders.ThemeDummy;
+import betterquesting.api.storage.BQ_Settings;
 
 public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 {
@@ -42,6 +43,8 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		
 		this.parent = parent;
 		this.title = title;
+		
+		this.setMaxSize(BQ_Settings.guiWidth, BQ_Settings.guiHeight);
 	}
 	
 	public void setTitle(String title)
@@ -80,34 +83,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	{
 		this.drawDefaultBackground();
 		
-		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		
-		for(int i = 0; i < this.sizeX; i += 16)
-		{
-			for(int j = 0; j < this.sizeY; j += 16)
-			{
-				int tx = 16;
-				int ty = 16;
-				
-				if(i == 0)
-				{
-					tx -= 16;
-				} else if(i == this.sizeX - 16)
-				{
-					tx += 16;
-				}
-				
-				if(j == 0)
-				{
-					ty -= 16;
-				} else if(j == this.sizeY - 16)
-				{
-					ty += 16;
-				}
-				
-				this.drawTexturedModalRect(i + this.guiLeft, j + this.guiTop, tx, ty, 16, 16);
-			}
-		}
+		currentTheme().getRenderer().drawThemedPanel(guiLeft, guiTop, sizeX, sizeY);
 		
 		String tmp = I18n.format(title);
 		this.fontRendererObj.drawString(EnumChatFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);

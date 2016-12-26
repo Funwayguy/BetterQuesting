@@ -1,4 +1,4 @@
-package betterquesting.core;
+package betterquesting.api.storage;
 
 import java.io.File;
 
@@ -15,6 +15,8 @@ public class BQ_Settings
 	
 	public static boolean useBookmark = true;
 	public static String curTheme = "betterquesting:light";
+	public static int guiWidth = -1;
+	public static int guiHeight = -1;
 	
 	public static boolean hideUpdates = false;
 }
