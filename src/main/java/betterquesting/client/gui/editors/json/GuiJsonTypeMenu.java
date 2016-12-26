@@ -62,7 +62,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 			
 			if(stack == null && JsonHelper.isEntity(json))
 			{
-				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound()), Minecraft.getMinecraft().theWorld);
+				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true), Minecraft.getMinecraft().theWorld);
 			}
 			
 			if(stack == null && entity == null && JsonHelper.isFluid(json))

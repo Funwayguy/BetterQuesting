@@ -179,12 +179,6 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		}
 	}
 	
-	@Override
-	public void mouseScroll(int mx, int my, int scroll)
-	{
-		super.mouseScroll(mx, my, scroll);
-	}
-	
 	public void createQuest()
 	{
 		NBTTagCompound tag = new NBTTagCompound();
@@ -285,7 +279,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	
 	public void RefreshSearch()
 	{
-		searchResults = new ArrayList<Integer>();
+		searchResults.clear();
 		String query = searchBox.getText().toLowerCase();
 		
 		for(int id : QuestDatabase.INSTANCE.getAllKeys())
@@ -312,7 +306,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		GuiButtonThemed btn1 = qlBtnList.getButtonUnderMouse(mx, my);
 		
-		if(btn1 != null)
+		if(btn1 != null && btn1.mousePressed(mc, mx, my))
 		{
 			btn1.playPressSound(mc.getSoundHandler());
 			this.actionPerformed(btn1);
@@ -321,7 +315,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		GuiButtonThemed btn2 = dbBtnList.getButtonUnderMouse(mx, my);
 		
-		if(btn2 != null)
+		if(btn2 != null && btn2.mousePressed(mc, mx, my))
 		{
 			btn2.playPressSound(mc.getSoundHandler());
 			this.actionPerformed(btn2);

@@ -26,6 +26,8 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
+import betterquesting.client.gui.editors.rewards.GuiRewardEditor;
+import betterquesting.client.gui.editors.tasks.GuiTaskEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;

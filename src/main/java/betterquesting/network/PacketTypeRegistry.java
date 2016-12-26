@@ -18,6 +18,7 @@ import betterquesting.network.handlers.PktHandlerPartyDB;
 import betterquesting.network.handlers.PktHandlerPartySync;
 import betterquesting.network.handlers.PktHandlerQuestDB;
 import betterquesting.network.handlers.PktHandlerQuestEdit;
+import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.network.handlers.PktHandlerQuestSync;
 import betterquesting.network.handlers.PktHandlerTileEdit;
 
@@ -49,6 +50,7 @@ public class PacketTypeRegistry implements IPacketRegistry
 		registerHandler(new PktHandlerTileEdit());
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
+		registerHandler(new PktHandlerSettings());
 	}
 	
 	@Override

@@ -4,6 +4,8 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
@@ -37,11 +39,13 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			return;
 		}
 		
-		boolean isOp = sender.worldObj.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
+		boolean isOP = sender.worldObj.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
-		if(!isOp)
+		if(!isOP)
 		{
-			return;
+			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to edit quest without OP permissions!");
+			sender.addChatComponentMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"), false);
+			return; // Player is not operator. Do nothing
 		}
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");

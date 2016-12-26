@@ -1,4 +1,4 @@
-package betterquesting.client.gui.editors;
+package betterquesting.client.gui.editors.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,33 +20,32 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IFactory;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.editors.rewards.GuiRewardEditDefault;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.rewards.RewardRegistry;
+import betterquesting.questing.tasks.TaskRegistry;
 import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
-public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
+public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IFactory<? extends IReward>> rewardTypes = new ArrayList<IFactory<? extends IReward>>();
-	private List<Integer> rewardIDs = new ArrayList<Integer>();
+	private List<IFactory<? extends ITask>> taskTypes = new ArrayList<IFactory<? extends ITask>>();
+	private List<Integer> taskIDs = new ArrayList<Integer>();
 	private IQuest quest;
-	private int qID = -1;
+	private int qId = -1;
 	
 	private int leftScroll = 0;
 	private int rightScroll = 0;
 	private int maxRows = 0;
 	
-	public GuiRewardEditor(GuiScreen parent, IQuest quest)
+	public GuiTaskEditor(GuiScreen parent, IQuest quest)
 	{
-		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.getUnlocalisedName())));
+		super(parent, I18n.format("betterquesting.title.edit_tasks", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
-		this.qID = QuestDatabase.INSTANCE.getKey(quest);
+		this.qId = QuestDatabase.INSTANCE.getKey(quest);
 	}
 	
 	@Override
@@ -54,8 +53,8 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	{
 		super.initGui();
 		
-		rewardTypes = RewardRegistry.INSTANCE.getAll();
-		rewardIDs = quest.getRewards().getAllKeys();
+		taskTypes = TaskRegistry.INSTANCE.getAll();
+		taskIDs = quest.getTasks().getAllKeys();
 		
 		maxRows = (sizeY - 64)/20;
 		int btnWidth = sizeX/2 - 16;
@@ -87,7 +86,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	@Override
 	public void refreshGui()
 	{
-		IQuest tmp = QuestDatabase.INSTANCE.getValue(qID);
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(qId);
 		
 		if(tmp == null)
 		{
@@ -96,7 +95,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		}
 		
 		this.quest = tmp;
-		this.rewardIDs = quest.getRewards().getAllKeys();
+		this.taskIDs = quest.getTasks().getAllKeys();
 		RefreshColumns();
 	}
 	
@@ -117,7 +116,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(rewardIDs.size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(taskIDs.size() - maxRows)), 248, 60, 8, 20);
 		
 		// Right scroll bar
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32, 248, 0, 8, 20);
@@ -128,7 +127,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 			s += 20;
 		}
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(rewardTypes.size() - maxRows)), 248, 60, 8, 20);
+		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(taskTypes.size() - maxRows)), 248, 60, 8, 20);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 	}
@@ -145,31 +144,31 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		
 		if(n2 == 0) // Edit reward
 		{
-			if(n3 >= 0 && n3 < rewardIDs.size())
+			if(n3 >= 0 && n3 < taskIDs.size())
 			{
-				IReward reward = quest.getRewards().getValue(rewardIDs.get(n3));
-				GuiScreen editor = reward.getRewardEditor(this, quest);
+				ITask task = quest.getTasks().getValue(taskIDs.get(n3));
+				GuiScreen editor = task.getTaskEditor(this, quest);
 				
 				if(editor != null)
 				{
 					mc.displayGuiScreen(editor);
 				} else
 				{
-					mc.displayGuiScreen(new GuiRewardEditDefault(this, reward));
+					mc.displayGuiScreen(new GuiTaskEditDefault(this, task));
 				}
 			}
 		} else if(n2 == 1) // Delete reward
 		{
-			if(!(n3 < 0 || n3 >= rewardIDs.size()))
+			if(!(n3 < 0 || n3 >= taskIDs.size()))
 			{
-				quest.getRewards().removeKey(rewardIDs.get(n3));
+				quest.getTasks().removeKey(taskIDs.get(n3));
 				SendChanges();
 			}
 		} else if(n2 == 2) // Add reward
 		{
-			if(!(n4 < 0 || n4 >= rewardTypes.size()))
+			if(!(n4 < 0 || n4 >= taskTypes.size()))
 			{
-				quest.getRewards().add(RewardRegistry.INSTANCE.createReward(rewardTypes.get(n4).getRegistryName()), quest.getRewards().nextKey());
+				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(n4).getRegistryName()), quest.getTasks().nextKey());
 				SendChanges();
 			}
 		}
@@ -182,13 +181,13 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, rewardIDs.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, quest.getTasks().size() - maxRows));
     		RefreshColumns();
         }
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, rewardTypes.size() - maxRows));
+        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, taskTypes.size() - maxRows));
         	RefreshColumns();
         }
 	}
@@ -207,43 +206,43 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	
 	public void RefreshColumns()
 	{
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, rewardTypes.size() - maxRows));
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, rewardIDs.size() - maxRows));
+    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, taskTypes.size() - maxRows));
+		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.getTasks().size() - maxRows));
 		
 		List<GuiButton> btnList = this.buttonList;
 		
 		for(int i = 1; i < btnList.size(); i++)
 		{
 			GuiButton btn = btnList.get(i);
-			int n1 = i - 1; // Reward index
-			int n2 = n1/maxRows; // Reward listing (0 = quest, 1 = quest delete, 2 = registry)
-			int n3 = n1%maxRows + leftScroll; // Quest list index
+			int n1 = i - 1; // Task index
+			int n2 = n1/maxRows; // Task listing (0 = task, 1 = task delete, 2 = registry)
+			int n3 = n1%maxRows + leftScroll; // Task list index
 			int n4 = n1%maxRows + rightScroll; // Registry list index
 			
-			if(n2 == 0) // Edit reward
+			if(n2 == 0) // Edit task
 			{
-				if(n3 < 0 || n3 >= rewardIDs.size())
+				if(n3 < 0 || n3 >= taskIDs.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(quest.getRewards().getValue(rewardIDs.get(n3)).getUnlocalisedName());
+					btn.displayString = I18n.format(quest.getTasks().getValue(taskIDs.get(n3)).getUnlocalisedName());
 				}
-			} else if(n2 == 1) // Delete reward
+			} else if(n2 == 1) // Delete task
 			{
-				btn.visible = btn.enabled = !(n3 < 0 || n3 >= rewardIDs.size());
-			} else if(n2 == 2) // Add reward
+				btn.visible = btn.enabled = !(n3 < 0 || n3 >= taskIDs.size());
+			} else if(n2 == 2) // Add task
 			{
-				if(n4 < 0 || n4 >= rewardTypes.size())
+				if(n4 < 0 || n4 >= taskTypes.size())
 				{
 					btn.displayString = "NULL";
 					btn.visible = btn.enabled = false;
 				} else
 				{
 					btn.visible = btn.enabled = true;
-					btn.displayString = rewardTypes.get(n4).getRegistryName().toString();
+					btn.displayString = taskTypes.get(n4).getRegistryName().toString();
 				}
 			}
 		}

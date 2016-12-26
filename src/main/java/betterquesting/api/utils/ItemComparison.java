@@ -37,7 +37,10 @@ public class ItemComparison
     	
     	if(nbtCheck)
     	{
-    		if(stack1.getTagCompound() != null && stack2.getTagCompound() != null)
+    		if(!partialNBT && !stack1.areCapsCompatible(stack2))
+    		{
+    			return false;
+    		} else if(stack1.getTagCompound() != null && stack2.getTagCompound() != null)
     		{
     			if(!CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT))
     			{

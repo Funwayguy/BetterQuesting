@@ -3,7 +3,6 @@ package betterquesting.client.gui.editors;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -100,111 +99,27 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 		buttonList.add(btnRight);
 	}
 	
-	/**
-	 * Modified version of super method to support extra toolbar
-	 */
-	public void drawScreen_(int mx, int my, float partialTick)
+	@Override
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
 		this.drawDefaultBackground();
 		
-		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		
-		for(int i = 0; i < 96; i += 16)
-		{
-			for(int j = 0; j < sizeY; j += 16)
-			{
-				int tx = 16;
-				int ty = 16;
-				
-				if(i == 0)
-				{
-					tx -= 16;
-				} else if(i == 80)
-				{
-					tx += 16;
-				}
-				
-				if(j == 0)
-				{
-					ty -= 16;
-				} else if(j == sizeY - 16)
-				{
-					ty += 16;
-				}
-				
-				this.drawTexturedModalRect(guiLeft + sizeX + i, guiTop + j, tx, ty, 16, 16);
-			}
-		}
-		
-		for(int i = 0; i < this.sizeX; i += 16)
-		{
-			for(int j = 0; j < this.sizeY; j += 16)
-			{
-				int tx = 16;
-				int ty = 16;
-				
-				if(i == 0)
-				{
-					tx -= 16;
-				} else if(i == this.sizeX - 16)
-				{
-					tx += 16;
-				}
-				
-				if(j == 0)
-				{
-					ty -= 16;
-				} else if(j == this.sizeY - 16)
-				{
-					ty += 16;
-				}
-				
-				this.drawTexturedModalRect(i + this.guiLeft, j + this.guiTop, tx, ty, 16, 16);
-			}
-		}
+		currentTheme().getRenderer().drawThemedPanel(guiLeft + sizeX, guiTop, 96, sizeY);
+		currentTheme().getRenderer().drawThemedPanel(guiLeft, guiTop, sizeX, sizeY);
 		
 		String tmp = I18n.format("betterquesting.title.designer");
 		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
-		GlStateManager.color(1F, 1F, 1F, 1F); // Lots of these because color commonly leaks everywhere -_-
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		for(IGuiEmbedded e : embedded)
 		{
+			GlStateManager.pushMatrix();
 			e.drawBackground(mx, my, partialTick);
+			GlStateManager.popMatrix();
+			
+			GlStateManager.color(1F, 1F, 1F, 1F);
 		}
-		
-		// === START: GuiScreen ===
-		
-		GlStateManager.color(1F, 1F, 1F, 1F);
-        int k;
-        
-        for (k = 0; k < this.buttonList.size(); ++k)
-        {
-            ((GuiButton)this.buttonList.get(k)).drawButton(this.mc, mx, my);
-        }
-        
-        for (k = 0; k < this.labelList.size(); ++k)
-        {
-            ((GuiLabel)this.labelList.get(k)).drawLabel(this.mc, mx, my);
-        }
-        
-        // === END: GuiScreen ===
-
-		GlStateManager.color(1F, 1F, 1F, 1F);
-		
-		for(IGuiEmbedded e : embedded)
-		{
-			e.drawForeground(mx, my, partialTick);
-		}
-		
-		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		GlStateManager.color(1F, 1F, 1F, 1F);
-	}
-	
-	@Override
-	public void drawScreen(int mx, int my, float partialTick)
-	{
-		drawScreen_(mx, my, partialTick);
 		
 		RenderUtils.DrawLine(guiLeft + sizeX + 16, guiTop + 32, guiLeft + sizeX + 80, guiTop + 32, partialTick, getTextColor());
 		

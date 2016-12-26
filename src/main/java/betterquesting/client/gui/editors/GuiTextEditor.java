@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors;
 
+import java.io.IOException;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -331,6 +332,17 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
         	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll, 0, TextFormatting.values().length - maxRows));
     		RefreshColumns();
         }
+	}
+	
+	@Override
+	public void mouseClicked(int mx, int my, int click) throws IOException
+	{
+		super.mouseClicked(mx, my, click);
+		
+		if(isWithin(mx, my, guiLeft + 132, guiTop + 32, sizeX - 148, sizeY - 64, false))
+		{
+			this.setCursorPosition(scrollingText.getCursorPos(mx, my));
+		}
 	}
 	
 	public void RefreshColumns()
