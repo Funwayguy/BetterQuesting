@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
 import betterquesting.api.utils.JsonHelper;
@@ -18,11 +19,7 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	
 	private QuestSettings()
 	{
-		this.setProperty(NativeProps.HOME_IMAGE, NativeProps.HOME_IMAGE.getDefault());
-		this.setProperty(NativeProps.HOME_ANC_X, NativeProps.HOME_ANC_X.getDefault());
-		this.setProperty(NativeProps.HOME_ANC_Y, NativeProps.HOME_ANC_Y.getDefault());
-		this.setProperty(NativeProps.HOME_OFF_X, NativeProps.HOME_OFF_X.getDefault());
-		this.setProperty(NativeProps.HOME_OFF_Y, NativeProps.HOME_OFF_Y.getDefault());
+		this.reset();
 	}
 	
 	@Override
@@ -53,9 +50,38 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 		
 		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(player));
 	}
+	
+	@Override
+	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	{
+		super.readFromJson(json, saveType);
+		
+		this.setupValue(NativeProps.EDIT_MODE);
+		this.setupValue(NativeProps.HARDCORE);
+		
+		this.setupValue(NativeProps.HOME_IMAGE);
+		this.setupValue(NativeProps.HOME_ANC_X);
+		this.setupValue(NativeProps.HOME_ANC_Y);
+		this.setupValue(NativeProps.HOME_OFF_X);
+		this.setupValue(NativeProps.HOME_OFF_Y);
+	}
 
 	public void reset()
 	{
 		this.readFromJson(new JsonObject(), EnumSaveType.CONFIG);
+		
+		this.setupValue(NativeProps.EDIT_MODE);
+		this.setupValue(NativeProps.HARDCORE);
+		
+		this.setupValue(NativeProps.HOME_IMAGE);
+		this.setupValue(NativeProps.HOME_ANC_X);
+		this.setupValue(NativeProps.HOME_ANC_Y);
+		this.setupValue(NativeProps.HOME_OFF_X);
+		this.setupValue(NativeProps.HOME_OFF_Y);
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop)
+	{
+		this.setProperty(prop, this.getProperty(prop));
 	}
 }

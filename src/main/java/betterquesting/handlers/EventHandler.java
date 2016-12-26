@@ -30,10 +30,10 @@ import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
-import betterquesting.core.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
@@ -293,6 +293,7 @@ public class EventHandler
 			
 			NameCache.INSTANCE.updateNames(event.player.getServer());
 			
+			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
 			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);

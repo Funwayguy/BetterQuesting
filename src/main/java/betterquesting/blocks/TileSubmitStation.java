@@ -91,7 +91,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public ItemStack getStackInSlot(int idx) // TODO: Fix this so that IItemHandler's call isn't obfuscated. Just move it to a dedicated class
+	public ItemStack getStackInSlot(int idx)
 	{
 		if(idx < 0 || idx >= itemStack.length)
 		{

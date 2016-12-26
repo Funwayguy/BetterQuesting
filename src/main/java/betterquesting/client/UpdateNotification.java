@@ -9,7 +9,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Level;
-import betterquesting.core.BQ_Settings;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.core.BetterQuesting;
 
 public class UpdateNotification
@@ -34,7 +34,7 @@ public class UpdateNotification
 		
 		try
 		{
-			String[] data = getNotification("http://bit.ly/1YddmJP", true).split("\\n");
+			String[] data = getNotification("https://goo.gl/AhqKb2", true).split("\\n");
 			
 			if(BQ_Settings.hideUpdates)
 			{
