@@ -92,21 +92,27 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	}
 	
 	@Override
+	public void drawBackPanel(int mx, int my, float partialTick)
+	{
+		super.drawBackPanel(mx, my, partialTick);
+		
+		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
+	}
+	
+	@Override
 	public void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		
-		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format(quest == null? "ERROR" : quest.getUnlocalisedName());
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		txt = I18n.format("betterquesting.gui.database");
 		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
+		
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		searchBox.drawTextBox(mx, my, partialTick);
 	}

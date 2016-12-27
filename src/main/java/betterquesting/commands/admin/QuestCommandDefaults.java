@@ -16,6 +16,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -55,6 +56,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 		if(args[1].equalsIgnoreCase("save"))
 		{
 			JsonObject base = new JsonObject();
+			base.add("questSettings", QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.addProperty("format", BetterQuesting.FORMAT);
@@ -69,6 +71,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			if(f1.exists())
 			{
 				j1 = JsonHelper.ReadFromFile(f1);
+				QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
 				QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromJson(jsonP, EnumSaveType.PROGRESS);

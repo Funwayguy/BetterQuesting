@@ -119,7 +119,9 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	@Override
 	public void drawBackPanel(int mx, int my, float partialTick)
 	{
-		super.drawBackPanel(mx, my, partialTick);RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 24, 1, getTextColor());
+		super.drawBackPanel(mx, my, partialTick);
+		
+		RenderUtils.DrawLine(this.guiLeft + sizeX/2, this.guiTop + 32, this.guiLeft + sizeX/2, this.guiTop + sizeY - 24, 1, getTextColor());
 		
 		if(selTask != null)
 		{
