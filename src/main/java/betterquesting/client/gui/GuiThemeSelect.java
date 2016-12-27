@@ -59,31 +59,29 @@ public class GuiThemeSelect extends GuiScreenThemed
 		GL11.glPushMatrix();
 		
 		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		float scale = ((sizeX - 32)/2)/128F;
+		float scale = (sizeX/2 - 24)/128F;
 		scale = Math.min(scale, (sizeY - 64)/128F);
 		
+		GL11.glTranslatef(guiLeft + sizeX/2 + 8 + (sizeX - 48)/4 - 64*scale, guiTop + sizeY/2 - 64*scale, 0);
 		GL11.glScalef(scale, scale, 1F);
 		
-		int cx = (int)((guiLeft + sizeX/4 * 3)/scale);
-		int cy = (int)((guiTop + sizeY/2)/scale);
+		this.drawTexturedModalRect(0, 0, 0, 128, 128, 128);
 		
-		this.drawTexturedModalRect(cx - 64, cy - 64, 0, 128, 128, 128);
-		
-		this.drawTexturedModalRect(cx - 9, cy - 24, 0, 48, 18, 18);
+		this.drawTexturedModalRect(55, 40, 0, 48, 18, 18);
 		
 		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, true);
-		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx + 16, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, 80, 72, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
 		DummyQuest.dummyQuest.getProperties().setProperty(NativeProps.MAIN, false);
-		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 40, cy + 8, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
+		currentTheme().getRenderer().drawIcon(DummyQuest.dummyQuest, DummyQuest.dummyID, 24, 72, 24, 24, (int)(mx / scale), (int)(my / scale), partialTick);
 		
-		currentTheme().getRenderer().drawLine(DummyQuest.dummyQuest, DummyQuest.dummyID, cx - 16, cy + 20, cx + 16, cy + 20, mx, my, partialTick);
+		currentTheme().getRenderer().drawLine(DummyQuest.dummyQuest, DummyQuest.dummyID, 48, 84, 80, 84, mx, my, partialTick);
     	
     	GL11.glColor4f(1F, 1F, 1F, 1F);
     	
     	String txt = EnumChatFormatting.BOLD + "EXAMPLE";
-    	mc.fontRenderer.drawString(txt, cx - mc.fontRenderer.getStringWidth(txt)/2, cy - 32 - mc.fontRenderer.FONT_HEIGHT, getTextColor());
+    	mc.fontRenderer.drawString(txt, 64 - mc.fontRenderer.getStringWidth(txt)/2, 32 - mc.fontRenderer.FONT_HEIGHT, getTextColor());
     	
-    	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), cx - 8, cy - 23, "");
+    	RenderUtils.RenderItemStack(mc, new ItemStack(Items.enchanted_book), 56, 41, "");
 		
 		GL11.glPopMatrix();
 	}

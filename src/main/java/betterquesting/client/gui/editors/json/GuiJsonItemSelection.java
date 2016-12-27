@@ -213,8 +213,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	@Override
 	public void mouseClicked(int mx, int my, int type)
 	{
-		super.mouseClicked(mx, my, type);
-		
 		ItemStack gStack = itemGrid.getStackUnderMouse(mx, my);
 		
 		this.searchBox.mouseClicked(mx, my, type);
@@ -235,6 +233,8 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			
 			oreDictIdx = -1;
 			btnOreDict.displayString = "OreDict: NONE";
+			
+			return;
 		} else if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
 		{
 			int idxSize = (int)(18*scale);
@@ -255,12 +255,16 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 					btnOreDict.displayString = "OreDict: NONE";
 				}
 			}
+			
+			return;
 		} else if(!numberBox.isFocused() && stackSelect != null && stackSelect.stackSize != numberBox.getNumber().intValue())
 		{
 			int i = Math.max(1, numberBox.getNumber().intValue());
 			numberBox.setText("" + i);
 			stackSelect.stackSize = i;
 		}
+		
+		super.mouseClicked(mx, my, type);
 	}
 	
 	public String searchTxt = "";

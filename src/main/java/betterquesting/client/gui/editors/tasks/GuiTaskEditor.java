@@ -6,11 +6,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MathHelper;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
@@ -26,6 +24,7 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRegistry;
 import com.google.gson.JsonObject;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -37,9 +36,8 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	private IQuest quest;
 	private int qId = -1;
 	
-	private int leftScroll = 0;
-	private int rightScroll = 0;
-	private int maxRows = 0;
+	private GuiScrollingButtons btnsLeft;
+	private GuiScrollingButtons btnsRight;
 	
 	public GuiTaskEditor(GuiScreen parent, IQuest quest)
 	{
@@ -49,7 +47,6 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void initGui()
 	{
 		super.initGui();
@@ -57,29 +54,10 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		taskTypes = TaskRegistry.INSTANCE.getAll();
 		taskIDs = quest.getTasks().getAllKeys();
 		
-		maxRows = (sizeY - 64)/20;
-		int btnWidth = sizeX/2 - 16;
-		
-		// Left main buttons
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 36, guiTop + 32 + (i*20), btnWidth - 36, 20, "NULL", true);
-			this.buttonList.add(btn);
-		}
-		
-		// Left delete buttons
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + 16, guiTop + 32 + (i*20), 20, 20, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x", true);
-			this.buttonList.add(btn);
-		}
-		
-		// Right main buttons
-		for(int i = 0; i < maxRows; i++)
-		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 8, guiTop + 32 + (i*20), btnWidth - 16, 20, "NULL", true);
-			this.buttonList.add(btn);
-		}
+		btnsLeft = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
+		btnsRight = new GuiScrollingButtons(mc, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 64);
+		this.embedded.add(btnsLeft);
+		this.embedded.add(btnsRight);
 		
 		RefreshColumns();
 	}
@@ -97,38 +75,14 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		
 		this.quest = tmp;
 		this.taskIDs = quest.getTasks().getAllKeys();
+		
 		RefreshColumns();
 	}
 	
 	@Override
-	public void drawScreen(int mx, int my, float partialTick)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
-		super.drawScreen(mx, my, partialTick);
-		
-		GL11.glColor4f(1F, 1F, 1F, 1F);
-		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
-		
-		// Left scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32, 248, 0, 8, 20);
-		int s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX/2 - 16, this.guiTop + 32 + (int)Math.max(0, s * (float)leftScroll/(taskIDs.size() - maxRows)), 248, 60, 8, 20);
-		
-		// Right scroll bar
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32, 248, 0, 8, 20);
-		s = 20;
-		while(s < (maxRows - 1) * 20)
-		{
-			this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + s, 248, 20, 8, 20);
-			s += 20;
-		}
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + s, 248, 40, 8, 20);
-		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 32 + (int)Math.max(0, s * (float)rightScroll/(taskTypes.size() - maxRows)), 248, 60, 8, 20);
+		super.drawBackPanel(mx, my, partialTick);
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 32, 2F, getTextColor());
 	}
@@ -138,59 +92,67 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	{
 		super.actionPerformed(button);
 		
-		int n1 = button.id - 1; // Reward index
-		int n2 = n1/maxRows; // Reward listing (0 = quest, 1 = quest delete, 2 = registry)
-		int n3 = n1%maxRows + leftScroll; // Quest list index
-		int n4 = n1%maxRows + rightScroll; // Registry list index
+		int column = button.id&3;
+		int id = (button.id >> 2) - 1;
 		
-		if(n2 == 0) // Edit reward
+		if(id < 0)
 		{
-			if(n3 >= 0 && n3 < taskIDs.size())
+			return;
+		}
+		
+		if(column == 0) // Edit reward
+		{
+			ITask task = quest.getTasks().getValue(id);
+			GuiScreen editor = task.getTaskEditor(this, quest);
+			
+			if(editor != null)
 			{
-				ITask task = quest.getTasks().getValue(taskIDs.get(n3));
-				GuiScreen editor = task.getTaskEditor(this, quest);
-				
-				if(editor != null)
-				{
-					mc.displayGuiScreen(editor);
-				} else
-				{
-					mc.displayGuiScreen(new GuiTaskEditDefault(this, task));
-				}
+				mc.displayGuiScreen(editor);
+			} else
+			{
+				mc.displayGuiScreen(new GuiTaskEditDefault(this, task));
 			}
-		} else if(n2 == 1) // Delete reward
+		} else if(column == 1) // Delete reward
 		{
-			if(!(n3 < 0 || n3 >= taskIDs.size()))
-			{
-				quest.getTasks().removeKey(taskIDs.get(n3));
-				SendChanges();
-			}
-		} else if(n2 == 2) // Add reward
+			quest.getTasks().removeKey(id);
+			SendChanges();
+		} else if(column == 2) // Add reward
 		{
-			if(!(n4 < 0 || n4 >= taskTypes.size()))
+			if(id >= 0 && id < taskTypes.size())
 			{
-				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(n4).getRegistryName()), quest.getTasks().nextKey());
+				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(id).getRegistryName()), quest.getTasks().nextKey());
 				SendChanges();
 			}
 		}
 	}
 	
 	@Override
-	public void mouseScroll(int mx, int my, int scroll)
+	public void mouseClicked(int mx, int my, int click)
 	{
-		super.mouseScroll(mx, my, scroll);
-        
-        if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
-        {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, quest.getTasks().size() - maxRows));
-    		RefreshColumns();
-        }
-        
-        if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
-        {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, taskTypes.size() - maxRows));
-        	RefreshColumns();
-        }
+		super.mouseClicked(mx, my, click);
+		
+		if(click != 0)
+		{
+			return;
+		}
+		
+		GuiButtonThemed btn1 = btnsLeft.getButtonUnderMouse(mx, my);
+		
+		if(btn1 != null && btn1.mousePressed(mc, mx, my))
+		{
+			btn1.func_146113_a(mc.getSoundHandler());
+			this.actionPerformed(btn1);
+			return;
+		}
+		
+		GuiButtonThemed btn2 = btnsRight.getButtonUnderMouse(mx, my);
+		
+		if(btn2 != null && btn2.mousePressed(mc, mx, my))
+		{
+			btn2.func_146113_a(mc.getSoundHandler());
+			this.actionPerformed(btn2);
+			return;
+		}
 	}
 	
 	public void SendChanges()
@@ -207,46 +169,28 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	
 	public void RefreshColumns()
 	{
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, taskTypes.size() - maxRows));
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, quest.getTasks().size() - maxRows));
+		btnsLeft.getEntryList().clear();
+		btnsRight.getEntryList().clear();
 		
-		@SuppressWarnings("unchecked")
-		List<GuiButton> btnList = this.buttonList;
-		
-		for(int i = 1; i < btnList.size(); i++)
+		for(int tID : taskIDs)
 		{
-			GuiButton btn = btnList.get(i);
-			int n1 = i - 1; // Task index
-			int n2 = n1/maxRows; // Task listing (0 = task, 1 = task delete, 2 = registry)
-			int n3 = n1%maxRows + leftScroll; // Task list index
-			int n4 = n1%maxRows + rightScroll; // Registry list index
+			int btnWidth = btnsLeft.getListWidth();
+			int bID = (1 + tID) << 2; // First 2 bits reserved for column index
 			
-			if(n2 == 0) // Edit task
-			{
-				if(n3 < 0 || n3 >= taskIDs.size())
-				{
-					btn.displayString = "NULL";
-					btn.visible = btn.enabled = false;
-				} else
-				{
-					btn.visible = btn.enabled = true;
-					btn.displayString = I18n.format(quest.getTasks().getValue(taskIDs.get(n3)).getUnlocalisedName());
-				}
-			} else if(n2 == 1) // Delete task
-			{
-				btn.visible = btn.enabled = !(n3 < 0 || n3 >= taskIDs.size());
-			} else if(n2 == 2) // Add task
-			{
-				if(n4 < 0 || n4 >= taskTypes.size())
-				{
-					btn.displayString = "NULL";
-					btn.visible = btn.enabled = false;
-				} else
-				{
-					btn.visible = btn.enabled = true;
-					btn.displayString = taskTypes.get(n4).getRegistryName().toString();
-				}
-			}
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, btnWidth - 20, 20, I18n.format(quest.getTasks().getValue(tID).getUnlocalisedName()));
+			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + ChatFormatting.RED + ChatFormatting.BOLD + "x");
+			
+			btnsLeft.addButtonRow(btn1, btn2);
+		}
+		
+		for(int i = 0; i < taskTypes.size(); i++)
+		{
+			int btnWidth = btnsRight.getListWidth();
+			int bID = (1 + i) << 2;
+			
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 2, 0, 0, btnWidth, 20, taskTypes.get(i).getRegistryName().toString());
+			
+			btnsRight.addButtonRow(btn1);
 		}
 	}
 }

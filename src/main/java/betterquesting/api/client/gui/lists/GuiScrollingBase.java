@@ -42,7 +42,6 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 	@Override
 	public void drawBackground(int mx, int my, float partialTick)
 	{
-		int count = entries.size();
 		int listY = posY - scroll;
 		int maxScroll = Math.max(0, getListHeight() - height);
 		
@@ -75,7 +74,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 		
 		GL11.glPushMatrix();
 		
-		for(int i = 0; i < count; i++)
+		for(int i = 0; i < entries.size(); i++)
 		{
 			IScrollingEntry e = entries.get(i);
 			boolean scissor = !e.canDrawOutsideBox(false);
