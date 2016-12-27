@@ -134,6 +134,14 @@ public class EventHandler
 			
 			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
 		    
+		    // === LIVES ===
+		    
+		    JsonObject jsonL = new JsonObject();
+		    
+		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		    
+		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), jsonL);
+		    
 		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
 		}
 	}
@@ -277,6 +285,18 @@ public class EventHandler
 	    }
 	    
 	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
+	    
+	    // === LIVES ===
+	    
+	    File f5 = new File(BQ_Settings.curWorldDir, "LifeDatabase.json");
+	    JsonObject j5 = new JsonObject();
+	    
+	    if(f5.exists())
+	    {
+	    	j5 = JsonHelper.ReadFromFile(f5);
+	    }
+	    
+	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.CONFIG);
 	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
