@@ -25,7 +25,8 @@ public class GuiBigTextField extends GuiTextField
 	
 	public GuiBigTextField enableBigEdit(ICallback<String> host)
 	{
-		bigEdit = new GuiButtonThemed(0, this.xPosition + width - 19, this.yPosition - 1, 20, height + 2, "Aa", true);
+		this.width -= 20;
+		bigEdit = new GuiButtonThemed(0, this.xPosition + width + 1, this.yPosition - 1, 20, height + 2, "Aa", true);
 		this.host = host;
 		return this;
 	}
@@ -36,9 +37,6 @@ public class GuiBigTextField extends GuiTextField
 		return this;
 	}
 	
-    /**
-     * Args: x, y, buttonClicked
-     */
 	@Override
     public void mouseClicked(int mx, int my, int p_146192_3_)
     {
@@ -49,20 +47,12 @@ public class GuiBigTextField extends GuiTextField
         	bigEdit.playPressSound(mc.getSoundHandler());
         	QuestingAPI.getAPI(ApiReference.GUI_HELPER).openTextEditor(mc.currentScreen, host, getText());
         	return;
-        } else if(host != null)
-        {
-        	width -= 20;
-        	super.mouseClicked(mx, my, p_146192_3_);
-        	width += 20;
         } else
         {
         	super.mouseClicked(mx, my, p_146192_3_);
         }
     }
 	
-	/**
-	 * Use <i>drawTextBox(int mx, int my, float partialTick)</i>
-	 */
 	@Override
 	@Deprecated
 	public void drawTextBox()
@@ -85,21 +75,13 @@ public class GuiBigTextField extends GuiTextField
 	{
 		if(bigEdit != null)
 		{
-			bigEdit.xPosition = this.xPosition + width - 19;
+			bigEdit.xPosition = this.xPosition + width + 1;
 			bigEdit.yPosition = this.yPosition - 1;
 			bigEdit.height = this.height + 2;
 	        bigEdit.drawButton(Minecraft.getMinecraft(), mx, my);
 		}
 		
-		if(host != null)
-		{
-			width -= 20;
-			super.drawTextBox();
-			width += 20;
-		} else
-		{
-			super.drawTextBox();
-		}
+		super.drawTextBox();
 		
 		if(getText().length() <= 0 && watermark.length() > 0 && !isFocused())
 		{

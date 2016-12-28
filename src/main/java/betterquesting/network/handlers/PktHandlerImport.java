@@ -21,6 +21,7 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -59,7 +60,7 @@ public class PktHandlerImport implements IPacketHandler
 		impQuestDB.readFromJson(JsonHelper.GetArray(jsonBase, "quests"), EnumSaveType.CONFIG);
 		impQuestLineDB.readFromJson(JsonHelper.GetArray(jsonBase, "lines"), EnumSaveType.CONFIG);
 		
-		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) from " + sender.getGameProfile().getName());
+		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		
 		HashMap<Integer,Integer> remapped = getRemappedIDs(impQuestDB.getAllKeys());
 		
@@ -79,6 +80,9 @@ public class PktHandlerImport implements IPacketHandler
 			
 			QuestLineDatabase.INSTANCE.add(questLine, QuestLineDatabase.INSTANCE.nextKey());
 		}
+		
+		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+		PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 	}
 	
 	@Override
@@ -98,7 +102,7 @@ public class PktHandlerImport implements IPacketHandler
 		
 		for(int id : idList)
 		{
-			while(existing.contains(n))
+			while(existing.contains(n) || remapped.containsValue(n))
 			{
 				n++;
 			}

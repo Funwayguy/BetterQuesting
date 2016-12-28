@@ -1,5 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
@@ -30,7 +31,6 @@ public class ToolboxToolNew implements IToolboxTool
 		this.gui = gui;
 		
 		nQuest = new GuiButtonQuestInstance(0, 0, 0, 24, 24, new QuestInstance());
-		gui.getQuestLine().getButtonTree().add(nQuest);
 	}
 	
 	@Override
@@ -49,6 +49,7 @@ public class ToolboxToolNew implements IToolboxTool
 		
 		nQuest.xPosition = mx;
 		nQuest.yPosition = my;
+		nQuest.drawButton(Minecraft.getMinecraft(), mx, my);
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}
