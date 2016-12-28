@@ -30,7 +30,9 @@ public final class QuestDatabase implements IQuestDatabase
 	@Override
 	public IQuest createNew()
 	{
-		return new QuestInstance();
+		IQuest q = new QuestInstance();
+		q.setParentDatabase(this);
+		return q;
 	}
 	
 	@Override
@@ -54,6 +56,7 @@ public final class QuestDatabase implements IQuestDatabase
 			return false;
 		}
 		
+		obj.setParentDatabase(this);
 		database.put(id, obj);
 		return true;
 	}
@@ -207,7 +210,7 @@ public final class QuestDatabase implements IQuestDatabase
 			}
 			
 			IQuest quest = getValue(qID);
-			quest = quest != null? quest : new QuestInstance();
+			quest = quest != null? quest : this.createNew();
 			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
 			database.put(qID, quest);
 		}

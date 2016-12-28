@@ -175,7 +175,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		{
 			GuiButtonQuestInstance btn = tree.getButtonAt(qlGui.getRelativeX(mx), qlGui.getRelativeY(my));
 			
-			if(btn != null)
+			if(btn != null && btn.mousePressed(mc, mx, my))
 			{
 				btn.func_146113_a(mc.getSoundHandler());
 				bookmarked = new GuiQuestInstance(this, btn.getQuest());

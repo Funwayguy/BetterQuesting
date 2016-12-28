@@ -137,8 +137,9 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 				GL11.glPopMatrix();
 			}
 			
-			for(GuiButtonQuestInstance btnQuest : qBtns)
+			for(int i = 0; i < qBtns.size(); i++)
 			{
+				GuiButtonQuestInstance btnQuest = qBtns.get(i);
 				btnQuest.drawButton(mc, rmx, rmy);
 				
 				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.xPosition, btnQuest.yPosition, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
