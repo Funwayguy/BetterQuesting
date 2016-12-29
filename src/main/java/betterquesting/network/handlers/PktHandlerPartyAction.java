@@ -13,6 +13,7 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyInstance;
 import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.NameCache;
 
 public class PktHandlerPartyAction implements IPacketHandler
 {
@@ -78,7 +79,8 @@ public class PktHandlerPartyAction implements IPacketHandler
 			tarUser = UUID.fromString(data.getString("target"));
 		} catch(Exception e)
 		{
-			tarUser = null;
+			// In case an unrecognized name was used instead of their UUID
+			tarUser = NameCache.INSTANCE.getUUID(data.getString("target"));
 		}
 		
 		if(action == EnumPacketAction.ADD && tarParty == null) // Create new party if not currently in a party
@@ -106,8 +108,13 @@ public class PktHandlerPartyAction implements IPacketHandler
 			tarParty.readPacket(data);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
 			return;
-		} else if(action == EnumPacketAction.JOIN && tarParty != null && status != null) // Join party
+		} else if(action == EnumPacketAction.JOIN && tarParty != null && (isOp || status == EnumPartyStatus.INVITE)) // Join party
 		{
+			if(isOp)
+			{
+				tarParty.inviteUser(senderID);
+			}
+			
 			tarParty.setStatus(senderID, EnumPartyStatus.MEMBER);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
 			return;
