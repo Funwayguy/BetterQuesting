@@ -14,6 +14,7 @@ import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.storage.NameCache;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -49,9 +50,11 @@ public final class PartyManager implements IPartyDatabase
 	{
 		ArrayList<Integer> invites = new ArrayList<Integer>();
 		
+		boolean isOp = NameCache.INSTANCE.isOP(uuid);
+		
 		for(Entry<Integer,IParty> entry : partyList.entrySet())
 		{
-			if(entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
+			if(isOp || entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
 			{
 				invites.add(entry.getKey());
 			}

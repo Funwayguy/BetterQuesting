@@ -1,5 +1,6 @@
 package betterquesting.client.gui.party;
 
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiPlayerInfo;
@@ -28,7 +29,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 	
 	private int listScroll = 0;
 	private int maxRows = 0;
-	private List<GuiPlayerInfo> playerList;
+	private final List<String> playerList = new ArrayList<String>();
 	private GuiBigTextField txtManual;
 	private GuiButtonThemed btnManual;
 	
@@ -47,7 +48,17 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 		maxRows = (sizeY - 92)/20;
 		
         NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
-		playerList = nethandlerplayclient.playerInfoList;
+        
+        playerList.clear();
+        playerList.addAll(NameCache.INSTANCE.getAllNames());
+        
+        for(GuiPlayerInfo info : (List<GuiPlayerInfo>)nethandlerplayclient.playerInfoList)
+        {
+        	if(!playerList.contains(info.name))
+        	{
+        		playerList.add(info.name);
+        	}
+        }
 		
 		this.txtManual = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
 		this.txtManual.setWatermark("Username");
@@ -70,7 +81,17 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 		this.party = PartyManager.INSTANCE.getValue(partyID);
 		
         NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.sendQueue;
-		playerList = nethandlerplayclient.playerInfoList;
+        
+        playerList.clear();
+        playerList.addAll(NameCache.INSTANCE.getAllNames());
+        
+        for(GuiPlayerInfo info : (List<GuiPlayerInfo>)nethandlerplayclient.playerInfoList)
+        {
+        	if(!playerList.contains(info.name))
+        	{
+        		playerList.add(info.name);
+        	}
+        }
 		
 		RefreshColumns();
 	}
@@ -111,7 +132,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-			tags.setString("Member", txtManual.getText());
+			tags.setString("target", txtManual.getText());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1)
 		{
@@ -126,7 +147,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 					NBTTagCompound tags = new NBTTagCompound();
 					tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
 					tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-					tags.setString("Member", button.displayString);
+					tags.setString("target", button.displayString);
 					PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 				}
 			}
@@ -197,8 +218,8 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 				if(n3 >= 0 && n3 < playerList.size())
 				{
 					btn.visible = true;
-					btn.enabled = party.getStatus(NameCache.INSTANCE.getUUID(playerList.get(n3).name)) == null;
-					btn.displayString = playerList.get(n3).name;
+					btn.enabled = party.getStatus(NameCache.INSTANCE.getUUID(playerList.get(n3))) == null;
+					btn.displayString = playerList.get(n3);
 				} else
 				{
 					btn.visible = true;

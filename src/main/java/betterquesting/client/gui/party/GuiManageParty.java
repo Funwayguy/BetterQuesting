@@ -36,7 +36,6 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 {
 	private ItemStack heart;
 	private int lives = 1;
-	private int partyID = -1;
 	private IParty party;
 	private EnumPartyStatus status;
 	private int rightScroll = 0; // Member list
@@ -48,7 +47,6 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super(parent, I18n.format("betterquesting.title.party", party.getName()));
 		this.party = party;
-		this.partyID = PartyManager.INSTANCE.getKey(party);
 	}
 	
 	@Override
@@ -105,14 +103,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
 		
-		if(!NameCache.INSTANCE.isOP(playerID))
-		{
-			this.party = PartyManager.INSTANCE.getUserParty(playerID);
-			this.partyID = PartyManager.INSTANCE.getKey(this.party);
-		} else
-		{
-			this.party = PartyManager.INSTANCE.getValue(partyID);
-		}
+		this.party = PartyManager.INSTANCE.getUserParty(playerID);
 		
 		this.initGui();
 	}
@@ -268,7 +259,6 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-		//tags.setString("target", mc.thePlayerQuestingAPI.getQuestingUUID(player).toString());
 		JsonObject base = new JsonObject();
 		base.add("party", party.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));

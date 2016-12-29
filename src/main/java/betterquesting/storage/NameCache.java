@@ -1,5 +1,7 @@
 package betterquesting.storage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,6 +76,15 @@ public final class NameCache implements INameCache
 			
 			if(prof != null)
 			{
+				UUID oldID = getUUID(prof.getName());
+				
+				while(oldID != null)
+				{
+					// Cleans out all name duplicates
+					cache.remove(oldID);
+					oldID = getUUID(prof.getName());
+				}
+				
 				JsonObject json = new JsonObject();
 				json.addProperty("name", prof.getName());
 				json.addProperty("isOP", server.getConfigurationManager().func_152596_g(prof));
@@ -166,5 +177,21 @@ public final class NameCache implements INameCache
 	public void reset()
 	{
 		cache.clear();
+	}
+	
+	@Override
+	public List<String> getAllNames()
+	{
+		List<String> list = new ArrayList<String>();
+		
+		for(JsonObject json : cache.values())
+		{
+			if(json != null && json.has("name"))
+			{
+				list.add(JsonHelper.GetString(json, "name", ""));
+			}
+		}
+		
+		return list;
 	}
 }
