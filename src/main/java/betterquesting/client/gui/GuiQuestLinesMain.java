@@ -173,9 +173,12 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		
 		if(tree != null)
 		{
-			GuiButtonQuestInstance btn = tree.getButtonAt(qlGui.getRelativeX(mx), qlGui.getRelativeY(my));
+			int rmx = qlGui.getRelativeX(mx);
+			int rmy = qlGui.getRelativeY(my);
 			
-			if(btn != null && btn.mousePressed(mc, mx, my))
+			GuiButtonQuestInstance btn = tree.getButtonAt(rmx, rmy);
+			
+			if(btn != null && btn.visible && (btn.enabled || QuestSettings.INSTANCE.canUserEdit(mc.thePlayer)))
 			{
 				btn.playPressSound(mc.getSoundHandler());
 				bookmarked = new GuiQuestInstance(this, btn.getQuest());
