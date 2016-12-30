@@ -1,7 +1,7 @@
 package betterquesting.api.client.gui;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -24,7 +24,7 @@ import betterquesting.api.storage.BQ_Settings;
 
 public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 {
-	public ArrayList<IGuiEmbedded> embedded = new ArrayList<IGuiEmbedded>();
+	public CopyOnWriteArrayList<IGuiEmbedded> embedded = new CopyOnWriteArrayList<IGuiEmbedded>();
 	public GuiScreen parent;
 	private String title = "Untitled";
 	
