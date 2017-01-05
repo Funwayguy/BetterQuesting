@@ -103,6 +103,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	
 	public void setupEntry(int px, int width)
 	{
+		btnList.clear();
 		int margin = px + (width/3);
 		int ctrlSpace = MathHelper.ceiling_float_int((width/3F)*2F);
 		int n = 0;

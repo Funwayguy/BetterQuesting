@@ -19,7 +19,7 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	
 	private QuestSettings()
 	{
-		this.reset();
+		this.setupProps();
 	}
 	
 	@Override
@@ -56,20 +56,16 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	{
 		super.readFromJson(json, saveType);
 		
-		this.setupValue(NativeProps.EDIT_MODE);
-		this.setupValue(NativeProps.HARDCORE);
-		
-		this.setupValue(NativeProps.HOME_IMAGE);
-		this.setupValue(NativeProps.HOME_ANC_X);
-		this.setupValue(NativeProps.HOME_ANC_Y);
-		this.setupValue(NativeProps.HOME_OFF_X);
-		this.setupValue(NativeProps.HOME_OFF_Y);
+		this.setupProps();
 	}
-
+	
 	public void reset()
 	{
 		this.readFromJson(new JsonObject(), EnumSaveType.CONFIG);
-		
+	}
+	
+	private void setupProps()
+	{
 		this.setupValue(NativeProps.EDIT_MODE);
 		this.setupValue(NativeProps.HARDCORE);
 		
@@ -82,6 +78,11 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	
 	private <T> void setupValue(IPropertyType<T> prop)
 	{
-		this.setProperty(prop, this.getProperty(prop));
+		this.setupValue(prop, prop.getDefault());
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop, T def)
+	{
+		this.setProperty(prop, this.getProperty(prop, def));
 	}
 }

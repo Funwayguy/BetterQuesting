@@ -43,8 +43,12 @@ public class NativeProps
 	public static final IPropertyType<String> BG_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:bg_image"), "");
 	public static final IPropertyType<Number> BG_SIZE =						new PropertyTypeNumber(new ResourceLocation("betterquesting:bg_size"), 256);
 	
+	public static final IPropertyType<Boolean> PARTY_LOOT =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLoot"), false);
+	public static final IPropertyType<Boolean> PARTY_LIVES =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLives"), false);
+	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
+	public static final IPropertyType<Number> LIVES =						new PropertyTypeNumber(new ResourceLocation("betterquesting:lives"), 1);
 	
 	public static final IPropertyType<String> HOME_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:home_image"), "betterquesting:textures/gui/default_title.png");
 	public static final IPropertyType<Number> HOME_ANC_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_x"), 0.5F);

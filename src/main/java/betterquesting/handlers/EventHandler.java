@@ -29,6 +29,7 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
+import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
@@ -62,7 +63,13 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
+			{
+				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+			} else
+			{
+				mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			}
 		}
 	}
 	

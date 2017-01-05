@@ -9,62 +9,68 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.IPropertyType;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.storage.PropertyContainer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class PartyInstance implements IParty
 {
-	private String name = "New Party";
 	private HashMap<UUID, EnumPartyStatus> members = new HashMap<UUID, EnumPartyStatus>();
-	
-	private int lives = 3;
-	private boolean lifeShare = false;
-	private boolean lootShare = false;
+	private PropertyContainer pInfo = new PropertyContainer();
 	
 	public PartyInstance()
 	{
+		this.setupProps();
+	}
+	
+	private void setupProps()
+	{
+		setupValue(NativeProps.NAME, "New Party");
+		setupValue(NativeProps.PARTY_LIVES);
+		setupValue(NativeProps.PARTY_LOOT);
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop)
+	{
+		this.setupValue(prop, prop.getDefault());
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop, T def)
+	{
+		pInfo.setProperty(prop, pInfo.getProperty(prop, def));
 	}
 	
 	@Override
 	public String getName()
 	{
-		return name;
-	}
-	
-	@Override
-	public void setName(String name)
-	{
-		this.name = name;
+		return pInfo.getProperty(NativeProps.NAME, "New Party");
 	}
 	
 	@Override
 	public boolean getShareLives()
 	{
-		return lifeShare;
+		return pInfo.getProperty(NativeProps.PARTY_LIVES, false);
 	}
 	
 	@Override
 	public boolean getShareReward()
 	{
-		return lootShare;
+		return pInfo.getProperty(NativeProps.PARTY_LOOT, false);
 	}
 	
 	@Override
-	public void setShareLives(boolean state)
+	public IPropertyContainer getProperties()
 	{
-		lifeShare = state;
-	}
-	
-	@Override
-	public void setShareReward(boolean state)
-	{
-		lootShare = state;
+		return pInfo;
 	}
 	
 	@Override
@@ -240,10 +246,10 @@ public class PartyInstance implements IParty
 	@Override
 	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
 	{
-		json.addProperty("name", name);
-		json.addProperty("lifeShare", lifeShare);
-		json.addProperty("lootShare", lootShare);
-		json.addProperty("lives", lives);
+		if(saveType != EnumSaveType.CONFIG)
+		{
+			return json;
+		}
 		
 		JsonArray memJson = new JsonArray();
 		for(Entry<UUID,EnumPartyStatus> mem : members.entrySet())
@@ -254,6 +260,8 @@ public class PartyInstance implements IParty
 			memJson.add(jm);
 		}
 		json.add("members", memJson);
+		
+		json.add("properties", pInfo.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
 		
 		return json;
 	}
@@ -266,12 +274,19 @@ public class PartyInstance implements IParty
 			return;
 		}
 		
-		name = JsonHelper.GetString(jObj, "name", "New Party");
-		lifeShare = JsonHelper.GetBoolean(jObj, "lifeShare", false);
-		lootShare = JsonHelper.GetBoolean(jObj, "lootShare", false);
-		lives = JsonHelper.GetNumber(jObj, "lives", 1).intValue();
+		if(jObj.has("properties"))
+		{
+			pInfo.readFromJson(JsonHelper.GetObject(jObj, "properties"), EnumSaveType.CONFIG);
+		} else
+		{
+			pInfo.readFromJson(new JsonObject(), EnumSaveType.CONFIG);
+			pInfo.setProperty(NativeProps.NAME, JsonHelper.GetString(jObj, "name", "New Party"));
+			pInfo.setProperty(NativeProps.PARTY_LIVES, JsonHelper.GetBoolean(jObj, "lifeShare", false));
+			pInfo.setProperty(NativeProps.PARTY_LOOT, JsonHelper.GetBoolean(jObj, "lootShare", false));
+			pInfo.setProperty(NativeProps.LIVES, JsonHelper.GetNumber(jObj, "lives", 1).intValue());
+		}
 		
-		members.clear();;
+		members.clear();
 		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
 		{
 			if(entry == null || !entry.isJsonObject())
@@ -305,5 +320,28 @@ public class PartyInstance implements IParty
 				members.put(uuid, priv);
 			}
 		}
+		
+		this.setupProps();
+	}
+	
+	@Override
+	@Deprecated
+	public void setName(String name)
+	{
+		pInfo.setProperty(NativeProps.NAME, name);
+	}
+	
+	@Override
+	@Deprecated
+	public void setShareLives(boolean state)
+	{
+		pInfo.setProperty(NativeProps.PARTY_LIVES, state);
+	}
+	
+	@Override
+	@Deprecated
+	public void setShareReward(boolean state)
+	{
+		pInfo.setProperty(NativeProps.PARTY_LOOT, state);
 	}
 }

@@ -19,6 +19,7 @@ import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
@@ -62,25 +63,40 @@ public class QuestInstance implements IQuest
 	{
 		parentDB = QuestingAPI.getAPI(ApiReference.QUEST_DB);
 		
-		qInfo.setProperty(NativeProps.NAME, "New Quest");
-		qInfo.setProperty(NativeProps.DESC, "No Description");
+		this.setupProps();
+	}
+	
+	private void setupProps()
+	{
+		setupValue(NativeProps.NAME, "New Quest");
+		setupValue(NativeProps.DESC, "No Description");
 		
-		qInfo.setProperty(NativeProps.ICON, new BigItemStack(Items.nether_star));
+		setupValue(NativeProps.ICON, new BigItemStack(Items.nether_star));
 		
-		qInfo.setProperty(NativeProps.SOUND_COMPLETE, NativeProps.SOUND_COMPLETE.getDefault());
-		qInfo.setProperty(NativeProps.SOUND_UPDATE, NativeProps.SOUND_UPDATE.getDefault());
-		//qInfo.setProperty(NativeProps.SOUND_UNLOCK, NativeProps.SOUND_UNLOCK.getDefault());
+		setupValue(NativeProps.SOUND_COMPLETE);
+		setupValue(NativeProps.SOUND_UPDATE);
+		//setupValue(NativeProps.SOUND_UNLOCK);
 		
-		qInfo.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.AND);
-		qInfo.setProperty(NativeProps.LOGIC_TASK, EnumLogic.AND);
+		setupValue(NativeProps.LOGIC_QUEST, EnumLogic.AND);
+		setupValue(NativeProps.LOGIC_TASK, EnumLogic.AND);
 		
-		qInfo.setProperty(NativeProps.REPEAT_TIME, -1);
-		qInfo.setProperty(NativeProps.LOCKED_PROGRESS, false);
-		qInfo.setProperty(NativeProps.AUTO_CLAIM, false);
-		qInfo.setProperty(NativeProps.SILENT, false);
-		qInfo.setProperty(NativeProps.MAIN, false);
-		qInfo.setProperty(NativeProps.GLOBAL_SHARE, false);
-		qInfo.setProperty(NativeProps.SIMULTANEOUS, false);
+		setupValue(NativeProps.REPEAT_TIME, -1);
+		setupValue(NativeProps.LOCKED_PROGRESS, false);
+		setupValue(NativeProps.AUTO_CLAIM, false);
+		setupValue(NativeProps.SILENT, false);
+		setupValue(NativeProps.MAIN, false);
+		setupValue(NativeProps.GLOBAL_SHARE, false);
+		setupValue(NativeProps.SIMULTANEOUS, false);
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop)
+	{
+		this.setupValue(prop, prop.getDefault());
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop, T def)
+	{
+		qInfo.setProperty(prop, qInfo.getProperty(prop, def));
 	}
 	
 	@Override
@@ -908,6 +924,8 @@ public class QuestInstance implements IQuest
 			
 			preRequisites.add(tmp);
 		}
+		
+		this.setupProps();
 	}
 	
 	private JsonObject writeToJson_Progress(JsonObject json)
