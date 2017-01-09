@@ -182,19 +182,17 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		super.actionPerformed(button);
-		
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
 		}
+		
+		super.actionPerformed(button);
 	}
 	
 	@Override
 	public void mouseClicked(int mx, int my, int type)
 	{
-		super.mouseClicked(mx, my, type);
-		
 		FluidStack gStack = fluidGrid.getStackUnderMouse(mx, my);
 		
 		this.searchBox.mouseClicked(mx, my, type);
@@ -235,6 +233,8 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			numberBox.setText("" + i);
 			stackSelect.amount = i;
 		}
+		
+		super.mouseClicked(mx, my, type);
 	}
 	
 	Iterator<Fluid> searching = null;

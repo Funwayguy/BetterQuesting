@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.NameCache;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -25,7 +24,7 @@ public class QuestCommandComplete extends QuestCommandBase
 	
 	public boolean validArgs(String[] args)
 	{
-		return args.length == 3;
+		return args.length == 2 || args.length == 3;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -57,23 +56,18 @@ public class QuestCommandComplete extends QuestCommandBase
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
 		UUID uuid = null;
-		EntityPlayerMP player = null;
 		
-		player = MinecraftServer.getServer().getConfigurationManager().func_152612_a(args[2]);
-		
-		if(player == null)
+		if(args.length >= 3)
 		{
-			try
+			uuid = this.findPlayerID(MinecraftServer.getServer(), args[2]);
+			
+			if(uuid == null)
 			{
-				uuid = UUID.fromString(args[2]);
-			} catch(Exception e)
-			{
-				throw getException(command);
+				throw this.getException(command);
 			}
-		} else
-		{
-			uuid = QuestingAPI.getQuestingUUID(player);
 		}
+		
+		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
 		
 		try
 		{
@@ -97,7 +91,7 @@ public class QuestCommandComplete extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.getUnlocalisedName()), player.getCommandSenderName()));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.getUnlocalisedName()), pName));
 		} catch(Exception e)
 		{
 			throw getException(command);
