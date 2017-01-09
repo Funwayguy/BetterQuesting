@@ -78,7 +78,7 @@ public class ScrollingFluidGrid extends GuiElement implements IScrollingEntry
 					mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(stack.getFluid().getStill().toString());
 					fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
-					this.drawTexturedModelRectFromIcon(1, 1, fluidTx, 16, 16);
+					this.drawTexturedModelRectFromIcon(px + i * 18 + 1, py + j * 18 + 1, fluidTx, 16, 16);
 				} catch(Exception e){}
 				GlStateManager.disableDepth();
 				GlStateManager.popMatrix();

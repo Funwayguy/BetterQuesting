@@ -1,6 +1,5 @@
 package betterquesting.client.gui;
 
-import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -14,13 +13,13 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.api.storage.BQ_Settings;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
+import com.google.gson.JsonObject;
 
 public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 {
@@ -101,13 +100,7 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 		
 		if(button.id == 1)
 		{
-			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
-			{
-				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
-			} else
-			{
-				mc.displayGuiScreen(new GuiQuestLinesMain(this));
-			}
+			mc.displayGuiScreen(new GuiQuestLinesMain(this));
 		} else if(button.id == 2)
 		{
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.thePlayer));

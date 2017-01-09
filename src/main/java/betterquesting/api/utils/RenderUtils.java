@@ -3,6 +3,7 @@ package betterquesting.api.utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -204,7 +205,7 @@ public class RenderUtils
 				n = Math.max(1, n);
 				String subTxt = s.substring(0, n);
 				list.add(subTxt);
-				s = s.replaceFirst(subTxt, "");
+				s = s.replaceFirst(Pattern.quote(subTxt), "");
 			}
 			
 			list.add(s);

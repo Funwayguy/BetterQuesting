@@ -40,7 +40,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	@Override
 	public void readFromJson(JsonElement rawJson, EnumSaveType saveType)
 	{
-		if(saveType != EnumSaveType.CONFIG || !rawJson.isJsonObject())
+		if(rawJson == null || saveType != EnumSaveType.CONFIG || !rawJson.isJsonObject())
 		{
 			// Not going to bother with converting progression
 			return;

@@ -168,11 +168,6 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 		
 		for(int i = entries.size() - 1; i >= 0; i--)
 		{
-			if(listY > posY + height)
-			{
-				break;
-			}
-			
 			IScrollingEntry e = entries.get(i);
 			e.onMouseClick(mx, my, posX, listY, click, i);
 			listY += e.getHeight();

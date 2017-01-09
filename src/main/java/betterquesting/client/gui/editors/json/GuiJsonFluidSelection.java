@@ -98,7 +98,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			{
 				TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(stackSelect.getFluid().getStill().toString());
 				fluidTx = fluidTx != null? fluidTx : mc.getTextureMapBlocks().getAtlasSprite("missingno");
-				this.drawTexturedModalRect(1, 1, fluidTx, 16, 16);
+				this.drawTexturedModalRect((guiLeft + 26)/2, (guiTop + 50)/2, fluidTx, 16, 16);
 			} catch(Exception e){}
 			
 			if(this.isWithin(mx, my, 25, 49, 32, 32))
@@ -178,19 +178,17 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		super.actionPerformed(button);
-		
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
 		}
+		
+		super.actionPerformed(button);
 	}
 	
 	@Override
 	public void mouseClicked(int mx, int my, int type) throws IOException
 	{
-		super.mouseClicked(mx, my, type);
-		
 		FluidStack gStack = fluidGrid.getStackUnderMouse(mx, my);
 		
 		this.searchBox.mouseClicked(mx, my, type);
@@ -232,6 +230,8 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 			numberBox.setText("" + i);
 			stackSelect.amount = i;
 		}
+		
+		super.mouseClicked(mx, my, type);
 	}
 	
 	Iterator<Fluid> searching = null;

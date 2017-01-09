@@ -174,11 +174,11 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id == 2 && status.ordinal() >= 3) // Share loot
 		{
-			party.setShareReward(!party.getShareReward());
+			party.getProperties().setProperty(NativeProps.PARTY_LOOT, !party.getShareReward());
 			SendChanges();
 		} else if(button.id == 3 && status.ordinal() >= 3) // Share life
 		{
-			party.setShareLives(!party.getShareLives());
+			party.getProperties().setProperty(NativeProps.PARTY_LIVES, !party.getShareLives());
 			SendChanges();
 		} else if(button.id == 4 && status.ordinal() >= 3) // Invite
 		{
@@ -228,7 +228,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			
 			if(!fieldName.isFocused() && !fieldName.getText().equals(party.getName()))
 			{
-				party.setName(fieldName.getText());
+				party.getProperties().setProperty(NativeProps.NAME, fieldName.getText());
 				SendChanges();
 			}
 		} else

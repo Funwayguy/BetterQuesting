@@ -1,6 +1,7 @@
 package betterquesting.network;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -94,7 +95,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
+			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
 			
 			if(message == null)
 			{
@@ -105,7 +106,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{
@@ -113,7 +114,16 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else
 			{
-				handler.handleClient(message);
+				Minecraft mc = Minecraft.getMinecraft();
+				
+				mc.addScheduledTask(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						handler.handleClient(message);
+					}
+				});
 			}
 			
 			return null;

@@ -5,18 +5,18 @@ import java.util.UUID;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.misc.IDataSync;
 import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.properties.IPropertyContainer;
 import com.google.gson.JsonObject;
 
 public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
 {
 	public String getName();
-	public void setName(String name);
 	
 	public boolean getShareLives();
 	public boolean getShareReward();
 	
-	public void setShareLives(boolean state);
-	public void setShareReward(boolean state);
+	
+	public IPropertyContainer getProperties();
 	
 	/**
 	 * Invites a user to this party if they are not currently a member.
@@ -38,4 +38,12 @@ public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
 	public EnumPartyStatus getStatus(UUID uuid);
 	
 	public List<UUID> getMembers();
+	
+	// Replaced by IPropertyContainer
+	@Deprecated
+	public void setShareLives(boolean state);
+	@Deprecated
+	public void setShareReward(boolean state);
+	@Deprecated
+	public void setName(String name);
 }

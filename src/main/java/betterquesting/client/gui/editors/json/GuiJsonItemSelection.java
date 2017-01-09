@@ -181,8 +181,6 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		super.actionPerformed(button);
-		
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
@@ -207,6 +205,8 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 				}
 			}
 		}
+		
+		super.actionPerformed(button);
 	}
 	
 	@Override

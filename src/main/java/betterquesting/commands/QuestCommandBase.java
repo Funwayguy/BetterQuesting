@@ -2,10 +2,14 @@ package betterquesting.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 
 public abstract class QuestCommandBase
@@ -43,5 +47,31 @@ public abstract class QuestCommandBase
 		}
 		
 		return new WrongUsageException(message);
+	}
+	
+	/**
+	 * Attempts to find the players ID from the given name or convert it to a UUID if valid
+	 */
+	public UUID findPlayerID(MinecraftServer server, String name)
+	{
+		UUID playerID = null;
+		
+		EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(name);
+		
+		if(player == null)
+		{
+			try
+			{
+				playerID = UUID.fromString(name);
+			} catch(Exception e)
+			{
+				playerID = NameCache.INSTANCE.getUUID(name);
+			}
+		} else
+		{
+			playerID = QuestingAPI.getQuestingUUID(player);
+		}
+		
+		return playerID;
 	}
 }

@@ -8,6 +8,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -88,7 +89,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			String name = data.getString("name");
 			name = name.length() > 0? name : "New Party";
 			IParty nParty = new PartyInstance();
-			nParty.setName(name);
+			nParty.getProperties().setProperty(NativeProps.NAME, name);
 			nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextKey());
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
