@@ -40,7 +40,7 @@ public class QuestCommandReset extends QuestCommandBase
 			}
 		} else if(args.length == 3)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
 		}
 		
 		return list;
