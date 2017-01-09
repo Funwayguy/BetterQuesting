@@ -39,7 +39,7 @@ public class QuestCommandLives extends QuestCommandBase
 		
 		if(args.length == 4 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set")))
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames().toArray(new String[0]));
 		} else if(args.length == 2)
 		{
 			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"add","set","max","default"});
