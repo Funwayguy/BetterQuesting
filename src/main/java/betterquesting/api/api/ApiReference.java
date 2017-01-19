@@ -1,5 +1,6 @@
 package betterquesting.api.api;
 
+import net.minecraft.creativetab.CreativeTabs;
 import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.client.importers.IImportRegistry;
 import betterquesting.api.client.themes.IThemeRegistry;
@@ -35,4 +36,6 @@ public class ApiReference
 	public static final ApiKey<IGuiHelper> GUI_HELPER = new ApiKey<IGuiHelper>();
 	public static final ApiKey<IToolRegistry> TOOL_REG = new ApiKey<IToolRegistry>();
 	public static final ApiKey<IImportRegistry> IMPORT_REG = new ApiKey<IImportRegistry>();
+	
+	public static final ApiKey<CreativeTabs> CREATIVE_TAB = new ApiKey<CreativeTabs>();
 }
