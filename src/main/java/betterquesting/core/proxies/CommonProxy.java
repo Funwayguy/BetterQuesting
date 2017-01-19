@@ -2,7 +2,6 @@ package betterquesting.core.proxies;
 
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.api.IQuestExpansion;
-import betterquesting.client.UpdateNotification;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.handlers.EventHandler;
@@ -25,8 +24,6 @@ public class CommonProxy
 		MinecraftForge.EVENT_BUS.register(handler);
 		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
 		FMLCommonHandler.instance().bus().register(handler);
-		
-		FMLCommonHandler.instance().bus().register(new UpdateNotification());
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}

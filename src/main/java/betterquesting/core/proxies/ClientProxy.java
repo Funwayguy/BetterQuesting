@@ -32,6 +32,8 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
+		//FMLCommonHandler.instance().bus().register(new UpdateNotification());
+		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());

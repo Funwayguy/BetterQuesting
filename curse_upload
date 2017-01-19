@@ -23,3 +23,10 @@ FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
 echo "Uploading $FILE_NAME to Curse Forge..."
 echo
 RESPONSE=`curl -H "X-Api-Token: $CURSE_API_KEY" -X POST  -F metadata="$JSON"  -F file="@$FILE_LOCATION" https://minecraft.curseforge.com/api/projects/238856/upload-file`
+
+FILE_NAME=`echo "BetterQuesting-CI_MOD_VERSION-api.jar"`
+FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
+
+echo "Uploading $FILE_NAME to Curse Forge..."
+echo
+RESPONSE=`curl -H "X-Api-Token: $CURSE_API_KEY" -X POST  -F metadata="$JSON"  -F file="@$FILE_LOCATION" https://minecraft.curseforge.com/api/projects/238856/upload-file`

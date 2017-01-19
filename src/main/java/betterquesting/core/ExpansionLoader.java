@@ -72,6 +72,8 @@ public class ExpansionLoader
 		
 		QuestingAPI.registerAPI(ApiReference.SETTINGS, QuestSettings.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.NAME_CACHE, NameCache.INSTANCE);
+		
+		QuestingAPI.registerAPI(ApiReference.CREATIVE_TAB, BetterQuesting.tabQuesting);
 	}
 	
 	@SideOnly(Side.CLIENT)
