@@ -49,6 +49,8 @@ public class NativeProps
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
 	public static final IPropertyType<Number> LIVES =						new PropertyTypeNumber(new ResourceLocation("betterquesting:lives"), 1);
+	public static final IPropertyType<Number> LIVES_DEF =					new PropertyTypeNumber(new ResourceLocation("betterquesting:livesDef"), 3);
+	public static final IPropertyType<Number> LIVES_MAX =					new PropertyTypeNumber(new ResourceLocation("betterquesting:livesMax"), 10);
 	
 	public static final IPropertyType<String> HOME_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:home_image"), "betterquesting:textures/gui/default_title.png");
 	public static final IPropertyType<Number> HOME_ANC_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_x"), 0.5F);

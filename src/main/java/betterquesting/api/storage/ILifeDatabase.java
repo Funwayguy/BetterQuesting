@@ -8,7 +8,9 @@ import com.google.gson.JsonObject;
 
 public interface ILifeDatabase extends IJsonSaveLoad<JsonObject>, IDataSync
 {
+	@Deprecated
 	public int getDefaultLives();
+	@Deprecated
 	public int getMaxLives();
 	
 	public int getLives(UUID uuid);

@@ -70,7 +70,7 @@ public class ItemExtraLife extends Item
     			lives = LifeDatabase.INSTANCE.getLives(party);
     		}
     		
-    		if(lives >= LifeDatabase.INSTANCE.getDefaultLives())
+    		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue())
     		{
     			if(!world.isRemote)
     			{
