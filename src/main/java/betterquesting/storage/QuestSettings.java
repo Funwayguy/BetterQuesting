@@ -68,6 +68,8 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	{
 		this.setupValue(NativeProps.EDIT_MODE);
 		this.setupValue(NativeProps.HARDCORE);
+		this.setupValue(NativeProps.LIVES_DEF);
+		this.setupValue(NativeProps.LIVES_MAX);
 		
 		this.setupValue(NativeProps.HOME_IMAGE);
 		this.setupValue(NativeProps.HOME_ANC_X);

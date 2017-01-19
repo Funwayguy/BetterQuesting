@@ -10,10 +10,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 
 public class QuestCommandLives extends QuestCommandBase
 {
@@ -131,14 +133,14 @@ public class QuestCommandLives extends QuestCommandBase
 		} else if(action.equalsIgnoreCase("max"))
 		{
 			value = Math.max(1, value);
-			LifeDatabase.INSTANCE.setMaxLives(value);
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, value);
 			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
-			LifeDatabase.INSTANCE.setDefaultLives(value);
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
 			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;

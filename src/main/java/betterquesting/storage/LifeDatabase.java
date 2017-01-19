@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.api.utils.JsonHelper;
@@ -21,9 +22,6 @@ public final class LifeDatabase implements ILifeDatabase
 {
 	public static final LifeDatabase INSTANCE = new LifeDatabase();
 	
-	private int defLives = 3;
-	private int maxLives = 10;
-	
 	private final HashMap<UUID,Integer> playerLives = new HashMap<UUID,Integer>();
 	private final HashMap<Integer,Integer> partyLives = new HashMap<Integer,Integer>();
 	
@@ -32,25 +30,17 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
+	@Deprecated
 	public int getDefaultLives()
 	{
-		return defLives;
+		return QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
 	}
 	
 	@Override
+	@Deprecated
 	public int getMaxLives()
 	{
-		return maxLives;
-	}
-	
-	public void setDefaultLives(int value)
-	{
-		this.defLives = value;
-	}
-	
-	public void setMaxLives(int value)
-	{
-		this.maxLives = value;
+		return QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue();
 	}
 	
 	@Override
@@ -66,8 +56,9 @@ public final class LifeDatabase implements ILifeDatabase
 			return playerLives.get(uuid);
 		} else
 		{
-			playerLives.put(uuid, defLives);
-			return defLives;
+			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
+			playerLives.put(uuid, def);
+			return def;
 		}
 	}
 	
@@ -79,7 +70,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return;
 		}
 		
-		playerLives.put(uuid, MathHelper.clamp_int(value, 0, maxLives));
+		playerLives.put(uuid, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
 	}
 	
 	@Override
@@ -97,8 +88,9 @@ public final class LifeDatabase implements ILifeDatabase
 			return partyLives.get(id);
 		} else
 		{
-			partyLives.put(id, defLives);
-			return defLives;
+			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
+			partyLives.put(id, def);
+			return def;
 		}
 	}
 	
@@ -112,7 +104,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return;
 		}
 		
-		partyLives.put(id, MathHelper.clamp_int(value, 0, maxLives));
+		partyLives.put(id, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
 	}
 	
 	@Override
@@ -138,18 +130,12 @@ public final class LifeDatabase implements ILifeDatabase
 	@Override
 	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
 	{
-		switch(saveType)
+		if(saveType != EnumSaveType.PROGRESS)
 		{
-			case CONFIG:
-				return writeToJson_Config(json);
-			case PROGRESS:
-				return writeToJson_Progress(json);
-			default:
-				break;
-			
+			return json;
 		}
 		
-		return json;
+		return writeToJson_Progress(json);
 	}
 	
 	@Override
@@ -158,7 +144,7 @@ public final class LifeDatabase implements ILifeDatabase
 		switch(saveType)
 		{
 			case CONFIG:
-				readFromJson_Config(json);
+				readFromJson_Config(json); // For legacy settings only
 				break;
 			case PROGRESS:
 				readFromJson_Progress(json);
@@ -168,17 +154,17 @@ public final class LifeDatabase implements ILifeDatabase
 		}
 	}
 	
-	private JsonObject writeToJson_Config(JsonObject json)
-	{
-		json.addProperty("defLives", defLives);
-		json.addProperty("maxLives", maxLives);
-		return json;
-	}
-	
 	private void readFromJson_Config(JsonObject json)
 	{
-		defLives = JsonHelper.GetNumber(json, "defLives", 3).intValue();
-		maxLives = JsonHelper.GetNumber(json, "maxLives", 10).intValue();
+		if(json.has("defLives"))
+		{
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, JsonHelper.GetNumber(json, "defLives", 3).intValue());
+		}
+		
+		if(json.has("maxLives"))
+		{
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, JsonHelper.GetNumber(json, "maxLives", 10).intValue());
+		}
 	}
 	
 	private JsonObject writeToJson_Progress(JsonObject json)
