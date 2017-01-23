@@ -337,7 +337,7 @@ public class EventHandler
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
-			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -376,7 +376,7 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(((EntityPlayer)event.getEntityLiving()));
 			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
-			if(party == null || !party.getShareLives())
+			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
 			{
 				int lives = LifeDatabase.INSTANCE.getLives(uuid);
 				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);

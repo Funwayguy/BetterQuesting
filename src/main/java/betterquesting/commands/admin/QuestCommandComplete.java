@@ -65,6 +65,9 @@ public class QuestCommandComplete extends QuestCommandBase
 			{
 				throw this.getException(command);
 			}
+		} else
+		{
+			uuid = this.findPlayerID(server, sender.getName());
 		}
 		
 		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);

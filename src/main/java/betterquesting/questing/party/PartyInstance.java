@@ -56,15 +56,17 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
+	@Deprecated
 	public boolean getShareLives()
 	{
 		return pInfo.getProperty(NativeProps.PARTY_LIVES, false);
 	}
 	
 	@Override
+	@Deprecated
 	public boolean getShareReward()
 	{
-		return pInfo.getProperty(NativeProps.PARTY_LOOT, false);
+		return false;
 	}
 	
 	@Override
