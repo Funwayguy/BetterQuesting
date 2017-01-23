@@ -12,10 +12,6 @@ public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
 {
 	public String getName();
 	
-	public boolean getShareLives();
-	public boolean getShareReward();
-	
-	
 	public IPropertyContainer getProperties();
 	
 	/**
@@ -39,11 +35,20 @@ public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
 	
 	public List<UUID> getMembers();
 	
-	// Replaced by IPropertyContainer
+	/** Replaced by IPropertyContainer */
 	@Deprecated
 	public void setShareLives(boolean state);
+	/** Option moved to quests. No longer party specific */
 	@Deprecated
 	public void setShareReward(boolean state);
+	
+	/** Replaced by IPropertyContainer */
+	@Deprecated
+	public boolean getShareLives();
+	/** Option moved to quests. No longer party specific */
+	@Deprecated
+	public boolean getShareReward();
+	/** Edit via IPropertyContainer instead */
 	@Deprecated
 	public void setName(String name);
 }

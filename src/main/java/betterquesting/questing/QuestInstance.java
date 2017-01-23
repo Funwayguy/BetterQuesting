@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import org.apache.logging.log4j.Level;
@@ -15,6 +16,7 @@ import org.lwjgl.input.Keyboard;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
+import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -44,6 +46,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -85,6 +88,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.AUTO_CLAIM, false);
 		setupValue(NativeProps.SILENT, false);
 		setupValue(NativeProps.MAIN, false);
+		setupValue(NativeProps.PARTY_LOOT, false);
 		setupValue(NativeProps.GLOBAL_SHARE, false);
 		setupValue(NativeProps.SIMULTANEOUS, false);
 	}
@@ -198,20 +202,7 @@ public class QuestInstance implements IQuest
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
-					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-					
-					if(qInfo.getProperty(NativeProps.GLOBAL))
-					{
-						PacketSender.INSTANCE.sendToAll(payload);
-					} else if(player instanceof EntityPlayerMP)
-					{
-						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
-					}
+					postPresetNotice(player, 1);
 				}
 				
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -230,18 +221,28 @@ public class QuestInstance implements IQuest
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				boolean flag = !tsk.isComplete(playerID);
-				
-				tsk.update(player, this);
-				
-				if(tsk.isComplete(playerID))
+				if(!tsk.isComplete(playerID))
 				{
-					done += 1;
+					tsk.update(player, this);
 					
-					if(flag)
+					if(tsk.isComplete(playerID))
 					{
+						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
+						
+						if(party != null) // Ensures task is marked as complete for all team members
+						{
+							for(UUID mem : party.getMembers())
+							{
+								tsk.setComplete(mem);
+							}
+						}
+						
+						done += 1;
 						update = true;
 					}
+				} else
+				{
+					done += 1;
 				}
 			}
 			
@@ -261,20 +262,7 @@ public class QuestInstance implements IQuest
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("Main", "betterquesting.notice.complete");
-					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
-					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-					
-					if(qInfo.getProperty(NativeProps.GLOBAL))
-					{
-						PacketSender.INSTANCE.sendToAll(payload);
-					} else if(player instanceof EntityPlayerMP)
-					{
-						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
-					}
+					postPresetNotice(player, 2);
 				}
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
@@ -286,20 +274,7 @@ public class QuestInstance implements IQuest
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
-					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-					
-					if(qInfo.getProperty(NativeProps.GLOBAL))
-					{
-						PacketSender.INSTANCE.sendToAll(payload);
-					} else if(player instanceof EntityPlayerMP)
-					{
-						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
-					}
+					postPresetNotice(player, 1);
 				}
 			}
 		}
@@ -349,20 +324,7 @@ public class QuestInstance implements IQuest
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("Main", "betterquesting.notice.complete");
-					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_COMPLETE));
-					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-					
-					if(qInfo.getProperty(NativeProps.GLOBAL))
-					{
-						PacketSender.INSTANCE.sendToAll(payload);
-					} else if(player instanceof EntityPlayerMP)
-					{
-						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
-					}
+					postPresetNotice(player, 2);
 				}
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
@@ -372,24 +334,79 @@ public class QuestInstance implements IQuest
 			{
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
-					NBTTagCompound tags = new NBTTagCompound();
-					tags.setString("Main", "betterquesting.notice.update");
-					tags.setString("Sub", getUnlocalisedName());
-					tags.setString("Sound", qInfo.getProperty(NativeProps.SOUND_UPDATE));
-					tags.setTag("Icon", getItemIcon().writeToNBT(new NBTTagCompound()));
-					QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-					
-					if(qInfo.getProperty(NativeProps.GLOBAL))
-					{
-						PacketSender.INSTANCE.sendToAll(payload);
-					} else if(player instanceof EntityPlayerMP)
-					{
-						PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
-					}
+					postPresetNotice(player, 1);
 				}
 			}
 			
 			PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		}
+	}
+	
+	private void postPresetNotice(EntityPlayer player, int preset)
+	{
+		switch(preset)
+		{
+			case 0:
+				postNotice(player, "betterquesting.notice.unlock", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UNLOCK), getItemIcon());
+				break;
+			case 1:
+				postNotice(player, "betterquesting.notice.update", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UPDATE), getItemIcon());
+				break;
+			case 2:
+				postNotice(player, "betterquesting.notice.complete", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_COMPLETE), getItemIcon());
+				break;
+		}
+	}
+	
+	private void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setString("Main", mainTxt);
+		tags.setString("Sub", subTxt);
+		tags.setString("Sound", sound);
+		tags.setTag("Icon", icon.writeToNBT(new NBTTagCompound()));
+		QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+		
+		if(qInfo.getProperty(NativeProps.GLOBAL))
+		{
+			PacketSender.INSTANCE.sendToAll(payload);
+		} else if(player instanceof EntityPlayerMP)
+		{
+			List<EntityPlayerMP> tarList = getPartyPlayers((EntityPlayerMP)player);
+			
+			for(EntityPlayerMP p : tarList)
+			{
+				PacketSender.INSTANCE.sendToPlayer(payload, p);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<EntityPlayerMP> getPartyPlayers(EntityPlayerMP player)
+	{
+		List<EntityPlayerMP> list = new ArrayList<EntityPlayerMP>();
+		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
+		
+		if(party == null)
+		{
+			list.add(player);
+			return list;
+		} else
+		{
+			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+			
+			for(UUID mem : party.getMembers())
+			{
+				for(EntityPlayerMP p : (List<EntityPlayerMP>)server.getConfigurationManager().playerEntityList)
+				{
+					if(p != null && QuestingAPI.getQuestingUUID(p).equals(mem))
+					{
+						list.add(p);
+					}
+				}
+			}
+			
+			return list;
 		}
 	}
 	
@@ -463,8 +480,42 @@ public class QuestInstance implements IQuest
 			rew.claimReward(player, this);
 		}
 		
-		UserEntry entry = GetUserEntry(QuestingAPI.getQuestingUUID(player));
-		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+		UUID pID = QuestingAPI.getQuestingUUID(player);
+		IParty party = PartyManager.INSTANCE.getUserParty(pID);
+		
+		if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT))
+		{
+			for(UUID mem : party.getMembers())
+			{
+				EnumPartyStatus pStat = party.getStatus(mem);
+				
+				if(pStat == null || pStat == EnumPartyStatus.INVITE)
+				{
+					continue;
+				}
+				
+				UserEntry entry = GetUserEntry(mem);
+				
+				if(entry == null)
+				{
+					entry = new UserEntry(mem);
+					this.completeUsers.add(entry);
+				}
+				
+				entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+			}
+		} else
+		{
+			UserEntry entry = GetUserEntry(pID);
+			
+			if(entry == null)
+			{
+				entry = new UserEntry(pID);
+				this.completeUsers.add(entry);
+			}
+			
+			entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+		}
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}

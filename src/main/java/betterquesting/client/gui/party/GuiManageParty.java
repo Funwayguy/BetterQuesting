@@ -74,10 +74,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		maxRows = (sizeY - 72)/20;
 		
 		this.buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/4 - 75, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_leave"), true));
-		GuiButtonThemed lootBtn = new GuiButtonThemed(2, guiLeft + sizeX/4 - 75, height/2 - 20, 150, 20, I18n.format("betterquesting.btn.party_share_loot") + ": " + party.getShareReward(), true);
-		lootBtn.enabled = status.ordinal() >= 3;
-		this.buttonList.add(lootBtn);
-		GuiButtonThemed lifeBtn = new GuiButtonThemed(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.format("betterquesting.btn.party_share_lives") + ": " + party.getShareLives(), true);
+		GuiButtonThemed lifeBtn = new GuiButtonThemed(3, guiLeft + sizeX/4 - 75, height/2, 150, 20, I18n.format("betterquesting.btn.party_share_lives") + ": " + party.getProperties().getProperty(NativeProps.PARTY_LIVES), true);
 		lifeBtn.enabled = status.ordinal() >= 3;
 		this.buttonList.add(lifeBtn);
 		GuiButtonThemed invBtn = new GuiButtonThemed(4, guiLeft + sizeX/4 + 5, height/2 + 40, 70, 20, I18n.format("betterquesting.btn.party_invite"), true);
@@ -91,7 +88,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		// Quest Line - Main
 		for(int i = 0; i < maxRows; i++)
 		{
-			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_kick"), true);
+			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size() + 1, guiLeft + sizeX - 74, guiTop + 48 + (i*20), 50, 20, I18n.format("betterquesting.btn.party_kick"), true);
 			this.buttonList.add(btn);
 		}
 		
@@ -172,13 +169,9 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
 			tags.setString("target", QuestingAPI.getQuestingUUID(mc.thePlayer).toString());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
-		} else if(button.id == 2 && status.ordinal() >= 3) // Share loot
-		{
-			party.getProperties().setProperty(NativeProps.PARTY_LOOT, !party.getShareReward());
-			SendChanges();
 		} else if(button.id == 3 && status.ordinal() >= 3) // Share life
 		{
-			party.getProperties().setProperty(NativeProps.PARTY_LIVES, !party.getShareLives());
+			party.getProperties().setProperty(NativeProps.PARTY_LIVES, !party.getProperties().getProperty(NativeProps.PARTY_LIVES));
 			SendChanges();
 		} else if(button.id == 4 && status.ordinal() >= 3) // Invite
 		{

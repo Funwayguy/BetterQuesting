@@ -37,7 +37,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     	
     	IParty party = PartyManager.INSTANCE.getUserParty(playerID);
     	
-    	if(party == null || !party.getShareLives())
+    	if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
     	{
     		lifeCache = LifeDatabase.INSTANCE.getLives(playerID);
     	} else

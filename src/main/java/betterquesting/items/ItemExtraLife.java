@@ -62,7 +62,7 @@ public class ItemExtraLife extends Item
     		int lives = 0;
     		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
     		
-    		if(party == null || !party.getShareLives())
+    		if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
     		{
     			lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
     		} else
@@ -84,7 +84,7 @@ public class ItemExtraLife extends Item
     		
     		if(!world.isRemote)
     		{
-    			if(party == null || !party.getShareLives())
+    			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
     			{
     				LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
     			} else
