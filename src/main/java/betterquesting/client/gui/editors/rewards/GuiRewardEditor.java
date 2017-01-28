@@ -113,7 +113,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 					mc.displayGuiScreen(editor);
 				} else
 				{
-					mc.displayGuiScreen(new GuiRewardEditDefault(this, reward));
+					mc.displayGuiScreen(new GuiRewardEditDefault(this, quest, reward));
 				}
 			}
 		} else if(column == 1) // Delete reward

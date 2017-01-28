@@ -64,15 +64,23 @@ public final class QuestDatabase implements IQuestDatabase
 	@Override
 	public boolean removeKey(Integer id)
 	{
-		boolean flag = database.remove(id) != null;
+		IQuest remQ = database.remove(id);
 		
-		if(flag)
+		if(remQ == null)
 		{
-			// Clear quest from quest lines
-			QuestLineDatabase.INSTANCE.removeQuest(id);
+			return false;
 		}
 		
-		return flag;
+		for(IQuest quest : this.getAllValues())
+		{
+			// Remove from all pre-requisites
+			quest.getPrerequisites().remove(remQ);
+		}
+		
+		// Clear quest from quest lines
+		QuestLineDatabase.INSTANCE.removeQuest(id);
+		
+		return true;
 	}
 	
 	@Override

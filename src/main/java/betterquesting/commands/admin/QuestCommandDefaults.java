@@ -22,16 +22,19 @@ import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[save|load]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 2;
 	}
 	
+	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();

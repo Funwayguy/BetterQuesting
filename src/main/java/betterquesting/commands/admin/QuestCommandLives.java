@@ -25,16 +25,19 @@ public class QuestCommandLives extends QuestCommandBase
 		return "lives";
 	}
 	
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[add|set|max|default] <value> [username|uuid]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 4 || args.length == 3;
 	}
 	
+	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();

@@ -1,10 +1,11 @@
 package betterquesting.storage;
 
-import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import betterquesting.api.enums.EnumSaveType;
@@ -70,9 +71,12 @@ public final class NameCache implements INameCache
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
-		for(String name : server.getPlayerProfileCache().getUsernames())
+		String[] names = server.getPlayerProfileCache().getUsernames();
+		
+		for(String name : names)
 		{
-			GameProfile prof = server.getPlayerProfileCache().getGameProfileForUsername(name);
+			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(name);
+			GameProfile prof = player == null? null : player.getGameProfile();
 			
 			if(prof != null)
 			{

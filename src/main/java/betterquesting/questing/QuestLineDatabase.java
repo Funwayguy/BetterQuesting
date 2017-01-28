@@ -51,8 +51,6 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	{
 		lineOrder.remove((Integer)lineID);
 		lineOrder.add(index, lineID);
-		
-		System.out.println("Order edited: " + lineOrder.toString());
 	}
 	
 	@Override
@@ -124,7 +122,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	@Override
 	public IQuestLine getValue(Integer lineId)
 	{
-		return questLines.get(lineId);
+		return lineId < 0? null : questLines.get(lineId);
 	}
 	
 	@Override

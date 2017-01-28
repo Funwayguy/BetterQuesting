@@ -15,16 +15,19 @@ import betterquesting.questing.QuestLineDatabase;
 
 public class QuestCommandDelete extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[all|<quest_id>]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 2;
 	}
 	
+	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
