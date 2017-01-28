@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import betterquesting.api.enums.EnumSaveType;
@@ -70,9 +71,12 @@ public final class NameCache implements INameCache
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
-		for(String name : server.func_152358_ax().func_152654_a())
+		String[] names = server.func_152358_ax().func_152654_a();
+		
+		for(String name : names)
 		{
-			GameProfile prof = server.func_152358_ax().func_152655_a(name);
+			EntityPlayerMP player = server.getConfigurationManager().func_152612_a(name);
+			GameProfile prof = player == null? null : player.getGameProfile();
 			
 			if(prof != null)
 			{

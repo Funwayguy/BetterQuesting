@@ -17,9 +17,34 @@ public class QuestCommandHardcore extends QuestCommandBase
 	}
 	
 	@Override
+	public String getUsageSuffix()
+	{
+		return "[true|false]";
+	}
+	
+	@Override
+	public boolean validArgs(String[] args)
+	{
+		return args.length == 1 || args.length == 2;
+	}
+	
+	@Override
 	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
 	{
-		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE));
+		boolean flag = !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+		
+		if(args.length == 2)
+		{
+			try
+			{
+				flag = Boolean.parseBoolean(args[1]);
+			} catch(Exception e)
+			{
+				throw this.getException(command);
+			}
+		}
+		
+		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, flag);
 		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}

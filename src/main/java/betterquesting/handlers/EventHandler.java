@@ -1,7 +1,10 @@
 package betterquesting.handlers;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -25,8 +28,11 @@ import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.questing.tasks.ITickableTask;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.QuestCache;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.client.gui.GuiQuestLinesMain;
@@ -83,9 +89,50 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
-			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
+			EntityPlayer player = (EntityPlayer)event.entityLiving;
+			UUID uuid = QuestingAPI.getQuestingUUID(player);
+			
+			List<IQuest> syncList = new ArrayList<IQuest>();
+			
+			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
 			{
-				quest.update((EntityPlayer)event.entityLiving);
+				ITask task = entry.getKey();
+				IQuest quest = entry.getValue();
+				
+				if(!task.isComplete(uuid))
+				{
+					task.update(player, quest); // Legacy support only. Will be replaced by ITickableTask
+					
+					if(task instanceof ITickableTask)
+					{
+						((ITickableTask)task).updateTask(player, quest);
+					}
+					
+					if(task.isComplete(uuid) && !syncList.contains(quest))
+					{
+						syncList.add(quest);
+					}
+				}
+			}
+			
+			if(player.ticksExisted%20 == 0)
+			{
+				for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
+				{
+					quest.update(player);
+					
+					if(quest.isComplete(uuid) && !quest.canSubmit(player) && !syncList.contains(quest))
+					{
+						syncList.add(quest);
+					}
+				}
+				
+				QuestCache.INSTANCE.updateCache(player);
+			}
+			
+			for(IQuest quest : syncList)
+			{
+				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 			}
 		}
 	}

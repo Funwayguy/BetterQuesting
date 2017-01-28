@@ -21,16 +21,19 @@ import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[save|load]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 2;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> autoComplete(ICommandSender sender, String[] args)
 	{

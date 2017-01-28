@@ -7,6 +7,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
+import betterquesting.commands.user.QuestCommandSPHardcore;
 
 public class BQ_CommandUser extends CommandBase
 {
@@ -16,6 +17,7 @@ public class BQ_CommandUser extends CommandBase
 	{
 		coms.add(new QuestCommandHelp());
 		coms.add(new QuestCommandRefresh());
+		coms.add(new QuestCommandSPHardcore());
 	}
 	
 	@Override

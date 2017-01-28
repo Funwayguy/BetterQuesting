@@ -221,28 +221,20 @@ public class QuestInstance implements IQuest
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				if(!tsk.isComplete(playerID))
+				if(tsk.isComplete(playerID))
 				{
-					tsk.update(player, this);
+					IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 					
-					if(tsk.isComplete(playerID))
+					if(party != null) // Ensures task is marked as complete for all team members
 					{
-						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-						
-						if(party != null) // Ensures task is marked as complete for all team members
+						for(UUID mem : party.getMembers())
 						{
-							for(UUID mem : party.getMembers())
-							{
-								tsk.setComplete(mem);
-							}
+							tsk.setComplete(mem);
 						}
-						
-						done += 1;
-						update = true;
 					}
-				} else
-				{
+					
 					done += 1;
+					update = true;
 				}
 			}
 			
@@ -303,18 +295,28 @@ public class QuestInstance implements IQuest
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				boolean flag = !tsk.isComplete(playerID);
-				
-				tsk.detect(player, this);
-				
-				if(tsk.isComplete(playerID))
+				if(!tsk.isComplete(playerID))
 				{
-					done += 1;
+					tsk.detect(player, this);
 					
-					if(flag)
+					if(tsk.isComplete(playerID))
 					{
+						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
+						
+						if(party != null) // Ensures task is marked as complete for all team members
+						{
+							for(UUID mem : party.getMembers())
+							{
+								tsk.setComplete(mem);
+							}
+						}
+						
+						done += 1;
 						update = true;
 					}
+				} else
+				{
+					done += 1;
 				}
 			}
 			
@@ -944,7 +946,12 @@ public class QuestInstance implements IQuest
 		JsonArray reqJson = new JsonArray();
 		for(IQuest quest : preRequisites)
 		{
-			reqJson.add(new JsonPrimitive(parentDB.getKey(quest)));
+			int prID = parentDB.getKey(quest);
+			
+			if(prID >= 0)
+			{
+				reqJson.add(new JsonPrimitive(prID));
+			}
 		}
 		jObj.add("preRequisites", reqJson);
 		
@@ -965,12 +972,19 @@ public class QuestInstance implements IQuest
 				continue;
 			}
 			
-			IQuest tmp = parentDB.getValue(entry.getAsInt());
+			int prID = entry.getAsInt();
+			
+			if(prID < 0)
+			{
+				continue;
+			}
+			
+			IQuest tmp = parentDB.getValue(prID);
 			
 			if(tmp == null)
 			{
-				tmp = new QuestInstance();
-				parentDB.add(tmp, entry.getAsInt());
+				tmp = parentDB.createNew();
+				parentDB.add(tmp, prID);
 			}
 			
 			preRequisites.add(tmp);

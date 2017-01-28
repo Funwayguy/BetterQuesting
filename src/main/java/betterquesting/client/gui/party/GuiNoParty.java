@@ -233,9 +233,6 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 				{
 					btn.visible = btn.enabled = false;
 				}
-			} else
-			{
-				System.out.println("N1: " + n1 + ", N2: " + n2 + ", N3: " + n3 + ", Rows: " + maxRows);
 			}
 		}
 	}

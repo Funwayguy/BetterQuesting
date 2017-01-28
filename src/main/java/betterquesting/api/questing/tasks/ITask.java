@@ -18,7 +18,6 @@ public interface ITask extends IJsonSaveLoad<JsonObject>
 	public String getUnlocalisedName();
 	public ResourceLocation getFactoryID();
 	
-	public void update(EntityPlayer player, IQuest quest);
 	public void detect(EntityPlayer player, IQuest quest);
 	
 	public boolean isComplete(UUID uuid);
@@ -35,4 +34,10 @@ public interface ITask extends IJsonSaveLoad<JsonObject>
 	@Nullable
 	@SideOnly(Side.CLIENT)
 	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest);
+	
+	/**
+	 * Use ITickableTask instead
+	 */
+	@Deprecated
+	public void update(EntityPlayer player, IQuest quest);
 }

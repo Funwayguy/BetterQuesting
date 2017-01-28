@@ -15,16 +15,19 @@ import betterquesting.storage.NameCache;
 
 public class QuestCommandReset extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[all|<quest_id>] [username|uuid]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 2 || args.length == 3;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<String> autoComplete(ICommandSender sender, String[] args)
 	{
