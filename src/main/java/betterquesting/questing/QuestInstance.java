@@ -217,7 +217,6 @@ public class QuestInstance implements IQuest
 		if(isUnlocked(playerID) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
 		{
 			int done = 0;
-			boolean update = false;
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
@@ -234,17 +233,11 @@ public class QuestInstance implements IQuest
 					}
 					
 					done += 1;
-					update = true;
 				}
 			}
 			
 			if(!isUnlocked(playerID))
 			{
-				if(update)
-				{
-					PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				}
-				
 				return;
 			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
@@ -256,18 +249,10 @@ public class QuestInstance implements IQuest
 				{
 					postPresetNotice(player, 2);
 				}
-			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
+			} else if(done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-			} else if(update)
-			{
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 1);
-				}
 			}
 		}
 	}
@@ -344,7 +329,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	private void postPresetNotice(EntityPlayer player, int preset)
+	public void postPresetNotice(EntityPlayer player, int preset)
 	{
 		switch(preset)
 		{
@@ -360,7 +345,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	private void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
+	public void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setString("Main", mainTxt);

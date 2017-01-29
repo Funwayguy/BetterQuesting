@@ -41,6 +41,7 @@ import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -93,6 +94,7 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			
 			List<IQuest> syncList = new ArrayList<IQuest>();
+			List<QuestInstance> updateList = new ArrayList<QuestInstance>();
 			
 			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
 			{
@@ -108,9 +110,17 @@ public class EventHandler
 						((ITickableTask)task).updateTask(player, quest);
 					}
 					
-					if(task.isComplete(uuid) && !syncList.contains(quest))
+					if(task.isComplete(uuid))
 					{
-						syncList.add(quest);
+						if(!syncList.contains(quest))
+						{
+							syncList.add(quest);
+						}
+						
+						if(!updateList.contains(quest) && quest instanceof QuestInstance)
+						{
+							updateList.add((QuestInstance)quest);
+						}
 					}
 				}
 			}
@@ -124,6 +134,7 @@ public class EventHandler
 					if(quest.isComplete(uuid) && !quest.canSubmit(player) && !syncList.contains(quest))
 					{
 						syncList.add(quest);
+						updateList.remove(quest);
 					}
 				}
 				
@@ -133,6 +144,11 @@ public class EventHandler
 			for(IQuest quest : syncList)
 			{
 				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			}
+			
+			for(QuestInstance quest : updateList)
+			{
+				quest.postPresetNotice(player, 1);
 			}
 		}
 	}
