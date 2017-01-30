@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -15,7 +16,7 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import com.google.gson.JsonObject;
 
-public class GuiTaskEditDefault extends GuiScreenThemed
+public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<JsonObject>
 {
 	private final IQuest quest;
 	private final ITask task;
@@ -39,17 +40,17 @@ public class GuiTaskEditDefault extends GuiScreenThemed
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation()));
+			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation(), this));
 		} else
 		{
-			this.task.readFromJson(json, EnumSaveType.CONFIG);
 			this.mc.displayGuiScreen(parent);
 		}
 	}
-	
+
 	@Override
-	public void onGuiClosed()
+	public void setValue(JsonObject value)
 	{
+		task.readFromJson(value, EnumSaveType.CONFIG);
 		this.SendChanges();
 	}
 	

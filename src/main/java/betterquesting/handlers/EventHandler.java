@@ -2,6 +2,7 @@ package betterquesting.handlers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -14,10 +15,12 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -46,6 +49,7 @@ import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -91,6 +95,7 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			
 			List<IQuest> syncList = new ArrayList<IQuest>();
+			List<QuestInstance> updateList = new ArrayList<QuestInstance>();
 			
 			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
 			{
@@ -106,9 +111,17 @@ public class EventHandler
 						((ITickableTask)task).updateTask(player, quest);
 					}
 					
-					if(task.isComplete(uuid) && !syncList.contains(quest))
+					if(task.isComplete(uuid))
 					{
-						syncList.add(quest);
+						if(!syncList.contains(quest))
+						{
+							syncList.add(quest);
+						}
+						
+						if(!updateList.contains(quest) && quest instanceof QuestInstance)
+						{
+							updateList.add((QuestInstance)quest);
+						}
 					}
 				}
 			}
@@ -119,18 +132,40 @@ public class EventHandler
 				{
 					quest.update(player);
 					
-					if(quest.isComplete(uuid) && !quest.canSubmit(player) && !syncList.contains(quest))
+					if(quest.isComplete(uuid) && !syncList.contains(quest))
 					{
 						syncList.add(quest);
+						updateList.remove(quest);
 					}
 				}
 				
 				QuestCache.INSTANCE.updateCache(player);
+			} else
+			{
+				Iterator<IQuest> iterator = syncList.iterator();
+				
+				while(iterator.hasNext())
+				{
+					IQuest quest = iterator.next();
+					
+					quest.update(player);
+					
+					if(quest.isComplete(uuid) && !quest.canSubmit(player))
+					{
+						iterator.remove();
+						updateList.remove(quest);
+					}
+				}
 			}
 			
 			for(IQuest quest : syncList)
 			{
 				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			}
+			
+			for(QuestInstance quest : updateList)
+			{
+				quest.postPresetNotice(player, 1);
 			}
 		}
 	}
@@ -456,6 +491,17 @@ public class EventHandler
 		if(screen instanceof INeedsRefresh)
 		{
 			((INeedsRefresh)screen).refreshGui();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onCommand(CommandEvent event)
+	{
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		
+		if(server != null && (event.getCommand().getCommandName().equalsIgnoreCase("op") || event.getCommand().getCommandName().equalsIgnoreCase("deop")))
+		{
+			NameCache.INSTANCE.updateNames(server);
 		}
 	}
 }

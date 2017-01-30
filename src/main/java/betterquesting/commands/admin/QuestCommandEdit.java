@@ -8,6 +8,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
+import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 
 public class QuestCommandEdit extends QuestCommandBase
@@ -39,11 +40,25 @@ public class QuestCommandEdit extends QuestCommandBase
 		{
 			try
 			{
-				flag = Boolean.parseBoolean(args[1]);
+				if(args[1].equalsIgnoreCase("on"))
+				{
+					flag = true;
+				} else if(args[1].equalsIgnoreCase("off"))
+				{
+					flag = false;
+				} else
+				{
+					flag = Boolean.parseBoolean(args[1]);
+				}
 			} catch(Exception e)
 			{
 				throw this.getException(command);
 			}
+		}
+		
+		if(flag)
+		{
+			NameCache.INSTANCE.updateNames(server);
 		}
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, flag);
