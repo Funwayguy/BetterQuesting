@@ -9,6 +9,7 @@ import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.tasks.ITask;
@@ -47,7 +48,17 @@ public class QuestCache
 		{
 			IQuest quest = questDB.getValue(qID);
 			
-			if(quest == null || !quest.isUnlocked(uuid) || !quest.canSubmit(player))
+			if(quest == null || (!quest.isUnlocked(uuid) && !quest.getProperties().getProperty(NativeProps.LOCKED_PROGRESS)))
+			{
+				// Invalid or locked
+				continue;
+			} else if(quest.canSubmit(player) || quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
+			{
+				// Active quest or pending repeat reset
+			} else if(quest.getProperties().getProperty(NativeProps.AUTO_CLAIM) && !quest.hasClaimed(uuid))
+			{
+				// Pending auto-claim
+			} else
 			{
 				continue;
 			}

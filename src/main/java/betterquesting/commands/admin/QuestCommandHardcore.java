@@ -37,7 +37,16 @@ public class QuestCommandHardcore extends QuestCommandBase
 		{
 			try
 			{
-				flag = Boolean.parseBoolean(args[1]);
+				if(args[1].equalsIgnoreCase("on"))
+				{
+					flag = true;
+				} else if(args[1].equalsIgnoreCase("off"))
+				{
+					flag = false;
+				} else
+				{
+					flag = Boolean.parseBoolean(args[1]);
+				}
 			} catch(Exception e)
 			{
 				throw this.getException(command);

@@ -131,6 +131,8 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 			return;
 		}
 		
+		database.clear();
+		
 		ArrayList<IReward> unassigned = new ArrayList<IReward>();
 		
 		for(JsonElement entry : json)

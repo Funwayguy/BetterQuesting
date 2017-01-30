@@ -519,10 +519,10 @@ public class QuestInstance implements IQuest
 		
 		UserEntry entry = this.GetUserEntry(playerID);
 		
-		if(entry == null)
+		if(entry == null) // Incomplete
 		{
 			return true;
-		} else if(!entry.hasClaimed())
+		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Complete but repeatable
 		{
 			int done = 0;
 			

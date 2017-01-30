@@ -3,6 +3,7 @@ package betterquesting.handlers;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -131,7 +133,7 @@ public class EventHandler
 				{
 					quest.update(player);
 					
-					if(quest.isComplete(uuid) && !quest.canSubmit(player) && !syncList.contains(quest))
+					if(quest.isComplete(uuid) && !syncList.contains(quest))
 					{
 						syncList.add(quest);
 						updateList.remove(quest);
@@ -139,6 +141,22 @@ public class EventHandler
 				}
 				
 				QuestCache.INSTANCE.updateCache(player);
+			} else
+			{
+				Iterator<IQuest> iterator = syncList.iterator();
+				
+				while(iterator.hasNext())
+				{
+					IQuest quest = iterator.next();
+					
+					quest.update(player);
+					
+					if(quest.isComplete(uuid) && !quest.canSubmit(player))
+					{
+						iterator.remove();
+						updateList.remove(quest);
+					}
+				}
 			}
 			
 			for(IQuest quest : syncList)
@@ -482,6 +500,17 @@ public class EventHandler
 		if(screen instanceof INeedsRefresh)
 		{
 			((INeedsRefresh)screen).refreshGui();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onCommand(CommandEvent event)
+	{
+		MinecraftServer server = MinecraftServer.getServer();
+		
+		if(server != null && (event.command.getCommandName().equalsIgnoreCase("op") || event.command.getCommandName().equalsIgnoreCase("deop")))
+		{
+			NameCache.INSTANCE.updateNames(server);
 		}
 	}
 }
