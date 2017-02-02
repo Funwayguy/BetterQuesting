@@ -156,8 +156,11 @@ betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editin
 
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default
+betterquesting.cmd.default.save2=Quest database saved to %s
 betterquesting.cmd.default.load=Reloaded default quest database
-betterquesting.cmd.default.none=No default currently set
+betterquesting.cmd.default.load2=Loaded quest database from %s
+betterquesting.cmd.default.set=Set %s as the default quest database
+betterquesting.cmd.default.none=Quest database not found
 betterquesting.cmd.delete.single=Deleted quest %s
 betterquesting.cmd.delete.all=Deleted all quests
 betterquesting.cmd.edit=Edit mode %s
