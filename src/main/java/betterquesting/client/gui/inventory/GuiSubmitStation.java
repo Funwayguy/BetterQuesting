@@ -273,7 +273,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask && task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer));
+		btnSelect.enabled = task != null && (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer));
 	}
 	
 	/**

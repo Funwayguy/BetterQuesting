@@ -1,5 +1,7 @@
 package betterquesting.commands.admin;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -28,6 +30,19 @@ public class QuestCommandHardcore extends QuestCommandBase
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 1 || args.length == 2;
+	}
+	
+	@Override
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		
+		if(args.length == 2)
+		{
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"true","false"});
+		}
+		
+		return list;
 	}
 	
 	@Override
