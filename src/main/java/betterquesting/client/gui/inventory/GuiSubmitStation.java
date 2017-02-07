@@ -2,6 +2,8 @@ package betterquesting.client.gui.inventory;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -13,27 +15,29 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.utils.QuestCache;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.questing.QuestDatabase;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
-	TileSubmitStation tile;
-	ArrayList<IQuest> activeQuests = new ArrayList<IQuest>();
-	int selQuest = 0;
-	IQuest quest;
-	int selTask = 0;
-	ITask task;
+	private final TileSubmitStation tile;
+	private final List<IQuest> activeQuests = new ArrayList<IQuest>();
+	private int selQuest = 0;
+	private int selTask = 0;
+	private IQuest quest;
+	private ITask task;
 	
-	IGuiEmbedded taskUI;
-	GuiButtonThemed btnSelect;
-	GuiButtonThemed btnRemove;
+	private IGuiEmbedded taskUI;
+	private GuiButtonThemed btnSelect;
+	private GuiButtonThemed btnRemove;
 	
-	ContainerSubmitStation subContainer;
+	private ContainerSubmitStation subContainer;
 	
 	public GuiSubmitStation(GuiScreen parent, InventoryPlayer invo, TileSubmitStation tile)
 	{
@@ -54,16 +58,18 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			return;
 		}
 		
-		selQuest = 0;
-		selTask = 0;
-		
 		activeQuests.clear();
 		UUID pID = QuestingAPI.getQuestingUUID(mc.thePlayer);
-		for(IQuest q : QuestDatabase.INSTANCE.getAllValues())
+		activeQuests.addAll(QuestCache.INSTANCE.getActiveQuests(pID));
+		Iterator<IQuest> qit = activeQuests.iterator();
+		
+		while(qit.hasNext())
 		{
-			if(q.isUnlocked(pID) && !q.isComplete(pID))
+			IQuest q = qit.next();
+			
+			if(q.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)
 			{
-				activeQuests.add(q);
+				qit.remove(); // These should not be shown to players
 			}
 		}
 		
@@ -100,8 +106,9 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 	}
 	
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
+	public void drawBackPanel(int mx, int my, float partialTick)
 	{
+		super.drawBackPanel(mx, my, partialTick);
 		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
 		int invX = guiLeft + 16 + (sizeX/2 - 24)/2 - 162/2;
@@ -143,6 +150,11 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			mc.fontRenderer.drawString(I18n.format(task.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 60, getTextColor(), false);
 		}
+	}
+	
+	@Override
+	protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
+	{
 	}
 	
 	@Override

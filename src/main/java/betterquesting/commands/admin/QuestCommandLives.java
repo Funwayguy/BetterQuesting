@@ -152,4 +152,10 @@ public class QuestCommandLives extends QuestCommandBase
 			throw getException(command);
 		}
 	}
+	
+	@Override
+	public boolean isArgUsername(String[] args, int index)
+	{
+		return index == 3;
+	}
 }

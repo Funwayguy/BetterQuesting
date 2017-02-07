@@ -73,4 +73,9 @@ public abstract class QuestCommandBase
 		
 		return playerID;
 	}
+	
+	public boolean isArgUsername(String[] args, int index)
+	{
+		return false;
+	}
 }

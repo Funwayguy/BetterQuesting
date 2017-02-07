@@ -105,4 +105,10 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
+	
+	@Override
+	public boolean isArgUsername(String[] args, int index)
+	{
+		return index == 2;
+	}
 }
