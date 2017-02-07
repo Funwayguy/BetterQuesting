@@ -592,7 +592,19 @@ public class QuestInstance implements IQuest
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
-				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", (time/60) + "m " + df.format(time%60) + "s"));
+				String timeTxt = "";
+				
+				if(time >= 3600)
+				{
+					timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
+				} else if(time >= 60)
+				{
+					timeTxt += (time/60) + "m ";
+				}
+				
+				timeTxt += df.format(time%60) + "s";
+				
+				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
 			}
 		} else if(!isUnlocked(playerID))
 		{
@@ -643,8 +655,21 @@ public class QuestInstance implements IQuest
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
 		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
 		{
+			long time = qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/20;
 			DecimalFormat df = new DecimalFormat("00");
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/60) + "m " + df.format(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()%60) + "s"));
+			String timeTxt = "";
+			
+			if(time >= 3600)
+			{
+				timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
+			} else if(time >= 60)
+			{
+				timeTxt += (time/60) + "m ";
+			}
+			
+			timeTxt += df.format(time%60) + "s";
+			
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
 		} else
 		{
 			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", false));

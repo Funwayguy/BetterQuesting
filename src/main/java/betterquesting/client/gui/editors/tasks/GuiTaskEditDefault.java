@@ -19,7 +19,8 @@ import com.google.gson.JsonObject;
 public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<JsonObject>
 {
 	private final IQuest quest;
-	private final ITask task;
+	private final int qID;
+	private final int tID;
 	private final JsonObject json;
 	private boolean isDone = false;
 	
@@ -27,7 +28,8 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<Jso
 	{
 		super(parent, task.getUnlocalisedName());
 		this.quest = quest;
-		this.task = task;
+		this.qID = QuestDatabase.INSTANCE.getKey(quest);
+		this.tID = quest.getTasks().getKey(task);
 		this.json = task.writeToJson(new JsonObject(), EnumSaveType.CONFIG);
 		this.isDone = false;
 	}
@@ -40,7 +42,15 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<Jso
 		if(!isDone)
 		{
 			this.isDone = true;
-			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation(), this));
+			ITask task = quest.getTasks().getValue(tID);
+			
+			if(task != null)
+			{
+				this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation(), this));
+			} else
+			{
+				this.mc.displayGuiScreen(parent);
+			}
 		} else
 		{
 			this.mc.displayGuiScreen(parent);
@@ -50,8 +60,13 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<Jso
 	@Override
 	public void setValue(JsonObject value)
 	{
-		task.readFromJson(value, EnumSaveType.CONFIG);
-		this.SendChanges();
+		ITask task = quest.getTasks().getValue(tID);
+		
+		if(task != null)
+		{
+			task.readFromJson(value, EnumSaveType.CONFIG);
+			this.SendChanges();
+		}
 	}
 	
 	public void SendChanges()
@@ -61,7 +76,7 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<Jso
 		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setInteger("questID", qID);
 		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
