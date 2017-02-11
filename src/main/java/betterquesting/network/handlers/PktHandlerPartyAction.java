@@ -8,11 +8,13 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyInstance;
 import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.NameCache;
 
 public class PktHandlerPartyAction implements IPacketHandler
 {
@@ -78,7 +80,8 @@ public class PktHandlerPartyAction implements IPacketHandler
 			tarUser = UUID.fromString(data.getString("target"));
 		} catch(Exception e)
 		{
-			tarUser = null;
+			// In case an unrecognized name was used instead of their UUID
+			tarUser = NameCache.INSTANCE.getUUID(data.getString("target"));
 		}
 		
 		if(action == EnumPacketAction.ADD && tarParty == null) // Create new party if not currently in a party
@@ -86,7 +89,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 			String name = data.getString("name");
 			name = name.length() > 0? name : "New Party";
 			IParty nParty = new PartyInstance();
-			nParty.setName(name);
+			nParty.getProperties().setProperty(NativeProps.NAME, name);
 			nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(nParty, PartyManager.INSTANCE.nextKey());
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());

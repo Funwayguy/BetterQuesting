@@ -103,6 +103,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	
 	public void setupEntry(int px, int width)
 	{
+		btnList.clear();
 		int margin = px + (width/3);
 		int ctrlSpace = MathHelper.ceiling_float_int((width/3F)*2F);
 		int n = 0;
@@ -154,11 +155,13 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 			} else if(jp.isNumber())
 			{
 				GuiNumberField num = new GuiNumberField(mc.fontRendererObj, margin + 1, 0, ctrlSpace - n - 2, 18);
+				num.setMaxStringLength(Integer.MAX_VALUE);
 				num.setText(jp.getAsNumber().toString());
 				txtMain = num;
 			} else
 			{
 				GuiBigTextField txt = new GuiBigTextField(mc.fontRendererObj, margin + 1, 1, ctrlSpace - n - 2, 18);
+				txt.setMaxStringLength(Integer.MAX_VALUE);
 				txt.setText(jp.getAsString());
 				
 				if(json.isJsonObject())

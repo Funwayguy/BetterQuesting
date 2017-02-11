@@ -10,6 +10,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
@@ -32,9 +33,26 @@ public class QuestLine implements IQuestLine
 	public QuestLine()
 	{
 		parentDB = QuestingAPI.getAPI(ApiReference.LINE_DB);
-		// Init some stuff
-		this.info.setProperty(NativeProps.BG_IMAGE, "");
-		this.info.setProperty(NativeProps.BG_SIZE, 256);
+		
+		setupProps();
+	}
+	
+	private void setupProps()
+	{
+		this.setupValue(NativeProps.NAME, "New Quest Line");
+		this.setupValue(NativeProps.DESC, "No Description");
+		this.setupValue(NativeProps.BG_IMAGE);
+		this.setupValue(NativeProps.BG_SIZE);
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop)
+	{
+		this.setupValue(prop, prop.getDefault());
+	}
+	
+	private <T> void setupValue(IPropertyType<T> prop, T def)
+	{
+		info.setProperty(prop, info.getProperty(prop, def));
 	}
 	
 	@Override
@@ -46,29 +64,13 @@ public class QuestLine implements IQuestLine
 	@Override
 	public String getUnlocalisedName()
 	{
-		String def = "New Quest Line";
-		
-		if(!info.hasProperty(NativeProps.NAME))
-		{
-			info.setProperty(NativeProps.NAME, def);
-			return def;
-		}
-		
-		return info.getProperty(NativeProps.NAME, def);
+		return info.getProperty(NativeProps.NAME, "New Quest Line");
 	}
 	
 	@Override
 	public String getUnlocalisedDescription()
 	{
-		String def = "No Description";
-		
-		if(!info.hasProperty(NativeProps.DESC))
-		{
-			info.setProperty(NativeProps.DESC, def);
-			return def;
-		}
-		
-		return info.getProperty(NativeProps.DESC, def);
+		return info.getProperty(NativeProps.DESC, "No Description");
 	}
 	
 	@Override
@@ -255,5 +257,7 @@ public class QuestLine implements IQuestLine
 				}
 			}
 		}
+		
+		this.setupProps();
 	}
 }

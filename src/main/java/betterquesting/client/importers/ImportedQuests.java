@@ -40,6 +40,7 @@ public class ImportedQuests implements IQuestDatabase
 			return false;
 		}
 		
+		value.setParentDatabase(this);
 		database.put(key, value);
 		return true;
 	}
@@ -143,7 +144,7 @@ public class ImportedQuests implements IQuestDatabase
 			}
 			
 			IQuest quest = getValue(qID);
-			quest = quest != null? quest : new QuestInstance();
+			quest = quest != null? quest : this.createNew();
 			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
 			database.put(qID, quest);
 		}

@@ -34,6 +34,7 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
+import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
@@ -60,7 +61,13 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
+			{
+				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+			} else
+			{
+				mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			}
 		}
 	}
 	
@@ -131,6 +138,14 @@ public class EventHandler
 			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			
 			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
+		    
+		    // === LIVES ===
+		    
+		    JsonObject jsonL = new JsonObject();
+		    
+		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		    
+		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), jsonL);
 		    
 		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
 		}
@@ -276,6 +291,18 @@ public class EventHandler
 	    
 	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
 	    
+	    // === LIVES ===
+	    
+	    File f5 = new File(BQ_Settings.curWorldDir, "LifeDatabase.json");
+	    JsonObject j5 = new JsonObject();
+	    
+	    if(f5.exists())
+	    {
+	    	j5 = JsonHelper.ReadFromFile(f5);
+	    }
+	    
+	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.CONFIG);
+	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + PartyManager.INSTANCE.size() + " parties");
@@ -309,7 +336,7 @@ public class EventHandler
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
-			int lives = (party == null || !party.getShareLives())? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -348,7 +375,7 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(((EntityPlayer)event.getEntityLiving()));
 			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
-			if(party == null || !party.getShareLives())
+			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
 			{
 				int lives = LifeDatabase.INSTANCE.getLives(uuid);
 				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);

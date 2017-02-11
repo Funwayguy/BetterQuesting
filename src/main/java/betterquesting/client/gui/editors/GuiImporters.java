@@ -104,7 +104,8 @@ public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File
 				this.embedded.remove(impGui);
 			}
 			
-			this.embedded.add(new GuiImporterEmbedded(imp, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 84));
+			impGui = new GuiImporterEmbedded(imp, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 84);
+			this.embedded.add(impGui);
 		}
 	}
 

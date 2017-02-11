@@ -17,6 +17,9 @@ version = "CI_MOD_VERSION"
 group= "betterquesting" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BetterQuesting"
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 minecraft {
     version = "1.11-13.19.0.2162"
     mappings = "snapshot_20161111"
