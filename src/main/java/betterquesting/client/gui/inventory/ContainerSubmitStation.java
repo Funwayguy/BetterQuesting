@@ -61,8 +61,8 @@ public class ContainerSubmitStation extends Container
             for (int j = 0; j < 9; ++j)
             {
             	Slot s = slots.get(idx);
-            	s.xDisplayPosition = j * 18 + x;
-            	s.yDisplayPosition = i * 18 + y;
+            	s.xPos = j * 18 + x;
+            	s.yPos = i * 18 + y;
             	idx++;
             }
         }
@@ -70,8 +70,8 @@ public class ContainerSubmitStation extends Container
         for (int i = 0; i < 9; ++i)
         {
         	Slot s = slots.get(idx);
-        	s.xDisplayPosition = i * 18 + x;
-        	s.yDisplayPosition = 58 + y;
+        	s.xPos = i * 18 + x;
+        	s.yPos = 58 + y;
         	idx++;
         }
 	}
@@ -124,7 +124,7 @@ public class ContainerSubmitStation extends Container
                 return null;
             }
 
-            if (itemstack1.func_190916_E() == 0)
+            if (itemstack1.getCount() == 0)
             {
                 slot.putStack((ItemStack)null);
             }
@@ -133,12 +133,12 @@ public class ContainerSubmitStation extends Container
                 slot.onSlotChanged();
             }
 
-            if (itemstack1.func_190916_E() == itemstack.func_190916_E())
+            if (itemstack1.getCount() == itemstack.getCount())
             {
                 return null;
             }
             
-            slot.func_190901_a(player, itemstack1);
+            slot.onTake(player, itemstack1);
         }
 
         return itemstack;
@@ -147,20 +147,20 @@ public class ContainerSubmitStation extends Container
 	public void moveSubmitSlot(int x, int y)
 	{
 		Slot s = (Slot)inventorySlots.get(0);
-		s.xDisplayPosition = x;
-		s.yDisplayPosition = y;
+		s.xPos = x;
+		s.yPos = y;
 	}
 	
 	public void moveReturnSlot(int x, int y)
 	{
 		Slot s = (Slot)inventorySlots.get(1);
-		s.xDisplayPosition = x;
-		s.yDisplayPosition = y;
+		s.xPos = x;
+		s.yPos = y;
 	}
 	
 	@Override
 	public boolean canInteractWith(EntityPlayer player)
 	{
-		return tile.isUseableByPlayer(player);
+		return tile.isUsableByPlayer(player);
 	}
 }

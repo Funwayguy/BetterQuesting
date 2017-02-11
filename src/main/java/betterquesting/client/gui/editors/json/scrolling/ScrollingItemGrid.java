@@ -48,10 +48,10 @@ public class ScrollingItemGrid extends GuiElement implements IScrollingEntry
 		}
 		
 		columns = Math.max(1, width/18);
-		rows = MathHelper.ceiling_float_int(itemList.size()/(float)columns);
+		rows = MathHelper.ceil(itemList.size()/(float)columns);
 		
 		int sr = (upperBounds - py)/18;
-		int er = MathHelper.ceiling_float_int((lowerBounds - py)/18F);
+		int er = MathHelper.ceil((lowerBounds - py)/18F);
 		
 		for(int j = sr; j < rows && j < er; j++)
 		{
@@ -71,7 +71,7 @@ public class ScrollingItemGrid extends GuiElement implements IScrollingEntry
 				mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 				drawTexturedModalRect(px + i * 18, py + j * 18, 0, 48, 18, 18);
 				GlStateManager.enableDepth();
-				RenderUtils.RenderItemStack(mc, stack, px + i * 18 + 1, py + j * 18 + 1, stack.func_190916_E() > 1? "" + stack.func_190916_E() : "");
+				RenderUtils.RenderItemStack(mc, stack, px + i * 18 + 1, py + j * 18 + 1, stack.getCount() > 1? "" + stack.getCount() : "");
 				GlStateManager.disableDepth();
 				GlStateManager.popMatrix();
 			}
@@ -85,7 +85,7 @@ public class ScrollingItemGrid extends GuiElement implements IScrollingEntry
 		
 		if(stack != null)
 		{
-			this.drawTooltip(stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips), mx, my, mc.fontRendererObj);
+			this.drawTooltip(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips), mx, my, mc.fontRendererObj);
 		}
 	}
 	

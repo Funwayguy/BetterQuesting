@@ -58,7 +58,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		}
 		
 		activeQuests.clear();
-		UUID pID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		UUID pID = QuestingAPI.getQuestingUUID(mc.player);
 		activeQuests.addAll(QuestCache.INSTANCE.getActiveQuests(pID));
 		Iterator<IQuest> qit = activeQuests.iterator();
 		
@@ -205,7 +205,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			RefreshValues();
 		} else if(button.id == 5) // Select
 		{
-			tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quest, task);
+			tile.setupTask(QuestingAPI.getQuestingUUID(mc.player), quest, task);
 			tile.SyncTile(null);
 			RefreshValues();
 		} else if(button.id == 6)
@@ -282,7 +282,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.thePlayer));
+		btnSelect.enabled = task != null && (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.player));
 	}
 	
 	/**

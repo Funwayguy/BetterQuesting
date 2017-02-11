@@ -167,7 +167,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		
 		if(qTooltip != null && (curTool == null || curTool.allowTooltips()))
 		{
-			curTooltip = qTooltip.getTooltip(mc.thePlayer);
+			curTooltip = qTooltip.getTooltip(mc.player);
 		} else
 		{
 			curTooltip = null;
@@ -184,8 +184,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GlStateManager.scale(scale, scale, scale);
-			drawString(mc.fontRendererObj, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + 4)/scale), getTextColor(), false);
-			drawString(mc.fontRendererObj, zoom + "%", MathHelper.ceiling_float_int((posX + 4)/scale), MathHelper.ceiling_float_int((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), getTextColor(), false);
+			drawString(mc.fontRendererObj, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + 4)/scale), getTextColor(), false);
+			drawString(mc.fontRendererObj, zoom + "%", MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), getTextColor(), false);
 			GlStateManager.popMatrix();
 		}
 		
@@ -245,7 +245,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	
 	private void setZoom(int value)
 	{
-		zoom = MathHelper.clamp_int(value, 50, 200);
+		zoom = MathHelper.clamp(value, 50, 200);
 		
 		if(curTool == null || !curTool.allowZoom())
 		{
@@ -341,8 +341,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		int zmy = (int)Math.abs(sy2/2 - (maxY + 32)/2);
 		int zox = sx2/2 - (maxX + 32)/2 + 16;
 		int zoy = sy2/2 - (maxY + 32)/2 + 16;
-		scrollX = MathHelper.clamp_int(scrollX, -zmx + zox, zmx + zox);
-		scrollY = MathHelper.clamp_int(scrollY, -zmy + zoy, zmy + zoy);
+		scrollX = MathHelper.clamp(scrollX, -zmx + zox, zmx + zox);
+		scrollY = MathHelper.clamp(scrollY, -zmy + zoy, zmy + zoy);
 	}
 	
 	// Methods below are to assist with editing tools

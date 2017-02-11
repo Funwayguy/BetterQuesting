@@ -61,7 +61,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			return;
 		}
 		
-		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
 		status = NameCache.INSTANCE.isOP(playerID)? EnumPartyStatus.OWNER : party.getStatus(playerID);
 		heart = new ItemStack(BetterQuesting.extraLife);
@@ -98,7 +98,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	@Override
 	public void refreshGui()
 	{
-		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
 		this.party = PartyManager.INSTANCE.getUserParty(playerID);
 		
@@ -167,7 +167,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-			tags.setString("target", QuestingAPI.getQuestingUUID(mc.thePlayer).toString());
+			tags.setString("target", QuestingAPI.getQuestingUUID(mc.player).toString());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id == 3 && status.ordinal() >= 3) // Share life
 		{
@@ -237,14 +237,14 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, memList.size() - maxRows));
+    		rightScroll = Math.max(0, MathHelper.clamp(rightScroll + scroll, 0, memList.size() - maxRows));
     		RefreshColumns();
         }
 	}
 	
 	public void SendChanges() // Use this if the name is being edited
 	{
-		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(mc.thePlayer)))
+		if(status != EnumPartyStatus.OWNER && !NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(mc.player)))
 		{
 			return; // Not allowed to edit the party (Operators may force edit)
 		}
@@ -260,7 +260,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	
 	public void RefreshColumns()
 	{
-		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, memList.size() - maxRows));
+		rightScroll = Math.max(0, MathHelper.clamp(rightScroll, 0, memList.size() - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		

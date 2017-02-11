@@ -36,7 +36,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 		 * If the user is OP than they will have owner permissions of any party
 		 * Non OPs can only edit the party they own.
 		 */
-		boolean isOp = sender.worldObj.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
+		boolean isOp = sender.world.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
 		

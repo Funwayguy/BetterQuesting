@@ -67,11 +67,11 @@ public class QuestNotification
 		float scale = width > 600? 1.5F : 1F;
 		
 		GlStateManager.scale(scale, scale, scale);
-		width = MathHelper.ceiling_float_int(width/scale);
-		height = MathHelper.ceiling_float_int(height/scale);
+		width = MathHelper.ceil(width/scale);
+		height = MathHelper.ceil(height/scale);
 		
 		float alpha = notice.getTime() <= 4F? Math.min(1F, notice.getTime()) : Math.max(0F, 5F - notice.getTime());
-		alpha = MathHelper.clamp_float(alpha, 0.02F, 1F);
+		alpha = MathHelper.clamp(alpha, 0.02F, 1F);
 		int color = new Color(1F, 1F, 1F, alpha).getRGB();
 		
 		GlStateManager.color(1F, 1F, 1F, alpha);

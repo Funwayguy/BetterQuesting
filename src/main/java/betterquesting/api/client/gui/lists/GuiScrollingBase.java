@@ -71,7 +71,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			myDrag = my;
 		}
 		
-		scroll = MathHelper.clamp_int(scroll, 0, maxScroll);
+		scroll = MathHelper.clamp(scroll, 0, maxScroll);
 		
 		GlStateManager.pushMatrix();
 		
@@ -181,7 +181,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 		{
 			int maxScroll = Math.max(0, getListHeight() - height);
 			
-			scroll = MathHelper.clamp_int(scroll + (dx * getScrollSpeed()), 0, maxScroll);
+			scroll = MathHelper.clamp(scroll + (dx * getScrollSpeed()), 0, maxScroll);
 		}
 	}
 	
@@ -259,6 +259,6 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 	public void setScrollPos(int value)
 	{
 		int maxScroll = Math.max(0, getListHeight() - height);
-		scroll = MathHelper.clamp_int(value, 0, maxScroll);
+		scroll = MathHelper.clamp(value, 0, maxScroll);
 	}
 }

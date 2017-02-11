@@ -70,7 +70,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return;
 		}
 		
-		playerLives.put(uuid, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
+		playerLives.put(uuid, MathHelper.clamp(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return;
 		}
 		
-		partyLives.put(id, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
+		partyLives.put(id, MathHelper.clamp(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
 	}
 	
 	@Override

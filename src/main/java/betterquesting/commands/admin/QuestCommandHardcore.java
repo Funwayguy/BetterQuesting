@@ -71,7 +71,7 @@ public class QuestCommandHardcore extends QuestCommandBase
 		}
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, flag);
-		sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
+		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

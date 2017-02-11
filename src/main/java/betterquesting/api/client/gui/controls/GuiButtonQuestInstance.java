@@ -47,12 +47,12 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	@Override
     public void drawButton(Minecraft mc, int mx, int my)
     {
-		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
 		if(QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.HARDCORE))
 		{
 			this.enabled = this.visible = true;
-		} else if(mc.thePlayer == null)
+		} else if(mc.player == null)
 		{
 			this.enabled = false;
 			this.visible = true;
@@ -88,14 +88,14 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         		double dx = Math.cos(la) * 16;
         		double dy = Math.sin(la) * 16;
         		
-        		lsx += MathHelper.clamp_float((float)dx, -lsw, lsw);
-        		lsy += MathHelper.clamp_float((float)dy, -lsh, lsh);
+        		lsx += MathHelper.clamp((float)dx, -lsw, lsw);
+        		lsy += MathHelper.clamp((float)dy, -lsh, lsh);
         		
         		la = Math.atan2(lsy - ley, lsx - lex);
         		dx = Math.cos(la) * 16;
         		dy = Math.sin(la) * 16;
-        		lex += MathHelper.clamp_float((float)dx, -lew, lew);
-        		ley += MathHelper.clamp_float((float)dy, -leh, leh);        		
+        		lex += MathHelper.clamp((float)dx, -lew, lew);
+        		ley += MathHelper.clamp((float)dy, -leh, leh);        		
         		currentTheme().getRenderer().drawLine(quest, playerID, lsx, lsy, lex, ley, mx, my, 1F);
         	}
     		
@@ -107,7 +107,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
 	
 	public boolean isQuestShown(UUID uuid)
 	{
-		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.thePlayer) || quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.ALWAYS)
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player) || quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.ALWAYS)
 		{
 			return true;
 		} else if(quest.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)

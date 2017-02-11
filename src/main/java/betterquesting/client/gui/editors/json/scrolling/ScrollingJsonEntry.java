@@ -105,7 +105,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	{
 		btnList.clear();
 		int margin = px + (width/3);
-		int ctrlSpace = MathHelper.ceiling_float_int((width/3F)*2F);
+		int ctrlSpace = MathHelper.ceil((width/3F)*2F);
 		int n = 0;
 		
 		if(allowEdit && je != null)
@@ -274,7 +274,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 					mc.displayGuiScreen(new GuiJsonFluidSelection(mc.currentScreen, new JsonFluidCallback(jo), JsonHelper.JsonToFluidStack(jo)));
 				} else if(JsonHelper.isEntity(jo))
 				{
-					mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(jo), JsonHelper.JsonToEntity(jo, mc.theWorld, true)));
+					mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(jo), JsonHelper.JsonToEntity(jo, mc.world, true)));
 				}
 			} else if(btn.id == 1) // Advanced
 			{

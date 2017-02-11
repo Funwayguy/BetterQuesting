@@ -61,7 +61,7 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 		
 		btnSet = new GuiButtonThemed(4, guiLeft + 16, guiTop + 16, 16, 16, "", true);
 		btnSet.setIcon(new ResourceLocation("betterquesting:textures/gui/editor_icons.png"), 0, 16, 16, 16, false);
-		btnSet.enabled = btnSet.visible = QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
+		btnSet.enabled = btnSet.visible = QuestSettings.INSTANCE.canUserEdit(mc.player);
 		this.buttonList.add(btnSet);
 	}
 	
@@ -103,7 +103,7 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 			mc.displayGuiScreen(new GuiQuestLinesMain(this));
 		} else if(button.id == 2)
 		{
-			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.thePlayer));
+			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.player));
 			
 			if(party != null)
 			{

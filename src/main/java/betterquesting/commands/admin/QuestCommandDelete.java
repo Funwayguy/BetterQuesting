@@ -61,7 +61,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 		    
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.delete.all"));
+			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.all"));
 		} else
 		{
 			try
@@ -71,7 +71,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestDatabase.INSTANCE.removeKey(id);
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getUnlocalisedName())));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getUnlocalisedName())));
 			} catch(Exception e)
 			{
 				throw getException(command);

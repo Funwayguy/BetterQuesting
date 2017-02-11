@@ -41,7 +41,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
      */
     public void initGui()
     {
-    	UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+    	UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
     	
     	IParty party = PartyManager.INSTANCE.getUserParty(playerID);
     	
@@ -55,7 +55,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     	
     	this.buttonList.clear();
 
-        if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0))
+        if (this.mc.world.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0))
         {
             this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.spectate")));
             this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen." + (this.mc.isIntegratedServerRunning() ? "deleteWorld" : "leaveServer"))));
@@ -87,12 +87,12 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         switch (button.id)
         {
             case 0:
-                this.mc.thePlayer.respawnPlayer();
+                this.mc.player.respawnPlayer();
                 this.mc.displayGuiScreen((GuiScreen)null);
                 break;
             case 1:
 
-                if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled())
+                if (this.mc.world.getWorldInfo().isHardcoreModeEnabled())
                 {
                     this.mc.displayGuiScreen(new GuiMainMenu());
                 }
@@ -109,14 +109,14 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
     {
         if (p_73878_1_)
         {
-            this.mc.theWorld.sendQuittingDisconnectingPacket();
+            this.mc.world.sendQuittingDisconnectingPacket();
         	// Send a custom BetterQuesting packet
             this.mc.loadWorld((WorldClient)null);
             this.mc.displayGuiScreen(new GuiMainMenu());
         }
         else
         {
-            this.mc.thePlayer.respawnPlayer();
+            this.mc.player.respawnPlayer();
             this.mc.displayGuiScreen((GuiScreen)null);
         }
     }
@@ -129,7 +129,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
         GlStateManager.pushMatrix();
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
-        boolean flag = this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0);
+        boolean flag = this.mc.world.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0);
         String s = flag ? I18n.format("deathScreen.title.hardcore") : I18n.format("deathScreen.title");
         this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
         GlStateManager.popMatrix();
@@ -139,7 +139,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
             this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
         }
 
-        this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.thePlayer.getScore(), this.width / 2, 100, 16777215);
+        this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.player.getScore(), this.width / 2, 100, 16777215);
         
         if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
         {

@@ -50,10 +50,10 @@ public class ScrollingFluidGrid extends GuiElement implements IScrollingEntry
 		}
 		
 		columns = Math.max(1, width/18);
-		rows = MathHelper.ceiling_float_int(itemList.size()/(float)columns);
+		rows = MathHelper.ceil(itemList.size()/(float)columns);
 		
 		int sr = (upperBounds - py)/18;
-		int er = MathHelper.ceiling_float_int((lowerBounds - py)/18F);
+		int er = MathHelper.ceil((lowerBounds - py)/18F);
 		
 		for(int j = sr; j < rows && j < er; j++)
 		{

@@ -28,7 +28,7 @@ public class UpdateNotification
 		
 		if(BetterQuesting.HASH == "CI_MOD_" + "HASH")
 		{
-			event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "THIS COPY OF " + BetterQuesting.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
+			event.player.sendMessage(new TextComponentString(TextFormatting.RED + "THIS COPY OF " + BetterQuesting.NAME.toUpperCase() + " IS NOT FOR PUBLIC USE!"));
 			return;
 		}
 		
@@ -74,7 +74,7 @@ public class UpdateNotification
 			
 			if(!hasLog || data.length < 2)
 			{
-				event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
+				event.player.sendMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
 				BetterQuesting.logger.log(Level.ERROR, "An error has occured while checking " + BetterQuesting.NAME + " version! (hasLog: " + hasLog + ", data: " + data.length + ")");
 				return;
 			} else
@@ -89,25 +89,25 @@ public class UpdateNotification
 			
 			if(hasUpdate)
 			{
-				event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "Update for " + BetterQuesting.NAME + " available!"));
-				event.player.addChatMessage(new TextComponentString("Download: http://minecraft.curseforge.com/projects/better-questing"));
+				event.player.sendMessage(new TextComponentString(TextFormatting.RED + "Update for " + BetterQuesting.NAME + " available!"));
+				event.player.sendMessage(new TextComponentString("Download: http://minecraft.curseforge.com/projects/better-questing"));
 				
 				for(int i = 2; i < data.length; i++)
 				{
 					if(i > 5)
 					{
-						event.player.addChatMessage(new TextComponentString("and " + (data.length - 5) + " more..."));
+						event.player.sendMessage(new TextComponentString("and " + (data.length - 5) + " more..."));
 						break;
 					} else
 					{
-						event.player.addChatMessage(new TextComponentString("- " + data[i].trim()));
+						event.player.sendMessage(new TextComponentString("- " + data[i].trim()));
 					}
 				}
 			}
 			
 		} catch(Exception e)
 		{
-			event.player.addChatMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
+			event.player.sendMessage(new TextComponentString(TextFormatting.RED + "An error has occured while checking " + BetterQuesting.NAME + " version!"));
 			BetterQuesting.logger.log(Level.ERROR, "An error has occured while checking " + BetterQuesting.NAME + " version!", e);
 			return;
 		}

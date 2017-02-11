@@ -39,7 +39,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 		
 		if(this.entity == null)
 		{
-			this.entity = new EntityPig(Minecraft.getMinecraft().theWorld);
+			this.entity = new EntityPig(Minecraft.getMinecraft().world);
 		}
 	}
 	
@@ -90,7 +90,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 			callback.setValue(entity);
 		} else if(button.id == 1)
 		{
-			Entity tmpE = EntityList.createEntityByIDFromName(new ResourceLocation(button.displayString), this.mc.theWorld);
+			Entity tmpE = EntityList.createEntityByIDFromName(new ResourceLocation(button.displayString), this.mc.world);
 			
 			if(tmpE != null)
 			{
@@ -135,7 +135,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 			
 			try
 			{
-				RenderUtils.RenderEntity(this.guiLeft + this.sizeX/4, this.guiTop + this.sizeY/2 + MathHelper.ceiling_float_int(entity.height/2F*scale), (int)scale, angle, 0F, entity);
+				RenderUtils.RenderEntity(this.guiLeft + this.sizeX/4, this.guiTop + this.sizeY/2 + MathHelper.ceil(entity.height/2F*scale), (int)scale, angle, 0F, entity);
 			} catch(Exception e)
 			{
 			}

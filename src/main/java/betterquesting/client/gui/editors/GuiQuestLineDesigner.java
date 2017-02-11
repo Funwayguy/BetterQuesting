@@ -67,7 +67,7 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 		this.tabList.clear();
 		this.tabList.addAll(ToolboxRegistry.INSTANCE.getAllTools());
 		
-		this.tabIndex = MathHelper.clamp_int(tabIndex, 0, Math.max(0, tabList.size() - 1));
+		this.tabIndex = MathHelper.clamp(tabIndex, 0, Math.max(0, tabList.size() - 1));
 		
 		for(IToolboxTab tab : tabList)
 		{

@@ -89,10 +89,10 @@ public class QuestCommandReset extends QuestCommandBase
 			
 			if(uuid != null)
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
 			} else
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
 			}
 		} else
 		{
@@ -104,11 +104,11 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
 				} else
 				{
 					quest.resetAll(true);
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
 				}
 			} catch(Exception e)
 			{

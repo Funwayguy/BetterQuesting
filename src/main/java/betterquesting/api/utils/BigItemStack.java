@@ -20,8 +20,8 @@ public class BigItemStack
 	public BigItemStack(ItemStack stack)
 	{
 		baseStack = stack.copy();
-		this.stackSize = baseStack.func_190916_E();
-		baseStack.func_190920_e(1);
+		this.stackSize = stack.getCount();
+		baseStack.setCount(1);
 	}
 	
 	public BigItemStack(Block block)
@@ -99,7 +99,7 @@ public class BigItemStack
 		{
 			int size = Math.min(tmp1, baseStack.getMaxStackSize());
 			ItemStack stack = baseStack.copy();
-			stack.func_190920_e(size);
+			stack.setCount(size);
 			list.add(stack);
 			tmp1 -= size;
 		}

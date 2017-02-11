@@ -5,7 +5,7 @@ FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`
 CHANGE_LOG=`git log $DRONE_BRANCH -1 --pretty=format:"%B"`
 
 #See https://github.com/curseforge/api for how to retrieve game version numbers
-JSON=`printf '{"changelog": "%s", "gameVersions": [6317], "releaseType": "alpha"}' "$CHANGE_LOG"`
+JSON=`printf '{"changelog": "%s", "gameVersions": [6452], "releaseType": "beta"}' "$CHANGE_LOG"`
 
 echo "Uploading $FILE_NAME to Curse Forge..."
 echo
@@ -15,7 +15,7 @@ FID=${RESPONSE:6}
 FID=${FID:0:${#FID}-1}
 echo "Parent file ID: $FID"
 
-JSON=`printf '{"changelog": "%s", "parentFileID": %s, "releaseType": "release"}' "$CHANGE_LOG" "$FID"`
+JSON=`printf '{"changelog": "%s", "parentFileID": %s, "releaseType": "beta"}' "$CHANGE_LOG" "$FID"`
 
 FILE_NAME=`echo "BetterQuesting-deobf-CI_MOD_VERSION.jar"`
 FILE_LOCATION=`echo "./build/libs/$FILE_NAME"`

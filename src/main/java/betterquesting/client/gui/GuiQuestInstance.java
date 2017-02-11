@@ -76,14 +76,14 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
+		if(QuestSettings.INSTANCE.canUserEdit(mc.player))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonThemed btnEdit = new GuiButtonThemed(4, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
-		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.player);
 		this.buttonList.add(btnEdit);
 		
 		this.setTitle(I18n.format(quest.getUnlocalisedName()));
@@ -102,10 +102,10 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		btnRRight.enabled = btnRRight.visible && selRewardId < quest.getRewards().size() - 1;
 		
 		GuiButtonThemed btnDetect = new GuiButtonThemed(2, this.guiLeft + (sizeX/4)*3 - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.detect_submit"), true);
-		btnDetect.enabled = quest.canSubmit(mc.thePlayer);
+		btnDetect.enabled = quest.canSubmit(mc.player);
 		btnClaim = new GuiButtonThemed(5, this.guiLeft + (sizeX/4) - 50, this.guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.claim"), true);
 		btnClaim.visible = quest.getRewards().size() > 0;
-		btnClaim.enabled = btnClaim.visible && quest.canClaim(mc.thePlayer);
+		btnClaim.enabled = btnClaim.visible && quest.canClaim(mc.player);
 		this.buttonList.add(btnTLeft);
 		this.buttonList.add(btnTRight);
 		this.buttonList.add(btnRLeft);
@@ -209,7 +209,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
     {
         super.keyTyped(character, keyCode);
         
-		btnClaim.enabled = quest.canClaim(mc.thePlayer);
+		btnClaim.enabled = quest.canClaim(mc.player);
     }
 	
 	@Override
@@ -217,7 +217,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.handleMouseInput();
 		
-		btnClaim.enabled = quest.canClaim(mc.thePlayer);
+		btnClaim.enabled = quest.canClaim(mc.player);
 	}
 	
 	private void refreshEmbedded()

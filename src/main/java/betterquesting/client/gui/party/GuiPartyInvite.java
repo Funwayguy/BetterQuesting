@@ -48,7 +48,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 		super.initGui();
 		maxRows = (sizeY - 92)/20;
 		
-        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.connection;
+        NetHandlerPlayClient nethandlerplayclient = mc.player.connection;
         
         playerList.clear();
         playerList.addAll(NameCache.INSTANCE.getAllNames());
@@ -80,7 +80,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 	{
 		this.party = PartyManager.INSTANCE.getValue(partyID);
 		
-        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.connection;
+        NetHandlerPlayClient nethandlerplayclient = mc.player.connection;
         
         playerList.clear();
         playerList.addAll(NameCache.INSTANCE.getAllNames());
@@ -172,7 +172,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
         
         if(scroll != 0 && isWithin(mx, my, guiLeft, guiTop, sizeX, sizeY))
         {
-    		listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll*3, 0, playerList.size() - maxRows*3));
+    		listScroll = Math.max(0, MathHelper.clamp(listScroll + scroll*3, 0, playerList.size() - maxRows*3));
     		RefreshColumns();
         }
 	}
@@ -201,7 +201,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 	
 	public void RefreshColumns()
 	{
-		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, playerList.size() - maxRows*3));
+		listScroll = Math.max(0, MathHelper.clamp(listScroll, 0, playerList.size() - maxRows*3));
 
 		List<GuiButton> btnList = this.buttonList;
 		

@@ -84,7 +84,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
-		if(event.getEntityLiving().worldObj.isRemote)
+		if(event.getEntityLiving().world.isRemote)
 		{
 			return;
 		}
@@ -399,7 +399,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
+		if(!event.player.world.isRemote && event.player instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
@@ -438,10 +438,10 @@ public class EventHandler
 			{
 				if(lives == 1)
 				{
-					mpPlayer.addChatComponentMessage(new TextComponentString("This is your last life!"), true);
+					mpPlayer.sendStatusMessage(new TextComponentString("This is your last life!"), true);
 				} else
 				{
-					mpPlayer.addChatComponentMessage(new TextComponentString(lives + " lives remaining!"), true);
+					mpPlayer.sendStatusMessage(new TextComponentString(lives + " lives remaining!"), true);
 				}
 			}
 		}
@@ -450,7 +450,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event)
 	{
-		if(event.getEntityLiving().worldObj.isRemote || !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
+		if(event.getEntityLiving().world.isRemote || !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
 		{
 			return;
 		}
@@ -499,7 +499,7 @@ public class EventHandler
 	{
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		
-		if(server != null && (event.getCommand().getCommandName().equalsIgnoreCase("op") || event.getCommand().getCommandName().equalsIgnoreCase("deop")))
+		if(server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")))
 		{
 			NameCache.INSTANCE.updateNames(server);
 		}

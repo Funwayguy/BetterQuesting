@@ -26,12 +26,12 @@ public class QuestCommandSPHardcore extends QuestCommandBase
 		{
 			TextComponentTranslation cc = new TextComponentTranslation("commands.generic.permission");
 			cc.getStyle().setColor(TextFormatting.RED);
-			sender.addChatMessage(cc);
+			sender.sendMessage(cc);
 			return;
 		}
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, true);
-		sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation("options.on")));
+		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation("options.on")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

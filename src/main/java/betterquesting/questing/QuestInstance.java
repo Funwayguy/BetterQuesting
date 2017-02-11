@@ -189,7 +189,7 @@ public class QuestInstance implements IQuest
 				{
 					// Task logic will now run for repeat quest
 				}
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 && player.worldObj.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME).intValue())
+			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 && player.world.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME).intValue())
 			{
 				// Task is scheduled to reset
 				if(qInfo.getProperty(NativeProps.GLOBAL))
@@ -241,7 +241,7 @@ public class QuestInstance implements IQuest
 				return;
 			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, player.worldObj.getTotalWorldTime());
+				setComplete(playerID, player.world.getTotalWorldTime());
 				
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
@@ -307,7 +307,7 @@ public class QuestInstance implements IQuest
 			
 			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, player.worldObj.getTotalWorldTime());
+				setComplete(playerID, player.world.getTotalWorldTime());
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
@@ -383,7 +383,7 @@ public class QuestInstance implements IQuest
 			
 			for(UUID mem : party.getMembers())
 			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayerList())
+				for(EntityPlayerMP p : server.getPlayerList().getPlayers())
 				{
 					if(p != null && QuestingAPI.getQuestingUUID(p).equals(mem))
 					{
@@ -488,7 +488,7 @@ public class QuestInstance implements IQuest
 					this.completeUsers.add(entry);
 				}
 				
-				entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+				entry.setClaimed(true, player.world.getTotalWorldTime());
 			}
 		} else
 		{
@@ -500,7 +500,7 @@ public class QuestInstance implements IQuest
 				this.completeUsers.add(entry);
 			}
 			
-			entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+			entry.setClaimed(true, player.world.getTotalWorldTime());
 		}
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -693,7 +693,7 @@ public class QuestInstance implements IQuest
 			return 0;
 		} else
 		{
-			return (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() - (player.worldObj.getTotalWorldTime() - ue.getTimestamp()))/20L;
+			return (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() - (player.world.getTotalWorldTime() - ue.getTimestamp()))/20L;
 		}
 	}
 	

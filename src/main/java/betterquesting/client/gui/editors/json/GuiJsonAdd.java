@@ -196,7 +196,7 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 					}
 					case 6:
 					{
-						Entity entity = new EntityPig(mc.theWorld);
+						Entity entity = new EntityPig(mc.world);
 						newObj = JsonHelper.EntityToJson(entity, new JsonObject());
 						break;
 					}

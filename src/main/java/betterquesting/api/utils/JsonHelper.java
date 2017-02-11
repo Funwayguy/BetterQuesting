@@ -259,7 +259,7 @@ public class JsonHelper
 	public static boolean isEntity(JsonObject json)
 	{
 		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
-		return tags.hasKey("id") && EntityList.isStringValidEntityName(new ResourceLocation(tags.getString("id")));
+		return tags.hasKey("id") && EntityList.isRegistered(new ResourceLocation(tags.getString("id")));
 	}
 	
 	/**
@@ -362,7 +362,7 @@ public class JsonHelper
 		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
 		Entity entity = null;
 		
-		if(tags.hasKey("id") && EntityList.isStringValidEntityName(new ResourceLocation(tags.getString("id"))))
+		if(tags.hasKey("id") && EntityList.isRegistered(new ResourceLocation(tags.getString("id"))))
 		{
 			entity = EntityList.createEntityFromNBT(tags, world);
 		}

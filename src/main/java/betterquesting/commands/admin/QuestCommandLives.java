@@ -87,15 +87,15 @@ public class QuestCommandLives extends QuestCommandBase
 			if(playerID != null)
 			{
 				LifeDatabase.INSTANCE.setLives(playerID, value);
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
 			} else if(args.length == 3)
 			{
-				for(EntityPlayer p : server.getPlayerList().getPlayerList())
+				for(EntityPlayer p : server.getPlayerList().getPlayers())
 				{
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
 				}
 				
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
@@ -109,14 +109,14 @@ public class QuestCommandLives extends QuestCommandBase
 				
 				if(value >= 0)
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));
 				} else
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), pName, lives));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), pName, lives));
 				}
 			} else
 			{
-				for(EntityPlayer p : server.getPlayerList().getPlayerList())
+				for(EntityPlayer p : server.getPlayerList().getPlayers())
 				{
 					int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(p));
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
@@ -124,10 +124,10 @@ public class QuestCommandLives extends QuestCommandBase
 				
 				if(value >= 0)
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_all", value));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_all", value));
 				} else
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
 				}
 			}
 			
@@ -137,14 +137,14 @@ public class QuestCommandLives extends QuestCommandBase
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, value);
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
+			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
+			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else

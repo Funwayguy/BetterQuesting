@@ -80,10 +80,10 @@ public class QuestCommandDefaults extends QuestCommandBase
 			
 			if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save2", args[2] + ".json"));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.save2", args[2] + ".json"));
 			} else
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
 			}
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
@@ -98,17 +98,17 @@ public class QuestCommandDefaults extends QuestCommandBase
 				
 				if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load2", args[2] + ".json"));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.load2", args[2] + ".json"));
 				} else
 				{
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
 				}
 				
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			} else
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
 			}
 		} else if(args[1].equalsIgnoreCase("set") && args.length == 3)
 		{
@@ -123,10 +123,10 @@ public class QuestCommandDefaults extends QuestCommandBase
 				
 				JsonHelper.CopyPaste(qFile, defFile);
 				
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.set", args[2]));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.set", args[2]));
 			} else
 			{
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
 			}
 		} else
 		{

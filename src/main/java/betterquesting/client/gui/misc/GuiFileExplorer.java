@@ -206,8 +206,8 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 	
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, selected.size() - maxRowsL));
-    	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, contents.length - maxRowsR));
+		leftScroll = Math.max(0, MathHelper.clamp(leftScroll, 0, selected.size() - maxRowsL));
+    	rightScroll = Math.max(0, MathHelper.clamp(rightScroll, 0, contents.length - maxRowsR));
     	
 		List<GuiButton> btnList = this.buttonList;
 		
@@ -278,13 +278,13 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 		
 		if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, selected.size() - maxRowsL));
+    		leftScroll = Math.max(0, MathHelper.clamp(leftScroll + scroll, 0, selected.size() - maxRowsL));
     		refresh = true;
         }
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-        	rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, contents.length - maxRowsR));
+        	rightScroll = Math.max(0, MathHelper.clamp(rightScroll + scroll, 0, contents.length - maxRowsR));
         	refresh = true;
         }
         

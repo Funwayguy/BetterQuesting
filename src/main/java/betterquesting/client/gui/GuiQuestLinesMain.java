@@ -51,14 +51,14 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		bookmarked = null;
 		lineIDs = QuestLineDatabase.INSTANCE.getAllKeys();
 		
-		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
+		if(QuestSettings.INSTANCE.canUserEdit(mc.player))
 		{
 			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
 		GuiButtonThemed btnEdit = new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.edit"), true);
-		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
+		btnEdit.enabled = btnEdit.visible = QuestSettings.INSTANCE.canUserEdit(mc.player);
 		this.buttonList.add(btnEdit);
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
@@ -79,7 +79,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			}
 			
 			GuiButtonQuestLine btnLine = new GuiButtonQuestLine(2, 0, 0, 142, 20, line);
-			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.canUserEdit(mc.thePlayer);
+			btnLine.enabled = line.size() <= 0 || QuestSettings.INSTANCE.canUserEdit(mc.player);
 			
 			if(selected != null && QuestLineDatabase.INSTANCE.getKey(selected.getQuestLine()) == lID)
 			{
@@ -89,7 +89,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			if(!btnLine.enabled)
 			{
-				UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+				UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 				
 				for(GuiButtonQuestInstance p : btnLine.getButtonTree().getButtonTree())
 				{
@@ -178,7 +178,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 			
 			GuiButtonQuestInstance btn = tree.getButtonAt(rmx, rmy);
 			
-			if(btn != null && btn.visible && (btn.enabled || QuestSettings.INSTANCE.canUserEdit(mc.thePlayer)))
+			if(btn != null && btn.visible && (btn.enabled || QuestSettings.INSTANCE.canUserEdit(mc.player)))
 			{
 				btn.playPressSound(mc.getSoundHandler());
 				bookmarked = new GuiQuestInstance(this, btn.getQuest());

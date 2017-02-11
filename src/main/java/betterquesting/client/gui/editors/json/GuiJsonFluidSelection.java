@@ -113,9 +113,9 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
-		if(this.mc.thePlayer != null)
+		if(this.mc.player != null)
 		{
-			NonNullList<ItemStack> invoStacks = this.mc.thePlayer.inventory.mainInventory;
+			NonNullList<ItemStack> invoStacks = this.mc.player.inventory.mainInventory;
 			
 			int isx = (18 * 9);
 			int isy = (18 * 4);
@@ -140,7 +140,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 				
 				if(stack != null)
 				{
-					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.func_190916_E() > 1? stack.func_190916_E() : ""));
+					RenderUtils.RenderItemStack(mc, stack, x + 1, y + 1, "" + (stack.getCount() > 1? stack.getCount() : ""));
 					FluidStack fluidStack = FluidUtil.getFluidContained(stack);
 					
 					if(isWithin(mx, my, ipx + (int)((x + 1)*scale), ipy + (int)((y + 1)*scale), (int)(16*scale), (int)(16*scale), false) && fluidStack != null)
@@ -207,16 +207,16 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		{
 			this.stackSelect = gStack.copy();
 			numberBox.setText("" + stackSelect.amount);
-		} else if(this.mc.thePlayer != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
+		} else if(this.mc.player != null && this.isWithin(mx, my, ipx, ipy, (int)(18 * 9 * scale), (int)(18 * 4 * scale), false))
 		{
 			int idxSize = (int)(18*scale);
 			int sx = (mx - ipx)/idxSize;
 			int sy = (my - ipy)/idxSize;
 			int index = sx + (sy * 9);
 			
-			if(index >= 0 && index < this.mc.thePlayer.inventory.mainInventory.size())
+			if(index >= 0 && index < this.mc.player.inventory.mainInventory.size())
 			{
-				ItemStack invoStack = this.mc.thePlayer.inventory.mainInventory.get(index);
+				ItemStack invoStack = this.mc.player.inventory.mainInventory.get(index);
 				FluidStack fluidStack = invoStack == null? null : FluidUtil.getFluidContained(invoStack);
 				
 				if(fluidStack != null)

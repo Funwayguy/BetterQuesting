@@ -3,6 +3,7 @@ package betterquesting.blocks;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -10,6 +11,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
@@ -34,7 +36,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 {
 	private final IItemHandler itemHandler;
 	private final IFluidHandler fluidHandler;
-	private ItemStack[] itemStack = new ItemStack[2];
+	private NonNullList<ItemStack> itemStack = NonNullList.<ItemStack>withSize(2, ItemStack.EMPTY);
 	boolean needsUpdate = false;
 	public UUID owner;
 	public int questID;
@@ -93,47 +95,30 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public ItemStack getStackInSlot(int idx)
 	{
-		if(idx < 0 || idx >= itemStack.length)
+		if(idx < 0 || idx >= itemStack.size())
 		{
-			return null;
+			return ItemStack.EMPTY;
 		} else
 		{
-			return itemStack[idx];
+			return itemStack.get(idx);
 		}
 	}
 
 	@Override
 	public ItemStack decrStackSize(int idx, int amount)
 	{
-		if(idx < 0 || idx >= itemStack.length || itemStack[idx] == null)
-		{
-			return null;
-		}
-		
-        if (amount >= itemStack[idx].func_190916_E())
-        {
-            ItemStack itemstack = itemStack[idx];
-            itemStack[idx] = null;
-            return itemstack;
-        }
-        else
-        {
-            itemStack[idx].func_190917_f(-amount);
-            ItemStack cpy = itemStack[idx].copy();
-            cpy.func_190920_e(amount);
-            return cpy;
-        }
+		return ItemStackHelper.getAndSplit(itemStack, idx, amount);
 	}
 
 	@Override
 	public void setInventorySlotContents(int idx, ItemStack stack)
 	{
-		if(idx < 0 || idx >= itemStack.length)
+		if(idx < 0 || idx >= itemStack.size())
 		{
 			return;
 		}
 		
-		itemStack[idx] = stack;
+		itemStack.set(idx, stack);
 	}
 
 	@Override
@@ -155,7 +140,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer player)
+	public boolean isUsableByPlayer(EntityPlayer player)
 	{
 		if(owner == null || player.getUniqueID().equals(owner))
 		{
@@ -185,7 +170,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 		IItemTask t = getItemTask();
 		
-		return t != null && itemStack[1] == null && !((ITask)t).isComplete(owner) && t.canAcceptItem(owner, stack);
+		return t != null && itemStack.get(idx).isEmpty() && !((ITask)t).isComplete(owner) && t.canAcceptItem(owner, stack);
 	}
 
 	@Override
@@ -210,7 +195,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				reset();
-				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
+				world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
 			} else
 			{
 				needsUpdate = true;
@@ -279,7 +264,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public void update()
 	{
-		if(worldObj.isRemote)
+		if(world.isRemote)
 		{
 			return;
 		}
@@ -287,29 +272,29 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		IQuest q = getQuest();
 		IItemTask t = getItemTask();
 		
-		if(worldObj.getTotalWorldTime()%10 == 0)
+		if(world.getTotalWorldTime()%10 == 0)
 		{
-			if(owner != null && q != null && t != null && owner != null && itemStack[0] != null && itemStack[1] == null)
+			if(owner != null && q != null && t != null && owner != null && !itemStack.get(0).isEmpty() && itemStack.get(1).isEmpty())
 			{
-				ItemStack inStack = itemStack[0].copy();
+				ItemStack inStack = itemStack.get(0).copy();
 				
 				if(t.canAcceptItem(owner, inStack))
 				{
-					itemStack[0] = t.submitItem(owner, inStack); // Even if this returns an invalid item for submission it will be moved next pass
+					itemStack.set(0, t.submitItem(owner, inStack)); // Even if this returns an invalid item for submission it will be moved next pass
 					
 					if(((ITask)t).isComplete(owner))
 					{
 						PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 						reset();
-						worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
+						world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
 					} else
 					{
 						needsUpdate = true;
 					}
 				} else
 				{
-					itemStack[1] = inStack;
-					itemStack[0] = null;
+					itemStack.set(1, inStack);
+					itemStack.set(0, ItemStack.EMPTY);
 				}
 			}
 			
@@ -317,14 +302,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				needsUpdate = false;
 				
-				if(q != null && !worldObj.isRemote)
+				if(q != null && !world.isRemote)
 				{
 					PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
 				}
 			} else if(t != null && ((ITask)t).isComplete(owner))
 			{
 				reset();
-				worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
+				world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
 			}
 		}
 	}
@@ -394,11 +379,11 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
      */
     public void SyncTile(NBTTagCompound data)
     {
-    	if(!worldObj.isRemote)
+    	if(!world.isRemote)
     	{
     		this.readFromNBT(data);
     		this.markDirty();
-    		worldObj.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, worldObj.provider.getDimension(), getUpdatePacket());
+    		world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
     	} else
     	{
     		NBTTagCompound payload = new NBTTagCompound();
@@ -414,8 +399,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		super.readFromNBT(tags);
 		
-		itemStack[0] = new ItemStack(tags.getCompoundTag("input"));
-		itemStack[1] = new ItemStack(tags.getCompoundTag("ouput"));
+		ItemStackHelper.loadAllItems(tags.getCompoundTag("inventory"), itemStack);
 		
 		try
 		{
@@ -443,8 +427,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		tags.setString("owner", owner != null? owner.toString() : "");
 		tags.setInteger("questID", questID);
 		tags.setInteger("task", taskID);
-		tags.setTag("input", itemStack[0] != null? itemStack[0].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
-		tags.setTag("output", itemStack[1] != null? itemStack[1].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
+		
+		tags.setTag("inventory", ItemStackHelper.saveAllItems(new NBTTagCompound(), itemStack));
+		
 		return tags;
 	}
 
@@ -469,9 +454,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public ItemStack removeStackFromSlot(int index)
 	{
-		ItemStack stack = itemStack[index];
-		itemStack[index] = null;
-		return stack;
+		return ItemStackHelper.getAndRemove(itemStack, index);
 	}
 
 	@Override
@@ -494,7 +477,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public void clear()
 	{
-		itemStack = new ItemStack[2];
+		itemStack.clear();
 	}
 
 	@Override
@@ -532,16 +515,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     }
 
 	@Override
-	public boolean func_191420_l()
+	public boolean isEmpty()
 	{
-		for(ItemStack stack : itemStack)
-		{
-			if(stack == null || !stack.func_190926_b())
-			{
-				return false;
-			}
-		}
-		
-		return true;
+		return itemStack.isEmpty();
 	}
 }

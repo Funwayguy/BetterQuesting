@@ -111,7 +111,7 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 			
 			int idx = 0;
 			
-			int row = MathHelper.clamp_int((my - ly - 2)/font.FONT_HEIGHT, 0, tLines.size() - 1);
+			int row = MathHelper.clamp((my - ly - 2)/font.FONT_HEIGHT, 0, tLines.size() - 1);
 			String lastFormat = "";
 			
 			for(int i = 0; i < row; i++)

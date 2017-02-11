@@ -39,7 +39,7 @@ public abstract class QuestCommandBase
 	
 	public final WrongUsageException getException(CommandBase command)
 	{
-		String message = command.getCommandName() + " " + getCommand();
+		String message = command.getName() + " " + getCommand();
 		
 		if(getUsageSuffix().length() > 0)
 		{

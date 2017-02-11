@@ -14,7 +14,7 @@ public class JsonEntityCallback implements ICallback<Entity>
 	
 	public JsonEntityCallback(JsonObject json)
 	{
-		this(json, new EntityPig(Minecraft.getMinecraft().theWorld));
+		this(json, new EntityPig(Minecraft.getMinecraft().world));
 	}
 	
 	public JsonEntityCallback(JsonObject json, Entity stack)
@@ -30,7 +30,7 @@ public class JsonEntityCallback implements ICallback<Entity>
 			this.baseEntity = entity;
 		} else
 		{
-			this.baseEntity = new EntityPig(Minecraft.getMinecraft().theWorld);
+			this.baseEntity = new EntityPig(Minecraft.getMinecraft().world);
 		}
 		
 		json.entrySet().clear();

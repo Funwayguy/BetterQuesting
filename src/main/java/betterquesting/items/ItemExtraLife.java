@@ -57,7 +57,7 @@ public class ItemExtraLife extends Item
     	{
     		if(!player.capabilities.isCreativeMode)
     		{
-    			stack.func_190917_f(-1);
+    			stack.grow(-1);
     		}
     		
     		int lives = 0;
@@ -75,13 +75,13 @@ public class ItemExtraLife extends Item
     		{
     			if(!world.isRemote)
     			{
-    	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")), true);
+    	    		player.sendStatusMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")), true);
     			}
 	    		
 	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
     		}
 
-            player.worldObj.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
+            player.world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
     		
     		if(!world.isRemote)
     		{
@@ -93,11 +93,11 @@ public class ItemExtraLife extends Item
     				LifeDatabase.INSTANCE.setLives(party, lives + 1);
     			}
     			
-    			player.addChatComponentMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)), true);
+    			player.sendStatusMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)), true);
     		}
     	} else if(!world.isRemote)
     	{
-    		player.addChatComponentMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"), true);
+    		player.sendStatusMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"), true);
     	}
     	
 		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);

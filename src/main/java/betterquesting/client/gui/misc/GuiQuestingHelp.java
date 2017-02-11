@@ -90,14 +90,14 @@ public class GuiQuestingHelp extends GuiScreenThemed
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, sizeX/2, sizeY))
         {
-    		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll + scroll, 0, helpTopics.size() - maxRows));
+    		leftScroll = Math.max(0, MathHelper.clamp(leftScroll + scroll, 0, helpTopics.size() - maxRows));
     		RefreshColumns();
         }
 	}
 	
 	public void RefreshColumns()
 	{
-		leftScroll = Math.max(0, MathHelper.clamp_int(leftScroll, 0, helpTopics.size() - maxRows));
+		leftScroll = Math.max(0, MathHelper.clamp(leftScroll, 0, helpTopics.size() - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		

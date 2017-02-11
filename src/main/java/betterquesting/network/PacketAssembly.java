@@ -40,7 +40,7 @@ public final class PacketAssembly
 			CompressedStreamTools.writeCompressed(tags, baos);
 			byte[] data = baos.toByteArray();
 			baos.close();
-			int req = MathHelper.ceiling_float_int(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
+			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
 			
 			for(int p = 0; p < req; p++)
 			{

@@ -50,7 +50,7 @@ public class RenderUtils
 		
 		if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 		{
-			NonNullList<ItemStack> tmp = NonNullList.func_191196_a();
+			NonNullList<ItemStack> tmp = NonNullList.create();
 			
 			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.SEARCH, tmp);
 			

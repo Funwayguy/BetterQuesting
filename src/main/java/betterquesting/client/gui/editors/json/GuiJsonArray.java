@@ -248,7 +248,7 @@ public class GuiJsonArray extends GuiScreenThemed implements IVolatileScreen
 			}
 		}
 		
-		int mxPage = Math.max(MathHelper.ceiling_float_int(editables.size()/(float)maxRows), 1);
+		int mxPage = Math.max(MathHelper.ceil(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
 		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
 	}

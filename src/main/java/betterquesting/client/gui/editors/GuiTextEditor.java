@@ -329,7 +329,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft, this.guiTop, 116, sizeY))
         {
-        	listScroll = Math.max(0, MathHelper.clamp_int(listScroll + scroll, 0, TextFormatting.values().length - maxRows));
+        	listScroll = Math.max(0, MathHelper.clamp(listScroll + scroll, 0, TextFormatting.values().length - maxRows));
     		RefreshColumns();
         }
 	}
@@ -347,7 +347,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 	
 	public void RefreshColumns()
 	{
-		listScroll = Math.max(0, MathHelper.clamp_int(listScroll, 0, TextFormatting.values().length - maxRows));
+		listScroll = Math.max(0, MathHelper.clamp(listScroll, 0, TextFormatting.values().length - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		

@@ -8,13 +8,13 @@ import net.minecraft.server.MinecraftServer;
 public class BQ_CommandDebug extends CommandBase
 {
 	@Override
-	public String getCommandName()
+	public String getName()
 	{
 		return "bq_debug";
 	}
 	
 	@Override
-	public String getCommandUsage(ICommandSender sender)
+	public String getUsage(ICommandSender sender)
 	{
 		return "TO BE USED IN DEV ONLY";
 	}

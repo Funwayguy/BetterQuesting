@@ -48,7 +48,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
 		IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 		if(party != null)
@@ -95,7 +95,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		if(QuestSettings.INSTANCE.canUserEdit(mc.thePlayer))
+		if(QuestSettings.INSTANCE.canUserEdit(mc.player))
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
 			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());
@@ -205,14 +205,14 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
         
         if(scroll != 0 && isWithin(mx, my, this.guiLeft + sizeX/2, this.guiTop, sizeX/2, sizeY))
         {
-    		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll + scroll, 0, invites.size() - maxRows));
+    		rightScroll = Math.max(0, MathHelper.clamp(rightScroll + scroll, 0, invites.size() - maxRows));
     		RefreshColumns();
         }
 	}
 	
 	public void RefreshColumns()
 	{
-		rightScroll = Math.max(0, MathHelper.clamp_int(rightScroll, 0, invites.size() - maxRows));
+		rightScroll = Math.max(0, MathHelper.clamp(rightScroll, 0, invites.size() - maxRows));
 
 		List<GuiButton> btnList = this.buttonList;
 		

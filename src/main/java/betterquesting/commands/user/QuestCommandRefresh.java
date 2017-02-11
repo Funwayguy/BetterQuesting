@@ -33,7 +33,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), player);
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
+			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}
 }

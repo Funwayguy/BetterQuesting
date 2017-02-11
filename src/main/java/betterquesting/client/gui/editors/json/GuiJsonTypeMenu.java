@@ -62,7 +62,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 			
 			if(stack == null && JsonHelper.isEntity(json))
 			{
-				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true), Minecraft.getMinecraft().theWorld);
+				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true), Minecraft.getMinecraft().world);
 			}
 			
 			if(stack == null && entity == null && JsonHelper.isFluid(json))
@@ -82,7 +82,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		
 		if(entity == null)
 		{
-			entity = new EntityPig(Minecraft.getMinecraft().theWorld);
+			entity = new EntityPig(Minecraft.getMinecraft().world);
 		}
 		
 		if(fluid == null)

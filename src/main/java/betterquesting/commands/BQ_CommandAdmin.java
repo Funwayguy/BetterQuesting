@@ -32,13 +32,13 @@ public class BQ_CommandAdmin extends CommandBase
 	}
 	
 	@Override
-	public String getCommandName()
+	public String getName()
 	{
 		return "bq_admin";
 	}
 	
 	@Override
-	public String getCommandUsage(ICommandSender sender)
+	public String getUsage(ICommandSender sender)
 	{
 		String txt = "";
 		
@@ -65,7 +65,7 @@ public class BQ_CommandAdmin extends CommandBase
      * Adds the strings available in this command to the given list of tab completion options.
      */
 	@Override
-    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] strings, BlockPos pos)
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] strings, BlockPos pos)
     {
 		if(strings.length == 1)
 		{
@@ -100,7 +100,7 @@ public class BQ_CommandAdmin extends CommandBase
 	{
 		if(args.length < 1)
 		{
-			throw new WrongUsageException(this.getCommandUsage(sender));
+			throw new WrongUsageException(this.getUsage(sender));
 		}
 		
 		for(QuestCommandBase c : coms)
@@ -118,7 +118,7 @@ public class BQ_CommandAdmin extends CommandBase
 			}
 		}
 		
-		throw new WrongUsageException(this.getCommandUsage(sender));
+		throw new WrongUsageException(this.getUsage(sender));
 	}
 
     /**

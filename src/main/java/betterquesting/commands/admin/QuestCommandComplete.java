@@ -97,7 +97,7 @@ public class QuestCommandComplete extends QuestCommandBase
 				}
 			}
 			
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
+			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
 		} catch(Exception e)
 		{
 			throw getException(command);

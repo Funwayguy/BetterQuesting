@@ -21,9 +21,9 @@ public class SSItemHandler implements IItemHandlerModifiable
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 	{
-		if(stack == null)
+		if(stack == null || stack.isEmpty())
 		{
-			return null;
+			return stack;
 		} else if(!tile.isItemValidForSlot(slot, stack))
 		{
 			return stack;
@@ -37,33 +37,33 @@ public class SSItemHandler implements IItemHandlerModifiable
 			return stack;
 		}
 		
-		int inMax = Math.min(stack.func_190916_E(), stack.getMaxStackSize() - (ts1 == null? 0 : ts1.func_190916_E()));
+		int inMax = Math.min(stack.getCount(), stack.getMaxStackSize() - (ts1 == null? 0 : ts1.getCount()));
 		// Input stack
 		ItemStack ts2 = stack.copy();
-		ts2.func_190920_e(inMax);
+		ts2.setCount(inMax);
 		
 		if(!simulate)
 		{
-			if(ts1 == null)
+			if(ts1 == null || ts1.isEmpty())
 			{
 				ts1 = ts2;
 			} else
 			{
-				ts1.func_190917_f(ts2.func_190916_E());
+				ts1.grow(ts2.getCount());
 			}
 			
 			tile.setInventorySlotContents(slot, ts1);
 		}
 		
-		if(stack.func_190916_E() > inMax)
+		if(stack.getCount() > inMax)
 		{
 			// Left over stack
 			ItemStack ts3 = stack.copy();
-			ts3.func_190920_e(stack.func_190916_E() - inMax);
+			ts3.setCount(stack.getCount() - inMax);
 			return ts3;
 		}
 		
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class SSItemHandler implements IItemHandlerModifiable
 	{
 		if(slot != 1 || amount <= 0)
 		{
-			return null;
+			return ItemStack.EMPTY;
 		}
 		
 		if(!simulate)
@@ -81,15 +81,15 @@ public class SSItemHandler implements IItemHandlerModifiable
 		
 		ItemStack stack = getStackInSlot(slot);
 		
-		if(stack == null)
+		if(stack == null || stack.isEmpty())
 		{
-			return null;
+			return ItemStack.EMPTY;
 		}
 		
-		int outMax = Math.min(stack.func_190916_E(), amount);
+		int outMax = Math.min(stack.getCount(), amount);
 		
 		ItemStack ts1 = stack.copy();
-		ts1.func_190920_e(outMax);
+		ts1.setCount(outMax);
 		
 		return ts1;
 	}
@@ -104,5 +104,11 @@ public class SSItemHandler implements IItemHandlerModifiable
 	public ItemStack getStackInSlot(int idx)
 	{
 		return tile.getStackInSlot(idx);
+	}
+
+	@Override
+	public int getSlotLimit(int slot)
+	{
+		return 64;
 	}
 }
