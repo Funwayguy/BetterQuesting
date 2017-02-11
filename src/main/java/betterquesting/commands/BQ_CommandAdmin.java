@@ -120,4 +120,26 @@ public class BQ_CommandAdmin extends CommandBase
 		
 		throw new WrongUsageException(this.getCommandUsage(sender));
 	}
+
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
+	@Override
+    public boolean isUsernameIndex(String[] args, int index)
+    {
+		if(args.length < 1)
+		{
+			return false;
+		}
+		
+		for(QuestCommandBase c : coms)
+		{
+			if(c.getCommand().equalsIgnoreCase(args[0]))
+			{
+				return c.isArgUsername(args, index);
+			}
+		}
+		
+		return false;
+    }
 }

@@ -1,7 +1,11 @@
 package betterquesting.handlers;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
+import java.util.Map.Entry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,10 +15,12 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -30,8 +36,11 @@ import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.questing.tasks.ITickableTask;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.QuestCache;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
 import betterquesting.client.gui.GuiQuestLinesMain;
@@ -40,6 +49,7 @@ import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -81,9 +91,81 @@ public class EventHandler
 		
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
-			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
+			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
+			UUID uuid = QuestingAPI.getQuestingUUID(player);
+			
+			List<IQuest> syncList = new ArrayList<IQuest>();
+			List<QuestInstance> updateList = new ArrayList<QuestInstance>();
+			
+			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
 			{
-				quest.update((EntityPlayer)event.getEntityLiving());
+				ITask task = entry.getKey();
+				IQuest quest = entry.getValue();
+				
+				if(!task.isComplete(uuid))
+				{
+					task.update(player, quest); // Legacy support only. Will be replaced by ITickableTask
+					
+					if(task instanceof ITickableTask)
+					{
+						((ITickableTask)task).updateTask(player, quest);
+					}
+					
+					if(task.isComplete(uuid))
+					{
+						if(!syncList.contains(quest))
+						{
+							syncList.add(quest);
+						}
+						
+						if(!updateList.contains(quest) && quest instanceof QuestInstance)
+						{
+							updateList.add((QuestInstance)quest);
+						}
+					}
+				}
+			}
+			
+			if(player.ticksExisted%20 == 0)
+			{
+				for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
+				{
+					quest.update(player);
+					
+					if(quest.isComplete(uuid) && !syncList.contains(quest))
+					{
+						syncList.add(quest);
+						updateList.remove(quest);
+					}
+				}
+				
+				QuestCache.INSTANCE.updateCache(player);
+			} else
+			{
+				Iterator<IQuest> iterator = syncList.iterator();
+				
+				while(iterator.hasNext())
+				{
+					IQuest quest = iterator.next();
+					
+					quest.update(player);
+					
+					if(quest.isComplete(uuid) && !quest.canSubmit(player))
+					{
+						iterator.remove();
+						updateList.remove(quest);
+					}
+				}
+			}
+			
+			for(IQuest quest : syncList)
+			{
+				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			}
+			
+			for(QuestInstance quest : updateList)
+			{
+				quest.postPresetNotice(player, 1);
 			}
 		}
 	}
@@ -143,7 +225,7 @@ public class EventHandler
 		    
 		    JsonObject jsonL = new JsonObject();
 		    
-		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
 		    
 		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), jsonL);
 		    
@@ -163,6 +245,8 @@ public class EventHandler
 			QuestLineDatabase.INSTANCE.reset();
 			LifeDatabase.INSTANCE.reset();
 			NameCache.INSTANCE.reset();
+			
+			QuestCache.INSTANCE.reset();
 		}
 	}
 	
@@ -302,6 +386,7 @@ public class EventHandler
 	    }
 	    
 	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.CONFIG);
+	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.PROGRESS);
 	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
@@ -406,6 +491,17 @@ public class EventHandler
 		if(screen instanceof INeedsRefresh)
 		{
 			((INeedsRefresh)screen).refreshGui();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onCommand(CommandEvent event)
+	{
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		
+		if(server != null && (event.getCommand().getCommandName().equalsIgnoreCase("op") || event.getCommand().getCommandName().equalsIgnoreCase("deop")))
+		{
+			NameCache.INSTANCE.updateNames(server);
 		}
 	}
 }

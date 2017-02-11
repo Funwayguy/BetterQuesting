@@ -23,7 +23,6 @@ import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import betterquesting.questing.rewards.RewardRegistry;
 import betterquesting.questing.tasks.TaskRegistry;
-import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -53,8 +52,8 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, JsonHelper.GetBoolean(json, "editMode", true));
 			QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, JsonHelper.GetBoolean(json, "hardcore", false));
 			
-			LifeDatabase.INSTANCE.setDefaultLives(JsonHelper.GetNumber(json, "defLives", 3).intValue());
-			LifeDatabase.INSTANCE.setMaxLives(JsonHelper.GetNumber(json, "maxLives", 3).intValue());
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, JsonHelper.GetNumber(json, "defLives", 3).intValue());
+			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, JsonHelper.GetNumber(json, "maxLives", 10).intValue());
 			
 			readQuestDatabase(JsonHelper.GetArray(json, "questDatabase"));
 			readLineDatabase(JsonHelper.GetArray(json, "questLines"));

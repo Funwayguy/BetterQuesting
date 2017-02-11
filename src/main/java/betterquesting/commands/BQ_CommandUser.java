@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
+import betterquesting.commands.user.QuestCommandSPHardcore;
 
 public class BQ_CommandUser extends CommandBase
 {
@@ -19,6 +20,7 @@ public class BQ_CommandUser extends CommandBase
 	{
 		coms.add(new QuestCommandHelp());
 		coms.add(new QuestCommandRefresh());
+		coms.add(new QuestCommandSPHardcore());
 	}
 	
 	@Override
@@ -119,4 +121,26 @@ public class BQ_CommandUser extends CommandBase
 		
 		throw new WrongUsageException(this.getCommandUsage(sender));
 	}
+
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
+	@Override
+    public boolean isUsernameIndex(String[] args, int index)
+    {
+		if(args.length < 1)
+		{
+			return false;
+		}
+		
+		for(QuestCommandBase c : coms)
+		{
+			if(c.getCommand().equalsIgnoreCase(args[0]))
+			{
+				return c.isArgUsername(args, index);
+			}
+		}
+		
+		return false;
+    }
 }

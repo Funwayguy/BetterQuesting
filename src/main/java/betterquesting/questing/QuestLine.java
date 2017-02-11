@@ -64,13 +64,29 @@ public class QuestLine implements IQuestLine
 	@Override
 	public String getUnlocalisedName()
 	{
-		return info.getProperty(NativeProps.NAME, "New Quest Line");
+		String def = "New Quest Line";
+		
+		if(!info.hasProperty(NativeProps.NAME))
+		{
+			info.setProperty(NativeProps.NAME, def);
+			return def;
+		}
+		
+		return info.getProperty(NativeProps.NAME, def);
 	}
 	
 	@Override
 	public String getUnlocalisedDescription()
 	{
-		return info.getProperty(NativeProps.DESC, "No Description");
+		String def = "No Description";
+		
+		if(!info.hasProperty(NativeProps.DESC))
+		{
+			info.setProperty(NativeProps.DESC, def);
+			return def;
+		}
+		
+		return info.getProperty(NativeProps.DESC, def);
 	}
 	
 	@Override

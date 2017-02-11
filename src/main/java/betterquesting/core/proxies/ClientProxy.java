@@ -39,6 +39,8 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
+		//MinecraftForge.EVENT_BUS.register(new UpdateNotification());
+		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		
 		MinecraftForge.EVENT_BUS.register(new QuestNotification());

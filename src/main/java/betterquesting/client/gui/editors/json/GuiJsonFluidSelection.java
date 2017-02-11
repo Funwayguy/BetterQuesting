@@ -179,12 +179,12 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		super.actionPerformed(button);
-		
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(stackSelect);
 		}
+		
+		super.actionPerformed(button);
 	}
 	
 	@Override

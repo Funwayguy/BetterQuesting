@@ -122,7 +122,7 @@ public final class QuestLineDatabase implements IQuestLineDatabase
 	@Override
 	public IQuestLine getValue(Integer lineId)
 	{
-		return questLines.get(lineId);
+		return lineId < 0? null : questLines.get(lineId);
 	}
 	
 	@Override

@@ -43,27 +43,6 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 	}
 	
 	@Override
-	public void refreshGui()
-	{
-		this.party = PartyManager.INSTANCE.getValue(partyID);
-		
-        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.connection;
-        
-        playerList.clear();
-        playerList.addAll(NameCache.INSTANCE.getAllNames());
-        
-        for(NetworkPlayerInfo info : nethandlerplayclient.getPlayerInfoMap())
-        {
-        	if(!playerList.contains(info.getGameProfile().getName()))
-        	{
-        		playerList.add(info.getGameProfile().getName());
-        	}
-        }
-		
-		RefreshColumns();
-	}
-	
-	@Override
 	public void initGui()
 	{
 		super.initGui();
@@ -92,6 +71,27 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 			GuiButtonThemed btn = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 - 150 + ((i%3)*100), guiTop + 68 + (i/3*20), 100, 20, "Username", true);
 			this.buttonList.add(btn);
 		}
+		
+		RefreshColumns();
+	}
+	
+	@Override
+	public void refreshGui()
+	{
+		this.party = PartyManager.INSTANCE.getValue(partyID);
+		
+        NetHandlerPlayClient nethandlerplayclient = mc.thePlayer.connection;
+        
+        playerList.clear();
+        playerList.addAll(NameCache.INSTANCE.getAllNames());
+        
+        for(NetworkPlayerInfo info : nethandlerplayclient.getPlayerInfoMap())
+        {
+        	if(!playerList.contains(info.getGameProfile().getName()))
+        	{
+        		playerList.add(info.getGameProfile().getName());
+        	}
+        }
 		
 		RefreshColumns();
 	}

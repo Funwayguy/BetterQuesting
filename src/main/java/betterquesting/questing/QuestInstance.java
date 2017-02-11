@@ -19,6 +19,7 @@ import org.lwjgl.input.Keyboard;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
+import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -87,6 +88,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.AUTO_CLAIM, false);
 		setupValue(NativeProps.SILENT, false);
 		setupValue(NativeProps.MAIN, false);
+		setupValue(NativeProps.PARTY_LOOT, false);
 		setupValue(NativeProps.GLOBAL_SHARE, false);
 		setupValue(NativeProps.SIMULTANEOUS, false);
 	}
@@ -215,42 +217,27 @@ public class QuestInstance implements IQuest
 		if(isUnlocked(playerID) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
 		{
 			int done = 0;
-			boolean update = false;
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				if(!tsk.isComplete(playerID))
+				if(tsk.isComplete(playerID))
 				{
-					tsk.update(player, this);
+					IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 					
-					if(tsk.isComplete(playerID))
+					if(party != null) // Ensures task is marked as complete for all team members
 					{
-						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-						
-						if(party != null) // Ensures task is marked as complete for all team members
+						for(UUID mem : party.getMembers())
 						{
-							for(UUID mem : party.getMembers())
-							{
-								tsk.setComplete(mem);
-							}
+							tsk.setComplete(mem);
 						}
-						
-						done += 1;
-						update = true;
 					}
-				} else
-				{
+					
 					done += 1;
 				}
 			}
 			
 			if(!isUnlocked(playerID))
 			{
-				if(update)
-				{
-					PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				}
-				
 				return;
 			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
@@ -262,18 +249,10 @@ public class QuestInstance implements IQuest
 				{
 					postPresetNotice(player, 2);
 				}
-			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
+			} else if(done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-			} else if(update)
-			{
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 1);
-				}
 			}
 		}
 	}
@@ -301,18 +280,28 @@ public class QuestInstance implements IQuest
 			
 			for(ITask tsk : tasks.getAllValues())
 			{
-				boolean flag = !tsk.isComplete(playerID);
-				
-				tsk.detect(player, this);
-				
-				if(tsk.isComplete(playerID))
+				if(!tsk.isComplete(playerID))
 				{
-					done += 1;
+					tsk.detect(player, this);
 					
-					if(flag)
+					if(tsk.isComplete(playerID))
 					{
+						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
+						
+						if(party != null) // Ensures task is marked as complete for all team members
+						{
+							for(UUID mem : party.getMembers())
+							{
+								tsk.setComplete(mem);
+							}
+						}
+						
+						done += 1;
 						update = true;
 					}
+				} else
+				{
+					done += 1;
 				}
 			}
 			
@@ -340,7 +329,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	private void postPresetNotice(EntityPlayer player, int preset)
+	public void postPresetNotice(EntityPlayer player, int preset)
 	{
 		switch(preset)
 		{
@@ -356,7 +345,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	private void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
+	public void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setString("Main", mainTxt);
@@ -477,8 +466,42 @@ public class QuestInstance implements IQuest
 			rew.claimReward(player, this);
 		}
 		
-		UserEntry entry = GetUserEntry(QuestingAPI.getQuestingUUID(player));
-		entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+		UUID pID = QuestingAPI.getQuestingUUID(player);
+		IParty party = PartyManager.INSTANCE.getUserParty(pID);
+		
+		if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT))
+		{
+			for(UUID mem : party.getMembers())
+			{
+				EnumPartyStatus pStat = party.getStatus(mem);
+				
+				if(pStat == null || pStat == EnumPartyStatus.INVITE)
+				{
+					continue;
+				}
+				
+				UserEntry entry = GetUserEntry(mem);
+				
+				if(entry == null)
+				{
+					entry = new UserEntry(mem);
+					this.completeUsers.add(entry);
+				}
+				
+				entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+			}
+		} else
+		{
+			UserEntry entry = GetUserEntry(pID);
+			
+			if(entry == null)
+			{
+				entry = new UserEntry(pID);
+				this.completeUsers.add(entry);
+			}
+			
+			entry.setClaimed(true, player.worldObj.getTotalWorldTime());
+		}
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
@@ -495,10 +518,10 @@ public class QuestInstance implements IQuest
 		
 		UserEntry entry = this.GetUserEntry(playerID);
 		
-		if(entry == null)
+		if(entry == null) // Incomplete
 		{
 			return true;
-		} else if(!entry.hasClaimed())
+		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Complete but repeatable
 		{
 			int done = 0;
 			
@@ -569,7 +592,19 @@ public class QuestInstance implements IQuest
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
-				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", (time/60) + "m " + df.format(time%60) + "s"));
+				String timeTxt = "";
+				
+				if(time >= 3600)
+				{
+					timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
+				} else if(time >= 60)
+				{
+					timeTxt += (time/60) + "m ";
+				}
+				
+				timeTxt += df.format(time%60) + "s";
+				
+				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
 			}
 		} else if(!isUnlocked(playerID))
 		{
@@ -620,8 +655,21 @@ public class QuestInstance implements IQuest
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
 		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
 		{
+			long time = qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/20;
 			DecimalFormat df = new DecimalFormat("00");
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/60) + "m " + df.format(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()%60) + "s"));
+			String timeTxt = "";
+			
+			if(time >= 3600)
+			{
+				timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
+			} else if(time >= 60)
+			{
+				timeTxt += (time/60) + "m ";
+			}
+			
+			timeTxt += df.format(time%60) + "s";
+			
+			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
 		} else
 		{
 			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", false));
@@ -907,7 +955,12 @@ public class QuestInstance implements IQuest
 		JsonArray reqJson = new JsonArray();
 		for(IQuest quest : preRequisites)
 		{
-			reqJson.add(new JsonPrimitive(parentDB.getKey(quest)));
+			int prID = parentDB.getKey(quest);
+			
+			if(prID >= 0)
+			{
+				reqJson.add(new JsonPrimitive(prID));
+			}
 		}
 		jObj.add("preRequisites", reqJson);
 		
@@ -928,12 +981,19 @@ public class QuestInstance implements IQuest
 				continue;
 			}
 			
-			IQuest tmp = parentDB.getValue(entry.getAsInt());
+			int prID = entry.getAsInt();
+			
+			if(prID < 0)
+			{
+				continue;
+			}
+			
+			IQuest tmp = parentDB.getValue(prID);
 			
 			if(tmp == null)
 			{
-				tmp = new QuestInstance();
-				parentDB.add(tmp, entry.getAsInt());
+				tmp = parentDB.createNew();
+				parentDB.add(tmp, prID);
 			}
 			
 			preRequisites.add(tmp);

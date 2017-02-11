@@ -6,27 +6,29 @@ import java.util.UUID;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.NameCache;
 
 public class QuestCommandReset extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
 		return "[all|<quest_id>] [username|uuid]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
 		return args.length == 2 || args.length == 3;
 	}
 	
+	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
@@ -41,7 +43,7 @@ public class QuestCommandReset extends QuestCommandBase
 			}
 		} else if(args.length == 3)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, server.getAllUsernames());
+			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
 		}
 		
 		return list;
@@ -59,28 +61,18 @@ public class QuestCommandReset extends QuestCommandBase
 		String action = args[1];
 		
 		UUID uuid = null;
-		EntityPlayerMP player = null;
 		
 		if(args.length == 3)
 		{
-			player = server.getPlayerList().getPlayerByUsername(args[2]);
+			uuid = this.findPlayerID(server, args[2]);
 			
-			if(player == null)
+			if(uuid == null)
 			{
-				try
-				{
-					uuid = UUID.fromString(args[2]);
-				} catch(Exception e)
-				{
-					throw getException(command);
-				}
-			} else
-			{
-				uuid = QuestingAPI.getQuestingUUID(player);
+				throw this.getException(command);
 			}
 		}
 		
-		String pName = player != null? player.getName() : (uuid != null? uuid.toString() : null);
+		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
 		
 		if(action.equalsIgnoreCase("all"))
 		{
@@ -125,5 +117,11 @@ public class QuestCommandReset extends QuestCommandBase
 		}
 		
 		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-	}	
+	}
+	
+	@Override
+	public boolean isArgUsername(String[] args, int index)
+	{
+		return index == 2;
+	}
 }

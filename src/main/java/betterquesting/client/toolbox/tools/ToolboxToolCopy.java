@@ -1,5 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
@@ -36,7 +37,6 @@ public class ToolboxToolCopy implements IToolboxTool
 	{
 		if(btnQuest != null)
 		{
-			gui.getQuestLine().getButtonTree().remove(btnQuest);
 			btnQuest = null;
 		}
 	}
@@ -57,6 +57,7 @@ public class ToolboxToolCopy implements IToolboxTool
 		
 		btnQuest.xPosition = mx;
 		btnQuest.yPosition = my;
+		btnQuest.drawButton(Minecraft.getMinecraft(), mx, my);
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}
@@ -66,7 +67,6 @@ public class ToolboxToolCopy implements IToolboxTool
 	{
 		if(click == 1 && btnQuest != null)
 		{
-			gui.getQuestLine().getButtonTree().remove(btnQuest);
 			btnQuest = null;
 		} else if(click != 0)
 		{
@@ -88,7 +88,6 @@ public class ToolboxToolCopy implements IToolboxTool
 				QuestInstance tmpQ = new QuestInstance(); // Unregistered but setup
 				tmpQ.readFromJson(tmpBtn.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG), EnumSaveType.CONFIG);
 				btnQuest = new GuiButtonQuestInstance(0, mx, my, tmpBtn.width, tmpBtn.height, tmpQ);
-				gui.getQuestLine().getButtonTree().add(btnQuest);
 			}
 		} else
 		{

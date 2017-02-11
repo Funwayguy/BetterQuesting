@@ -154,6 +154,8 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 	
 	private void readFromJson_Config(JsonArray json)
 	{
+		database.clear();
+		
 		ArrayList<ITask> unassigned = new ArrayList<ITask>();
 		
 		for(JsonElement entry : json)

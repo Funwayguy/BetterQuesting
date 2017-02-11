@@ -22,23 +22,29 @@ import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
 {
+	@Override
 	public String getUsageSuffix()
 	{
-		return "[save|load]";
+		return "[save|load|set] [file_name]";
 	}
 	
+	@Override
 	public boolean validArgs(String[] args)
 	{
-		return args.length == 2;
+		return args.length == 2 || args.length == 3;
 	}
 	
+	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
 		if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load", "set"});
+		} else if(args.length == 3)
+		{
+			list.add("DefaultQuests");
 		}
 		
 		return list;
@@ -53,6 +59,16 @@ public class QuestCommandDefaults extends QuestCommandBase
 	@Override
 	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
 	{
+		File qFile;
+		
+		if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
+		{
+			qFile = new File(BQ_Settings.defaultDir, "saved_quests/" + args[2] + ".json");
+		} else
+		{
+			qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+		}
+		
 		if(args[1].equalsIgnoreCase("save"))
 		{
 			JsonObject base = new JsonObject();
@@ -60,24 +76,54 @@ public class QuestCommandDefaults extends QuestCommandBase
 			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
 			base.addProperty("format", BetterQuesting.FORMAT);
-			JsonHelper.WriteToFile(new File(server.getFile("config/betterquesting/"), "DefaultQuests.json"), base);
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
+			JsonHelper.WriteToFile(qFile, base);
+			
+			if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
+			{
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save2", args[2] + ".json"));
+			} else
+			{
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.save"));
+			}
 		} else if(args[1].equalsIgnoreCase("load"))
 		{
-			JsonArray jsonP = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
-	    	File f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
-			JsonObject j1 = new JsonObject();
-			
-			if(f1.exists())
+			if(qFile.exists())
 			{
-				j1 = JsonHelper.ReadFromFile(f1);
+				JsonArray jsonP = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
+				JsonObject j1 = JsonHelper.ReadFromFile(qFile);
 				QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
 				QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromJson(jsonP, EnumSaveType.PROGRESS);
-				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
+				
+				if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
+				{
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load2", args[2] + ".json"));
+				} else
+				{
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
+				}
+				
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+			} else
+			{
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));
+			}
+		} else if(args[1].equalsIgnoreCase("set") && args.length == 3)
+		{
+			if(qFile.exists() && !args[2].equalsIgnoreCase("DefaultQuests"))
+			{
+				File defFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+				
+				if(defFile.exists())
+				{
+					defFile.delete();
+				}
+				
+				JsonHelper.CopyPaste(qFile, defFile);
+				
+				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.set", args[2]));
 			} else
 			{
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));

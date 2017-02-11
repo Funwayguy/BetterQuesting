@@ -103,14 +103,18 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		if(column == 0) // Edit reward
 		{
 			IReward reward = quest.getRewards().getValue(id);
-			GuiScreen editor = reward.getRewardEditor(this, quest);
 			
-			if(editor != null)
+			if(reward != null)
 			{
-				mc.displayGuiScreen(editor);
-			} else
-			{
-				mc.displayGuiScreen(new GuiRewardEditDefault(this, reward));
+				GuiScreen editor = reward.getRewardEditor(this, quest);
+				
+				if(editor != null)
+				{
+					mc.displayGuiScreen(editor);
+				} else
+				{
+					mc.displayGuiScreen(new GuiRewardEditDefault(this, quest, reward));
+				}
 			}
 		} else if(column == 1) // Delete reward
 		{

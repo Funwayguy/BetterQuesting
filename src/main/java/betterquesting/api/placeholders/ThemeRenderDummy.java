@@ -19,7 +19,7 @@ public final class ThemeRenderDummy implements IThemeRenderer
 	}
 	
 	@Override
-	public void drawThemedPanel(int x, int y, int w, int h)
+	public void drawThemedPanel(int x, int y, int h, int w)
 	{
 	}
 }

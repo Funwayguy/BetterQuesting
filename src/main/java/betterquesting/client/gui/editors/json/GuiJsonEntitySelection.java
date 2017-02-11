@@ -85,8 +85,6 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 	@Override
 	public void actionPerformed(GuiButton button)
 	{
-		super.actionPerformed(button);
-		
 		if(button.id == 0 && callback != null)
 		{
 			callback.setValue(entity);
@@ -107,6 +105,8 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 				}
 			}
 		}
+		
+		super.actionPerformed(button);
 	}
 	
 	@Override
