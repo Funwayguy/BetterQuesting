@@ -21,8 +21,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.11-13.19.0.2162"
-    mappings = "snapshot_20161111"
+    version = "1.11.2-13.20.0.2206"
+    mappings = "snapshot_20161220"
 }
 
 dependencies {
@@ -47,7 +47,15 @@ task deobfJar(type: Jar) {
         from sourceSets.main.output
         appendix = 'deobf'
 }
+
+task apiJar(type: Jar) {
+        from(sourceSets.main.output) {
+            include 'betterquesting/api/**'
+        }
+        appendix = 'api'
+}
  
 artifacts {
         archives deobfJar
+        archives apiJar
 }
