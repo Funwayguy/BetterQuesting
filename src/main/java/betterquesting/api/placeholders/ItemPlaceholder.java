@@ -35,7 +35,7 @@ public class ItemPlaceholder extends Item
 			return;
 		}
 		
-		list.add("Original ID: " + stack.getTagCompound().getString("orig_id"));
+		list.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
 	}
 
     /**
@@ -54,11 +54,12 @@ public class ItemPlaceholder extends Item
     	
     	NBTTagCompound tags = stack.getTagCompound();
     	Item i = (Item)Item.itemRegistry.getObject(tags.getString("orig_id"));
+    	int m = stack.getItemDamage() > 0? stack.getItemDamage() : tags.getInteger("orig_meta");
     	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
     	
     	if(i != null)
     	{
-    		ItemStack converted = new ItemStack(i, stack.stackSize, stack.getItemDamage());
+    		ItemStack converted = new ItemStack(i, stack.stackSize, m);
     		converted.stackTagCompound = t;
     		player.inventory.setInventorySlotContents(slot, converted);
     	}
