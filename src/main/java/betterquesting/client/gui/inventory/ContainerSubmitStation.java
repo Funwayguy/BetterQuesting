@@ -81,7 +81,7 @@ public class ContainerSubmitStation extends Container
      */
     public ItemStack transferStackInSlot(EntityPlayer player, int idx)
     {
-        ItemStack itemstack = null;
+        ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = (Slot)this.inventorySlots.get(idx);
 
         if (slot != null && slot.getHasStack())
@@ -93,7 +93,7 @@ public class ContainerSubmitStation extends Container
             {
                 if (!this.mergeItemStack(itemstack1, 1, 37, true))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
 
                 slot.onSlotChange(itemstack1, itemstack);
@@ -102,31 +102,31 @@ public class ContainerSubmitStation extends Container
             {
                 if (!this.mergeItemStack(itemstack1, 0, 1, false))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
             else if (idx >= 1 && idx < 28)
             {
                 if (!this.mergeItemStack(itemstack1, 28, 37, false))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
             else if (idx >= 28 && idx < 37)
             {
                 if (!this.mergeItemStack(itemstack1, 1, 28, false))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
             else if (!this.mergeItemStack(itemstack1, 1, 37, false))
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
             if (itemstack1.getCount() == 0)
             {
-                slot.putStack((ItemStack)null);
+                slot.putStack(ItemStack.EMPTY);
             }
             else
             {
@@ -135,7 +135,7 @@ public class ContainerSubmitStation extends Container
 
             if (itemstack1.getCount() == itemstack.getCount())
             {
-                return null;
+                return ItemStack.EMPTY;
             }
             
             slot.onTake(player, itemstack1);
