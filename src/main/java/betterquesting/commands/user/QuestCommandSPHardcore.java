@@ -16,7 +16,7 @@ public class QuestCommandSPHardcore extends QuestCommandBase
 	@Override
 	public String getCommand()
 	{
-		return "harcore";
+		return "hardcore";
 	}
 	
 	@Override
