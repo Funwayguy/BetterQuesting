@@ -171,7 +171,13 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		if(ttStack != null)
 		{
 			GlStateManager.pushMatrix();
-			this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
+			try
+			{
+				this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
+			} catch(Exception e)
+			{
+				ttStack = null;
+			}
 			GlStateManager.color(1f, 1f, 1f, 1f);
 		    GlStateManager.disableLighting();
 			GlStateManager.popMatrix();
