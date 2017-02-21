@@ -59,7 +59,14 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 	@Override
 	public void refreshGui()
 	{
-		this.quest = QuestDatabase.INSTANCE.getValue(id);
+		IQuest tmp = QuestDatabase.INSTANCE.getValue(id);
+		
+		if(tmp == quest)
+		{
+			return;
+		}
+		
+		this.quest = tmp;
 		
 		if(quest == null)
 		{
