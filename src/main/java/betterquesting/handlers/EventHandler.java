@@ -263,6 +263,7 @@ public class EventHandler
 		QuestLineDatabase.INSTANCE.reset();
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
+		GuiQuestLinesMain.bookmarked = null;
 		
 		MinecraftServer server =event.getWorld().getMinecraftServer();
 		

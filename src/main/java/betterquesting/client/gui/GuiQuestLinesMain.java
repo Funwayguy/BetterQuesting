@@ -48,7 +48,6 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 	{
 		super.initGui();
 		
-		bookmarked = null;
 		lineIDs = QuestLineDatabase.INSTANCE.getAllKeys();
 		
 		if(QuestSettings.INSTANCE.canUserEdit(mc.player))

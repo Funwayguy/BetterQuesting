@@ -39,7 +39,6 @@ public class QuestCache
 		UUID uuid = QuestingAPI.getQuestingUUID(player);
 		
 		HashMap<Integer,List<Integer>> pCache = new HashMap<Integer,List<Integer>>();
-		rawCache.put(uuid, pCache);
 		
 		IQuestDatabase questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB);
 		List<Integer> idList = questDB.getAllKeys();
@@ -77,6 +76,8 @@ public class QuestCache
 			
 			pCache.put(qID, tList);
 		}
+		
+		rawCache.put(uuid, pCache);
 	}
 	
 	/**
