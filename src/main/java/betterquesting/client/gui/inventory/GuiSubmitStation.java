@@ -60,6 +60,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		
 		activeQuests.clear();
 		UUID pID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+		QuestCache.INSTANCE.updateCache(mc.thePlayer);
 		activeQuests.addAll(QuestCache.INSTANCE.getActiveQuests(pID));
 		Iterator<IQuest> qit = activeQuests.iterator();
 		
