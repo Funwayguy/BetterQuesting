@@ -1,8 +1,8 @@
 [
 {
-  "modid": "betterquesting",
-  "name": "Better Questing",
-  "description": "A new and improved questing mod for Minecraft pack creators",
+  "modid": "adv_director",
+  "name": "Adventure Director",
+  "description": "A toolbox for MMORPG style quests in Minecraft",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

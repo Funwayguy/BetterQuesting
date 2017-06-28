@@ -1,0 +1,12 @@
+{
+    "parent": "block/cube",
+    "textures": {
+        "particle": "adv_director:blocks/submit_station_side",
+        "down": "adv_director:blocks/submit_station_top",
+        "up": "adv_director:blocks/submit_station_top",
+        "north": "adv_director:blocks/submit_station_side",
+        "east": "adv_director:blocks/submit_station_side",
+        "south": "adv_director:blocks/submit_station_side",
+        "west": "adv_director:blocks/submit_station_side"
+    }
+}

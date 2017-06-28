@@ -1,0 +1,79 @@
+package adv_director.client.toolbox.tools;
+
+import net.minecraft.client.Minecraft;
+import adv_director.api.client.gui.controls.GuiButtonQuestInstance;
+import adv_director.api.client.gui.misc.IGuiQuestLine;
+import adv_director.api.client.toolbox.IToolboxTool;
+import adv_director.client.gui.GuiQuestInstance;
+
+public class ToolboxToolOpen implements IToolboxTool
+{
+	private IGuiQuestLine gui;
+	
+	public void initTool(IGuiQuestLine gui)
+	{
+		this.gui = gui;
+	}
+
+	@Override
+	public void disableTool()
+	{
+	}
+	
+	@Override
+	public void onMouseClick(int mx, int my, int click)
+	{
+		if(click != 0)
+		{
+			return;
+		}
+		
+		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
+		
+		if(btn != null)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+			btn.playPressSound(mc.getSoundHandler());
+			mc.displayGuiScreen(new GuiQuestInstance(mc.currentScreen, btn.getQuest()));
+		}
+	}
+
+	@Override
+	public void drawTool(int mx, int my, float partialTick)
+	{
+	}
+
+	@Override
+	public void onMouseScroll(int mx, int my, int scroll)
+	{
+	}
+
+	@Override
+	public void onKeyPressed(char c, int key)
+	{
+	}
+
+	@Override
+	public boolean allowTooltips()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowScrolling(int click)
+	{
+		return true;
+	}
+
+	@Override
+	public boolean allowZoom()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean clampScrolling()
+	{
+		return true;
+	}
+}
