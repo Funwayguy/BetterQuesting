@@ -64,11 +64,12 @@ public class PanelTextBox implements IGuiPanel
 		
 		if(!autoFit)
 		{
-			lines = bounds.getHeight() / fr.FONT_HEIGHT;
+			lines = (bounds.getHeight() / fr.FONT_HEIGHT) - 1;
 			return;
 		}
 		
 		List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
+		lines = sl.size() - 1;
 		bounds.setHeight(fr.FONT_HEIGHT * sl.size());
 	}
 	

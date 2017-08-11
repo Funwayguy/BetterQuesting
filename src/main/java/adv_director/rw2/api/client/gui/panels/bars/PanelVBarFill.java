@@ -71,6 +71,14 @@ public class PanelVBarFill implements IBarFill
 	}
 	
 	@Override
+	public PanelVBarFill setBarTexture(IGuiTexture back, IGuiTexture front)
+	{
+		this.texBack = back;
+		this.texFill = front;
+		return this;
+	}
+	
+	@Override
 	public IGuiPanel getParentPanel()
 	{
 		return parent;
@@ -105,7 +113,11 @@ public class PanelVBarFill implements IBarFill
 		GlStateManager.pushMatrix();
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+		
+		if(texBack != null)
+		{
+			texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+		}
 		
 		float f = MathHelper.clamp_float(fillDriver.readValue(), 0F, 1F);
 		
@@ -142,7 +154,10 @@ public class PanelVBarFill implements IBarFill
 			GlStateManager.color(r1/255F, g1/255F, b1/255F, a1/255F);
 		}
 		
-		texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+		if(texFill != null)
+		{
+			texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+		}
 		
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		

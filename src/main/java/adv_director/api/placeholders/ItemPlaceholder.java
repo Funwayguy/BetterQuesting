@@ -18,7 +18,7 @@ public class ItemPlaceholder extends Item
 	// Used solely for retaining info to missing items
 	public ItemPlaceholder()
 	{
-		this.setUnlocalizedName("betterquesting.placeholder");
+		this.setUnlocalizedName("adv_director.placeholder");
 	}
 	
     /**

@@ -97,7 +97,7 @@ public class RenderUtils
 	        GlStateManager.translate((float)posX, (float)posY, 100.0F);
 	        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
 	        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-	        GlStateManager.rotate(15F, 1F, 0F, 0F);
+	        GlStateManager.rotate(pitch, 1F, 0F, 0F);
 	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;

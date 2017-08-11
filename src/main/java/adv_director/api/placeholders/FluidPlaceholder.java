@@ -9,6 +9,6 @@ public class FluidPlaceholder extends Fluid
 	
 	public FluidPlaceholder()
 	{
-		super("betterquesting.placeholder", new ResourceLocation("betterquesting:blocks/fluid_placeholder"), new ResourceLocation("betterquesting:blocks/fluid_placeholder"));
+		super("adv_director.placeholder", new ResourceLocation("adv_director:blocks/fluid_placeholder"), new ResourceLocation("adv_director:blocks/fluid_placeholder"));
 	}
 }

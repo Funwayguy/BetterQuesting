@@ -15,7 +15,7 @@ public class SlicedTexture implements IGuiTexture
 	private final ResourceLocation texture;
 	private final Rectangle texBounds;
 	private final GuiPadding texBorder;
-	private int sliceMode = 1;
+	private SliceMode sliceMode = SliceMode.SLICED_TILE;
 	
 	public SlicedTexture(ResourceLocation tex, Rectangle bounds, GuiPadding border)
 	{
@@ -29,26 +29,79 @@ public class SlicedTexture implements IGuiTexture
 	{
 		GlStateManager.pushMatrix();
 		
-		if(sliceMode == 1 || sliceMode == 2)
+		if(sliceMode == SliceMode.SLICED_TILE)
 		{
 			drawContinuousTexturedBox(texture, x, y, texBounds.getX(), texBounds.getY(), width, height, texBounds.getWidth(), texBounds.getHeight(), texBorder.getTop(), texBorder.getBottom(), texBorder.getLeft(), texBorder.getRight(), zLevel);
+		} else if(sliceMode == SliceMode.SLICED_STRETCH)
+		{
+			int iu = texBounds.getX() + texBorder.getLeft();
+			int iv = texBounds.getY() + texBorder.getTop();
+			int iw = texBounds.getWidth() - texBorder.getLeft() - texBorder.getRight();
+			int ih = texBounds.getHeight() - texBorder.getTop() - texBorder.getBottom();
 			
-			if(sliceMode == 2)
-			{
-				int iu = texBounds.getX() + texBorder.getLeft();
-				int iv = texBounds.getY() + texBorder.getTop();
-				int iw = texBounds.getWidth() - texBorder.getLeft() - texBorder.getRight();
-				int ih = texBounds.getHeight() - texBorder.getTop() - texBorder.getBottom();
-				
-				float sx = (float)(width - (texBounds.getWidth() - iw)) / (float)iw;
-				float sy = (float)(height - (texBounds.getHeight() - ih)) / (float)ih;
-				GlStateManager.translate(x + texBorder.getLeft(), y + texBorder.getTop(), 0F);
-				GlStateManager.scale(sx, sy, 1F);
-				
-				
-				Minecraft.getMinecraft().renderEngine.bindTexture(texture);
-				GuiUtils.drawTexturedModalRect(0, 0, iu, iv, iw, ih, zLevel);
-			}
+			float sx = (float)(width - (texBounds.getWidth() - iw)) / (float)iw;
+			float sy = (float)(height - (texBounds.getHeight() - ih)) / (float)ih;
+			
+			Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+			
+			// TOP LEFT
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x, y, 0F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY(), texBorder.getLeft(), texBorder.getTop(), zLevel);
+			GlStateManager.popMatrix();
+			
+			// TOP SIDE
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + texBorder.getLeft(), y, 0F);
+			GlStateManager.scale(sx, 1F, 1F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY(), iw, texBorder.getTop(), zLevel);
+			GlStateManager.popMatrix();
+			
+			// TOP RIGHT
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + width - texBorder.getRight(), y, 0F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY(), texBorder.getRight(), texBorder.getTop(), zLevel);
+			GlStateManager.popMatrix();
+			
+			// LEFT SIDE
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x, y + texBorder.getTop(), 0F);
+			GlStateManager.scale(1F, sy, 1F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop(), texBorder.getLeft(), ih, zLevel);
+			GlStateManager.popMatrix();
+			
+			// MIDDLE
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + texBorder.getLeft(), y + texBorder.getTop(), 0F);
+			GlStateManager.scale(sx, sy, 1F);
+			GuiUtils.drawTexturedModalRect(0, 0, iu, iv, iw, ih, zLevel);
+			GlStateManager.popMatrix();
+			
+			// RIGHT SIDE
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + width - texBorder.getRight(), y + texBorder.getTop(), 0F);
+			GlStateManager.scale(1F, sy, 1F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop(), texBorder.getRight(), ih, zLevel);
+			GlStateManager.popMatrix();
+			
+			// BOTTOM LEFT
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x, y + height - texBorder.getBottom(), 0F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop() + ih, texBorder.getLeft(), texBorder.getBottom(), zLevel);
+			GlStateManager.popMatrix();
+			
+			// BOTTOM SIDE
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + texBorder.getLeft(), y + height - texBorder.getBottom(), 0F);
+			GlStateManager.scale(sx, 1F, 1F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY() + texBorder.getTop() + ih, iw, texBorder.getBottom(), zLevel);
+			GlStateManager.popMatrix();
+			
+			// BOTTOM RIGHT
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + width - texBorder.getRight(), y + height - texBorder.getBottom(), 0F);
+			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop() + ih, texBorder.getRight(), texBorder.getBottom(), zLevel);
+			GlStateManager.popMatrix();
 		} else
 		{
 			float sx = (float)width / (float)texBounds.getWidth();
@@ -86,7 +139,7 @@ public class SlicedTexture implements IGuiTexture
 	/**
 	 * Enables texture slicing. Will stretch to fit if disabled
 	 */
-	public SlicedTexture setSliceMode(int mode)
+	public SlicedTexture setSliceMode(SliceMode mode)
 	{
 		this.sliceMode = mode;
 		return this;
@@ -109,7 +162,7 @@ public class SlicedTexture implements IGuiTexture
 		int ir = JsonHelper.GetNumber(jIn, "r", 16).intValue();
 		int ib = JsonHelper.GetNumber(jIn, "b", 16).intValue();
 		
-		return new SlicedTexture(res, new Rectangle(ox, oy, ow, oh), new GuiPadding(il, it, ir, ib)).setSliceMode(slice);
+		return new SlicedTexture(res, new Rectangle(ox, oy, ow, oh), new GuiPadding(il, it, ir, ib)).setSliceMode(SliceMode.values()[slice%3]);
 	}
 	
 	// Slightly modified version from GuiUtils.class
@@ -159,5 +212,12 @@ public class SlicedTexture implements IGuiTexture
 			// Right Border
 			GuiUtils.drawTexturedModalRect(x + leftBorder + canvasWidth, y + topBorder + (j * fillerHeight), u + leftBorder + fillerWidth, v + topBorder, rightBorder, (j == yPasses ? remainderHeight : fillerHeight), zLevel);
 		}
+	}
+	
+	public static enum SliceMode
+	{
+		STRETCH,
+		SLICED_TILE,
+		SLICED_STRETCH;
 	}
 }
