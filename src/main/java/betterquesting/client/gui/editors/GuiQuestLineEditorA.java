@@ -57,10 +57,10 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		lineTitle = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
+		lineTitle = new GuiTextField(0, mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 59, btnWidth - 18, 18);
 		lineTitle.setMaxStringLength(Integer.MAX_VALUE);
 		
-		lineDesc = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this);
+		lineDesc = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + sizeY/2 - 19, btnWidth - 18, 18).enableBigEdit(this);
 		lineDesc.setMaxStringLength(Integer.MAX_VALUE);
 		 
 		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16, guiTop + sizeY - 48, (btnWidth - 16)/2, 20, I18n.format("betterquesting.btn.new"), true));
@@ -105,8 +105,8 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		
 		RenderUtils.DrawLine(width/2, guiTop + 32, width/2, guiTop + sizeY - 48, 2F, getTextColor());
 		
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, getTextColor(), false);
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 72, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), guiLeft + sizeX/2 + 8, guiTop + sizeY/2 - 32, getTextColor(), false);
 		
 		lineTitle.drawTextBox();
 		lineDesc.drawTextBox(mx, my, partialTick);

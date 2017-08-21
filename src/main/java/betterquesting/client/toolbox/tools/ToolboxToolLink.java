@@ -42,7 +42,7 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 			return;
 		}
 		
-		RenderUtils.DrawLine(b1.xPosition + b1.width/2, b1.yPosition + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
+		RenderUtils.DrawLine(b1.x + b1.width/2, b1.y + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
 	}
 	
 	@Override

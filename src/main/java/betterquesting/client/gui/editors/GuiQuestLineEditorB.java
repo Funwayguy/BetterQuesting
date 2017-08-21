@@ -61,7 +61,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		int btnWidth = sizeX/2 - 16;
 		int sx = sizeX - 32;
 		
-		this.searchBox = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 49, btnWidth - 18, 18);
+		this.searchBox = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + 49, btnWidth - 18, 18);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.buttonList.add(new GuiButtonThemed(1, guiLeft + 16 + sx/4*3 - 50, guiTop + sizeY - 48, 100, 20, I18n.format("betterquesting.btn.new"), true));
 		
@@ -103,9 +103,9 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format("betterquesting.gui.quest_line");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		txt = I18n.format("betterquesting.gui.database");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		
 		searchBox.drawTextBox(mx, my, partialTick);
 	}

@@ -3,9 +3,9 @@ package betterquesting.api.client.gui;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -58,7 +58,7 @@ public abstract class GuiElement
     public void drawTexturedModelRectFromIcon(int x, int y, TextureAtlasSprite sprite, int w, int h)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos((double)(x + 0), (double)(y + h), (double)this.zLevel).tex((double)sprite.getMinU(), (double)sprite.getMaxV()).endVertex();
         vertexbuffer.pos((double)(x + w), (double)(y + h), (double)this.zLevel).tex((double)sprite.getMaxU(), (double)sprite.getMaxV()).endVertex();
@@ -88,7 +88,7 @@ public abstract class GuiElement
         float f1 = (float)(color >> 8 & 255) / 255.0F;
         float f2 = (float)(color & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

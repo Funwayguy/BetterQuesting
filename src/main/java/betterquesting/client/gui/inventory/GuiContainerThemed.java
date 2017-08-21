@@ -101,12 +101,12 @@ public abstract class GuiContainerThemed extends GuiScreenThemed
         {
             Slot slot = (Slot)this.inventorySlots.inventorySlots.get(i1);
 
-            if (slot.canBeHovered())
+            if (slot.isEnabled())
             {
                 this.drawSlot(slot);
             }
 
-            if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered())
+            if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.isEnabled())
             {
                 this.theSlot = slot;
                 GlStateManager.disableLighting();
@@ -192,7 +192,7 @@ public abstract class GuiContainerThemed extends GuiScreenThemed
         this.zLevel = 200.0F;
         this.itemRender.zLevel = 200.0F;
         net.minecraft.client.gui.FontRenderer font = stack.getItem().getFontRenderer(stack);
-        if (font == null) font = fontRendererObj;
+        if (font == null) font = fontRenderer;
         this.itemRender.renderItemAndEffectIntoGUI(stack, x, y);
         this.itemRender.renderItemOverlayIntoGUI(font, stack, x, y - (this.draggedStack.isEmpty() ? 0 : 8), altText);
         this.zLevel = 0.0F;
@@ -259,7 +259,7 @@ public abstract class GuiContainerThemed extends GuiScreenThemed
         this.zLevel = 100.0F;
         this.itemRender.zLevel = 100.0F;
 
-        if (itemstack.isEmpty() && slotIn.canBeHovered())
+        if (itemstack.isEmpty() && slotIn.isEnabled())
         {
             TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
 
@@ -282,7 +282,7 @@ public abstract class GuiContainerThemed extends GuiScreenThemed
 
             GlStateManager.enableDepth();
             this.itemRender.renderItemAndEffectIntoGUI(this.mc.player, itemstack, i, j);
-            this.itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, i, j, s);
+            this.itemRender.renderItemOverlayIntoGUI(this.fontRenderer, itemstack, i, j, s);
         }
 
         this.itemRender.zLevel = 0.0F;
@@ -331,7 +331,7 @@ public abstract class GuiContainerThemed extends GuiScreenThemed
         {
             Slot slot = (Slot)this.inventorySlots.inventorySlots.get(i);
 
-            if (this.isMouseOverSlot(slot, x, y) && slot.canBeHovered())
+            if (this.isMouseOverSlot(slot, x, y) && slot.isEnabled())
             {
                 return slot;
             }

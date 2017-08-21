@@ -15,7 +15,7 @@ public class EntityPlaceholder extends Entity
 	{
 		super(world);
 		eItem = new EntityItem(world);
-		eItem.setEntityItemStack(new ItemStack(ItemPlaceholder.placeholder));
+		eItem.setItem(new ItemStack(ItemPlaceholder.placeholder));
 	}
 	
 	public EntityPlaceholder SetOriginalTags(NBTTagCompound tags)

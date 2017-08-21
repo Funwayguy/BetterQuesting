@@ -7,10 +7,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -57,14 +56,14 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 	{
 		super.initGui();
 		
-		this.searchBox = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
+		this.searchBox = new GuiBigTextField(this.fontRenderer, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		this.itemGrid = new GuiScrollingItemGrid(mc, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
 		this.embedded.add(itemGrid);
 		
-		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 77, guiTop + 49, 98, 14);
+		numberBox = new GuiNumberField(fontRenderer, guiLeft + 77, guiTop + 49, 98, 14);
 		
 		if(stackSelect != null)
 		{
@@ -87,8 +86,8 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, getTextColor(), false);
-		this.fontRendererObj.drawString("x", guiLeft + 65, guiTop + 52, getTextColor(), false);
+		this.fontRenderer.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, getTextColor(), false);
+		this.fontRenderer.drawString("x", guiLeft + 65, guiTop + 52, getTextColor(), false);
 		
 		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
@@ -110,7 +109,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 		}
 		GlStateManager.popMatrix();
 		
-		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, getTextColor(), false);
+		fontRenderer.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, getTextColor(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
@@ -173,7 +172,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			GlStateManager.pushMatrix();
 			try
 			{
-				this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips), mx, my, this.fontRendererObj);
+				this.drawHoveringText(ttStack.getBaseStack().getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, this.fontRenderer);
 			} catch(Exception e)
 			{
 				ttStack = null;
@@ -301,7 +300,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 			
 			NonNullList<ItemStack> subList = NonNullList.create();
 			
-			if(baseItem == Items.ENCHANTED_BOOK)
+			/*if(baseItem == Items.ENCHANTED_BOOK)
 			{
 				for(Enchantment enchant : Enchantment.REGISTRY)
 				{
@@ -310,11 +309,11 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 						Items.ENCHANTED_BOOK.getAll(enchant, subList);
 					}
 				}
-			} else
+			} else*/
 			{
 				try
 				{
-					baseItem.getSubItems(baseItem, CreativeTabs.SEARCH, subList);
+					baseItem.getSubItems(CreativeTabs.SEARCH, subList);
 				} catch(Exception e)
 				{
 					subList.add(new ItemStack(baseItem));
@@ -345,7 +344,7 @@ public class GuiJsonItemSelection extends GuiScreenThemed
 							itemGrid.getItemList().add(subItem);
 						} else
 						{
-							List<String> toolTips = subItem.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips);
+							List<String> toolTips = subItem.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 							
 							for(String line : toolTips)
 							{

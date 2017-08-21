@@ -50,7 +50,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+			final EntityPlayerMP sender = ctx.getServerHandler().player;
 			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
 			
 			if(message == null)

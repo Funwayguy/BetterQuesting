@@ -40,7 +40,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	public GuiScreenThemed(GuiScreen parent, String title)
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.fontRendererObj = this.mc.fontRendererObj;
+		this.fontRenderer = this.mc.fontRenderer;
 		
 		this.parent = parent;
 		this.title = title;
@@ -86,7 +86,7 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 		currentTheme().getRenderer().drawThemedPanel(guiLeft, guiTop, sizeX, sizeY);
 		
 		String tmp = I18n.format(title);
-		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
+		this.fontRenderer.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
@@ -242,10 +242,10 @@ public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 	{
 		try
 		{
-			this.drawHoveringText(list, x, y, fontRendererObj);
+			this.drawHoveringText(list, x, y, fontRenderer);
 		} catch(Exception e)
 		{
-			this.drawHoveringText(Arrays.asList(new String[]{"ERROR: " + e.getClass().getSimpleName()}), x, y, fontRendererObj);
+			this.drawHoveringText(Arrays.asList(new String[]{"ERROR: " + e.getClass().getSimpleName()}), x, y, fontRenderer);
 		}
         GlStateManager.disableLighting(); // Normally not enabled on Questing GUI
 	}

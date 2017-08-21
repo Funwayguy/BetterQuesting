@@ -131,9 +131,9 @@ public class GuiFileExplorer extends GuiScreenThemed implements IVolatileScreen
 		
 		int sx = sizeX - 32;
 		String txt = I18n.format("betterquesting.gui.selection");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 		txt = I18n.format("betterquesting.gui.folder");
-		mc.fontRendererObj.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRendererObj.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
+		mc.fontRenderer.drawString(txt, guiLeft + 16 + sx/4*3 - mc.fontRenderer.getStringWidth(txt)/2, guiTop + 32, getTextColor(), false);
 	}
 	
 	@Override

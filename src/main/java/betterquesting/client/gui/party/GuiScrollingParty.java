@@ -43,14 +43,14 @@ public class GuiScrollingParty extends GuiScrollingBase<GuiScrollingParty.Scroll
 		@Override
 		public void drawBackground(int mx, int my, int px, int py, int width)
 		{
-			FontRenderer fr = btnKick.mc.fontRendererObj;
+			FontRenderer fr = btnKick.mc.fontRenderer;
 			this.drawString(fr, fr.trimStringToWidth(name, width - 50), px, py + 6, getTextColor(), false);
 			
 			RenderUtils.DrawLine(px, py + 20, px + width - btnKick.width, py + 20, 1F, getTextColor());
 			
-			btnKick.xPosition = px + width - btnKick.width;
-			btnKick.yPosition = py;
-			btnKick.drawButton(btnKick.mc, mx, my);
+			btnKick.x = px + width - btnKick.width;
+			btnKick.y = py;
+			btnKick.drawButton(btnKick.mc, mx, my, 1F);
 			
 			// new EntityOtherPlayerMP(mc.theWorld, new GameProfile(null, name)); // < Draw player?
 		}
@@ -58,13 +58,13 @@ public class GuiScrollingParty extends GuiScrollingBase<GuiScrollingParty.Scroll
 		@Override
 		public void drawForeground(int mx, int my, int px, int py, int width)
 		{
-			if(isWithin(mx, my, btnKick.xPosition, btnKick.yPosition, btnKick.width, btnKick.height))
+			if(isWithin(mx, my, btnKick.x, btnKick.y, btnKick.width, btnKick.height))
 			{
 				List<String> tt = btnKick.getTooltip();
 				
 				if(tt != null && tt.size() > 0)
 				{
-					this.drawTooltip(btnKick.getTooltip(), mx, my, btnKick.mc.fontRendererObj);
+					this.drawTooltip(btnKick.getTooltip(), mx, my, btnKick.mc.fontRenderer);
 				}
 			}
 		}

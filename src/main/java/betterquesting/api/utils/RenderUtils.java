@@ -52,7 +52,7 @@ public class RenderUtils
 		{
 			NonNullList<ItemStack> tmp = NonNullList.create();
 			
-			stack.getItem().getSubItems(stack.getItem(), CreativeTabs.SEARCH, tmp);
+			stack.getItem().getSubItems(CreativeTabs.SEARCH, tmp);
 			
 			if(tmp.size() > 0)
 			{
@@ -74,7 +74,7 @@ public class RenderUtils
 		    itemRender.zLevel = 200.0F;
 		    FontRenderer font = null;
 		    if (rStack != null) font = rStack.getItem().getFontRenderer(rStack);
-		    if (font == null) font = mc.fontRendererObj;
+		    if (font == null) font = mc.fontRenderer;
 		    itemRender.renderItemAndEffectIntoGUI(rStack, x, y);
 		    itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, text);
 		    

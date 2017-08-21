@@ -71,11 +71,11 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 			SendChanges();
 		}
 		
-		titleField = new GuiTextField(0, this.fontRendererObj, width/2 - 99, height/2 - 68 + 1, 198, 18);
+		titleField = new GuiTextField(0, this.fontRenderer, width/2 - 99, height/2 - 68 + 1, 198, 18);
 		titleField.setMaxStringLength(Integer.MAX_VALUE);
 		titleField.setText(quest.getUnlocalisedName());
 		
-		descField = new GuiBigTextField(this.fontRendererObj, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this);
+		descField = new GuiBigTextField(this.fontRenderer, width/2 - 99, height/2 - 28 + 1, 198, 18).enableBigEdit(this);
 		descField.setMaxStringLength(Integer.MAX_VALUE);
 		descField.setText(quest.getUnlocalisedDescription());
 		
@@ -125,8 +125,8 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 		titleField.drawTextBox();
 		descField.drawTextBox(mx, my, partialTick);
 
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, getTextColor(), false);
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), width/2 - 100, height/2 - 80, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.description"), width/2 - 100, height/2 - 40, getTextColor(), false);
 	}
 	
 	@Override

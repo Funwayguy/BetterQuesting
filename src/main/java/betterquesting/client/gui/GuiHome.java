@@ -90,7 +90,7 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 		int ty = (int)((sizeY - 64) * ancY) + offY + guiTop + 16;
 		this.drawTexturedModalRect(tx, ty, 0, 128, 256, 128);
 		
-		btnSet.drawButton(mc, mx, my); // Drawn again over background
+		btnSet.drawButton(mc, mx, my, partialTick); // Drawn again over background
 	}
 	
 	@Override

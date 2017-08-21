@@ -2,6 +2,7 @@ package betterquesting.api.client.gui.lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -67,7 +68,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 					
 					if(oreStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 					{
-						oItem.getSubItems(oItem, CreativeTabs.SEARCH, tmp);
+						oItem.getSubItems(CreativeTabs.SEARCH, tmp);
 					}
 					
 					if(tmp.size() <= 0)
@@ -89,7 +90,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 				}
 			} else if(stack.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE)
 			{
-				stack.getBaseStack().getItem().getSubItems(stack.getBaseStack().getItem(), CreativeTabs.SEARCH, subStacks);
+				stack.getBaseStack().getItem().getSubItems(CreativeTabs.SEARCH, subStacks);
 			}
 			
 			if(subStacks.size() <= 0)
@@ -135,7 +136,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 			
 			GlStateManager.popMatrix();
 			
-			RenderUtils.drawSplitString(mc.fontRendererObj, desc, px + 40, py + 4, width - 40, getTextColor(), false, 0, 2);
+			RenderUtils.drawSplitString(mc.fontRenderer, desc, px + 40, py + 4, width - 40, getTextColor(), false, 0, 2);
 		}
 		
 		@Override
@@ -148,7 +149,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 				
 				try
 				{
-					this.drawTooltip(tmpStack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips), mx, my, mc.fontRendererObj);
+					this.drawTooltip(tmpStack.getTooltip(mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, mc.fontRenderer);
 				} catch(Exception e){}
 			}
 		}

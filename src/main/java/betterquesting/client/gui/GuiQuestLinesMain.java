@@ -52,7 +52,7 @@ public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 		
 		if(QuestSettings.INSTANCE.canUserEdit(mc.player))
 		{
-			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
+			((GuiButton)this.buttonList.get(0)).x = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		

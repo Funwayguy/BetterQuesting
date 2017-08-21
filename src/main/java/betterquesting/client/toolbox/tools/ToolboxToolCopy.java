@@ -55,9 +55,9 @@ public class ToolboxToolCopy implements IToolboxTool
 		mx -= modX;
 		my -= modY;
 		
-		btnQuest.xPosition = mx;
-		btnQuest.yPosition = my;
-		btnQuest.drawButton(Minecraft.getMinecraft(), mx, my);
+		btnQuest.x = mx;
+		btnQuest.y = my;
+		btnQuest.drawButton(Minecraft.getMinecraft(), mx, my, partialTick);
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}

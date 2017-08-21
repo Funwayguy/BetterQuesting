@@ -106,8 +106,8 @@ public class QuestLineButtonTree
 				continue;
 			}
 			
-			treeW = Math.max(btn.xPosition + btn.width, treeW);
-			treeH = Math.max(btn.yPosition + btn.height, treeH);
+			treeW = Math.max(btn.x + btn.width, treeW);
+			treeH = Math.max(btn.y + btn.height, treeH);
 			
 			for(GuiButtonQuestInstance b2 : buttonTree)
 			{

@@ -137,19 +137,19 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		
 		this.drawTexturedModalRect(invX, invY, 0, 48, 18, 18);
 		
-		mc.fontRendererObj.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
-		mc.fontRendererObj.drawString("-->", invX - 17, invY + 6, getTextColor(), false);
+		mc.fontRenderer.drawString("-->", invX - 17, invY + 7, Color.BLACK.getRGB(), false);
+		mc.fontRenderer.drawString("-->", invX - 17, invY + 6, getTextColor(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		if(quest != null)
 		{
-			mc.fontRendererObj.drawString(I18n.format(quest.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 40, getTextColor(), false);
+			mc.fontRenderer.drawString(I18n.format(quest.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 40, getTextColor(), false);
 		}
 		
 		if(task != null)
 		{
-			mc.fontRendererObj.drawString(I18n.format(task.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 60, getTextColor(), false);
+			mc.fontRenderer.drawString(I18n.format(task.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 60, getTextColor(), false);
 		}
 		
 	}

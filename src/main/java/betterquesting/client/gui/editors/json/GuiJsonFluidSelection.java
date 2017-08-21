@@ -53,14 +53,14 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 	{
 		super.initGui();
 		
-		this.searchBox = new GuiBigTextField(fontRendererObj, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
+		this.searchBox = new GuiBigTextField(fontRenderer, guiLeft + sizeX/2 + 9, guiTop + 33, sizeX/2 - 26, 14);
 		this.searchBox.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchBox.setMaxStringLength(Integer.MAX_VALUE);
 		
 		this.fluidGrid = new GuiScrollingFluidGrid(mc, guiLeft + sizeX/2 + 8, guiTop + 48, sizeX/2 - 24, sizeY - 80);
 		this.embedded.add(fluidGrid);
 		
-		numberBox = new GuiNumberField(fontRendererObj, guiLeft + 76, guiTop + 57, 100, 16);
+		numberBox = new GuiNumberField(fontRenderer, guiLeft + 76, guiTop + 57, 100, 16);
 		
 		if(stackSelect != null)
 		{
@@ -80,8 +80,8 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		
 		GlStateManager.color(1f, 1f, 1f, 1f);
 		
-		this.fontRendererObj.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, getTextColor(), false);
-		this.fontRendererObj.drawString("x", guiLeft + 64, guiTop + 60, getTextColor(), false);
+		this.fontRenderer.drawString(I18n.format("betterquesting.gui.selection"), guiLeft + 24, guiTop + 36, getTextColor(), false);
+		this.fontRenderer.drawString("x", guiLeft + 64, guiTop + 60, getTextColor(), false);
 		
 		this.mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
 		
@@ -109,7 +109,7 @@ public class GuiJsonFluidSelection extends GuiScreenThemed
 		}
 		GlStateManager.popMatrix();
 		
-		fontRendererObj.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, getTextColor(), false);
+		fontRenderer.drawString(I18n.format("container.inventory"), this.guiLeft + 24, this.guiTop + sizeY/2 - 12, getTextColor(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		

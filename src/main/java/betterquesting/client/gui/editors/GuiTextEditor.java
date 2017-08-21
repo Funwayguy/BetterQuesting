@@ -305,7 +305,7 @@ public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
         String s1 = text.substring(0, cursorPosition);
         String s2 = text.substring(cursorPosition);
 
-        if (this.fontRendererObj.getBidiFlag())
+        if (this.fontRenderer.getBidiFlag())
         {
             s1 = s1 + "_";
         }

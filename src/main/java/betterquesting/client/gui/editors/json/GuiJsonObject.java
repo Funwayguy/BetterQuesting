@@ -85,7 +85,7 @@ public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 		editables = new HashMap<String, JsonControlSet>();
 		maxRows = (this.sizeY - 84)/20;
 		
-		((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
+		((GuiButton)this.buttonList.get(0)).x = this.width/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
 		this.buttonList.add(new GuiButtonThemed(1, this.width/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("betterquesting.btn.new"), true));
 		this.buttonList.add(new GuiButtonThemed(2, this.width/2, this.guiTop + 32 + (maxRows * 20), 20, 20, "<", true));
@@ -101,7 +101,7 @@ public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 				GuiTextField txtBox;
 				if(jPrim.isNumber())
 				{
-					txtBox = new GuiNumberField(this.fontRendererObj, 32, -9999, 128, 16);
+					txtBox = new GuiNumberField(this.fontRenderer, 32, -9999, 128, 16);
 					txtBox.setText("" + jPrim.getAsNumber());
 				} else if(jPrim.isBoolean())
 				{
@@ -111,7 +111,7 @@ public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 					continue;
 				} else
 				{
-					txtBox = new GuiBigTextField(this.fontRendererObj, 32, -9999, 128, 16).enableBigEdit(new TextCallbackJsonObject(settings, entry.getKey()));
+					txtBox = new GuiBigTextField(this.fontRenderer, 32, -9999, 128, 16).enableBigEdit(new TextCallbackJsonObject(settings, entry.getKey()));
 					txtBox.setMaxStringLength(Integer.MAX_VALUE);
 					txtBox.setText(jPrim.getAsString());
 				}
@@ -259,12 +259,12 @@ public class GuiJsonObject extends GuiScreenThemed implements IVolatileScreen
 				}
 			}
 			
-			this.fontRendererObj.drawString(keyName, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(keyName) - 8, posY + 4, getTextColor(), false);
+			this.fontRenderer.drawString(keyName, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(keyName) - 8, posY + 4, getTextColor(), false);
 		}
 		
 		int mxPage = Math.max(MathHelper.ceil(editables.size()/(float)maxRows), 1);
 		String txt = (scrollPos + 1) + "/" + mxPage;
-		this.fontRendererObj.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRendererObj.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
+		this.fontRenderer.drawString(txt, guiLeft + 16 + (sizeX - 32)/4*3 - this.fontRenderer.getStringWidth(txt)/2, guiTop + 32 + (maxRows * 20) + 6, getTextColor());
 		
 		if(keyDesc != null)
 		{

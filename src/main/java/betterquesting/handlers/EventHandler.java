@@ -91,6 +91,11 @@ public class EventHandler
 		
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
+			if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+			{
+				return;
+			}
+			
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			
@@ -263,7 +268,11 @@ public class EventHandler
 		QuestLineDatabase.INSTANCE.reset();
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
-		GuiQuestLinesMain.bookmarked = null;
+		
+		if(BetterQuesting.proxy.isClient())
+		{
+			GuiQuestLinesMain.bookmarked = null;
+		}
 		
 		MinecraftServer server =event.getWorld().getMinecraftServer();
 		
@@ -417,7 +426,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).playerConqueredTheEnd)
+		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).queuedEndExit)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			

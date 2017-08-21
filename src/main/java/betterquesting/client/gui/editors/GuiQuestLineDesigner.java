@@ -49,7 +49,7 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 		super.initGui();
 		
 		this.sizeX -= 96;
-		((GuiButton)this.buttonList.get(0)).xPosition = guiLeft + sizeX/2 - 100;
+		((GuiButton)this.buttonList.get(0)).x = guiLeft + sizeX/2 - 100;
 		
 		GuiQuestLinesEmbedded oldGui = qlGui;
 		qlGui = new GuiQuestLinesEmbedded(guiLeft + 16, guiTop + 16, sizeX - 32, sizeY - 32);
@@ -108,7 +108,7 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 		currentTheme().getRenderer().drawThemedPanel(guiLeft, guiTop, sizeX, sizeY);
 		
 		String tmp = I18n.format("betterquesting.title.designer");
-		this.fontRendererObj.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
+		this.fontRenderer.drawString(TextFormatting.BOLD + tmp, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(tmp)/2, this.guiTop + 18, getTextColor(), false);
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
@@ -126,7 +126,7 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 		if(toolTab != null)
 		{
 			String tabTitle = TextFormatting.UNDERLINE + I18n.format(toolTab.getUnlocalisedName());
-			this.fontRendererObj.drawString(tabTitle, guiLeft + sizeX + 48 - fontRendererObj.getStringWidth(tabTitle)/2, guiTop + 16 + 2, getTextColor(), false);
+			this.fontRenderer.drawString(tabTitle, guiLeft + sizeX + 48 - fontRenderer.getStringWidth(tabTitle)/2, guiTop + 16 + 2, getTextColor(), false);
 		}
 	}
 	

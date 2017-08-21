@@ -81,7 +81,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		invBtn.enabled = status.ordinal() >= 2;
 		this.buttonList.add(invBtn);
 		
-		fieldName = new GuiTextField(0, mc.fontRendererObj, guiLeft + sizeX/4 - 74, height/2 - 59, 148, 18);
+		fieldName = new GuiTextField(0, mc.fontRenderer, guiLeft + sizeX/4 - 74, height/2 - 59, 148, 18);
 		fieldName.setText(party.getName());
 		fieldName.setEnabled(status.ordinal() >= 3);
 		
@@ -113,13 +113,13 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
 		{
 			RenderUtils.RenderItemStack(mc, heart, guiLeft + 16, guiTop + sizeY - 32, "");
-			mc.fontRendererObj.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());
+			mc.fontRenderer.drawString("x " + lives, guiLeft + 36, guiTop + sizeY - 28, getTextColor());
 		}
 		
 		String memTitle = TextFormatting.UNDERLINE + I18n.format("betterquesting.gui.party_members");
-		mc.fontRendererObj.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRendererObj.getStringWidth(memTitle)/2, guiTop + 32, getTextColor(), false);
+		mc.fontRenderer.drawString(memTitle, guiLeft + sizeX/4*3 - mc.fontRenderer.getStringWidth(memTitle)/2, guiTop + 32, getTextColor(), false);
 		
-		int dotL = mc.fontRendererObj.getStringWidth("...");
+		int dotL = mc.fontRenderer.getStringWidth("...");
 		
 		for(int i = 0; i < memList.size(); i++)
 		{
@@ -131,11 +131,11 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			}
 			
 			String name = NameCache.INSTANCE.getName(memList.get(n));
-			if(mc.fontRendererObj.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
+			if(mc.fontRenderer.getStringWidth(name) > sizeX/2 - 32 - 58) // Prevents overlap onto left side, especially when rendering unresolved UUIDs
 			{
-				name = mc.fontRendererObj.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
+				name = mc.fontRenderer.trimStringToWidth(name, sizeX/2 - 32 - 58 - dotL) + "...";
 			}
-			mc.fontRendererObj.drawString(name, guiLeft + sizeX - 82 - mc.fontRendererObj.getStringWidth(name), guiTop + 48 + (i*20) + 4, getTextColor(), false);
+			mc.fontRenderer.drawString(name, guiLeft + sizeX - 82 - mc.fontRenderer.getStringWidth(name), guiTop + 48 + (i*20) + 4, getTextColor(), false);
 		}
 		
 		mc.renderEngine.bindTexture(currentTheme().getGuiTexture());
@@ -150,7 +150,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + s, 248, 40, 8, 20);
 		this.drawTexturedModalRect(guiLeft + sizeX - 24, this.guiTop + 48 + (int)Math.max(0, s * (float)rightScroll/(memList.size() - maxRows)), 248, 60, 8, 20);
 		
-		mc.fontRendererObj.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, getTextColor(), false);
+		mc.fontRenderer.drawString(I18n.format("betterquesting.gui.name"), guiLeft + sizeX/4 - 75, height/2 - 70, getTextColor(), false);
 		
 		fieldName.drawTextBox();
 		

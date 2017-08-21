@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import betterquesting.api.client.gui.GuiElement;
@@ -85,7 +86,7 @@ public class ScrollingItemGrid extends GuiElement implements IScrollingEntry
 		
 		if(stack != null)
 		{
-			this.drawTooltip(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips), mx, my, mc.fontRendererObj);
+			this.drawTooltip(stack.getTooltip(mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, mc.fontRenderer);
 		}
 	}
 	

@@ -1,6 +1,5 @@
 package betterquesting.items;
 
-import java.util.List;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -9,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -32,15 +32,6 @@ public class ItemExtraLife extends Item
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 		this.setHasSubtypes(true);
 	}
-
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
-     */
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-    {
-        return true;
-    }
 
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
@@ -107,6 +98,7 @@ public class ItemExtraLife extends Item
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
+    @Override
     public String getUnlocalizedName(ItemStack stack)
     {
         switch(stack.getItemDamage()%3)
@@ -130,12 +122,15 @@ public class ItemExtraLife extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item item, CreativeTabs tab, List list)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
     {
-    	list.add(new ItemStack(item, 1, 0));
-    	list.add(new ItemStack(item, 1, 1));
-    	list.add(new ItemStack(item, 1, 2));
+    	if(this.isInCreativeTab(tab))
+    	{
+	    	list.add(new ItemStack(this, 1, 0));
+	    	list.add(new ItemStack(this, 1, 1));
+	    	list.add(new ItemStack(this, 1, 2));
+    	}
     }
 }

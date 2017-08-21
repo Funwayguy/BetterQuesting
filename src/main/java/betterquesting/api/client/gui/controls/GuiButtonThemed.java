@@ -75,14 +75,14 @@ public class GuiButtonThemed extends GuiButton
 	}
 	
 	@Override
-	public void drawButton(Minecraft mc, int mx, int my)
+	public void drawButton(Minecraft mc, int mx, int my, float partialTick)
 	{
         if (this.visible)
         {
-            FontRenderer fontrenderer = mc.fontRendererObj;
+            FontRenderer fontrenderer = mc.fontRenderer;
             mc.getTextureManager().bindTexture(this.currentTheme().getGuiTexture());
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.hovered = mx >= this.xPosition && my >= this.yPosition && mx < this.xPosition + this.width && my < this.yPosition + this.height;
+            this.hovered = mx >= this.x && my >= this.y && mx < this.x + this.width && my < this.y + this.height;
             int k = this.getHoverState(this.hovered);
             GlStateManager.enableBlend();
             GlStateManager.enableBlend();
@@ -92,8 +92,8 @@ public class GuiButtonThemed extends GuiButton
             GlStateManager.pushMatrix();
             float sh = height/20F;
             float sw = width >= 196? width/200F : 1F;
-            float py = yPosition/sh;
-            float px = xPosition/sw;
+            float py = y/sh;
+            float px = x/sw;
             GlStateManager.scale(sw, sh, 1F);
             
             if(width >= 196)
@@ -132,12 +132,12 @@ public class GuiButtonThemed extends GuiButton
             		float iScale = Math.min(width/(float)iw, height/(float)ih);
             		GlStateManager.pushMatrix();
             		GlStateManager.scale(iScale, iScale, 1F);
-            		GlStateManager.translate(xPosition/iScale, yPosition/iScale, 0F);
+            		GlStateManager.translate(x/iScale, y/iScale, 0F);
             		this.drawTexturedModalRect((int)(width/2 - (iw*iScale)/2F), (int)(height/2 - (ih*iScale)/2F), iu, iv, iw, ih);
             		GlStateManager.popMatrix();
             	} else
             	{
-            		this.drawTexturedModalRect(xPosition + width/2 - iw/2, yPosition + height/2 - ih/2, iu, iv, iw, ih);
+            		this.drawTexturedModalRect(x + width/2 - iw/2, y + height/2 - ih/2, iu, iv, iw, ih);
             	}
             }
             
@@ -149,7 +149,7 @@ public class GuiButtonThemed extends GuiButton
             	txt = fontrenderer.trimStringToWidth(txt, width - dotWidth) + "...";
             }
             
-            this.drawCenteredString(fontrenderer, txt, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l, txtShadow);
+            this.drawCenteredString(fontrenderer, txt, this.x + this.width / 2, this.y + (this.height - 8) / 2, l, txtShadow);
         }
 	}
 	

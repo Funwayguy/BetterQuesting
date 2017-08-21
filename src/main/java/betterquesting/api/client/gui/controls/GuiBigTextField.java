@@ -26,7 +26,7 @@ public class GuiBigTextField extends GuiTextField
 	public GuiBigTextField enableBigEdit(ICallback<String> host)
 	{
 		this.width -= 20;
-		bigEdit = new GuiButtonThemed(0, this.xPosition + width + 1, this.yPosition - 1, 20, height + 2, "Aa", true);
+		bigEdit = new GuiButtonThemed(0, this.x + width + 1, this.y - 1, 20, height + 2, "Aa", true);
 		this.host = host;
 		return this;
 	}
@@ -38,7 +38,7 @@ public class GuiBigTextField extends GuiTextField
 	}
 	
 	@Override
-    public void mouseClicked(int mx, int my, int p_146192_3_)
+    public boolean mouseClicked(int mx, int my, int p_146192_3_)
     {
 		Minecraft mc = Minecraft.getMinecraft();
 		
@@ -46,10 +46,10 @@ public class GuiBigTextField extends GuiTextField
         {
         	bigEdit.playPressSound(mc.getSoundHandler());
         	QuestingAPI.getAPI(ApiReference.GUI_HELPER).openTextEditor(mc.currentScreen, host, getText());
-        	return;
+        	return true;
         } else
         {
-        	super.mouseClicked(mx, my, p_146192_3_);
+        	return super.mouseClicked(mx, my, p_146192_3_);
         }
     }
 	
@@ -75,17 +75,17 @@ public class GuiBigTextField extends GuiTextField
 	{
 		if(bigEdit != null)
 		{
-			bigEdit.xPosition = this.xPosition + width + 1;
-			bigEdit.yPosition = this.yPosition - 1;
+			bigEdit.x = this.x + width + 1;
+			bigEdit.y = this.y - 1;
 			bigEdit.height = this.height + 2;
-	        bigEdit.drawButton(Minecraft.getMinecraft(), mx, my);
+	        bigEdit.drawButton(Minecraft.getMinecraft(), mx, my, partialTick);
 		}
 		
 		super.drawTextBox();
 		
 		if(getText().length() <= 0 && watermark.length() > 0 && !isFocused())
 		{
-			this.fontrenderer.drawString(watermark, this.xPosition + 4, this.yPosition + height/2 - 4, wmColor.getRGB(), false);
+			this.fontrenderer.drawString(watermark, this.x + 4, this.y + height/2 - 4, wmColor.getRGB(), false);
 		}
 	}
 }

@@ -1,6 +1,8 @@
 package betterquesting.api.placeholders;
 
 import java.util.List;
+import javax.annotation.Nullable;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -26,8 +28,7 @@ public class ItemPlaceholder extends Item
      */
 	@Override
     @SideOnly(Side.CLIENT)
-	@SuppressWarnings({"unchecked", "rawtypes"})
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn)
 	{
 		if(!stack.hasTagCompound())
 		{

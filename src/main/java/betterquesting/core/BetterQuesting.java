@@ -4,11 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -30,7 +26,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.FluidPlaceholder;
-import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.blocks.BlockSubmitStation;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
@@ -99,43 +94,9 @@ public class BetterQuesting
     {
     	FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
     	
-    	registerItem(ItemPlaceholder.placeholder, "placeholder");
-    	registerItem(extraLife, "extra_life");
-    	registerItem(guideBook, "guide_book");
-    	
-    	registerBlock(submitStation, "submit_station");
-    	
     	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
     	
-    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.BOOK), new ItemStack(Blocks.GLASS), new ItemStack(Blocks.CHEST));
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 1));
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 1));
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 1), new ItemStack(extraLife, 1, 0));
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 2), new ItemStack(extraLife, 1, 1));
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.BOOK), new ItemStack(Blocks.CHEST), new ItemStack(Blocks.GLASS));
-    	
     	EntityRegistry.registerModEntity(new ResourceLocation(MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
-    	
-    	proxy.registerRenderers();
-    }
-    
-    public void registerBlock(Block b, String name)
-    {
-    	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
-    	GameRegistry.register(b, res);
-        GameRegistry.register(new ItemBlock(b).setRegistryName(res));
-    }
-    
-    public void registerItem(Item i, String name)
-    {
-    	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
-        GameRegistry.register(i.setRegistryName(res));
     }
     
     @EventHandler

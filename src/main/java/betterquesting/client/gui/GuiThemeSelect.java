@@ -80,7 +80,7 @@ public class GuiThemeSelect extends GuiScreenThemed
     	GlStateManager.color(1F, 1F, 1F, 1F);
     	
     	String txt = TextFormatting.BOLD + "EXAMPLE";
-    	mc.fontRendererObj.drawString(txt, 64 - mc.fontRendererObj.getStringWidth(txt)/2, 32 - mc.fontRendererObj.FONT_HEIGHT, getTextColor());
+    	mc.fontRenderer.drawString(txt, 64 - mc.fontRenderer.getStringWidth(txt)/2, 32 - mc.fontRenderer.FONT_HEIGHT, getTextColor());
     	
     	RenderUtils.RenderItemStack(mc, new ItemStack(Items.ENCHANTED_BOOK), 56, 41, "");
 		

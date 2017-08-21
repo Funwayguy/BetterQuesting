@@ -131,22 +131,22 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
         boolean flag = this.mc.world.getWorldInfo().isHardcoreModeEnabled() || (QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && lifeCache <= 0);
         String s = flag ? I18n.format("deathScreen.title.hardcore") : I18n.format("deathScreen.title");
-        this.drawCenteredString(this.fontRendererObj, s, this.width / 2 / 2, 30, 16777215);
+        this.drawCenteredString(this.fontRenderer, s, this.width / 2 / 2, 30, 16777215);
         GlStateManager.popMatrix();
 
         if (flag)
         {
-            this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
+            this.drawCenteredString(this.fontRenderer, I18n.format("deathScreen.hardcoreInfo"), this.width / 2, 144, 16777215);
         }
 
-        this.drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.player.getScore(), this.width / 2, 100, 16777215);
+        this.drawCenteredString(this.fontRenderer, I18n.format("deathScreen.score") + ": " + TextFormatting.YELLOW + this.mc.player.getScore(), this.width / 2, 100, 16777215);
         
         if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
         {
-        	this.drawCenteredString(this.fontRendererObj, I18n.format("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + lifeCache), this.width / 2, 112, 16777215);
+        	this.drawCenteredString(this.fontRenderer, I18n.format("betterquesting.gui.remaining_lives", TextFormatting.YELLOW + "" + lifeCache), this.width / 2, 112, 16777215);
         }
         
-        if (this.causeOfDeath != null && my > 85 && my < 85 + this.fontRendererObj.FONT_HEIGHT)
+        if (this.causeOfDeath != null && my > 85 && my < 85 + this.fontRenderer.FONT_HEIGHT)
         {
             ITextComponent itextcomponent = this.getClickedComponentAt(mx);
 
@@ -160,7 +160,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         for (k = 0; k < this.buttonList.size(); ++k)
         {
-            ((GuiButton)this.buttonList.get(k)).drawButton(this.mc, mx, my);
+            ((GuiButton)this.buttonList.get(k)).drawButton(this.mc, mx, my, partialTick);
         }
 
         for (k = 0; k < this.labelList.size(); ++k)

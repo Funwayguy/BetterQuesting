@@ -57,7 +57,7 @@ public class ToolboxToolScale implements IToolboxTool
 		{
 			int snap = ToolboxGuiMain.getSnapValue();
 			
-			int size = Math.max(mx - grabbed.xPosition, my - grabbed.yPosition);
+			int size = Math.max(mx - grabbed.x, my - grabbed.y);
 			int mult = Math.max(1, (int)Math.ceil(size/(float)snap));
 			size = mult * snap;
 			

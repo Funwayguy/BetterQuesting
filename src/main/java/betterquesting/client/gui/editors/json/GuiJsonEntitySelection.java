@@ -63,7 +63,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 		}
 		Collections.sort(entityNames);
 		
-		this.searchField = new GuiBigTextField(mc.fontRendererObj, guiLeft + sizeX/2 + 1, guiTop + 33, sizeX/2 - 18, 14);
+		this.searchField = new GuiBigTextField(mc.fontRenderer, guiLeft + sizeX/2 + 1, guiTop + 33, sizeX/2 - 18, 14);
 		this.searchField.setWatermark(I18n.format("betterquesting.gui.search"));
 		this.searchField.setMaxStringLength(Integer.MAX_VALUE);
 		

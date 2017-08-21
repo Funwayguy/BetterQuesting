@@ -70,7 +70,7 @@ public class QuestCommandLives extends QuestCommandBase
 		
 		if(args.length >= 4)
 		{
-			playerID = this.findPlayerID(server, args[3]);
+			playerID = this.findPlayerID(server, sender, args[3]);
 			
 			if(playerID == null)
 			{

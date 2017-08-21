@@ -85,7 +85,7 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 		
 		if(QuestSettings.INSTANCE.canUserEdit(mc.player))
 		{
-			((GuiButton)this.buttonList.get(0)).xPosition = this.width/2 - 100;
+			((GuiButton)this.buttonList.get(0)).x = this.width/2 - 100;
 			((GuiButton)this.buttonList.get(0)).width = 100;
 		}
 		
@@ -142,9 +142,9 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 			
 			tTitle = TextFormatting.UNDERLINE + tTitle;
 			
-			int nameWidth = this.fontRendererObj.getStringWidth(tTitle);
+			int nameWidth = this.fontRenderer.getStringWidth(tTitle);
 			
-			this.fontRendererObj.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, getTextColor());
+			this.fontRenderer.drawString(tTitle, this.guiLeft + (sizeX/4)*3 - (nameWidth/2), this.guiTop + 32, getTextColor());
 		}
 		
 		if(selReward != null)
@@ -159,8 +159,8 @@ public class GuiQuestInstance extends GuiScreenThemed implements INeedsRefresh
 			
 			rTitle = TextFormatting.UNDERLINE + rTitle;
 			
-			int nameWidth = this.fontRendererObj.getStringWidth(rTitle);
-			this.fontRendererObj.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, getTextColor());
+			int nameWidth = this.fontRenderer.getStringWidth(rTitle);
+			this.fontRenderer.drawString(rTitle, guiLeft + (sizeX/4)*1 - (nameWidth/2), guiTop + sizeY/2 - 12, getTextColor());
 		}
 	}
 	

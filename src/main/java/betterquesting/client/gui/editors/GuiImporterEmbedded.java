@@ -36,7 +36,7 @@ public class GuiImporterEmbedded extends GuiElement implements IGuiEmbedded
 	{
 		txtScroll.drawBackground(mx, my, partialTick);
 		
-		this.drawCenteredString(mc.fontRendererObj, I18n.format(importer.getUnlocalisedName()), posX + sizeX/2, posY + 4, getTextColor(), false);
+		this.drawCenteredString(mc.fontRenderer, I18n.format(importer.getUnlocalisedName()), posX + sizeX/2, posY + 4, getTextColor(), false);
 	}
 	
 	@Override

@@ -32,7 +32,7 @@ public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.Sc
 		
 		for(GuiButtonThemed btn : this.getEntryList().get(idx).getButtons())
 		{
-			if(isWithin(mx, my, btn.xPosition, btn.yPosition, btn.width, btn.height))
+			if(isWithin(mx, my, btn.x, btn.y, btn.width, btn.height))
 			{
 				return btn;
 			}
@@ -63,10 +63,10 @@ public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.Sc
 			
 			for(GuiButtonThemed btn : buttons)
 			{
-				btn.xPosition = px + n;
-				btn.yPosition = py;
+				btn.x = px + n;
+				btn.y = py;
 				
-				btn.drawButton(btn.mc, mx, my);
+				btn.drawButton(btn.mc, mx, my, 1F);
 				n += btn.width;
 			}
 		}
@@ -76,7 +76,7 @@ public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.Sc
 		{
 			for(GuiButtonThemed btn : buttons)
 			{
-				if(!isWithin(mx, my, btn.xPosition, btn.yPosition, btn.width, btn.height))
+				if(!isWithin(mx, my, btn.x, btn.y, btn.width, btn.height))
 				{
 					continue;
 				}
@@ -85,7 +85,7 @@ public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.Sc
 				
 				if(tooltip != null && tooltip.size() > 0)
 				{
-					this.drawTooltip(tooltip, mx, my, btn.mc.fontRendererObj);
+					this.drawTooltip(tooltip, mx, my, btn.mc.fontRenderer);
 					break;
 				}
 			}

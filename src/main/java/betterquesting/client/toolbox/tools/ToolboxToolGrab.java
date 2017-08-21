@@ -42,8 +42,8 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 			if(qle != null)
 			{
 				// Reset position
-				grabbed.xPosition = qle.getPosX();
-				grabbed.yPosition = qle.getPosY();
+				grabbed.x = qle.getPosX();
+				grabbed.y = qle.getPosY();
 			}
 		}
 		
@@ -57,12 +57,12 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 		if(grabbed != null)
 		{
 			int snap = ToolboxGuiMain.getSnapValue();
-			grabbed.xPosition = mx;
-			grabbed.yPosition = my;
-			int modX = ((grabbed.xPosition%snap) + snap)%snap;
-			int modY = ((grabbed.yPosition%snap) + snap)%snap;
-			grabbed.xPosition -= modX;
-			grabbed.yPosition -= modY;
+			grabbed.x = mx;
+			grabbed.y = my;
+			int modX = ((grabbed.x%snap) + snap)%snap;
+			int modY = ((grabbed.y%snap) + snap)%snap;
+			grabbed.x -= modX;
+			grabbed.y -= modY;
 		}
 		
 		ToolboxGuiMain.drawGrid(gui);
@@ -78,8 +78,8 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 			if(qle != null)
 			{
 				// Reset position
-				grabbed.xPosition = qle.getPosX();
-				grabbed.yPosition = qle.getPosY();
+				grabbed.x = qle.getPosX();
+				grabbed.y = qle.getPosY();
 			}
 			
 			grabbed = null;
@@ -101,7 +101,7 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 			
 			if(qle != null)
 			{
-				qle.setPosition(grabbed.xPosition, grabbed.yPosition);
+				qle.setPosition(grabbed.x, grabbed.y);
 				
 				// Sync Line
 				NBTTagCompound tag2 = new NBTTagCompound();

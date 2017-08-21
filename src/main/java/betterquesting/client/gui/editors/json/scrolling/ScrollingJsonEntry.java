@@ -154,13 +154,13 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 				btnList.add(btnMain);
 			} else if(jp.isNumber())
 			{
-				GuiNumberField num = new GuiNumberField(mc.fontRendererObj, margin + 1, 0, ctrlSpace - n - 2, 18);
+				GuiNumberField num = new GuiNumberField(mc.fontRenderer, margin + 1, 0, ctrlSpace - n - 2, 18);
 				num.setMaxStringLength(Integer.MAX_VALUE);
 				num.setText(jp.getAsNumber().toString());
 				txtMain = num;
 			} else
 			{
-				GuiBigTextField txt = new GuiBigTextField(mc.fontRendererObj, margin + 1, 1, ctrlSpace - n - 2, 18);
+				GuiBigTextField txt = new GuiBigTextField(mc.fontRenderer, margin + 1, 1, ctrlSpace - n - 2, 18);
 				txt.setMaxStringLength(Integer.MAX_VALUE);
 				txt.setText(jp.getAsString());
 				
@@ -184,18 +184,18 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		
 		for(GuiButtonThemed btn : btnList)
 		{
-			btn.yPosition = py;
-			btn.drawButton(mc, mx, my);
+			btn.y = py;
+			btn.drawButton(mc, mx, my, 1F);
 		}
 		
 		if(txtMain != null)
 		{
-			txtMain.yPosition = py + 1;
+			txtMain.y = py + 1;
 			txtMain.drawTextBox();
 		}
 		
-		int length = mc.fontRendererObj.getStringWidth(name);
-		mc.fontRendererObj.drawString(name, margin - 8 - length, py + 6, getTextColor(), false);
+		int length = mc.fontRenderer.getStringWidth(name);
+		mc.fontRenderer.drawString(name, margin - 8 - length, py + 6, getTextColor(), false);
 	}
 	
 	@Override
@@ -205,7 +205,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		{
 			List<String> tTip = new ArrayList<String>();
 			tTip.add(desc);
-			this.drawTooltip(tTip, mx, my, mc.fontRendererObj);
+			this.drawTooltip(tTip, mx, my, mc.fontRenderer);
 		}
 	}
 	

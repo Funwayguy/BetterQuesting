@@ -55,7 +55,7 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 	{
 		super.initGui();
 		
-		((GuiButton)this.buttonList.get(0)).xPosition = this.guiLeft + this.sizeX/2 - 100;
+		((GuiButton)this.buttonList.get(0)).x = this.guiLeft + this.sizeX/2 - 100;
 		((GuiButton)this.buttonList.get(0)).width = 100;
 		this.buttonList.add(new GuiButtonThemed(1, this.guiLeft + this.sizeX/2, this.guiTop + this.sizeY - 16, 100, 20, I18n.format("gui.cancel"), true));
 		
@@ -63,7 +63,7 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 		
 		if(json.isJsonObject())
 		{
-			keyText = new GuiTextField(0, this.fontRendererObj, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 48, 200, 16);
+			keyText = new GuiTextField(0, this.fontRenderer, this.guiLeft + this.sizeX/2 - 100, this.guiTop + this.sizeY/2 - 48, 200, 16);
 			keyText.setMaxStringLength(Integer.MAX_VALUE);
 			((GuiButton)this.buttonList.get(0)).enabled = false;
 			btnOff = 0;
@@ -101,16 +101,16 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 		if(keyText != null)
 		{
 			String txt = I18n.format("betterquesting.gui.key");
-			mc.fontRendererObj.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + 52, getTextColor(), false);
+			mc.fontRenderer.drawString(txt, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(txt)/2, this.guiTop + 52, getTextColor(), false);
 			
 			if(keyText.getText().length() <= 0)
 			{
 				txt = I18n.format("betterquesting.gui.no_key");
-				mc.fontRendererObj.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				mc.fontRenderer.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			} else if(json.getAsJsonObject().has(keyText.getText()))
 			{
 				txt = I18n.format("betterquesting.gui.duplicate_key");
-				mc.fontRendererObj.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRendererObj.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
+				mc.fontRenderer.drawString(TextFormatting.BOLD + txt, this.guiLeft + (sizeX/2) - this.fontRenderer.getStringWidth(txt)/2, this.guiTop + this.sizeY/2 - 30, Color.RED.getRGB(), false);
 			}
 		}
 	}

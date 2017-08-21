@@ -141,9 +141,9 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			for(int i = 0; i < qBtns.size(); i++)
 			{
 				GuiButtonQuestInstance btnQuest = qBtns.get(i);
-				btnQuest.drawButton(mc, rmx, rmy);
+				btnQuest.drawButton(mc, rmx, rmy, partialTick);
 				
-				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.xPosition, btnQuest.yPosition, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
+				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.x, btnQuest.y, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
 				{
 					qTooltip = btnQuest.getQuest();
 				}
@@ -184,14 +184,14 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			GlStateManager.pushMatrix();
 			float scale = sizeX > 600? 1.5F : 1F;
 			GlStateManager.scale(scale, scale, scale);
-			drawString(mc.fontRendererObj, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + 4)/scale), getTextColor(), false);
-			drawString(mc.fontRendererObj, zoom + "%", MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + sizeY - 4 - mc.fontRendererObj.FONT_HEIGHT)/scale), getTextColor(), false);
+			drawString(mc.fontRenderer, I18n.format(qLine.getUnlocalisedName()), MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + 4)/scale), getTextColor(), false);
+			drawString(mc.fontRenderer, zoom + "%", MathHelper.ceil((posX + 4)/scale), MathHelper.ceil((posY + sizeY - 4 - mc.fontRenderer.FONT_HEIGHT)/scale), getTextColor(), false);
 			GlStateManager.popMatrix();
 		}
 		
 		if(curTooltip != null && curTooltip.size() > 0)
 		{
-			drawTooltip(curTooltip, mx, my, Minecraft.getMinecraft().fontRendererObj);
+			drawTooltip(curTooltip, mx, my, Minecraft.getMinecraft().fontRenderer);
 			GlStateManager.disableLighting();
 		}
 	}

@@ -61,7 +61,7 @@ public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
         	}
         }
 		
-		this.txtManual = new GuiBigTextField(this.fontRendererObj, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
+		this.txtManual = new GuiBigTextField(this.fontRenderer, guiLeft + sizeX/2 - 149, guiTop + 33, 198, 18);
 		this.txtManual.setWatermark("Username");
 		this.btnManual = new GuiButtonThemed(this.buttonList.size(), guiLeft + sizeX/2 + 50, guiTop + 32, 100, 20, I18n.format("betterquesting.btn.party_invite"), true);
 		this.buttonList.add(btnManual);

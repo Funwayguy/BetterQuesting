@@ -63,13 +63,13 @@ public class JsonControlSet
 		if(jsonDisplay instanceof GuiButton)
 		{
 			GuiButton button = (GuiButton)jsonDisplay;
-			button.xPosition = -9999;
-			button.yPosition = -9999;
+			button.x = -9999;
+			button.y = -9999;
 		} else if(jsonDisplay instanceof GuiTextField)
 		{
 			GuiTextField textField = (GuiTextField)jsonDisplay;
-			textField.xPosition = -9999;
-			textField.yPosition = -9999;
+			textField.x = -9999;
+			textField.y = -9999;
 		}
 		
 		if(addButton != null)
@@ -126,8 +126,8 @@ public class JsonControlSet
 		{
 			GuiTextField textField = (GuiTextField)this.jsonDisplay;
 			
-			textField.xPosition = posX + 1;
-			textField.yPosition = posY + 1;
+			textField.x = posX + 1;
+			textField.y = posY + 1;
 			textField.width = sizeX - ctrlSpace - 2;
 			textField.height = 18;
 			textField.drawTextBox();
@@ -135,21 +135,21 @@ public class JsonControlSet
 		{
 			GuiButton button = (GuiButton)this.jsonDisplay;
 			
-			button.xPosition = posX;
-			button.yPosition = posY;
+			button.x = posX;
+			button.y = posY;
 			button.width = sizeX - ctrlSpace;
 		}
 		
 		if(addButton != null)
 		{
-			addButton.xPosition = posX + sizeX - ctrlSpace;
-			addButton.yPosition = posY;
+			addButton.x = posX + sizeX - ctrlSpace;
+			addButton.y = posY;
 		}
 		
 		if(removeButton != null)
 		{
-			removeButton.xPosition = posX + sizeX - ctrlSpace + (addButton == null? 0 : 20);
-			removeButton.yPosition = posY;
+			removeButton.x = posX + sizeX - ctrlSpace + (addButton == null? 0 : 20);
+			removeButton.y = posY;
 		}
 	}
 }

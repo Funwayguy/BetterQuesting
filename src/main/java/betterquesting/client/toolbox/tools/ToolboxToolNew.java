@@ -47,9 +47,9 @@ public class ToolboxToolNew implements IToolboxTool
 		mx -= modX;
 		my -= modY;
 		
-		nQuest.xPosition = mx;
-		nQuest.yPosition = my;
-		nQuest.drawButton(Minecraft.getMinecraft(), mx, my);
+		nQuest.x = mx;
+		nQuest.y = my;
+		nQuest.drawButton(Minecraft.getMinecraft(), mx, my, partialTick);
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}

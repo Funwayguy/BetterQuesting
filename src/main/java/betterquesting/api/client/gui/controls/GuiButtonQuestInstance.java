@@ -45,7 +45,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
      * Draws this button to the screen.
      */
 	@Override
-    public void drawButton(Minecraft mc, int mx, int my)
+    public void drawButton(Minecraft mc, int mx, int my, float partialTick)
     {
 		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
@@ -75,12 +75,12 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         			continue;
         		}
         		
-        		float lsx = p.xPosition + p.width/2F;
-        		float lsy = p.yPosition + p.height/2F;
+        		float lsx = p.x + p.width/2F;
+        		float lsy = p.y + p.height/2F;
         		float lsw = p.width/2F;
         		float lsh = p.height/2F;
-        		float lex = xPosition + width/2F;
-        		float ley = yPosition + height/2F;
+        		float lex = x + width/2F;
+        		float ley = y + height/2F;
         		float lew = width/2F;
         		float leh = height/2F;
         		
@@ -99,7 +99,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
         		currentTheme().getRenderer().drawLine(quest, playerID, lsx, lsy, lex, ley, mx, my, 1F);
         	}
     		
-    		currentTheme().getRenderer().drawIcon(quest, playerID, xPosition, yPosition, width, height, mx, my, 1F);
+    		currentTheme().getRenderer().drawIcon(quest, playerID, x, y, width, height, mx, my, 1F);
         	
         	this.mouseDragged(mc, mx, my);
         }

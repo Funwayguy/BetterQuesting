@@ -313,7 +313,7 @@ public class ToolboxGuiMain extends GuiElement implements IGuiEmbedded
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(title);
-		list.addAll(btn.mc.fontRendererObj.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
+		list.addAll(btn.mc.fontRenderer.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
 		btn.setTooltip(list);
 	}
 	

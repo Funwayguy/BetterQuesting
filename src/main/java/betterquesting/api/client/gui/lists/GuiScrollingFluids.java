@@ -85,7 +85,7 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 			
 			GlStateManager.popMatrix();
 			
-			RenderUtils.drawSplitString(mc.fontRendererObj, desc, px + 40, py + 4, width - 40, getTextColor(), false, 0, 2);
+			RenderUtils.drawSplitString(mc.fontRenderer, desc, px + 40, py + 4, width - 40, getTextColor(), false, 0, 2);
 		}
 		
 		@Override
@@ -98,7 +98,7 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 					List<String> tt = new ArrayList<String>();
 					tt.add(stack.getLocalizedName());
 					tt.add(ChatFormatting.GRAY + "" + stack.amount + "mB");
-					this.drawTooltip(tt, mx, my, mc.fontRendererObj);
+					this.drawTooltip(tt, mx, my, mc.fontRenderer);
 				} catch(Exception e){}
 			}
 		}

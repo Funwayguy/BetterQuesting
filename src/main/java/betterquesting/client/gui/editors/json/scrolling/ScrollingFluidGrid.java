@@ -96,7 +96,7 @@ public class ScrollingFluidGrid extends GuiElement implements IScrollingEntry
 			ArrayList<String> tt = new ArrayList<String>();
 			tt.add(stack.getLocalizedName());
 			tt.add(ChatFormatting.GRAY + "" + stack.amount + "mB");
-			this.drawTooltip(tt, mx, my, mc.fontRendererObj);
+			this.drawTooltip(tt, mx, my, mc.fontRenderer);
 		}
 	}
 	

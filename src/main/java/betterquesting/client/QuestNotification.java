@@ -85,12 +85,12 @@ public class QuestNotification
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
      	
 		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.format(notice.mainTxt);
-		int txtW = mc.fontRendererObj.getStringWidth(tmp);
-		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
+		int txtW = mc.fontRenderer.getStringWidth(tmp);
+		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
 		tmp = I18n.format(notice.subTxt);
-		txtW = mc.fontRendererObj.getStringWidth(tmp);
-		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
+		txtW = mc.fontRenderer.getStringWidth(tmp);
+		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
 		//GlStateManager.disableBlend();
 		GlStateManager.popMatrix();

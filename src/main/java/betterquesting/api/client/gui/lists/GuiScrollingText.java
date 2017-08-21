@@ -23,7 +23,7 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 	public GuiScrollingText(Minecraft mc, int x, int y, int width, int height, String text)
 	{
 		super(mc, x, y, width, height);
-		this.fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		this.SetText(text);
 		this.allowDragScroll(true);
 	}
