@@ -1,38 +1,34 @@
 package adv_director.rw2.api.d_script.operators;
 
-import java.lang.reflect.Array;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
-public class ExpressionArray<T> implements IExpression<T>
+public class ExpressionArray implements IExpression<Object>
 {
 	private final String vName;
-	private final Class<T[]> vType;
-	private final IExpression<Number> index;
+	private final IExpression<?> index;
 	
-	@SuppressWarnings("unchecked")
-	public ExpressionArray(String name, Class<T> type, IExpression<Number> index)
+	public ExpressionArray(String name, IExpression<?> index)
 	{
 		this.vName = name;
-		this.vType = (Class<T[]>)Array.newInstance(type, 0).getClass(); // Not an ideal way of getting an array version but it works
 		this.index = index;
+		//this.vType = (Class<T[]>)Array.newInstance(type, 0).getClass(); // Not an ideal way of getting an array version but it works
 	}
 	
 	@Override
-	public T eval(ScriptScope scope) throws Exception
+	public Object eval(ScriptScope scope) throws Exception
 	{
-		if(!scope.hasVariable(vName, vType))
+		if(!scope.hasArray(vName))
 		{
-			throw new Exception("Undefined variable \"" + vName + "\" of type \"" + vType.getSimpleName() + "\" in expression");
+			throw new Exception("Undefined array in expression: " + vName);
 		}
 		
-		return scope.getVariable(vName, vType)[index.eval(scope).intValue()];
+		return scope.getArray(vName)[((Number)index.eval(scope)).intValue()];
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public Class<T> type()
+	public Class<Object> type()
 	{
-		return (Class<T>)vType.getComponentType();
+		return Object.class;
 	}
 }

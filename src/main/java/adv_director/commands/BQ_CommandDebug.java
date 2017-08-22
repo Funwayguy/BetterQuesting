@@ -43,7 +43,7 @@ public class BQ_CommandDebug extends CommandBase
 		try
 		{
 			sender.addChatMessage(new TextComponentString("Equation: " + equation));
-			IExpression<Object> exp = ExpressionParser.parse(equation, Object.class);
+			IExpression<?> exp = ExpressionParser.parse(equation);
 			sender.addChatMessage(new TextComponentString("Result: " + exp.eval(new ScriptScope()).toString()));
 		} catch(Exception e)
 		{

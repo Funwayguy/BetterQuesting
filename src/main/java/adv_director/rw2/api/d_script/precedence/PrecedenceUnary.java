@@ -6,8 +6,9 @@ import adv_director.rw2.api.d_script.IExpression;
 public class PrecedenceUnary implements IPrecedence
 {
 	@Override
-	public <T> IExpression<T> parse(ExpressionStream stream, Class<T> type) throws Exception
+	public IExpression<?> parse(ExpressionStream stream) throws Exception
 	{
+		// Merged with PrecedenceFactor
 		return null;
 	}
 }

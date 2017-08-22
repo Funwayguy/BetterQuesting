@@ -3,6 +3,7 @@ package adv_director.rw2.api.d_script.operators;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
+@Deprecated
 public class ExpressionConcatenate implements IExpression<String>
 {
 	private final IExpression<?> e1;

@@ -3,26 +3,28 @@ package adv_director.rw2.api.d_script.operators.math;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
-public class OperatorDivide implements IExpression<Number>
+public class OperatorDivide implements IExpression<Double>
 {
-	private final IExpression<Number> e1;
-	private final IExpression<Number> e2;
+	private final IExpression<?> e1;
+	private final IExpression<?> e2;
 	
-	public OperatorDivide(IExpression<Number> e1, IExpression<Number> e2)
+	public OperatorDivide(IExpression<?> e1, IExpression<?> e2)
 	{
 		this.e1 = e1;
 		this.e2 = e2;
 	}
 	
 	@Override
-	public Number eval(ScriptScope scope) throws Exception
+	public Double eval(ScriptScope scope) throws Exception
 	{
-		return e1.eval(scope).doubleValue() / e2.eval(scope).doubleValue();
+		Number n1 = (Number)e1.eval(scope);
+		Number n2 = (Number)e2.eval(scope);
+		return n1.doubleValue() / n2.doubleValue();
 	}
 	
 	@Override
-	public Class<Number> type()
+	public Class<Double> type()
 	{
-		return Number.class;
+		return Double.class;
 	}
 }

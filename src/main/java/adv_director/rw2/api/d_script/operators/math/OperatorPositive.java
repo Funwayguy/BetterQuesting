@@ -4,11 +4,12 @@ import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 import adv_director.rw2.api.d_script.operators.NumberParserUtility;
 
-public class OperatorNegative implements IExpression<Number>
+// Slightly redundant operator but here to keep things consistent
+public class OperatorPositive implements IExpression<Number>
 {
 	private final IExpression<?> ex;
 	
-	public OperatorNegative(IExpression<?> ex)
+	public OperatorPositive(IExpression<?> ex)
 	{
 		this.ex = ex;
 	}
@@ -20,10 +21,10 @@ public class OperatorNegative implements IExpression<Number>
 		
 		if(NumberParserUtility.hasDouble(n1))
 		{
-			return -n1.doubleValue();
+			return +n1.doubleValue();
 		} else
 		{
-			return -n1.longValue();
+			return +n1.longValue();
 		}
 	}
 	

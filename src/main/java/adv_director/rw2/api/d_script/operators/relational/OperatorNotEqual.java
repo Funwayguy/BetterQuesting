@@ -17,7 +17,6 @@ public class OperatorNotEqual implements IExpression<Boolean>
 	@Override
 	public Boolean eval(ScriptScope scope) throws Exception
 	{
-		System.out.println("Evaluating...");
 		return e1.eval(scope) != e2.eval(scope);
 	}
 	

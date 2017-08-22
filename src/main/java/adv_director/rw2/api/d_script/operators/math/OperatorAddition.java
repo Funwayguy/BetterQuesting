@@ -2,27 +2,45 @@ package adv_director.rw2.api.d_script.operators.math;
 
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
+import adv_director.rw2.api.d_script.operators.NumberParserUtility;
 
-public class OperatorAddition implements IExpression<Number>
+public class OperatorAddition implements IExpression<Object>
 {
-	private final IExpression<Number> e1;
-	private final IExpression<Number> e2;
+	private final IExpression<?> e1;
+	private final IExpression<?> e2;
 	
-	public OperatorAddition(IExpression<Number> e1, IExpression<Number> e2)
+	public OperatorAddition(IExpression<?> e1, IExpression<?> e2)
 	{
 		this.e1 = e1;
 		this.e2 = e2;
 	}
 	
 	@Override
-	public Number eval(ScriptScope scope) throws Exception
+	public Object eval(ScriptScope scope) throws Exception
 	{
-		return e1.eval(scope).doubleValue() + e2.eval(scope).doubleValue();
+		Object o1 = e1.eval(scope);
+		Object o2 = e2.eval(scope);
+		
+		if(o1 instanceof String || o2 instanceof String)
+		{
+			return o1.toString() + o2.toString();
+		} else
+		{
+			Number n1 = (Number)o1;
+			Number n2 = (Number)o2;
+			
+			if(NumberParserUtility.hasDouble(n1, n2))
+			{
+				return n1.doubleValue() + n2.doubleValue();
+			} else
+			{
+				return n1.longValue() + n2.longValue();
+			}
+		}
 	}
 	
-	@Override
-	public Class<Number> type()
+	public Class<Object> type()
 	{
-		return Number.class;
+		return Object.class;
 	}
 }

@@ -3,24 +3,24 @@ package adv_director.rw2.api.d_script.operators.binary;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
-public class OperatorBitwiseNOT implements IExpression<Number>
+public class OperatorBitwiseNOT implements IExpression<Long>
 {
-	private final IExpression<Number> ex;
+	private final IExpression<?> ex;
 	
-	public OperatorBitwiseNOT(IExpression<Number> ex)
+	public OperatorBitwiseNOT(IExpression<?> ex)
 	{
 		this.ex = ex;
 	}
 	
 	@Override
-	public Number eval(ScriptScope scope) throws Exception
+	public Long eval(ScriptScope scope) throws Exception
 	{
-		return ~(ex.eval(scope).longValue());
+		return ~(Long)ex.eval(scope);
 	}
 	
 	@Override
-	public Class<Number> type()
+	public Class<Long> type()
 	{
-		return Number.class;
+		return Long.class;
 	}
 }

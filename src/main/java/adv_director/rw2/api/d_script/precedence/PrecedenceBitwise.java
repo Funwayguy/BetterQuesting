@@ -10,85 +10,55 @@ import adv_director.rw2.api.d_script.operators.binary.OperatorBitwiseOr;
 public class PrecedenceBitwise implements IPrecedence
 {
 	@Override
-	public <T> IExpression<T> parse(ExpressionStream stream, Class<T> type) throws Exception
+	public IExpression<?> parse(ExpressionStream stream) throws Exception
 	{
-		return parseOr(stream, type);
+		return parseOr(stream);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parseOr(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parseOr(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = parseExOr(stream, Object.class);
+		IExpression<?> x = parseExOr(stream);
 		
 		for(;;)
 		{
 			if(!stream.eat("||", false) && stream.eat("|"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorBitwiseOr((IExpression<Number>)x, parseExOr(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '|' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
+				x = new OperatorBitwiseOr(x, parseExOr(stream));
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parseExOr(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parseExOr(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = parseAnd(stream, Object.class);
+		IExpression<?> x = parseAnd(stream);
 		
 		for(;;)
 		{
 			if(stream.eat("^"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorBitwiseExOr((IExpression<Number>)x, parseAnd(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '^' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
+				x = new OperatorBitwiseExOr(x, parseAnd(stream));
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parseAnd(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parseAnd(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = ExpressionParser.PREC_EQUALITY.parse(stream, Object.class);
+		IExpression<?> x = ExpressionParser.PREC_EQUALITY.parse(stream);
 		
 		for(;;)
 		{
 			if(!stream.eat("&&", false) && stream.eat("&"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorBitwiseAnd((IExpression<Number>)x, ExpressionParser.PREC_EQUALITY.parse(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '^' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
+				x = new OperatorBitwiseAnd(x, ExpressionParser.PREC_EQUALITY.parse(stream));
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}

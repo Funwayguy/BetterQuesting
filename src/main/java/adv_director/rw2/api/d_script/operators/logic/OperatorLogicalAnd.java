@@ -5,10 +5,10 @@ import adv_director.rw2.api.d_script.ScriptScope;
 
 public class OperatorLogicalAnd implements IExpression<Boolean>
 {
-	private final IExpression<Boolean> e1;
-	private final IExpression<Boolean> e2;
+	private final IExpression<?> e1;
+	private final IExpression<?> e2;
 	
-	public OperatorLogicalAnd(IExpression<Boolean> e1, IExpression<Boolean> e2)
+	public OperatorLogicalAnd(IExpression<?> e1, IExpression<?> e2)
 	{
 		this.e1 = e1;
 		this.e2 = e2;
@@ -17,9 +17,9 @@ public class OperatorLogicalAnd implements IExpression<Boolean>
 	@Override
 	public Boolean eval(ScriptScope scope) throws Exception
 	{
-		return e1.eval(scope) && e2.eval(scope);
+		return (Boolean)e1.eval(scope) && (Boolean)e2.eval(scope);
 	}
-
+	
 	@Override
 	public Class<Boolean> type()
 	{

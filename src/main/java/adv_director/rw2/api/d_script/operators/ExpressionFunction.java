@@ -3,44 +3,23 @@ package adv_director.rw2.api.d_script.operators;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
-public class ExpressionFunction<T> implements IExpression<T>
+public class ExpressionFunction implements IExpression<Object>
 {
 	private final String fName;
-	private final Class<T> rType;
 	private final IExpression<?>[] arguments;
 	
-	public ExpressionFunction(String name, Class<T> rType, IExpression<?>[] arguments)
+	public ExpressionFunction(String name, IExpression<?>[] arguments)
 	{
 		this.fName = name;
-		this.rType = rType;
 		this.arguments = arguments;
 	}
 	
 	@Override
-	public T eval(ScriptScope scope) throws Exception
+	public Object eval(ScriptScope scope) throws Exception
 	{
-		Class<?>[] argTypes = new Class<?>[arguments.length];
-		
-		for(int i = 0; i < argTypes.length; i++)
+		if(!scope.hasFunction(fName))
 		{
-			argTypes[i] = arguments[i].type();
-		}
-		
-		if(!scope.hasFunction(fName, rType, argTypes))
-		{
-			String errArgs = "";
-			
-			for(int i = 0; i < argTypes.length; i++)
-			{
-				if(i != 0)
-				{
-					errArgs += ", ";
-				}
-				
-				errArgs += argTypes[i].getSimpleName();
-			}
-			
-			throw new Exception("Undefined function \"" + fName + "\" with return type \"" + rType.getSimpleName() + "\" and args [" + errArgs + "] in expression");
+			throw new Exception("Undefined function in expression: " + fName);
 		}
 		
 		Object[] argValues = new Object[arguments.length];
@@ -50,12 +29,12 @@ public class ExpressionFunction<T> implements IExpression<T>
 			argValues[i] = arguments[i].eval(scope);
 		}
 		
-		return scope.getFunction(fName, rType).invokeFunction(argValues);
+		return scope.getFunction(fName).invokeFunction(argValues);
 	}
 	
 	@Override
-	public Class<T> type()
+	public Class<Object> type()
 	{
-		return rType;
+		return Object.class;
 	}
 }

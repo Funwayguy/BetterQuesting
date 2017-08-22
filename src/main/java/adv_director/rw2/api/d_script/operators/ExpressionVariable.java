@@ -3,31 +3,29 @@ package adv_director.rw2.api.d_script.operators;
 import adv_director.rw2.api.d_script.IExpression;
 import adv_director.rw2.api.d_script.ScriptScope;
 
-public class ExpressionVariable<T> implements IExpression<T>
+public class ExpressionVariable implements IExpression<Object>
 {
 	private final String vName;
-	private final Class<T> vType;
 	
-	public ExpressionVariable(String name, Class<T> type)
+	public ExpressionVariable(String name)
 	{
 		this.vName = name;
-		this.vType = type;
 	}
 	
 	@Override
-	public T eval(ScriptScope scope) throws Exception
+	public Object eval(ScriptScope scope) throws Exception
 	{
-		if(!scope.hasVariable(vName, vType))
+		if(!scope.hasVariable(vName))
 		{
-			throw new Exception("Undefined variable \"" + vName + "\" of type \"" + vType.getSimpleName() + "\" in expression");
+			throw new Exception("Undefined variable in expression: " + vName);
 		}
 		
-		return scope.getVariable(vName, vType);
+		return scope.getVariable(vName);
 	}
 	
 	@Override
-	public Class<T> type()
+	public Class<Object> type()
 	{
-		return vType;
+		return Object.class;
 	}
 }

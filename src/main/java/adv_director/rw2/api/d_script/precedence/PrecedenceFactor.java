@@ -12,69 +12,41 @@ import adv_director.rw2.api.d_script.operators.ExpressionVariable;
 import adv_director.rw2.api.d_script.operators.binary.OperatorBitwiseNOT;
 import adv_director.rw2.api.d_script.operators.logic.OperatorLogicalNOT;
 import adv_director.rw2.api.d_script.operators.math.OperatorNegative;
+import adv_director.rw2.api.d_script.operators.math.OperatorPositive;
 
 public class PrecedenceFactor implements IPrecedence
 {
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T> IExpression<T> parse(ExpressionStream stream, Class<T> type) throws Exception
+	public IExpression<?> parse(ExpressionStream stream) throws Exception
 	{
 		// Unary prefix
 		
 		if(stream.eat("+"))
 		{
-			if(type.isAssignableFrom(Number.class))
-			{
-				return (IExpression<T>)parse_(stream, Number.class);
-			} else
-			{
-				throw new ClassCastException("Unable to cast " + Number.class.getSimpleName() + " to " + type.getSimpleName());
-			}
+			return new OperatorPositive(parse_(stream));
 		} else if(stream.eat("-"))
 		{
-			if(type.isAssignableFrom(Number.class))
-			{
-				return (IExpression<T>)new OperatorNegative(parse_(stream, Number.class));
-			} else
-			{
-				throw new ClassCastException("Unable to cast " + Number.class.getSimpleName() + " to " + type.getSimpleName());
-			}
+			return new OperatorNegative(parse_(stream));
 		} else if(stream.eat("~"))
 		{
-			if(type.isAssignableFrom(Number.class))
-			{
-				return (IExpression<T>)new OperatorBitwiseNOT(parse_(stream, Number.class));
-			} else
-			{
-				throw new ClassCastException("Unable to cast " + Number.class.getSimpleName() + " to " + type.getSimpleName());
-			}
+			return new OperatorBitwiseNOT(parse_(stream));
 		} else if(stream.eat("!"))
 		{
-			if(type.isAssignableFrom(Boolean.class))
-			{
-				return (IExpression<T>)new OperatorLogicalNOT(parse_(stream, Boolean.class));
-			} else
-			{
-				throw new ClassCastException("Unable to cast " + Boolean.class.getSimpleName() + " to " + type.getSimpleName());
-			}
+			return new OperatorLogicalNOT(parse_(stream));
 		}
 		
-		return parse_(stream, type);
+		return parse_(stream);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parse_(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parse_(ExpressionStream stream) throws Exception
 	{
 		if(stream.eat("(")) // Parentheses
 		{
-			IExpression<T> x = ExpressionParser.PREC_FIRST.parse(stream, type);
+			IExpression<?> x = ExpressionParser.PREC_FIRST.parse(stream);
 			
 			if(!stream.eat(")"))
 			{
 				throw new Exception("Unclosed parentheses in expression");
-			} else if(!type.isAssignableFrom(x.type()))
-			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
 			} else
 			{
 				return x;
@@ -113,27 +85,16 @@ public class PrecedenceFactor implements IPrecedence
 			if(!closed)
 			{
 				throw new Exception("Unclosed quote in expression");
-			} else if(type.isAssignableFrom(String.class))
-			{
-				System.out.println("Parsed string: '" + s + "'");
-				stream.skipWhitespace(true); // Back to logic and sanity
-				return (IExpression<T>)new ExpressionValue<String>(s);
 			} else
 			{
-				throw new Exception("Unable to cast " + String.class.getSimpleName() + " to " + type.getSimpleName());
+				stream.skipWhitespace(true); // Back to logic and sanity
+				return new ExpressionValue<String>(s);
 			}
 		} else if(stream.isNumber())
 		{
 			Number n = stream.getAsNumber();
 			stream.nextToken();
-			
-			if(!type.isAssignableFrom(Number.class))
-			{
-				throw new ClassCastException("Unable to cast " + Number.class.getSimpleName() + " to " + type.getSimpleName());
-			} else
-			{
-				return (IExpression<T>)new ExpressionValue<Number>(n);
-			}
+			return new ExpressionValue<Number>(n);
 		} else if(Character.isLetter(stream.getAsString().toCharArray()[0])) // Function, variable or array
 		{
 			String name = stream.getAsString();
@@ -152,7 +113,7 @@ public class PrecedenceFactor implements IPrecedence
 						break;
 					}
 					
-					args.add(ExpressionParser.PREC_FIRST.parse(stream, Object.class));
+					args.add(ExpressionParser.PREC_FIRST.parse(stream));
 					
 					if(stream.eat(","))
 					{
@@ -174,24 +135,23 @@ public class PrecedenceFactor implements IPrecedence
 					throw new Exception("Unclosed round bracket on function: " + name);
 				} else
 				{
-					return new ExpressionFunction<T>(name, type, args.toArray(new IExpression<?>[0]));
+					return new ExpressionFunction(name, args.toArray(new IExpression<?>[0]));
 				}
 			} else if(stream.eat("[")) // Array
 			{
-				IExpression<Number> n = ExpressionParser.PREC_FIRST.parse(stream, Number.class);
+				IExpression<?> n = ExpressionParser.PREC_FIRST.parse(stream);
 				
 				if(!stream.eat("]"))
 				{
 					throw new Exception("Unclosed square bracket on array: " + name);
 				} else
 				{
-					return new ExpressionArray<T>(name, type, n);
+					return new ExpressionArray(name, n);
 				}
 			} else // Variable
 			{
-				return new ExpressionVariable<T>(name, type);
+				return new ExpressionVariable(name);
 			}
-			
 		} else
 		{
 			throw new Exception("Unexpected token in expression: " + stream.current());

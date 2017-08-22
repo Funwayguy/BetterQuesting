@@ -9,41 +9,30 @@ import adv_director.rw2.api.d_script.operators.logic.OperatorLogicalOr;
 public class PrecedenceLogical implements IPrecedence
 {
 	@Override
-	public <T> IExpression<T> parse(ExpressionStream stream, Class<T> type) throws Exception
+	public IExpression<?> parse(ExpressionStream stream) throws Exception
 	{
-		return parseOr(stream, type);
+		return parseOr(stream);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parseOr(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parseOr(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = parseAnd(stream, Object.class);
+		IExpression<?> x = parseAnd(stream);
 		
 		for(;;)
 		{
 			if(stream.eat("||"))
 			{
-				if(Boolean.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorLogicalOr((IExpression<Boolean>)x, parseAnd(stream, Boolean.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '||' on type " + x.type().getSimpleName() + " and " + Boolean.class.getSimpleName());
-				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
+				x = new OperatorLogicalOr(x, parseAnd(stream));
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private <T> IExpression<T> parseAnd(ExpressionStream stream, Class<T> type) throws Exception
+	private IExpression<?> parseAnd(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = ExpressionParser.PREC_BITWISE.parse(stream, Object.class);
+		IExpression<?> x = ExpressionParser.PREC_BITWISE.parse(stream);
 		
 		for(;;)
 		{
@@ -51,17 +40,14 @@ public class PrecedenceLogical implements IPrecedence
 			{
 				if(Boolean.class.isAssignableFrom(x.type()))
 				{
-					x = new OperatorLogicalAnd((IExpression<Boolean>)x, ExpressionParser.PREC_BITWISE.parse(stream, Boolean.class));
+					x = new OperatorLogicalAnd(x, ExpressionParser.PREC_BITWISE.parse(stream));
 				} else
 				{
 					throw new Exception("Unsupported opperand '&&' on type " + x.type().getSimpleName() + " and " + Boolean.class.getSimpleName());
 				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}

@@ -5,10 +5,10 @@ import adv_director.rw2.api.d_script.ScriptScope;
 
 public class OperatorMoreThanEqual implements IExpression<Boolean>
 {
-	private final IExpression<Number> e1;
-	private final IExpression<Number> e2;
+	private final IExpression<?> e1;
+	private final IExpression<?> e2;
 	
-	public OperatorMoreThanEqual(IExpression<Number> e1, IExpression<Number> e2)
+	public OperatorMoreThanEqual(IExpression<?> e1, IExpression<?> e2)
 	{
 		this.e1 = e1;
 		this.e2 = e2;
@@ -17,7 +17,9 @@ public class OperatorMoreThanEqual implements IExpression<Boolean>
 	@Override
 	public Boolean eval(ScriptScope scope) throws Exception
 	{
-		return e1.eval(scope).doubleValue() >= e2.eval(scope).doubleValue();
+		Number n1 = (Number)e1.eval(scope);
+		Number n2 = (Number)e2.eval(scope);
+		return n1.doubleValue() >= n2.doubleValue();
 	}
 
 	@Override

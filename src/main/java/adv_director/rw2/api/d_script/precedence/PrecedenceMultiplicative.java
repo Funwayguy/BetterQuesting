@@ -10,46 +10,24 @@ import adv_director.rw2.api.d_script.operators.math.OperatorMultiply;
 public class PrecedenceMultiplicative implements IPrecedence
 {
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T> IExpression<T> parse(ExpressionStream stream, Class<T> type) throws Exception
+	public IExpression<?> parse(ExpressionStream stream) throws Exception
 	{
-		IExpression<?> x = ExpressionParser.PREC_FACTOR.parse(stream, Object.class);
+		IExpression<?> x = ExpressionParser.PREC_FACTOR.parse(stream);
 		
 		for(;;)
 		{
 			if(stream.eat("*"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorMultiply((IExpression<Number>)x, ExpressionParser.PREC_FACTOR.parse(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '*' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
+				x = new OperatorMultiply(x, ExpressionParser.PREC_FACTOR.parse(stream));
 			} else if(stream.eat("/"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorDivide((IExpression<Number>)x, ExpressionParser.PREC_FACTOR.parse(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '/' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
+				x = new OperatorDivide(x, ExpressionParser.PREC_FACTOR.parse(stream));
 			} else if(stream.eat("%"))
 			{
-				if(Number.class.isAssignableFrom(x.type()))
-				{
-					x = new OperatorModulo((IExpression<Number>)x, ExpressionParser.PREC_FACTOR.parse(stream, Number.class));
-				} else
-				{
-					throw new Exception("Unsupported opperand '%' on type " + x.type().getSimpleName() + " and " + Number.class.getSimpleName());
-				}
-			} else if(type.isAssignableFrom(x.type()))
-			{
-				return (IExpression<T>)x;
+				x = new OperatorModulo(x, ExpressionParser.PREC_FACTOR.parse(stream));
 			} else
 			{
-				throw new ClassCastException("Unable to cast " + x.type().getSimpleName() + " to " + type.getSimpleName());
+				return x;
 			}
 		}
 	}
