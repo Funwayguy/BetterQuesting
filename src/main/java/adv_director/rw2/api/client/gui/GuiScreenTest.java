@@ -2,9 +2,9 @@ package adv_director.rw2.api.client.gui;
 
 import java.awt.Color;
 import java.util.UUID;
-import org.lwjgl.util.Rectangle;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.util.vector.Vector4f;
-import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.controls.PanelButton;
 import adv_director.rw2.api.client.gui.misc.GuiAlign;
@@ -13,11 +13,8 @@ import adv_director.rw2.api.client.gui.misc.GuiTransform;
 import adv_director.rw2.api.client.gui.panels.CanvasTextured;
 import adv_director.rw2.api.client.gui.panels.bars.PanelHBarFill;
 import adv_director.rw2.api.client.gui.panels.content.PanelPlayerPortrait;
-import adv_director.rw2.api.client.gui.resources.SlicedTexture;
-import adv_director.rw2.api.client.gui.resources.SlicedTexture.SliceMode;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.ResourceLocation;
+import adv_director.rw2.api.client.gui.themes.TexturePreset;
+import adv_director.rw2.api.client.gui.themes.ThemeRegistry;
 
 public class GuiScreenTest extends GuiScreenCanvas
 {
@@ -31,8 +28,7 @@ public class GuiScreenTest extends GuiScreenCanvas
 	{
 		super.initGui();
 		
-		SlicedTexture tex1 = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui.png"), new Rectangle(0, 0, 48, 48), new GuiPadding(16, 16, 16, 16)).setSliceMode(SliceMode.SLICED_TILE);
-		CanvasTextured cvt1 =  new CanvasTextured(tex1);
+		CanvasTextured cvt1 =  new CanvasTextured(ThemeRegistry.INSTANCE.getTexture(TexturePreset.PANEL_MAIN));
 		this.addPanel(new GuiTransform(new Vector4f(0.05F, 0.05F, 0.95F, 0.95F), new GuiPadding(0, 0, 0, 0), 0), cvt1);
 		
 		PanelButton btn1 = new PanelButton(0, "Button 1");
@@ -40,11 +36,9 @@ public class GuiScreenTest extends GuiScreenCanvas
 		cvt1.addPanel(new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, 0, 0), -1), btn1);
 		cvt1.addPanel(new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(0, -16, -100, 0), -1), btn2);
 		
-		//SlicedTexture bt1 = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/lh_bars.png"), new Rectangle(0, 128, 128, 32), new GuiPadding(32, 0, 16, 0)).setSliceMode(SliceMode.SLICED_STRETCH);
-		//SlicedTexture bt2 = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/lh_bars.png"), new Rectangle(128, 128, 128, 32), new GuiPadding(32, 0, 16, 0)).setSliceMode(SliceMode.SLICED_STRETCH);
-		SlicedTexture bt1 = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/lh_bars.png"), new Rectangle(0, 160, 128, 16), new GuiPadding(32, 0, 16, 0)).setSliceMode(SliceMode.SLICED_STRETCH);
-		SlicedTexture bt2 = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/lh_bars.png"), new Rectangle(128, 160, 128, 16), new GuiPadding(32, 0, 16, 0)).setSliceMode(SliceMode.SLICED_STRETCH);
-		PanelHBarFill pfb = new PanelHBarFill().setBarTexture(bt1, bt2).setFillColor(Color.RED.getRGB(), Color.GREEN.getRGB(), 0.25F, true);
+		PanelHBarFill pfb = new PanelHBarFill();
+		pfb.setBarTexture(ThemeRegistry.INSTANCE.getTexture(TexturePreset.METER_H_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.METER_H_0));
+		pfb.setFillColor(Color.RED.getRGB(), Color.GREEN.getRGB(), 0.25F, true);
 		cvt1.addPanel(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(0, -32, 0, 0), 0), pfb);
 		
 		pfb.setFillDriver(new IValueIO<Float>()

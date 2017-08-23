@@ -7,22 +7,16 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.util.Rectangle;
-import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.events.IPanelEvent;
 import adv_director.rw2.api.client.gui.events.PEventButton;
-import adv_director.rw2.api.client.gui.misc.GuiPadding;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
-import adv_director.rw2.api.client.gui.resources.SlicedTexture;
+import adv_director.rw2.api.client.gui.themes.TexturePreset;
+import adv_director.rw2.api.client.gui.themes.ThemeRegistry;
 
 public class PanelButton implements IGuiPanel
 {
-	private static final IGuiTexture DEF_D = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui.png"), new Rectangle(48, 0, 200, 20), new GuiPadding(1, 1, 1, 1));
-	private static final IGuiTexture DEF_I = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui.png"), new Rectangle(48, 20, 200, 20), new GuiPadding(1, 1, 1, 1));
-	private static final IGuiTexture DEF_H = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui.png"), new Rectangle(48, 40, 200, 20), new GuiPadding(1, 1, 1, 1));
-	
 	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
 	private IGuiPanel parent = null;
 	
@@ -40,7 +34,7 @@ public class PanelButton implements IGuiPanel
 		this.btnText = txt;
 		this.btnID = id;
 		
-		this.setTextures(DEF_H, DEF_I, DEF_D);
+		this.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_2));
 	}
 	
 	public PanelButton setTextHighlight(int disabled, int idle, int hover)
