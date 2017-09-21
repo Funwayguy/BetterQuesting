@@ -7,9 +7,9 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
-import org.lwjgl.util.Rectangle;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
-import adv_director.rw2.api.client.gui.events.PEventButton;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
 import adv_director.rw2.api.client.gui.themes.TexturePreset;
@@ -17,8 +17,7 @@ import adv_director.rw2.api.client.gui.themes.ThemeRegistry;
 
 public class PanelButton implements IGuiPanel
 {
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private IGuiPanel parent = null;
+	private IGuiRect transform = GuiRectangle.ZERO;
 	
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
 	private int[] colStates = new int[]{Color.GRAY.getRGB(), Color.WHITE.getRGB(), 16777120};
@@ -29,8 +28,9 @@ public class PanelButton implements IGuiPanel
 	private int btnState = 1;
 	private int btnID = -1;
 	
-	public PanelButton(int id, String txt)
+	public PanelButton(IGuiRect rect, int id, String txt)
 	{
+		this.setTransform(rect);
 		this.btnText = txt;
 		this.btnID = id;
 		
@@ -93,15 +93,14 @@ public class PanelButton implements IGuiPanel
 	}
 	
 	@Override
-	public IGuiPanel getParentPanel()
+	public IGuiRect getTransform()
 	{
-		return parent;
+		return transform;
 	}
 	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
+	public void setTransform(IGuiRect rect)
 	{
-		this.parent = panel;
+		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	@Override
@@ -110,23 +109,12 @@ public class PanelButton implements IGuiPanel
 	}
 	
 	@Override
-	public void updateBounds(Rectangle bounds)
-	{
-		this.bounds.setBounds(bounds);
-	}
-	
-	@Override
-	public Rectangle getBounds()
-	{
-		return bounds;
-	}
-	
-	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		this.btnState = !isEnabled()? 0 : (getBounds().contains(mx, my)? 2 : 1);
+		this.btnState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
 		IGuiTexture t = texStates[btnState];
 		
@@ -162,12 +150,14 @@ public class PanelButton implements IGuiPanel
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		boolean clicked = click == 0 && bounds.contains(mx, my);
 		
 		if(clicked)
 		{
 	        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-			IPanelEvent.postPanelEvent(new PEventButton(this));
+			//PanelEvent.postPanelEvent(new PEventButton(this));
+	        // TODO: Fix event
 		}
 		
 		return clicked;
@@ -185,7 +175,7 @@ public class PanelButton implements IGuiPanel
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 	}
 	

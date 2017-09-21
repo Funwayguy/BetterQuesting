@@ -2,17 +2,17 @@ package adv_director.rw2.api.client.gui.panels.content;
 
 import java.awt.Color;
 import java.util.List;
-import org.lwjgl.util.Rectangle;
-import adv_director.api.utils.RenderUtils;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
-import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import adv_director.api.utils.RenderUtils;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
+import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 
 public class PanelTextBox implements IGuiPanel
 {
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private IGuiPanel parent;
+	private IGuiRect transform = GuiRectangle.ZERO;
 	
 	private String text = "";
 	private boolean shadow = false;
@@ -20,6 +20,12 @@ public class PanelTextBox implements IGuiPanel
 	private boolean autoFit = true;
 	
 	private int lines = 1; // Cached number of lines
+	
+	public PanelTextBox(IGuiRect rect, String text)
+	{
+		this.setTransform(rect);
+		this.setText(text);
+	}
 	
 	public PanelTextBox setText(String text)
 	{
@@ -46,20 +52,20 @@ public class PanelTextBox implements IGuiPanel
 	}
 	
 	@Override
-	public IGuiPanel getParentPanel()
+	public IGuiRect getTransform()
 	{
-		return parent;
+		return transform;
 	}
 	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
+	public void setTransform(IGuiRect rect)
 	{
-		this.parent = panel;
+		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	@Override
 	public void initPanel()
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 		
 		if(!autoFit)
@@ -70,24 +76,14 @@ public class PanelTextBox implements IGuiPanel
 		
 		List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
 		lines = sl.size() - 1;
-		bounds.setHeight(fr.FONT_HEIGHT * sl.size());
-	}
-	
-	@Override
-	public void updateBounds(Rectangle bounds)
-	{
-		this.bounds.setBounds(bounds);
-	}
-	
-	@Override
-	public Rectangle getBounds()
-	{
-		return bounds;
+		
+		this.transform = new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), fr.FONT_HEIGHT * sl.size());
 	}
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 		RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
 	}
@@ -110,7 +106,7 @@ public class PanelTextBox implements IGuiPanel
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 	}
 	

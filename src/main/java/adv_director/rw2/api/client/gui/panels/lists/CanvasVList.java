@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.lwjgl.util.Rectangle;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.GuiTransform;
 import adv_director.rw2.api.client.gui.misc.PanelEntry;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
@@ -124,7 +124,7 @@ public class CanvasVList implements IGuiCanvas
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
 		

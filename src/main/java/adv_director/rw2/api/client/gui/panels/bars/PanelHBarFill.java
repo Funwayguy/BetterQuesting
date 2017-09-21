@@ -11,9 +11,10 @@ import org.lwjgl.util.Rectangle;
 import adv_director.api.utils.RenderUtils;
 import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
-import adv_director.rw2.api.client.gui.panels.IGuiPanel;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
 import adv_director.rw2.api.client.gui.resources.SlicedTexture;
 
@@ -22,8 +23,8 @@ public class PanelHBarFill implements IBarFill
 	private static final IGuiTexture DEF_BACK = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(48, 32, 16, 8), new GuiPadding(6, 3, 6, 3));
 	private static final IGuiTexture DEF_FILL = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(48, 40, 16, 8), new GuiPadding(6, 3, 6, 3));
 	
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private IGuiPanel parent;
+	private IGuiRect transform = GuiRectangle.ZERO;
+	
 	private IGuiTexture texBack = DEF_BACK;
 	private IGuiTexture texFill = DEF_FILL;
 	private IValueIO<Float> fillDriver;
@@ -33,8 +34,9 @@ public class PanelHBarFill implements IBarFill
 	private float clrThreshold = 0.25F;
 	private boolean lerpClr = false;
 	
-	public PanelHBarFill()
+	public PanelHBarFill(IGuiRect rect)
 	{
+		this.setTransform(rect);
 		this.fillDriver = new IValueIO<Float>()
 		{
 			public Float readValue()
@@ -79,37 +81,26 @@ public class PanelHBarFill implements IBarFill
 	}
 	
 	@Override
-	public IGuiPanel getParentPanel()
-	{
-		return parent;
-	}
-	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
-	{
-		this.parent = panel;
-	}
-	
-	@Override
 	public void initPanel()
 	{
 	}
 	
 	@Override
-	public void updateBounds(Rectangle bounds)
+	public IGuiRect getTransform()
 	{
-		this.bounds.setBounds(bounds);
+		return transform;
 	}
 	
 	@Override
-	public Rectangle getBounds()
+	public void setTransform(IGuiRect rect)
 	{
-		return bounds;
+		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		GlStateManager.pushMatrix();
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
@@ -182,7 +173,7 @@ public class PanelHBarFill implements IBarFill
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 	}
 	

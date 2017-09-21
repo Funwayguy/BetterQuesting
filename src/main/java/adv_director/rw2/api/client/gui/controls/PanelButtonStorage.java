@@ -1,12 +1,14 @@
 package adv_director.rw2.api.client.gui.controls;
 
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
+
 public class PanelButtonStorage<T> extends PanelButton
 {
 	private T stored = null;
 	
-	public PanelButtonStorage(int id, String txt, T value)
+	public PanelButtonStorage(IGuiRect rect, int id, String txt, T value)
 	{
-		super(id, txt);
+		super(rect, id, txt);
 		this.setStoredValue(value);
 	}
 	

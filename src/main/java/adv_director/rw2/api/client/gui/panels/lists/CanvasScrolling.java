@@ -12,15 +12,17 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Rectangle;
 import adv_director.api.utils.RenderUtils;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.GuiTransform;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.misc.PanelEntry;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 
 public class CanvasScrolling implements IGuiCanvas
 {
-	private final List<PanelEntry> guiPanels = new ArrayList<PanelEntry>();
+	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
 	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
 	private IGuiPanel parent;
 	
@@ -103,32 +105,20 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public IGuiPanel getParentPanel()
-	{
-		return parent;
-	}
-	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
-	{
-		this.parent = panel;
-	}
-	
-	@Override
-	public void updateBounds(Rectangle bounds)
-	{
-		this.bounds.setBounds(bounds);
-	}
-	
-	@Override
 	public void initPanel()
 	{
 	}
 	
 	@Override
-	public Rectangle getBounds()
+	public IGuiRect getTransform()
 	{
-		return bounds;
+		return transform;
+	}
+	
+	@Override
+	public void setTransform(IGuiRect rect)
+	{
+		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	private int lsx = 0;
@@ -268,7 +258,7 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
 		
@@ -375,11 +365,10 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private void updatePanelScroll()
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
 			Rectangle rec = entry.getTransform().applyTransform(bounds);
 			rec.translate(-getScrollX(), -getScrollY());
 			panel.updateBounds(rec);
@@ -387,7 +376,7 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public List<PanelEntry> getAllPanels()
+	public List<IGuiPanel> getAllPanels()
 	{
 		return guiPanels;
 	}

@@ -3,29 +3,39 @@ package adv_director.rw2.api.client.gui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.util.Rectangle;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
-import adv_director.rw2.api.client.gui.misc.GuiTransform;
-import adv_director.rw2.api.client.gui.misc.PanelEntry;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.ComparatorGuiDepth;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 
 public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
-	private final List<PanelEntry> guiPanels = new ArrayList<PanelEntry>();
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private final GuiTransform transform;
+	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
 	private final GuiScreen parent;
+	private IGuiRect transform = GuiRectangle.ZERO;
 	
-	public GuiScreenCanvas(GuiScreen parent, GuiTransform transform)
+	public GuiScreenCanvas(GuiScreen parent, IGuiRect transform)
 	{
 		this.transform = transform;
 		this.parent = parent;
+	}
+	
+	@Override
+	public IGuiRect getTransform()
+	{
+		return transform;
+	}
+	
+	@Override
+	public void setTransform(IGuiRect trans)
+	{
+		this.transform = trans != null? trans : GuiRectangle.ZERO;
 	}
 	
 	@Override
@@ -35,34 +45,18 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		this.getAllPanels().clear();
 		
-		Rectangle frame = transform.applyTransform(new Rectangle(0, 0, this.width, this.height));
-		updateBounds(frame);
 		initPanel();
-	}
-	
-	@Override
-	public void updateBounds(Rectangle bounds)
-	{
-		this.bounds.setBounds(bounds);
 	}
 	
 	@Override
 	public void initPanel()
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			entry.getPanel().setParentPanel(this);
-			entry.getPanel().updateBounds(entry.getTransform().applyTransform(bounds));
-			entry.getPanel().initPanel();
+			entry.initPanel();
 		}
-	}
-	
-	@Override
-	public Rectangle getBounds()
-	{
-		return bounds;
 	}
 	
 	@Override
@@ -111,42 +105,27 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
         }
 	}
 	
-	@Override
-	public IGuiPanel getParentPanel()
-	{
-		return null;
-	}
-	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
-	{
-		// BASE SCREEN CANNOT HAVE PARENT
-	}
-	
-	@Override
+	//@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			panel.drawPanel(mx, my, partialTick);
+			entry.drawPanel(mx, my, partialTick);
 		}
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
-			used = panel.onMouseClick(mx, my, click);
+			used = entry.onMouseClick(mx, my, click);
 			
 			if(used)
 			{
@@ -157,18 +136,16 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		return used;
 	}
 	
-	@Override
+	//@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
-			used = panel.onMouseScroll(mx, my, scroll);
+			used = entry.onMouseScroll(mx, my, scroll);
 			
 			if(used)
 			{
@@ -182,38 +159,34 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public void onKeyTyped(char c, int keycode)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
-			panel.onKeyTyped(c, keycode);
+			entry.onKeyTyped(c, keycode);
 		}
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
-			panel.onPanelEvent(event);
+			entry.onPanelEvent(event);
 		}
 	}
 	
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			List<String> tt = entry.getPanel().getTooltip(mx, my);
+			List<String> tt = entry.getTooltip(mx, my);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -225,45 +198,26 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	@Override
-	public PanelEntry addPanel(GuiTransform transform, IGuiPanel panel)
+	public void addPanel(IGuiPanel panel)
 	{
-		if(transform == null || panel == null)
+		if(panel == null || guiPanels.contains(panel))
 		{
-			return null;
+			return;
 		}
 		
-		PanelEntry entry = new PanelEntry(transform, panel);
-		guiPanels.add(entry);
-		Collections.sort(guiPanels);
-		
-		panel.setParentPanel(this);
-		panel.updateBounds(transform.applyTransform(bounds));
+		guiPanels.add(panel);
+		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
 		panel.initPanel();
-		
-		return entry;
 	}
 	
 	@Override
 	public boolean removePanel(IGuiPanel panel)
 	{
-		Iterator<PanelEntry> iter = guiPanels.iterator();
-		
-		while(iter.hasNext())
-		{
-			PanelEntry entry = iter.next();
-			
-			if(entry.getPanel() == panel)
-			{
-				iter.remove();
-				return true;
-			}
-		}
-		
-		return false;
+		return guiPanels.remove(panel);
 	}
 	
 	@Override
-	public List<PanelEntry> getAllPanels()
+	public List<IGuiPanel> getAllPanels()
 	{
 		return guiPanels;
 	}

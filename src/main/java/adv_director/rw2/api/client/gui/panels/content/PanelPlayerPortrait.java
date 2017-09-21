@@ -2,23 +2,23 @@ package adv_director.rw2.api.client.gui.panels.content;
 
 import java.util.List;
 import java.util.UUID;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Rectangle;
-import com.mojang.authlib.GameProfile;
-import adv_director.api.utils.RenderUtils;
-import adv_director.rw2.api.client.gui.controls.IValueIO;
-import adv_director.rw2.api.client.gui.events.IPanelEvent;
-import adv_director.rw2.api.client.gui.panels.IGuiPanel;
-import adv_director.rw2.api.utils.EntityPlayerPreview;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+import adv_director.api.utils.RenderUtils;
+import adv_director.rw2.api.client.gui.controls.IValueIO;
+import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
+import adv_director.rw2.api.client.gui.misc.IGuiRect;
+import adv_director.rw2.api.client.gui.panels.IGuiPanel;
+import adv_director.rw2.api.utils.EntityPlayerPreview;
+import com.mojang.authlib.GameProfile;
 
 public class PanelPlayerPortrait implements IGuiPanel
 {
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private IGuiPanel parent;
+	private IGuiRect transform = GuiRectangle.ZERO;
 	
 	private final AbstractClientPlayer player;
 	private final ResourceLocation resource;
@@ -28,13 +28,14 @@ public class PanelPlayerPortrait implements IGuiPanel
 	private IValueIO<Float> pitchDriver;
 	private IValueIO<Float> yawDriver;
 	
-	public PanelPlayerPortrait(UUID playerID, String username)
+	public PanelPlayerPortrait(IGuiRect rect, UUID playerID, String username)
 	{
-		this(new EntityPlayerPreview(Minecraft.getMinecraft().theWorld, new GameProfile(playerID, username)));
+		this(rect, new EntityPlayerPreview(Minecraft.getMinecraft().theWorld, new GameProfile(playerID, username)));
 	}
 	
-	public PanelPlayerPortrait(AbstractClientPlayer player)
+	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player)
 	{
+		this.setTransform(rect);
 		this.player = player;
 		this.player.limbSwing = 0F;
 		this.player.limbSwingAmount = 0F;
@@ -101,37 +102,26 @@ public class PanelPlayerPortrait implements IGuiPanel
 	}
 	
 	@Override
-	public IGuiPanel getParentPanel()
-	{
-		return parent;
-	}
-	
-	@Override
-	public void setParentPanel(IGuiPanel panel)
-	{
-		this.parent = panel;
-	}
-	
-	@Override
 	public void initPanel()
 	{
 	}
 	
 	@Override
-	public void updateBounds(Rectangle bounds)
+	public IGuiRect getTransform()
 	{
-		this.bounds.setBounds(bounds);
+		return transform;
 	}
 	
 	@Override
-	public Rectangle getBounds()
+	public void setTransform(IGuiRect rect)
 	{
-		return bounds;
+		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		IGuiRect bounds = new GuiRectangle(this.getTransform());
 		GlStateManager.pushMatrix();
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
@@ -167,7 +157,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 	}
 	
 	@Override
-	public void onPanelEvent(IPanelEvent event)
+	public void onPanelEvent(PanelEvent event)
 	{
 	}
 	
