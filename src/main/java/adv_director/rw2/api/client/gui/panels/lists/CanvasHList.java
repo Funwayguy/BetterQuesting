@@ -143,23 +143,23 @@ public class CanvasHList implements IGuiCanvas
 		
 		IGuiRect pt = panel.getTransform();
 		
-		int hWidth = 0;
-		
-		IGuiRect nt = new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, 0), pt.getDepth());
-		for(IGuiPanel pe : this.getAllPanels())
+		if(pt != null && pt.getParent() == null)
 		{
-			hWidth = Math.max(hWidth, (pe.getTransform().getX() - transform.getX()) + pe.getTransform().getWidth());
+			IGuiRect nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(0, 0, 0, 0), pt.getDepth());
+			
+			if(guiPanels.size() > 0)
+			{
+				IGuiPanel pe = guiPanels.get(guiPanels.size() - 1);
+				
+				int hWidth = (pe.getTransform().getX() - transform.getX()) + pe.getTransform().getWidth();
+				nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(hWidth, 0, -hWidth, 0), pt.getDepth());
+			}
+			
+			pt.setParent(nt);
 		}
 		
 		guiPanels.add(panel);
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
-		
-		// TODO: Make dynamic (Relative transform wrapper?)
-		GuiTransform wt = new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(hWidth, 0, -hWidth, 0), pt.getDepth());
-		panel.updateBounds(pb);
-		panel.initPanel();
-		
-		return entry;
 	}
 	
 	@Override
@@ -175,5 +175,4 @@ public class CanvasHList implements IGuiCanvas
 	{
 		return guiPanels;
 	}
-	
 }

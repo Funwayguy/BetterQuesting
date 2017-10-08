@@ -2,29 +2,27 @@ package adv_director.rw2.api.client.gui.panels.lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.Rectangle;
 import adv_director.api.utils.RenderUtils;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.ComparatorGuiDepth;
 import adv_director.rw2.api.client.gui.misc.GuiRectangle;
-import adv_director.rw2.api.client.gui.misc.GuiTransform;
+import adv_director.rw2.api.client.gui.misc.GuiRectangleDynamic;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
-import adv_director.rw2.api.client.gui.misc.PanelEntry;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 
 public class CanvasScrolling implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
-	private final Rectangle bounds = new Rectangle(0, 0, 1, 1);
-	private IGuiPanel parent;
+	private IGuiRect transform = GuiRectangle.ZERO;
+	private final GuiRectangleDynamic innerTransform;
 	
 	private int maxScrollX = 0;
 	private int maxScrollY = 0;
@@ -39,6 +37,9 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	public CanvasScrolling()
 	{
+		innerTransform = new GuiRectangleDynamic(0, 0, 0, 0, 0);
+		innerTransform.setParent(transform);
+		
 		// Dummy value drivers
 		
 		scrollX = new IValueIO<Float>()
@@ -156,13 +157,12 @@ public class CanvasScrolling implements IGuiCanvas
 		GlStateManager.pushMatrix();
 		
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+		RenderUtils.guiScissor(Minecraft.getMinecraft(), transform.getX(), transform.getY(), transform.getWidth(), transform.getHeight());
 		
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
 			panel.drawPanel(mx, my, partialTick);
 		}
 		
@@ -173,19 +173,17 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(!bounds.contains(mx, my))
+		if(!transform.contains(mx, my))
 		{
 			return false;
 		}
 		
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
 			used = panel.onMouseClick(mx, my, click);
 			
 			if(used)
@@ -209,19 +207,17 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
-		if(scroll == 0 || !bounds.contains(mx, my))
+		if(scroll == 0 || !transform.contains(mx, my))
 		{
 			return false;
 		}
 		
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
 			used = panel.onMouseScroll(mx, my, scroll);
 			
 			if(used)
@@ -247,12 +243,10 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void onKeyTyped(char c, int keycode)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
 			panel.onKeyTyped(c, keycode);
 		}
 	}
@@ -260,12 +254,10 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void onPanelEvent(PanelEvent event)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			
 			panel.onPanelEvent(event);
 		}
 	}
@@ -273,15 +265,15 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		
 		int sx = Math.round(maxScrollX * scrollX.readValue());
 		int sy = Math.round(maxScrollY * scrollY.readValue());
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			List<String> tt = entry.getPanel().getTooltip(mx + sx, my + sy);
+			List<String> tt = entry.getTooltip(mx + sx, my + sy);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -293,25 +285,27 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public PanelEntry addPanel(GuiTransform transform, IGuiPanel panel)
+	public void addPanel(IGuiPanel panel)
 	{
-		if(transform == null || panel == null)
+		if(panel == null || guiPanels.contains(panel))
 		{
-			return null;
+			return;
 		}
 		
-		PanelEntry entry = new PanelEntry(transform, panel);
-		guiPanels.add(entry);
-		Collections.sort(guiPanels);
+		guiPanels.add(panel);
 		
-		panel.setParentPanel(this);
-		panel.updateBounds(transform.applyTransform(bounds));
+		if(panel.getTransform().getParent() == null)
+		{
+			panel.getTransform().setParent(innerTransform);
+		}
+		
+		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
 		panel.initPanel();
 		
 		int px = getScrollX();
 		int py = getScrollY();
-		maxScrollX = Math.max(maxScrollX, panel.getBounds().getWidth() - bounds.getWidth());
-		maxScrollY = Math.max(maxScrollY, panel.getBounds().getHeight() - bounds.getHeight());
+		maxScrollX = Math.max(maxScrollX, panel.getTransform().getWidth() - transform.getWidth());
+		maxScrollY = Math.max(maxScrollY, panel.getTransform().getHeight() - transform.getHeight());
 		
 		if(maxScrollX > 0)
 		{
@@ -322,28 +316,19 @@ public class CanvasScrolling implements IGuiCanvas
 		{
 			this.scrollY.writeValue(py / (float)maxScrollY);
 		}
-		
-		return entry;
 	}
 	
 	@Override
 	public boolean removePanel(IGuiPanel panel)
 	{
-		Iterator<PanelEntry> iter = guiPanels.iterator();
+		boolean b = guiPanels.remove(panel);
 		
-		while(iter.hasNext())
+		if(b)
 		{
-			PanelEntry entry = iter.next();
-			
-			if(entry.getPanel() == panel)
-			{
-				iter.remove();
-				refreshScrollBounds();
-				return true;
-			}
+			this.refreshScrollBounds();
 		}
 		
-		return false;
+		return b;
 	}
 	
 	private void refreshScrollBounds()
@@ -351,13 +336,12 @@ public class CanvasScrolling implements IGuiCanvas
 		maxScrollX = 0;
 		maxScrollY = 0;
 		
-		List<PanelEntry> tmp = new ArrayList<PanelEntry>(guiPanels);
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(PanelEntry entry : tmp)
+		for(IGuiPanel panel : tmp)
 		{
-			IGuiPanel panel = entry.getPanel();
-			maxScrollX = Math.max(maxScrollX, panel.getBounds().getWidth() - bounds.getWidth());
-			maxScrollY = Math.max(maxScrollY, panel.getBounds().getHeight() - bounds.getHeight());
+			maxScrollX = Math.max(maxScrollX, panel.getTransform().getWidth() - transform.getWidth());
+			maxScrollY = Math.max(maxScrollY, panel.getTransform().getHeight() - transform.getHeight());
 		}
 		
 		updatePanelScroll();
@@ -365,14 +349,8 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private void updatePanelScroll()
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		
-		for(IGuiPanel entry : tmp)
-		{
-			Rectangle rec = entry.getTransform().applyTransform(bounds);
-			rec.translate(-getScrollX(), -getScrollY());
-			panel.updateBounds(rec);
-		}
+		innerTransform.offX = -getScrollX();
+		innerTransform.offY = -getScrollY();
 	}
 	
 	@Override

@@ -15,8 +15,5 @@ public interface IInsFactory
 	@SideOnly(Side.CLIENT)
 	public String unlocalisedName();
 	
-	public Loot
 	public IDInstruction loadInstruction(NBTTagCompound nbt);
-	
-	public void I
 }

@@ -9,6 +9,7 @@ import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.controls.PanelButton;
 import adv_director.rw2.api.client.gui.misc.GuiAlign;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.GuiTransform;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.CanvasTextured;
@@ -30,11 +31,14 @@ public class GuiScreenTest extends GuiScreenCanvas
 		super.initGui();
 		
 		IGuiRect ctt = new GuiTransform(new Vector4f(0.05F, 0.05F, 0.95F, 0.95F), new GuiPadding(0, 0, 0, 0), 0);
+		ctt.setParent(new GuiRectangle(0, 0, this.width, this.height, 0));
 		CanvasTextured cvt1 =  new CanvasTextured(ctt, ThemeRegistry.INSTANCE.getTexture(TexturePreset.PANEL_MAIN));
 		this.addPanel(cvt1);
 		
 		IGuiRect btt1 = new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, 0, 0), -1);
+		btt1.setParent(ctt);
 		IGuiRect btt2 = new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(0, -16, -100, 0), -1);
+		btt2.setParent(ctt);
 		PanelButton btn1 = new PanelButton(btt1, 0, "Button 1");
 		PanelButton btn2 = new PanelButton(btt2, 1, "Button 2");
 		cvt1.addPanel(btn1);
