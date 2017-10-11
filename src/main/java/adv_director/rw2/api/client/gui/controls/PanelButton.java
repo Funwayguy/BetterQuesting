@@ -8,7 +8,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
@@ -17,7 +16,7 @@ import adv_director.rw2.api.client.gui.themes.ThemeRegistry;
 
 public class PanelButton implements IGuiPanel
 {
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
 	
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
 	private int[] colStates = new int[]{Color.GRAY.getRGB(), Color.WHITE.getRGB(), 16777120};
@@ -30,7 +29,7 @@ public class PanelButton implements IGuiPanel
 	
 	public PanelButton(IGuiRect rect, int id, String txt)
 	{
-		this.setTransform(rect);
+		this.transform = rect;
 		this.btnText = txt;
 		this.btnID = id;
 		
@@ -98,11 +97,6 @@ public class PanelButton implements IGuiPanel
 		return transform;
 	}
 	
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
-	}
-	
 	@Override
 	public void initPanel()
 	{
@@ -111,7 +105,7 @@ public class PanelButton implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		this.btnState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
@@ -150,7 +144,7 @@ public class PanelButton implements IGuiPanel
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		boolean clicked = click == 0 && bounds.contains(mx, my);
 		
 		if(clicked)

@@ -5,7 +5,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 public final class GuiTransform implements IGuiRect
 {
-	private IGuiRect parentTranform = GuiRectangle.ZERO;
+	private IGuiRect parent;
 	private final Vector4f anchor = new Vector4f(0F, 0F, 1F, 1F);
 	private final GuiPadding padding = new GuiPadding(0, 0, 0, 0);
 	private int drawDepth = 0;
@@ -39,12 +39,7 @@ public final class GuiTransform implements IGuiRect
 	
 	public void setPadding(int left, int top, int right, int bottom)
 	{
-		int l = Math.min(left, right);
-		int r = Math.max(left, right);
-		int t = Math.min(top, bottom);
-		int b = Math.max(top, bottom);
-		
-		this.padding.setPadding(l, t, r, b);
+		this.padding.setPadding(left, top, right, bottom);
 	}
 	
 	public GuiPadding getPadding()
@@ -78,43 +73,31 @@ public final class GuiTransform implements IGuiRect
 	}
 	
 	@Override
-	public void setParent(IGuiRect trans)
-	{
-		this.parentTranform = trans != null? trans : GuiRectangle.ZERO;
-	}
-	
-	@Override
-	public IGuiRect getParent()
-	{
-		return this.parentTranform;
-	}
-	
-	@Override
 	public int getX()
 	{
-		IGuiRect frame = this.parentTranform;
-		return frame.getX() + (int)(frame.getWidth() * this.anchor.x) + padding.getLeft();
+		int i = parent == null ? 0 : (parent.getX() + (int)(parent.getWidth() * this.anchor.x));
+		return i + padding.getLeft();
 	}
 	
 	@Override
 	public int getY()
 	{
-		IGuiRect frame = this.parentTranform;
-		return frame.getY() + (int)(frame.getHeight() * this.anchor.y) + padding.getTop();
+		int i = parent == null ? 0 : (parent.getY() + (int)(parent.getHeight() * this.anchor.y));
+		return i + padding.getTop();
 	}
 	
 	@Override
 	public int getWidth()
 	{
-		IGuiRect frame = this.parentTranform;
-		return (int)(frame.getWidth() * (this.anchor.z - this.anchor.x)) - (padding.getRight() + padding.getLeft());
+		int i = parent == null ? 0 : (int)(parent.getWidth() * (this.anchor.z - this.anchor.x));
+		return i - (padding.getRight() + padding.getLeft());
 	}
 	
 	@Override
 	public int getHeight()
 	{
-		IGuiRect frame = this.parentTranform;
-		return (int)(frame.getHeight() * (this.anchor.w - this.anchor.y)) - (padding.getBottom() + padding.getTop());
+		int i = parent == null ? 0 : (int)(parent.getHeight() * (this.anchor.w - this.anchor.y));
+		return i - (padding.getBottom() + padding.getTop());
 	}
 	
 	@Override
@@ -124,18 +107,45 @@ public final class GuiTransform implements IGuiRect
 	}
 	
 	@Override
-	public boolean contains(int x3, int y3)
+	public IGuiRect getParent()
 	{
-		int x = getX();
-		int y = getY();
+		return parent;
+	}
+	
+	@Override
+	public void setParent(IGuiRect rect)
+	{
+		this.parent = rect;
+	}
+	
+	@Override
+	public boolean contains(int x3, int y3) // NOTE: This is using local coordinates
+	{
+		int x1 = getX();
+		int y1 = getY();
 		int w = getWidth();
 		int h = getHeight();
-		int x1 = x;
-		int x2 = x + w;
-		int y1 = y;
-		int y2 = y + h;
+		int x2 = x1 + w;
+		int y2 = y1 + h;
 		return x3 >= x1 && x3 < x2 && y3 >= y1 && y3 < y2;
 	}
+	
+	@Override
+	public void translate(int x, int y)
+	{
+		this.padding.setPadding(padding.getLeft() + x, padding.getTop() + y, padding.getRight() - x, padding.getBottom() - y);
+	}
+	
+	/*@Override
+	public IGuiRect relative(IGuiRect frame)
+	{
+		int l = frame.getX() + (int)(frame.getWidth() * this.anchor.x) + padding.getLeft();
+		int t = frame.getY() + (int)(frame.getHeight() * this.anchor.y) + padding.getTop();
+		int w = (int)(frame.getWidth() * (this.anchor.z - this.anchor.x)) - (padding.getRight() + padding.getLeft());
+		int h = (int)(frame.getHeight() * (this.anchor.w - this.anchor.y)) - (padding.getBottom() + padding.getTop());
+		
+		return new GuiRectangle(l, t, w, h);
+	}*/
 
 	@Override
 	public int compareTo(IGuiRect o)

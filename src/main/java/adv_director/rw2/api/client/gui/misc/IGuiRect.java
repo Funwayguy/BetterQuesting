@@ -12,4 +12,5 @@ public interface IGuiRect extends Comparable<IGuiRect>
 	public void setParent(IGuiRect rect);
 	
 	public boolean contains(int x, int y);
+	public void translate(int x, int y);
 }

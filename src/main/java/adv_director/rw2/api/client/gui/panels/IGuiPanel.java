@@ -7,8 +7,8 @@ import adv_director.rw2.api.client.gui.misc.IGuiRect;
 public interface IGuiPanel
 {
 	public IGuiRect getTransform();
-	public void setTransform(IGuiRect trans);
 	
+	// Don't initialise anything with fixed positions or size in here. It's all relative
 	public void initPanel();
 	public void drawPanel(int mx, int my, float partialTick);
 	

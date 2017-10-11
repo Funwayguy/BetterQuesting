@@ -18,11 +18,10 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
 	private final GuiScreen parent;
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
 	
-	public GuiScreenCanvas(GuiScreen parent, IGuiRect transform)
+	public GuiScreenCanvas(GuiScreen parent)
 	{
-		this.transform = transform;
 		this.parent = parent;
 	}
 	
@@ -33,15 +32,12 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	@Override
-	public void setTransform(IGuiRect trans)
-	{
-		this.transform = trans != null? trans : GuiRectangle.ZERO;
-	}
-	
-	@Override
 	public void initGui()
 	{
 		super.initGui();
+		
+		transform.w = this.width;
+		transform.h = this.height;
 		
 		this.getAllPanels().clear();
 		
@@ -207,6 +203,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		guiPanels.add(panel);
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
+		panel.getTransform().setParent(getTransform());
 		panel.initPanel();
 	}
 	

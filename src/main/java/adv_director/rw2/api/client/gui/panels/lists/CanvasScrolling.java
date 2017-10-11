@@ -13,7 +13,6 @@ import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.ComparatorGuiDepth;
 import adv_director.rw2.api.client.gui.misc.GuiRectangle;
-import adv_director.rw2.api.client.gui.misc.GuiRectangleDynamic;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
@@ -21,8 +20,9 @@ import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 public class CanvasScrolling implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
-	private IGuiRect transform = GuiRectangle.ZERO;
-	private final GuiRectangleDynamic innerTransform;
+	private final IGuiRect transform;
+	
+	private final GuiRectangle innerTransform;
 	
 	private int maxScrollX = 0;
 	private int maxScrollY = 0;
@@ -35,10 +35,10 @@ public class CanvasScrolling implements IGuiCanvas
 	private int dragMY = 0;
 	private int scrollSpeed = 12;
 	
-	public CanvasScrolling()
+	public CanvasScrolling(IGuiRect rect)
 	{
-		innerTransform = new GuiRectangleDynamic(0, 0, 0, 0, 0);
-		innerTransform.setParent(transform);
+		this.transform = rect;
+		this.innerTransform = new GuiRectangle(0, 0, 0, 0, 0);
 		
 		// Dummy value drivers
 		
@@ -114,12 +114,6 @@ public class CanvasScrolling implements IGuiCanvas
 	public IGuiRect getTransform()
 	{
 		return transform;
-	}
-	
-	@Override
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
 	}
 	
 	private int lsx = 0;
@@ -293,12 +287,7 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		guiPanels.add(panel);
-		
-		if(panel.getTransform().getParent() == null)
-		{
-			panel.getTransform().setParent(innerTransform);
-		}
-		
+		panel.getTransform().setParent(innerTransform);
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
 		panel.initPanel();
 		
@@ -349,8 +338,8 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private void updatePanelScroll()
 	{
-		innerTransform.offX = -getScrollX();
-		innerTransform.offY = -getScrollY();
+		innerTransform.x = -getScrollX();
+		innerTransform.y = -getScrollY();
 	}
 	
 	@Override

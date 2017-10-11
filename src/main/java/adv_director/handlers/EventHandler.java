@@ -73,7 +73,7 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen, new GuiTransform(new Vector4f(0F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0)));
+			mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
 			
 			/*if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
 			{

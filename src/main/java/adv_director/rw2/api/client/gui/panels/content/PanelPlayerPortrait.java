@@ -10,7 +10,6 @@ import org.lwjgl.opengl.GL11;
 import adv_director.api.utils.RenderUtils;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import adv_director.rw2.api.utils.EntityPlayerPreview;
@@ -18,7 +17,7 @@ import com.mojang.authlib.GameProfile;
 
 public class PanelPlayerPortrait implements IGuiPanel
 {
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
 	
 	private final AbstractClientPlayer player;
 	private final ResourceLocation resource;
@@ -35,7 +34,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 	
 	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player)
 	{
-		this.setTransform(rect);
+		this.transform = rect;
 		this.player = player;
 		this.player.limbSwing = 0F;
 		this.player.limbSwingAmount = 0F;
@@ -113,15 +112,9 @@ public class PanelPlayerPortrait implements IGuiPanel
 	}
 	
 	@Override
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
-	}
-	
-	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());

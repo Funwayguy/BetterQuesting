@@ -13,7 +13,6 @@ import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
 import adv_director.rw2.api.client.gui.resources.SlicedTexture;
@@ -23,7 +22,7 @@ public class PanelHBarFill implements IBarFill
 	private static final IGuiTexture DEF_BACK = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(48, 32, 16, 8), new GuiPadding(6, 3, 6, 3));
 	private static final IGuiTexture DEF_FILL = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(48, 40, 16, 8), new GuiPadding(6, 3, 6, 3));
 	
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
 	
 	private IGuiTexture texBack = DEF_BACK;
 	private IGuiTexture texFill = DEF_FILL;
@@ -36,7 +35,7 @@ public class PanelHBarFill implements IBarFill
 	
 	public PanelHBarFill(IGuiRect rect)
 	{
-		this.setTransform(rect);
+		this.transform = rect;
 		this.fillDriver = new IValueIO<Float>()
 		{
 			public Float readValue()
@@ -92,15 +91,9 @@ public class PanelHBarFill implements IBarFill
 	}
 	
 	@Override
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
-	}
-	
-	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);

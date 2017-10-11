@@ -7,7 +7,6 @@ import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.ComparatorGuiDepth;
 import adv_director.rw2.api.client.gui.misc.GuiAlign;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.GuiTransform;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiCanvas;
@@ -16,18 +15,17 @@ import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 public class CanvasHList implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
+	
+	public CanvasHList(IGuiRect rect)
+	{
+		this.transform = rect;
+	}
 	
 	@Override
 	public IGuiRect getTransform()
 	{
 		return transform;
-	}
-	
-	@Override
-	public void setTransform(IGuiRect trans)
-	{
-		this.transform = trans != null? trans : GuiRectangle.ZERO;
 	}
 	
 	@Override
@@ -141,22 +139,17 @@ public class CanvasHList implements IGuiCanvas
 			return;
 		}
 		
-		IGuiRect pt = panel.getTransform();
+		IGuiRect nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(0, 0, 0, 0), panel.getTransform().getDepth());
 		
-		if(pt != null && pt.getParent() == null)
+		if(guiPanels.size() > 0)
 		{
-			IGuiRect nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(0, 0, 0, 0), pt.getDepth());
+			IGuiPanel pe = guiPanels.get(guiPanels.size() - 1);
 			
-			if(guiPanels.size() > 0)
-			{
-				IGuiPanel pe = guiPanels.get(guiPanels.size() - 1);
-				
-				int hWidth = (pe.getTransform().getX() - transform.getX()) + pe.getTransform().getWidth();
-				nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(hWidth, 0, -hWidth, 0), pt.getDepth());
-			}
-			
-			pt.setParent(nt);
+			int hWidth = (pe.getTransform().getX() - transform.getX()) + pe.getTransform().getWidth();
+			nt = new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(hWidth, 0, -hWidth, 0), panel.getTransform().getDepth());
 		}
+		
+		panel.getTransform().setParent(nt);
 		
 		guiPanels.add(panel);
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);

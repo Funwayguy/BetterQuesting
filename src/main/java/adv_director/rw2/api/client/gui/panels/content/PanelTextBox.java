@@ -12,7 +12,7 @@ import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 
 public class PanelTextBox implements IGuiPanel
 {
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private IGuiRect transform;
 	
 	private String text = "";
 	private boolean shadow = false;
@@ -23,7 +23,7 @@ public class PanelTextBox implements IGuiPanel
 	
 	public PanelTextBox(IGuiRect rect, String text)
 	{
-		this.setTransform(rect);
+		this.transform = rect;
 		this.setText(text);
 	}
 	
@@ -57,15 +57,10 @@ public class PanelTextBox implements IGuiPanel
 		return transform;
 	}
 	
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
-	}
-	
 	@Override
 	public void initPanel()
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 		
 		if(!autoFit)
@@ -83,7 +78,7 @@ public class PanelTextBox implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 		RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
 	}

@@ -2,9 +2,7 @@ package adv_director.rw2.api.client.gui.misc;
 
 public class GuiRectangle implements IGuiRect
 {
-	public static final IGuiRect ZERO = new GuiRectangle(0, 0, 0, 0);
-	
-	public final int x, y, w, h, d;
+	public int x, y, w, h, d;
 	private IGuiRect parent = null;
 	
 	public GuiRectangle(int x, int y, int w, int h)
@@ -60,17 +58,12 @@ public class GuiRectangle implements IGuiRect
 	@Override
 	public IGuiRect getParent()
 	{
-		return parent;
+		return this.parent;
 	}
 	
 	@Override
 	public void setParent(IGuiRect rect)
 	{
-		if(this == ZERO)
-		{
-			return;
-		}
-		
 		this.parent = rect;
 	}
 	
@@ -83,6 +76,19 @@ public class GuiRectangle implements IGuiRect
 		int y2 = this.y + this.h;
 		return x >= x1 && x < x2 && y >= y1 && y < y2;
 	}
+	
+	@Override
+	public void translate(int dx, int dy)
+	{
+		this.x += dx;
+		this.y += dy;
+	}
+	
+	/*@Override
+	public IGuiRect relative(IGuiRect frame)
+	{
+		return new GuiRectangle(x + frame.getX(), y + frame.getY(), frame.getWidth(), frame.getHeight());
+	}*/
 	
 	@Override
 	public int compareTo(IGuiRect o)

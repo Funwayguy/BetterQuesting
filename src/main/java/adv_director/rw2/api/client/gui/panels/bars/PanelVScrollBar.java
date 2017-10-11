@@ -10,7 +10,6 @@ import org.lwjgl.util.Rectangle;
 import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
 import adv_director.rw2.api.client.gui.resources.SlicedTexture;
@@ -20,7 +19,7 @@ public class PanelVScrollBar implements IScrollBar
 	private static final IGuiTexture DEF_BACK = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(48, 0, 8, 16), new GuiPadding(1, 1, 1, 1));
 	private static final IGuiTexture DEF_HNDL = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(56, 0, 8, 16), new GuiPadding(3, 4, 3, 4));
 	
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
 	
 	private IGuiTexture texBack = DEF_BACK;
 	private IGuiTexture texHndl = DEF_HNDL;
@@ -29,6 +28,11 @@ public class PanelVScrollBar implements IScrollBar
 	private float speed = 0.1F;
 	private int hSize = 16;
 	private boolean isDragging = false;
+	
+	public PanelVScrollBar(IGuiRect rect)
+	{
+		this.transform = rect;
+	}
 	
 	@Override
 	public PanelVScrollBar setHandleSize(int size)
@@ -61,17 +65,11 @@ public class PanelVScrollBar implements IScrollBar
 	{
 		return transform;
 	}
-	
-	@Override
-	public void setTransform(IGuiRect rect)
-	{
-		this.transform = rect != null? rect : GuiRectangle.ZERO;
-	}
 
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		if(isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
 		{
 			float cy = (float)(my - (bounds.getY() + hSize/2)) / (float)(bounds.getHeight() - hSize);
@@ -94,7 +92,7 @@ public class PanelVScrollBar implements IScrollBar
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		if(!bounds.contains(mx, my))
 		{
 			return false;
@@ -112,7 +110,7 @@ public class PanelVScrollBar implements IScrollBar
 	@Override
 	public boolean onMouseScroll(int mx, int my, int sdx)
 	{
-		IGuiRect bounds = new GuiRectangle(this.getTransform());
+		IGuiRect bounds = this.getTransform();
 		if(sdx == 0 || !bounds.contains(mx, my))
 		{
 			return false;

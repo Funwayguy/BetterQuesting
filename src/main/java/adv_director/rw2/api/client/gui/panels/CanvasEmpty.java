@@ -5,29 +5,22 @@ import java.util.Collections;
 import java.util.List;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.ComparatorGuiDepth;
-import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 
 public class CanvasEmpty implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
-	private IGuiRect transform = GuiRectangle.ZERO;
+	private final IGuiRect transform;
 	
 	public CanvasEmpty(IGuiRect rect)
 	{
-		this.setTransform(rect);
+		this.transform = rect;
 	}
 	
 	@Override
 	public IGuiRect getTransform()
 	{
 		return transform;
-	}
-	
-	@Override
-	public void setTransform(IGuiRect trans)
-	{
-		this.transform = trans != null? trans : GuiRectangle.ZERO;
 	}
 	
 	@Override
@@ -143,6 +136,7 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		guiPanels.add(panel);
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
+		panel.getTransform().setParent(getTransform());
 		panel.initPanel();
 	}
 	
