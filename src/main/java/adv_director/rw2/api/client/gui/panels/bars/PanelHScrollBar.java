@@ -3,49 +3,50 @@ package adv_director.rw2.api.client.gui.panels.bars;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.util.Rectangle;
-import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
-import adv_director.rw2.api.client.gui.misc.GuiPadding;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
-import adv_director.rw2.api.client.gui.resources.SlicedTexture;
+import adv_director.rw2.api.client.gui.themes.TexturePreset;
+import adv_director.rw2.api.client.gui.themes.ThemeRegistry;
 
 public class PanelHScrollBar implements IScrollBar
 {
-	private static final IGuiTexture DEF_BACK = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(64, 0, 16, 8), new GuiPadding(1, 1, 1, 1));
-	private static final IGuiTexture DEF_HNDL = new SlicedTexture(new ResourceLocation(AdvDirector.MODID, "textures/gui/editor_gui_alt.png"), new Rectangle(64, 8, 16, 8), new GuiPadding(4, 3, 4, 3));
-	
 	private final IGuiRect transform;
 	
-	private IGuiTexture texBack = DEF_BACK;
-	private IGuiTexture texHndl = DEF_HNDL;
+	private IGuiTexture texBack;
+	private IGuiTexture texHndlIdle;
+	private IGuiTexture texHndlHover;
 	
 	private float scroll = 0F;
 	private float speed = 0.1F;
 	private int hSize = 16;
+	private int inset = 1;
 	private boolean isDragging = false;
 	
 	public PanelHScrollBar(IGuiRect rect)
 	{
 		this.transform = rect;
+		this.texBack = ThemeRegistry.INSTANCE.getTexture(TexturePreset.ITEM_FRAME);
+		this.texHndlIdle = ThemeRegistry.INSTANCE.getTexture(TexturePreset.SCROLL_H_1);
+		this.texHndlHover = ThemeRegistry.INSTANCE.getTexture(TexturePreset.SCROLL_H_2);
 	}
 	
 	@Override
-	public PanelHScrollBar setHandleSize(int size)
+	public PanelHScrollBar setHandleSize(int size, int inset)
 	{
 		this.hSize = size;
+		this.inset = inset;
 		return this;
 	}
 	
 	@Override
-	public PanelHScrollBar setBarTexture(IGuiTexture back, IGuiTexture handle)
+	public PanelHScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleIdle, IGuiTexture handleHover)
 	{
 		this.texBack = back;
-		this.texHndl = handle;
+		this.texHndlIdle = handleIdle;
+		this.texHndlHover = handleHover;
 		return this;
 	}
 	
@@ -83,9 +84,20 @@ public class PanelHScrollBar implements IScrollBar
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		
-		texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
-		int sx = MathHelper.floor_float((bounds.getWidth() - hSize) * scroll);
-		texHndl.drawTexture(bounds.getX() + sx, bounds.getY(), hSize, bounds.getHeight(), 0F);
+		if(texBack != null)
+		{
+			texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+		}
+
+		int sx = MathHelper.floor_float((bounds.getWidth() - hSize - (inset*2)) * scroll);
+		
+		if(texHndlHover != null && (isDragging || bounds.contains(mx, my)))
+		{
+			texHndlHover.drawTexture(bounds.getX() + sx + inset, bounds.getY() + inset, hSize, bounds.getHeight() - (inset*2), 0F);
+		} else if(texHndlIdle != null)
+		{
+			texHndlIdle.drawTexture(bounds.getX() + sx + inset, bounds.getY() + inset, hSize, bounds.getHeight() - (inset*2), 0F);
+		}
 		
 		GlStateManager.popMatrix();
 	}

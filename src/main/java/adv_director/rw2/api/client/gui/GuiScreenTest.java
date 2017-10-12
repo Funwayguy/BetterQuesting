@@ -32,13 +32,13 @@ public class GuiScreenTest extends GuiScreenCanvas
 		IGuiRect ctt = new GuiTransform(new Vector4f(0.05F, 0.05F, 0.95F, 0.95F), new GuiPadding(0, 0, 0, 0), 0);
 		CanvasTextured cvt1 =  new CanvasTextured(ctt, ThemeRegistry.INSTANCE.getTexture(TexturePreset.PANEL_MAIN));
 		this.addPanel(cvt1);
-		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
+		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 12, 0), 0));
 		cvt1.addPanel(cs1);
-		PanelVScrollBar pvs = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+		PanelVScrollBar pvs = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-12, 4, 4, 4), 0));
 		cvt1.addPanel(pvs);
 		cs1.setScrollDriverY(pvs);
 		
-		CanvasTextured cvt2 = new CanvasTextured(new GuiRectangle(0, 0, 500, 500, 0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.PANEL_INNER));
+		CanvasTextured cvt2 = new CanvasTextured(new GuiRectangle(0, 0, 100, 500, 0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.PANEL_INNER));
 		cs1.addPanel(cvt2);
 		
 		IGuiRect btt1 = new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, 0, 0), -1);
