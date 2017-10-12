@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import adv_director.api.utils.RenderUtils;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
@@ -39,6 +38,7 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		this.transform = rect;
 		this.innerTransform = new GuiRectangle(0, 0, 0, 0, 0);
+		this.innerTransform.setParent(transform);
 		
 		// Dummy value drivers
 		
@@ -150,8 +150,8 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		GlStateManager.pushMatrix();
 		
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		RenderUtils.guiScissor(Minecraft.getMinecraft(), transform.getX(), transform.getY(), transform.getWidth(), transform.getHeight());
+		Minecraft mc = Minecraft.getMinecraft();
+		RenderUtils.startScissor(mc, new GuiRectangle(transform));
 		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
@@ -160,7 +160,7 @@ public class CanvasScrolling implements IGuiCanvas
 			panel.drawPanel(mx, my, partialTick);
 		}
 		
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		RenderUtils.endScissor(mc);
 		GlStateManager.popMatrix();
 	}
 	
@@ -340,6 +340,8 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		innerTransform.x = -getScrollX();
 		innerTransform.y = -getScrollY();
+		lsx = this.getScrollX();
+		lsy = this.getScrollY();
 	}
 	
 	@Override

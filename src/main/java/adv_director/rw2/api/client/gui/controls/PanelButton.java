@@ -33,7 +33,7 @@ public class PanelButton implements IGuiPanel
 		this.btnText = txt;
 		this.btnID = id;
 		
-		this.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_2));
+		this.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
 	}
 	
 	public PanelButton setTextHighlight(int disabled, int idle, int hover)

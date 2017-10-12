@@ -19,7 +19,7 @@ public class GuiRectangle implements IGuiRect
 		this.d = d;
 	}
 	
-	// Mainly to convert a GuiTransform to an immutable version
+	// Mainly to convert a GuiTransform to a fixed size version
 	public GuiRectangle(IGuiRect rect)
 	{
 		this(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), rect.getDepth());

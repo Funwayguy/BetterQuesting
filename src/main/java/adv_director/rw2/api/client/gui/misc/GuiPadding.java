@@ -2,7 +2,7 @@ package adv_director.rw2.api.client.gui.misc;
 
 public class GuiPadding
 {
-	private int l, t, r, b = 0;
+	public int l, t, r, b = 0;
 	
 	public GuiPadding()
 	{

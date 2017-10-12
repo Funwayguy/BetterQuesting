@@ -6,13 +6,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Rectangle;
 import adv_director.api.utils.RenderUtils;
 import adv_director.core.AdvDirector;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
 import adv_director.rw2.api.client.gui.misc.GuiPadding;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.resources.IGuiTexture;
 import adv_director.rw2.api.client.gui.resources.SlicedTexture;
@@ -105,14 +105,14 @@ public class PanelVBarFill implements IBarFill
 		
 		float f = MathHelper.clamp_float(fillDriver.readValue(), 0F, 1F);
 		
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+		Minecraft mc = Minecraft.getMinecraft();
 		
 		if(this.flipBar)
 		{
-			RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY(), bounds.getWidth(), (int)(bounds.getHeight() * f));
+			RenderUtils.startScissor(mc, new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
 		} else
 		{
-			RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY() + (int)(bounds.getHeight() - (bounds.getHeight() * f)), bounds.getWidth(), (int)(bounds.getHeight() * f));
+			RenderUtils.startScissor(mc, new GuiRectangle(bounds.getX(), bounds.getY() + (int)(bounds.getHeight() - (bounds.getHeight() * f)), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
 		}
 		
 		if(this.clrThreshold > 0 && f < this.clrThreshold)
@@ -143,7 +143,7 @@ public class PanelVBarFill implements IBarFill
 			texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
 		}
 		
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		RenderUtils.endScissor(mc);
 		
 		GlStateManager.popMatrix();
 	}

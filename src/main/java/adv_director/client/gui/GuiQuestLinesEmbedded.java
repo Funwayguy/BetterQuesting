@@ -125,7 +125,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		{
 			GlStateManager.pushMatrix();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			//RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			
@@ -157,7 +157,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		{
 			GlStateManager.pushMatrix();
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			//RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			curTool.drawTool(rmx, rmy, partialTick);

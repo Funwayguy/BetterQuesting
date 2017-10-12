@@ -6,10 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 import adv_director.api.utils.RenderUtils;
 import adv_director.rw2.api.client.gui.controls.IValueIO;
 import adv_director.rw2.api.client.gui.events.PanelEvent;
+import adv_director.rw2.api.client.gui.misc.GuiRectangle;
 import adv_director.rw2.api.client.gui.misc.IGuiRect;
 import adv_director.rw2.api.client.gui.panels.IGuiPanel;
 import adv_director.rw2.api.utils.EntityPlayerPreview;
@@ -116,8 +116,8 @@ public class PanelPlayerPortrait implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		RenderUtils.guiScissor(Minecraft.getMinecraft(), bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+		Minecraft mc = Minecraft.getMinecraft();
+		RenderUtils.startScissor(mc, new GuiRectangle(bounds));
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		int scale = Math.min(bounds.getWidth(), bounds.getHeight());
@@ -128,7 +128,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 		d2 = d2 * -10D;*/
 		RenderUtils.RenderEntity(bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 + (int)(scale*1.2F), scale, yawDriver.readValue(), pitchDriver.readValue(), player);
 		
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		RenderUtils.endScissor(mc);
 		GlStateManager.popMatrix();
 	}
 	

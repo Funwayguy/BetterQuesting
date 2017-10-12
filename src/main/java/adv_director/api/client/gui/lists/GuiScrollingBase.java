@@ -83,7 +83,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			if(scissor)
 			{
 				GL11.glEnable(GL11.GL_SCISSOR_TEST);
-				RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
+				//RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
 			}
 			
 			e.drawBackground(mx2, my2, posX, listY, width - 8);
@@ -145,7 +145,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			if(scissor)
 			{
 				GL11.glEnable(GL11.GL_SCISSOR_TEST);
-				RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
+				//RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
 			}
 			
 			e.drawForeground(mx2, my2, posX, listY, width - 8);

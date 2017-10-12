@@ -6,60 +6,40 @@ import org.lwjgl.util.vector.Vector4f;
 public final class GuiTransform implements IGuiRect
 {
 	private IGuiRect parent;
-	private final Vector4f anchor = new Vector4f(0F, 0F, 1F, 1F);
-	private final GuiPadding padding = new GuiPadding(0, 0, 0, 0);
+	private final Vector4f anchor;
+	private final GuiPadding padding;
 	private int drawDepth = 0;
 	
 	public GuiTransform()
 	{
-		this(new Vector4f(0F, 0F, 1F, 1F), new GuiPadding(0, 0, 1, 1), 0);
-	}
-	
-	public GuiTransform(IGuiRect rect)
-	{
-		this(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), rect.getDepth());
-	}
-	
-	public GuiTransform(int x, int y, int w, int h, int z)
-	{
-		this(GuiAlign.TOP_LEFT, new GuiPadding(x, y, -w, -h), z);
+		this(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0);
 	}
 	
 	public GuiTransform(ReadableVector4f anchor, GuiPadding padding, int depth)
 	{
-		this.setAnchor(anchor);
-		this.setPadding(padding);
+		this(new Vector4f(anchor), padding, depth);
+	}
+	
+	public GuiTransform(Vector4f anchor, GuiPadding padding, int depth)
+	{
+		this.anchor = anchor;
+		this.padding = padding;
 		this.drawDepth = depth;
-	}
-	
-	public void setPadding(GuiPadding padding)
-	{
-		this.setPadding(padding.getLeft(), padding.getTop(), padding.getRight(), padding.getBottom());
-	}
-	
-	public void setPadding(int left, int top, int right, int bottom)
-	{
-		this.padding.setPadding(left, top, right, bottom);
+		
+		float l = Math.min(anchor.x, anchor.z);
+		float r = Math.max(anchor.x, anchor.z);
+		float t = Math.min(anchor.y, anchor.w);
+		float b = Math.max(anchor.y, anchor.w);
+		
+		this.anchor.x = l;
+		this.anchor.y = t;
+		this.anchor.z = r;
+		this.anchor.w = b;
 	}
 	
 	public GuiPadding getPadding()
 	{
 		return this.padding;
-	}
-	
-	public void setAnchor(ReadableVector4f vector)
-	{
-		this.setAnchor(vector.getX(), vector.getY(), vector.getZ(), vector.getW());
-	}
-	
-	public void setAnchor(float minX, float minY, float maxX, float maxY)
-	{
-		float l = Math.min(minX, maxX);
-		float r = Math.max(minX, maxX);
-		float t = Math.min(minY, maxY);
-		float b = Math.max(minY, maxY);
-		
-		this.anchor.set(l, t, r, b);
 	}
 	
 	public Vector4f getAnchor()
@@ -135,17 +115,6 @@ public final class GuiTransform implements IGuiRect
 	{
 		this.padding.setPadding(padding.getLeft() + x, padding.getTop() + y, padding.getRight() - x, padding.getBottom() - y);
 	}
-	
-	/*@Override
-	public IGuiRect relative(IGuiRect frame)
-	{
-		int l = frame.getX() + (int)(frame.getWidth() * this.anchor.x) + padding.getLeft();
-		int t = frame.getY() + (int)(frame.getHeight() * this.anchor.y) + padding.getTop();
-		int w = (int)(frame.getWidth() * (this.anchor.z - this.anchor.x)) - (padding.getRight() + padding.getLeft());
-		int h = (int)(frame.getHeight() * (this.anchor.w - this.anchor.y)) - (padding.getBottom() + padding.getTop());
-		
-		return new GuiRectangle(l, t, w, h);
-	}*/
 
 	@Override
 	public int compareTo(IGuiRect o)
