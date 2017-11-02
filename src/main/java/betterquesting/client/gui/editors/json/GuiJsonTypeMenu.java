@@ -18,17 +18,15 @@ import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
 import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 {
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	private FluidStack fluid;
 	private BigItemStack stack;
 	private Entity entity;
@@ -38,10 +36,10 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 	private JsonFluidCallback fluidCallback;
 	private JsonEntityCallback entityCallback;
 	
-	public GuiJsonTypeMenu(GuiScreen parent, JsonObject json)
+	public GuiJsonTypeMenu(GuiScreen parent, NBTTagCompound jo)
 	{
 		super(parent, "betterquesting.title.json_object");
-		this.json = json;
+		this.json = jo;
 	}
 	
 	@Override
@@ -62,7 +60,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 			
 			if(stack == null && JsonHelper.isEntity(json))
 			{
-				entity = EntityList.createEntityFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true), Minecraft.getMinecraft().theWorld);
+				entity = EntityList.createEntityFromNBT(json, Minecraft.getMinecraft().theWorld);
 			}
 			
 			if(stack == null && entity == null && JsonHelper.isFluid(json))
@@ -92,15 +90,15 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		
 		if(lastType == EditType.ITEM)
 		{
-			json.entrySet().clear();
+			JsonHelper.ClearCompoundTag(json);
 			JsonHelper.ItemStackToJson(stack, json);
 		} else if(lastType == EditType.FLUID)
 		{
-			json.entrySet().clear();
+			JsonHelper.ClearCompoundTag(json);
 			JsonHelper.FluidStackToJson(fluid, json);
 		} else if(lastType == EditType.ENTITY)
 		{
-			json.entrySet().clear();
+			JsonHelper.ClearCompoundTag(json);
 			JsonHelper.EntityToJson(entity, json);
 		}
 		

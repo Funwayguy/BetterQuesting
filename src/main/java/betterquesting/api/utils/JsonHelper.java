@@ -29,7 +29,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 /**
  * Used to read JSON data with pre-made checks for null entries and casting.
@@ -148,6 +147,19 @@ public class JsonHelper
 		return null;
 	}
 	
+	public static void ClearCompoundTag(NBTTagCompound tag)
+	{
+		if(tag == null)
+		{
+			return;
+		}
+		
+		for(String key : tag.getKeySet())
+		{
+			tag.removeTag(key);
+		}
+	}
+	
 	public static JsonObject ReadFromFile(File file)
 	{
 		if(file == null || !file.exists())
@@ -235,99 +247,101 @@ public class JsonHelper
 		}
 	}
 	
-	public static boolean isItem(JsonObject json)
+	public static boolean isItem(NBTTagCompound json)
 	{
-		if(json != null && json.has("id") && json.has("Count") && json.has("Damage") && json.get("id").isJsonPrimitive())
+		if(json != null && json.hasKey("id") && json.hasKey("Count", 99) && json.hasKey("Damage", 99))
 		{
-			if(!json.get("id").getAsJsonPrimitive().isNumber())
+			if(json.hasKey("id", 8))
 			{
-				 return Item.REGISTRY.containsKey(new ResourceLocation(json.get("id").getAsString()));
+				 return Item.REGISTRY.containsKey(new ResourceLocation(json.getString("id")));
 			} else
 			{
-				return Item.REGISTRY.getObjectById(json.get("id").getAsNumber().intValue()) != null;
+				return Item.REGISTRY.getObjectById(json.getInteger("id")) != null;
 			}
 		}
 		
 		return false;
 	}
 	
-	public static boolean isFluid(JsonObject json)
+	public static boolean isFluid(NBTTagCompound json)
 	{
-		return json != null && json.has("FluidName") && json.has("Amount") && FluidRegistry.getFluid(GetString(json, "FluidName", "")) != null;
+		return json != null && json.hasKey("FluidName", 8) && json.hasKey("Amount", 99) && FluidRegistry.getFluid(json.getString("FluidName")) != null;
 	}
 	
-	public static boolean isEntity(JsonObject json)
+	public static boolean isEntity(NBTTagCompound json)
 	{
-		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
-		return tags.hasKey("id") && EntityList.NAME_TO_CLASS.containsKey(tags.getString("id"));
+		return json.hasKey("id", 8) && EntityList.NAME_TO_CLASS.containsKey(json.getString("id"));
 	}
 	
 	/**
 	 * Converts a JsonObject to an ItemStack. May return a placeholder if the correct mods are not installed</br>
 	 * This should be the standard way to load items into quests in order to retain all potential data
 	 */
-	public static BigItemStack JsonToItemStack(JsonObject json)
+	public static BigItemStack JsonToItemStack(NBTTagCompound nbt)
 	{
-		if(json == null || !json.has("id") || !json.get("id").isJsonPrimitive())
+		if(nbt == null || !nbt.hasKey("id"))
 		{
 			return new BigItemStack(Blocks.STONE);
 		}
 		
-		JsonPrimitive jID = json.get("id").getAsJsonPrimitive();
-		int count = JsonHelper.GetNumber(json, "Count", 1).intValue();
-		String oreDict = JsonHelper.GetString(json, "OreDict", "");
-		int damage = JsonHelper.GetNumber(json, "Damage", OreDictionary.WILDCARD_VALUE).intValue();
+		String jID = "";//nbt.getString("id");
+		int count = nbt.getInteger("Count");
+		String oreDict = nbt.getString("OreDict");
+		int damage = nbt.hasKey("Damage", 99) ? nbt.getInteger("Damage") : -1;
 		damage = damage >= 0? damage : OreDictionary.WILDCARD_VALUE;
 		
 		Item item;
 		
-		if(jID.isNumber())
+		if(nbt.hasKey("id", 99))
 		{
-			item = (Item)Item.REGISTRY.getObjectById(jID.getAsInt()); // Old format (numbers)
+			int id = nbt.getInteger("id");
+			item = (Item)Item.REGISTRY.getObjectById(id); // Old format (numbers)
+			jID = "" + id;
 		} else
 		{
-			item = (Item)Item.REGISTRY.getObject(new ResourceLocation(jID.getAsString())); // New format (names)
+			jID = nbt.getString("id");
+			item = (Item)Item.REGISTRY.getObject(new ResourceLocation(jID)); // New format (names)
 		}
 		
 		NBTTagCompound tags = null;
-		if(json.has("tag"))
+		if(nbt.hasKey("tag", 10))
 		{
-			tags = NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "tag"), new NBTTagCompound(), true);
+			tags = nbt.getCompoundTag("tag");
 		}
 		
-		return PlaceholderConverter.convertItem(item, jID.getAsString(), count, damage, oreDict, tags);
+		return PlaceholderConverter.convertItem(item, jID, count, damage, oreDict, tags);
 	}
 	
 	/**
 	 * Use this for quests instead of converter NBT because this doesn't use ID numbers
 	 */
-	public static JsonObject ItemStackToJson(BigItemStack stack, JsonObject json)
+	public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound json)
 	{
 		if(stack == null)
 		{
 			return json;
 		}
 		
-		json.addProperty("id", Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem()).toString());
-		json.addProperty("Count", stack.stackSize);
-		json.addProperty("OreDict", stack.oreDict);
-		json.addProperty("Damage", stack.getBaseStack().getItemDamage());
+		json.setString("id", Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem()).toString());
+		json.setInteger("Count", stack.stackSize);
+		json.setString("OreDict", stack.oreDict);
+		json.setInteger("Damage", stack.getBaseStack().getItemDamage());
 		if(stack.HasTagCompound())
 		{
-			json.add("tag", NBTConverter.NBTtoJSON_Compound(stack.GetTagCompound(), new JsonObject(), true));
+			json.setTag("tag", stack.GetTagCompound());
 		}
 		return json;
 	}
 	
-	public static FluidStack JsonToFluidStack(JsonObject json)
+	public static FluidStack JsonToFluidStack(NBTTagCompound json)
 	{
-		String name = GetString(json, "FluidName", "water");
-		int amount = GetNumber(json, "Amount", 1000).intValue();
+		String name = json.hasKey("FluidName", 8) ? json.getString("FluidName") : "water";
+		int amount = json.getInteger("Amount");
 		NBTTagCompound tags = null;
 		
-		if(json.has("Tag"))
+		if(json.hasKey("Tag", 10))
 		{
-			tags = NBTConverter.JSONtoNBT_Object(GetObject(json, "Tag"), new NBTTagCompound(), true);
+			tags = json.getCompoundTag("Tag");
 		}
 		
 		Fluid fluid = FluidRegistry.getFluid(name);
@@ -335,31 +349,30 @@ public class JsonHelper
 		return PlaceholderConverter.convertFluid(fluid, name, amount, tags);
 	}
 	
-	public static JsonObject FluidStackToJson(FluidStack stack, JsonObject json)
+	public static NBTTagCompound FluidStackToJson(FluidStack stack, NBTTagCompound json)
 	{
 		if(stack == null)
 		{
 			return json;
 		}
 		
-		json.addProperty("FluidName", FluidRegistry.getFluidName(stack));
-		json.addProperty("Amount", stack.amount);
+		json.setString("FluidName", FluidRegistry.getFluidName(stack));
+		json.setInteger("Amount", stack.amount);
 		if(stack.tag != null)
 		{
-			json.add("Tag", NBTConverter.NBTtoJSON_Compound(stack.tag, new JsonObject(), true));
+			json.setTag("Tag", stack.tag);
 		}
 		return json;
 	}
 	
-	public static Entity JsonToEntity(JsonObject json, World world)
+	public static Entity JsonToEntity(NBTTagCompound json, World world)
 	{
 		return JsonToEntity(json, world, true);
 	}
 	
 	// Extra option to allow null returns for checking purposes
-	public static Entity JsonToEntity(JsonObject json, World world, boolean allowPlaceholder)
+	public static Entity JsonToEntity(NBTTagCompound tags, World world, boolean allowPlaceholder)
 	{
-		NBTTagCompound tags = NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound(), true);
 		Entity entity = null;
 		
 		if(tags.hasKey("id") && EntityList.NAME_TO_CLASS.containsKey(tags.getString("id")))
@@ -370,7 +383,7 @@ public class JsonHelper
 		return PlaceholderConverter.convertEntity(entity, world, tags);
 	}
 	
-	public static JsonObject EntityToJson(Entity entity, JsonObject json)
+	public static NBTTagCompound EntityToJson(Entity entity, NBTTagCompound json)
 	{
 		if(entity == null)
 		{
@@ -381,7 +394,7 @@ public class JsonHelper
 		entity.writeToNBTOptional(tags);
 		String id = EntityList.getEntityString(entity);
 		tags.setString("id", id); // Some entities don't write this to file in certain cases
-		NBTConverter.NBTtoJSON_Compound(tags, json, true);
+		json.merge(tags);
 		return json;
 	}
 }

@@ -6,8 +6,9 @@ import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.basic.PropertyTypeBoolean;
 import betterquesting.api.properties.basic.PropertyTypeEnum;
+import betterquesting.api.properties.basic.PropertyTypeFloat;
+import betterquesting.api.properties.basic.PropertyTypeInteger;
 import betterquesting.api.properties.basic.PropertyTypeItemStack;
-import betterquesting.api.properties.basic.PropertyTypeNumber;
 import betterquesting.api.properties.basic.PropertyTypeString;
 import betterquesting.api.utils.BigItemStack;
 
@@ -31,8 +32,8 @@ public class NativeProps
 	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
 	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
-	public static final IPropertyType<Number> REPEAT_TIME =					new PropertyTypeNumber(new ResourceLocation("betterquesting:repeatTime"), -1);
-	public static final IPropertyType<Number> PARTICIPATION =				new PropertyTypeNumber(new ResourceLocation("betterquesting:participation"), 1F);
+	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
+	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
 	
 	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
 	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "minecraft:entity.player.levelup");
@@ -41,20 +42,20 @@ public class NativeProps
 	public static final IPropertyType<BigItemStack> ICON =					new PropertyTypeItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.NETHER_STAR));
 	
 	public static final IPropertyType<String> BG_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:bg_image"), "");
-	public static final IPropertyType<Number> BG_SIZE =						new PropertyTypeNumber(new ResourceLocation("betterquesting:bg_size"), 256);
+	public static final IPropertyType<Integer> BG_SIZE =					new PropertyTypeInteger(new ResourceLocation("betterquesting:bg_size"), 256);
 	
 	public static final IPropertyType<Boolean> PARTY_LOOT =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:partySingleReward"), false);
 	public static final IPropertyType<Boolean> PARTY_LIVES =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLives"), false);
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
-	public static final IPropertyType<Number> LIVES =						new PropertyTypeNumber(new ResourceLocation("betterquesting:lives"), 1);
-	public static final IPropertyType<Number> LIVES_DEF =					new PropertyTypeNumber(new ResourceLocation("betterquesting:livesDef"), 3);
-	public static final IPropertyType<Number> LIVES_MAX =					new PropertyTypeNumber(new ResourceLocation("betterquesting:livesMax"), 10);
+	public static final IPropertyType<Integer> LIVES =						new PropertyTypeInteger(new ResourceLocation("betterquesting:lives"), 1);
+	public static final IPropertyType<Integer> LIVES_DEF =					new PropertyTypeInteger(new ResourceLocation("betterquesting:livesDef"), 3);
+	public static final IPropertyType<Integer> LIVES_MAX =					new PropertyTypeInteger(new ResourceLocation("betterquesting:livesMax"), 10);
 	
 	public static final IPropertyType<String> HOME_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:home_image"), "betterquesting:textures/gui/default_title.png");
-	public static final IPropertyType<Number> HOME_ANC_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_x"), 0.5F);
-	public static final IPropertyType<Number> HOME_ANC_Y =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_anchor_y"), 0F);
-	public static final IPropertyType<Number> HOME_OFF_X =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_offset_x"), -128);
-	public static final IPropertyType<Number> HOME_OFF_Y =					new PropertyTypeNumber(new ResourceLocation("betterquesting:home_offset_y"), 0);
+	public static final IPropertyType<Float> HOME_ANC_X =					new PropertyTypeFloat(new ResourceLocation("betterquesting:home_anchor_x"), 0.5F);
+	public static final IPropertyType<Float> HOME_ANC_Y =					new PropertyTypeFloat(new ResourceLocation("betterquesting:home_anchor_y"), 0F);
+	public static final IPropertyType<Integer> HOME_OFF_X =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_x"), -128);
+	public static final IPropertyType<Integer> HOME_OFF_Y =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_y"), 0);
 }

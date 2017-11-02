@@ -8,10 +8,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketTypeNative;
-import com.google.gson.JsonObject;
 
 public class QuestSettings extends PropertyContainer implements IQuestSettings
 {
@@ -26,18 +23,14 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("settings", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		return new QuestingPacket(PacketTypeNative.SETTINGS.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		readFromJson(JsonHelper.GetObject(base, "settings"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data"), EnumSaveType.CONFIG);
 	}
 	
 	@Override
@@ -52,16 +45,16 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
-		super.readFromJson(json, saveType);
+		super.readFromNBT(json, saveType);
 		
 		this.setupProps();
 	}
 	
 	public void reset()
 	{
-		this.readFromJson(new JsonObject(), EnumSaveType.CONFIG);
+		this.readFromNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
 	}
 	
 	private void setupProps()

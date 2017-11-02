@@ -4,12 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
@@ -40,6 +42,7 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.questing.tasks.ITickableTask;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.QuestCache;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiHome;
@@ -55,7 +58,6 @@ import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
@@ -91,6 +93,11 @@ public class EventHandler
 		
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
+			if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+			{
+				return;
+			}
+			
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			
@@ -104,8 +111,6 @@ public class EventHandler
 				
 				if(!task.isComplete(uuid))
 				{
-					task.update(player, quest); // Legacy support only. Will be replaced by ITickableTask
-					
 					if(task instanceof ITickableTask)
 					{
 						((ITickableTask)task).updateTask(player, quest);
@@ -187,47 +192,47 @@ public class EventHandler
 		{
 			// === CONFIG ===
 			
-			JsonObject jsonCon = new JsonObject();
+			NBTTagCompound jsonCon = new NBTTagCompound();
 			
-			jsonCon.add("questSettings", QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			jsonCon.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			jsonCon.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+			jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			
-			jsonCon.addProperty("format", BetterQuesting.FORMAT);
+			jsonCon.setString("format", BetterQuesting.FORMAT);
 			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
 			
 			// === PROGRESS ===
 			
-			JsonObject jsonProg = new JsonObject();
+			NBTTagCompound jsonProg = new NBTTagCompound();
 			
-			jsonProg.add("questProgress", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
+			jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS));
 			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonProg);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
 			
 			// === PARTIES ===
 			
-			JsonObject jsonP = new JsonObject();
+			NBTTagCompound jsonP = new NBTTagCompound();
 			
-			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true));
 			
 			// === NAMES ===
 			
-			JsonObject jsonN = new JsonObject();
+			NBTTagCompound jsonN = new NBTTagCompound();
 			
-			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+			jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
+			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true));
 		    
 		    // === LIVES ===
 		    
-		    JsonObject jsonL = new JsonObject();
+		    NBTTagCompound jsonL = new NBTTagCompound();
 		    
-		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		    jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		    
-		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), jsonL);
+		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
 		    
 		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
 		}
@@ -263,7 +268,11 @@ public class EventHandler
 		QuestLineDatabase.INSTANCE.reset();
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
-		GuiQuestLinesMain.bookmarked = null;
+		
+		if(BetterQuesting.proxy.isClient())
+		{
+			GuiQuestLinesMain.bookmarked = null;
+		}
 		
 		MinecraftServer server =event.getWorld().getMinecraftServer();
 		
@@ -314,15 +323,17 @@ public class EventHandler
 			}
 		}
 		
-		String fVer = JsonHelper.GetString(j1, "format", "0.0.0");
+		NBTTagCompound nbt1 = NBTConverter.JSONtoNBT_Object(j1, new NBTTagCompound(), true);
+		
+		String fVer = nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0";
 		
 		ILegacyLoader loader = LegacyLoaderRegistry.getLoader(fVer);
 		
 		if(loader == null)
 		{
-			QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
-			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
+			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"), EnumSaveType.CONFIG);
+			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
+			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 		} else
 		{
 			loader.readFromJson(j1, EnumSaveType.CONFIG);
@@ -346,7 +357,8 @@ public class EventHandler
 		
 		if(loader == null)
 		{
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questProgress"), EnumSaveType.PROGRESS);
+			NBTTagCompound nbt2 = NBTConverter.JSONtoNBT_Object(j2, new NBTTagCompound(), true);
+			QuestDatabase.INSTANCE.readFromNBT(nbt2.getTagList("questProgress", 10), EnumSaveType.PROGRESS);
 		} else
 		{
 			loader.readFromJson(j2, EnumSaveType.PROGRESS);
@@ -362,7 +374,8 @@ public class EventHandler
 	    	j3 = JsonHelper.ReadFromFile(f3);
 	    }
 	    
-	    PartyManager.INSTANCE.readFromJson(JsonHelper.GetArray(j3, "parties"), EnumSaveType.CONFIG);
+		NBTTagCompound nbt3 = NBTConverter.JSONtoNBT_Object(j3, new NBTTagCompound(), true);
+	    PartyManager.INSTANCE.readFromNBT(nbt3.getTagList("parties", 10), EnumSaveType.CONFIG);
 	    
 	    // === NAMES ===
 	    
@@ -374,7 +387,8 @@ public class EventHandler
 	    	j4 = JsonHelper.ReadFromFile(f4);
 	    }
 	    
-	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
+		NBTTagCompound nbt4 = NBTConverter.JSONtoNBT_Object(j4, new NBTTagCompound(), true);
+	    NameCache.INSTANCE.readFromNBT(nbt4.getTagList("nameCache", 10), EnumSaveType.CONFIG);
 	    
 	    // === LIVES ===
 	    
@@ -386,8 +400,8 @@ public class EventHandler
 	    	j5 = JsonHelper.ReadFromFile(f5);
 	    }
 	    
-	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.CONFIG);
-	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.PROGRESS);
+		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
+	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), EnumSaveType.PROGRESS);
 	    
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");

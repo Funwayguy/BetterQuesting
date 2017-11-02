@@ -1,17 +1,15 @@
 package betterquesting.storage;
 
-import java.util.Map.Entry;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class PropertyContainer implements IPropertyContainer
 {
-	private JsonObject jInfo = new JsonObject();
+	private NBTTagCompound nbtInfo = new NBTTagCompound();
 	
 	@Override
 	public <T> T getProperty(IPropertyType<T> prop)
@@ -32,7 +30,7 @@ public class PropertyContainer implements IPropertyContainer
 			return null;
 		}
 		
-		JsonElement jProp = getJsonDomain(prop.getKey()).get(prop.getKey().getResourcePath());
+		NBTBase jProp = getJsonDomain(prop.getKey()).getTag(prop.getKey().getResourcePath());
 		
 		if(jProp == null)
 		{
@@ -50,7 +48,7 @@ public class PropertyContainer implements IPropertyContainer
 			return false;
 		}
 		
-		return getJsonDomain(prop.getKey()).has(prop.getKey().getResourcePath());
+		return getJsonDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
 	}
 	
 	@Override
@@ -61,35 +59,27 @@ public class PropertyContainer implements IPropertyContainer
 			return;
 		}
 		
-		JsonObject dom = getJsonDomain(prop.getKey());
-		dom.add(prop.getKey().getResourcePath(), prop.writeValue(value));
-		jInfo.add(prop.getKey().getResourceDomain(), dom);
+		NBTTagCompound dom = getJsonDomain(prop.getKey());
+		dom.setTag(prop.getKey().getResourcePath(), prop.writeValue(value));
+		nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
-		for(Entry<String,JsonElement> entry : jInfo.entrySet())
-		{
-			json.add(entry.getKey(), entry.getValue());
-		}
-		
-		return json;
+		nbt.merge(nbtInfo);
+		return nbt;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
-		jInfo = new JsonObject();
-		
-		for(Entry<String,JsonElement> entry : json.entrySet())
-		{
-			jInfo.add(entry.getKey(), entry.getValue());
-		}
+		nbtInfo = new NBTTagCompound();
+		nbtInfo.merge(nbt);
 	}
 	
-	private JsonObject getJsonDomain(ResourceLocation res)
+	private NBTTagCompound getJsonDomain(ResourceLocation res)
 	{
-		return JsonHelper.GetObject(jInfo, res.getResourceDomain());
+		return nbtInfo.getCompoundTag(res.getResourceDomain());
 	}
 }

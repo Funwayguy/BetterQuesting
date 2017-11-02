@@ -25,12 +25,10 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
@@ -143,9 +141,9 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		
 		if(action == EnumPacketAction.EDIT && questLine != null)
 		{
-			JsonObject base = new JsonObject();
-			base.add("line", questLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+			NBTTagCompound base = new NBTTagCompound();
+			base.setTag("line", questLine.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			tags.setTag("data", base);
 		}
 		
 		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));

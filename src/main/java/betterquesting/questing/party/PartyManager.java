@@ -5,19 +5,16 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.NameCache;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public final class PartyManager implements IPartyDatabase
 {
@@ -148,22 +145,18 @@ public final class PartyManager implements IPartyDatabase
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		json.add("parties", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		tags.setTag("data", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject json = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		readFromJson(JsonHelper.GetArray(json, "parties"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -172,16 +165,16 @@ public final class PartyManager implements IPartyDatabase
 		
 		for(Entry<Integer,IParty> entry : partyList.entrySet())
 		{
-			JsonObject jp = entry.getValue().writeToJson(new JsonObject(), saveType);
-			jp.addProperty("partyID", entry.getKey());
-			json.add(jp);
+			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			jp.setInteger("partyID", entry.getKey());
+			json.appendTag(jp);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -189,16 +182,18 @@ public final class PartyManager implements IPartyDatabase
 		}
 		
 		partyList.clear();
-		for(JsonElement element : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(element == null || !element.isJsonObject())
+			NBTBase element = json.get(i);
+			
+			if(element == null || element.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jp = element.getAsJsonObject();
+			NBTTagCompound jp = (NBTTagCompound)element;
 			
-			int partyID = JsonHelper.GetNumber(jp, "partyID", -1).intValue();
+			int partyID = jp.hasKey("partyID", 99) ? jp.getInteger("partyID") : -1;
 			
 			if(partyID < 0)
 			{
@@ -206,7 +201,7 @@ public final class PartyManager implements IPartyDatabase
 			}
 			
 			IParty party = new PartyInstance();
-			party.readFromJson(jp, EnumSaveType.CONFIG);
+			party.readFromNBT(jp, EnumSaveType.CONFIG);
 			
 			if(party.getMembers().size() > 0)
 			{

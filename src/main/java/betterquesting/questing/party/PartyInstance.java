@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -13,14 +15,9 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class PartyInstance implements IParty
 {
@@ -53,20 +50,6 @@ public class PartyInstance implements IParty
 	public String getName()
 	{
 		return pInfo.getProperty(NativeProps.NAME, "New Party");
-	}
-	
-	@Override
-	@Deprecated
-	public boolean getShareLives()
-	{
-		return pInfo.getProperty(NativeProps.PARTY_LIVES, false);
-	}
-	
-	@Override
-	@Deprecated
-	public boolean getShareReward()
-	{
-		return false;
 	}
 	
 	@Override
@@ -229,9 +212,7 @@ public class PartyInstance implements IParty
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("party", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(this));
 		
 		return new QuestingPacket(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
@@ -240,69 +221,70 @@ public class PartyInstance implements IParty
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		readFromJson(JsonHelper.GetObject(base, "party"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data"), EnumSaveType.CONFIG);
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return json;
 		}
 		
-		JsonArray memJson = new JsonArray();
+		NBTTagList memJson = new NBTTagList();
 		for(Entry<UUID,EnumPartyStatus> mem : members.entrySet())
 		{
-			JsonObject jm = new JsonObject();
-			jm.addProperty("uuid", mem.getKey().toString());
-			jm.addProperty("status", mem.getValue().toString());
-			memJson.add(jm);
+			NBTTagCompound jm = new NBTTagCompound();
+			jm.setString("uuid", mem.getKey().toString());
+			jm.setString("status", mem.getValue().toString());
+			memJson.appendTag(jm);
 		}
-		json.add("members", memJson);
+		json.setTag("members", memJson);
 		
-		json.add("properties", pInfo.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
+		json.setTag("properties", pInfo.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject jObj, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound jObj, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		if(jObj.has("properties"))
+		if(jObj.hasKey("properties", 10))
 		{
-			pInfo.readFromJson(JsonHelper.GetObject(jObj, "properties"), EnumSaveType.CONFIG);
-		} else
+			pInfo.readFromNBT(jObj.getCompoundTag("properties"), EnumSaveType.CONFIG);
+		} else // Legacy stuff
 		{
-			pInfo.readFromJson(new JsonObject(), EnumSaveType.CONFIG);
-			pInfo.setProperty(NativeProps.NAME, JsonHelper.GetString(jObj, "name", "New Party"));
-			pInfo.setProperty(NativeProps.PARTY_LIVES, JsonHelper.GetBoolean(jObj, "lifeShare", false));
-			pInfo.setProperty(NativeProps.PARTY_LOOT, JsonHelper.GetBoolean(jObj, "lootShare", false));
-			pInfo.setProperty(NativeProps.LIVES, JsonHelper.GetNumber(jObj, "lives", 1).intValue());
+			pInfo.readFromNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			pInfo.setProperty(NativeProps.NAME, jObj.getString("name"));
+			pInfo.setProperty(NativeProps.PARTY_LIVES, jObj.getBoolean("lifeShare"));
+			pInfo.setProperty(NativeProps.PARTY_LOOT, jObj.getBoolean("lootShare"));
+			pInfo.setProperty(NativeProps.LIVES, jObj.getInteger("lives"));
 		}
 		
 		members.clear();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "members"))
+		NBTTagList memList = jObj.getTagList("members", 10);
+		for(int i = 0; i < memList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = memList.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jMem = entry.getAsJsonObject();
+			NBTTagCompound jMem = (NBTTagCompound)entry;
 			UUID uuid = null;
 			EnumPartyStatus priv = EnumPartyStatus.INVITE;
 			
 			try
 			{
-				uuid = UUID.fromString(JsonHelper.GetString(jMem, "uuid", ""));
+				uuid = UUID.fromString(jMem.getString("uuid"));
 			} catch(Exception e)
 			{
 				uuid = null;
@@ -310,7 +292,7 @@ public class PartyInstance implements IParty
 			
 			try
 			{
-				priv = EnumPartyStatus.valueOf(JsonHelper.GetString(jMem, "status", EnumPartyStatus.INVITE.toString()));
+				priv = EnumPartyStatus.valueOf(jMem.hasKey("status", 8) ? jMem.getString("status") : EnumPartyStatus.INVITE.toString());
 				priv = priv != null? priv : EnumPartyStatus.INVITE;
 			} catch(Exception e)
 			{
@@ -324,26 +306,5 @@ public class PartyInstance implements IParty
 		}
 		
 		this.setupProps();
-	}
-	
-	@Override
-	@Deprecated
-	public void setName(String name)
-	{
-		pInfo.setProperty(NativeProps.NAME, name);
-	}
-	
-	@Override
-	@Deprecated
-	public void setShareLives(boolean state)
-	{
-		pInfo.setProperty(NativeProps.PARTY_LIVES, state);
-	}
-	
-	@Override
-	@Deprecated
-	public void setShareReward(boolean state)
-	{
-		pInfo.setProperty(NativeProps.PARTY_LOOT, state);
 	}
 }

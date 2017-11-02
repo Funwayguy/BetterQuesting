@@ -62,7 +62,7 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		if(args.length >= 3)
 		{
-			uuid = this.findPlayerID(server, args[2]);
+			uuid = this.findPlayerID(server, sender, args[2]);
 			
 			if(uuid == null)
 			{
@@ -70,7 +70,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = this.findPlayerID(server, sender.getName());
+			uuid = this.findPlayerID(server, sender, sender.getName());
 		}
 		
 		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);

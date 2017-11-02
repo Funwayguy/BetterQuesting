@@ -6,6 +6,12 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTPrimitive;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.math.MathHelper;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.controls.GuiBigTextField;
@@ -25,22 +31,18 @@ import betterquesting.client.gui.editors.json.TextCallbackJsonObject;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
 import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 {
 	private final GuiScrollingJson host;
-	private final JsonElement json;
+	private final NBTBase json;
 	private final IJsonDoc jDoc;
 	private String name = "";
 	private String desc = "";
 	private String key = "";
 	private int idx = -1;
 	
-	private JsonElement je;
+	private NBTBase je;
 	private boolean allowEdit = true;
 	
 	private GuiTextField txtMain;
@@ -61,7 +63,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	 * 3 - Delete Entry
 	 */
 	
-	public ScrollingJsonEntry(GuiScrollingJson host, JsonObject json, String key, IJsonDoc jDoc, boolean allowEdit)
+	public ScrollingJsonEntry(GuiScrollingJson host, NBTTagCompound json, String key, IJsonDoc jDoc, boolean allowEdit)
 	{
 		this.mc = Minecraft.getMinecraft();
 		this.host = host;
@@ -83,11 +85,11 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 			}
 		}
 		
-		this.je = json.get(key);
+		this.je = json.getTag(key);
 		this.allowEdit = allowEdit;
 	}
 	
-	public ScrollingJsonEntry(GuiScrollingJson host, JsonArray json, int index, IJsonDoc jDoc, boolean allowEdit)
+	public ScrollingJsonEntry(GuiScrollingJson host, NBTTagList json, int index, IJsonDoc jDoc, boolean allowEdit)
 	{
 		this.mc = Minecraft.getMinecraft();
 		this.host = host;
@@ -95,7 +97,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		this.idx = index;
 		this.jDoc = jDoc;
 		
-		this.je = index < 0 || index >= json.size()? null : json.get(index);
+		this.je = index < 0 || index >= json.tagCount()? null : json.get(index);
 		this.allowEdit = allowEdit;
 		
 		this.name = je == null? "" : ("#" + index);
@@ -127,13 +129,13 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		if(je == null)
 		{
 			return;
-		} else if(je.isJsonArray())
+		} else if(je.getId() == 9)
 		{
-			btnMain = new GuiButtonJson<JsonArray>(0, margin, 0, ctrlSpace - n, 20, je.getAsJsonArray(), false);
+			btnMain = new GuiButtonJson<NBTTagList>(0, margin, 0, ctrlSpace - n, 20, (NBTTagList)je, false);
 			btnList.add(btnMain);
-		} else if(je.isJsonObject())
+		} else if(je.getId() == 10)
 		{
-			JsonObject jo = je.getAsJsonObject();
+			NBTTagCompound jo = (NBTTagCompound)je;
 			
 			if(JsonHelper.isItem(jo) || JsonHelper.isFluid(jo) || JsonHelper.isEntity(jo))
 			{
@@ -142,38 +144,39 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 				btnList.add(btnAdv);
 			}
 			
-			btnMain = new GuiButtonJson<JsonObject>(0, margin, 0, ctrlSpace - n, 20, je.getAsJsonObject(), false);
+			btnMain = new GuiButtonJson<NBTTagCompound>(0, margin, 0, ctrlSpace - n, 20, jo, false);
 			btnList.add(btnMain);
-		} else if(je.isJsonPrimitive())
+		} else if(je instanceof NBTPrimitive)
 		{
-			JsonPrimitive jp = je.getAsJsonPrimitive();
+			NBTPrimitive jp = (NBTPrimitive)je;
 			
-			if(jp.isBoolean())
+			/*if(jp.isBoolean())
 			{
 				btnMain = new GuiButtonJson<JsonPrimitive>(0, margin, 0, ctrlSpace - n, 20, jp, false);
 				btnList.add(btnMain);
-			} else if(jp.isNumber())
+			} else if(jp.isNumber())*/
 			{
 				GuiNumberField num = new GuiNumberField(mc.fontRendererObj, margin + 1, 0, ctrlSpace - n - 2, 18);
 				num.setMaxStringLength(Integer.MAX_VALUE);
-				num.setText(jp.getAsNumber().toString());
+				num.setText("" + jp.getDouble());
 				txtMain = num;
-			} else
+			}// else
+		} else if(je.getId() == 8)
+		{
+			NBTTagString jp = (NBTTagString)je;
+			GuiBigTextField txt = new GuiBigTextField(mc.fontRendererObj, margin + 1, 1, ctrlSpace - n - 2, 18);
+			txt.setMaxStringLength(Integer.MAX_VALUE);
+			txt.setText(jp.getString());
+			
+			if(json.getId() == 10)
 			{
-				GuiBigTextField txt = new GuiBigTextField(mc.fontRendererObj, margin + 1, 1, ctrlSpace - n - 2, 18);
-				txt.setMaxStringLength(Integer.MAX_VALUE);
-				txt.setText(jp.getAsString());
-				
-				if(json.isJsonObject())
-				{
-					txt.enableBigEdit(new TextCallbackJsonObject(json.getAsJsonObject(), key));
-				} else if(json.isJsonArray())
-				{
-					txt.enableBigEdit(new TextCallbackJsonArray(json.getAsJsonArray(), idx));
-				}
-				
-				txtMain = txt;
+				txt.enableBigEdit(new TextCallbackJsonObject((NBTTagCompound)json, key));
+			} else if(json.getId() == 9)
+			{
+				txt.enableBigEdit(new TextCallbackJsonArray((NBTTagList)json, idx));
 			}
+			
+			txtMain = txt;
 		}
 	}
 	
@@ -231,33 +234,33 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 	{
 		if(je != null && btn.id == 3) // Delete Entry
 		{
-			if(json.isJsonObject())
+			if(json.getId() == 10)
 			{
-				json.getAsJsonObject().remove(key);
+				((NBTTagCompound)json).removeTag(key);
 				host.getEntryList().remove(this);
 				host.refresh();
 				return;
-			} else if(json.isJsonArray())
+			} else if(json.getId() == 9)
 			{
-				JsonHelper.GetUnderlyingArray(json.getAsJsonArray()).remove(idx);
+				((NBTTagList)json).removeTag(idx);
 				host.getEntryList().remove(this);
 				host.refresh(); 
 				return;
 			}
 		} if(btn.id == 2)
 		{
-			if(json.isJsonArray())
+			if(json.getId() == 9)
 			{
-				mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, json.getAsJsonArray(), idx));
+				mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, (NBTTagList)json, idx));
 				return;
-			} else if(json.isJsonObject())
+			} else if(json.getId() == 10)
 			{
-				mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, json.getAsJsonObject()));
+				mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, (NBTTagCompound)json));
 				return;
 			}
-		} else if(je != null && je.isJsonObject())
+		} else if(je != null && je.getId() == 10)
 		{
-			JsonObject jo = je.getAsJsonObject();
+			NBTTagCompound jo = (NBTTagCompound)je;
 			
 			IJsonDoc childDoc = jDoc == null? null : jDoc.getChildDoc(key);
 			
@@ -280,10 +283,10 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 			{
 				mc.displayGuiScreen(new GuiJsonTypeMenu(mc.currentScreen, jo));
 			}
-		} else if(je != null && je.isJsonArray())
+		} else if(je != null && je.getId() == 9)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(mc.currentScreen, je.getAsJsonArray(), jDoc));
-		} else if(je != null && je.isJsonPrimitive() && je.getAsJsonPrimitive().isBoolean())
+			mc.displayGuiScreen(new GuiJsonEditor(mc.currentScreen, (NBTTagList)je, jDoc));
+		}/* else if(je != null && je.isJsonPrimitive() && je.getAsJsonPrimitive().isBoolean())
 		{
 			if(json.isJsonObject())
 			{
@@ -296,7 +299,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 				host.refresh();
 				return;
 			}
-		}
+		}*/
 	}
 	
 	public void onKeyTyped(char c, int keyCode)
@@ -305,25 +308,28 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 		{
 			txtMain.textboxKeyTyped(c, keyCode);
 			
-			if(json.isJsonArray())
+			if(json.getId() == 9)
 			{
-				ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json.getAsJsonArray());
+				//ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json.getAsJsonArray());
+				NBTTagList list = (NBTTagList)json;
 				
 				if(txtMain instanceof GuiNumberField)
 				{
-					list.set(idx, new JsonPrimitive(((GuiNumberField)txtMain).getNumber()));
+					list.set(idx, new NBTTagDouble(((GuiNumberField)txtMain).getNumber().doubleValue()));
 				} else
 				{
-					list.set(idx, new JsonPrimitive(txtMain.getText()));
+					list.set(idx, new NBTTagString(txtMain.getText()));
 				}
-			} else if(json.isJsonObject())
+			} else if(json.getId() == 10)
 			{
+				NBTTagCompound tag = (NBTTagCompound)json;
+				
 				if(txtMain instanceof GuiNumberField)
 				{
-					json.getAsJsonObject().addProperty(key, ((GuiNumberField)txtMain).getNumber());
+					tag.setDouble(key, ((GuiNumberField)txtMain).getNumber().doubleValue());
 				} else
 				{
-					json.getAsJsonObject().addProperty(key, txtMain.getText());
+					tag.setString(key, txtMain.getText());
 				}
 			}
 		}

@@ -24,19 +24,17 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.editors.rewards.GuiRewardEditor;
 import betterquesting.client.gui.editors.tasks.GuiTaskEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
-	private JsonObject lastEdit;
+	private NBTTagCompound lastEdit;
 	private int id = -1;
 	private IQuest quest;
 	
@@ -63,10 +61,10 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 		
 		if(lastEdit != null)
 		{
-			JsonObject prog = new JsonObject();
-			quest.writeToJson(prog, EnumSaveType.PROGRESS);
-			quest.readFromJson(lastEdit, EnumSaveType.CONFIG);
-			quest.readFromJson(prog, EnumSaveType.PROGRESS);
+			NBTTagCompound prog = new NBTTagCompound();
+			quest.writeToNBT(prog, EnumSaveType.PROGRESS);
+			quest.readFromNBT(lastEdit, EnumSaveType.CONFIG);
+			quest.readFromNBT(prog, EnumSaveType.PROGRESS);
 			lastEdit = null;
 			SendChanges();
 		}
@@ -145,8 +143,8 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 			mc.displayGuiScreen(new GuiPrerequisiteEditor(this, quest));
 		} else if(button.id == 4) // Raw JSON
 		{
-			this.lastEdit = new JsonObject();
-			quest.writeToJson(lastEdit, EnumSaveType.CONFIG);
+			this.lastEdit = new NBTTagCompound();
+			quest.writeToNBT(lastEdit, EnumSaveType.CONFIG);
 			JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(null, "jdoc.betterquesting.quest"));
 			MinecraftForge.EVENT_BUS.post(event);
 			mc.displayGuiScreen(new GuiJsonEditor(this, lastEdit, event.getJdocResult()));
@@ -223,13 +221,13 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 	// If the changes are approved by the server, it will be broadcast to all players including the editor
 	public void SendChanges()
 	{
-		JsonObject base = new JsonObject();
-		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", id);
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 

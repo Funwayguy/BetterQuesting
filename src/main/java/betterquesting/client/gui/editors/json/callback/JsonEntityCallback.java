@@ -3,21 +3,21 @@ package betterquesting.client.gui.editors.json.callback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class JsonEntityCallback implements ICallback<Entity>
 {
 	private Entity baseEntity = null;
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	
-	public JsonEntityCallback(JsonObject json)
+	public JsonEntityCallback(NBTTagCompound json)
 	{
 		this(json, new EntityPig(Minecraft.getMinecraft().theWorld));
 	}
 	
-	public JsonEntityCallback(JsonObject json, Entity stack)
+	public JsonEntityCallback(NBTTagCompound json, Entity stack)
 	{
 		this.json = json;
 		this.baseEntity = stack;
@@ -33,11 +33,11 @@ public class JsonEntityCallback implements ICallback<Entity>
 			this.baseEntity = new EntityPig(Minecraft.getMinecraft().theWorld);
 		}
 		
-		json.entrySet().clear();
+		JsonHelper.ClearCompoundTag(json);
 		JsonHelper.EntityToJson(baseEntity, json);
 	}
 	
-	public JsonObject getJsonObject()
+	public NBTTagCompound getJsonObject()
 	{
 		return json;
 	}

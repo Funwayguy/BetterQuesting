@@ -14,14 +14,11 @@ import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestInstance;
-import com.google.gson.JsonObject;
 
 public class PktHandlerQuestEdit implements IPacketHandler
 {
@@ -116,9 +113,9 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			if(data.hasKey("data") && data.hasKey("questID"))
 			{
 				nID = data.getInteger("questID");
-				JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
+				NBTTagCompound base = data.getCompoundTag("data");
 				
-				nq.readFromJson(JsonHelper.GetObject(base, "config"), EnumSaveType.CONFIG);
+				nq.readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
 			}
 			
 			QuestDatabase.INSTANCE.add(nq, nID);

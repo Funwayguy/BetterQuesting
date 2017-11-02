@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
-import betterquesting.api.utils.JsonHelper;
 import betterquesting.questing.QuestInstance;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class ImportedQuests implements IQuestDatabase
 {
@@ -102,7 +100,7 @@ public class ImportedQuests implements IQuestDatabase
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -111,17 +109,17 @@ public class ImportedQuests implements IQuestDatabase
 		
 		for(Entry<Integer,IQuest> entry : database.entrySet())
 		{
-			JsonObject jq = new JsonObject();
-			entry.getValue().writeToJson(jq, saveType);
-			jq.addProperty("questID", entry.getKey());
-			json.add(jq);
+			NBTTagCompound jq = new NBTTagCompound();
+			entry.getValue().writeToNBT(jq, saveType);
+			jq.setInteger("questID", entry.getKey());
+			json.appendTag(jq);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -129,14 +127,18 @@ public class ImportedQuests implements IQuestDatabase
 		}
 		
 		database.clear();
-		for(JsonElement entry : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = json.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			int qID = JsonHelper.GetNumber(entry.getAsJsonObject(), "questID", -1).intValue();
+			NBTTagCompound qTag = (NBTTagCompound)entry;
+			
+			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
 			
 			if(qID < 0)
 			{
@@ -145,7 +147,7 @@ public class ImportedQuests implements IQuestDatabase
 			
 			IQuest quest = getValue(qID);
 			quest = quest != null? quest : this.createNew();
-			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
+			quest.readFromNBT(qTag, EnumSaveType.CONFIG);
 			database.put(qID, quest);
 		}
 	}

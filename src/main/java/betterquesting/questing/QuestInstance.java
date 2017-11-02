@@ -8,7 +8,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -34,8 +37,6 @@ import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
 import betterquesting.network.PacketSender;
@@ -45,10 +46,6 @@ import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 public class QuestInstance implements IQuest
 {
@@ -701,10 +698,10 @@ public class QuestInstance implements IQuest
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("config", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("progress", writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("progress", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		tags.setTag("data", base);
 		tags.setInteger("questID", parentDB.getKey(this));
 		
 		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
@@ -713,10 +710,10 @@ public class QuestInstance implements IQuest
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromJson(JsonHelper.GetObject(base, "config"), EnumSaveType.CONFIG);
-		readFromJson(JsonHelper.GetObject(base, "progress"), EnumSaveType.PROGRESS);
+		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
+		readFromNBT(base.getCompoundTag("progress"), EnumSaveType.PROGRESS);
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -913,7 +910,7 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		switch(saveType)
 		{
@@ -931,7 +928,7 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		switch(saveType)
 		{
@@ -946,43 +943,31 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	private JsonObject writeToJson_Config(JsonObject jObj)
+	private NBTTagCompound writeToJson_Config(NBTTagCompound jObj)
 	{
-		jObj.add("properties", qInfo.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		jObj.add("tasks", tasks.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-		jObj.add("rewards", rewards.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		
-		JsonArray reqJson = new JsonArray();
-		for(IQuest quest : preRequisites)
+		int[] reqArr = new int[preRequisites.size()];
+		for(int i = 0; i < preRequisites.size(); i++)
 		{
-			int prID = parentDB.getKey(quest);
-			
-			if(prID >= 0)
-			{
-				reqJson.add(new JsonPrimitive(prID));
-			}
+			reqArr[i] = parentDB.getKey(preRequisites.get(i));
 		}
-		jObj.add("preRequisites", reqJson);
+		jObj.setTag("preRequisites", new NBTTagIntArray(reqArr));
 		
 		return jObj;
 	}
 	
-	private void readFromJson_Config(JsonObject jObj)
+	private void readFromJson_Config(NBTTagCompound jObj)
 	{
-		this.qInfo.readFromJson(JsonHelper.GetObject(jObj, "properties"), EnumSaveType.CONFIG);
-		this.tasks.readFromJson(JsonHelper.GetArray(jObj, "tasks"), EnumSaveType.CONFIG);
-		this.rewards.readFromJson(JsonHelper.GetArray(jObj, "rewards"), EnumSaveType.CONFIG);
+		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"), EnumSaveType.CONFIG);
+		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), EnumSaveType.CONFIG);
+		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), EnumSaveType.CONFIG);
 		
 		preRequisites.clear();
-		for(JsonElement entry : JsonHelper.GetArray(jObj, "preRequisites"))
+		for(int prID : jObj.getIntArray("preRequisites"))
 		{
-			if(entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isNumber())
-			{
-				continue;
-			}
-			
-			int prID = entry.getAsInt();
-			
 			if(prID < 0)
 			{
 				continue;
@@ -1002,36 +987,40 @@ public class QuestInstance implements IQuest
 		this.setupProps();
 	}
 	
-	private JsonObject writeToJson_Progress(JsonObject json)
+	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
 	{
-		JsonArray comJson = new JsonArray();
+		NBTTagList comJson = new NBTTagList();
 		for(UserEntry entry : completeUsers)
 		{
-			comJson.add(entry.writeToJson(new JsonObject()));
+			comJson.appendTag(entry.writeToJson(new NBTTagCompound()));
 		}
-		json.add("completed", comJson);
+		json.setTag("completed", comJson);
 		
-		JsonArray tskJson = tasks.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
-		json.add("tasks", tskJson);
+		NBTTagList tskJson = tasks.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+		json.setTag("tasks", tskJson);
 		
 		return json;
 	}
 	
-	private void readFromJson_Progress(JsonObject json)
+	private void readFromJson_Progress(NBTTagCompound json)
 	{
 		completeUsers.clear();
-		for(JsonElement entry : JsonHelper.GetArray(json, "completed"))
+		NBTTagList comList = json.getTagList("completed", 10);
+		for(int i = 0; i < comList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = comList.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
 			try
 			{
-				UUID uuid = UUID.fromString(JsonHelper.GetString(entry.getAsJsonObject(), "uuid", ""));
+				NBTTagCompound eTag = (NBTTagCompound)entry;
+				UUID uuid = UUID.fromString(eTag.getString("uuid"));
 				UserEntry user = new UserEntry(uuid);
-				user.readFromJson(entry.getAsJsonObject());
+				user.readFromJson(eTag);
 				completeUsers.add(user);
 			} catch(Exception e)
 			{
@@ -1039,6 +1028,6 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		tasks.readFromJson(JsonHelper.GetArray(json, "tasks"), EnumSaveType.PROGRESS);
+		tasks.readFromNBT(json.getTagList("tasks", 10), EnumSaveType.PROGRESS);
 	}
 }

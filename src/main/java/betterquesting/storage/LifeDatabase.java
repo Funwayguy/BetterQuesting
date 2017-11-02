@@ -3,20 +3,17 @@ package betterquesting.storage;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.UUID;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.ILifeDatabase;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public final class LifeDatabase implements ILifeDatabase
 {
@@ -27,20 +24,6 @@ public final class LifeDatabase implements ILifeDatabase
 	
 	private LifeDatabase()
 	{
-	}
-	
-	@Override
-	@Deprecated
-	public int getDefaultLives()
-	{
-		return QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
-	}
-	
-	@Override
-	@Deprecated
-	public int getMaxLives()
-	{
-		return QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue();
 	}
 	
 	@Override
@@ -111,24 +94,24 @@ public final class LifeDatabase implements ILifeDatabase
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("config", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("lives", writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("lives", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		tags.setTag("data", base);
 		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromJson(JsonHelper.GetObject(base, "config"), EnumSaveType.CONFIG);
-		readFromJson(JsonHelper.GetObject(base, "lives"), EnumSaveType.PROGRESS);
+		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
+		readFromNBT(base.getCompoundTag("lives"), EnumSaveType.PROGRESS);
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.PROGRESS)
 		{
@@ -139,75 +122,60 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
-		switch(saveType)
+		if(saveType != EnumSaveType.PROGRESS)
 		{
-			case CONFIG:
-				readFromJson_Config(json); // For legacy settings only
-				break;
-			case PROGRESS:
-				readFromJson_Progress(json);
-				break;
-			default:
-				break;
-		}
-	}
-	
-	private void readFromJson_Config(JsonObject json)
-	{
-		if(json.has("defLives"))
-		{
-			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, JsonHelper.GetNumber(json, "defLives", 3).intValue());
+			return;
 		}
 		
-		if(json.has("maxLives"))
-		{
-			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, JsonHelper.GetNumber(json, "maxLives", 10).intValue());
-		}
+		readFromJson_Progress(json);
 	}
 	
-	private JsonObject writeToJson_Progress(JsonObject json)
+	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
 	{
-		JsonArray jul = new JsonArray();
+		NBTTagList jul = new NBTTagList();
 		for(Entry<UUID,Integer> entry : playerLives.entrySet())
 		{
-			JsonObject j = new JsonObject();
-			j.addProperty("uuid", entry.getKey().toString());
-			j.addProperty("lives", entry.getValue());
-			jul.add(j);
+			NBTTagCompound j = new NBTTagCompound();
+			j.setString("uuid", entry.getKey().toString());
+			j.setInteger("lives", entry.getValue());
+			jul.appendTag(j);
 		}
-		json.add("playerLives", jul);
+		json.setTag("playerLives", jul);
 		
-		JsonArray jpl = new JsonArray();
+		NBTTagList jpl = new NBTTagList();
 		for(Entry<Integer,Integer> entry : partyLives.entrySet())
 		{
-			JsonObject j = new JsonObject();
-			j.addProperty("partyID", entry.getKey());
-			j.addProperty("lives", entry.getValue());
-			jpl.add(j);
+			NBTTagCompound j = new NBTTagCompound();
+			j.setInteger("partyID", entry.getKey());
+			j.setInteger("lives", entry.getValue());
+			jpl.appendTag(j);
 		}
-		json.add("partyLives", jpl);
+		json.setTag("partyLives", jpl);
 		
 		return json;
 	}
 	
-	private void readFromJson_Progress(JsonObject json)
+	private void readFromJson_Progress(NBTTagCompound json)
 	{
 		playerLives.clear();
-		for(JsonElement entry : JsonHelper.GetArray(json, "playerLives"))
+		NBTTagList tagList = json.getTagList("playerLives", 10);
+		for(int i = 0; i < tagList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = tagList.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject j = entry.getAsJsonObject();
+			NBTTagCompound j = (NBTTagCompound)entry;
 			
 			try
 			{
-				UUID uuid = UUID.fromString(JsonHelper.GetString(j, "uuid", ""));
-				int lives = JsonHelper.GetNumber(j, "lives", 3).intValue();
+				UUID uuid = UUID.fromString(j.getString("uuid"));
+				int lives = j.getInteger("lives");
 				playerLives.put(uuid, lives);
 			} catch(Exception e)
 			{
@@ -216,17 +184,20 @@ public final class LifeDatabase implements ILifeDatabase
 		}
 		
 		partyLives.clear();
-		for(JsonElement entry : JsonHelper.GetArray(json, "partyLives"))
+		tagList = json.getTagList("partyLives", 10);
+		for(int i = 0; i < tagList.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = tagList.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject j = entry.getAsJsonObject();
+			NBTTagCompound j = (NBTTagCompound)entry;
 			
-			int partyID = JsonHelper.GetNumber(j, "partyID", -1).intValue();
-			int lives = JsonHelper.GetNumber(j, "lives", 3).intValue();
+			int partyID = j.hasKey("partyID", 99) ? j.getInteger("partyID") : -1;
+			int lives = j.getInteger("lives");
 			
 			if(partyID >= 0)
 			{

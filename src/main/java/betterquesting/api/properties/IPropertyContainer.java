@@ -1,9 +1,9 @@
 package betterquesting.api.properties;
 
-import betterquesting.api.misc.IJsonSaveLoad;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.misc.INBTSaveLoad;
 
-public interface IPropertyContainer extends IJsonSaveLoad<JsonObject>
+public interface IPropertyContainer extends INBTSaveLoad<NBTTagCompound>
 {
 	public <T> T getProperty(IPropertyType<T> prop);
 	public <T> T getProperty(IPropertyType<T> prop, T def);

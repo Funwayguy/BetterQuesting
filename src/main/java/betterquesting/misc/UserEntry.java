@@ -1,8 +1,7 @@
 package betterquesting.misc;
 
 import java.util.UUID;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class UserEntry
 {
@@ -42,18 +41,18 @@ public class UserEntry
 		return claimed;
 	}
 	
-	public JsonObject writeToJson(JsonObject json)
+	public NBTTagCompound writeToJson(NBTTagCompound json)
 	{
-		json.addProperty("uuid", uuid.toString());
-		json.addProperty("timestamp", timestamp);
-		json.addProperty("claimed", claimed);
+		json.setString("uuid", uuid.toString());
+		json.setLong("timestamp", timestamp);
+		json.setBoolean("claimed", claimed);
 		return json;
 	}
 	
-	public void readFromJson(JsonObject json)
+	public void readFromJson(NBTTagCompound json)
 	{
-		uuid = UUID.fromString(JsonHelper.GetString(json, "uuid", ""));
-		timestamp = JsonHelper.GetNumber(json, "timestamp", 0).longValue();
-		claimed = JsonHelper.GetBoolean(json, "claimed", false);
+		uuid = UUID.fromString(json.getString("uuid"));
+		timestamp = json.getLong("timestamp");
+		claimed = json.getBoolean("claimed");
 	}
 }

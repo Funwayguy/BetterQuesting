@@ -1,18 +1,15 @@
 package betterquesting.client.gui.editors.json;
 
-import java.util.ArrayList;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import betterquesting.api.misc.ICallback;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class TextCallbackJsonArray implements ICallback<String>
 {
-	private final JsonArray json;
+	private final NBTTagList json;
 	private final int index;
 	
-	public TextCallbackJsonArray(JsonArray json, int index)
+	public TextCallbackJsonArray(NBTTagList json, int index)
 	{
 		this.json = json;
 		this.index = index;
@@ -21,13 +18,6 @@ public class TextCallbackJsonArray implements ICallback<String>
 	@Override
 	public void setValue(String text)
 	{
-		ArrayList<JsonElement> list = JsonHelper.GetUnderlyingArray(json);
-		
-		if(list == null || index < 0 || index >= list.size())
-		{
-			return;
-		}
-		
-		list.set(index, new JsonPrimitive(text));
+		json.set(index, new NBTTagString(text));
 	}
 }

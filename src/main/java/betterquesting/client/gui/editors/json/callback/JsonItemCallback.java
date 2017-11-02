@@ -1,22 +1,22 @@
 package betterquesting.client.gui.editors.json.callback;
 
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class JsonItemCallback implements ICallback<BigItemStack>
 {
 	private BigItemStack baseStack = new BigItemStack(Blocks.STONE);
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	
-	public JsonItemCallback(JsonObject json)
+	public JsonItemCallback(NBTTagCompound json)
 	{
 		this(json, new BigItemStack(Blocks.STONE));
 	}
 	
-	public JsonItemCallback(JsonObject json, BigItemStack stack)
+	public JsonItemCallback(NBTTagCompound json, BigItemStack stack)
 	{
 		this.json = json;
 		this.baseStack = stack;
@@ -32,11 +32,11 @@ public class JsonItemCallback implements ICallback<BigItemStack>
 			this.baseStack = new BigItemStack(Blocks.STONE);
 		}
 		
-		json.entrySet().clear();
+		JsonHelper.ClearCompoundTag(json);
 		JsonHelper.ItemStackToJson(baseStack, json);
 	}
 	
-	public JsonObject getJsonObject()
+	public NBTTagCompound getJsonObject()
 	{
 		return json;
 	}

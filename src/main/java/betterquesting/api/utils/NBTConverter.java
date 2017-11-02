@@ -53,7 +53,7 @@ public class NBTConverter
 				
 				for(int i = 0; i < tagList.size(); i++)
 				{
-					jAry.add("" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), format));
+					jAry.add(i + ":" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), format));
 				}
 				
 				return jAry;
@@ -244,7 +244,10 @@ public class NBTConverter
 					{
 						try
 						{
-							tList.appendTag(JSONtoNBT_Element(entry.getValue(), Byte.parseByte(entry.getKey()), format));
+							String[] s = entry.getKey().split(":");
+							byte id2 = Byte.parseByte(s[s.length - 1]);
+							//String key = entry.getKey().substring(0, entry.getKey().lastIndexOf(":" + id));
+							tList.appendTag(JSONtoNBT_Element(entry.getValue(), id2, format));
 						} catch(Exception e)
 						{
 							tList.appendTag(JSONtoNBT_Element(entry.getValue(), (byte)0, format));

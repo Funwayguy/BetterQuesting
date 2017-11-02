@@ -3,19 +3,19 @@ package betterquesting.api.questing;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
-import com.google.gson.JsonObject;
 
-public interface IQuest extends IJsonSaveLoad<JsonObject>, IDataSync
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
 {
 	public String getUnlocalisedName();
 	public String getUnlocalisedDescription();

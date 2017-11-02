@@ -52,14 +52,27 @@ public abstract class QuestCommandBase
 	/**
 	 * Attempts to find the players ID from the given name or convert it to a UUID if valid
 	 */
-	public UUID findPlayerID(MinecraftServer server, String name)
+	public UUID findPlayerID(MinecraftServer server, ICommandSender sender, String name)
 	{
 		UUID playerID = null;
 		
-		EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(name);
+		EntityPlayerMP player = null;
+		
+		try
+		{
+			player = CommandBase.getEntity(server, sender, name, EntityPlayerMP.class);
+		} catch(Exception e)
+		{
+			player = null;
+		}
 		
 		if(player == null)
 		{
+			if(name.startsWith("@"))
+			{
+				return null;
+			}
+			
 			try
 			{
 				playerID = UUID.fromString(name);

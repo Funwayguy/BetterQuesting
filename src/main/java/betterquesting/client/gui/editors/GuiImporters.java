@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.client.gui.controls.GuiButtonStorage;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
@@ -17,7 +18,6 @@ import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLineDatabase;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.misc.GuiFileExplorer;
 import betterquesting.client.importers.ImportedQuestLines;
@@ -25,8 +25,6 @@ import betterquesting.client.importers.ImportedQuests;
 import betterquesting.client.importers.ImporterRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File>
 {
@@ -121,14 +119,12 @@ public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File
 			
 			if(questDB.size() > 0 || lineDB.size() > 0)
 			{
-				// TODO: Open selection dialog
-				
-				JsonObject jsonBase = new JsonObject();
-				jsonBase.add("quests", questDB.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-				jsonBase.add("lines", lineDB.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
+				NBTTagCompound jsonBase = new NBTTagCompound();
+				jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+				jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 				
 				NBTTagCompound tag = new NBTTagCompound();
-				tag.setTag("data", NBTConverter.JSONtoNBT_Object(jsonBase, new NBTTagCompound()));
+				tag.setTag("data", jsonBase);
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.IMPORT.GetLocation(), tag));
 				
 				mc.displayGuiScreen(parent);

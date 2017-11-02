@@ -22,7 +22,6 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
@@ -31,7 +30,6 @@ import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonObject;
 
 public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 {
@@ -252,9 +250,9 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-		JsonObject base = new JsonObject();
-		base.add("party", party.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("party", party.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		tags.setTag("data", base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}
 	

@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
@@ -19,7 +20,6 @@ import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonObject;
 
 public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 {
@@ -117,12 +117,12 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 			mc.displayGuiScreen(new GuiThemeSelect(this));
 		} else if(button.id == 4)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG), null, new ICallback<JsonObject>()
+			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null, new ICallback<NBTTagCompound>()
 			{
 				@Override
-				public void setValue(JsonObject value)
+				public void setValue(NBTTagCompound value)
 				{
-					QuestSettings.INSTANCE.readFromJson(value, EnumSaveType.CONFIG);
+					QuestSettings.INSTANCE.readFromNBT(value, EnumSaveType.CONFIG);
 					PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 				}
 			}));

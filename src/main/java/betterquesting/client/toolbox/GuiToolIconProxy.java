@@ -11,12 +11,10 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import com.google.gson.JsonObject;
 
 public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigItemStack>
 {
@@ -46,11 +44,11 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 	// If the changes are approved by the server, it will be broadcast to all players including the editor
 	public void SendChanges()
 	{
-		JsonObject base = new JsonObject();
-		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", base);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
 		

@@ -9,12 +9,10 @@ import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import com.google.gson.JsonObject;
 
 public class ToolboxToolLink extends GuiElement implements IToolboxTool
 {
@@ -85,19 +83,19 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 				
 				// Sync Quest 1
 				NBTTagCompound tag1 = new NBTTagCompound();
-				JsonObject base1 = new JsonObject();
-				base1.add("config", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				base1.add("progress", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-				tag1.setTag("data", NBTConverter.JSONtoNBT_Object(base1, new NBTTagCompound()));
+				NBTTagCompound base1 = new NBTTagCompound();
+				base1.setTag("config", b1.getQuest().writeToNBT(new  NBTTagCompound(), EnumSaveType.CONFIG));
+				base1.setTag("progress", b1.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+				tag1.setTag("data", base1);
 				tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag1.setInteger("questID", QuestDatabase.INSTANCE.getKey(b1.getQuest()));
 				
 				// Sync Quest 2
 				NBTTagCompound tag2 = new NBTTagCompound();
-				JsonObject base2 = new JsonObject();
-				base2.add("config", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				base1.add("progress", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
+				NBTTagCompound base2 = new NBTTagCompound();
+				base2.setTag("config", b2.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+				base1.setTag("progress", b2.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+				tag2.setTag("data", base2);
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag2.setInteger("questID", QuestDatabase.INSTANCE.getKey(b2.getQuest()));
 				

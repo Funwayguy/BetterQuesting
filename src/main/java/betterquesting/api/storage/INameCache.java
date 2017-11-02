@@ -2,12 +2,12 @@ package betterquesting.api.storage;
 
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
-import com.google.gson.JsonArray;
+import betterquesting.api.misc.INBTSaveLoad;
 
-public interface INameCache extends IJsonSaveLoad<JsonArray>, IDataSync
+public interface INameCache extends INBTSaveLoad<NBTTagList>, IDataSync
 {
 	public String getName(UUID uuid);
 	public UUID getUUID(String name);

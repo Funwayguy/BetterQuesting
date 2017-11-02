@@ -10,13 +10,11 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.toolbox.ToolboxGuiMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
 public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 {
@@ -105,9 +103,9 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 				
 				// Sync Line
 				NBTTagCompound tag2 = new NBTTagCompound();
-				JsonObject base2 = new JsonObject();
-				base2.add("line", qLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
+				NBTTagCompound base2 = new NBTTagCompound();
+				base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+				tag2.setTag("data", base2);
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag2.setInteger("lineID", lID);
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));

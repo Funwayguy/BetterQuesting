@@ -1,22 +1,22 @@
 package betterquesting.client.gui.editors.json.callback;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class JsonFluidCallback implements ICallback<FluidStack>
 {
 	private FluidStack baseStack = new FluidStack(FluidRegistry.WATER, 1000);
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	
-	public JsonFluidCallback(JsonObject json)
+	public JsonFluidCallback(NBTTagCompound json)
 	{
 		this(json, new FluidStack(FluidRegistry.WATER, 1000));
 	}
 	
-	public JsonFluidCallback(JsonObject json, FluidStack stack)
+	public JsonFluidCallback(NBTTagCompound json, FluidStack stack)
 	{
 		this.json = json;
 		this.baseStack = stack;
@@ -32,11 +32,11 @@ public class JsonFluidCallback implements ICallback<FluidStack>
 			this.baseStack = new FluidStack(FluidRegistry.WATER, 1000);
 		}
 		
-		json.entrySet().clear();
+		JsonHelper.ClearCompoundTag(json);
 		JsonHelper.FluidStackToJson(baseStack, json);
 	}
 	
-	public JsonObject getJsonObject()
+	public NBTTagCompound getJsonObject()
 	{
 		return json;
 	}

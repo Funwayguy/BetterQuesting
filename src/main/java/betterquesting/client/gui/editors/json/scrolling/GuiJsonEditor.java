@@ -3,26 +3,26 @@ package betterquesting.client.gui.editors.json.scrolling;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.ICallback;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class GuiJsonEditor extends GuiScreenThemed
 {
-	private final JsonElement json;
+	private final NBTBase json;
 	private final IJsonDoc jDoc;
-	private ICallback<JsonObject> joCallback;
-	private ICallback<JsonArray> jaCallback;
+	private ICallback<NBTTagCompound> joCallback;
+	private ICallback<NBTTagList> jaCallback;
 	
-	public GuiJsonEditor(GuiScreen parent, JsonObject json, IJsonDoc jDoc)
+	public GuiJsonEditor(GuiScreen parent, NBTTagCompound json, IJsonDoc jDoc)
 	{
 		this(parent, json, jDoc, null);
 	}
 	
-	public GuiJsonEditor(GuiScreen parent, JsonObject json, IJsonDoc jDoc, ICallback<JsonObject> callback)
+	public GuiJsonEditor(GuiScreen parent, NBTTagCompound json, IJsonDoc jDoc, ICallback<NBTTagCompound> callback)
 	{
 		super(parent, "betterquesting.title.json_object");
 		this.json = json;
@@ -31,12 +31,12 @@ public class GuiJsonEditor extends GuiScreenThemed
 		this.joCallback = callback;
 	}
 	
-	public GuiJsonEditor(GuiScreen parent, JsonArray json, IJsonDoc jDoc)
+	public GuiJsonEditor(GuiScreen parent, NBTTagList json, IJsonDoc jDoc)
 	{
 		this(parent, json, jDoc, null);
 	}
 	
-	public GuiJsonEditor(GuiScreen parent, JsonArray json, IJsonDoc jDoc, ICallback<JsonArray> callback)
+	public GuiJsonEditor(GuiScreen parent, NBTTagList json, IJsonDoc jDoc, ICallback<NBTTagList> callback)
 	{
 		super(parent, "betterquesting.title.json_array");
 		this.json = json;
@@ -62,12 +62,12 @@ public class GuiJsonEditor extends GuiScreenThemed
 		
 		GuiScrollingJson gsj = new GuiScrollingJson(mc, guiLeft + 16, guiTop + 32, sizeX - 32, sizeY - 64);
 		
-		if(json.isJsonObject())
+		if(json.getId() == 10)
 		{
-			gsj.setJson(json.getAsJsonObject(), jDoc);
-		} else
+			gsj.setJson((NBTTagCompound)json, jDoc);
+		} else if(json.getId() == 9)
 		{
-			gsj.setJson(json.getAsJsonArray(), jDoc);
+			gsj.setJson((NBTTagList)json, jDoc);
 		}
 		gsj.refresh();
 		this.embedded.add(gsj);
@@ -79,12 +79,12 @@ public class GuiJsonEditor extends GuiScreenThemed
 		
 		if(btn.id == 0)
 		{
-			if(json.isJsonObject() && joCallback != null)
+			if(json.getId() == 10 && joCallback != null)
 			{
-				joCallback.setValue(json.getAsJsonObject());
-			} else if(json.isJsonArray() && jaCallback != null)
+				joCallback.setValue((NBTTagCompound)json);
+			} else if(json.getId() == 9 && jaCallback != null)
 			{
-				jaCallback.setValue(json.getAsJsonArray());
+				jaCallback.setValue((NBTTagList)json);
 			}
 		}
 	}

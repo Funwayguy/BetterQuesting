@@ -5,16 +5,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
-import betterquesting.api.utils.JsonHelper;
 import betterquesting.questing.QuestLine;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class ImportedQuestLines implements IQuestLineDatabase
 {
@@ -124,7 +122,7 @@ public class ImportedQuestLines implements IQuestLineDatabase
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -140,17 +138,17 @@ public class ImportedQuestLines implements IQuestLineDatabase
 			
 			int id = entry.getKey();
 			
-			JsonObject jObj = entry.getValue().writeToJson(new JsonObject(), saveType);
-			jObj.addProperty("lineID", id);
-			jObj.addProperty("order", getOrderIndex(id));
-			json.add(jObj);
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			jObj.setInteger("lineID", id);
+			jObj.setInteger("order", getOrderIndex(id));
+			json.appendTag(jObj);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -160,19 +158,21 @@ public class ImportedQuestLines implements IQuestLineDatabase
 		questLines.clear();
 		HashMap<Integer,Integer> orderMap = new HashMap<Integer,Integer>();
 		
-		for(JsonElement entry : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = json.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jql = entry.getAsJsonObject();
+			NBTTagCompound jql = (NBTTagCompound)entry;
 			
-			int id = JsonHelper.GetNumber(jql, "lineID", -1).intValue();
-			int order = JsonHelper.GetNumber(jql, "order", -1).intValue();
+			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
+			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			QuestLine line = new QuestLine();
-			line.readFromJson(entry.getAsJsonObject(), saveType);
+			line.readFromNBT(jql, saveType);
 			
 			if(id >= 0)
 			{
