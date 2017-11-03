@@ -154,7 +154,8 @@ public class JsonHelper
 			return;
 		}
 		
-		for(String key : tag.getKeySet())
+		ArrayList<String> list = new ArrayList<String>(tag.getKeySet());
+		for(String key : list)
 		{
 			tag.removeTag(key);
 		}

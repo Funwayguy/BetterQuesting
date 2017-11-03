@@ -303,6 +303,7 @@ public class EventHandler
 		
     	File f1 = new File(readDir, "QuestDatabase.json");
 		JsonObject j1 = new JsonObject();
+		boolean useDef = false;
 		
 		if(f1.exists())
 		{
@@ -319,6 +320,7 @@ public class EventHandler
 			
 			if(f1.exists())
 			{
+				useDef = true;
 				j1 = JsonHelper.ReadFromFile(f1);
 			}
 		}
@@ -326,6 +328,16 @@ public class EventHandler
 		NBTTagCompound nbt1 = NBTConverter.JSONtoNBT_Object(j1, new NBTTagCompound(), true);
 		
 		String fVer = nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0";
+		
+		if(fVer.equals("1.0.0") && !rename && !useDef)
+		{
+			// Probably won't keep this but because I have to hold people's hand and do backups for them...
+			JsonHelper.CopyPaste(new File(readDir, "QuestDatabase.json"), new File(readDir, "QuestDatabase_v2_Backup.json"));
+			JsonHelper.CopyPaste(new File(readDir, "QuestProgress.json"), new File(readDir, "QuestProgress_v2_Backup.json"));
+			JsonHelper.CopyPaste(new File(readDir, "QuestingParties.json"), new File(readDir, "QuestingParties_v2_Backup.json"));
+			JsonHelper.CopyPaste(new File(readDir, "NameCache.json"), new File(readDir, "NameCache_v2_Backup.json"));
+			JsonHelper.CopyPaste(new File(readDir, "LifeDatabase.json"), new File(readDir, "LifeDatabase_v2_Backup.json"));
+		}
 		
 		ILegacyLoader loader = LegacyLoaderRegistry.getLoader(fVer);
 		

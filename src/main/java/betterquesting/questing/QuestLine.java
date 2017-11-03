@@ -199,7 +199,9 @@ public class QuestLine implements IQuestLine
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("line", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		tags.setTag("data", base);
 		tags.setInteger("lineID", parentDB.getKey(this));
 		
 		return new QuestingPacket(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
@@ -208,7 +210,7 @@ public class QuestLine implements IQuestLine
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getCompoundTag("data"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"), EnumSaveType.CONFIG);
 	}
 	
 	@Override

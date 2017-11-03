@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
@@ -966,22 +967,49 @@ public class QuestInstance implements IQuest
 		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), EnumSaveType.CONFIG);
 		
 		preRequisites.clear();
-		for(int prID : jObj.getIntArray("preRequisites"))
+		
+		if(jObj.getTagId("preRequisites") == 11) // Native NBT
 		{
-			if(prID < 0)
+			for(int prID : jObj.getIntArray("preRequisites"))
 			{
-				continue;
+				if(prID < 0)
+				{
+					continue;
+				}
+				
+				IQuest tmp = parentDB.getValue(prID);
+				
+				if(tmp == null)
+				{
+					tmp = parentDB.createNew();
+					parentDB.add(tmp, prID);
+				}
+				
+				preRequisites.add(tmp);
 			}
-			
-			IQuest tmp = parentDB.getValue(prID);
-			
-			if(tmp == null)
+		} else // Probably an NBTTagList
+		{
+			NBTTagList rList = jObj.getTagList("preRequisites", 4);
+			for(int i = 0; i < rList.tagCount(); i++)
 			{
-				tmp = parentDB.createNew();
-				parentDB.add(tmp, prID);
+				NBTBase pTag = rList.get(i);
+				int prID = pTag instanceof NBTPrimitive ? ((NBTPrimitive)pTag).getInt() : -1;
+				
+				if(prID < 0)
+				{
+					continue;
+				}
+				
+				IQuest tmp = parentDB.getValue(prID);
+				
+				if(tmp == null)
+				{
+					tmp = parentDB.createNew();
+					parentDB.add(tmp, prID);
+				}
+				
+				preRequisites.add(tmp);
 			}
-			
-			preRequisites.add(tmp);
 		}
 		
 		this.setupProps();

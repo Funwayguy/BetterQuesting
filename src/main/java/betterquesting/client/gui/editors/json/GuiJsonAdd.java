@@ -211,13 +211,19 @@ public class GuiJsonAdd extends GuiScreenThemed implements IVolatileScreen
 					{
 						NBTTagList l = (NBTTagList)json;
 						
-						// Shift entries up manually
-						for(int n = l.tagCount() - 1; n >= insertIdx; n--)
+						if(insertIdx == l.tagCount())
 						{
-							l.set(n + 1, l.get(n));
+							l.appendTag(newObj);
+						} else
+						{
+							// Shift entries up manually
+							for(int n = l.tagCount() - 1; n >= insertIdx; n--)
+							{
+								l.set(n + 1, l.get(n));
+							}
+							
+							l.set(insertIdx, newObj);
 						}
-						
-						l.set(insertIdx, newObj);
 					}
 				} else
 				{

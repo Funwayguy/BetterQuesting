@@ -200,7 +200,6 @@ public final class QuestDatabase implements IQuestDatabase
 	private void readFromJson_Config(NBTTagList json)
 	{
 		database.clear();
-		System.out.println("Loading " + json.tagCount() + " from NBTTagList");
 		for(int i = 0; i < json.tagCount(); i++)
 		{
 			NBTBase entry = json.get(i);
@@ -235,7 +234,6 @@ public final class QuestDatabase implements IQuestDatabase
 			jq.setInteger("questID", entry.getKey());
 			json.appendTag(jq);
 		}
-		System.out.println("Saved " + json.tagCount() + " to NBTTagList");
 		
 		return json;
 	}
