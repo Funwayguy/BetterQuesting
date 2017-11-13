@@ -8,10 +8,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 
 @SideOnly(Side.CLIENT)
 public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiElement implements IGuiEmbedded
@@ -82,15 +82,14 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				GL11.glEnable(GL11.GL_SCISSOR_TEST);
-				RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
+				RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, width - 8, height));
 			}
 			
 			e.drawBackground(mx2, my2, posX, listY, width - 8);
 			
 			if(scissor)
 			{
-				GL11.glDisable(GL11.GL_SCISSOR_TEST);
+				RenderUtils.endScissor(mc);
 			}
 			
 			listY += e.getHeight();
@@ -144,15 +143,14 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				GL11.glEnable(GL11.GL_SCISSOR_TEST);
-				RenderUtils.guiScissor(mc, posX, posY, width - 8, height);
+				RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, width - 8, height));
 			}
 			
 			e.drawForeground(mx2, my2, posX, listY, width - 8);
 			
 			if(scissor)
 			{
-				GL11.glDisable(GL11.GL_SCISSOR_TEST);
+				RenderUtils.endScissor(mc);
 			}
 			
 			listY += e.getHeight();

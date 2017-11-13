@@ -65,6 +65,13 @@ import com.google.gson.JsonObject;
  */
 public class EventHandler
 {
+	public static EventHandler INSTANCE = new EventHandler();
+	
+	private EventHandler()
+	{
+		// Singleton
+	}
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onKey(InputEvent.KeyInputEvent event)
@@ -73,12 +80,13 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
-			{
-				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
-			} else
+			if(mc.thePlayer.isSneaking())
 			{
 				mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			} else
+			{
+				mc.displayGuiScreen(new betterquesting.client.gui2.GuiHome(mc.currentScreen));
+				//mc.displayGuiScreen(new betterquesting.api2.client.gui.GuiScreenTest(mc.currentScreen));
 			}
 		}
 	}

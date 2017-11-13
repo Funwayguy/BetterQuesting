@@ -1,12 +1,12 @@
 package betterquesting.network.handlers;
 
-import org.apache.logging.log4j.Level;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;

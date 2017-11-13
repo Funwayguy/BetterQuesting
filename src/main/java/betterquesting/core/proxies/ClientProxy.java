@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
@@ -40,6 +41,8 @@ public class ClientProxy extends CommonProxy
 		super.registerHandlers();
 		
 		//MinecraftForge.EVENT_BUS.register(new UpdateNotification());
+		
+		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
 		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		

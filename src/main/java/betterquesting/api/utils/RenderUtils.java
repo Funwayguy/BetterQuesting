@@ -3,6 +3,7 @@ package betterquesting.api.utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -18,7 +19,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.core.BetterQuesting;
 
 @SideOnly(Side.CLIENT)
 public class RenderUtils
@@ -97,7 +102,7 @@ public class RenderUtils
 	        GlStateManager.translate((float)posX, (float)posY, 100.0F);
 	        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
 	        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-	        GlStateManager.rotate(15F, 1F, 0F, 0F);
+	        GlStateManager.rotate(pitch, 1F, 0F, 0F);
 	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
@@ -172,12 +177,69 @@ public class RenderUtils
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution
 	 */
+	@Deprecated
 	public static void guiScissor(Minecraft mc, int x, int y, int w, int h)
 	{
 		ScaledResolution r = new ScaledResolution(mc);
 		int f = r.getScaleFactor();
 		
 		GL11.glScissor(x * f, (r.getScaledHeight() - y - h)*f, w * f, h * f);
+	}
+	
+	private static Stack<IGuiRect> scissorStack = new Stack<IGuiRect>();
+	
+	/**
+	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
+	 * Not using this method will result in incorrect scissoring of parent/child GUIs
+	 */
+	public static void startScissor(Minecraft mc, GuiRectangle rect)
+	{
+		if(scissorStack.size() >= 100)
+		{
+			BetterQuesting.logger.log(Level.ERROR, "More than 100 recursive scissor calls have been made!");
+			return;
+		}
+		
+		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+		ScaledResolution r = new ScaledResolution(mc);
+		int f = r.getScaleFactor();
+		
+		GuiRectangle sRect = rect;
+		
+		if(!scissorStack.empty())
+		{
+			IGuiRect parentRect = scissorStack.peek();
+			int x = Math.max(parentRect.getX(), rect.getX());
+			int y = Math.max(parentRect.getY(), rect.getY());
+			int w = Math.min(parentRect.getX() + parentRect.getWidth(), rect.getX() + rect.getWidth());
+			int h = Math.min(parentRect.getY() + parentRect.getHeight(), rect.getY() + rect.getHeight());
+			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
+			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
+			sRect = new GuiRectangle(x, y, w, h, 0);
+		}
+		
+		GL11.glScissor(sRect.getX() * f, (r.getScaledHeight() - sRect.getY() - sRect.getHeight())*f, sRect.getWidth() * f, sRect.getHeight() * f);
+		scissorStack.add(sRect);
+	}
+	
+	/**
+	 * Pops the last scissor off the stack and returns to the last parent scissor or disables it if there are none
+	 */
+	public static void endScissor(Minecraft mc)
+	{
+		scissorStack.pop();
+		
+		if(scissorStack.empty())
+		{
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		} else
+		{
+			ScaledResolution r = new ScaledResolution(mc);
+			int f = r.getScaleFactor();
+			
+			IGuiRect rect = scissorStack.peek();
+			GL11.glScissor(rect.getX() * f, (r.getScaledHeight() - rect.getY() - rect.getHeight())*f, rect.getWidth() * f, rect.getHeight() * f);
+		}
 	}
 	
 	/**
@@ -282,4 +344,29 @@ public class RenderUtils
     {
         return colorChar >= 48 && colorChar <= 57 || colorChar >= 97 && colorChar <= 102 || colorChar >= 65 && colorChar <= 70;
     }
+    
+	public static float lerpFloat(float f1, float f2, float blend)
+	{
+		return (f2 * blend) + (f1 * (1F - blend));
+	}
+	
+	public static int lerpRGB(int c1, int c2, float blend)
+	{
+		float a1 = c1 >> 24 & 255;
+		float r1 = c1 >> 16 & 255;
+		float g1 = c1 >> 8 & 255;
+		float b1 = c1 & 255;
+		
+		float a2 = c2 >> 24 & 255;
+		float r2 = c2 >> 16 & 255;
+		float g2 = c2 >> 8 & 255;
+		float b2 = c2 & 255;
+		
+		int a3 = (int)lerpFloat(a1, a2, blend);
+		int r3 = (int)lerpFloat(r1, r2, blend);
+		int g3 = (int)lerpFloat(g1, g2, blend);
+		int b3 = (int)lerpFloat(b1, b2, blend);
+		
+		return (a3 << 24) + (r3 << 16) + (g3 << 8) + b3;
+	}
 }

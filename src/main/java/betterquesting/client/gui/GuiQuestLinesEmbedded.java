@@ -8,7 +8,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
@@ -18,6 +17,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 
 public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 {
@@ -124,8 +124,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		if(qLine != null)
 		{
 			GlStateManager.pushMatrix();
-			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, sizeX, sizeY));
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			
@@ -149,19 +148,18 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 				}
 			}
 			
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.endScissor(mc);
 			GlStateManager.popMatrix();
 		}
 		
 		if(curTool != null)
 		{
 			GlStateManager.pushMatrix();
-			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			RenderUtils.guiScissor(mc, posX, posY, sizeX, sizeY);
+			RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, sizeX, sizeY));
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			curTool.drawTool(rmx, rmy, partialTick);
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			RenderUtils.endScissor(mc);
 			GlStateManager.popMatrix();
 		}
 		
