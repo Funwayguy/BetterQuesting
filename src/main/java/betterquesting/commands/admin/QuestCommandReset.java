@@ -6,6 +6,7 @@ import java.util.UUID;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.SyntaxErrorException
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.questing.IQuest;
@@ -19,7 +20,7 @@ public class QuestCommandReset extends QuestCommandBase
 	@Override
 	public String getUsageSuffix()
 	{
-		return "[all|<quest_id>] [username|uuid]";
+		return "[all|<quest_id>] [all|<username>|<uuid>]";
 	}
 	
 	@Override
@@ -81,7 +82,7 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
-				} else
+				} else if(args[2].equalsIgnoreCase("all"))
 				{
 					quest.resetAll(true);
 				}
@@ -90,9 +91,12 @@ public class QuestCommandReset extends QuestCommandBase
 			if(uuid != null)
 			{
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
-			} else
+			} else if(args[2].equalsIgnoreCase("all"))
 			{
 				sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
+			} else
+			{
+				throw new SyntaxErrorException();
 			}
 		} else
 		{
@@ -105,10 +109,13 @@ public class QuestCommandReset extends QuestCommandBase
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
 					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
-				} else
+				} else if(args[2].equalsIgnoreCase("all"))
 				{
 					quest.resetAll(true);
 					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
+				} else
+				{
+					throw new SyntaxErrorException();
 				}
 			} catch(Exception e)
 			{
