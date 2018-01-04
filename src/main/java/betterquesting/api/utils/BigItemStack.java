@@ -20,7 +20,7 @@ public class BigItemStack
 	public BigItemStack(ItemStack stack)
 	{
 		baseStack = stack.copy();
-		this.stackSize = stack.getCount();
+		this.stackSize = baseStack.getCount();
 		baseStack.setCount(1);
 	}
 	

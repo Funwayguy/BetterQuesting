@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.storage.IRegStorageBase;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSaveLoad<JsonArray>
+public class RewardStorage implements IRegStorageBase<Integer,IReward>, INBTSaveLoad<NBTTagList>
 {
 	private final HashMap<Integer,IReward> database = new HashMap<Integer,IReward>();
 	
@@ -103,7 +102,7 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -114,17 +113,17 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 		{
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
 			
-			JsonObject rJson = rew.getValue().writeToJson(new JsonObject(), EnumSaveType.CONFIG);
-			rJson.addProperty("rewardID", rewardID.toString());
-			rJson.addProperty("index", rew.getKey());
-			json.add(rJson);
+			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			rJson.setString("rewardID", rewardID.toString());
+			rJson.setInteger("index", rew.getKey());
+			json.appendTag(rJson);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -135,22 +134,24 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 		
 		ArrayList<IReward> unassigned = new ArrayList<IReward>();
 		
-		for(JsonElement entry : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = json.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jsonReward = entry.getAsJsonObject();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
-			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
+			NBTTagCompound jsonReward = (NBTTagCompound)entry;
+			ResourceLocation loc = new ResourceLocation(jsonReward.getString("rewardID"));
+			int index = jsonReward.hasKey("index", 99) ? jsonReward.getInteger("index") : -1;
 			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
 			
 			if(reward instanceof RewardPlaceholder)
 			{
-				JsonObject jr2 = JsonHelper.GetObject(jsonReward, "orig_data");
-				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jr2, "rewardID", ""));
+				NBTTagCompound jr2 = jsonReward.getCompoundTag("orig_data");
+				ResourceLocation loc2 = new ResourceLocation(jr2.getString("rewardID"));
 				IReward r2 = RewardRegistry.INSTANCE.createReward(loc2);
 				
 				if(r2 != null)
@@ -162,7 +163,7 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 			
 			if(reward != null)
 			{
-				reward.readFromJson(jsonReward, EnumSaveType.CONFIG);
+				reward.readFromNBT(jsonReward, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{

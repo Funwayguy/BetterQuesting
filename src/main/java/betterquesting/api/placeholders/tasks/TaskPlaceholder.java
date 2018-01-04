@@ -3,66 +3,65 @@ package betterquesting.api.placeholders.tasks;
 import java.util.UUID;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class TaskPlaceholder implements ITask
 {
-	private JsonObject jsonData = new JsonObject();
+	private NBTTagCompound nbtData = new NBTTagCompound();
 	
-	public void setTaskData(JsonObject json, EnumSaveType saveType)
+	public void setTaskData(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			jsonData.add("orig_data", json);
+			nbtData.setTag("orig_data", nbt);
 		} else if(saveType == EnumSaveType.PROGRESS)
 		{
-			jsonData.add("orig_prog", json);
+			nbtData.setTag("orig_prog", nbt);
 		}
 	}
 	
-	public JsonObject getTaskData(EnumSaveType saveType)
+	public NBTTagCompound getTaskData(EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			return JsonHelper.GetObject(jsonData, "orig_data");
+			return nbtData.getCompoundTag("orig_data");
 		} else if(saveType == EnumSaveType.PROGRESS)
 		{
-			return JsonHelper.GetObject(jsonData, "orig_prog");
+			return nbtData.getCompoundTag("orig_prog");
 		}
 		
-		return new JsonObject();
+		return new NBTTagCompound();
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			json.add("orig_data", JsonHelper.GetObject(jsonData, "orig_data"));
+			nbt.setTag("orig_data", nbtData.getCompoundTag("orig_data"));
 		} else if(saveType == EnumSaveType.PROGRESS)
 		{
-			json.add("orig_prog", JsonHelper.GetObject(jsonData, "orig_prog"));
+			nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
 		}
 		
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			jsonData.add("orig_data", JsonHelper.GetObject(json, "orig_data"));
+			nbtData.setTag("orig_data", nbt.getCompoundTag("orig_data"));
 		} else if(saveType == EnumSaveType.PROGRESS)
 		{
-			jsonData.add("orig_prog", JsonHelper.GetObject(json, "orig_prog"));
+			nbtData.setTag("orig_prog", nbt.getCompoundTag("orig_prog"));
 		}
 	}
 	
@@ -76,11 +75,6 @@ public class TaskPlaceholder implements ITask
 	public ResourceLocation getFactoryID()
 	{
 		return FactoryTaskPlaceholder.INSTANCE.getRegistryName();
-	}
-	
-	@Override
-	public void update(EntityPlayer player, IQuest quest)
-	{
 	}
 	
 	@Override

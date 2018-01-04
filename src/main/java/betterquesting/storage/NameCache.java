@@ -6,25 +6,22 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.storage.INameCache;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
 public final class NameCache implements INameCache
 {
 	public static final NameCache INSTANCE = new NameCache();
 	
-	private final ConcurrentHashMap<UUID,JsonObject> cache = new ConcurrentHashMap<UUID,JsonObject>();
+	private final ConcurrentHashMap<UUID,NBTTagCompound> cache = new ConcurrentHashMap<UUID,NBTTagCompound>();
 	
 	private NameCache()
 	{
@@ -38,16 +35,16 @@ public final class NameCache implements INameCache
 			return uuid.toString();
 		} else
 		{
-			return JsonHelper.GetString(cache.get(uuid), "name", "");
+			return cache.get(uuid).getString("name");
 		}
 	}
 	
 	@Override
 	public UUID getUUID(String name)
 	{
-		for(Entry<UUID,JsonObject> entry : cache.entrySet())
+		for(Entry<UUID,NBTTagCompound> entry : cache.entrySet())
 		{
-			if(JsonHelper.GetString(entry.getValue(), "name", "").equalsIgnoreCase(name))
+			if(entry.getValue().getString("name").equalsIgnoreCase(name))
 			{
 				return entry.getKey();
 			}
@@ -64,7 +61,7 @@ public final class NameCache implements INameCache
 			return false;
 		} else
 		{
-			return JsonHelper.GetBoolean(cache.get(uuid), "isOP", false);
+			return cache.get(uuid).getBoolean("isOP");
 		}
 	}
 	
@@ -89,9 +86,9 @@ public final class NameCache implements INameCache
 					oldID = getUUID(prof.getName());
 				}
 				
-				JsonObject json = new JsonObject();
-				json.addProperty("name", prof.getName());
-				json.addProperty("isOP", server.getPlayerList().canSendCommands(prof));
+				NBTTagCompound json = new NBTTagCompound();
+				json.setString("name", prof.getName());
+				json.setBoolean("isOP", server.getPlayerList().canSendCommands(prof));
 				cache.put(prof.getId(), json);
 			}
 		}
@@ -109,42 +106,38 @@ public final class NameCache implements INameCache
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject json = new JsonObject();
-		json.add("cache", this.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(json, new NBTTagCompound()));
+		tags.setTag("data", this.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		readFromJson(JsonHelper.GetArray(base, "cache"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
 	}
 
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return json;
 		}
 		
-		for(Entry<UUID,JsonObject> entry : cache.entrySet())
+		for(Entry<UUID,NBTTagCompound> entry : cache.entrySet())
 		{
-			JsonObject jn = new JsonObject();
-			jn.addProperty("uuid", entry.getKey().toString());
-			jn.addProperty("name", JsonHelper.GetString(entry.getValue(), "name", ""));
-			jn.addProperty("isOP", JsonHelper.GetBoolean(entry.getValue(), "isOP", false));
-			json.add(jn);
+			NBTTagCompound jn = new NBTTagCompound();
+			jn.setString("uuid", entry.getKey().toString());
+			jn.setString("name", entry.getValue().getString("name"));
+			jn.setBoolean("isOP", entry.getValue().getBoolean("isOP"));
+			json.appendTag(jn);
 		}
 		
 		return json;
 	}
 
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
@@ -152,24 +145,25 @@ public final class NameCache implements INameCache
 		}
 		
 		cache.clear();
-		for(JsonElement element : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(element == null || !element.isJsonObject())
+			NBTBase element = json.get(i);
+			if(element == null || element.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jn = element.getAsJsonObject();
+			NBTTagCompound jn = (NBTTagCompound)element;
 			
 			try
 			{
-				UUID uuid = UUID.fromString(JsonHelper.GetString(jn, "uuid", ""));
-				String name = JsonHelper.GetString(jn, "name", "");
-				boolean isOP = JsonHelper.GetBoolean(jn, "isOP", false);
+				UUID uuid = UUID.fromString(jn.getString("uuid"));
+				String name = jn.getString("name");
+				boolean isOP = jn.getBoolean("isOP");
 				
-				JsonObject j2 = new JsonObject();
-				j2.addProperty("name", name);
-				j2.addProperty("isOP", isOP);
+				NBTTagCompound j2 = new NBTTagCompound();
+				j2.setString("name", name);
+				j2.setBoolean("isOP", isOP);
 				cache.put(uuid, j2);
 			} catch(Exception e)
 			{
@@ -188,11 +182,11 @@ public final class NameCache implements INameCache
 	{
 		List<String> list = new ArrayList<String>();
 		
-		for(JsonObject json : cache.values())
+		for(NBTTagCompound json : cache.values())
 		{
-			if(json != null && json.has("name"))
+			if(json != null && json.hasKey("name", 8))
 			{
-				list.add(JsonHelper.GetString(json, "name", ""));
+				list.add(json.getString("name"));
 			}
 		}
 		

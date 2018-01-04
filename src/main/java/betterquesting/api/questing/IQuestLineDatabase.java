@@ -1,11 +1,11 @@
 package betterquesting.api.questing;
 
+import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.storage.IRegStorageBase;
-import com.google.gson.JsonArray;
 
-public interface IQuestLineDatabase extends IRegStorageBase<Integer,IQuestLine>, IJsonSaveLoad<JsonArray>, IDataSync
+public interface IQuestLineDatabase extends IRegStorageBase<Integer,IQuestLine>, INBTSaveLoad<NBTTagList>, IDataSync
 {
 	/**
 	 * Deletes quest from all quest lines

@@ -4,16 +4,16 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.questing.IQuest;
-import com.google.gson.JsonObject;
 
-public interface ITask extends IJsonSaveLoad<JsonObject>
+public interface ITask extends INBTSaveLoad<NBTTagCompound>
 {
 	public String getUnlocalisedName();
 	public ResourceLocation getFactoryID();
@@ -34,10 +34,4 @@ public interface ITask extends IJsonSaveLoad<JsonObject>
 	@Nullable
 	@SideOnly(Side.CLIENT)
 	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest);
-	
-	/**
-	 * Use ITickableTask instead
-	 */
-	@Deprecated
-	public void update(EntityPlayer player, IQuest quest);
 }

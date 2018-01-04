@@ -1,6 +1,7 @@
 package betterquesting.legacy.v0;
 
 import java.util.ArrayList;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumSaveType;
@@ -15,6 +16,7 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestInstance;
@@ -116,10 +118,10 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		props.setProperty(NativeProps.GLOBAL, JsonHelper.GetBoolean(json, "globalQuest", false));
 		props.setProperty(NativeProps.GLOBAL_SHARE, JsonHelper.GetBoolean(json, "globalShare", false));
 		props.setProperty(NativeProps.AUTO_CLAIM, JsonHelper.GetBoolean(json, "autoClaim", false));
-		props.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000));
+		props.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000).intValue());
 		props.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
 		props.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
-		props.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(JsonHelper.GetObject(json, "icon")));
+		props.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound())));
 		
 		for(JsonElement je : JsonHelper.GetArray(json, "preRequisites"))
 		{
@@ -168,9 +170,11 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
+			NBTTagCompound nbtTask = NBTConverter.JSONtoNBT_Object(jsonTask, new NBTTagCompound());
+			
 			if(task != null)
 			{
-				task.readFromJson(jsonTask, EnumSaveType.CONFIG);
+				task.readFromNBT(nbtTask, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{
@@ -182,7 +186,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			} else
 			{
 				TaskPlaceholder tph = new TaskPlaceholder();
-				tph.setTaskData(jsonTask, EnumSaveType.CONFIG);
+				tph.setTaskData(nbtTask, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{
@@ -227,9 +231,11 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
+			NBTTagCompound nbtReward = NBTConverter.JSONtoNBT_Object(jsonReward, new NBTTagCompound());
+			
 			if(reward != null)
 			{
-				reward.readFromJson(jsonReward, EnumSaveType.CONFIG);
+				reward.readFromNBT(nbtReward, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{
@@ -241,7 +247,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			} else
 			{
 				RewardPlaceholder rph = new RewardPlaceholder();
-				rph.setRewardData(jsonReward, EnumSaveType.CONFIG);
+				rph.setRewardData(nbtReward, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{

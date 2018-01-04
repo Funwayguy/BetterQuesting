@@ -1,9 +1,8 @@
 package betterquesting.questing;
 
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class QuestLineEntry implements IQuestLineEntry
 {
@@ -11,9 +10,9 @@ public class QuestLineEntry implements IQuestLineEntry
 	private int posX = 0;
 	private int posY = 0;
 	
-	public QuestLineEntry(JsonObject json)
+	public QuestLineEntry(NBTTagCompound json)
 	{
-		this.readFromJson(json, EnumSaveType.CONFIG);
+		this.readFromNBT(json, EnumSaveType.CONFIG);
 	}
 	
 	public QuestLineEntry(int x, int y)
@@ -60,30 +59,30 @@ public class QuestLineEntry implements IQuestLineEntry
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return json;
 		}
 		
-		json.addProperty("size", size);
-		json.addProperty("x", posX);
-		json.addProperty("y", posY);
+		json.setInteger("size", size);
+		json.setInteger("x", posX);
+		json.setInteger("y", posY);
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		size = JsonHelper.GetNumber(json, "size", 24).intValue();
-		posX = JsonHelper.GetNumber(json, "x", 0).intValue();
-		posY = JsonHelper.GetNumber(json, "y", 0).intValue();
+		size = json.getInteger("size");
+		posX = json.getInteger("x");
+		posY = json.getInteger("y");
 	}
 	
 }

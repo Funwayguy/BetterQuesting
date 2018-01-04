@@ -21,13 +21,11 @@ import betterquesting.api.misc.IFactory;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRegistry;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
 public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
@@ -157,13 +155,13 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	
 	public void SendChanges()
 	{
-		JsonObject base = new JsonObject();
-		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 	

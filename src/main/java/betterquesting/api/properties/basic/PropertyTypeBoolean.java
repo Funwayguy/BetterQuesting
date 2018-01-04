@@ -1,8 +1,8 @@
 package betterquesting.api.properties.basic;
 
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.util.ResourceLocation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class PropertyTypeBoolean extends PropertyTypeBase<Boolean>
 {
@@ -12,16 +12,16 @@ public class PropertyTypeBoolean extends PropertyTypeBase<Boolean>
 	}
 	
 	@Override
-	public Boolean readValue(JsonElement json)
+	public Boolean readValue(NBTBase nbt)
 	{
-		if(json == null || !json.isJsonPrimitive())
+		if(nbt == null || nbt.getId() != 1)
 		{
 			return this.getDefault();
 		}
 		
 		try
 		{
-			return json.getAsBoolean();
+			return (((NBTTagByte)nbt).getByte() & 1) == 1;
 		} catch(Exception e)
 		{
 			return this.getDefault();
@@ -29,13 +29,13 @@ public class PropertyTypeBoolean extends PropertyTypeBase<Boolean>
 	}
 	
 	@Override
-	public JsonElement writeValue(Boolean value)
+	public NBTBase writeValue(Boolean value)
 	{
 		if(value == null)
 		{
-			return new JsonPrimitive(this.getDefault());
+			return new NBTTagByte(this.getDefault() ? (byte)1 : (byte)0);
 		}
 		
-		return new JsonPrimitive(value);
+		return new NBTTagByte(value ? (byte)1 : (byte)0);
 	}
 }

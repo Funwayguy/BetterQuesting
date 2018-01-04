@@ -39,7 +39,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		private BigItemStack stack;
 		private String desc = "";
 		
-		private NonNullList<ItemStack> subStacks = NonNullList.create();
+		private NonNullList<ItemStack> subStacks = NonNullList.<ItemStack>create();
 		
 		public ScrollingEntryItem(Minecraft mc, BigItemStack stack, String desc)
 		{
@@ -64,7 +64,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 					
 					Item oItem = oreStack.getItem();
 					
-					NonNullList<ItemStack> tmp = NonNullList.create();
+					NonNullList<ItemStack> tmp = NonNullList.<ItemStack>create();
 					
 					if(oreStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 					{
@@ -149,7 +149,7 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 				
 				try
 				{
-					this.drawTooltip(tmpStack.getTooltip(mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, mc.fontRenderer);
+					this.drawTooltip(tmpStack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, mc.fontRenderer);
 				} catch(Exception e){}
 			}
 		}

@@ -16,8 +16,6 @@ import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
@@ -25,7 +23,6 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
 public class PktHandlerImport implements IPacketHandler
 {
@@ -52,13 +49,13 @@ public class PktHandlerImport implements IPacketHandler
 			return; // Player is not operator. Do nothing
 		}
 		
-		JsonObject jsonBase = NBTConverter.NBTtoJSON_Compound(tag.getCompoundTag("data"), new JsonObject());
+		NBTTagCompound jsonBase = tag.getCompoundTag("data");
 		
 		IQuestDatabase impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromJson(JsonHelper.GetArray(jsonBase, "quests"), EnumSaveType.CONFIG);
-		impQuestLineDB.readFromJson(JsonHelper.GetArray(jsonBase, "lines"), EnumSaveType.CONFIG);
+		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), EnumSaveType.CONFIG);
+		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), EnumSaveType.CONFIG);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		

@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
 import betterquesting.api.placeholders.tasks.TaskPlaceholder;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoad<JsonArray>
+public class TaskStorage implements IRegStorageBase<Integer,ITask>, INBTSaveLoad<NBTTagList>
 {
 	private final HashMap<Integer,ITask> database = new HashMap<Integer,ITask>();
 	
@@ -104,7 +103,7 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 	}
 
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		switch(saveType)
 		{
@@ -122,7 +121,7 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 	}
 
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
 	{
 		switch(saveType)
 		{
@@ -138,42 +137,44 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 		}
 	}
 	
-	private JsonArray writeToJson_Config(JsonArray json)
+	private NBTTagList writeToJson_Config(NBTTagList json)
 	{
 		for(Entry<Integer,ITask> entry : database.entrySet())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			JsonObject qJson = entry.getValue().writeToJson(new JsonObject(), EnumSaveType.CONFIG);
-			qJson.addProperty("taskID", taskID.toString());
-			qJson.addProperty("index", entry.getKey());
-			json.add(qJson);
+			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			qJson.setString("taskID", taskID.toString());
+			qJson.setInteger("index", entry.getKey());
+			json.appendTag(qJson);
 		}
 		return json;
 	}
 	
-	private void readFromJson_Config(JsonArray json)
+	private void readFromJson_Config(NBTTagList json)
 	{
 		database.clear();
 		
 		ArrayList<ITask> unassigned = new ArrayList<ITask>();
 		
-		for(JsonElement entry : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
+			NBTBase entry = json.get(i);
+			
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jsonTask = entry.getAsJsonObject();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
-			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
+			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
+			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ITask task = TaskRegistry.INSTANCE.createTask(loc);
 			
 			if(task instanceof TaskPlaceholder)
 			{
-				JsonObject jt2 = JsonHelper.GetObject(jsonTask, "orig_data");
-				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jt2, "taskID", ""));
+				NBTTagCompound jt2 = jsonTask.getCompoundTag("orig_data");
+				ResourceLocation loc2 = new ResourceLocation(jt2.getString("taskID"));
 				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
 				
 				if(t2 != null) // Restored original task
@@ -185,7 +186,7 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 			
 			if(task != null)
 			{
-				task.readFromJson(jsonTask, EnumSaveType.CONFIG);
+				task.readFromNBT(jsonTask, EnumSaveType.CONFIG);
 				
 				if(index >= 0)
 				{
@@ -215,34 +216,34 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 		}
 	}
 	
-	private JsonArray writeToJson_Progress(JsonArray json)
+	private NBTTagList writeToJson_Progress(NBTTagList json)
 	{
 		for(Entry<Integer,ITask> entry : database.entrySet())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			JsonObject qJson = entry.getValue().writeToJson(new JsonObject(), EnumSaveType.PROGRESS);
-			qJson.addProperty("taskID", taskID.toString());
-			qJson.addProperty("index", entry.getKey());
-			json.add(qJson);
+			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS);
+			qJson.setString("taskID", taskID.toString());
+			qJson.setInteger("index", entry.getKey());
+			json.appendTag(qJson);
 		}
 		return json;
 	}
 	
-	private void readFromJson_Progress(JsonArray json)
+	private void readFromJson_Progress(NBTTagList json)
 	{
-		for(int i = 0; i < json.size(); i++)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			JsonElement entry = json.get(i);
+			NBTBase entry = json.get(i);
 			
-			if(entry == null || !entry.isJsonObject())
+			if(entry == null || entry.getId() != 10)
 			{
 				continue;
 			}
 			
-			JsonObject jsonTask = entry.getAsJsonObject();
-			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
+			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
+			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			ITask task = getValue(index);
 			
 			if(task instanceof TaskPlaceholder)
@@ -252,16 +253,16 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, IJsonSaveLoa
 					((TaskPlaceholder)task).setTaskData(jsonTask, EnumSaveType.PROGRESS);
 				} else
 				{
-					task.readFromJson(jsonTask, EnumSaveType.PROGRESS);
+					task.readFromNBT(jsonTask, EnumSaveType.PROGRESS);
 				}
 			} else if(task != null)
 			{
 				if(task.getFactoryID().equals(loc))
 				{
-					task.readFromJson(jsonTask, EnumSaveType.PROGRESS);
+					task.readFromNBT(jsonTask, EnumSaveType.PROGRESS);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
-					task.readFromJson(JsonHelper.GetObject(jsonTask, "orig_prog"), EnumSaveType.PROGRESS);
+					task.readFromNBT(jsonTask.getCompoundTag("orig_prog"), EnumSaveType.PROGRESS);
 				}
 			}
 		}

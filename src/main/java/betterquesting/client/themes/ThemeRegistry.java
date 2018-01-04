@@ -149,6 +149,11 @@ public class ThemeRegistry implements IThemeRegistry
 		}
 	}
 	
+	public void setCurrentTheme(ResourceLocation res)
+	{
+		this.setCurrentTheme(this.getTheme(res));
+	}
+	
 	@Override
 	public void reloadThemes()
 	{

@@ -9,19 +9,17 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import com.google.gson.JsonObject;
 
-public class GuiRewardEditDefault extends GuiScreenThemed implements ICallback<JsonObject>
+public class GuiRewardEditDefault extends GuiScreenThemed implements ICallback<NBTTagCompound>
 {
 	private final IQuest quest;
 	private final int qID;
 	private final int rID;
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	private boolean isDone = false;
 	
 	public GuiRewardEditDefault(GuiScreen parent, IQuest quest, IReward reward)
@@ -30,7 +28,7 @@ public class GuiRewardEditDefault extends GuiScreenThemed implements ICallback<J
 		this.quest = quest;
 		this.qID = QuestDatabase.INSTANCE.getKey(quest);
 		this.rID = quest.getRewards().getKey(reward);
-		this.json = reward.writeToJson(new JsonObject(), EnumSaveType.CONFIG);
+		this.json = reward.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
 		this.isDone = false;
 	}
 	
@@ -59,26 +57,26 @@ public class GuiRewardEditDefault extends GuiScreenThemed implements ICallback<J
 	}
 	
 	@Override
-	public void setValue(JsonObject value)
+	public void setValue(NBTTagCompound value)
 	{
 		IReward reward = quest.getRewards().getValue(rID);
 		
 		if(reward != null)
 		{
-			reward.readFromJson(value, EnumSaveType.CONFIG);
+			reward.readFromNBT(value, EnumSaveType.CONFIG);
 			this.SendChanges();
 		}
 	}
 	
 	public void SendChanges()
 	{
-		JsonObject base = new JsonObject();
-		base.add("config", quest.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		base.add("progress", quest.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", qID);
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
 }

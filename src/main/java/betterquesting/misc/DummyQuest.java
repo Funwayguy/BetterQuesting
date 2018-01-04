@@ -18,7 +18,6 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.storage.PropertyContainer;
-import com.google.gson.JsonObject;
 
 public class DummyQuest implements IQuest
 {
@@ -33,13 +32,13 @@ public class DummyQuest implements IQuest
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
 	}
 	

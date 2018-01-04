@@ -2,15 +2,13 @@ package betterquesting.api.client.gui.controls;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
+public class GuiButtonJson<T extends NBTBase> extends GuiButtonStorage<T>
 {
 	private T json = null;
 	
@@ -48,15 +46,16 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 		{
 			this.displayString = "?";
 			return;
-		} else if(json.isJsonObject())
+		} else if(json.getId() == 10)
 		{
-			if(JsonHelper.isItem(json.getAsJsonObject()))
+			NBTTagCompound jcTag = (NBTTagCompound)json;
+			if(JsonHelper.isItem(jcTag))
 			{
 				isItem = true;
-			} else if(JsonHelper.isFluid(json.getAsJsonObject()))
+			} else if(JsonHelper.isFluid(jcTag))
 			{
 				isFluid = true;
-			} else if(JsonHelper.isEntity(json.getAsJsonObject()))
+			} else if(JsonHelper.isEntity(jcTag))
 			{
 				isEntity = true;
 			}
@@ -64,15 +63,15 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 		
 		if(isItem)
 		{
-			BigItemStack stack = JsonHelper.JsonToItemStack(json.getAsJsonObject());
+			BigItemStack stack = JsonHelper.JsonToItemStack((NBTTagCompound)json);
 			this.displayString = I18n.format("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
 		} else if(isFluid)
 		{
-			FluidStack fluid = JsonHelper.JsonToFluidStack(json.getAsJsonObject());
+			FluidStack fluid = JsonHelper.JsonToFluidStack((NBTTagCompound)json);
 			this.displayString = I18n.format("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
 		} else if(isEntity)
 		{
-			Entity entity = JsonHelper.JsonToEntity(json.getAsJsonObject(), this.mc.world);
+			Entity entity = JsonHelper.JsonToEntity((NBTTagCompound)json, this.mc.world);
 			this.displayString = I18n.format("betterquesting.btn.entity") + ": " + entity.getName();
 		} else
 		{
@@ -85,24 +84,24 @@ public class GuiButtonJson<T extends JsonElement> extends GuiButtonStorage<T>
 		if(json == null)
 		{
 			return "?";
-		} else if(json instanceof JsonObject)
+		} else if(json.getId() == 10)
 		{
 			return I18n.format("betterquesting.btn.object") + "...";
-		} else if(json instanceof JsonArray)
+		} else if(json.getId() == 9)
 		{
 			return I18n.format("betterquesting.btn.list") + "...";
-		} else if(json instanceof JsonPrimitive)
+		}/* else if(json.getId() == 1)
 		{
-			JsonPrimitive jPrim = json.getAsJsonPrimitive();
+			NBTTagByte jPrim = (NBTTagByte)json;
 			
-			if(jPrim.isBoolean())
+			if(jPrim.getByte() > 0)
 			{
-				return "" + jPrim.getAsBoolean();
+				return "true";
 			} else
 			{
 				return I18n.format("betterquesting.btn.text"); // An editable text field should have been used
 			}
-		}
+		}*/
 		
 		return json.getClass().getSimpleName();
 	}

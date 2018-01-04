@@ -2,59 +2,58 @@ package betterquesting.api.placeholders.rewards;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonObject;
 
 public class RewardPlaceholder implements IReward
 {
-	private JsonObject jsonSaved = new JsonObject();
+	private NBTTagCompound nbtSaved = new NBTTagCompound();
 	
-	public void setRewardData(JsonObject json, EnumSaveType saveType)
+	public void setRewardData(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			jsonSaved = json;
+			nbtSaved = nbt;
 		}
 	}
 	
-	public JsonObject getRewardData(EnumSaveType saveType)
+	public NBTTagCompound getRewardData(EnumSaveType saveType)
 	{
 		if(saveType == EnumSaveType.CONFIG)
 		{
-			return jsonSaved;
+			return nbtSaved;
 		}
 		
-		return new JsonObject();
+		return new NBTTagCompound();
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
-			return json;
+			return nbt;
 		}
 		
-		json.add("orig_data", jsonSaved);
+		nbt.setTag("orig_data", nbtSaved);
 		
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		jsonSaved = JsonHelper.GetObject(json, "orig_data");
+		nbtSaved = nbt.getCompoundTag("orig_data");
 	}
 	
 	@Override

@@ -2,13 +2,13 @@ package betterquesting.api.questing.party;
 
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
-import com.google.gson.JsonObject;
 
-public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
+public interface IParty extends INBTSaveLoad<NBTTagCompound>, IDataSync
 {
 	public String getName();
 	
@@ -34,21 +34,4 @@ public interface IParty extends IJsonSaveLoad<JsonObject>, IDataSync
 	public EnumPartyStatus getStatus(UUID uuid);
 	
 	public List<UUID> getMembers();
-	
-	/** Replaced by IPropertyContainer */
-	@Deprecated
-	public void setShareLives(boolean state);
-	/** Option moved to quests. No longer party specific */
-	@Deprecated
-	public void setShareReward(boolean state);
-	
-	/** Replaced by IPropertyContainer */
-	@Deprecated
-	public boolean getShareLives();
-	/** Option moved to quests. No longer party specific */
-	@Deprecated
-	public boolean getShareReward();
-	/** Edit via IPropertyContainer instead */
-	@Deprecated
-	public void setName(String name);
 }

@@ -28,15 +28,15 @@ public class ItemPlaceholder extends Item
      */
 	@Override
     @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		if(!stack.hasTagCompound())
 		{
-			list.add("ERROR: Original information missing!");
+			tooltip.add("ERROR: Original information missing!");
 			return;
 		}
 		
-		list.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
+		tooltip.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
 	}
 
     /**

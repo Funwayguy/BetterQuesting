@@ -5,6 +5,9 @@ import java.io.FileFilter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.FluidStack;
 import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.jdoc.IJsonDoc;
@@ -17,9 +20,6 @@ import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.misc.GuiFileExplorer;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public final class GuiBuilder implements IGuiHelper
 {
@@ -34,14 +34,14 @@ public final class GuiBuilder implements IGuiHelper
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends JsonElement> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, IJsonDoc jdoc)
+	public <T extends NBTBase> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, IJsonDoc jdoc)
 	{
-		if(json.isJsonArray())
+		if(json.getId() == 9)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(parent, json.getAsJsonArray(), jdoc, (ICallback<JsonArray>)callback));
-		} else if(json.isJsonObject())
+			mc.displayGuiScreen(new GuiJsonEditor(parent, (NBTTagList)json, jdoc, (ICallback<NBTTagList>)callback));
+		} else if(json.getId() == 10)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(parent, json.getAsJsonObject(), jdoc, (ICallback<JsonObject>)callback));
+			mc.displayGuiScreen(new GuiJsonEditor(parent, (NBTTagCompound)json, jdoc, (ICallback<NBTTagCompound>)callback));
 		}
 		
 		return;

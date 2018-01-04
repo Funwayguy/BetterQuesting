@@ -1,14 +1,14 @@
 package betterquesting.client.gui.editors.json;
 
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.ICallback;
-import com.google.gson.JsonObject;
 
 public class TextCallbackJsonObject implements ICallback<String>
 {
-	private final JsonObject json;
+	private final NBTTagCompound json;
 	private final String key;
 	
-	public TextCallbackJsonObject(JsonObject json, String key)
+	public TextCallbackJsonObject(NBTTagCompound json, String key)
 	{
 		this.json = json;
 		this.key = key;
@@ -17,6 +17,6 @@ public class TextCallbackJsonObject implements ICallback<String>
 	@Override
 	public void setValue(String text)
 	{
-		this.json.addProperty(key, text);
+		this.json.setString(key, text);
 	}
 }

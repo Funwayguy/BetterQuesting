@@ -23,7 +23,6 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.network.PacketSender;
@@ -31,7 +30,6 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
-import com.google.gson.JsonObject;
 
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
@@ -197,9 +195,9 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		
 		if(action == EnumPacketAction.EDIT && line != null)
 		{
-			JsonObject base = new JsonObject();
-			base.add("line", line.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+			NBTTagCompound base = new NBTTagCompound();
+			base.setTag("line", line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			tags.setTag("data", base);
 		}
 		
 		tags.setInteger("action", action.ordinal());

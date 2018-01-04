@@ -6,18 +6,20 @@ import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class QuestCommandDefaults extends QuestCommandBase
@@ -71,12 +73,12 @@ public class QuestCommandDefaults extends QuestCommandBase
 		
 		if(args[1].equalsIgnoreCase("save"))
 		{
-			JsonObject base = new JsonObject();
-			base.add("questSettings", QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			base.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			base.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			base.addProperty("format", BetterQuesting.FORMAT);
-			JsonHelper.WriteToFile(qFile, base);
+			NBTTagCompound base = new NBTTagCompound();
+			base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+			base.setString("format", BetterQuesting.FORMAT);
+			JsonHelper.WriteToFile(qFile, NBTConverter.NBTtoJSON_Compound(base, new JsonObject(), true));
 			
 			if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
 			{
@@ -89,12 +91,12 @@ public class QuestCommandDefaults extends QuestCommandBase
 		{
 			if(qFile.exists())
 			{
-				JsonArray jsonP = QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS);
-				JsonObject j1 = JsonHelper.ReadFromFile(qFile);
-				QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
-				QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
-				QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
-				QuestDatabase.INSTANCE.readFromJson(jsonP, EnumSaveType.PROGRESS);
+				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
+				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"), EnumSaveType.CONFIG);
+				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
+				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
+				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
 				
 				if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
 				{

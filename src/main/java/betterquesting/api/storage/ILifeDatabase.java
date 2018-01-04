@@ -1,18 +1,13 @@
 package betterquesting.api.storage;
 
 import java.util.UUID;
+import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
+import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.questing.party.IParty;
-import com.google.gson.JsonObject;
 
-public interface ILifeDatabase extends IJsonSaveLoad<JsonObject>, IDataSync
+public interface ILifeDatabase extends INBTSaveLoad<NBTTagCompound>, IDataSync
 {
-	@Deprecated
-	public int getDefaultLives();
-	@Deprecated
-	public int getMaxLives();
-	
 	public int getLives(UUID uuid);
 	public void setLives(UUID uuid, int value);
 	

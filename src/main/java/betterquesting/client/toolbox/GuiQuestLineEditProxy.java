@@ -10,13 +10,11 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
-public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<JsonObject>
+public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<NBTTagCompound>
 {
 	private final IQuestLine line;
 	private boolean flag = false;
@@ -36,7 +34,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		} else
 		{
 			flag = true;
-			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToJson(new JsonObject(), EnumSaveType.CONFIG), null);
+			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null);
 		}
 	}
 	
@@ -51,9 +49,9 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		
 		if(action == EnumPacketAction.EDIT && line != null)
 		{
-			JsonObject base = new JsonObject();
-			base.add("line", line.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+			NBTTagCompound base = new NBTTagCompound();
+			base.setTag("line", line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			tags.setTag("data", base);
 		}
 		
 		tags.setInteger("action", action.ordinal());
@@ -63,9 +61,9 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 	}
 
 	@Override
-	public void setValue(JsonObject value)
+	public void setValue(NBTTagCompound value)
 	{
-		line.readFromJson(value, EnumSaveType.CONFIG);
+		line.readFromNBT(value, EnumSaveType.CONFIG);
 		SendChanges(EnumPacketAction.EDIT);
 	}
 }

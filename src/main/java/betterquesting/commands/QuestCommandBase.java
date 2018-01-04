@@ -3,14 +3,14 @@ package betterquesting.commands;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.storage.NameCache;
 
 public abstract class QuestCommandBase
 {

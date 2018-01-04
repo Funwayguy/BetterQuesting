@@ -1,9 +1,9 @@
 package betterquesting.api.questing;
 
-import betterquesting.api.misc.IJsonSaveLoad;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api.misc.INBTSaveLoad;
 
-public interface IQuestLineEntry extends IJsonSaveLoad<JsonObject>
+public interface IQuestLineEntry extends INBTSaveLoad<NBTTagCompound>
 {
 	public int getSize();
 	public int getPosX();

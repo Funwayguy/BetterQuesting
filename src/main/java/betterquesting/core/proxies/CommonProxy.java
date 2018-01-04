@@ -19,9 +19,9 @@ public class CommonProxy
 	{
 		ExpansionLoader.INSTANCE.initCommonAPIs();
 		
-		EventHandler handler = new EventHandler();
-		MinecraftForge.EVENT_BUS.register(handler);
-		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
+		//EventHandler handler = new EventHandler();
+		MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
+		MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler.INSTANCE);
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}

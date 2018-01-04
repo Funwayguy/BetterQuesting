@@ -11,14 +11,11 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLine;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
 
 public class PktHandlerLineEdit implements IPacketHandler
 {
@@ -66,8 +63,8 @@ public class PktHandlerLineEdit implements IPacketHandler
 			{
 				nID = lID;
 				
-				JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
-				nq.readFromJson(JsonHelper.GetObject(base, "line"), EnumSaveType.CONFIG);
+				NBTTagCompound base = data.getCompoundTag("data");
+				nq.readFromNBT(base.getCompoundTag("line"), EnumSaveType.CONFIG);
 			}
 			
 			QuestLineDatabase.INSTANCE.add(nq, nID);

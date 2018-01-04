@@ -178,7 +178,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 			String key = searching.next();
 			
 			Class<?> cls = EntityList.getClass(new ResourceLocation(key));
-			boolean abs = cls == null? false : Modifier.isAbstract(cls.getModifiers());
+			boolean abs = cls == null? false : Modifier.isAbstract(cls.getModifiers());			
 			
 			if(!abs && key.toLowerCase().contains(searchTxt))
 			{

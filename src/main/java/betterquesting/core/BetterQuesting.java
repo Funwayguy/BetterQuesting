@@ -49,7 +49,7 @@ public class BetterQuesting
     public static final String NAME = "BetterQuesting";
     public static final String PROXY = "betterquesting.core.proxies";
     public static final String CHANNEL = "BQ_NET_CHAN";
-    public static final String FORMAT = "1.0.0";
+    public static final String FORMAT = "2.0.0";
 	
 	@Instance(MODID)
 	public static BetterQuesting instance;

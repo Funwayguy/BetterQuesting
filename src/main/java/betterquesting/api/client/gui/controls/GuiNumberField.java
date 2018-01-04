@@ -31,7 +31,7 @@ public class GuiNumberField extends GuiTextField
 	@Override
 	public boolean mouseClicked(int mx, int my, int click)
 	{
-		boolean flag = super.mouseClicked(mx, my, click);
+		boolean b = super.mouseClicked(mx, my, click);
 		
 		if(!isFocused())
 		{
@@ -40,7 +40,7 @@ public class GuiNumberField extends GuiTextField
 			setText(txt);
 		}
 		
-		return flag;
+		return b;
 	}
 	
 	public Number getNumber()
