@@ -26,7 +26,6 @@ import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.resources.IGuiTexture;
 import betterquesting.api2.client.gui.resources.SimpleTexture;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestLinesMain;
@@ -68,7 +67,6 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		offY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_Y);
 		
 		// Background panel
-		//ThemeRegistry.INSTANCE.getCurrentTheme();
 		CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(bgCan);
 		

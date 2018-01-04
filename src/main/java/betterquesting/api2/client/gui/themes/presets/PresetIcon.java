@@ -45,7 +45,7 @@ public enum PresetIcon
 	ICON_HOME("icon_home");
 	
 	
-	public static final ResourceLocation TX_ICONS = new ResourceLocation("textures/gui/editor_icons.png");
+	public static final ResourceLocation TX_ICONS = new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_icons.png");
 	
 	private final ResourceLocation key;
 	

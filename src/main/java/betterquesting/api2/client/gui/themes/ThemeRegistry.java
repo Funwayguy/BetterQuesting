@@ -176,7 +176,7 @@ public class ThemeRegistry
 			color = activeTheme.getColor(key);
 		}
 		
-		color = color < 0 ? color : defColors.get(key);
+		color = color != null ? color : defColors.get(key);
 		
 		return color == null? Color.BLACK.getRGB() : color;
 	}

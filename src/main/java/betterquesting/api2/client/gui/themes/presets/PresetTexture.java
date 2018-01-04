@@ -52,8 +52,8 @@ public enum PresetTexture
 	QUEST_1("quest_1"),
 	QUEST_2("quest_2");
 	
-	public static final ResourceLocation TX_SIMPLE = new ResourceLocation("textures/gui/simple_frames.png");
-	public static final ResourceLocation TX_QUEST = new ResourceLocation("textures/gui/quest_frames.png");
+	public static final ResourceLocation TX_SIMPLE = new ResourceLocation(BetterQuesting.MODID, "textures/gui/simple_frames.png");
+	public static final ResourceLocation TX_QUEST = new ResourceLocation(BetterQuesting.MODID, "textures/gui/quest_frames.png");
 	
 	private final ResourceLocation key;
 	

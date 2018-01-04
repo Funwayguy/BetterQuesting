@@ -10,6 +10,7 @@ import betterquesting.api2.client.gui.resources.IGuiTexture;
 import betterquesting.api2.client.gui.resources.SimpleLine;
 import betterquesting.api2.client.gui.resources.SlicedTexture;
 import betterquesting.api2.client.gui.resources.SlicedTexture.SliceMode;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 
 public class LegacyThemeWrapper implements IGuiTheme
@@ -70,6 +71,12 @@ public class LegacyThemeWrapper implements IGuiTheme
 	@Override
 	public Integer getColor(ResourceLocation key)
 	{
-		return oldTheme.getTextColor();
+		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()))
+		{
+			System.out.println("This is fine...");
+			return oldTheme.getTextColor();
+		}
+		
+		return null;
 	}
 }
