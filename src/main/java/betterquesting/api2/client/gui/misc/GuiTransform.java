@@ -8,11 +8,16 @@ public final class GuiTransform implements IGuiRect
 	private IGuiRect parent;
 	private final Vector4f anchor;
 	private final GuiPadding padding;
-	private int drawDepth = 0;
+	private int drawOrder = 0;
 	
 	public GuiTransform()
 	{
 		this(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0);
+	}
+	
+	public GuiTransform(ReadableVector4f anchor, int xOff, int yOff, int width, int height, int order)
+	{
+		this(new Vector4f(anchor.getX(), anchor.getY(), anchor.getX(), anchor.getY()), new GuiPadding(xOff, yOff, -xOff - width, -yOff - height), order);
 	}
 	
 	public GuiTransform(ReadableVector4f anchor, GuiPadding padding, int depth)
@@ -24,7 +29,7 @@ public final class GuiTransform implements IGuiRect
 	{
 		this.anchor = anchor;
 		this.padding = padding;
-		this.drawDepth = depth;
+		this.drawOrder = depth;
 		
 		float l = Math.min(anchor.x, anchor.z);
 		float r = Math.max(anchor.x, anchor.z);
@@ -47,9 +52,9 @@ public final class GuiTransform implements IGuiRect
 		return this.anchor;
 	}
 	
-	public void setDrawDepth(int depth)
+	public void setDrawDepth(int order)
 	{
-		this.drawDepth = depth;
+		this.drawOrder = order;
 	}
 	
 	@Override
@@ -83,7 +88,7 @@ public final class GuiTransform implements IGuiRect
 	@Override
 	public int getDepth()
 	{
-		return this.drawDepth;
+		return this.drawOrder;
 	}
 	
 	@Override
@@ -119,6 +124,6 @@ public final class GuiTransform implements IGuiRect
 	@Override
 	public int compareTo(IGuiRect o)
 	{
-		return (int)Math.signum(o.getDepth() - drawDepth);
+		return (int)Math.signum(o.getDepth() - drawOrder);
 	}
 }

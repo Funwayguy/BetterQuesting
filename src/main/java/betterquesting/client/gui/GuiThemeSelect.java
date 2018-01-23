@@ -22,6 +22,7 @@ import betterquesting.api.utils.RenderUtils;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.misc.DummyQuest;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class GuiThemeSelect extends GuiScreenThemed
 {

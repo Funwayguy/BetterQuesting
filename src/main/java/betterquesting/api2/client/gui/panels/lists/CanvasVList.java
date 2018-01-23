@@ -11,6 +11,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 
+// Just use CanvasScrolling and do the offsets yourself
+@Deprecated
 public class CanvasVList implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
@@ -67,6 +69,12 @@ public class CanvasVList implements IGuiCanvas
 		}
 		
 		return used;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		return false;
 	}
 	
 	@Override

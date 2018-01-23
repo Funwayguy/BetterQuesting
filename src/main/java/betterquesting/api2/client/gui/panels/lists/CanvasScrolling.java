@@ -30,7 +30,8 @@ public class CanvasScrolling implements IGuiCanvas
 	private int maxScrollY = 0;
 	private IValueIO<Float> scrollX;
 	private IValueIO<Float> scrollY;
-	private boolean isDragging = false;
+	private boolean isDragging = false; // Mouse buttons held for dragging
+	private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
 	private float dragSX = 0;
 	private float dragSY = 0;
 	private int dragMX = 0;
@@ -130,7 +131,7 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		if(isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
+		if(isDragging)
 		{
 			int dx = dragMX - mx;
 			int dy = dragMY - my;
@@ -139,16 +140,26 @@ public class CanvasScrolling implements IGuiCanvas
 			{
 				float dsx = dx / (float)maxScrollX + dragSX;
 				scrollX.writeValue(dsx);
+				
+				if(!hasDragged && Math.abs(dragSX - scrollX.readValue()) > 0.05F)
+				{
+					hasDragged = true;
+				}
 			}
 			
 			if(maxScrollY > 0)
 			{
 				float dsy = dy / (float)maxScrollY + dragSY;
 				scrollY.writeValue(dsy);
+				
+				if(!hasDragged && Math.abs(dragSY - scrollY.readValue()) > 0.05F)
+				{
+					hasDragged = true;
+				}
 			}
-		} else if(isDragging)
+		} else if(hasDragged)
 		{
-			this.isDragging = false;
+			hasDragged = false;
 		}
 		
 		if(lsx != getScrollX() || lsy != getScrollY())
@@ -201,6 +212,45 @@ public class CanvasScrolling implements IGuiCanvas
 			dragMX = mx;
 			dragMY = my;
 			isDragging = true;
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		boolean used = false;
+		
+		if(!hasDragged)
+		{
+			if(!transform.contains(mx, my))
+			{
+				return false;
+			}
+			
+			List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
+			Collections.reverse(tmp);
+			
+			for(IGuiPanel panel : tmp)
+			{
+				used = panel.onMouseRelease(mx, my, click);
+				
+				if(used)
+				{
+					break;
+				}
+			}
+		}
+		
+		if(isDragging)
+		{
+			if(!Mouse.isButtonDown(0) && !Mouse.isButtonDown(2))
+			{
+				isDragging = false;
+			}
+			
+			return true;
 		}
 		
 		return used;

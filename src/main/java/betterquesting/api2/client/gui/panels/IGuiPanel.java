@@ -11,7 +11,8 @@ public interface IGuiPanel
 	public void initPanel();
 	public void drawPanel(int mx, int my, float partialTick);
 	
-	public boolean onMouseClick(int mx, int my, int click);
+	public boolean onMouseClick(int mx, int my, int button);
+	public boolean onMouseRelease(int mx, int my, int button);
 	public boolean onMouseScroll(int mx, int my, int scroll);
 	public void onKeyTyped(char c, int keycode);
 	

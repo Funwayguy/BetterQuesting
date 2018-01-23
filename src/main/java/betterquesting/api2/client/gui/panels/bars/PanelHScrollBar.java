@@ -117,6 +117,12 @@ public class PanelHScrollBar implements IScrollBar
 		
 		return false;
 	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		return false;
+	}
 
 	@Override
 	public boolean onMouseScroll(int mx, int my, int sdx)

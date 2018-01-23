@@ -87,6 +87,8 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 	}
 	
+	private boolean[] mBtnState = new boolean[3];
+	
 	@Override
 	public void handleMouseInput() throws IOException
 	{
@@ -98,9 +100,16 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
         int SDX = (int)-Math.signum(Mouse.getEventDWheel());
         boolean flag = Mouse.getEventButtonState();
         
-        if(flag)
+        if(k >= 0 && k < 3 && mBtnState[k] != flag)
         {
-        	this.onMouseClick(i, j, k);
+        	if(flag)
+        	{
+        		this.onMouseClick(i, j, k);
+        	} else
+        	{
+        		this.onMouseRelease(i, j, k);
+        	}
+        	mBtnState[k] = flag;
         }
         
         if(SDX != 0)
@@ -130,6 +139,26 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		for(IGuiPanel entry : tmp)
 		{
 			used = entry.onMouseClick(mx, my, click);
+			
+			if(used)
+			{
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
+		Collections.reverse(tmp);
+		boolean used = false;
+		
+		for(IGuiPanel entry : tmp)
+		{
+			used = entry.onMouseRelease(mx, my, click);
 			
 			if(used)
 			{

@@ -1,10 +1,12 @@
 package betterquesting.client.gui2;
 
 import java.util.List;
+import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
@@ -19,13 +21,18 @@ import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
+import betterquesting.api2.client.gui.panels.content.PanelItem;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.core.BetterQuesting;
 
 public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 {
+	// Last value of the scrollbar before loading new theme
+	private PanelVScrollBar scrollPanel;
+	
 	public GuiThemes(GuiScreen parent)
 	{
 		super(parent);
@@ -66,6 +73,11 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 			ITheme theme = themes.get(i);
 			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<ResourceLocation>(trans, 1, theme.getDisplayName(), theme.getThemeID());
 			canScroll.addPanel(pbs);
+			
+			if(betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
+			{
+				pbs.setEnabled(false);
+			}
 		}
 		
 		PanelVScrollBar vsb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
@@ -73,9 +85,40 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		vsb.getTransform().setParent(canScroll.getTransform());
 		canScroll.setScrollDriverY(vsb);
 		
+		scrollPanel = vsb;
+		
 		// Preview panel/canvas
-		CanvasTextured preCan = new CanvasTextured(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
+		CanvasEmpty preCan = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0));
 		inCan.addPanel(preCan);
+		
+		CanvasTextured preCanIn0 = new CanvasTextured(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+		preCan.addPanel(preCanIn0);
+		
+		PanelTextBox tBox1 = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
+		preCanIn0.addPanel(tBox1);
+		
+		CanvasTextured preCanIn1 = new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_INNER.getTexture());
+		preCan.addPanel(preCanIn1);
+		
+		PanelTextBox tBox2 = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_0.getColor());
+		preCanIn1.addPanel(tBox2);
+		
+		CanvasTextured preCanIn2 = new CanvasTextured(new GuiTransform(GuiAlign.HALF_BOTTOM, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.AUX_FRAME_0.getTexture());
+		preCan.addPanel(preCanIn2);
+		
+		PanelQuestPreview pqp = new PanelQuestPreview(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0));
+		preCanIn2.addPanel(pqp);
+		
+		PanelItem pi = new PanelItem(new GuiTransform(new Vector4f(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), new BigItemStack(BetterQuesting.guideBook), true, true, true);
+		preCanIn2.addPanel(pi);
+		
+		PanelLinePreview pl = new PanelLinePreview(pqp.getTransform(), pi.getTransform(), 4, 1);
+		preCanIn2.addPanel(pl);
+		
+		PanelTextBox tBox3 = new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_1.getColor());
+		preCanIn2.addPanel(tBox3);
+		
+		
 	}
 	
 	@Override
@@ -110,10 +153,12 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		} else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
 		{
 			ResourceLocation res = ((PanelButtonStorage<ResourceLocation>)btn).getStoredValue();
-
+			
+			float scroll = scrollPanel.readValue();
 			betterquesting.client.themes.ThemeRegistry.INSTANCE.setCurrentTheme(res);
 			//ThemeRegistry.INSTANCE.setTheme(res);
 			this.initGui();
+			scrollPanel.writeValue(scroll);
 		}
 	}
 }

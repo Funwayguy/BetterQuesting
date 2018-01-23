@@ -103,14 +103,15 @@ public class PanelTextBox implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		
-		if(align == 2)
+		int w = fr.getStringWidth(text);
+		int bw = bounds.getWidth();
+		
+		if(align == 2 && bw >= w)
 		{
-			int w = fr.getStringWidth(text);
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), Math.min(w, bounds.getWidth()), color, shadow, 0, lines);
-		} else if(align == 1)
+			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
+		} else if(align == 1 && bw >= w)
 		{
-			int w = fr.getStringWidth(text);
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth()/2 - w/2, bounds.getY(), bounds.getWidth()/2 - w/2, color, shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth()/2 - w/2, bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
 		} else
 		{
 			RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
@@ -119,6 +120,12 @@ public class PanelTextBox implements IGuiPanel
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
 	{
 		return false;
 	}

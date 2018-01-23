@@ -14,6 +14,7 @@ public enum PresetLine
 	GRID_MINOR("grid_minor"),
 	
 	QUEST_LOCKED("quest_locked"),
+	QUEST_UNLOCKED("quest_unlocked"),
 	QUEST_PENDING("quest_pending"),
 	QUEST_COMPLETE("quest_complete");
 	
@@ -42,6 +43,7 @@ public enum PresetLine
 		reg.setDefaultLine(GRID_MINOR.key, new SimpleLine(2, (short)43690));
 		
 		reg.setDefaultLine(QUEST_LOCKED.key, new SimpleLine());
+		reg.setDefaultLine(QUEST_UNLOCKED.key, new SimpleLine());
 		reg.setDefaultLine(QUEST_PENDING.key, new SimpleLine());
 		reg.setDefaultLine(QUEST_COMPLETE.key, new SimpleLine());
 	}

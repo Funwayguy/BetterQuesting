@@ -10,6 +10,7 @@ import betterquesting.api2.client.gui.resources.IGuiTexture;
 import betterquesting.api2.client.gui.resources.SlicedTexture;
 import betterquesting.api2.client.gui.resources.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
 
@@ -96,6 +97,14 @@ public class ThemeLegacy implements IGuiTheme
 	@Override
 	public Integer getColor(ResourceLocation key)
 	{
-		return null;//isSubtext? textColorSub : textColorMain;
+		if(PresetColor.TEXT_HEADER.getKey().equals(key))
+		{
+			return textColorMain;
+		} else if(PresetColor.TEXT_MAIN.getKey().equals(key))
+		{
+			return textColorSub;
+		}
+		
+		return null;
 	}
 }

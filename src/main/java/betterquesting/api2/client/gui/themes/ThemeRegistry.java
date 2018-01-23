@@ -117,6 +117,11 @@ public class ThemeRegistry
 	
 	public IGuiTexture getTexture(ResourceLocation key)
 	{
+		if(key == null)
+		{
+			return NULL_TEXTURE;
+		}
+		
 		IGuiTexture tex = null;
 		
 		// TODO: Remove this when fully converted...
@@ -139,6 +144,11 @@ public class ThemeRegistry
 	
 	public IGuiLine getLineRenderer(ResourceLocation key)
 	{
+		if(key == null)
+		{
+			return NULL_LINE;
+		}
+		
 		IGuiLine line = null;
 		
 		// TODO: Remove this when fully converted...
@@ -161,6 +171,11 @@ public class ThemeRegistry
 	
 	public int getColor(ResourceLocation key)
 	{
+		if(key == null)
+		{
+			return Color.BLACK.getRGB();
+		}
+		
 		Integer color = null;
 		
 		// TODO: Remove this when fully converted...

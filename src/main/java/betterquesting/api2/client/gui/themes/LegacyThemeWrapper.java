@@ -41,7 +41,17 @@ public class LegacyThemeWrapper implements IGuiTheme
 		TEX_MAP.put(PresetTexture.ITEM_FRAME.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 48, 18, 18), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		TEX_MAP.put(PresetTexture.AUX_FRAME_0.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 128, 128, 128), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		
-		// SLICE THEME TO PIECES!
+		IGuiTexture qTexMain = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
+		TEX_MAP.put(PresetTexture.QUEST_NORM_0.getKey(), qTexMain);
+		TEX_MAP.put(PresetTexture.QUEST_NORM_1.getKey(), qTexMain);
+		TEX_MAP.put(PresetTexture.QUEST_NORM_2.getKey(), qTexMain);
+		TEX_MAP.put(PresetTexture.QUEST_NORM_3.getKey(), qTexMain);
+		
+		IGuiTexture qTexNorm = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(24, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_0.getKey(), qTexNorm);
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_1.getKey(), qTexNorm);
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_2.getKey(), qTexNorm);
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), qTexNorm);
 	}
 	
 	@Override
@@ -71,9 +81,8 @@ public class LegacyThemeWrapper implements IGuiTheme
 	@Override
 	public Integer getColor(ResourceLocation key)
 	{
-		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()))
+		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()) || key.equals(PresetColor.TEXT_AUX_1.getKey()))
 		{
-			System.out.println("This is fine...");
 			return oldTheme.getTextColor();
 		}
 		

@@ -1,6 +1,8 @@
 package betterquesting.api2.client.gui.resources;
 
+import betterquesting.api2.client.gui.misc.IGuiRect;
+
 public interface IGuiLine
 {
-	public void drawLine(int x1, int y1, int x2, int y2, int width, int color, float partialTick);
+	public void drawLine(IGuiRect start, IGuiRect end, int width, int color, float partialTick);
 }

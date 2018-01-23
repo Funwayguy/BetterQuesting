@@ -65,6 +65,26 @@ public class CanvasEmpty implements IGuiCanvas
 	}
 	
 	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
+		Collections.reverse(tmp);
+		boolean used = false;
+		
+		for(IGuiPanel entry : tmp)
+		{
+			used = entry.onMouseRelease(mx, my, click);
+			
+			if(used)
+			{
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);

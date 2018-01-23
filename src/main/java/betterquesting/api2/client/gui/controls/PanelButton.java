@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.controls;
 
 import java.awt.Color;
 import java.util.List;
+import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
@@ -34,7 +35,6 @@ public class PanelButton implements IGuiPanel
 		this.btnText = txt;
 		this.btnID = id;
 		
-		//this.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
 		this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(), PresetTexture.BTN_NORMAL_2.getTexture());
 		this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(), PresetColor.BTN_HOVER.getColor());
 	}
@@ -121,9 +121,14 @@ public class PanelButton implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		this.btnState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
+		int curState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
-		IGuiTexture t = texStates[btnState];
+		if(curState == 2 && Mouse.isButtonDown(0))
+		{
+			curState = 0;
+		}
+		
+		IGuiTexture t = texStates[curState];
 		
 		if(t != null) // Support for text or icon only buttons in one or more states.
 		{
@@ -156,6 +161,12 @@ public class PanelButton implements IGuiPanel
     
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
 		boolean clicked = isEnabled() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));

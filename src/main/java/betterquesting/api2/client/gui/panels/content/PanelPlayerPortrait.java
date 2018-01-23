@@ -138,6 +138,12 @@ public class PanelPlayerPortrait implements IGuiPanel
 	}
 	
 	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		return false;
+	}
+	
+	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		return false;
