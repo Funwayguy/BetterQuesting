@@ -14,7 +14,7 @@ public interface IGuiPanel
 	public boolean onMouseClick(int mx, int my, int button);
 	public boolean onMouseRelease(int mx, int my, int button);
 	public boolean onMouseScroll(int mx, int my, int scroll);
-	public void onKeyTyped(char c, int keycode);
+	public boolean onKeyTyped(char c, int keycode);
 	
 	public List<String> getTooltip(int mx, int my);
 }

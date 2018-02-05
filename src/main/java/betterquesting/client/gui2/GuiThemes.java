@@ -141,7 +141,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		super.drawPanel(mx, my, partialTick);
 	}
 	
-	@SuppressWarnings({"deprecation", "unchecked"})
+	@SuppressWarnings("unchecked")
 	private void onButtonPress(PEventButton event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();

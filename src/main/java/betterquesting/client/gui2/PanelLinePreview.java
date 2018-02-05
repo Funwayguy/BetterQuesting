@@ -83,8 +83,9 @@ public class PanelLinePreview implements IGuiPanel
 	}
 	
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
+		return false;
 	}
 	
 	@Override

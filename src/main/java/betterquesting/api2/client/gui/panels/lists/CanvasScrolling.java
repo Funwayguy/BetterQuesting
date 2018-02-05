@@ -293,14 +293,21 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
+		boolean used = false;
 		
-		for(IGuiPanel panel : tmp)
+		for(IGuiPanel entry : tmp)
 		{
-			panel.onKeyTyped(c, keycode);
+			if(entry.onKeyTyped(c, keycode))
+			{
+				used = true;
+				break;
+			}
 		}
+		
+		return used;
 	}
 	
 	@Override

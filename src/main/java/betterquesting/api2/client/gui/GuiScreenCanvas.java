@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Mouse;
@@ -12,6 +13,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.client.BQ_Keybindings;
 
 public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
@@ -35,15 +37,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	 * Use initPanel() for embed support
 	 */
 	@Override
-	@Deprecated
-	public void initGui()
+	public final void initGui()
 	{
 		super.initGui();
-		
-		transform.w = this.width;
-		transform.h = this.height;
-		
-		this.getAllPanels().clear();
 		
 		initPanel();
 	}
@@ -51,6 +47,11 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
+		transform.w = this.width;
+		transform.h = this.height;
+		
+		this.getAllPanels().clear();
+		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
 		for(IGuiPanel entry : tmp)
@@ -60,11 +61,10 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	/**
-	 * Use drawPanel() for embed support
+	 * Use initPanel() for embed support
 	 */
 	@Override
-	@Deprecated
-	public void drawScreen(int mx, int my, float partialTick)
+	public final void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
 		
@@ -87,6 +87,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 	}
 	
+	// Remembers the last mouse buttons states. Required to fire release events
 	private boolean[] mBtnState = new boolean[3];
 	
 	@Override
@@ -118,7 +119,20 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
         }
 	}
 	
-	//@Override
+	@Override
+    public void keyTyped(char c, int keyCode) throws IOException
+    {
+        super.keyTyped(c, keyCode);
+        
+        if(keyCode == 1)
+        {
+        	return;
+        }
+        
+        this.onKeyTyped(c, keyCode);
+    }
+	
+	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
@@ -178,10 +192,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		for(IGuiPanel entry : tmp)
 		{
-			used = entry.onMouseScroll(mx, my, scroll);
-			
-			if(used)
+			if(entry.onMouseScroll(mx, my, scroll))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -190,14 +203,28 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
+		boolean used = false;
 		
 		for(IGuiPanel entry : tmp)
 		{
-			entry.onKeyTyped(c, keycode);
+			if(entry.onKeyTyped(c, keycode))
+			{
+				used = true;
+				break;
+			}
 		}
+		
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		if(!used && (BQ_Keybindings.openQuests.isPressed() || mc.gameSettings.keyBindInventory.isPressed()))
+		{
+			mc.displayGuiScreen(this.parent);
+		}
+		
+		return used;
 	}
 	
 	@Override
