@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
+import cpw.mods.fml.common.Loader;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.RenderUtils;
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -112,6 +113,16 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		public void onMouseClick(int mx, int my, int px, int py, int click, int index)
 		{
 			// JEI/NEI support here
+			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
+			{
+				if(Loader.isModLoaded("NotEnoughItems"))
+		     	{
+		 			try
+		 			{
+		 				codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui("fluid", stack.getFluid());
+		 			} catch(Exception e){}
+		 		}
+		 	}
 		}
 
 		@Override
