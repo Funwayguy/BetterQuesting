@@ -31,22 +31,22 @@ public class GuiScreenTest extends GuiScreenCanvas
 		IGuiRect ctt = new GuiTransform(new Vector4f(0.05F, 0.05F, 0.95F, 0.95F), new GuiPadding(0, 0, 0, 0), 0);
 		CanvasTextured cvt1 =  new CanvasTextured(ctt, PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(cvt1);
-		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 12, 0), 0));
+		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 12, 0), 0)).setZoomMode(true);
 		cvt1.addPanel(cs1);
 		PanelVScrollBar pvs = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-12, 4, 4, 4), 0));
 		cvt1.addPanel(pvs);
 		cs1.setScrollDriverY(pvs);
 		
-		CanvasTextured cvt2 = new CanvasTextured(new GuiRectangle(0, 0, 100, 500, 0), PresetTexture.PANEL_INNER.getTexture());
+		CanvasTextured cvt2 = new CanvasTextured(new GuiRectangle(0, 0, 800, 500, 0), PresetTexture.PANEL_INNER.getTexture());
 		cs1.addPanel(cvt2);
+		
+		PanelButton btn3 = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-100, -20, 0, 0), 0), 1, "Button 2");
+		cs1.addPanel(btn3);
 		
 		IGuiRect btt1 = new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, 0, 0), -1);
 		IGuiRect btt2 = new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(0, -16, -100, 0), -1);
-		IGuiTexture bTex0 = PresetTexture.BTN_CLEAN_0.getTexture();
-		IGuiTexture bTex1 = PresetTexture.BTN_CLEAN_1.getTexture();
-		IGuiTexture bTex2 = PresetTexture.BTN_CLEAN_2.getTexture();
-		PanelButton btn1 = new PanelButton(btt1, 0, "Button 1").setTextures(bTex0, bTex1, bTex2);
-		PanelButton btn2 = new PanelButton(btt2, 1, "Button 2").setTextures(bTex0, bTex1, bTex2);
+		PanelButton btn1 = new PanelButton(btt1, 0, "Button 1");
+		PanelButton btn2 = new PanelButton(btt2, 1, "Button 2");
 		cvt1.addPanel(btn1);
 		cvt1.addPanel(btn2);
 		

@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Mouse;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
@@ -68,6 +69,10 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 		super.drawScreen(mx, my, partialTick);
 		
+		// GL push/pop for added safety
+		GlStateManager.pushMatrix();
+		GlStateManager.color(1F, 1F, 1F, 1F);
+
 		this.drawPanel(mx, my, partialTick);
 		
 		List<String> tt = this.getTooltip(mx, my);
@@ -76,6 +81,8 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		{
 			this.drawHoveringText(tt, mx, my);
 		}
+
+		GlStateManager.popMatrix();
 	}
 	
 	/**

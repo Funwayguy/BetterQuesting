@@ -44,6 +44,7 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.QuestCache;
+import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.client.gui2.GuiHome;
@@ -80,7 +81,19 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+			if(mc.player.isSneaking() && mc.player.getName().equalsIgnoreCase("Funwayguy"))
+			{
+				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
+			} else
+			{
+				if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
+				{
+					mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+				} else
+				{
+					mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+				}
+			}
 		}
 	}
 	

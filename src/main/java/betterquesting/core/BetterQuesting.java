@@ -39,7 +39,7 @@ import betterquesting.items.ItemGuideBook;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
 
-@Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
+@Mod(modid = BetterQuesting.MODID, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
 {
     public static final String MODID = "betterquesting";
@@ -79,11 +79,7 @@ public class BetterQuesting
     	
     	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
     	
-    	if(PacketTypeRegistry.INSTANCE == null)
-    	{
-    		// Not actually required but for the sake of instantiating first...
-    		BetterQuesting.logger.log(Level.ERROR, "Unabled to instatiate packet registry");
-    	}
+    	PacketTypeRegistry.INSTANCE.init();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);

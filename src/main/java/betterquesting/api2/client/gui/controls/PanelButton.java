@@ -123,7 +123,7 @@ public class PanelButton implements IGuiPanel
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		int curState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
-		if(curState == 2 && Mouse.isButtonDown(0))
+		if(curState == 2 && Mouse.isButtonDown(0) && pendingRelease)
 		{
 			curState = 0;
 		}
@@ -162,12 +162,24 @@ public class PanelButton implements IGuiPanel
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
+		IGuiRect bounds = this.getTransform();
+		pendingRelease = isEnabled() && click == 0 && bounds.contains(mx, my);
+
 		return false;
 	}
+
+	private boolean pendingRelease = false;
 	
 	@Override
 	public boolean onMouseRelease(int mx, int my, int click)
 	{
+		if(!pendingRelease)
+		{
+			return false;
+		}
+
+		pendingRelease = false;
+
 		IGuiRect bounds = this.getTransform();
 		boolean clicked = isEnabled() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 		

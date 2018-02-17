@@ -1,6 +1,7 @@
 package betterquesting.api.utils;
 
 import java.awt.Color;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -21,7 +22,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Matrix4f;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.core.BetterQuesting;
@@ -191,7 +194,7 @@ public class RenderUtils
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
-	 * Not using this method will result in incorrect scissoring of parent/child GUIs
+	 * Not using this method will result in incorrect scissoring and scaling of parent/child GUIs
 	 */
 	public static void startScissor(Minecraft mc, GuiRectangle rect)
 	{
@@ -205,21 +208,31 @@ public class RenderUtils
 		ScaledResolution r = new ScaledResolution(mc);
 		int f = r.getScaleFactor();
 		
-		GuiRectangle sRect = rect;
+		// Have to do all this fancy crap because glScissor() isn't affected by glScale() and rather than try and convince devs to use some custom hack
+		// we'll just deal with it by reading from the current MODELVIEW MATRIX to convert between screen spaces at their relative scales and translations.
+		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, fb);
+		fb.rewind();
+		Matrix4f fm = new Matrix4f();
+		fm.load(fb);
+		
+		// GL screenspace rectangle
+		GuiRectangle sRect = new GuiRectangle((int)(rect.getX() * f  * fm.m00 + (fm.m30 * f)), (r.getScaledHeight() - (int)((rect.getY() + rect.getHeight()) * fm.m11 + fm.m31)) * f, (int)(rect.getWidth() * f * fm.m00), (int)(rect.getHeight() * f * fm.m11));
 		
 		if(!scissorStack.empty())
 		{
 			IGuiRect parentRect = scissorStack.peek();
-			int x = Math.max(parentRect.getX(), rect.getX());
-			int y = Math.max(parentRect.getY(), rect.getY());
-			int w = Math.min(parentRect.getX() + parentRect.getWidth(), rect.getX() + rect.getWidth());
-			int h = Math.min(parentRect.getY() + parentRect.getHeight(), rect.getY() + rect.getHeight());
+			int x = Math.max(parentRect.getX(), sRect.getX());
+			int y = Math.max(parentRect.getY(), sRect.getY());
+			int w = Math.min(parentRect.getX() + parentRect.getWidth(), sRect.getX() + sRect.getWidth());
+			int h = Math.min(parentRect.getY() + parentRect.getHeight(), sRect.getY() + sRect.getHeight());
 			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
 			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
 			sRect = new GuiRectangle(x, y, w, h, 0);
 		}
 		
-		GL11.glScissor(sRect.getX() * f, (r.getScaledHeight() - sRect.getY() - sRect.getHeight())*f, sRect.getWidth() * f, sRect.getHeight() * f);
+		//GL11.glScissor((int)(sRect.getX() * f * fm.m00), (r.getScaledHeight() - (int)((sRect.getY() + sRect.getHeight()) * fm.m11)) * f, (int)(sRect.getWidth() * f * fm.m00), (int)(sRect.getHeight() * f * fm.m11));
+		GL11.glScissor(sRect.getX(),sRect.getY(), sRect.getWidth(), sRect.getHeight());
 		scissorStack.add(sRect);
 	}
 	
@@ -235,11 +248,9 @@ public class RenderUtils
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		} else
 		{
-			ScaledResolution r = new ScaledResolution(mc);
-			int f = r.getScaleFactor();
-			
 			IGuiRect rect = scissorStack.peek();
-			GL11.glScissor(rect.getX() * f, (r.getScaledHeight() - rect.getY() - rect.getHeight())*f, rect.getWidth() * f, rect.getHeight() * f);
+			//GL11.glScissor(rect.getX() * f, (r.getScaledHeight() - rect.getY() - rect.getHeight())*f, rect.getWidth() * f, rect.getHeight() * f);
+			GL11.glScissor(rect.getX(),rect.getY(), rect.getWidth(), rect.getHeight());
 		}
 	}
 	

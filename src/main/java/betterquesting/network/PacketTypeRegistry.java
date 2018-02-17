@@ -22,29 +22,32 @@ import betterquesting.network.handlers.PktHandlerQuestSync;
 import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.network.handlers.PktHandlerTileEdit;
 
-public class PacketTypeRegistry implements IPacketRegistry
-{
+public class PacketTypeRegistry implements IPacketRegistry {
 	public static final PacketTypeRegistry INSTANCE = new PacketTypeRegistry();
-	
+
 	private final HashMap<ResourceLocation, IPacketHandler> pktHandlers = new HashMap<ResourceLocation, IPacketHandler>();
-	
+
 	private PacketTypeRegistry()
+	{
+	}
+
+	public void init()
 	{
 		registerHandler(new PktHandlerQuestDB());
 		registerHandler(new PktHandlerQuestSync());
 		registerHandler(new PktHandlerQuestEdit());
-		
+
 		registerHandler(new PktHandlerLineDB());
 		registerHandler(new PktHandlerLineEdit());
 		registerHandler(new PktHandlerLineSync());
-		
+
 		registerHandler(new PktHandlerPartyDB());
 		registerHandler(new PktHandlerPartyAction());
 		registerHandler(new PktHandlerPartySync());
-		
+
 		registerHandler(new PktHandlerDetect());
 		registerHandler(new PktHandlerClaim());
-		
+
 		registerHandler(new PktHandlerLives());
 		registerHandler(new PktHandlerNotification());
 		registerHandler(new PktHandlerTileEdit());

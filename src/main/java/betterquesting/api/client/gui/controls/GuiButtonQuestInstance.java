@@ -49,7 +49,7 @@ public class GuiButtonQuestInstance extends GuiButtonThemed
     {
 		UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		
-		if(QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.HARDCORE))
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
 		{
 			this.enabled = this.visible = true;
 		} else if(mc.player == null)
