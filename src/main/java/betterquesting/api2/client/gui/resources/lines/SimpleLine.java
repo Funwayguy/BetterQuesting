@@ -1,5 +1,6 @@
-package betterquesting.api2.client.gui.resources;
+package betterquesting.api2.client.gui.resources.lines;
 
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -21,15 +22,12 @@ public class SimpleLine implements IGuiLine
 	}
 	
 	@Override
-	public void drawLine(IGuiRect start, IGuiRect end, int width, int color, float partialTick)
+	public void drawLine(IGuiRect start, IGuiRect end, int width, IGuiColor color, float partialTick)
 	{
-		float r = (float)(color >> 16 & 255) / 255.0F;
-        float g = (float)(color >> 8 & 255) / 255.0F;
-        float b = (float)(color & 255) / 255.0F;
 		GlStateManager.pushMatrix();
 		
 		GlStateManager.disableTexture2D();
-		GlStateManager.color(r, g, b, 1F);
+		color.applyGlColor();
 		GL11.glLineWidth(width);
 		GL11.glLineStipple(scale, pattern);
 		

@@ -27,19 +27,31 @@ public class CanvasScrolling implements IGuiCanvas
 	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
 	private final IGuiRect transform;
 	
+	// Max scrolling bounds
 	private int maxScrollX = 0;
 	private int maxScrollY = 0;
+	// Scroll and zoom drivers
 	private IValueIO<Float> scrollX;
 	private IValueIO<Float> scrollY;
 	private IValueIO<Float> zoomScale;
+	
 	private boolean isDragging = false; // Mouse buttons held for dragging
 	private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
-	private float dragSX = 0;
-	private float dragSY = 0;
-	private int dragMX = 0;
-	private int dragMY = 0;
 	private int scrollSpeed = 12;
 	private boolean zoomMode = false;
+	
+	// Starting drag scroll values
+	private float dragSX = 0;
+	private float dragSY = 0;
+	// Starting drag mouse positions
+	private int dragMX = 0;
+	private int dragMY = 0;
+	// Last known scroll position (unscaled)
+	private int lsx = 0;
+	private int lsy = 0;
+	// Scaled drawing offset
+	private float drawDX = 0;
+	private float drawDY = 0;
 	
 	public CanvasScrolling(IGuiRect rect)
 	{
@@ -123,7 +135,7 @@ public class CanvasScrolling implements IGuiCanvas
 		return this;
 	}
 	
-	public CanvasScrolling setZoomMode(boolean enable)
+	public CanvasScrolling enableZoomScroll(boolean enable)
 	{
 		this.zoomMode = enable;
 		return this;
@@ -149,13 +161,6 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		return transform;
 	}
-	
-	private int lsx = 0;
-	private int lsy = 0;
-	
-	// Drawing offset from resting (0,0) scroll accounting for scaling
-	private float drawDX = 0;
-	private float drawDY = 0;
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
@@ -203,13 +208,7 @@ public class CanvasScrolling implements IGuiCanvas
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderUtils.startScissor(mc, new GuiRectangle(transform));
 		
-		/*float sdx = transform.getX();
-		float sdy = transform.getY();
-		sdx = sdx - (sdx * zs) - getScrollX();
-		sdy = sdy - (sdy * zs) - getScrollY();*/
-		
-		//GlStateManager.translate(-lsx + drawDX, -lsy + drawDY, 0F);
-		GlStateManager.translate(-lsx, -lsy, 0F);
+		GlStateManager.translate(-lsx + drawDX, -lsy + drawDY, 0F);
 		GlStateManager.scale(zs, zs, 1F);
 		
 		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
@@ -218,11 +217,13 @@ public class CanvasScrolling implements IGuiCanvas
 		Matrix4f fm = new Matrix4f();
 		fm.load(fb);
 		
+		int smx = (int)((mx + lsx - drawDX) / zs);
+		int smy = (int)((my + lsy - drawDY) / zs);
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
 		for(IGuiPanel panel : tmp)
 		{
-			panel.drawPanel((int)((mx + lsx - drawDX) / zs), (int)((my + lsy - drawDY) / zs), partialTick);
+			panel.drawPanel(smx, smy, partialTick);
 		}
 		
 		RenderUtils.endScissor(mc);
@@ -237,13 +238,17 @@ public class CanvasScrolling implements IGuiCanvas
 			return false;
 		}
 		
+		float zs = zoomScale.readValue();
+		int smx = (int)((mx + lsx - drawDX) / zs);
+		int smy = (int)((my + lsy - drawDY) / zs);
+		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
 		for(IGuiPanel panel : tmp)
 		{
-			used = panel.onMouseClick(mx, my, click);
+			used = panel.onMouseClick(smx, smy, click);
 			
 			if(used)
 			{
@@ -275,12 +280,16 @@ public class CanvasScrolling implements IGuiCanvas
 				return false;
 			}
 			
+			float zs = zoomScale.readValue();
+			int smx = (int)((mx + lsx - drawDX) / zs);
+			int smy = (int)((my + lsy - drawDY) / zs);
+			
 			List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 			Collections.reverse(tmp);
 			
 			for(IGuiPanel panel : tmp)
 			{
-				used = panel.onMouseRelease(mx, my, click);
+				used = panel.onMouseRelease(smx, smy, click);
 				
 				if(used)
 				{
@@ -310,13 +319,17 @@ public class CanvasScrolling implements IGuiCanvas
 			return false;
 		}
 		
+		float zs = zoomScale.readValue();
+		int smx = (int)((mx + lsx - drawDX) / zs);
+		int smy = (int)((my + lsy - drawDY) / zs);
+		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		boolean used = false;
 		
 		for(IGuiPanel panel : tmp)
 		{
-			used = panel.onMouseScroll(mx, my, scroll);
+			used = panel.onMouseScroll(smx, smy, scroll);
 			
 			if(used)
 			{
@@ -371,15 +384,16 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
+		float zs = zoomScale.readValue();
+		int smx = (int)((mx + lsx - drawDX) / zs);
+		int smy = (int)((my + lsy - drawDY) / zs);
+		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
 		
-		int sx = Math.round(maxScrollX * scrollX.readValue());
-		int sy = Math.round(maxScrollY * scrollY.readValue());
-		
 		for(IGuiPanel entry : tmp)
 		{
-			List<String> tt = entry.getTooltip(mx + sx, my + sy);
+			List<String> tt = entry.getTooltip(smx, smy);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -403,22 +417,7 @@ public class CanvasScrolling implements IGuiCanvas
 		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
 		panel.initPanel();
 		
-		int px = getScrollX();
-		int py = getScrollY();
-		maxScrollX = (int)Math.max(maxScrollX, panel.getTransform().getX() - transform.getX() + panel.getTransform().getWidth() - transform.getWidth());
-		maxScrollY = (int)Math.max(maxScrollY, panel.getTransform().getY() - transform.getY() + panel.getTransform().getHeight() - transform.getHeight());
-		
-		if(maxScrollX > 0)
-		{
-			this.scrollX.writeValue(px / (float)maxScrollX);
-		}
-		
-		if(maxScrollY > 0)
-		{
-			this.scrollY.writeValue(py / (float)maxScrollY);
-		}
-		
-		this.updatePanelScroll();
+		this.refreshScrollBounds();
 	}
 	
 	@Override
@@ -436,6 +435,9 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private void refreshScrollBounds()
 	{
+		int px = getScrollX();
+		int py = getScrollY();
+		
 		maxScrollX = 0;
 		maxScrollY = 0;
 		
@@ -444,10 +446,18 @@ public class CanvasScrolling implements IGuiCanvas
 
 		for(IGuiPanel panel : tmp)
 		{
-            maxScrollX = (int)Math.max(maxScrollX, panel.getTransform().getX() - transform.getX() + panel.getTransform().getWidth() - transform.getWidth());
-            maxScrollY = (int)Math.max(maxScrollY, panel.getTransform().getY() - transform.getY() + panel.getTransform().getHeight() - transform.getHeight());
-			//maxScrollX = (int)Math.max(maxScrollX, panel.getTransform().getX() - transform.getX() + panel.getTransform().getWidth() - (transform.getWidth() / zs));
-			//maxScrollY = (int)Math.max(maxScrollY, panel.getTransform().getY() - transform.getY() + panel.getTransform().getHeight() - (transform.getHeight() / zs));
+			maxScrollX = (int)Math.max(maxScrollX, panel.getTransform().getX() - transform.getX() + panel.getTransform().getWidth() - (transform.getWidth() / zs));
+			maxScrollY = (int)Math.max(maxScrollY, panel.getTransform().getY() - transform.getY() + panel.getTransform().getHeight() - (transform.getHeight() / zs));
+		}
+		
+		if(maxScrollX > 0)
+		{
+			this.scrollX.writeValue(px / (float)maxScrollX);
+		}
+		
+		if(maxScrollY > 0)
+		{
+			this.scrollY.writeValue(py / (float)maxScrollY);
 		}
 		
 		updatePanelScroll();
@@ -455,22 +465,16 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private void updatePanelScroll()
 	{
-		// Probably not the most ideal way of making this work
-		/*innerTransform.getPadding().l = -getScrollX();
-		innerTransform.getPadding().r = getScrollX();
-		innerTransform.getPadding().t = -getScrollY();
-		innerTransform.getPadding().b = getScrollY();*/
-		
-		float zs = zoomScale.readValue();
-		float sdx = transform.getX();
-		float sdy = transform.getY();
-		sdx = sdx - (sdx * zs) - getScrollX();
-		sdy = sdy - (sdy * zs) - getScrollY();
-		drawDX = sdx;
-		drawDY = sdy;
-		
 		lsx = this.getScrollX();
 		lsy = this.getScrollY();
+		
+		float zs = zoomScale.readValue();
+		float sdx = transform.getX() + lsx;
+		float sdy = transform.getY() + lsy;
+		sdx = sdx - sdx * zs;
+		sdy = sdy - sdy * zs;
+		drawDX = sdx;
+		drawDY = sdy;
 	}
 	
 	@Override

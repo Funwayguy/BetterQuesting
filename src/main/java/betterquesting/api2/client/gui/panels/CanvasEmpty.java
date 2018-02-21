@@ -150,7 +150,7 @@ public class CanvasEmpty implements IGuiCanvas
 		}
 		
 		guiPanels.add(panel);
-		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
+		guiPanels.sort(ComparatorGuiDepth.INSTANCE);
 		panel.getTransform().setParent(getTransform());
 		panel.initPanel();
 	}

@@ -1,7 +1,8 @@
 package betterquesting.api2.client.gui.controls;
 
-import java.awt.Color;
 import java.util.List;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -11,23 +12,24 @@ import net.minecraft.init.SoundEvents;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 
-public class PanelButton implements IGuiPanel
+public class PanelButton implements IPanelButton
 {
 	private final IGuiRect transform;
 	
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
-	private int[] colStates = new int[]{Color.GRAY.getRGB(), Color.WHITE.getRGB(), 16777120};
+	private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
 	private IGuiTexture texIcon = null;
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText = "";
 	private int btnState = 1;
 	private int btnID = -1;
+	
+	private boolean pendingRelease = false;
 	
 	public PanelButton(IGuiRect rect, int id, String txt)
 	{
@@ -39,7 +41,7 @@ public class PanelButton implements IGuiPanel
 		this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(), PresetColor.BTN_HOVER.getColor());
 	}
 	
-	public PanelButton setTextHighlight(int disabled, int idle, int hover)
+	public PanelButton setTextHighlight(IGuiColor disabled, IGuiColor idle, IGuiColor hover)
 	{
 		this.colStates[0] = disabled;
 		this.colStates[1] = idle;
@@ -83,6 +85,7 @@ public class PanelButton implements IGuiPanel
 		return this.btnText;
 	}
 	
+	@Override
 	public int getButtonID()
 	{
 		return this.btnID;
@@ -93,15 +96,16 @@ public class PanelButton implements IGuiPanel
 		return this.btnState;
 	}
 	
+	@Override
 	public boolean isEnabled()
 	{
 		return this.btnState > 0;
 	}
 	
-	public PanelButton setEnabled(boolean state)
+	@Override
+	public void setEnabled(boolean state)
 	{
 		this.btnState = state? 1 : 0;
-		return this;
 	}
 	
 	@Override
@@ -143,7 +147,7 @@ public class PanelButton implements IGuiPanel
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[btnState], txtShadow);
+			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[btnState].getRGB(), txtShadow);
 		}
 		
 		GlStateManager.popMatrix();
@@ -165,10 +169,8 @@ public class PanelButton implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		pendingRelease = isEnabled() && click == 0 && bounds.contains(mx, my);
 
-		return false;
+		return pendingRelease;
 	}
-
-	private boolean pendingRelease = false;
 	
 	@Override
 	public boolean onMouseRelease(int mx, int my, int click)

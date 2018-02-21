@@ -3,9 +3,9 @@
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.resources.SlicedTexture;
-import betterquesting.api2.client.gui.resources.SlicedTexture.SliceMode;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
@@ -68,6 +68,7 @@ public enum PresetTexture
 	
 	public static final ResourceLocation TX_SIMPLE = new ResourceLocation(BetterQuesting.MODID, "textures/gui/simple_frames.png");
 	public static final ResourceLocation TX_QUEST = new ResourceLocation(BetterQuesting.MODID, "textures/gui/quest_frames.png");
+	public static final ResourceLocation TX_NULL = new ResourceLocation(BetterQuesting.MODID, "textures/gui/null_texture.png");
 	
 	private final ResourceLocation key;
 	

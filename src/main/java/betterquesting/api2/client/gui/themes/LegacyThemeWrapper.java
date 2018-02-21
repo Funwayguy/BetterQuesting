@@ -1,15 +1,18 @@
 package betterquesting.api2.client.gui.themes;
 
 import java.util.HashMap;
+
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.resources.IGuiLine;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.resources.SimpleLine;
-import betterquesting.api2.client.gui.resources.SlicedTexture;
-import betterquesting.api2.client.gui.resources.SlicedTexture.SliceMode;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.lines.SimpleLine;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 
@@ -17,6 +20,7 @@ public class LegacyThemeWrapper implements IGuiTheme
 {
 	private final ITheme oldTheme;
 	private final IGuiLine line = new SimpleLine();
+	private final IGuiColor color;
 	
 	private final HashMap<ResourceLocation, IGuiTexture> TEX_MAP = new HashMap<ResourceLocation, IGuiTexture>();
 	
@@ -52,6 +56,8 @@ public class LegacyThemeWrapper implements IGuiTheme
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_1.getKey(), qTexNorm);
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_2.getKey(), qTexNorm);
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), qTexNorm);
+		
+		this.color = new GuiColorStatic(oldTheme.getTextColor());
 	}
 	
 	@Override
@@ -79,11 +85,11 @@ public class LegacyThemeWrapper implements IGuiTheme
 	}
 	
 	@Override
-	public Integer getColor(ResourceLocation key)
+	public IGuiColor getColor(ResourceLocation key)
 	{
 		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()) || key.equals(PresetColor.TEXT_AUX_1.getKey()))
 		{
-			return oldTheme.getTextColor();
+			return this.color;
 		}
 		
 		return null;

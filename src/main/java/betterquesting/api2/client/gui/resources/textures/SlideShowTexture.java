@@ -1,4 +1,4 @@
-package betterquesting.api2.client.gui.resources;
+package betterquesting.api2.client.gui.resources.textures;
 
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.IGuiRect;

@@ -1,13 +1,15 @@
 package betterquesting.api2.client.gui.panels.content;
 
 import java.util.List;
+
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.resources.IGuiLine;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.themes.ThemeRegistry;
 
 public class PanelLine implements IGuiPanel
@@ -44,7 +46,10 @@ public class PanelLine implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		GlStateManager.pushMatrix();
+		GlStateManager.color(1F, 1F, 1F, 1F);
 		line.drawLine(start, end, width, ThemeRegistry.INSTANCE.getColor(color), partialTick);
+		GlStateManager.popMatrix();
 	}
 	
 	@Override

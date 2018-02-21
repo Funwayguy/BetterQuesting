@@ -14,6 +14,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -24,8 +25,8 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.resources.SimpleTexture;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestLinesMain;
@@ -117,7 +118,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 	private void onButtonPress(PEventButton event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		PanelButton btn = event.getButton();
+		IPanelButton btn = event.getButton();
 		
 		if(btn.getButtonID() == 0) // Exit
 		{
@@ -138,8 +139,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			}
 		} else if(btn.getButtonID() == 3) // Theme
 		{
-			//mc.displayGuiScreen(new GuiThemeSelect(this));
-			mc.displayGuiScreen(new GuiThemes(this)); // UNFINISHED
+			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
 			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null, new ICallback<NBTTagCompound>()

@@ -1,14 +1,15 @@
 package betterquesting.api2.client.gui.themes.builtin;
 
-import java.awt.Color;
 import java.util.HashMap;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.resources.IGuiLine;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.resources.SlicedTexture;
-import betterquesting.api2.client.gui.resources.SlicedTexture.SliceMode;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -24,8 +25,8 @@ public class ThemeLegacy implements IGuiTheme
 	
 	private final HashMap<ResourceLocation, IGuiTexture> texMap = new HashMap<ResourceLocation, IGuiTexture>();
 	
-	private final int textColorMain = Color.BLACK.getRGB();
-	private final int textColorSub = Color.BLACK.getRGB();
+	private final IGuiColor textColorMain = new GuiColorStatic(255, 255, 255, 255);
+	private final IGuiColor textColorSub = new GuiColorStatic(255, 255, 255, 255);
 	
 	private final IGuiTexture txPanMain = new SlicedTexture(TX_LEGACY, new GuiRectangle(0, 0, 48, 48), new GuiPadding(16, 16, 16, 16)).setSliceMode(SliceMode.SLICED_TILE);
 	private final IGuiTexture txPanInner = new SlicedTexture(TX_LEGACY, new GuiRectangle(0, 128, 128, 128), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH);
@@ -95,7 +96,7 @@ public class ThemeLegacy implements IGuiTheme
 	}
 	
 	@Override
-	public Integer getColor(ResourceLocation key)
+	public IGuiColor getColor(ResourceLocation key)
 	{
 		if(PresetColor.TEXT_HEADER.getKey().equals(key))
 		{

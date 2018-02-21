@@ -1,6 +1,10 @@
 package betterquesting.client.gui2;
 
 import java.util.List;
+
+import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.panels.content.PanelGeneric;
+import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,7 +25,6 @@ import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
-import betterquesting.api2.client.gui.panels.content.PanelItem;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
@@ -87,21 +90,19 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		
 		scrollPanel = vsb;
 		
-		// Preview panel/canvas
+		// === PREVIEW PANELS ===
+		
 		CanvasEmpty preCan = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0));
 		inCan.addPanel(preCan);
 		
 		CanvasTextured preCanIn0 = new CanvasTextured(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
 		preCan.addPanel(preCanIn0);
 		
-		PanelTextBox tBox1 = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
-		preCanIn0.addPanel(tBox1);
+		preCanIn0.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor()));
 		
 		CanvasTextured preCanIn1 = new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_INNER.getTexture());
+		preCanIn1.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_0.getColor()));
 		preCan.addPanel(preCanIn1);
-		
-		PanelTextBox tBox2 = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_0.getColor());
-		preCanIn1.addPanel(tBox2);
 		
 		CanvasTextured preCanIn2 = new CanvasTextured(new GuiTransform(GuiAlign.HALF_BOTTOM, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.AUX_FRAME_0.getTexture());
 		preCan.addPanel(preCanIn2);
@@ -109,14 +110,13 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		PanelQuestPreview pqp = new PanelQuestPreview(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0));
 		preCanIn2.addPanel(pqp);
 		
-		PanelItem pi = new PanelItem(new GuiTransform(new Vector4f(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), new BigItemStack(BetterQuesting.guideBook), true, true, true);
-		preCanIn2.addPanel(pi);
+		CanvasTextured itemFrame = new CanvasTextured(new GuiTransform(new Vector4f(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), PresetTexture.ITEM_FRAME.getTexture());
+		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook))));
+		preCanIn2.addPanel(itemFrame);
 		
-		PanelLinePreview pl = new PanelLinePreview(pqp.getTransform(), pi.getTransform(), 4, 1);
-		preCanIn2.addPanel(pl);
+		preCanIn2.addPanel(new PanelLinePreview(pqp.getTransform(), itemFrame.getTransform(), 4, 1));
 		
-		PanelTextBox tBox3 = new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_1.getColor());
-		preCanIn2.addPanel(tBox3);
+		preCanIn2.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_1.getColor()));
 		
 		
 	}
@@ -145,7 +145,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 	private void onButtonPress(PEventButton event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		PanelButton btn = event.getButton();
+		IPanelButton btn = event.getButton();
 		
 		if(btn.getButtonID() == 0) // Exit
 		{

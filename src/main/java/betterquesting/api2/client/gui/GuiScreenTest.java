@@ -13,7 +13,6 @@ import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelPlayerPortrait;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 
 public class GuiScreenTest extends GuiScreenCanvas
@@ -31,7 +30,7 @@ public class GuiScreenTest extends GuiScreenCanvas
 		IGuiRect ctt = new GuiTransform(new Vector4f(0.05F, 0.05F, 0.95F, 0.95F), new GuiPadding(0, 0, 0, 0), 0);
 		CanvasTextured cvt1 =  new CanvasTextured(ctt, PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(cvt1);
-		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 12, 0), 0)).setZoomMode(true);
+		CanvasScrolling cs1 = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 12, 0), 0)).enableZoomScroll(true);
 		cvt1.addPanel(cs1);
 		PanelVScrollBar pvs = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-12, 4, 4, 4), 0));
 		cvt1.addPanel(pvs);

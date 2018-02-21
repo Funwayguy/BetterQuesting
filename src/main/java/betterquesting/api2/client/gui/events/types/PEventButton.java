@@ -1,18 +1,18 @@
 package betterquesting.api2.client.gui.events.types;
 
-import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.events.PanelEvent;
 
 public class PEventButton extends PanelEvent
 {
-	private final PanelButton btn;
+	private final IPanelButton btn;
 	
-	public PEventButton(PanelButton btn)
+	public PEventButton(IPanelButton btn)
 	{
 		this.btn = btn;
 	}
 	
-	public PanelButton getButton()
+	public IPanelButton getButton()
 	{
 		return this.btn;
 	}

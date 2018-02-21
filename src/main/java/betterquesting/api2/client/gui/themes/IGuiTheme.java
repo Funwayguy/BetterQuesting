@@ -1,8 +1,9 @@
 package betterquesting.api2.client.gui.themes;
 
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api2.client.gui.resources.IGuiLine;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 
 public interface IGuiTheme
 {
@@ -10,5 +11,5 @@ public interface IGuiTheme
 	public ResourceLocation getID();
 	public IGuiTexture getTexture(ResourceLocation key);
 	public IGuiLine getLine(ResourceLocation key);
-	public Integer getColor(ResourceLocation key);
+	public IGuiColor getColor(ResourceLocation key);
 }

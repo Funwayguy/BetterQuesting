@@ -4,29 +4,32 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.resources.IGuiLine;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.resources.SimpleLine;
-import betterquesting.api2.client.gui.resources.SlicedTexture;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.lines.SimpleLine;
+import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.core.BetterQuesting;
 
 public class ThemeRegistry
 {
 	public static final ThemeRegistry INSTANCE = new ThemeRegistry();
-	private static final IGuiTexture NULL_TEXTURE = new SlicedTexture(new ResourceLocation(BetterQuesting.MODID, "textures/gui/null_texture.png"), new GuiRectangle(0,0,32,32), new GuiPadding(8,8,8,8));
+	private static final IGuiTexture NULL_TEXTURE = new SlicedTexture(PresetTexture.TX_NULL, new GuiRectangle(0,0,32,32), new GuiPadding(8,8,8,8));
 	private static final IGuiLine NULL_LINE = new SimpleLine();
+	private static final IGuiColor NULL_COLOR = new GuiColorStatic(Color.BLACK);
 	
 	private final HashMap<ResourceLocation, IGuiTexture> defTextures = new HashMap<ResourceLocation, IGuiTexture>();
 	private final HashMap<ResourceLocation, IGuiLine> defLines = new HashMap<ResourceLocation, IGuiLine>();
-	private final HashMap<ResourceLocation, Integer> defColors = new HashMap<ResourceLocation, Integer>();
+	private final HashMap<ResourceLocation, IGuiColor> defColors = new HashMap<ResourceLocation, IGuiColor>();
 	
 	private final HashMap<ResourceLocation, IGuiTheme> themes = new HashMap<ResourceLocation, IGuiTheme>();
 	private IGuiTheme activeTheme = null;
@@ -89,7 +92,7 @@ public class ThemeRegistry
 	/**
 	 * Sets the default fallback texture. Only use if you're defining your own custom texture ID
 	 */
-	public void setDefaultColor(ResourceLocation key, int color)
+	public void setDefaultColor(ResourceLocation key, IGuiColor color)
 	{
 		if(defTextures.containsKey(key))
 		{
@@ -169,14 +172,14 @@ public class ThemeRegistry
 		return line == null? NULL_LINE : line;
 	}
 	
-	public int getColor(ResourceLocation key)
+	public IGuiColor getColor(ResourceLocation key)
 	{
 		if(key == null)
 		{
-			return Color.BLACK.getRGB();
+			return NULL_COLOR;
 		}
 		
-		Integer color = null;
+		IGuiColor color = null;
 		
 		// TODO: Remove this when fully converted...
 		ITheme legTheme = betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme();
@@ -193,7 +196,7 @@ public class ThemeRegistry
 		
 		color = color != null ? color : defColors.get(key);
 		
-		return color == null? Color.BLACK.getRGB() : color;
+		return color == null? NULL_COLOR : color;
 	}
 	
 	public List<IGuiTheme> getAllThemes()

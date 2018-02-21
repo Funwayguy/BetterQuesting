@@ -2,7 +2,7 @@ package betterquesting.api2.client.gui.panels;
 
 import net.minecraft.client.renderer.GlStateManager;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 
 public class CanvasTextured extends CanvasEmpty
 {

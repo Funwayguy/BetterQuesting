@@ -6,7 +6,8 @@ import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.resources.IGuiLine;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 
@@ -18,7 +19,7 @@ public class PanelLinePreview implements IGuiPanel
 	private final IGuiRect bounds;
 	
 	private final IGuiLine[] lines;
-	private final PresetColor[] colors = new PresetColor[4];
+	private final IGuiColor[] colors = new IGuiColor[4];
 	
 	private final IGuiRect start;
 	private final IGuiRect end;
@@ -40,10 +41,10 @@ public class PanelLinePreview implements IGuiPanel
 			PresetLine.QUEST_COMPLETE.getLine()
 		};
 		
-		this.colors[0] = PresetColor.QUEST_LINE_LOCKED;
-		this.colors[1] = PresetColor.QUEST_LINE_UNLOCKED;
-		this.colors[2] = PresetColor.QUEST_LINE_PENDING;
-		this.colors[3] = PresetColor.QUEST_LINE_COMPLETE;
+		this.colors[0] = PresetColor.QUEST_LINE_LOCKED.getColor();
+		this.colors[1] = PresetColor.QUEST_LINE_UNLOCKED.getColor();
+		this.colors[2] = PresetColor.QUEST_LINE_PENDING.getColor();
+		this.colors[3] = PresetColor.QUEST_LINE_COMPLETE.getColor();
 	}
 	
 	@Override
@@ -61,7 +62,7 @@ public class PanelLinePreview implements IGuiPanel
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		int i = (int)(System.currentTimeMillis() / 1000L) % 4;
-		lines[i].drawLine(start, end, width, colors[i].getColor(), partialTick);
+		lines[i].drawLine(start, end, width, colors[i], partialTick);
 	}
 	
 	@Override

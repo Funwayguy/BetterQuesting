@@ -1,7 +1,8 @@
 package betterquesting.api2.client.gui.panels.content;
 
-import java.awt.Color;
 import java.util.List;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.math.MathHelper;
@@ -16,7 +17,7 @@ public class PanelTextBox implements IGuiPanel
 	
 	private String text = "";
 	private boolean shadow = false;
-	private int color = Color.BLACK.getRGB();
+	private IGuiColor color = new GuiColorStatic(255, 255, 255, 255);
 	private boolean autoFit = false;
 	private int align = 0;
 	
@@ -49,7 +50,7 @@ public class PanelTextBox implements IGuiPanel
 		return this;
 	}
 	
-	public PanelTextBox setColor(int color)
+	public PanelTextBox setColor(IGuiColor color)
 	{
 		this.color = color;
 		return this;
@@ -108,13 +109,13 @@ public class PanelTextBox implements IGuiPanel
 		
 		if(align == 2 && bw >= w)
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
 		} else if(align == 1 && bw >= w)
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth()/2 - w/2, bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth()/2 - w/2, bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
 		} else
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
 		}
 	}
 	
