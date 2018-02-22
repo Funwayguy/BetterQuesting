@@ -87,7 +87,7 @@ public class LegacyThemeWrapper implements IGuiTheme
 	@Override
 	public IGuiColor getColor(ResourceLocation key)
 	{
-		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()) || key.equals(PresetColor.TEXT_AUX_1.getKey()))
+		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()) || key.equals(PresetColor.TEXT_AUX_1.getKey()) || key.equals(PresetColor.GUI_DIVIDER.getKey()))
 		{
 			return this.color;
 		}

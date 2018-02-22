@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.panels.content;
 
 import java.util.List;
 
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiAlign;
@@ -17,19 +18,22 @@ public class PanelLine implements IGuiPanel
 	/**
 	 * Bounds aren't used in the drawing of the line, merely for determining draw order
 	 */
-	private final IGuiRect bounds = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0);
+	private final IGuiRect bounds;
 	private final IGuiLine line;
 	private final IGuiRect start;
 	private final IGuiRect end;
 	
-	private ResourceLocation color;
+	private IGuiColor color;
 	private int width = 1;
 	
-	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, ResourceLocation color)
+	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder)
 	{
 		this.start = start;
 		this.end = end;
 		this.line = line;
+		this.width = width;
+		this.color = color;
+		this.bounds = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), drawOrder);
 	}
 	
 	@Override
@@ -47,8 +51,7 @@ public class PanelLine implements IGuiPanel
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1F, 1F, 1F, 1F);
-		line.drawLine(start, end, width, ThemeRegistry.INSTANCE.getColor(color), partialTick);
+		line.drawLine(start, end, width, color, partialTick);
 		GlStateManager.popMatrix();
 	}
 	

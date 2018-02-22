@@ -125,7 +125,8 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(this.parent);
 		} else if(btn.getButtonID() == 1) // Quests
 		{
-			mc.displayGuiScreen(new GuiQuestLinesMain(this));
+			//mc.displayGuiScreen(new GuiQuestLinesMain(this));
+			mc.displayGuiScreen(new GuiQuestLines(this));
 		} else if(btn.getButtonID() == 2) // Party
 		{
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.player));

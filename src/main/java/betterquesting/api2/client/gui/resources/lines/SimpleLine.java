@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.resources.lines;
 
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -18,7 +19,7 @@ public class SimpleLine implements IGuiLine
 	public SimpleLine(int stippleScale, short stipplePattern)
 	{
 		this.pattern = stipplePattern;
-		this.scale = 1;
+		this.scale = stippleScale;
 	}
 	
 	@Override
@@ -32,8 +33,8 @@ public class SimpleLine implements IGuiLine
 		GL11.glLineStipple(scale, pattern);
 		
 		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2f(start.getX() + start.getWidth() / 2, start.getY() + start.getHeight() / 2);
-		GL11.glVertex2f(end.getX() + end.getWidth() / 2, end.getY() + end.getHeight() / 2);
+		GL11.glVertex2f(start.getX() + start.getWidth() / 2F, start.getY() + start.getHeight() / 2F);
+		GL11.glVertex2f(end.getX() + end.getWidth() / 2F, end.getY() + end.getHeight() / 2F);
 		GL11.glEnd();
 		
 		GL11.glLineStipple(1, (short)0xFFFF);

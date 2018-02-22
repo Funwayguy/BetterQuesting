@@ -3,8 +3,11 @@ package betterquesting.client.gui2;
 import java.util.List;
 
 import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
+import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -18,10 +21,6 @@ import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.misc.GuiAlign;
-import betterquesting.api2.client.gui.misc.GuiPadding;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
@@ -117,6 +116,13 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		preCanIn2.addPanel(new PanelLinePreview(pqp.getTransform(), itemFrame.getTransform(), 4, 1));
 		
 		preCanIn2.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_1.getColor()));
+		
+		IGuiRect ls0 = new GuiTransform(GuiAlign.TOP_CENTER, 0, 16, 0, 0, 0);
+		ls0.setParent(inCan.getTransform());
+		IGuiRect le0 = new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 0, 0, 0);
+		le0.setParent(inCan.getTransform());
+		PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
+		inCan.addPanel(paLine0);
 		
 		
 	}
