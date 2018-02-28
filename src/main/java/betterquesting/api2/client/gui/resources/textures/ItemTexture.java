@@ -4,6 +4,8 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,6 +14,8 @@ import net.minecraft.util.ResourceLocation;
 // Wrapper to allow embedding items into panels as IGuiTextures
 public class ItemTexture implements IGuiTexture
 {
+    private static final IGuiColor defColor = new GuiColorStatic(255, 255, 255, 255);
+    
     private final BigItemStack stack;
     private final boolean showCount;
     private final boolean keepAspect;
@@ -34,7 +38,13 @@ public class ItemTexture implements IGuiTexture
     }
     
     @Override
-    public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick)
+    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick)
+    {
+        drawTexture(x, y, width, height, zLevel, partialTick, defColor);
+    }
+    
+    @Override
+    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
     {
         float sx = width/16F;
         float sy = height/16F;
@@ -55,9 +65,9 @@ public class ItemTexture implements IGuiTexture
         
         GlStateManager.pushMatrix();
         
-        GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.translate(x + dx, y + dy, 0);
         GlStateManager.scale(sx, sy, 1F);
+        color.applyGlColor();
         
         RenderUtils.RenderItemStack(Minecraft.getMinecraft(), stack.getBaseStack(), 0, 0, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "");
         

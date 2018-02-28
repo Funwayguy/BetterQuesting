@@ -1,6 +1,8 @@
 package betterquesting.api2.client.gui.controls;
 
 import java.util.List;
+
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import org.lwjgl.input.Mouse;
@@ -11,7 +13,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -23,6 +24,7 @@ public class PanelButton implements IPanelButton
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
 	private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
 	private IGuiTexture texIcon = null;
+	private int icoPadding = 0;
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText = "";
@@ -65,7 +67,13 @@ public class PanelButton implements IPanelButton
 	
 	public PanelButton setIcon(IGuiTexture icon)
 	{
+		return this.setIcon(icon, 0);
+	}
+	
+	public PanelButton setIcon(IGuiTexture icon, int padding)
+	{
 		this.texIcon = icon;
+		this.icoPadding = padding * 2;
 		return this;
 	}
 	
@@ -141,8 +149,12 @@ public class PanelButton implements IPanelButton
 		
 		if(texIcon != null)
 		{
-			int isz = Math.min(bounds.getHeight(), bounds.getWidth());
-			texIcon.drawTexture(bounds.getX() + (bounds.getWidth()/2) - (isz/2), bounds.getY() + (bounds.getHeight()/2) - (isz/2), isz, isz, 0F, partialTick);
+			int isz = Math.min(bounds.getHeight() - icoPadding, bounds.getWidth()- icoPadding);
+			
+			if(isz > 0)
+			{
+				texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick);
+			}
 		}
 		
 		if(btnText != null && btnText.length() > 0)

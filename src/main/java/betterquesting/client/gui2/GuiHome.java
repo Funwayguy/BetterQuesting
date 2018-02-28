@@ -1,6 +1,8 @@
 package betterquesting.client.gui2;
 
 import java.util.Arrays;
+
+import betterquesting.api.api.ApiReference;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -39,14 +41,6 @@ import betterquesting.storage.QuestSettings;
 
 public class GuiHome extends GuiScreenCanvas implements IPEventListener
 {
-	private ResourceLocation homeGui;
-	private IGuiTexture homeSplashBG;
-	private IGuiTexture homeSplashTitle;
-	private float ancX = 0.5F;
-	private float ancY = 0.5F;
-	private int offX = 0;
-	private int offY = 0;
-	
 	public GuiHome(GuiScreen parent)
 	{
 		super(parent);
@@ -59,13 +53,13 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 		
-		homeGui = new ResourceLocation(QuestSettings.INSTANCE.getProperty(NativeProps.HOME_IMAGE));
-		homeSplashBG = new SimpleTexture(homeGui, new GuiRectangle(0, 0, 256, 128));
-		homeSplashTitle = new SimpleTexture(homeGui, new GuiRectangle(0, 128, 256, 128)).maintainAspect(true);
-		ancX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_X);
-		ancY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_Y);
-		offX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_X);
-		offY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_Y);
+		ResourceLocation homeGui = new ResourceLocation(QuestSettings.INSTANCE.getProperty(NativeProps.HOME_IMAGE));
+		IGuiTexture homeSplashBG = new SimpleTexture(homeGui, new GuiRectangle(0, 0, 256, 128));
+		IGuiTexture homeSplashTitle = new SimpleTexture(homeGui, new GuiRectangle(0, 128, 256, 128)).maintainAspect(true);
+		float ancX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_X);
+		float ancY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_Y);
+		int offX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_X);
+		int offY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_Y);
 		
 		// Background panel
 		CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -80,27 +74,22 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		CanvasTextured splashTitle = new CanvasTextured(new GuiTransform(new Vector4f(ancX, ancY, ancX, ancY), new GuiPadding(offX, offY, -256 - offX, -128 - offY), 0), homeSplashTitle);
 		splashCan.addPanel(splashTitle);
 		
-		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, "Exit");//.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
-		btnExit.setTooltip(Arrays.asList(new String[]{I18n.format("betterquesting.home.exit")}));
+		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, "Exit");
+		btnExit.setTooltip(Arrays.asList(I18n.format("betterquesting.home.exit")));
 		inCan.addPanel(btnExit);
 		
-		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, "Quests");//.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
+		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, "Quests");
 		inCan.addPanel(btnQuests);
-		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, "Party");//.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
+		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, "Party");
 		inCan.addPanel(btnParty);
-		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, "Theme");//.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_CLEAN_2));
+		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, "Theme");
 		inCan.addPanel(btnTheme);
 		
-		PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, new GuiPadding(0, 0, -16, -16), 0), 4, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
-		inCan.addPanel(btnEdit);
-	}
-	
-	@Override
-	public void drawPanel(int mx, int my, float partialTick)
-	{
-		//this.drawDefaultBackground();
-		
-		super.drawPanel(mx, my, partialTick);
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).getProperty(NativeProps.EDIT_MODE))
+		{
+			PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, new GuiPadding(0, 0, -16, -16), 0), 4, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
+			inCan.addPanel(btnEdit);
+		}
 	}
 	
 	@Override

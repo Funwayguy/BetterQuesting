@@ -22,7 +22,7 @@ public class PanelGeneric implements IGuiPanel
     
     public PanelGeneric(IGuiRect rect, IGuiTexture texture)
     {
-        this(rect, texture, new GuiColorStatic(255, 255, 255, 255));
+        this(rect, texture, null);
     }
     
     public PanelGeneric(IGuiRect rect, IGuiTexture texture, IGuiColor color)
@@ -54,8 +54,15 @@ public class PanelGeneric implements IGuiPanel
         if(texture != null)
         {
             GlStateManager.pushMatrix();
-            color.applyGlColor();
-            texture.drawTexture(transform.getX(), transform.getY(), transform.getWidth(), transform.getHeight(), 0F, partialTick);
+            
+            if(color != null)
+            {
+                texture.drawTexture(transform.getX(), transform.getY(), transform.getWidth(), transform.getHeight(), 0F, partialTick, color);
+            } else
+            {
+                texture.drawTexture(transform.getX(), transform.getY(), transform.getWidth(), transform.getHeight(), 0F, partialTick);
+            }
+            
             GlStateManager.popMatrix();
         }
     }

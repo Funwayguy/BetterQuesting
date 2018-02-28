@@ -1,5 +1,7 @@
 package betterquesting.api2.client.gui.resources.textures;
 
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -9,6 +11,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 
 public class SimpleTexture implements IGuiTexture
 {
+	private static final IGuiColor defColor = new GuiColorStatic(255, 255, 255, 255);
+	
 	private final ResourceLocation texture;
 	private final IGuiRect texBounds;
 	private boolean maintainAspect = false;
@@ -27,6 +31,12 @@ public class SimpleTexture implements IGuiTexture
 	
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick)
+	{
+		drawTexture(x, y, width, height, zLevel, partialTick, defColor);
+	}
+	
+	@Override
+	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
 	{
 		GlStateManager.pushMatrix();
 		
@@ -47,6 +57,7 @@ public class SimpleTexture implements IGuiTexture
 		}
 		
 		GlStateManager.scale(sx, sy, 1F);
+		color.applyGlColor();
 		
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);

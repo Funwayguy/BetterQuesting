@@ -1,5 +1,7 @@
 package betterquesting.api2.client.gui.resources.textures;
 
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -13,6 +15,8 @@ import com.google.gson.JsonObject;
 
 public class SlicedTexture implements IGuiTexture
 {
+	private static final IGuiColor defColor = new GuiColorStatic(255, 255, 255, 255);
+	
 	private final ResourceLocation texture;
 	private final IGuiRect texBounds;
 	private final GuiPadding texBorder;
@@ -28,7 +32,14 @@ public class SlicedTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick)
 	{
+		drawTexture(x, y, width, height, zLevel, partialTick, defColor);
+	}
+	
+	@Override
+	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
+	{
 		GlStateManager.pushMatrix();
+		color.applyGlColor();
 		
 		if(sliceMode == SliceMode.SLICED_TILE)
 		{

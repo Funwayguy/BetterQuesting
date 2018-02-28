@@ -6,7 +6,14 @@ import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
+import betterquesting.api2.client.gui.resources.colors.GuiColorSequence;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.lines.GuiLineSequence;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
+import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
@@ -73,7 +80,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		{
 			GuiRectangle trans = new GuiRectangle(0, i * 24, width, 24, 0);
 			ITheme theme = themes.get(i);
-			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<ResourceLocation>(trans, 1, theme.getDisplayName(), theme.getThemeID());
+			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, 1, theme.getDisplayName(), theme.getThemeID());
 			canScroll.addPanel(pbs);
 			
 			if(betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
@@ -106,14 +113,29 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		CanvasTextured preCanIn2 = new CanvasTextured(new GuiTransform(GuiAlign.HALF_BOTTOM, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.AUX_FRAME_0.getTexture());
 		preCan.addPanel(preCanIn2);
 		
-		PanelQuestPreview pqp = new PanelQuestPreview(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0));
+		IGuiTexture icoSlides = new SlideShowTexture(1F,
+				new GuiTextureColored(PresetTexture.QUEST_NORM_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_NORM_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_NORM_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_NORM_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_MAIN_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_MAIN_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_MAIN_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_MAIN_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_AUX_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_AUX_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_AUX_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_AUX_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()));
+		PanelGeneric pqp = new PanelGeneric(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0), icoSlides);
 		preCanIn2.addPanel(pqp);
 		
 		CanvasTextured itemFrame = new CanvasTextured(new GuiTransform(new Vector4f(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), PresetTexture.ITEM_FRAME.getTexture());
 		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook))));
 		preCanIn2.addPanel(itemFrame);
 		
-		preCanIn2.addPanel(new PanelLinePreview(pqp.getTransform(), itemFrame.getTransform(), 4, 1));
+		IGuiLine linSeq = new GuiLineSequence(1F, PresetLine.QUEST_LOCKED.getLine(), PresetLine.QUEST_UNLOCKED.getLine(), PresetLine.QUEST_PENDING.getLine(), PresetLine.QUEST_COMPLETE.getLine());
+		IGuiColor colSeq = new GuiColorSequence(1F, PresetColor.QUEST_LINE_LOCKED.getColor(), PresetColor.QUEST_LINE_UNLOCKED.getColor(), PresetColor.QUEST_LINE_PENDING.getColor(), PresetColor.QUEST_LINE_COMPLETE.getColor());
+		preCanIn2.addPanel(new PanelLine(pqp.getTransform(), itemFrame.getTransform(), linSeq, 4, colSeq, 1));
 		
 		preCanIn2.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_1.getColor()));
 		
@@ -133,7 +155,9 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		if(event == null)
 		{
 			return;
-		} else if(PEventButton.class.isAssignableFrom(event.getClass()))
+		}
+		
+		if(PEventButton.class.isAssignableFrom(event.getClass()))
 		{
 			onButtonPress((PEventButton)event);
 		}

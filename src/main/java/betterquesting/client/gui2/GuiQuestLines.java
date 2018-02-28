@@ -21,6 +21,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.GuiQuestLinesMain;
+import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -50,7 +51,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
         
-        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, "Back"));
+        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, "Back"));
+        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, "Edit"));
     
         CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -136, 16), 0));
         cvBackground.addPanel(cvList);
@@ -70,7 +72,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             
             if(ql == selectedLine)
             {
-                btnLine.setEnabled(false);
+                //btnLine.setEnabled(false);
             }
             
             cvList.addPanel(btnLine);
@@ -142,6 +144,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
             GuiQuestLinesMain.bookmarked = new GuiQuestInstance(this, quest);
             mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+        } else if(btn.getButtonID() == 3)
+        {
+            mc.displayGuiScreen(new GuiQuestLineEditorA(this));
         }
     }
 }
