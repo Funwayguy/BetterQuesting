@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -48,8 +51,23 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
-		transform.w = this.width;
-		transform.h = this.height;
+		int marginX = 16;
+		int marginY = 16;
+		
+		if(BQ_Settings.guiWidth > 0)
+		{
+			marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+		}
+		
+		if(BQ_Settings.guiHeight > 0)
+		{
+			marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+		}
+		
+		transform.x = marginX;
+		transform.y = marginY;
+		transform.w = this.width - marginX * 2;
+		transform.h = this.height - marginY * 2;
 		
 		this.getAllPanels().clear();
 		

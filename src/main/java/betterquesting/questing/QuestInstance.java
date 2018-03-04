@@ -1058,4 +1058,43 @@ public class QuestInstance implements IQuest
 		
 		tasks.readFromNBT(json.getTagList("tasks", 10), EnumSaveType.PROGRESS);
 	}
+	
+	/**
+	 * Temporary hack to make this a thing for users
+	 */
+	public void setClaimed(UUID uuid, long timestamp)
+	{
+		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
+		
+		if(party == null)
+		{
+			UserEntry entry = this.GetUserEntry(uuid);
+			
+			if(entry != null)
+			{
+				entry.setClaimed(true, timestamp);
+			} else
+			{
+				entry = new UserEntry(uuid, timestamp);
+				entry.setClaimed(true, timestamp);
+				completeUsers.add(entry);
+			}
+		} else
+		{
+			for(UUID mem : party.getMembers())
+			{
+				UserEntry entry = this.GetUserEntry(mem);
+				
+				if(entry != null)
+				{
+					entry.setClaimed(true, timestamp);
+				} else
+				{
+					entry = new UserEntry(mem, timestamp);
+					entry.setClaimed(true, timestamp);
+					completeUsers.add(entry);
+				}
+			}
+		}
+	}
 }

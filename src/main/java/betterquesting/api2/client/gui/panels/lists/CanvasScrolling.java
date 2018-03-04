@@ -193,14 +193,14 @@ public class CanvasScrolling implements IGuiCanvas
 					hasDragged = true;
 				}
 			}
+			
+			if(lsx != getScrollX() || lsy != getScrollY())
+			{
+				this.updatePanelScroll();
+			}
 		} else if(hasDragged)
 		{
 			hasDragged = false;
-		}
-		
-		if(lsx != getScrollX() || lsy != getScrollY())
-		{
-			this.updatePanelScroll();
 		}
 		
 		GlStateManager.pushMatrix();
@@ -214,8 +214,8 @@ public class CanvasScrolling implements IGuiCanvas
 		GlStateManager.translate(tx - lsx * zs, ty - lsy * zs, 0F);
 		GlStateManager.scale(zs, zs, 1F);
 		
-		int smx = (int)((mx - tx + lsx) / zs);
-		int smy = (int)((my - ty + lsy) / zs);
+		int smx = (int)((mx - tx) / zs) + lsx;
+		int smy = (int)((my - ty) / zs) + lsy;
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
 		for(IGuiPanel panel : tmp)
@@ -238,8 +238,8 @@ public class CanvasScrolling implements IGuiCanvas
 		float zs = zoomScale.readValue();
 		int tx = transform.getX();
 		int ty = transform.getY();
-		int smx = (int)((mx - tx + lsx) / zs);
-		int smy = (int)((my - ty + lsy) / zs);
+		int smx = (int)((mx - tx) / zs) + lsx;
+		int smy = (int)((my - ty) / zs) + lsy;
 		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
@@ -282,8 +282,8 @@ public class CanvasScrolling implements IGuiCanvas
 			float zs = zoomScale.readValue();
 			int tx = transform.getX();
 			int ty = transform.getY();
-			int smx = (int)((mx - tx + lsx) / zs);
-			int smy = (int)((my - ty + lsy) / zs);
+			int smx = (int)((mx - tx) / zs) + lsx;
+			int smy = (int)((my - ty) / zs) + lsy;
 			
 			List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 			Collections.reverse(tmp);
@@ -323,8 +323,8 @@ public class CanvasScrolling implements IGuiCanvas
 		float zs = zoomScale.readValue();
 		int tx = transform.getX();
 		int ty = transform.getY();
-		int smx = (int)((mx - tx + lsx) / zs);
-		int smy = (int)((my - ty + lsy) / zs);
+		int smx = (int)((mx - tx) / zs) + lsx;
+		int smy = (int)((my - ty) / zs) + lsy;
 		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
@@ -390,8 +390,8 @@ public class CanvasScrolling implements IGuiCanvas
 		float zs = zoomScale.readValue();
 		int tx = transform.getX();
 		int ty = transform.getY();
-		int smx = (int)((mx - tx + lsx) / zs);
-		int smy = (int)((my - ty + lsy) / zs);
+		int smx = (int)((mx - tx) / zs) + lsx;
+		int smy = (int)((my - ty) / zs) + lsy;
 		
 		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		Collections.reverse(tmp);
@@ -437,7 +437,7 @@ public class CanvasScrolling implements IGuiCanvas
 		return b;
 	}
 	
-	private void refreshScrollBounds()
+	public void refreshScrollBounds()
 	{
 		boolean first = true;
 		int left = 0;
@@ -491,7 +491,7 @@ public class CanvasScrolling implements IGuiCanvas
 		updatePanelScroll();
 	}
 	
-	private void updatePanelScroll()
+	public void updatePanelScroll()
 	{
 		lsx = this.getScrollX();
 		lsy = this.getScrollY();

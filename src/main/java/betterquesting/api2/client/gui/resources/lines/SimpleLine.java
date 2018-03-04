@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui.resources.lines;
 
-import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;

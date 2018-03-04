@@ -84,12 +84,6 @@ public class GuiRectangle implements IGuiRect
 		this.y += dy;
 	}
 	
-	/*@Override
-	public IGuiRect relative(IGuiRect frame)
-	{
-		return new GuiRectangle(x + frame.getX(), y + frame.getY(), frame.getWidth(), frame.getHeight());
-	}*/
-	
 	@Override
 	public int compareTo(IGuiRect o)
 	{

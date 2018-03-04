@@ -80,21 +80,28 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			if(data.getBoolean("state"))
 			{
 				UUID senderID = QuestingAPI.getQuestingUUID(sender);
+				boolean com = quest.isComplete(senderID);
 				
-				quest.setComplete(senderID, 0);
-				
-				int done = 0;
-				
-				if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
+				if(com && quest instanceof QuestInstance)
 				{
-					for(ITask task : quest.getTasks().getAllValues())
+					((QuestInstance)quest).setClaimed(senderID, 0);
+				} else
+				{
+					quest.setComplete(senderID, 0);
+					
+					int done = 0;
+					
+					if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 					{
-						task.setComplete(senderID);
-						done += 1;
-						
-						if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
+						for(ITask task : quest.getTasks().getAllValues())
 						{
-							break; // Only complete enough quests to claim the reward
+							task.setComplete(senderID);
+							done += 1;
+							
+							if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
+							{
+								break; // Only complete enough quests to claim the reward
+							}
 						}
 					}
 				}

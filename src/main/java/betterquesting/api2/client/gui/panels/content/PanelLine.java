@@ -2,16 +2,11 @@ package betterquesting.api2.client.gui.panels.content;
 
 import java.util.List;
 
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api2.client.gui.misc.GuiAlign;
-import betterquesting.api2.client.gui.misc.GuiPadding;
-import betterquesting.api2.client.gui.misc.GuiTransform;
-import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
 
 public class PanelLine implements IGuiPanel
 {
@@ -22,9 +17,8 @@ public class PanelLine implements IGuiPanel
 	private final IGuiLine line;
 	private final IGuiRect start;
 	private final IGuiRect end;
-	
-	private IGuiColor color;
-	private int width = 1;
+	private final IGuiColor color;
+	private final int width;
 	
 	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder)
 	{
@@ -33,7 +27,8 @@ public class PanelLine implements IGuiPanel
 		this.line = line;
 		this.width = width;
 		this.color = color;
-		this.bounds = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), drawOrder);
+		this.bounds = new GuiRectangle(0, 0, 0, 0, drawOrder);
+		this.bounds.setParent(start);
 	}
 	
 	@Override
@@ -84,5 +79,4 @@ public class PanelLine implements IGuiPanel
 	{
 		return null;
 	}
-	
 }

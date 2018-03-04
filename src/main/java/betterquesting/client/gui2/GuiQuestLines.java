@@ -1,5 +1,7 @@
 package betterquesting.client.gui2;
 
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -12,10 +14,10 @@ import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
+import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -26,14 +28,15 @@ import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-
 import java.util.List;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
 {
     private IQuestLine selectedLine = null;
     
+    private PanelButtonStorage[] qlBtns;
     private CanvasQuestLine cvQuest;
+    private CanvasScrolling cvDesc;
     private PanelTextBox paDesc;
     
     public GuiQuestLines(GuiScreen parent)
@@ -48,64 +51,83 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         
-        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
-        
-        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, "Back"));
-        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, "Edit"));
+    
+        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
+        {
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, I18n.format("gui.back")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, I18n.format("betterquesting.btn.edit")));
+        } else
+        {
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, I18n.format("gui.back")));
+        }
     
         CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -136, 16), 0));
         cvBackground.addPanel(cvList);
-        
-        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(152, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
-        cvBackground.addPanel(cvFrame);
-        
-        cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
-        cvFrame.addPanel(cvQuest);
+        PanelVScrollBar pnQScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(136, 16, -144, 16), 0));
+        cvList.setScrollDriverY(pnQScroll);
+        cvBackground.addPanel(pnQScroll);
     
         List<IQuestLine> lineList = QuestLineDatabase.INSTANCE.getAllValues();
+        this.qlBtns = new PanelButtonStorage[lineList.size()];
     
         for(int i = 0; i < lineList.size(); i++)
         {
             IQuestLine ql = lineList.get(i);
-            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<IQuestLine>(new GuiRectangle(0, i * 16, 120, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
+            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 120, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
             
             if(ql == selectedLine)
             {
-                //btnLine.setEnabled(false);
+                btnLine.setEnabled(false);
             }
             
             cvList.addPanel(btnLine);
+            qlBtns[i] = btnLine;
         }
+    
+        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(160, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
+        cvBackground.addPanel(cvFrame);
+    
+        cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
+        cvFrame.addPanel(cvQuest);
+        cvQuest.setQuestLine(selectedLine);
         
-        paDesc = new PanelTextBox(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(152, -66, 16, 16), 0), "");
+        cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(160, -66, 24, 16), 0));
+        cvBackground.addPanel(cvDesc);
+        
+        paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0, 0), "", true);
         paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
-        cvBackground.addPanel(paDesc);
+        cvDesc.addPanel(paDesc);
+    
+        PanelVScrollBar scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-24, -66, 16, 16), 0));
+        cvDesc.setScrollDriverY(scDesc);
+        cvBackground.addPanel(scDesc);
         
         // === DECORATIVE LINES ===
     
         IGuiRect ls0 = new GuiTransform(GuiAlign.TOP_LEFT, 16, 16, 0, 0, 0);
         ls0.setParent(cvBackground.getTransform());
-        IGuiRect le0 = new GuiTransform(GuiAlign.TOP_LEFT, 136, 16, 0, 0, 0);
+        IGuiRect le0 = new GuiTransform(GuiAlign.TOP_LEFT, 144, 16, 0, 0, 0);
         le0.setParent(cvBackground.getTransform());
         PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), -1);
         cvBackground.addPanel(paLine0);
         
         IGuiRect ls1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 16, -16, 0, 0, 0);
         ls1.setParent(cvBackground.getTransform());
-        IGuiRect le1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 136, -16, 0, 0, 0);
+        IGuiRect le1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 144, -16, 0, 0, 0);
         le1.setParent(cvBackground.getTransform());
         PanelLine paLine1 = new PanelLine(ls1, le1, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
         cvBackground.addPanel(paLine1);
     
-        IGuiRect ls2 = new GuiTransform(GuiAlign.TOP_LEFT, 144, 16, 0, 0, 0);
+        IGuiRect ls2 = new GuiTransform(GuiAlign.TOP_LEFT, 152, 16, 0, 0, 0);
         ls2.setParent(cvBackground.getTransform());
-        IGuiRect le2 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 144, -16, 0, 0, 0);
+        IGuiRect le2 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 152, -16, 0, 0, 0);
         le2.setParent(cvBackground.getTransform());
         PanelLine paLine2 = new PanelLine(ls2, le2, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
         cvBackground.addPanel(paLine2);
     
-        IGuiRect ls3 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 152, -16, 0, 0, 0);
+        IGuiRect ls3 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 160, -16, 0, 0, 0);
         ls3.setParent(cvBackground.getTransform());
         IGuiRect le3 = new GuiTransform(GuiAlign.BOTTOM_RIGHT, -16, -16, 0, 0, 0);
         le3.setParent(cvBackground.getTransform());
@@ -137,7 +159,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             selectedLine = ql;
             cvQuest.setQuestLine(ql);
             paDesc.setText(I18n.format(ql.getUnlocalisedDescription()));
-            btn.setEnabled(false) ;
+            cvDesc.refreshScrollBounds();
+            
+            for(PanelButtonStorage b : qlBtns)
+            {
+                b.setEnabled(true);
+            }
+            
+            btn.setEnabled(false);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select
         {
             @SuppressWarnings("unchecked")
