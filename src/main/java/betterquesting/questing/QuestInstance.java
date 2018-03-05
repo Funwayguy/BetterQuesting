@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -561,13 +563,15 @@ public class QuestInstance implements IQuest
 	@Override
 	public List<String> getTooltip(EntityPlayer player)
 	{
-		if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+		List<String> tooltip = this.getStandardTooltip(player);
+		
+		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips)
 		{
-			return this.getAdvancedTooltip(player);
-		} else
-		{
-			return this.getStandardTooltip(player);
+			tooltip.add("");
+			tooltip.addAll(this.getAdvancedTooltip(player));
 		}
+		
+		return tooltip;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -575,7 +579,7 @@ public class QuestInstance implements IQuest
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.format(getUnlocalisedName()));
+		list.add(I18n.format(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getKey(this))));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
@@ -630,8 +634,6 @@ public class QuestInstance implements IQuest
 			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, tasks.size()));
 		}
 		
-		list.add(TextFormatting.DARK_GRAY + I18n.format("betterquesting.tooltip.shift_advanced"));
-		
 		return list;
 	}
 	
@@ -640,7 +642,7 @@ public class QuestInstance implements IQuest
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.format(getUnlocalisedName()) + " #" + parentDB.getKey(this));
+		//list.add(I18n.format(getUnlocalisedName()) + " #" + parentDB.getKey(this));
 		
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
 		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));

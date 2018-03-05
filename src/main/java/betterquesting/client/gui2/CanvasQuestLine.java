@@ -25,7 +25,9 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,8 @@ public class CanvasQuestLine extends CanvasScrolling
             return;
         }
         
-        UUID pid = QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player);
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        UUID pid = QuestingAPI.getQuestingUUID(player);
         
         String bgString = line.getProperties().getProperty(NativeProps.BG_IMAGE);
         
@@ -71,6 +74,13 @@ public class CanvasQuestLine extends CanvasScrolling
             int bgSize = line.getProperties().getProperty(NativeProps.BG_SIZE);
             this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize), new SimpleTexture(bgRes, new GuiRectangle(0, 0, 256, 256))));
         }
+        
+        // Used later to center focus the quest line within the window
+        boolean flag = false;
+        int minX = 0;
+        int minY = 0;
+        int maxX = 0;
+        int maxY = 0;
         
         HashMap<Integer, PanelButtonStorage<IQuest>> questBtns = new HashMap<>();
         
@@ -113,9 +123,25 @@ public class CanvasQuestLine extends CanvasScrolling
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
             paBtn.setTextures(new GuiTextureColored(txFrame, txIconCol), new GuiTextureColored(txFrame, txIconCol), new GuiTextureColored(txFrame, txIconCol));
             paBtn.setIcon(new ItemTexture(quest.getItemIcon()), 4);
+            paBtn.setTooltip(quest.getTooltip(player));
             
             this.addPanel(paBtn);
             questBtns.put(id, paBtn);
+            
+            if(!flag)
+            {
+                minX = rect.getX();
+                minY = rect.getY();
+                maxX = minX + rect.getWidth();
+                maxY = minY + rect.getHeight();
+                flag = true;
+            } else
+            {
+                minX = Math.min(minX, rect.getX());
+                minY = Math.min(minY, rect.getY());
+                maxX = Math.max(maxX, rect.getX() + rect.getWidth());
+                maxY = Math.max(maxY, rect.getY() + rect.getHeight());
+            }
         }
         
         for(Entry<Integer, PanelButtonStorage<IQuest>> entry : questBtns.entrySet())
@@ -167,6 +193,29 @@ public class CanvasQuestLine extends CanvasScrolling
                 }
             }
         }
+        
+        float frameW = getTransform().getWidth();
+        float frameH = getTransform().getHeight();
+        
+        if(frameW <= 0 || frameH <= 0)
+        {
+            return;
+        }
+        
+        minX -= margin;
+        minY -= margin;
+        maxX += margin;
+        maxY += margin;
+        
+        float scale = Math.min(frameW/(maxX - minX), frameH/(maxY - minY));
+        scale = MathHelper.clamp(scale, 0.25F, 2F);
+        
+        this.setZoom(scale);
+        int scrollX = Math.round((maxX - minX)/2F - (frameW/scale)/2F);
+        int scrollY = Math.round((maxY - minY)/2F - (frameH/scale)/2F);
+        
+        this.setScrollX(scrollX);
+        this.setScrollY(scrollY);
     }
     
     private boolean isQuestShown(IQuest quest, UUID uuid)

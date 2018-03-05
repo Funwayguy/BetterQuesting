@@ -28,18 +28,18 @@ public class CanvasScrolling implements IGuiCanvas
 	private final IGuiRect transform;
 	
 	// Scrolling bounds
-	private GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
-	private boolean extendedScroll = false;
-	private boolean zoomMode = false;
-	private int margin = 0;
+	protected final GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
+	protected boolean extendedScroll = false;
+	protected boolean zoomMode = false;
+	protected int margin = 0;
 	// Scroll and zoom drivers
-	private IValueIO<Float> scrollX;
-	private IValueIO<Float> scrollY;
-	private IValueIO<Float> zoomScale;
+	protected IValueIO<Float> scrollX;
+	protected IValueIO<Float> scrollY;
+	protected IValueIO<Float> zoomScale;
 	
 	private boolean isDragging = false; // Mouse buttons held for dragging
 	private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
-	private int scrollSpeed = 12;
+	protected int scrollSpeed = 12;
 	
 	// Starting drag scroll values
 	private float dragSX = 0;
@@ -141,6 +141,11 @@ public class CanvasScrolling implements IGuiCanvas
 		return this;
 	}
 	
+	public IGuiRect getScrollBounds()
+	{
+		return this.scrollBounds;
+	}
+	
 	public int getScrollX()
 	{
 		return Math.round(scrollBounds.getX() + scrollBounds.getWidth() * scrollX.readValue());
@@ -149,6 +154,39 @@ public class CanvasScrolling implements IGuiCanvas
 	public int getScrollY()
 	{
 		return Math.round(scrollBounds.getY() + scrollBounds.getHeight() * scrollY.readValue());
+	}
+	
+	public float getZoom()
+	{
+		return zoomScale.readValue();
+	}
+	
+	public void setScrollX(int sx)
+	{
+		if(scrollBounds.getWidth() <= 0)
+		{
+			return;
+		}
+		
+		scrollX.writeValue((sx - scrollBounds.getX()) / (float)scrollBounds.getWidth());
+		this.updatePanelScroll();
+	}
+	
+	public void setScrollY(int sy)
+	{
+		if(scrollBounds.getHeight() <= 0)
+		{
+			return;
+		}
+		
+		scrollY.writeValue((sy - scrollBounds.getY()) / (float)scrollBounds.getHeight());
+		this.updatePanelScroll();
+	}
+	
+	public void setZoom(float z)
+	{
+		zoomScale.writeValue(z);
+		this.refreshScrollBounds();
 	}
 	
 	@Override
@@ -387,6 +425,11 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
+		if(!transform.contains(mx, my))
+		{
+			return null;
+		}
+		
 		float zs = zoomScale.readValue();
 		int tx = transform.getX();
 		int ty = transform.getY();

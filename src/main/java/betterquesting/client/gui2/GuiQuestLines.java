@@ -33,6 +33,9 @@ import java.util.List;
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
 {
     private IQuestLine selectedLine = null;
+    private int lastScrollX = 0;
+    private int lastScrollY = 0;
+    private float lastZoom = 1F;
     
     private PanelButtonStorage[] qlBtns;
     private CanvasQuestLine cvQuest;
@@ -91,7 +94,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     
         cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
         cvFrame.addPanel(cvQuest);
-        cvQuest.setQuestLine(selectedLine);
+        
+        if(selectedLine != null)
+        {
+            cvQuest.setQuestLine(selectedLine);
+            cvQuest.setZoom(lastZoom);
+            cvQuest.setScrollX(lastScrollX);
+            cvQuest.setScrollY(lastScrollY);
+        }
         
         cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(160, -66, 24, 16), 0));
         cvBackground.addPanel(cvDesc);
@@ -172,6 +182,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             @SuppressWarnings("unchecked")
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
             GuiQuestLinesMain.bookmarked = new GuiQuestInstance(this, quest);
+            this.lastScrollX = cvQuest.getScrollX();
+            this.lastScrollY = cvQuest.getScrollY();
+            this.lastZoom = cvQuest.getZoom();
+            
             mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
         } else if(btn.getButtonID() == 3)
         {
