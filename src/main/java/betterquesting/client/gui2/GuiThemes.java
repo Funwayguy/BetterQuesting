@@ -153,12 +153,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 	@Override
 	public void onPanelEvent(PanelEvent event)
 	{
-		if(event == null)
-		{
-			return;
-		}
-		
-		if(PEventButton.class.isAssignableFrom(event.getClass()))
+		if(event instanceof PEventButton)
 		{
 			onButtonPress((PEventButton)event);
 		}

@@ -6,10 +6,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector4f;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.ICallback;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -36,8 +37,11 @@ import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
 
+@SideOnly(Side.CLIENT)
 public class GuiHome extends GuiScreenCanvas implements IPEventListener
 {
+	public static GuiScreen bookmark;
+	
 	public GuiHome(GuiScreen parent)
 	{
 		super(parent);
@@ -91,12 +95,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 	@Override
 	public void onPanelEvent(PanelEvent event)
 	{
-		if(event == null)
-		{
-			return;
-		}
-		
-		if(PEventButton.class.isAssignableFrom(event.getClass()))
+		if(event instanceof PEventButton)
 		{
 			onButtonPress((PEventButton)event);
 		}
@@ -129,14 +128,10 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null, new ICallback<NBTTagCompound>()
+			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null, (NBTTagCompound value) ->
 			{
-				@Override
-				public void setValue(NBTTagCompound value)
-				{
-					QuestSettings.INSTANCE.readFromNBT(value, EnumSaveType.CONFIG);
-					PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
-				}
+				QuestSettings.INSTANCE.readFromNBT(value, EnumSaveType.CONFIG);
+				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 			}));
 		}
 	}

@@ -4,12 +4,9 @@ import java.util.Iterator;
 import java.util.UUID;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiGameOver;
-import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -26,8 +23,8 @@ import betterquesting.storage.QuestSettings;
 @SideOnly(Side.CLIENT)
 public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 {
-	ITextComponent causeOfDeath;
-	int lifeCache = -1;
+	private ITextComponent causeOfDeath;
+	private int lifeCache = -1;
     private int cooldown;
     
 	public GuiGameOverBQ(ITextComponent causeOfDeath)
@@ -67,7 +64,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
             if (this.mc.getSession() == null)
             {
-                ((GuiButton)this.buttonList.get(1)).enabled = false;
+                this.buttonList.get(1).enabled = false;
             }
         }
         
@@ -88,7 +85,7 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         {
             case 0:
                 this.mc.player.respawnPlayer();
-                this.mc.displayGuiScreen((GuiScreen)null);
+                this.mc.displayGuiScreen(null);
                 break;
             case 1:
 
@@ -111,13 +108,13 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
         {
             this.mc.world.sendQuittingDisconnectingPacket();
         	// Send a custom BetterQuesting packet
-            this.mc.loadWorld((WorldClient)null);
+            this.mc.loadWorld(null);
             this.mc.displayGuiScreen(new GuiMainMenu());
         }
         else
         {
             this.mc.player.respawnPlayer();
-            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.displayGuiScreen(null);
         }
     }
 
@@ -160,12 +157,12 @@ public class GuiGameOverBQ extends GuiGameOver implements GuiYesNoCallback
 
         for (k = 0; k < this.buttonList.size(); ++k)
         {
-            ((GuiButton)this.buttonList.get(k)).drawButton(this.mc, mx, my, partialTick);
+            this.buttonList.get(k).drawButton(this.mc, mx, my, partialTick);
         }
 
         for (k = 0; k < this.labelList.size(); ++k)
         {
-            ((GuiLabel)this.labelList.get(k)).drawLabel(this.mc, mx, my);
+            this.labelList.get(k).drawLabel(this.mc, mx, my);
         }
     }
 

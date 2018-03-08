@@ -23,6 +23,7 @@ import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class GuiQuestLinesMain extends GuiScreenThemed implements INeedsRefresh
 {

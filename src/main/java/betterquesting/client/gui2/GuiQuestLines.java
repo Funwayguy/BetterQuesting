@@ -22,7 +22,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestInstance;
-import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
@@ -66,11 +65,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, I18n.format("gui.back")));
         }
     
-        CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -136, 16), 0));
+        CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
         cvBackground.addPanel(cvList);
-        PanelVScrollBar pnQScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(136, 16, -144, 16), 0));
+        PanelVScrollBar pnQScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
         cvList.setScrollDriverY(pnQScroll);
         cvBackground.addPanel(pnQScroll);
+        pnQScroll.getTransform().setParent(cvList.getTransform());
     
         List<IQuestLine> lineList = QuestLineDatabase.INSTANCE.getAllValues();
         this.qlBtns = new PanelButtonStorage[lineList.size()];
@@ -78,7 +78,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         for(int i = 0; i < lineList.size(); i++)
         {
             IQuestLine ql = lineList.get(i);
-            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 120, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
+            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
             
             if(ql == selectedLine)
             {
@@ -89,7 +89,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             qlBtns[i] = btnLine;
         }
     
-        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(160, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
+        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
     
         cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
@@ -103,7 +103,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             cvQuest.setScrollY(lastScrollY);
         }
         
-        cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(160, -66, 24, 16), 0));
+        cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(174, -66, 24, 16), 0));
         cvBackground.addPanel(cvDesc);
         
         paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0, 0), "", true);
@@ -118,26 +118,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     
         IGuiRect ls0 = new GuiTransform(GuiAlign.TOP_LEFT, 16, 16, 0, 0, 0);
         ls0.setParent(cvBackground.getTransform());
-        IGuiRect le0 = new GuiTransform(GuiAlign.TOP_LEFT, 144, 16, 0, 0, 0);
+        IGuiRect le0 = new GuiTransform(GuiAlign.TOP_LEFT, 166, 16, 0, 0, 0);
         le0.setParent(cvBackground.getTransform());
         PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), -1);
         cvBackground.addPanel(paLine0);
         
         IGuiRect ls1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 16, -16, 0, 0, 0);
         ls1.setParent(cvBackground.getTransform());
-        IGuiRect le1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 144, -16, 0, 0, 0);
+        IGuiRect le1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 166, -16, 0, 0, 0);
         le1.setParent(cvBackground.getTransform());
         PanelLine paLine1 = new PanelLine(ls1, le1, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
         cvBackground.addPanel(paLine1);
     
-        IGuiRect ls2 = new GuiTransform(GuiAlign.TOP_LEFT, 152, 16, 0, 0, 0);
-        ls2.setParent(cvBackground.getTransform());
-        IGuiRect le2 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 152, -16, 0, 0, 0);
-        le2.setParent(cvBackground.getTransform());
-        PanelLine paLine2 = new PanelLine(ls2, le2, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
-        cvBackground.addPanel(paLine2);
-    
-        IGuiRect ls3 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 160, -16, 0, 0, 0);
+        IGuiRect ls3 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 174, -16, 0, 0, 0);
         ls3.setParent(cvBackground.getTransform());
         IGuiRect le3 = new GuiTransform(GuiAlign.BOTTOM_RIGHT, -16, -16, 0, 0, 0);
         le3.setParent(cvBackground.getTransform());
@@ -181,12 +174,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         {
             @SuppressWarnings("unchecked")
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
-            GuiQuestLinesMain.bookmarked = new GuiQuestInstance(this, quest);
+            GuiHome.bookmark = new GuiQuestInstance(this, quest);
             this.lastScrollX = cvQuest.getScrollX();
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();
             
-            mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+            mc.displayGuiScreen(GuiHome.bookmark);
         } else if(btn.getButtonID() == 3)
         {
             mc.displayGuiScreen(new GuiQuestLineEditorA(this));

@@ -46,7 +46,6 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.api.utils.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.client.BQ_Keybindings;
-import betterquesting.client.gui.GuiQuestLinesMain;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.core.BetterQuesting;
 import betterquesting.legacy.ILegacyLoader;
@@ -86,9 +85,9 @@ public class EventHandler
 				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
 			} else
 			{
-				if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
+				if(BQ_Settings.useBookmark && GuiHome.bookmark != null)
 				{
-					mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+					mc.displayGuiScreen(GuiHome.bookmark);
 				} else
 				{
 					mc.displayGuiScreen(new GuiHome(mc.currentScreen));
@@ -285,7 +284,7 @@ public class EventHandler
 		
 		if(BetterQuesting.proxy.isClient())
 		{
-			GuiQuestLinesMain.bookmarked = null;
+			GuiHome.bookmark = null;
 		}
 		
 		MinecraftServer server =event.getWorld().getMinecraftServer();

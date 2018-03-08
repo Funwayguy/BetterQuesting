@@ -1,5 +1,6 @@
 package betterquesting.client.gui;
 
+import betterquesting.client.gui2.GuiQuestLines;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -101,7 +102,7 @@ public class GuiHome extends GuiScreenThemed implements INeedsRefresh
 		
 		if(button.id == 1)
 		{
-			mc.displayGuiScreen(new GuiQuestLinesMain(this));
+			mc.displayGuiScreen(new GuiQuestLines(this));
 		} else if(button.id == 2)
 		{
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.player));

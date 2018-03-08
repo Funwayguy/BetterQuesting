@@ -1,6 +1,7 @@
 package betterquesting.api.properties.basic;
 
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.util.ResourceLocation;
 
@@ -14,14 +15,14 @@ public class PropertyTypeBoolean extends PropertyTypeBase<Boolean>
 	@Override
 	public Boolean readValue(NBTBase nbt)
 	{
-		if(nbt == null || nbt.getId() != 1)
+		if(nbt == null || nbt.getId() < 1 || nbt.getId() > 6)
 		{
 			return this.getDefault();
 		}
 		
 		try
 		{
-			return (((NBTTagByte)nbt).getByte() & 1) == 1;
+			return ((NBTPrimitive)nbt).getByte() > 0;
 		} catch(Exception e)
 		{
 			return this.getDefault();
