@@ -4,6 +4,7 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -23,11 +24,14 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
+import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import java.util.List;
+import java.util.UUID;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
 {
@@ -74,13 +78,30 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     
         List<IQuestLine> lineList = QuestLineDatabase.INSTANCE.getAllValues();
         this.qlBtns = new PanelButtonStorage[lineList.size()];
+        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
     
         for(int i = 0; i < lineList.size(); i++)
         {
             IQuestLine ql = lineList.get(i);
+    
             PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
             
-            if(ql == selectedLine)
+            boolean show = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
+            
+            if(!show)
+            {
+                for(int qID : ql.getAllKeys())
+                {
+                    IQuest q = QuestDatabase.INSTANCE.getValue(qID);
+                    if(CanvasQuestLine.isQuestShown(q, playerID))
+                    {
+                        show = true;
+                        break;
+                    }
+                }
+            }
+            
+            if(!show || ql == selectedLine)
             {
                 btnLine.setEnabled(false);
             }
@@ -157,17 +178,21 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) // Quest Line Select
         {
+            for(PanelButtonStorage b : qlBtns)
+            {
+                if(b.getStoredValue() == selectedLine)
+                {
+                    b.setEnabled(true);
+                    break;
+                }
+            }
+            
             @SuppressWarnings("unchecked")
             IQuestLine ql = ((PanelButtonStorage<IQuestLine>)btn).getStoredValue();
             selectedLine = ql;
             cvQuest.setQuestLine(ql);
             paDesc.setText(I18n.format(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
-            
-            for(PanelButtonStorage b : qlBtns)
-            {
-                b.setEnabled(true);
-            }
             
             btn.setEnabled(false);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select

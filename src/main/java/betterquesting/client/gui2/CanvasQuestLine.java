@@ -218,7 +218,7 @@ public class CanvasQuestLine extends CanvasScrolling
         this.setScrollY(scrollY);
     }
     
-    private boolean isQuestShown(IQuest quest, UUID uuid)
+    public static boolean isQuestShown(IQuest quest, UUID uuid)
     {
         Minecraft mc = Minecraft.getMinecraft();
         

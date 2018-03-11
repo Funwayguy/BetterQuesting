@@ -27,9 +27,9 @@ public class PanelButton implements IPanelButton
 	private int icoPadding = 0;
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
-	private String btnText = "";
+	private String btnText;
 	private int btnState = 1;
-	private int btnID = -1;
+	private final int btnID;
 	
 	private boolean pendingRelease = false;
 	
@@ -135,7 +135,7 @@ public class PanelButton implements IPanelButton
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		int curState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
-		if(curState == 2 && Mouse.isButtonDown(0) && pendingRelease)
+		if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
 		{
 			curState = 0;
 		}
@@ -170,18 +170,13 @@ public class PanelButton implements IPanelButton
         font.drawString(text, x - font.getStringWidth(text) / 2, y, color, shadow);
     }
     
-    /*private static void drawString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
-    {
-        font.drawString(text, x, y, color, shadow);
-    }*/
-    
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
 		pendingRelease = isEnabled() && click == 0 && bounds.contains(mx, my);
 
-		return pendingRelease;
+		return false;
 	}
 	
 	@Override

@@ -169,7 +169,7 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		scrollX.writeValue((sx - scrollBounds.getX()) / (float)scrollBounds.getWidth());
-		this.updatePanelScroll();
+		lsx = this.getScrollX();
 	}
 	
 	public void setScrollY(int sy)
@@ -180,7 +180,7 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		scrollY.writeValue((sy - scrollBounds.getY()) / (float)scrollBounds.getHeight());
-		this.updatePanelScroll();
+		lsx = this.getScrollY();
 	}
 	
 	public void setZoom(float z)
@@ -231,14 +231,14 @@ public class CanvasScrolling implements IGuiCanvas
 					hasDragged = true;
 				}
 			}
-			
-			if(lsx != getScrollX() || lsy != getScrollY())
-			{
-				this.updatePanelScroll();
-			}
 		} else if(hasDragged)
 		{
 			hasDragged = false;
+		}
+		
+		if(lsx != getScrollX() || lsy != getScrollY())
+		{
+			this.updatePanelScroll();
 		}
 		
 		GlStateManager.pushMatrix();

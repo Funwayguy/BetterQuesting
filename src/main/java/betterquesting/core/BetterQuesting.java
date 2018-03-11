@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -22,7 +23,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.FluidPlaceholder;
@@ -43,9 +43,6 @@ import betterquesting.network.PacketTypeRegistry;
 public class BetterQuesting
 {
     public static final String MODID = "betterquesting";
-    public static final String VERSION = "CI_MOD_VERSION";
-    public static final String BRANCH = "CI_MOD_BRANCH";
-    public static final String HASH = "CI_MOD_HASH";
     public static final String NAME = "BetterQuesting";
     public static final String PROXY = "betterquesting.core.proxies";
     public static final String CHANNEL = "BQ_NET_CHAN";
@@ -111,7 +108,7 @@ public class BetterQuesting
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
 		
-		if(BetterQuesting.VERSION == "CI_" + "MOD_VERSION")
+		if("${version}".equalsIgnoreCase(Loader.instance().activeModContainer().getVersion()))
 		{
 			manager.registerCommand(new BQ_CommandDebug());
 		}
