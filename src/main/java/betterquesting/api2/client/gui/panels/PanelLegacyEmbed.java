@@ -42,14 +42,14 @@ public class PanelLegacyEmbed implements IGuiPanel
 		embed.onMouseClick(mx, my, button);
 		
 		// Unable to determine use
-		return true;
+		return transform.contains(mx, my);
 	}
 	
 	@Override
 	public boolean onMouseRelease(int mx, int my, int button)
 	{
 		// Unable to determine use
-		return true;
+		return transform.contains(mx, my);
 	}
 	
 	@Override
@@ -58,7 +58,7 @@ public class PanelLegacyEmbed implements IGuiPanel
 		embed.onMouseScroll(mx, my, scroll);
 		
 		// Unable to determine use
-		return true;
+		return transform.contains(mx, my);
 	}
 	
 	@Override

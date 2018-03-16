@@ -4,7 +4,6 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -26,16 +25,17 @@ import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
+
 import java.util.List;
 import java.util.UUID;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
 {
     private IQuestLine selectedLine = null;
+    private int selectedLineId = -1;
     private int lastScrollX = 0;
     private int lastScrollY = 0;
     private float lastZoom = 1F;
@@ -54,13 +54,28 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     public void initPanel()
     {
         super.initPanel();
-    
+        
+        if(selectedLineId >= 0)
+        {
+            selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);
+            
+            if(selectedLine == null)
+            {
+                selectedLineId = -1;
+            }
+        } else
+        {
+            selectedLine = null;
+        }
+        
+        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
+        
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
-    
-        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
+        
+        if(canEdit)
         {
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, I18n.format("gui.back")));
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, I18n.format("betterquesting.btn.edit")));
@@ -86,14 +101,15 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     
             PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
             
-            boolean show = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
+            boolean show = canEdit;
             
             if(!show)
             {
                 for(int qID : ql.getAllKeys())
                 {
                     IQuest q = QuestDatabase.INSTANCE.getValue(qID);
-                    if(CanvasQuestLine.isQuestShown(q, playerID))
+                    
+                    if(q != null || CanvasQuestLine.isQuestShown(q, playerID))
                     {
                         show = true;
                         break;
@@ -190,6 +206,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             @SuppressWarnings("unchecked")
             IQuestLine ql = ((PanelButtonStorage<IQuestLine>)btn).getStoredValue();
             selectedLine = ql;
+            selectedLineId = QuestLineDatabase.INSTANCE.getKey(ql);
             cvQuest.setQuestLine(ql);
             paDesc.setText(I18n.format(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
@@ -204,6 +221,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();
             
+            //mc.displayGuiScreen(new GuiQuest(this, QuestDatabase.INSTANCE.getKey(quest))); // Unfinished new stuff
             mc.displayGuiScreen(GuiHome.bookmark);
         } else if(btn.getButtonID() == 3)
         {

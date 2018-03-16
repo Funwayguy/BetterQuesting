@@ -220,6 +220,11 @@ public class CanvasQuestLine extends CanvasScrolling
     
     public static boolean isQuestShown(IQuest quest, UUID uuid)
     {
+        if(quest == null || uuid == null)
+        {
+            return false;
+        }
+        
         Minecraft mc = Minecraft.getMinecraft();
         
         EnumQuestVisibility vis = quest.getProperties().getProperty(NativeProps.VISIBILITY);

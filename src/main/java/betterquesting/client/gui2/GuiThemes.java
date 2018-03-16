@@ -146,8 +146,6 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		le0.setParent(inCan.getTransform());
 		PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
 		inCan.addPanel(paLine0);
-		
-		
 	}
 	
 	@Override
