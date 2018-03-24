@@ -112,7 +112,7 @@ public abstract class GuiElement
     public void drawTooltip(List<String> textLines, int x, int y, FontRenderer fontRendererObj)
     {
     	Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution resolution = new ScaledResolution(mc);
+    	ScaledResolution resolution = new ScaledResolution(mc);
     	int width = resolution.getScaledWidth();
     	int height = resolution.getScaledHeight();
     	
