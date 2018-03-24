@@ -3,6 +3,7 @@ package betterquesting.api.client.gui;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -111,7 +112,11 @@ public abstract class GuiElement
     public void drawTooltip(List<String> textLines, int x, int y, FontRenderer fontRendererObj)
     {
     	Minecraft mc = Minecraft.getMinecraft();
-        GuiUtils.drawHoveringText(textLines, x, y, mc.displayWidth, mc.displayHeight, -1, fontRendererObj);
+    	ScaledResolution resolution = new ScaledResolution(mc);
+    	int width = resolution.getScaledWidth();
+    	int height = resolution.getScaledHeight();
+    	
+        GuiUtils.drawHoveringText(textLines, x, y, width, height, -1, fontRendererObj);
     }
     
     public boolean isWithin(int xIn, int yIn, int x, int y, int w, int h)
