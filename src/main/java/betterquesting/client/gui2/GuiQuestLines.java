@@ -2,6 +2,7 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -19,6 +20,7 @@ import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.GuiQuestInstance;
@@ -102,24 +104,42 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
             
             boolean show = canEdit;
+            boolean hasUnclaimed = false;
             
             if(!show)
             {
-                for(int qID : ql.getAllKeys())
-                {
-                    IQuest q = QuestDatabase.INSTANCE.getValue(qID);
-                    
-                    if(q != null || CanvasQuestLine.isQuestShown(q, playerID))
-                    {
-                        show = true;
-                        break;
-                    }
-                }
+	            for(int qID : ql.getAllKeys())
+	            {
+	                IQuest q = QuestDatabase.INSTANCE.getValue(qID);
+	                if(q == null)
+	                {
+	                    continue;
+	                }
+	                
+	                if(!show && CanvasQuestLine.isQuestShown(q, playerID))
+	                {
+	                    show = true;
+	                }
+	                
+	                if(!hasUnclaimed && q.getState(playerID) == EnumQuestState.UNCLAIMED)
+	                {
+	                    hasUnclaimed = true;
+	                }
+	                
+	                if (show && hasUnclaimed)
+	                {
+	                    break;
+	                }
+	            }
             }
-            
+
             if(!show || ql == selectedLine)
             {
                 btnLine.setEnabled(false);
+            }
+            else if(hasUnclaimed)
+            {
+                btnLine.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.QUEST_ICON_PENDING.getColor(), PresetColor.BTN_HOVER.getColor());
             }
             
             cvList.addPanel(btnLine);
