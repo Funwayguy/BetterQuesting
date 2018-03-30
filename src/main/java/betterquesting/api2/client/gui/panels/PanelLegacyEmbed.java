@@ -3,16 +3,18 @@ package betterquesting.api2.client.gui.panels;
 import java.util.List;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 
 /**
  * <b>WARNING:</b> For use ONLY when IGuiEmbedded cannot be reasonably replaced currently
  */
-public class PanelLegacyEmbed implements IGuiPanel
+public class PanelLegacyEmbed<T extends IGuiEmbedded> implements IGuiPanel
 {
 	private final IGuiRect transform;
-	private final IGuiEmbedded embed;
+	private final T embed;
 	
-	public PanelLegacyEmbed(IGuiRect rect, IGuiEmbedded embed)
+	public PanelLegacyEmbed(IGuiRect rect, T embed)
 	{
 		this.transform = rect;
 		this.embed = embed;
@@ -32,8 +34,11 @@ public class PanelLegacyEmbed implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+		GlStateManager.pushMatrix();
 		embed.drawBackground(mx, my, partialTick);
 		embed.drawForeground(mx, my, partialTick); // Second pass highly likely to breakdown
+		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.popMatrix();
 	}
 	
 	@Override
@@ -74,5 +79,10 @@ public class PanelLegacyEmbed implements IGuiPanel
 	public List<String> getTooltip(int mx, int my)
 	{
 		return null;
+	}
+	
+	public T getEmbedded()
+	{
+		return this.embed;
 	}
 }

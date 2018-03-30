@@ -21,7 +21,6 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -109,7 +108,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
                 {
                     IQuest q = QuestDatabase.INSTANCE.getValue(qID);
                     
-                    if(q != null || CanvasQuestLine.isQuestShown(q, playerID))
+                    if(q != null && CanvasQuestLine.isQuestShown(q, playerID))
                     {
                         show = true;
                         break;
@@ -216,12 +215,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         {
             @SuppressWarnings("unchecked")
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
-            GuiHome.bookmark = new GuiQuestInstance(this, quest);
+            GuiHome.bookmark = new GuiQuest(this, QuestDatabase.INSTANCE.getKey(quest));
+            //GuiHome.bookmark = new GuiQuestInstance(this, quest);
             this.lastScrollX = cvQuest.getScrollX();
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();
             
-            //mc.displayGuiScreen(new GuiQuest(this, QuestDatabase.INSTANCE.getKey(quest))); // Unfinished new stuff
             mc.displayGuiScreen(GuiHome.bookmark);
         } else if(btn.getButtonID() == 3)
         {

@@ -3,6 +3,8 @@ package betterquesting.client.gui.editors;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,7 +26,6 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -129,7 +130,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 					
 					if(q != null)
 					{
-						mc.displayGuiScreen(new GuiQuestInstance(this, q));
+						mc.displayGuiScreen(new GuiQuest(this, id));
 					}
 				}
 			} else if(column == 1 && line != null) // Remove quest

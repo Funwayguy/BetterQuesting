@@ -1,14 +1,16 @@
 package betterquesting.api2.client.gui.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 
 public class CanvasEmpty implements IGuiCanvas
 {
-	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
+	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final IGuiRect transform;
 	
 	public CanvasEmpty(IGuiRect rect)
@@ -25,20 +27,13 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		
-		for(IGuiPanel entry : tmp)
-		{
-			entry.initPanel();
-		}
+		this.guiPanels.clear();
 	}
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		
-		for(IGuiPanel entry : tmp)
+		for(IGuiPanel entry : guiPanels)
 		{
 			entry.drawPanel(mx, my, partialTick);
 		}
@@ -47,16 +42,15 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(IGuiPanel entry : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			used = entry.onMouseClick(mx, my, click);
-			
-			if(used)
+			if(pnIter.previous().onMouseClick(mx, my, click))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -67,16 +61,15 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public boolean onMouseRelease(int mx, int my, int click)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(IGuiPanel entry : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			used = entry.onMouseRelease(mx, my, click);
-			
-			if(used)
+			if(pnIter.previous().onMouseRelease(mx, my, click))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -87,16 +80,15 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(IGuiPanel entry : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			used = entry.onMouseScroll(mx, my, scroll);
-			
-			if(used)
+			if(pnIter.previous().onMouseScroll(mx, my, scroll))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -107,12 +99,13 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public boolean onKeyTyped(char c, int keycode)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		boolean used = false;
 		
-		for(IGuiPanel entry : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			if(entry.onKeyTyped(c, keycode))
+			if(pnIter.previous().onKeyTyped(c, keycode))
 			{
 				used = true;
 				break;
@@ -125,12 +118,12 @@ public class CanvasEmpty implements IGuiCanvas
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		List<String> tt;
 		
-		for(IGuiPanel entry : tmp)
+		while(pnIter.hasPrevious())
 		{
-			List<String> tt = entry.getTooltip(mx, my);
+			tt = pnIter.previous().getTooltip(mx, my);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -138,7 +131,7 @@ public class CanvasEmpty implements IGuiCanvas
 			}
 		}
 		
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 	
 	@Override

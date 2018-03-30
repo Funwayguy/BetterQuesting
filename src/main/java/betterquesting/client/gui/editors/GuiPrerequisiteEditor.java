@@ -3,6 +3,8 @@ package betterquesting.client.gui.editors;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,7 +24,6 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.client.gui.GuiQuestInstance;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -134,7 +135,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 				return; // Invalid quest ID
 			} else if(column == 0 || column == 3) // Edit quest
 			{
-				mc.displayGuiScreen(new GuiQuestInstance(this, q));
+				mc.displayGuiScreen(new GuiQuest(this, id));
 			} else if(column == 1) // Remove quest
 			{
 				quest.getPrerequisites().remove(q);

@@ -4,6 +4,9 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
@@ -24,7 +27,7 @@ import betterquesting.api2.client.gui.panels.IGuiPanel;
 
 public class CanvasScrolling implements IGuiCanvas
 {
-	private final List<IGuiPanel> guiPanels = new ArrayList<IGuiPanel>();
+	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final IGuiRect transform;
 	
 	// Scrolling bounds
@@ -192,6 +195,7 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
+		this.guiPanels.clear();
 	}
 	
 	@Override
@@ -254,9 +258,8 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		
-		for(IGuiPanel panel : tmp)
+		for(IGuiPanel panel : guiPanels)
 		{
 			panel.drawPanel(smx, smy, partialTick);
 		}
@@ -279,16 +282,15 @@ public class CanvasScrolling implements IGuiCanvas
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
 		
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(IGuiPanel panel : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			used = panel.onMouseClick(smx, smy, click);
-			
-			if(used)
+			if(pnIter.previous().onMouseClick(smx, smy, click))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -323,15 +325,13 @@ public class CanvasScrolling implements IGuiCanvas
 			int smx = (int)((mx - tx) / zs) + lsx;
 			int smy = (int)((my - ty) / zs) + lsy;
 			
-			List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-			Collections.reverse(tmp);
+			ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 			
-			for(IGuiPanel panel : tmp)
+			while(pnIter.hasPrevious())
 			{
-				used = panel.onMouseRelease(smx, smy, click);
-				
-				if(used)
+				if(pnIter.previous().onMouseRelease(smx, smy, click))
 				{
+					used = true;
 					break;
 				}
 			}
@@ -364,16 +364,15 @@ public class CanvasScrolling implements IGuiCanvas
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
 		
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
 		boolean used = false;
 		
-		for(IGuiPanel panel : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			used = panel.onMouseScroll(smx, smy, scroll);
-			
-			if(used)
+			if(pnIter.previous().onMouseScroll(smx, smy, scroll))
 			{
+				used = true;
 				break;
 			}
 		}
@@ -407,12 +406,13 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public boolean onKeyTyped(char c, int keycode)
 	{
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		boolean used = false;
 		
-		for(IGuiPanel entry : tmp)
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
 		{
-			if(entry.onKeyTyped(c, keycode))
+			if(pnIter.previous().onKeyTyped(c, keycode))
 			{
 				used = true;
 				break;
@@ -436,12 +436,12 @@ public class CanvasScrolling implements IGuiCanvas
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
 		
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
-		Collections.reverse(tmp);
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		List<String> tt;
 		
-		for(IGuiPanel entry : tmp)
+		while(pnIter.hasPrevious())
 		{
-			List<String> tt = entry.getTooltip(smx, smy);
+			tt = pnIter.previous().getTooltip(smx, smy);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -449,7 +449,7 @@ public class CanvasScrolling implements IGuiCanvas
 			}
 		}
 		
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 	
 	@Override
@@ -461,7 +461,7 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		guiPanels.add(panel);
-		Collections.sort(guiPanels, ComparatorGuiDepth.INSTANCE);
+		guiPanels.sort(ComparatorGuiDepth.INSTANCE);
 		panel.initPanel();
 		
 		this.refreshScrollBounds();

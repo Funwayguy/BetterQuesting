@@ -1,10 +1,11 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.client.gui2.GuiQuest;
+import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.client.gui.GuiQuestInstance;
 
 public class ToolboxToolOpen implements IToolboxTool
 {
@@ -32,9 +33,11 @@ public class ToolboxToolOpen implements IToolboxTool
 		
 		if(btn != null)
 		{
+			int qID = QuestDatabase.INSTANCE.getKey(btn.getQuest());
+			
 			Minecraft mc = Minecraft.getMinecraft();
 			btn.playPressSound(mc.getSoundHandler());
-			mc.displayGuiScreen(new GuiQuestInstance(mc.currentScreen, btn.getQuest()));
+			mc.displayGuiScreen(new GuiQuest(mc.currentScreen, qID));
 		}
 	}
 
