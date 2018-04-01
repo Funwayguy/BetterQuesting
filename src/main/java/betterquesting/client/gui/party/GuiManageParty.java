@@ -250,9 +250,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("party", party.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		tags.setTag("data", base);
+		tags.setTag("data", party.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}
 	

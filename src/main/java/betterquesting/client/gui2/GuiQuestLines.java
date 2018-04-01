@@ -42,6 +42,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     private PanelButtonStorage[] qlBtns;
     private CanvasQuestLine cvQuest;
     private CanvasScrolling cvDesc;
+    private PanelVScrollBar scDesc;
     private PanelTextBox paDesc;
     
     public GuiQuestLines(GuiScreen parent)
@@ -118,26 +119,20 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             
             if(!show || ql == selectedLine)
             {
-                btnLine.setEnabled(false);
+                btnLine.setBtnState(false);
             }
             
             cvList.addPanel(btnLine);
             qlBtns[i] = btnLine;
         }
+        
+        pnQScroll.setEnabled(cvList.getScrollBounds().getHeight() > 0);
     
         CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
     
         cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
         cvFrame.addPanel(cvQuest);
-        
-        if(selectedLine != null)
-        {
-            cvQuest.setQuestLine(selectedLine);
-            cvQuest.setZoom(lastZoom);
-            cvQuest.setScrollX(lastScrollX);
-            cvQuest.setScrollY(lastScrollY);
-        }
         
         cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(174, -66, 24, 16), 0));
         cvBackground.addPanel(cvDesc);
@@ -146,9 +141,20 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
         cvDesc.addPanel(paDesc);
     
-        PanelVScrollBar scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-24, -66, 16, 16), 0));
+        scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-24, -66, 16, 16), 0));
         cvDesc.setScrollDriverY(scDesc);
         cvBackground.addPanel(scDesc);
+    
+        if(selectedLine != null)
+        {
+            cvQuest.setQuestLine(selectedLine);
+            cvQuest.setZoom(lastZoom);
+            cvQuest.setScrollX(lastScrollX);
+            cvQuest.setScrollY(lastScrollY);
+            
+            paDesc.setText(I18n.format(selectedLine.getUnlocalisedDescription()));
+            scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
+        }
         
         // === DECORATIVE LINES ===
     
@@ -197,7 +203,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             {
                 if(b.getStoredValue() == selectedLine)
                 {
-                    b.setEnabled(true);
+                    b.setBtnState(true);
                     break;
                 }
             }
@@ -210,13 +216,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             paDesc.setText(I18n.format(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
             
-            btn.setEnabled(false);
+            scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
+            
+            btn.setBtnState(false);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select
         {
             @SuppressWarnings("unchecked")
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
             GuiHome.bookmark = new GuiQuest(this, QuestDatabase.INSTANCE.getKey(quest));
-            //GuiHome.bookmark = new GuiQuestInstance(this, quest);
             this.lastScrollX = cvQuest.getScrollX();
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();

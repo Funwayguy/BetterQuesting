@@ -17,6 +17,7 @@ import com.mojang.authlib.GameProfile;
 public class PanelPlayerPortrait implements IGuiPanel
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	private final AbstractClientPlayer player;
 	private final ResourceLocation resource;
@@ -102,6 +103,18 @@ public class PanelPlayerPortrait implements IGuiPanel
 	@Override
 	public void initPanel()
 	{
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override

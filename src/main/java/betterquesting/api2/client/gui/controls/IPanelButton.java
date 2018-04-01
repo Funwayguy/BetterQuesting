@@ -6,6 +6,6 @@ public interface IPanelButton extends IGuiPanel
 {
     int getButtonID();
     
-    boolean isEnabled();
-    void setEnabled(boolean enable);
+    boolean getBtnState();
+    void setBtnState(boolean state);
 }

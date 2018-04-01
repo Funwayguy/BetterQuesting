@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui.panels.bars;
 
-import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
@@ -12,6 +11,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 public class PanelVScrollBar implements IScrollBar
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	private IGuiTexture texBack;
 	private IGuiTexture texHndlIdle;
@@ -57,6 +57,18 @@ public class PanelVScrollBar implements IScrollBar
 	@Override
 	public void initPanel()
 	{
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override
@@ -153,7 +165,7 @@ public class PanelVScrollBar implements IScrollBar
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		return new ArrayList<String>();
+		return null;
 	}
 	
 	@Override

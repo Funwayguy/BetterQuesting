@@ -22,6 +22,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
+	private boolean enabled = true;
 	
 	public final GuiScreen parent;
 	
@@ -69,6 +70,19 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		transform.h = this.height - marginY * 2;
 		
 		this.guiPanels.clear();
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		// Technically supported if you wanted something like a multiscreen where this isn't actually the root screen
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	/**
@@ -154,7 +168,10 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 		for(IGuiPanel entry : guiPanels)
 		{
-			entry.drawPanel(mx, my, partialTick);
+			if(entry.isEnabled())
+			{
+				entry.drawPanel(mx, my, partialTick);
+			}
 		}
 	}
 	
@@ -167,7 +184,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseClick(mx, my, click))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseClick(mx, my, click))
 			{
 				used = true;
 				break;
@@ -186,7 +205,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseRelease(mx, my, click))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseRelease(mx, my, click))
 			{
 				used = true;
 				break;
@@ -205,7 +226,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseScroll(mx, my, scroll))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseScroll(mx, my, scroll))
 			{
 				used = true;
 				break;
@@ -224,7 +247,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onKeyTyped(c, keycode))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
 			{
 				used = true;
 				break;
@@ -249,7 +274,14 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			 tt = pnIter.previous().getTooltip(mx, my);
+			IGuiPanel entry = pnIter.previous();
+			
+			if(!entry.isEnabled())
+			{
+				continue;
+			}
+			
+			tt = entry.getTooltip(mx, my);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -257,7 +289,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 			}
 		}
 		
-		return new ArrayList<>();
+		return null;
 	}
 	
 	@Override

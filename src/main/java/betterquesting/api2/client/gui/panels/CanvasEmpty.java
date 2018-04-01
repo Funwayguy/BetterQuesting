@@ -12,6 +12,7 @@ public class CanvasEmpty implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	public CanvasEmpty(IGuiRect rect)
 	{
@@ -31,11 +32,26 @@ public class CanvasEmpty implements IGuiCanvas
 	}
 	
 	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
+	}
+	
+	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		for(IGuiPanel entry : guiPanels)
 		{
-			entry.drawPanel(mx, my, partialTick);
+			if(entry.isEnabled())
+			{
+				entry.drawPanel(mx, my, partialTick);
+			}
 		}
 	}
 	
@@ -48,7 +64,9 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseClick(mx, my, click))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseClick(mx, my, click))
 			{
 				used = true;
 				break;
@@ -67,7 +85,9 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseRelease(mx, my, click))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseRelease(mx, my, click))
 			{
 				used = true;
 				break;
@@ -86,7 +106,9 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseScroll(mx, my, scroll))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseScroll(mx, my, scroll))
 			{
 				used = true;
 				break;
@@ -105,7 +127,9 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onKeyTyped(c, keycode))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
 			{
 				used = true;
 				break;
@@ -123,7 +147,14 @@ public class CanvasEmpty implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			tt = pnIter.previous().getTooltip(mx, my);
+			IGuiPanel entry = pnIter.previous();
+			
+			if(!entry.isEnabled())
+			{
+				continue;
+			}
+			
+			tt = entry.getTooltip(mx, my);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -131,7 +162,7 @@ public class CanvasEmpty implements IGuiCanvas
 			}
 		}
 		
-		return new ArrayList<>();
+		return null;
 	}
 	
 	@Override

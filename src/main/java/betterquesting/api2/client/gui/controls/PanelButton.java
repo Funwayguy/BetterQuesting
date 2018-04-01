@@ -20,6 +20,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 public class PanelButton implements IPanelButton
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
 	private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
@@ -28,7 +29,7 @@ public class PanelButton implements IPanelButton
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText;
-	private int btnState = 1;
+	private boolean btnState = true;
 	private final int btnID;
 	
 	private boolean pendingRelease = false;
@@ -99,21 +100,28 @@ public class PanelButton implements IPanelButton
 		return this.btnID;
 	}
 	
-	public int getButtonState()
+	@Override
+	public boolean getBtnState()
 	{
 		return this.btnState;
 	}
 	
 	@Override
+	public void setBtnState(boolean state)
+	{
+		this.btnState = state;
+	}
+	
+	@Override
 	public boolean isEnabled()
 	{
-		return this.btnState > 0;
+		return this.enabled;
 	}
 	
 	@Override
 	public void setEnabled(boolean state)
 	{
-		this.btnState = state? 1 : 0;
+		this.enabled = state;
 	}
 	
 	@Override
@@ -133,7 +141,7 @@ public class PanelButton implements IPanelButton
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		int curState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
+		int curState = !getBtnState()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
 		if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
 		{
@@ -159,7 +167,7 @@ public class PanelButton implements IPanelButton
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[btnState].getRGB(), txtShadow);
+			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[curState].getRGB(), txtShadow);
 		}
 		
 		GlStateManager.popMatrix();

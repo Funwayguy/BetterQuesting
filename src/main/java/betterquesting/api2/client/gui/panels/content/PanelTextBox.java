@@ -14,6 +14,7 @@ import betterquesting.api2.client.gui.panels.IGuiPanel;
 public class PanelTextBox implements IGuiPanel
 {
 	private final GuiRectText transform;
+	private boolean enabled = true;
 	
 	private String text = "";
 	private boolean shadow = false;
@@ -96,6 +97,18 @@ public class PanelTextBox implements IGuiPanel
 		lines = sl.size() - 1;
 		
 		this.transform.h = fr.FONT_HEIGHT * sl.size();
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override

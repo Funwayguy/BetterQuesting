@@ -13,6 +13,7 @@ public class PanelLegacyEmbed<T extends IGuiEmbedded> implements IGuiPanel
 {
 	private final IGuiRect transform;
 	private final T embed;
+	private boolean enabled = true;
 	
 	public PanelLegacyEmbed(IGuiRect rect, T embed)
 	{
@@ -29,6 +30,18 @@ public class PanelLegacyEmbed<T extends IGuiEmbedded> implements IGuiPanel
 	@Override
 	public void initPanel()
 	{
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override

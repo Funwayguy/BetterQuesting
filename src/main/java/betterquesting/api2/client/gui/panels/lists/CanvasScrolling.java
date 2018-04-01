@@ -29,6 +29,7 @@ public class CanvasScrolling implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	// Scrolling bounds
 	protected final GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
@@ -199,6 +200,18 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
+	}
+	
+	@Override
 	public IGuiRect getTransform()
 	{
 		return transform;
@@ -261,7 +274,10 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		for(IGuiPanel panel : guiPanels)
 		{
-			panel.drawPanel(smx, smy, partialTick);
+			if(panel.isEnabled())
+			{
+				panel.drawPanel(smx, smy, partialTick);
+			}
 		}
 		
 		RenderUtils.endScissor(mc);
@@ -288,7 +304,9 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseClick(smx, smy, click))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseClick(smx, smy, click))
 			{
 				used = true;
 				break;
@@ -370,7 +388,9 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onMouseScroll(smx, smy, scroll))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onMouseScroll(smx, smy, scroll))
 			{
 				used = true;
 				break;
@@ -412,7 +432,9 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			if(pnIter.previous().onKeyTyped(c, keycode))
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
 			{
 				used = true;
 				break;
@@ -441,7 +463,14 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		while(pnIter.hasPrevious())
 		{
-			tt = pnIter.previous().getTooltip(smx, smy);
+			IGuiPanel entry = pnIter.previous();
+			
+			if(!entry.isEnabled())
+			{
+				continue;
+			}
+			
+			tt = entry.getTooltip(smx, smy);
 			
 			if(tt != null && tt.size() > 0)
 			{
@@ -449,7 +478,7 @@ public class CanvasScrolling implements IGuiCanvas
 			}
 		}
 		
-		return new ArrayList<>();
+		return null;
 	}
 	
 	@Override

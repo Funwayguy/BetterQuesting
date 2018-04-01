@@ -153,7 +153,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.ADD.ordinal());
-			tags.setString("Party", fieldName.getText());
+			tags.setString("name", fieldName.getText());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 		} else if(button.id > 1) // Join party
 		{

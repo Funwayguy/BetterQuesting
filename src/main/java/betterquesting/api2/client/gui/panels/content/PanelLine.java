@@ -20,6 +20,8 @@ public class PanelLine implements IGuiPanel
 	private final IGuiColor color;
 	private final int width;
 	
+	private boolean enabled = true;
+	
 	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder)
 	{
 		this.start = start;
@@ -40,6 +42,18 @@ public class PanelLine implements IGuiPanel
 	@Override
 	public void initPanel()
 	{
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override

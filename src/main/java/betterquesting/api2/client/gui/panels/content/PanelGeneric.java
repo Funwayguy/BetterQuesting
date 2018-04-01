@@ -15,6 +15,8 @@ import java.util.List;
 public class PanelGeneric implements IGuiPanel
 {
     private final IGuiRect transform;
+    private boolean enabled = true;
+    
     private final IGuiTexture texture;
     private final IGuiColor color;
     
@@ -46,6 +48,18 @@ public class PanelGeneric implements IGuiPanel
     @Override
     public void initPanel()
     {
+    }
+    
+    @Override
+    public void setEnabled(boolean state)
+    {
+        this.enabled = state;
+    }
+    
+    @Override
+    public boolean isEnabled()
+    {
+        return this.enabled;
     }
     
     @Override

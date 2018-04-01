@@ -15,6 +15,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 public class PanelHBarFill implements IBarFill
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	private IGuiTexture texBack;
 	private IGuiTexture texFill;
@@ -77,6 +78,18 @@ public class PanelHBarFill implements IBarFill
 	@Override
 	public void initPanel()
 	{
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override
@@ -172,5 +185,4 @@ public class PanelHBarFill implements IBarFill
 	{
 		return null;
 	}
-	
 }

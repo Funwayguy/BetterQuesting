@@ -127,21 +127,24 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
             cvInner.addPanel(cvDesc);
             PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), I18n.format(quest.getUnlocalisedDescription()), true);
+            paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
             cvDesc.addPanel(paDesc);
-    
+            
             PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.MID_CENTER), new GuiPadding(-16, 0, 8, 16), 0));
             cvInner.addPanel(paDescScroll);
             cvDesc.setScrollDriverY(paDescScroll);
+            paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
     
             btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, I18n.format("betterquesting.btn.claim"));
+            btnClaim.setBtnState(false);
             cvInner.addPanel(btnClaim);
     
             btnRewardLeft = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, new GuiPadding(0, -16, -16, 0), 0), 2, "<");
-            btnRewardLeft.setEnabled(rewardIndex > 0);
+            btnRewardLeft.setBtnState(rewardIndex > 0);
             cvInner.addPanel(btnRewardLeft);
     
             btnRewardRight = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(-24, -16, 8, 0), 0), 3, ">");
-            btnRewardRight.setEnabled(rewardIndex < quest.getRewards().size() - 1);
+            btnRewardRight.setBtnState(rewardIndex < quest.getRewards().size() - 1);
             cvInner.addPanel(btnRewardRight);
             
             rectReward = new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
@@ -157,24 +160,27 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 16, 0), 0));
             cvInner.addPanel(cvDesc);
             PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), I18n.format(quest.getUnlocalisedDescription()), true);
+            paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
             cvDesc.addPanel(paDesc);
-    
+            
             PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.BOTTOM_CENTER), new GuiPadding(-16, 0, 8, 0), 0));
             cvInner.addPanel(paDescScroll);
             cvDesc.setScrollDriverY(paDescScroll);
+            paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
         }
         
         if(quest.getTasks().size() > 0)
         {
             btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, I18n.format("betterquesting.btn.detect_submit"));
+            btnDetect.setBtnState(false);
             cvInner.addPanel(btnDetect);
     
             btnTaskLeft = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(8, -16, -24, 0), 0), 4, "<");
-            btnTaskLeft.setEnabled(taskIndex > 0);
+            btnTaskLeft.setBtnState(taskIndex > 0);
             cvInner.addPanel(btnTaskLeft);
     
             btnTaskRight = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-16, -16, 0, 0), 0), 5, ">");
-            btnTaskRight.setEnabled(taskIndex < quest.getTasks().size() - 1);
+            btnTaskRight.setBtnState(taskIndex < quest.getTasks().size() - 1);
             cvInner.addPanel(btnTaskRight);
             
             rectTask = new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0);
@@ -357,20 +363,20 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(btnRewardLeft != null && btnRewardRight != null && btnClaim != null)
         {
-            btnRewardLeft.setEnabled(rewardIndex > 0);
-            btnRewardRight.setEnabled(rewardIndex < quest.getRewards().size() - 1);
+            btnRewardLeft.setBtnState(rewardIndex > 0);
+            btnRewardRight.setBtnState(rewardIndex < quest.getRewards().size() - 1);
             
             // Claim button state
-            btnClaim.setEnabled(quest.getRewards().size() > 0 && quest.canClaim(mc.player));
+            btnClaim.setBtnState(quest.getRewards().size() > 0 && quest.canClaim(mc.player));
         }
         
         if(btnTaskLeft != null && btnTaskRight != null && btnDetect != null)
         {
-            btnTaskLeft.setEnabled(taskIndex > 0);
-            btnTaskRight.setEnabled(taskIndex < quest.getTasks().size() - 1);
+            btnTaskLeft.setBtnState(taskIndex > 0);
+            btnTaskRight.setBtnState(taskIndex < quest.getTasks().size() - 1);
     
             // Detect/submit button state
-            btnDetect.setEnabled(quest.canSubmit(mc.player));
+            btnDetect.setBtnState(quest.canSubmit(mc.player));
         }
     }
 }
