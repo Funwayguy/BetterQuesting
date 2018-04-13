@@ -23,6 +23,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
@@ -212,6 +213,7 @@ public class EventHandler
 			jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			
 			jsonCon.setString("format", BetterQuesting.FORMAT);
+			jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
 			
 			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
 			
@@ -287,69 +289,82 @@ public class EventHandler
 			GuiHome.bookmark = null;
 		}
 		
-		MinecraftServer server =event.getWorld().getMinecraftServer();
+		MinecraftServer server = event.getWorld().getMinecraftServer();
 		
-		File readDir;
+		File rootDir;
 		
 		if(BetterQuesting.proxy.isClient())
 		{
 			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName() + "/betterquesting");
-			readDir = server.getFile("saves/" + server.getFolderName());
+			rootDir = server.getFile("saves/" + server.getFolderName());
 		} else
 		{
 			BQ_Settings.curWorldDir = server.getFile(server.getFolderName() + "/betterquesting");
-			readDir = server.getFile(server.getFolderName());
+			rootDir = server.getFile(server.getFolderName());
 		}
-    	
-		// Workaround for old files
-		boolean rename = false;
-		File legFile = new File(readDir, "QuestDatabase.json");
-		if(legFile.exists())
+		
+		File fileDatabase = new File(BQ_Settings.curWorldDir, "QuestDatabase.json");
+		File fileProgress = new File(BQ_Settings.curWorldDir, "QuestProgress.json");
+		File fileParties = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
+		File fileLives = new File(BQ_Settings.curWorldDir, "LifeDatabase.json");
+		File fileNames = new File(BQ_Settings.curWorldDir, "NameCache.json");
+  
+		// MOVE BQ1 LEGACY FILES
+		
+		if(new File(rootDir, "QuestDatabase.json").exists() && !fileDatabase.exists())
 		{
-			rename = true;
-		} else
-		{
-			readDir = BQ_Settings.curWorldDir;
+			File legFileDat = new File(rootDir, "QuestDatabase.json");
+			File legFilePro = new File(rootDir, "QuestProgress.json");
+			File legFilePar = new File(rootDir, "QuestingParties.json");
+			File legFileLiv = new File(rootDir, "LifeDatabase.json");
+			File legFileNam = new File(rootDir, "NameCache.json");
+			
+			JsonHelper.CopyPaste(legFileDat, fileDatabase);
+			JsonHelper.CopyPaste(legFilePro, fileProgress);
+			JsonHelper.CopyPaste(legFilePar, fileParties);
+			JsonHelper.CopyPaste(legFileLiv, fileLives);
+			JsonHelper.CopyPaste(legFileNam, fileNames);
+			
+			legFileDat.delete();
+			legFilePro.delete();
+			legFilePar.delete();
+			legFileLiv.delete();
+			legFileNam.delete();
 		}
 		
 		// === CONFIG ===
 		
-    	File f1 = new File(readDir, "QuestDatabase.json");
-		JsonObject j1 = new JsonObject();
-		boolean useDef = false;
+		boolean useDef = !fileDatabase.exists();
 		
-		if(f1.exists())
+		if(useDef) // LOAD DEFAULTS
 		{
-			j1 = JsonHelper.ReadFromFile(f1);
-			
-			if(rename)
-			{
-				JsonHelper.CopyPaste(f1, new File(readDir, "QuestDatabase_Legacy.json"));
-				f1.delete();
-			}
-		} else
-		{
-			f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
-			
-			if(f1.exists())
-			{
-				useDef = true;
-				j1 = JsonHelper.ReadFromFile(f1);
-			}
+			fileDatabase = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 		}
+		
+		JsonObject j1 = JsonHelper.ReadFromFile(fileDatabase);
 		
 		NBTTagCompound nbt1 = NBTConverter.JSONtoNBT_Object(j1, new NBTTagCompound(), true);
 		
 		String fVer = nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0";
+		String bVer = nbt1.getString("build");
+		String cVer = Loader.instance().activeModContainer().getVersion();
 		
-		if(fVer.equals("1.0.0") && !rename && !useDef)
+		if(!cVer.equalsIgnoreCase(bVer) && !useDef) // RUN BACKUPS
 		{
-			// Probably won't keep this but because I have to hold people's hand and do backups for them...
-			JsonHelper.CopyPaste(new File(readDir, "QuestDatabase.json"), new File(readDir, "QuestDatabase_v2_Backup.json"));
-			JsonHelper.CopyPaste(new File(readDir, "QuestProgress.json"), new File(readDir, "QuestProgress_v2_Backup.json"));
-			JsonHelper.CopyPaste(new File(readDir, "QuestingParties.json"), new File(readDir, "QuestingParties_v2_Backup.json"));
-			JsonHelper.CopyPaste(new File(readDir, "NameCache.json"), new File(readDir, "NameCache_v2_Backup.json"));
-			JsonHelper.CopyPaste(new File(readDir, "LifeDatabase.json"), new File(readDir, "LifeDatabase_v2_Backup.json"));
+			String fsVer = JsonHelper.makeFileNameSafe(bVer);
+			
+			if(fsVer.length() <= 0)
+			{
+				fsVer = "pre-251";
+			}
+			
+			BetterQuesting.logger.log(Level.WARN, "BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + cVer + "\"! Creating back ups...");
+			
+			JsonHelper.CopyPaste(fileDatabase,	new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestDatabase_backup_" + fsVer + ".json"));
+			JsonHelper.CopyPaste(fileProgress,	new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestProgress_backup_" + fsVer + ".json"));
+			JsonHelper.CopyPaste(fileParties,	new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestingParties_backup_" + fsVer + ".json"));
+			JsonHelper.CopyPaste(fileNames,		new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "NameCache_backup_" + fsVer + ".json"));
+			JsonHelper.CopyPaste(fileLives,		new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "LifeDatabase_backup_" + fsVer + ".json"));
 		}
 		
 		ILegacyLoader loader = LegacyLoaderRegistry.getLoader(fVer);
@@ -366,19 +381,7 @@ public class EventHandler
     	
 		// === PROGRESS ===
 		
-    	File f2 = new File(readDir, "QuestProgress.json");
-		JsonObject j2 = new JsonObject();
-		
-		if(f2.exists())
-		{
-			j2 = JsonHelper.ReadFromFile(f2);
-			
-			if(rename)
-			{
-				JsonHelper.CopyPaste(f2, new File(readDir, "QuestDatabase_Legacy.json"));
-				f2.delete();
-			}
-		}
+		JsonObject j2 = JsonHelper.ReadFromFile(fileProgress);
 		
 		if(loader == null)
 		{
@@ -391,39 +394,21 @@ public class EventHandler
 		
 		// === PARTIES ===
 		
-	    File f3 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
-	    JsonObject j3 = new JsonObject();
-	    
-	    if(f3.exists())
-	    {
-	    	j3 = JsonHelper.ReadFromFile(f3);
-	    }
+	    JsonObject j3 = JsonHelper.ReadFromFile(fileParties);
 	    
 		NBTTagCompound nbt3 = NBTConverter.JSONtoNBT_Object(j3, new NBTTagCompound(), true);
 	    PartyManager.INSTANCE.readFromNBT(nbt3.getTagList("parties", 10), EnumSaveType.CONFIG);
 	    
 	    // === NAMES ===
 	    
-	    File f4 = new File(BQ_Settings.curWorldDir, "NameCache.json");
-	    JsonObject j4 = new JsonObject();
-	    
-	    if(f4.exists())
-	    {
-	    	j4 = JsonHelper.ReadFromFile(f4);
-	    }
+	    JsonObject j4 = JsonHelper.ReadFromFile(fileNames);
 	    
 		NBTTagCompound nbt4 = NBTConverter.JSONtoNBT_Object(j4, new NBTTagCompound(), true);
 	    NameCache.INSTANCE.readFromNBT(nbt4.getTagList("nameCache", 10), EnumSaveType.CONFIG);
 	    
 	    // === LIVES ===
 	    
-	    File f5 = new File(BQ_Settings.curWorldDir, "LifeDatabase.json");
-	    JsonObject j5 = new JsonObject();
-	    
-	    if(f5.exists())
-	    {
-	    	j5 = JsonHelper.ReadFromFile(f5);
-	    }
+	    JsonObject j5 = JsonHelper.ReadFromFile(fileLives);
 	    
 		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
 	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), EnumSaveType.PROGRESS);

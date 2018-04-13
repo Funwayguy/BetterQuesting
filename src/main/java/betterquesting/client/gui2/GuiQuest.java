@@ -25,6 +25,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui.editors.GuiQuestEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -106,17 +107,17 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
     
-        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), I18n.format(quest.getUnlocalisedName())).setAlignment(1);
+        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate(quest.getUnlocalisedName())).setAlignment(1);
         panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(panTxt);
     
         if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
         {
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, I18n.format("gui.back")));
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 1, I18n.format("betterquesting.btn.edit")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, QuestTranslation.translate("gui.back")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 1, QuestTranslation.translate("betterquesting.btn.edit")));
         } else
         {
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, I18n.format("gui.back")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         }
         
         cvInner = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 16, 24), 0));
@@ -126,7 +127,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         {
             CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
             cvInner.addPanel(cvDesc);
-            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), I18n.format(quest.getUnlocalisedDescription()), true);
+            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getUnlocalisedDescription()), true);
             paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
             cvDesc.addPanel(paDesc);
             
@@ -135,7 +136,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvDesc.setScrollDriverY(paDescScroll);
             paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
     
-            btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, I18n.format("betterquesting.btn.claim"));
+            btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, QuestTranslation.translate("betterquesting.btn.claim"));
             btnClaim.setBtnState(false);
             cvInner.addPanel(btnClaim);
     
@@ -159,7 +160,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         {
             CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 16, 0), 0));
             cvInner.addPanel(cvDesc);
-            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), I18n.format(quest.getUnlocalisedDescription()), true);
+            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getUnlocalisedDescription()), true);
             paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
             cvDesc.addPanel(paDesc);
             
@@ -171,7 +172,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(quest.getTasks().size() > 0)
         {
-            btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, I18n.format("betterquesting.btn.detect_submit"));
+            btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
             btnDetect.setBtnState(false);
             cvInner.addPanel(btnDetect);
     
@@ -321,7 +322,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         pnReward = new PanelLegacyEmbed<>(rectReward, rew.getRewardGui(rectReward.getX(), rectReward.getY(), rectReward.getWidth(), rectReward.getHeight(), quest));
         cvInner.addPanel(pnReward);
     
-        titleReward.setText(I18n.format(rew.getUnlocalisedName()));
+        titleReward.setText(QuestTranslation.translate(rew.getUnlocalisedName()));
         
         updateButtons();
     }
@@ -352,7 +353,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         pnTask = new PanelLegacyEmbed<>(rectTask, tsk.getTaskGui(rectTask.getX(), rectTask.getY(), rectTask.getWidth(), rectTask.getHeight(), quest));
         cvInner.addPanel(pnTask);
         
-        titleTask.setText(I18n.format(tsk.getUnlocalisedName()));
+        titleTask.setText(QuestTranslation.translate(tsk.getUnlocalisedName()));
         
         updateButtons();
     }

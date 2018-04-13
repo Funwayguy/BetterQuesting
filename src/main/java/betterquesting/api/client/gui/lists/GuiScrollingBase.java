@@ -16,7 +16,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 @SideOnly(Side.CLIENT)
 public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiElement implements IGuiEmbedded
 {
-	private List<T> entries = new ArrayList<T>();
+	private List<T> entries = new ArrayList<>();
 	
 	private final Minecraft mc;
 	private int scroll = 0;
@@ -89,7 +89,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				RenderUtils.endScissor(mc);
+				RenderUtils.endScissor();
 			}
 			
 			listY += e.getHeight();
@@ -150,7 +150,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				RenderUtils.endScissor(mc);
+				RenderUtils.endScissor();
 			}
 			
 			listY += e.getHeight();

@@ -98,12 +98,14 @@ public class CanvasQuestLine extends CanvasScrolling
             IGuiTexture txFrame = null;
             IGuiColor txIconCol = null;
             boolean main = quest.getProperties().getProperty(NativeProps.MAIN);
+            boolean lock = false;
             
             switch(qState)
             {
                 case LOCKED:
                     txFrame = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
                     txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
+                    lock = true;
                     break;
                 case UNLOCKED:
                     txFrame = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
@@ -121,9 +123,11 @@ public class CanvasQuestLine extends CanvasScrolling
             
             IGuiRect rect = new GuiRectangle(qle.getPosX(), qle.getPosY(), qle.getSize(), qle.getSize());
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
-            paBtn.setTextures(new GuiTextureColored(txFrame, txIconCol), new GuiTextureColored(txFrame, txIconCol), new GuiTextureColored(txFrame, txIconCol));
+            IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
+            paBtn.setTextures(btnTx, btnTx, btnTx);
             paBtn.setIcon(new ItemTexture(quest.getItemIcon()), 4);
             paBtn.setTooltip(quest.getTooltip(player));
+            paBtn.setBtnState(!lock);
             
             this.addPanel(paBtn);
             questBtns.put(id, paBtn);

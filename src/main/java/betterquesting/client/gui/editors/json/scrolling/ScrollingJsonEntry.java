@@ -277,7 +277,7 @@ public class ScrollingJsonEntry extends GuiElement implements IScrollingEntry
 					mc.displayGuiScreen(new GuiJsonFluidSelection(mc.currentScreen, new JsonFluidCallback(jo), JsonHelper.JsonToFluidStack(jo)));
 				} else if(JsonHelper.isEntity(jo))
 				{
-					mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(jo), JsonHelper.JsonToEntity(jo, mc.world, true)));
+					mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(jo), JsonHelper.JsonToEntity(jo, mc.world)));
 				}
 			} else if(btn.id == 1) // Advanced
 			{

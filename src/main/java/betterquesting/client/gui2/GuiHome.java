@@ -1,6 +1,7 @@
 package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
+import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -75,14 +76,14 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		CanvasTextured splashTitle = new CanvasTextured(new GuiTransform(new Vector4f(ancX, ancY, ancX, ancY), new GuiPadding(offX, offY, -256 - offX, -128 - offY), 0), homeSplashTitle);
 		splashCan.addPanel(splashTitle);
 		
-		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, I18n.format("betterquesting.home.exit"));
+		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, QuestTranslation.translate("betterquesting.home.exit"));
 		inCan.addPanel(btnExit);
 		
-		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, I18n.format("betterquesting.home.quests"));
+		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, QuestTranslation.translate("betterquesting.home.quests"));
 		inCan.addPanel(btnQuests);
-		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, I18n.format("betterquesting.home.party"));
+		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, QuestTranslation.translate("betterquesting.home.party"));
 		inCan.addPanel(btnParty);
-		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, I18n.format("betterquesting.home.theme"));
+		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, QuestTranslation.translate("betterquesting.home.theme"));
 		inCan.addPanel(btnTheme);
 		
 		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
@@ -90,6 +91,9 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, new GuiPadding(0, 0, -16, -16), 0), 4, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
 			inCan.addPanel(btnEdit);
 		}
+		
+		PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?");
+		inCan.addPanel(tstBtn);
 	}
 	
 	@Override
@@ -133,6 +137,9 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 				QuestSettings.INSTANCE.readFromNBT(value, EnumSaveType.CONFIG);
 				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 			}));
+		} else if(btn.getButtonID() == 5)
+		{
+			mc.displayGuiScreen(new GuiPartyCreate(this));
 		}
 	}
 }

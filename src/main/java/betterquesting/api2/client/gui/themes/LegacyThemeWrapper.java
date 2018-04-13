@@ -38,7 +38,8 @@ public class LegacyThemeWrapper implements IGuiTheme
 		TEX_MAP.put(PresetTexture.BTN_CLEAN_1.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(48, 20, 200, 20), new GuiPadding(2, 2, 2, 3)).setSliceMode(SliceMode.SLICED_TILE));
 		TEX_MAP.put(PresetTexture.BTN_CLEAN_2.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(48, 40, 200, 20), new GuiPadding(2, 2, 2, 3)).setSliceMode(SliceMode.SLICED_TILE));
 
-		TEX_MAP.put(PresetTexture.SCROLL_V_0.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(248, 0, 8, 60), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+		TEX_MAP.put(PresetTexture.SCROLL_V_BG.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(248, 0, 8, 60), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+		TEX_MAP.put(PresetTexture.SCROLL_V_0.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(248, 60, 8, 20), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		TEX_MAP.put(PresetTexture.SCROLL_V_1.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(248, 60, 8, 20), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		TEX_MAP.put(PresetTexture.SCROLL_V_2.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(248, 60, 8, 20), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		

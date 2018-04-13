@@ -182,7 +182,7 @@ public class PanelButton implements IPanelButton
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
-		pendingRelease = isEnabled() && click == 0 && bounds.contains(mx, my);
+		pendingRelease = getBtnState() && click == 0 && bounds.contains(mx, my);
 
 		return false;
 	}
@@ -198,7 +198,7 @@ public class PanelButton implements IPanelButton
 		pendingRelease = false;
 
 		IGuiRect bounds = this.getTransform();
-		boolean clicked = isEnabled() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+		boolean clicked = getBtnState() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 		
 		if(clicked)
 		{

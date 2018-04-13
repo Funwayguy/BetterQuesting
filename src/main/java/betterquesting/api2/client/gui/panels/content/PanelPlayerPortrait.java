@@ -20,7 +20,6 @@ public class PanelPlayerPortrait implements IGuiPanel
 	private boolean enabled = true;
 	
 	private final AbstractClientPlayer player;
-	private final ResourceLocation resource;
 	
 	private final IValueIO<Float> basePitch;
 	private final IValueIO<Float> baseYaw;
@@ -35,12 +34,12 @@ public class PanelPlayerPortrait implements IGuiPanel
 	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player)
 	{
 		this.transform = rect;
-		this.player = player;
+		this.player = new EntityPlayerPreview(player.world, player.getGameProfile());
 		this.player.limbSwing = 0F;
 		this.player.limbSwingAmount = 0F;
 		this.player.rotationYawHead = 0F;
 		
-		this.resource = player.getLocationSkin();
+		ResourceLocation resource = this.player.getLocationSkin();
 		
 		if(Minecraft.getMinecraft().getTextureManager().getTexture(resource) == null)
 		{
@@ -133,14 +132,9 @@ public class PanelPlayerPortrait implements IGuiPanel
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		int scale = Math.min(bounds.getWidth(), bounds.getHeight());
-		/*double d0 = (Minecraft.getSystemTime()%5000L)/5000D;
-		double d1 = (Math.sin(Math.toRadians(d0 * 360D)) + 1D)/2D;
-		double d2 = (Math.cos(Math.toRadians(d0 * 360D)) + 1D)/2D;
-		d1 = d1 * 5D + 10D;
-		d2 = d2 * -10D;*/
 		RenderUtils.RenderEntity(bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 + (int)(scale*1.2F), scale, yawDriver.readValue(), pitchDriver.readValue(), player);
 		
-		RenderUtils.endScissor(mc);
+		RenderUtils.endScissor();
 		GlStateManager.popMatrix();
 	}
 	

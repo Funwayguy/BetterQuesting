@@ -151,7 +151,7 @@ public class PanelHBarFill implements IBarFill
 			texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
 		}
 		
-		RenderUtils.endScissor(mc);
+		RenderUtils.endScissor();
 		
 		GlStateManager.popMatrix();
 	}

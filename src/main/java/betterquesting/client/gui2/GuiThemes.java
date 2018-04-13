@@ -15,6 +15,7 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
+import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.resources.I18n;
 import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
@@ -63,11 +64,11 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		CanvasEmpty inCan = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0));
 		bgCan.addPanel(inCan); 
 		
-		PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), I18n.format("betterquesting.title.select_theme")).setAlignment(1);
+		PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.title.select_theme")).setAlignment(1);
 		panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
 		inCan.addPanel(panTxt);
 		
-		PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, -100, 0), 0), 0, I18n.format("gui.done"));
+		PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, -100, 0), 0), 0, QuestTranslation.translate("gui.done"));
 		bgCan.addPanel(btnExit);
 		
 		CanvasScrolling canScroll = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 16, 16, 16), 0));
@@ -86,7 +87,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 			
 			if(betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
 			{
-				pbs.setEnabled(false);
+				pbs.setBtnState(false);
 			}
 		}
 		

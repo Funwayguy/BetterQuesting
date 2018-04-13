@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -579,17 +580,17 @@ public class QuestInstance implements IQuest
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(I18n.format(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getKey(this))));
+		list.add(QuestTranslation.translate(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getKey(this))));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		if(isComplete(playerID))
 		{
-			list.add(TextFormatting.GREEN + I18n.format("betterquesting.tooltip.complete"));
+			list.add(TextFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete"));
 			
 			if(!hasClaimed(playerID))
 			{
-				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.rewards_pending"));
+				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
 			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() > 0)
 			{
 				long time = getRepeatSeconds(player);
@@ -606,17 +607,17 @@ public class QuestInstance implements IQuest
 				
 				timeTxt += df.format(time%60) + "s";
 				
-				list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
+				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
 			}
 		} else if(!isUnlocked(playerID))
 		{
-			list.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + I18n.format("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
+			list.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + QuestTranslation.translate("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
 			
 			for(IQuest req : preRequisites)
 			{
 				if(!req.isComplete(playerID))
 				{
-					list.add(TextFormatting.RED + "- " + I18n.format(req.getUnlocalisedName()));
+					list.add(TextFormatting.RED + "- " + QuestTranslation.translate(req.getUnlocalisedName()));
 				}
 			}
 		} else
@@ -631,7 +632,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.tasks_complete", n, tasks.size()));
+			list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.tasks_complete", n, tasks.size()));
 		}
 		
 		return list;
@@ -644,15 +645,15 @@ public class QuestInstance implements IQuest
 		
 		//list.add(I18n.format(getUnlocalisedName()) + " #" + parentDB.getKey(this));
 		
-		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
-		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
 		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.global_share", qInfo.getProperty(NativeProps.GLOBAL_SHARE)));
+			list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share", qInfo.getProperty(NativeProps.GLOBAL_SHARE)));
 		}
-		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.task_logic", qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
-		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.simultaneous", qInfo.getProperty(NativeProps.SIMULTANEOUS)));
-		list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.task_logic", qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous", qInfo.getProperty(NativeProps.SIMULTANEOUS)));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
 		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
 		{
 			long time = qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/20;
@@ -669,10 +670,10 @@ public class QuestInstance implements IQuest
 			
 			timeTxt += df.format(time%60) + "s";
 			
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", timeTxt));
+			list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
 		} else
 		{
-			list.add(TextFormatting.GRAY + I18n.format("betterquesting.tooltip.repeat", false));
+			list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", false));
 		}
 		
 		return list;

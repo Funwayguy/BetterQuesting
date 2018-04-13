@@ -120,6 +120,11 @@ public class PanelTextBox implements IGuiPanel
 		int w = fr.getStringWidth(text);
 		int bw = bounds.getWidth();
 		
+		if(bw <= 0)
+		{
+			return;
+		}
+		
 		if(align == 2 && bw >= w)
 		{
 			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);

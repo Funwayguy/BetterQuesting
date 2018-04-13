@@ -6,7 +6,10 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 
 public interface IScrollBar extends IValueIO<Float>, IGuiPanel
 {
-	public IScrollBar setHandleSize(int size, int inset);
-	public IScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleIdle, IGuiTexture handleHover);
-	public IScrollBar setScrollSpeed(float spd);
+	void setActive(boolean state);
+	boolean isActive();
+	
+	IScrollBar setHandleSize(int size, int inset);
+	IScrollBar setBarTexture(IGuiTexture background, IGuiTexture handleDisabled, IGuiTexture handleIdle, IGuiTexture handleHover);
+	IScrollBar setScrollSpeed(float spd);
 }

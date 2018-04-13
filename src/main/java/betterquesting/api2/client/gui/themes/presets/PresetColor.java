@@ -13,6 +13,7 @@ public enum PresetColor
 	TEXT_MAIN("text_main"),
 	TEXT_AUX_0("text_aux_0"),
 	TEXT_AUX_1("text_aux_1"),
+	TEXT_HIGHLIGHT("text_highlight"),
 	
 	GUI_DIVIDER("gui_divider"),
 	
@@ -54,8 +55,9 @@ public enum PresetColor
 	{
 		reg.setDefaultColor(TEXT_HEADER.key, new GuiColorStatic(0, 0, 0, 255)); // Headers
 		reg.setDefaultColor(TEXT_MAIN.key, new GuiColorStatic(0, 0, 0, 255)); // Paragraphs
-		reg.setDefaultColor(TEXT_AUX_0.key, new GuiColorStatic(255, 255, 255, 255)); // Dark panels
-		reg.setDefaultColor(TEXT_AUX_1.key, new GuiColorStatic(0, 0, 0, 255)); // Light panels
+		reg.setDefaultColor(TEXT_AUX_0.key, new GuiColorStatic(255, 255, 255, 255)); // Dark panels (White Text)
+		reg.setDefaultColor(TEXT_AUX_1.key, new GuiColorStatic(0, 0, 0, 255)); // Light panels (Black Text)
+		reg.setDefaultColor(TEXT_HIGHLIGHT.key, new GuiColorStatic(0, 0, 255, 255)); // Selection Highlight (Blue Background)
 		
 		reg.setDefaultColor(GUI_DIVIDER.key, new GuiColorStatic(0, 0, 0, 255));
 		
@@ -77,7 +79,15 @@ public enum PresetColor
 		reg.setDefaultColor(QUEST_ICON_COMPLETE.key, new GuiColorStatic(0, 255, 0, 255));
 	}
 	
-	private static int quickMix(int red, int green, int blue, int alpha)
+	/**
+	 * Colour mixing for the lazy
+	 * @param red Red colour channel
+	 * @param green Green colour channel
+	 * @param blue Blue colour channel
+	 * @param alpha Alpha transparency channel
+	 * @return RGBA integer representation of the colour
+	 */
+	public static int quickMix(int red, int green, int blue, int alpha)
 	{
 		return ((alpha & 255) << 24) | ((red & 255) << 16) | ((green & 255) << 8) | (blue & 255);
 	}

@@ -12,10 +12,10 @@ public class PanelHScrollBar implements IScrollBar
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;
+	private boolean active = true;
 	
 	private IGuiTexture texBack;
-	private IGuiTexture texHndlIdle;
-	private IGuiTexture texHndlHover;
+	private IGuiTexture[] texHandleState = new IGuiTexture[3];
 	
 	private float scroll = 0F;
 	private float speed = 0.1F;
@@ -26,9 +26,7 @@ public class PanelHScrollBar implements IScrollBar
 	public PanelHScrollBar(IGuiRect rect)
 	{
 		this.transform = rect;
-		this.texBack = PresetTexture.SCROLL_H_0.getTexture();
-		this.texHndlIdle = PresetTexture.SCROLL_H_1.getTexture();
-		this.texHndlHover = PresetTexture.SCROLL_H_2.getTexture();
+		this.setBarTexture(PresetTexture.SCROLL_H_BG.getTexture(), PresetTexture.SCROLL_H_0.getTexture(), PresetTexture.SCROLL_H_1.getTexture(), PresetTexture.SCROLL_H_2.getTexture());
 	}
 	
 	@Override
@@ -40,11 +38,12 @@ public class PanelHScrollBar implements IScrollBar
 	}
 	
 	@Override
-	public PanelHScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleIdle, IGuiTexture handleHover)
+	public PanelHScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleDisabled, IGuiTexture handleIdle, IGuiTexture handleHover)
 	{
 		this.texBack = back;
-		this.texHndlIdle = handleIdle;
-		this.texHndlHover = handleHover;
+		this.texHandleState[0] = handleDisabled;
+		this.texHandleState[1] = handleIdle;
+		this.texHandleState[2] = handleHover;
 		return this;
 	}
 	
@@ -73,6 +72,18 @@ public class PanelHScrollBar implements IScrollBar
 	}
 	
 	@Override
+	public void setActive(boolean state)
+	{
+		this.active = state;
+	}
+	
+	@Override
+	public boolean isActive()
+	{
+		return this.active;
+	}
+	
+	@Override
 	public IGuiRect getTransform()
 	{
 		return transform;
@@ -82,7 +93,8 @@ public class PanelHScrollBar implements IScrollBar
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
+		
+		if(active && isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
 		{
 			float cx = (float)(mx - (bounds.getX() + hSize/2)) / (float)(bounds.getWidth() - hSize);
 			this.writeValue(cx);
@@ -100,13 +112,12 @@ public class PanelHScrollBar implements IScrollBar
 		}
 
 		int sx = MathHelper.floor((bounds.getWidth() - hSize - (inset*2)) * scroll);
+		int state = !active ? 0 : (isDragging || bounds.contains(mx, my) ? 2 : 1);
+		IGuiTexture tex = texHandleState[state];
 		
-		if(texHndlHover != null && (isDragging || bounds.contains(mx, my)))
+		if(tex != null)
 		{
-			texHndlHover.drawTexture(bounds.getX() + sx + inset, bounds.getY() + inset, hSize, bounds.getHeight() - (inset*2), 0F, partialTick);
-		} else if(texHndlIdle != null)
-		{
-			texHndlIdle.drawTexture(bounds.getX() + sx + inset, bounds.getY() + inset, hSize, bounds.getHeight() - (inset*2), 0F, partialTick);
+			tex.drawTexture(bounds.getX() + sx + inset, bounds.getY() + inset, hSize, bounds.getHeight() - (inset * 2), 0F, partialTick);
 		}
 		
 		GlStateManager.popMatrix();
@@ -116,7 +127,8 @@ public class PanelHScrollBar implements IScrollBar
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(!bounds.contains(mx, my))
+		
+		if(!active || !bounds.contains(mx, my))
 		{
 			return false;
 		}
@@ -140,7 +152,7 @@ public class PanelHScrollBar implements IScrollBar
 	public boolean onMouseScroll(int mx, int my, int sdx)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(sdx == 0 || !bounds.contains(mx, my))
+		if(!active || sdx == 0 || !bounds.contains(mx, my))
 		{
 			return false;
 		}

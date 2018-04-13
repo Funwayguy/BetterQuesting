@@ -21,6 +21,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -77,11 +78,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         
         if(canEdit)
         {
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, I18n.format("gui.back")));
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, I18n.format("betterquesting.btn.edit")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, QuestTranslation.translate("gui.back")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.edit")));
         } else
         {
-            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, I18n.format("gui.back")));
+            cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         }
     
         CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
@@ -99,7 +100,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         {
             IQuestLine ql = lineList.get(i);
     
-            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, I18n.format(ql.getUnlocalisedName()), ql);
+            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, QuestTranslation.translate(ql.getUnlocalisedName()), ql);
             
             boolean show = canEdit;
             
@@ -152,7 +153,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             cvQuest.setScrollX(lastScrollX);
             cvQuest.setScrollY(lastScrollY);
             
-            paDesc.setText(I18n.format(selectedLine.getUnlocalisedDescription()));
+            paDesc.setText(QuestTranslation.translate(selectedLine.getUnlocalisedDescription()));
             scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
         }
         
@@ -213,7 +214,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             selectedLine = ql;
             selectedLineId = QuestLineDatabase.INSTANCE.getKey(ql);
             cvQuest.setQuestLine(ql);
-            paDesc.setText(I18n.format(ql.getUnlocalisedDescription()));
+            paDesc.setText(QuestTranslation.translate(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
             
             scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);

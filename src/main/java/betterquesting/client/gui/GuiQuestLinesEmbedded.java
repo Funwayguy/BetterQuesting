@@ -33,7 +33,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 	private boolean noScroll = false;
 	private IToolboxTool curTool = null;
 	private IQuestLine qLine;
-	private final List<GuiButtonQuestInstance> qBtns = new ArrayList<GuiButtonQuestInstance>();
+	private final List<GuiButtonQuestInstance> qBtns = new ArrayList<>();
 	private QuestLineButtonTree buttonTree = null;
 	
 	private ResourceLocation bgImg = null;
@@ -148,7 +148,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 				}
 			}
 			
-			RenderUtils.endScissor(mc);
+			RenderUtils.endScissor();
 			GlStateManager.popMatrix();
 		}
 		
@@ -159,7 +159,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			curTool.drawTool(rmx, rmy, partialTick);
-			RenderUtils.endScissor(mc);
+			RenderUtils.endScissor();
 			GlStateManager.popMatrix();
 		}
 		
@@ -335,8 +335,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		float zs = zoom/100F;
 		int sx2 = (int)(sizeX/zs);
 		int sy2 = (int)(sizeY/zs);
-		int zmx = (int)Math.abs(sx2/2 - (maxX + 32)/2);
-		int zmy = (int)Math.abs(sy2/2 - (maxY + 32)/2);
+		int zmx = Math.abs(sx2/2 - (maxX + 32)/2);
+		int zmy = Math.abs(sy2/2 - (maxY + 32)/2);
 		int zox = sx2/2 - (maxX + 32)/2 + 16;
 		int zoy = sy2/2 - (maxY + 32)/2 + 16;
 		scrollX = MathHelper.clamp(scrollX, -zmx + zox, zmx + zox);

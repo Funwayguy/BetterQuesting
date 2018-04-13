@@ -280,7 +280,7 @@ public class CanvasScrolling implements IGuiCanvas
 			}
 		}
 		
-		RenderUtils.endScissor(mc);
+		RenderUtils.endScissor();
 		GlStateManager.popMatrix();
 	}
 	
@@ -401,7 +401,7 @@ public class CanvasScrolling implements IGuiCanvas
 		{
 			if(zoomMode)
 			{
-				float dy = -scroll * 0.05F;// * scrollSpeed;
+				float dy = -scroll * 0.05F;
 				float cs = zoomScale.readValue();
 				
 				zoomScale.writeValue(cs + dy);
@@ -555,7 +555,7 @@ public class CanvasScrolling implements IGuiCanvas
 		} else
 		{
 			scrollBounds.x = left;
-			scrollBounds.y = right;
+			scrollBounds.y = top;
 			scrollBounds.w = Math.max(0, right - left);
 			scrollBounds.h = Math.max(0, bottom - top);
 		}

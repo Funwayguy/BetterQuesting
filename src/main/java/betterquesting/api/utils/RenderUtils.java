@@ -8,16 +8,16 @@ import java.util.Stack;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -29,6 +29,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.core.BetterQuesting;
 
+// TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
 public class RenderUtils
 {
@@ -36,20 +37,17 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text)
 	{
-		RenderItemStack(mc, stack, x, y, text, Color.WHITE);
-	}
-	
-	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
-	{
-		float r = (float)(color >> 16 & 255) / 255.0F;
-        float g = (float)(color >> 8 & 255) / 255.0F;
-        float b = (float)(color & 255) / 255.0F;
-		RenderItemStack(mc, stack, x, y, text, new Color(r, g, b));
+		RenderItemStack(mc, stack, x, y, text, Color.WHITE.getRGB());
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
-		if(stack == null || stack.getItem() == null)
+		RenderItemStack(mc, stack, x, y, text, color.getRGB());
+	}
+	
+	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
+	{
+		if(stack == null)
 		{
 			return;
 		}
@@ -58,7 +56,7 @@ public class RenderUtils
 		
 		if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
 		{
-			NonNullList<ItemStack> tmp = NonNullList.<ItemStack>create();
+			NonNullList<ItemStack> tmp = NonNullList.create();
 			
 			stack.getItem().getSubItems(CreativeTabs.SEARCH, tmp);
 			
@@ -74,14 +72,16 @@ public class RenderUtils
         
 		try
 		{
-		    GlStateManager.color(color.getRed()/255F, color.getGreen()/255F, color.getBlue()/255F);
+			float r = (float)(color >> 16 & 255) / 255.0F;
+			float g = (float)(color >> 8 & 255) / 255.0F;
+			float b = (float)(color & 255) / 255.0F;
+		    GlStateManager.color(r, g, b);
 			RenderHelper.enableGUIStandardItemLighting();
 		    GlStateManager.enableRescaleNormal();
 			
 		    GlStateManager.translate(0.0F, 0.0F, 32.0F);
 		    itemRender.zLevel = 200.0F;
-		    FontRenderer font = null;
-		    if (rStack != null) font = rStack.getItem().getFontRenderer(rStack);
+		    FontRenderer font = rStack.getItem().getFontRenderer(rStack);
 		    if (font == null) font = mc.fontRenderer;
 		    itemRender.renderItemAndEffectIntoGUI(rStack, x, y);
 		    itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, text);
@@ -89,6 +89,7 @@ public class RenderUtils
 		    RenderHelper.disableStandardItemLighting();
 		} catch(Exception e)
 		{
+			BetterQuesting.logger.warn("Unabled to render item " + stack);
 		}
 		
 	    itemRender.zLevel = preZ; // Just in case
@@ -158,6 +159,18 @@ public class RenderUtils
 	
 	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end)
 	{
+		drawHighlightedSplitString(renderer, string, x, y, width, color, shadow, start, end, 0, 0, 0);
+	}
+	
+	// TODO: Clean this up. The list of parameters is getting a bit excessive
+	
+	public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int highlightColor, int highlightStart, int highlightEnd)
+	{
+		drawHighlightedSplitString(renderer, string, x, y, width, color, shadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1, highlightColor, highlightStart, highlightEnd);
+	}
+	
+	public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end, int highlightColor, int highlightStart, int highlightEnd)
+	{
 		if(renderer == null || string == null || string.length() <= 0 || start > end)
 		{
 			return;
@@ -166,6 +179,16 @@ public class RenderUtils
 		string = string.replaceAll("\r", ""); //Line endings from localizations break things so we remove them
 		
 		List<String> list = renderer.listFormattedStringToWidth(string, width);
+		List<String> noFormat = splitStringWithoutFormat(string, width, renderer); // Needed for accurate highlight index positions
+		
+		int hlStart = Math.min(highlightStart, highlightEnd);
+		int hlEnd = Math.max(highlightStart, highlightEnd);
+		int idxStart = 0;
+		
+		for(int i = 0; i < start; i++)
+		{
+			idxStart += noFormat.get(i).length();
+		}
 		
 		for(int i = start; i <= end; i++)
 		{
@@ -175,7 +198,94 @@ public class RenderUtils
 			}
 			
 			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			
+			int lineSize = noFormat.get(i).length();
+			int idxEnd = idxStart + lineSize;
+			
+			if((idxStart >= hlStart && idxStart <= hlEnd) || (idxEnd >= hlStart && idxEnd <= hlEnd))
+			{
+				int i1 = Math.max(idxStart, highlightStart);
+				int i2 = Math.min(idxEnd, highlightEnd);
+				
+				if(i1 != i2)
+				{
+					int x1 = renderer.getStringWidth(noFormat.get(i).substring(0, i1));
+					int x2 = renderer.getStringWidth(noFormat.get(i).substring(0, i2));
+					
+					drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
+				}
+			}
+			
+			idxStart = idxEnd;
 		}
+	}
+	
+	public static void drawHighlightedString(FontRenderer renderer, String string, int x, int y, int color, boolean shadow, int highlightColor, int highlightStart, int highlightEnd)
+	{
+		if(renderer == null || string == null || string.length() <= 0)
+		{
+			return;
+		}
+		
+		renderer.drawString(string, x, y, color, shadow);
+		
+		int idxEnd = string.length();
+		
+		int i1 = Math.max(0, highlightStart);
+		int i2 = Math.min(idxEnd, highlightEnd);
+		
+		if(i1 != i2)
+		{
+			int x1 = renderer.getStringWidth(string.substring(0, i1));
+			int x2 = renderer.getStringWidth(string.substring(0, i2));
+			
+			drawHighlightBox(x + x1, y, x + x2, y + renderer.FONT_HEIGHT, highlightColor);
+		}
+	}
+	
+	public static void drawHighlightBox(int left, int top, int right, int bottom, int color)
+	{
+        if (left < right)
+        {
+            int i = left;
+            left = right;
+            right = i;
+        }
+
+        if (top < bottom)
+        {
+            int j = top;
+            top = bottom;
+            bottom = j;
+        }
+
+        float f3 = (float)(color >> 24 & 255) / 255.0F;
+        float f = (float)(color >> 16 & 255) / 255.0F;
+        float f1 = (float)(color >> 8 & 255) / 255.0F;
+        float f2 = (float)(color & 255) / 255.0F;
+		
+		GlStateManager.pushMatrix();
+  
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.color(f, f1, f2, f3);
+        GlStateManager.disableTexture2D(); // TODO: Figure out why texture 2D causes the first attempt to fail
+       	GlStateManager.enableColorLogic();
+        GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.pos((double)left, (double)bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double)right, (double)bottom, 0.0D).endVertex();
+        bufferbuilder.pos((double)right, (double)top, 0.0D).endVertex();
+        bufferbuilder.pos((double)left, (double)top, 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.disableColorLogic();
+        GlStateManager.enableTexture2D();
+        
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+        
+        GlStateManager.popMatrix();
 	}
 	
 	/**
@@ -190,7 +300,7 @@ public class RenderUtils
 		GL11.glScissor(x * f, (r.getScaledHeight() - y - h)*f, w * f, h * f);
 	}
 	
-	private static Stack<IGuiRect> scissorStack = new Stack<IGuiRect>();
+	private static Stack<IGuiRect> scissorStack = new Stack<>();
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
@@ -208,7 +318,7 @@ public class RenderUtils
 		ScaledResolution r = new ScaledResolution(mc);
 		int f = r.getScaleFactor();
 		
-		// Have to do all this fancy crap because glScissor() isn't affected by glScale() and rather than try and convince devs to use some custom hack
+		// Have to do all this fancy stuff because glScissor() isn't affected by glScale() or glTranslate() and rather than try and convince devs to use some custom hack
 		// we'll just deal with it by reading from the current MODELVIEW MATRIX to convert between screen spaces at their relative scales and translations.
 		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
 		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, fb);
@@ -231,7 +341,6 @@ public class RenderUtils
 			sRect = new GuiRectangle(x, y, w, h, 0);
 		}
 		
-		//GL11.glScissor((int)(sRect.getX() * f * fm.m00), (r.getScaledHeight() - (int)((sRect.getY() + sRect.getHeight()) * fm.m11)) * f, (int)(sRect.getWidth() * f * fm.m00), (int)(sRect.getHeight() * f * fm.m11));
 		GL11.glScissor(sRect.getX(),sRect.getY(), sRect.getWidth(), sRect.getHeight());
 		scissorStack.add(sRect);
 	}
@@ -239,7 +348,7 @@ public class RenderUtils
 	/**
 	 * Pops the last scissor off the stack and returns to the last parent scissor or disables it if there are none
 	 */
-	public static void endScissor(Minecraft mc)
+	public static void endScissor()
 	{
 		scissorStack.pop();
 		
@@ -249,19 +358,18 @@ public class RenderUtils
 		} else
 		{
 			IGuiRect rect = scissorStack.peek();
-			//GL11.glScissor(rect.getX() * f, (r.getScaledHeight() - rect.getY() - rect.getHeight())*f, rect.getWidth() * f, rect.getHeight() * f);
 			GL11.glScissor(rect.getX(),rect.getY(), rect.getWidth(), rect.getHeight());
 		}
 	}
 	
 	/**
-	 * Similar to normally splitting a string with the fontRenderer however this variant preserves
-	 * the original characters (including new line) and does not not attempt to preserver the format
-	 * between lines.
+	 * Similar to normally splitting a string with the fontRenderer however this variant does
+	 * not attempt to preserve the formatting between lines. This is particularly important when the
+	 * index positions in the text are required to match the original unwrapped text.
 	 */
 	public static List<String> splitStringWithoutFormat(String str, int wrapWidth, FontRenderer font)
 	{
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		String lastFormat = ""; // Formatting like bold can affect the wrapping width
 		
@@ -271,21 +379,78 @@ public class RenderUtils
 		{
 			String s = nlSplit[i] + (i + 1 < nlSplit.length? "\n" : ""); // Preserve new line characters for indexing accuracy
 			
-			while(font.getStringWidth(s) >= wrapWidth)
+			while(font.getStringWidth(lastFormat + s) >= wrapWidth) // Continue until wrapping is unnecessary
 			{
+				// Formatting can affect the width so we still have to split as if it were there
 				lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
-				int n = sizeStringToWidth(lastFormat + s, wrapWidth, font);
-				n -= lastFormat.length();
-				n = Math.max(1, n);
-				String subTxt = s.substring(0, n);
-				list.add(subTxt);
-				s = s.replaceFirst(Pattern.quote(subTxt), "");
+				int n = sizeStringToWidth(lastFormat + s, wrapWidth, font); // How many characters will fit into width with formatting
+				n -= lastFormat.length(); // Remove formatting characters from count
+				n = Math.max(1, n); // Line must be at least 1 character long
+				String subTxt = s.substring(0, n); // Cut out our measured substring from the original line
+				list.add(subTxt); // Append substring to list
+				s = s.replaceFirst(Pattern.quote(subTxt), ""); // Remove our substring from original line and prep for the next
 			}
 			
-			list.add(s);
+			list.add(s); // Add whatever is leftover
 		}
         
         return list;
+	}
+	
+	/**
+	 * Returns the index position under a given set of coordinates in a piece of text
+	 */
+	public static int getCursorPos(String text, int x, FontRenderer font)
+	{
+		int i = 0;
+		int swl = 0;
+		int swc;
+		
+		for(; i < text.length(); i++)
+		{
+			swc = font.getStringWidth(text.substring(0, i + 1));
+			
+			if(swc > x)
+			{
+				if(Math.abs(x - swl) >= Math.abs(swc - x))
+				{
+					i++;
+				}
+				
+				break;
+			} else
+			{
+				swl = swc;
+			}
+		}
+		
+		return i;
+	}
+	
+	/**
+	 * Returns the index position under a given set of coordinates in a wrapped piece of text
+	 */
+	public static int getCursorPos(String text, int x, int y, int width, FontRenderer font)
+	{
+		List<String> tLines = RenderUtils.splitStringWithoutFormat(text, width, font);
+		
+		if(tLines.size() <= 0)
+		{
+			return 0;
+		}
+		
+		int row = MathHelper.clamp(y/font.FONT_HEIGHT, 0, tLines.size() - 1);
+		String lastFormat = "";
+		int idx = 0;
+		
+		for(int i = 0; i < row; i++)
+		{
+			String line = tLines.get(i);
+			idx += line.length();
+			lastFormat = FontRenderer.getFormatFromString(lastFormat + line);
+		}
+		
+		return idx + getCursorPos(tLines.get(row), x, font);
 	}
 	
     private static int sizeStringToWidth(String str, int wrapWidth, FontRenderer font)
