@@ -261,7 +261,7 @@ public class CanvasScrolling implements IGuiCanvas
 		GlStateManager.pushMatrix();
 		
 		Minecraft mc = Minecraft.getMinecraft();
-		RenderUtils.startScissor(mc, new GuiRectangle(transform));
+		RenderUtils.startScissor(mc, transform);
 		
 		int tx = transform.getX();
 		int ty = transform.getY();

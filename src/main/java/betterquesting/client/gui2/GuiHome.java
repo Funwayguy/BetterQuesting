@@ -4,7 +4,6 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -33,7 +32,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.party.GuiManageParty;
-import betterquesting.client.gui.party.GuiNoParty;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
@@ -92,8 +90,8 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			inCan.addPanel(btnEdit);
 		}
 		
-		PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?");
-		inCan.addPanel(tstBtn);
+		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?");
+		inCan.addPanel(tstBtn);*/
 	}
 	
 	@Override
@@ -125,7 +123,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 				mc.displayGuiScreen(new GuiManageParty(this, party));
 			} else
 			{
-				mc.displayGuiScreen(new GuiNoParty(this));
+				mc.displayGuiScreen(new GuiPartyCreate(this));
 			}
 		} else if(btn.getButtonID() == 3) // Theme
 		{
@@ -139,7 +137,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			}));
 		} else if(btn.getButtonID() == 5)
 		{
-			mc.displayGuiScreen(new GuiPartyCreate(this));
+			//mc.displayGuiScreen(new GuiPartyCreate(this));
 		}
 	}
 }

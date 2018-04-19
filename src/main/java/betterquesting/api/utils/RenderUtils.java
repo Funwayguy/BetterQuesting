@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Pattern;
+
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -198,22 +200,20 @@ public class RenderUtils
 			}
 			
 			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			//renderer.drawString(noFormat.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
 			
 			int lineSize = noFormat.get(i).length();
 			int idxEnd = idxStart + lineSize;
 			
-			if((idxStart >= hlStart && idxStart <= hlEnd) || (idxEnd >= hlStart && idxEnd <= hlEnd))
+			int i1 = Math.max(idxStart, hlStart) - idxStart;
+			int i2 = Math.min(idxEnd, hlEnd) - idxStart;
+			
+			if(!(i1 == i2 || i1 < 0 || i2 < 0 || i1 > lineSize || i2 > lineSize))
 			{
-				int i1 = Math.max(idxStart, highlightStart);
-				int i2 = Math.min(idxEnd, highlightEnd);
+				int x1 = renderer.getStringWidth(noFormat.get(i).substring(0, i1));
+				int x2 = renderer.getStringWidth(noFormat.get(i).substring(0, i2));
 				
-				if(i1 != i2)
-				{
-					int x1 = renderer.getStringWidth(noFormat.get(i).substring(0, i1));
-					int x2 = renderer.getStringWidth(noFormat.get(i).substring(0, i2));
-					
-					drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
-				}
+				drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
 			}
 			
 			idxStart = idxEnd;
@@ -229,10 +229,12 @@ public class RenderUtils
 		
 		renderer.drawString(string, x, y, color, shadow);
 		
-		int idxEnd = string.length();
+		int hlStart = Math.min(highlightStart, highlightEnd);
+		int hlEnd = Math.max(highlightStart, highlightEnd);
+		int size = string.length();
 		
-		int i1 = Math.max(0, highlightStart);
-		int i2 = Math.min(idxEnd, highlightEnd);
+		int i1 = MathHelper.clamp(hlStart, 0, size);
+		int i2 = MathHelper.clamp(hlEnd, 0, size);
 		
 		if(i1 != i2)
 		{
@@ -241,6 +243,11 @@ public class RenderUtils
 			
 			drawHighlightBox(x + x1, y, x + x2, y + renderer.FONT_HEIGHT, highlightColor);
 		}
+	}
+	
+	public static void drawHighlightBox(IGuiRect rect, IGuiColor color)
+	{
+		drawHighlightBox(rect.getX(), rect.getY(), rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight(), color.getRGB());
 	}
 	
 	public static void drawHighlightBox(int left, int top, int right, int bottom, int color)
@@ -271,7 +278,7 @@ public class RenderUtils
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         GlStateManager.color(f, f1, f2, f3);
-        GlStateManager.disableTexture2D(); // TODO: Figure out why texture 2D causes the first attempt to fail
+        GlStateManager.disableTexture2D();
        	GlStateManager.enableColorLogic();
         GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
@@ -306,7 +313,7 @@ public class RenderUtils
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
 	 * Not using this method will result in incorrect scissoring and scaling of parent/child GUIs
 	 */
-	public static void startScissor(Minecraft mc, GuiRectangle rect)
+	public static void startScissor(Minecraft mc, IGuiRect rect)
 	{
 		if(scissorStack.size() >= 100)
 		{
@@ -372,26 +379,26 @@ public class RenderUtils
 		List<String> list = new ArrayList<>();
 		
 		String lastFormat = ""; // Formatting like bold can affect the wrapping width
+		String temp = str;
 		
-		String[] nlSplit = str.split("\n");
-		
-		for(int i = 0; i < nlSplit.length; i++)
+		while(true)
 		{
-			String s = nlSplit[i] + (i + 1 < nlSplit.length? "\n" : ""); // Preserve new line characters for indexing accuracy
+			int i = sizeStringToWidth(lastFormat + temp, wrapWidth, font);
+			i -= lastFormat.length();
 			
-			while(font.getStringWidth(lastFormat + s) >= wrapWidth) // Continue until wrapping is unnecessary
+			if(temp.length() <= i)
 			{
-				// Formatting can affect the width so we still have to split as if it were there
-				lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
-				int n = sizeStringToWidth(lastFormat + s, wrapWidth, font); // How many characters will fit into width with formatting
-				n -= lastFormat.length(); // Remove formatting characters from count
-				n = Math.max(1, n); // Line must be at least 1 character long
-				String subTxt = s.substring(0, n); // Cut out our measured substring from the original line
-				list.add(subTxt); // Append substring to list
-				s = s.replaceFirst(Pattern.quote(subTxt), ""); // Remove our substring from original line and prep for the next
+				list.add(temp);
+				break;
+			} else
+			{
+				String s = temp.substring(0, i);
+				char c0 = temp.charAt(i);
+				boolean flag = c0 == ' ' || c0 == '\n';
+				lastFormat = FontRenderer.getFormatFromString(s);
+				temp = temp.substring(i + (flag ? 1 : 0));
+				list.add(s + (flag ? "\n" : "")); // We do need to remove the spaces between each line but replace them with invisible new line characters to preserve the index values
 			}
-			
-			list.add(s); // Add whatever is leftover
 		}
         
         return list;
@@ -441,16 +448,17 @@ public class RenderUtils
 		
 		int row = MathHelper.clamp(y/font.FONT_HEIGHT, 0, tLines.size() - 1);
 		String lastFormat = "";
+		String line;
 		int idx = 0;
 		
 		for(int i = 0; i < row; i++)
 		{
-			String line = tLines.get(i);
+			line = tLines.get(i);
 			idx += line.length();
 			lastFormat = FontRenderer.getFormatFromString(lastFormat + line);
 		}
 		
-		return idx + getCursorPos(tLines.get(row), x, font);
+		return idx + getCursorPos(lastFormat + tLines.get(row), x, font) - lastFormat.length();
 	}
 	
     private static int sizeStringToWidth(String str, int wrapWidth, FontRenderer font)
@@ -487,9 +495,9 @@ public class RenderUtils
                         ++k;
                         char c1 = str.charAt(k);
 
-                        if (c1 != 108 && c1 != 76)
+                        if (c1 != 'l' && c1 != 'L')
                         {
-                            if (c1 == 114 || c1 == 82 || isFormatColor(c1))
+                            if (c1 == 'r' || c1 == 'R' || isFormatColor(c1))
                             {
                                 flag = false;
                             }
@@ -501,7 +509,7 @@ public class RenderUtils
                     }
             }
 
-            if (c0 == 10)
+            if (c0 == '\n')
             {
                 ++k;
                 l = k;
@@ -519,7 +527,7 @@ public class RenderUtils
     
     private static boolean isFormatColor(char colorChar)
     {
-        return colorChar >= 48 && colorChar <= 57 || colorChar >= 97 && colorChar <= 102 || colorChar >= 65 && colorChar <= 70;
+        return colorChar >= '0' && colorChar <= '9' || colorChar >= 'a' && colorChar <= 'f' || colorChar >= 'A' && colorChar <= 'F';
     }
     
 	public static float lerpFloat(float f1, float f2, float blend)

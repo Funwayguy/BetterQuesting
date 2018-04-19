@@ -38,6 +38,7 @@ public class GuiNoParty extends GuiScreenThemed implements INeedsRefresh
 	GuiTextField fieldName;
 	GuiButton btnCreate;
 	
+	@Deprecated
 	public GuiNoParty(GuiScreen parent)
 	{
 		super(parent, "betterquesting.title.party_none");

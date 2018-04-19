@@ -94,13 +94,12 @@ public class ClientProxy extends CommonProxy
 		Item item = Item.getItemFromBlock(block);
 		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
 		
-		if(!name.equals(item.getRegistryName()))
+		if(!name.equals(item.getRegistryName().toString()))
 		{
 		    ModelBakery.registerItemVariants(item, model);
 		}
 
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
-	    //Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -114,12 +113,11 @@ public class ClientProxy extends CommonProxy
 	{
 		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
 		
-		if(!name.equals(item.getRegistryName()))
+		if(!name.equals(item.getRegistryName().toString()))
 		{
 		    ModelBakery.registerItemVariants(item, model);
 		}
 		
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
-	    //Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
 	}
 }

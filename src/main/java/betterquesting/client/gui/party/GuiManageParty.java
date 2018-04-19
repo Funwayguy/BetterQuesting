@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import betterquesting.client.gui2.GuiPartyCreate;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -40,7 +42,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 	private int rightScroll = 0; // Member list
 	private int maxRows = 0;
 	private GuiTextField fieldName;
-	private List<UUID> memList = new ArrayList<UUID>();
+	private List<UUID> memList = new ArrayList<>();
 	
 	public GuiManageParty(GuiScreen parent, IParty party)
 	{
@@ -55,7 +57,7 @@ public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 			
 		if(party == null)
 		{
-			mc.displayGuiScreen(new GuiNoParty(parent));
+			mc.displayGuiScreen(new GuiPartyCreate(parent));
 			return;
 		}
 		
