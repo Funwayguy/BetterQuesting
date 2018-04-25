@@ -23,6 +23,7 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
 
+@Deprecated
 public class GuiPartyInvite extends GuiScreenThemed implements INeedsRefresh
 {
 	private final int partyID;

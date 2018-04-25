@@ -1,4 +1,4 @@
-package betterquesting.client.gui2;
+package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -29,17 +29,14 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.core.BetterQuesting;
-import betterquesting.items.ItemExtraLife;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
-import org.lwjgl.util.vector.Vector4f;
+import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 import java.util.UUID;
@@ -63,22 +60,24 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     public void initPanel()
     {
         super.initPanel();
-    
+        
         UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
-    
+        
         IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        
         if(curParty != null)
         {
-            mc.displayGuiScreen(new GuiManageParty(parent, curParty));
+            mc.displayGuiScreen(new GuiPartyManage(parent));
             return;
         }
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
+		Keyboard.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
-        
+    
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
     
         PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_none")).setAlignment(1);
@@ -98,7 +97,6 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         
         flName = new PanelTextField(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -32, 16, 16), 0), "New Party");
         cvLeftHalf.addPanel(flName);
-        flName.setMaxLength(32);
         
         PanelButton btnCreate = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -16, 16, 0), 0), 1, QuestTranslation.translate("betterquesting.btn.party_new"));
         cvLeftHalf.addPanel(btnCreate);
@@ -117,7 +115,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         txInvite.setColor(PresetColor.TEXT_HEADER.getColor());
         cvRightHalf.addPanel(txInvite);
         
-        int width = cvInviteList.getTransform().getWidth();
+        int cvWidth = cvInviteList.getTransform().getWidth();
         List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
         int elSize = mc.fontRenderer.getStringWidth("...");
         
@@ -131,20 +129,20 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
                 continue;
             }
     
-            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(width - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
+            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
             cvInviteList.addPanel(btnJoin);
             
             String pName = party.getName();
-            if(mc.fontRenderer.getStringWidth(pName) > width - 58)
+            if(mc.fontRenderer.getStringWidth(pName) > cvWidth - 58)
             {
-                pName = mc.fontRenderer.trimStringToWidth(pName, width - 58 - elSize) + "...";
+                pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
             }
             
-            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, width - 58, 12, 0), pName);
+            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
             cvInviteList.addPanel(txPartyName);
         }
         
-        scInvite.setEnabled(cvInviteList.getScrollBounds().getHeight() > 0);
+        scInvite.setActive(cvInviteList.getScrollBounds().getHeight() > 0);
         
         // Divider
     

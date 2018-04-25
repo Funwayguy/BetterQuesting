@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import betterquesting.client.gui2.GuiPartyCreate;
+import betterquesting.client.gui2.party.GuiPartyCreate;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -33,6 +33,7 @@ import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 
+@Deprecated
 public class GuiManageParty extends GuiScreenThemed implements INeedsRefresh
 {
 	private ItemStack heart;

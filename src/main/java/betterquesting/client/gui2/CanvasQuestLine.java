@@ -127,7 +127,7 @@ public class CanvasQuestLine extends CanvasScrolling
             paBtn.setTextures(btnTx, btnTx, btnTx);
             paBtn.setIcon(new ItemTexture(quest.getItemIcon()), 4);
             paBtn.setTooltip(quest.getTooltip(player));
-            paBtn.setBtnState(!lock);
+            paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             
             this.addPanel(paBtn);
             questBtns.put(id, paBtn);

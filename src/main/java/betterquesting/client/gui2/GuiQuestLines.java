@@ -27,7 +27,6 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 
 import java.util.List;
 import java.util.UUID;
@@ -120,7 +119,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             
             if(!show || ql == selectedLine)
             {
-                btnLine.setBtnState(false);
+                btnLine.setActive(false);
             }
             
             cvList.addPanel(btnLine);
@@ -204,7 +203,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             {
                 if(b.getStoredValue() == selectedLine)
                 {
-                    b.setBtnState(true);
+                    b.setActive(true);
                     break;
                 }
             }
@@ -219,7 +218,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             
             scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
             
-            btn.setBtnState(false);
+            btn.setActive(false);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select
         {
             @SuppressWarnings("unchecked")

@@ -567,6 +567,9 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		lsx = this.getScrollX();
 		lsy = this.getScrollY();
+		
+		// TODO: Add in dynamic loading/unloading of panels out of view (account for zoom scale). Required for huge item lists with 1000s of entries but should be toggled off for for quest lines.
+		// TODO: Make a child version of this class for item lists that auto-assign item panels to canvas blocks (16x16) that can be loaded/unloaded in bulk
 	}
 	
 	@Override

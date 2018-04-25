@@ -2,6 +2,8 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.gui2.party.GuiPartyCreate;
+import betterquesting.client.gui2.party.GuiPartyManage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,7 +33,6 @@ import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
-import betterquesting.client.gui.party.GuiManageParty;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
@@ -120,7 +121,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			
 			if(party != null)
 			{
-				mc.displayGuiScreen(new GuiManageParty(this, party));
+				mc.displayGuiScreen(new GuiPartyManage(this));
 			} else
 			{
 				mc.displayGuiScreen(new GuiPartyCreate(this));
@@ -137,7 +138,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			}));
 		} else if(btn.getButtonID() == 5)
 		{
-			//mc.displayGuiScreen(new GuiPartyCreate(this));
+			//mc.displayGuiScreen(new GuiPartyInvite(this));
 		}
 	}
 }

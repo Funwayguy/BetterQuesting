@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
@@ -49,6 +50,14 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		initPanel();
 	}
+	
+	@Override
+    public void onGuiClosed()
+    {
+    	super.onGuiClosed();
+		
+		Keyboard.enableRepeatEvents(false);
+    }
 	
 	@Override
 	public void initPanel()

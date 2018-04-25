@@ -16,7 +16,6 @@ import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.resources.I18n;
 import org.lwjgl.util.vector.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -87,7 +86,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 			
 			if(betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
 			{
-				pbs.setBtnState(false);
+				pbs.setActive(false);
 			}
 		}
 		

@@ -183,6 +183,12 @@ public class RenderUtils
 		List<String> list = renderer.listFormattedStringToWidth(string, width);
 		List<String> noFormat = splitStringWithoutFormat(string, width, renderer); // Needed for accurate highlight index positions
 		
+		if(list.size() != noFormat.size())
+		{
+			BetterQuesting.logger.error("LINE COUNT MISSMATCH (" + list.size() + " != " + noFormat.size() + ") ON TEXT: " + string);
+			return;
+		}
+		
 		int hlStart = Math.min(highlightStart, highlightEnd);
 		int hlEnd = Math.max(highlightStart, highlightEnd);
 		int idxStart = 0;
@@ -383,12 +389,15 @@ public class RenderUtils
 		
 		while(true)
 		{
-			int i = sizeStringToWidth(lastFormat + temp, wrapWidth, font);
-			i -= lastFormat.length();
+			int i = sizeStringToWidth(lastFormat + temp, wrapWidth, font); // Cut to size WITH formatting
+			i -= lastFormat.length(); // Remove formatting characters from count
 			
 			if(temp.length() <= i)
 			{
-				list.add(temp);
+				if(temp.length() > 0) // Trailing empty strings are not included when split normally so we don't include them here either
+				{
+					list.add(temp);
+				}
 				break;
 			} else
 			{
@@ -397,7 +406,8 @@ public class RenderUtils
 				boolean flag = c0 == ' ' || c0 == '\n';
 				lastFormat = FontRenderer.getFormatFromString(s);
 				temp = temp.substring(i + (flag ? 1 : 0));
-				list.add(s + (flag ? "\n" : "")); // We do need to remove the spaces between each line but replace them with invisible new line characters to preserve the index values
+				// NOTE: The index actually stops just before the space/nl so we don't need to remove it from THIS line. This is why the previous line moves forward by one for the NEXT line
+				list.add(s + (flag ? "\n" : "")); // Although we need to remove the spaces between each line we have to replace them with invisible new line characters to preserve the index count
 			}
 		}
         

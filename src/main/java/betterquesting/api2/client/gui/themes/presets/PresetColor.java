@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
+// WARNING: Don't use the ordinal indexes. I'll probably be adding/removing enums infrequently
 public enum PresetColor
 {
 	TEXT_HEADER("text_header"),
@@ -14,6 +15,7 @@ public enum PresetColor
 	TEXT_AUX_0("text_aux_0"),
 	TEXT_AUX_1("text_aux_1"),
 	TEXT_HIGHLIGHT("text_highlight"),
+	TEXT_WATERMARK("text_watermark"),
 	
 	GUI_DIVIDER("gui_divider"),
 	
@@ -36,7 +38,7 @@ public enum PresetColor
 	
 	private final ResourceLocation key;
 	
-	private PresetColor(String key)
+	PresetColor(String key)
 	{
 		this.key = new ResourceLocation(BetterQuesting.MODID, key);
 	}
@@ -57,7 +59,8 @@ public enum PresetColor
 		reg.setDefaultColor(TEXT_MAIN.key, new GuiColorStatic(0, 0, 0, 255)); // Paragraphs
 		reg.setDefaultColor(TEXT_AUX_0.key, new GuiColorStatic(255, 255, 255, 255)); // Dark panels (White Text)
 		reg.setDefaultColor(TEXT_AUX_1.key, new GuiColorStatic(0, 0, 0, 255)); // Light panels (Black Text)
-		reg.setDefaultColor(TEXT_HIGHLIGHT.key, new GuiColorStatic(0, 0, 255, 255)); // Selection Highlight (Blue Background)
+		reg.setDefaultColor(TEXT_HIGHLIGHT.key, new GuiColorStatic(0, 0, 255, 255)); // Selection Highlight (Blue Invert)
+		reg.setDefaultColor(TEXT_WATERMARK.key, new GuiColorStatic(128, 128, 128, 255)); // Text Field Watermark (Grey Text)
 		
 		reg.setDefaultColor(GUI_DIVIDER.key, new GuiColorStatic(0, 0, 0, 255));
 		

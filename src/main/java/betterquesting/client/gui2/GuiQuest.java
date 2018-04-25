@@ -32,7 +32,6 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.util.vector.Vector4f;
@@ -137,15 +136,15 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
     
             btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, QuestTranslation.translate("betterquesting.btn.claim"));
-            btnClaim.setBtnState(false);
+            btnClaim.setActive(false);
             cvInner.addPanel(btnClaim);
     
             btnRewardLeft = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, new GuiPadding(0, -16, -16, 0), 0), 2, "<");
-            btnRewardLeft.setBtnState(rewardIndex > 0);
+            btnRewardLeft.setActive(rewardIndex > 0);
             cvInner.addPanel(btnRewardLeft);
     
             btnRewardRight = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(-24, -16, 8, 0), 0), 3, ">");
-            btnRewardRight.setBtnState(rewardIndex < quest.getRewards().size() - 1);
+            btnRewardRight.setActive(rewardIndex < quest.getRewards().size() - 1);
             cvInner.addPanel(btnRewardRight);
             
             rectReward = new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
@@ -173,15 +172,15 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         if(quest.getTasks().size() > 0)
         {
             btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
-            btnDetect.setBtnState(false);
+            btnDetect.setActive(false);
             cvInner.addPanel(btnDetect);
     
             btnTaskLeft = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(8, -16, -24, 0), 0), 4, "<");
-            btnTaskLeft.setBtnState(taskIndex > 0);
+            btnTaskLeft.setActive(taskIndex > 0);
             cvInner.addPanel(btnTaskLeft);
     
             btnTaskRight = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-16, -16, 0, 0), 0), 5, ">");
-            btnTaskRight.setBtnState(taskIndex < quest.getTasks().size() - 1);
+            btnTaskRight.setActive(taskIndex < quest.getTasks().size() - 1);
             cvInner.addPanel(btnTaskRight);
             
             rectTask = new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0);
@@ -364,20 +363,20 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(btnRewardLeft != null && btnRewardRight != null && btnClaim != null)
         {
-            btnRewardLeft.setBtnState(rewardIndex > 0);
-            btnRewardRight.setBtnState(rewardIndex < quest.getRewards().size() - 1);
+            btnRewardLeft.setActive(rewardIndex > 0);
+            btnRewardRight.setActive(rewardIndex < quest.getRewards().size() - 1);
             
             // Claim button state
-            btnClaim.setBtnState(quest.getRewards().size() > 0 && quest.canClaim(mc.player));
+            btnClaim.setActive(quest.getRewards().size() > 0 && quest.canClaim(mc.player));
         }
         
         if(btnTaskLeft != null && btnTaskRight != null && btnDetect != null)
         {
-            btnTaskLeft.setBtnState(taskIndex > 0);
-            btnTaskRight.setBtnState(taskIndex < quest.getTasks().size() - 1);
+            btnTaskLeft.setActive(taskIndex > 0);
+            btnTaskRight.setActive(taskIndex < quest.getTasks().size() - 1);
     
             // Detect/submit button state
-            btnDetect.setBtnState(quest.canSubmit(mc.player));
+            btnDetect.setActive(quest.canSubmit(mc.player));
         }
     }
 }

@@ -29,7 +29,7 @@ public class PanelButton implements IPanelButton
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText;
-	private boolean btnState = true;
+	private boolean isActive = true;
 	private final int btnID;
 	
 	private boolean pendingRelease = false;
@@ -101,15 +101,15 @@ public class PanelButton implements IPanelButton
 	}
 	
 	@Override
-	public boolean getBtnState()
+	public boolean isActive()
 	{
-		return this.btnState;
+		return this.isActive;
 	}
 	
 	@Override
-	public void setBtnState(boolean state)
+	public void setActive(boolean state)
 	{
-		this.btnState = state;
+		this.isActive = state;
 	}
 	
 	@Override
@@ -141,7 +141,7 @@ public class PanelButton implements IPanelButton
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		int curState = !getBtnState()? 0 : (bounds.contains(mx, my)? 2 : 1);
+		int curState = !isActive()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
 		if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
 		{
@@ -182,7 +182,7 @@ public class PanelButton implements IPanelButton
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
-		pendingRelease = getBtnState() && click == 0 && bounds.contains(mx, my);
+		pendingRelease = isActive() && click == 0 && bounds.contains(mx, my);
 
 		return false;
 	}
@@ -198,7 +198,7 @@ public class PanelButton implements IPanelButton
 		pendingRelease = false;
 
 		IGuiRect bounds = this.getTransform();
-		boolean clicked = getBtnState() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+		boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 		
 		if(clicked)
 		{

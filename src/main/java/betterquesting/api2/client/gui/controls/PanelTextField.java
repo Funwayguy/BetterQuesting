@@ -4,6 +4,7 @@ import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -22,17 +23,22 @@ public class PanelTextField implements IGuiPanel
 	private boolean enabled = true;
 	
 	private IGuiTexture[] texState = new IGuiTexture[3];
+	private IGuiColor[] colStates = new IGuiColor[3];
+	private IGuiColor colHighlight;
+	private IGuiColor colWatermark;
+	
     private boolean isFocused = false;
     private boolean isActive = true;
     private boolean canWrap = false;
     private int maxLength = 32;
     
     private String text;
+    private String watermark = "";
     
     private int selectStart = 0;
     private int selectEnd = 0; // WARNING: Selection end can be before selection start!
     private boolean dragging = false;
-    private GuiRectangle cursorLine = new GuiRectangle(0, 0, 1, 12);
+    private GuiRectangle cursorLine = new GuiRectangle(4, 4, 1, 8);
     
     // Yep... we're supporting this without a scrolling canvas (we don't need the zooming and mouse dragging but the scrolling bounds change much more often)
     private IValueIO<Float> scrollX;
@@ -46,6 +52,8 @@ public class PanelTextField implements IGuiPanel
         cursorLine.setParent(this.transform);
         
         this.setTextures(PresetTexture.TEXT_BOX_0.getTexture(), PresetTexture.TEXT_BOX_1.getTexture(), PresetTexture.TEXT_BOX_2.getTexture());
+        this.setMainColors(PresetColor.TEXT_AUX_1.getColor(), PresetColor.TEXT_AUX_1.getColor(), PresetColor.TEXT_AUX_1.getColor());
+        this.setAuxColors(PresetColor.TEXT_WATERMARK.getColor(), PresetColor.TEXT_HIGHLIGHT.getColor());
         
 		// Dummy value drivers
 		
@@ -91,6 +99,21 @@ public class PanelTextField implements IGuiPanel
         this.texState[0] = disabled;
         this.texState[1] = idle;
         this.texState[2] = focused;
+        return this;
+    }
+    
+    public PanelTextField setMainColors(IGuiColor disabled, IGuiColor idle, IGuiColor focused)
+    {
+        this.colStates[0] = disabled;
+        this.colStates[1] = idle;
+        this.colStates[2] = focused;
+        return this;
+    }
+    
+    public PanelTextField setAuxColors(IGuiColor watermark, IGuiColor highlight)
+    {
+        this.colWatermark = watermark;
+        this.colHighlight = highlight;
         return this;
     }
     
@@ -172,6 +195,11 @@ public class PanelTextField implements IGuiPanel
     public boolean isActive()
     {
         return this.isActive;
+    }
+    
+    public void setWatermark(String text)
+    {
+        this.watermark = text;
     }
     
     public void setText(String text)
@@ -392,7 +420,6 @@ public class PanelTextField implements IGuiPanel
         }
         else if (GuiScreen.isKeyComboCtrlA(keyCode))
         {
-            //this.setCursorPositionEnd();
             this.setCursorPosition(text.length());
             this.setSelectionPos(0);
             return true;
@@ -439,6 +466,15 @@ public class PanelTextField implements IGuiPanel
                         this.deleteFromCursor(-1);
                     }
     
+                    return true;
+                }
+                case 28: // Enter
+                {
+                    if(canWrap)
+                    {
+                        this.writeText("\n");
+                    }
+                    
                     return true;
                 }
                 case 199: // Home
@@ -709,17 +745,28 @@ public class PanelTextField implements IGuiPanel
         RenderUtils.startScissor(mc, bounds);
         GlStateManager.translate(-getScrollX(), -getScrollY(), 0);
         
-        if(!canWrap)
+        if(text.length() <= 0)
         {
-            RenderUtils.drawHighlightedString(mc.fontRenderer, text, bounds.getX() + 4, bounds.getY() + 4, PresetColor.TEXT_AUX_1.getColor().getRGB(), false, PresetColor.TEXT_HIGHLIGHT.getColor().getRGB(), selectStart, selectEnd);
+            if(!isFocused)
+            {
+                mc.fontRenderer.drawString(watermark, bounds.getX() + 4, bounds.getY() + 4, colWatermark.getRGB(), false);
+            }
         } else
         {
-            RenderUtils.drawHighlightedSplitString(mc.fontRenderer, text, bounds.getX() + 4, bounds.getY() + 4, bounds.getWidth() - 8, PresetColor.TEXT_AUX_1.getColor().getRGB(), false, PresetColor.TEXT_HIGHLIGHT.getColor().getRGB(), selectStart, selectEnd);
+            IGuiColor c = colStates[state];
+            
+            if(!canWrap)
+            {
+                RenderUtils.drawHighlightedString(mc.fontRenderer, text, bounds.getX() + 4, bounds.getY() + 4, c.getRGB(), false, colHighlight.getRGB(), selectStart, selectEnd);
+            } else
+            {
+                RenderUtils.drawHighlightedSplitString(mc.fontRenderer, text, bounds.getX() + 4, bounds.getY() + 4, bounds.getWidth() - 8, c.getRGB(), false, colHighlight.getRGB(), selectStart, selectEnd);
+            }
         }
         
-        if(selectStart == selectEnd && (System.currentTimeMillis()/500L)%2 == 0)
+        if(isFocused && selectStart == selectEnd && (System.currentTimeMillis()/500L)%2 == 0)
         {
-            RenderUtils.drawHighlightBox(cursorLine, PresetColor.TEXT_HIGHLIGHT.getColor());
+            RenderUtils.drawHighlightBox(cursorLine, colHighlight);
         }
         
         RenderUtils.endScissor();
@@ -731,7 +778,11 @@ public class PanelTextField implements IGuiPanel
     {
         if(transform.contains(mx, my))
         {
-            this.isFocused = true;
+            if(!this.isFocused)
+            {
+                this.isFocused = true;
+                updateScrollBounds(); // Just in case
+            }
             
             if(canWrap)
             {
@@ -745,7 +796,11 @@ public class PanelTextField implements IGuiPanel
             return true;
         }
         
-        this.isFocused = false;
+        if(this.isFocused)
+        {
+            this.isFocused = false;
+            setCursorPosition(0);
+        }
         
         return false;
     }
@@ -759,6 +814,11 @@ public class PanelTextField implements IGuiPanel
     @Override
     public boolean onMouseScroll(int mx, int my, int scroll)
     {
+        if(!isFocused || !transform.contains(mx, my))
+        {
+            return false;
+        }
+        
         if(canWrap)
         {
             setScrollY(getScrollY() + (scroll * 4));
