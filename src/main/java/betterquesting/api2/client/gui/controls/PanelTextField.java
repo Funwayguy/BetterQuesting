@@ -27,6 +27,7 @@ public class PanelTextField implements IGuiPanel
 	private IGuiColor colHighlight;
 	private IGuiColor colWatermark;
 	
+	private boolean lockFocus = false;
     private boolean isFocused = false;
     private boolean isActive = true;
     private boolean canWrap = false;
@@ -133,6 +134,18 @@ public class PanelTextField implements IGuiPanel
         return this;
     }
     
+    public PanelTextField lockFocus(boolean state)
+    {
+        this.lockFocus = state;
+        
+        if(state)
+        {
+            this.isFocused = true;
+        }
+        
+        return this;
+    }
+    
     public PanelTextField setScrollDriverX(IValueIO<Float> driver)
     {
         this.scrollX = driver;
@@ -224,10 +237,9 @@ public class PanelTextField implements IGuiPanel
     /**
      * Writes text to the current cursor position replacing any current selection
      */
-    public void writeText(String s)
+    public void writeText(String in)
     {
         StringBuilder out = new StringBuilder();
-        String in = ChatAllowedCharacters.filterAllowedCharacters(s);
         int l = Math.min(selectStart, selectEnd);
         int r = Math.max(selectStart, selectEnd);
         int space = this.maxLength - text.length() - (l - r);
@@ -623,7 +635,7 @@ public class PanelTextField implements IGuiPanel
                 {
                     String s = lines.get(y);
                     
-                    if(selectEnd >= idx && selectEnd <= idx + s.length())
+                    if(selectEnd >= idx && selectEnd < idx + s.length() + (y == lines.size() - 1 ? 1 : 0))
                     {
                         x = font.getStringWidth(lastFormat + s.substring(0, selectEnd - idx));
                         break;
@@ -683,7 +695,7 @@ public class PanelTextField implements IGuiPanel
         } else
         {
             scrollWidth = 0;
-            scrollHeight = Math.max(0, font.getWordWrappedHeight(text, transform.getWidth() - 8) - (transform.getHeight() - 8));
+            scrollHeight = Math.max(0, (RenderUtils.splitString(text, transform.getWidth() - 8, font).size() * font.FONT_HEIGHT) - (transform.getHeight() - 8));
         }
         
         setScrollX(prevX);
@@ -796,10 +808,10 @@ public class PanelTextField implements IGuiPanel
             return true;
         }
         
-        if(this.isFocused)
+        if(this.isFocused && !lockFocus)
         {
             this.isFocused = false;
-            setCursorPosition(0);
+            //setCursorPosition(0);
         }
         
         return false;
@@ -808,7 +820,7 @@ public class PanelTextField implements IGuiPanel
     @Override
     public boolean onMouseRelease(int mx, int my, int button)
     {
-        return isFocused;
+        return isFocused && dragging;
     }
     
     @Override

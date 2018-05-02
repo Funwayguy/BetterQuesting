@@ -53,7 +53,6 @@ import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -114,21 +113,18 @@ public class EventHandler
 			
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
+			boolean refreshCache = false;
 			
-			List<IQuest> syncList = new ArrayList<IQuest>();
-			List<QuestInstance> updateList = new ArrayList<QuestInstance>();
+			List<IQuest> syncList = new ArrayList<>();
 			
-			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
+			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet()) // Update active tickable tasks
 			{
 				ITask task = entry.getKey();
 				IQuest quest = entry.getValue();
 				
-				if(!task.isComplete(uuid))
+				if(task instanceof ITickableTask && !task.isComplete(uuid))
 				{
-					if(task instanceof ITickableTask)
-					{
-						((ITickableTask)task).updateTask(player, quest);
-					}
+					((ITickableTask)task).updateTask(player, quest);
 					
 					if(task.isComplete(uuid))
 					{
@@ -136,55 +132,38 @@ public class EventHandler
 						{
 							syncList.add(quest);
 						}
-						
-						if(!updateList.contains(quest) && quest instanceof QuestInstance)
-						{
-							updateList.add((QuestInstance)quest);
-						}
 					}
 				}
 			}
 			
-			if(player.ticksExisted%20 == 0)
+			Iterator<IQuest> iterator = syncList.iterator();
+			
+			while(iterator.hasNext())
 			{
-				for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
-				{
-					quest.update(player);
-					
-					if(quest.isComplete(uuid) && !syncList.contains(quest))
-					{
-						syncList.add(quest);
-						updateList.remove(quest);
-					}
-				}
+				IQuest quest = iterator.next();
 				
+				quest.update(player);
+				
+				if(quest.isComplete(uuid))
+				{
+					if(!quest.canSubmit(player))
+					{
+						iterator.remove(); // The quest synced itself, we don't need to do it again
+					} else
+					{
+						PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+					}
+					
+					refreshCache = true; // The quest is no longer required in the cache and any child quests need to be added accordingly
+				} else
+				{
+					PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+				}
+			}
+			
+			if(refreshCache)
+			{
 				QuestCache.INSTANCE.updateCache(player);
-			} else
-			{
-				Iterator<IQuest> iterator = syncList.iterator();
-				
-				while(iterator.hasNext())
-				{
-					IQuest quest = iterator.next();
-					
-					quest.update(player);
-					
-					if(quest.isComplete(uuid) && !quest.canSubmit(player))
-					{
-						iterator.remove();
-						updateList.remove(quest);
-					}
-				}
-			}
-			
-			for(IQuest quest : syncList)
-			{
-				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-			}
-			
-			for(QuestInstance quest : updateList)
-			{
-				quest.postPresetNotice(player, 1);
 			}
 		}
 	}

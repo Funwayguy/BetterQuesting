@@ -17,6 +17,7 @@ import betterquesting.api.client.gui.lists.GuiScrollingText;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class GuiTextEditor extends GuiScreenThemed implements IVolatileScreen
 {

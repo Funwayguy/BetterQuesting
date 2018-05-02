@@ -156,7 +156,7 @@ public class RenderUtils
 	
 	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow)
 	{
-		drawSplitString(renderer, string, x, y, width, color, shadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1);
+		drawSplitString(renderer, string, x, y, width, color, shadow, 0, splitString(string, width, renderer).size() - 1);
 	}
 	
 	public static void drawSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end)
@@ -168,7 +168,7 @@ public class RenderUtils
 	
 	public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int highlightColor, int highlightStart, int highlightEnd)
 	{
-		drawHighlightedSplitString(renderer, string, x, y, width, color, shadow, 0, renderer.listFormattedStringToWidth(string, width).size() - 1, highlightColor, highlightStart, highlightEnd);
+		drawHighlightedSplitString(renderer, string, x, y, width, color, shadow, 0, splitString(string, width, renderer).size() - 1, highlightColor, highlightStart, highlightEnd);
 	}
 	
 	public static void drawHighlightedSplitString(FontRenderer renderer, String string, int x, int y, int width, int color, boolean shadow, int start, int end, int highlightColor, int highlightStart, int highlightEnd)
@@ -180,12 +180,12 @@ public class RenderUtils
 		
 		string = string.replaceAll("\r", ""); //Line endings from localizations break things so we remove them
 		
-		List<String> list = renderer.listFormattedStringToWidth(string, width);
+		List<String> list = splitString(string, width, renderer);
 		List<String> noFormat = splitStringWithoutFormat(string, width, renderer); // Needed for accurate highlight index positions
 		
 		if(list.size() != noFormat.size())
 		{
-			BetterQuesting.logger.error("LINE COUNT MISSMATCH (" + list.size() + " != " + noFormat.size() + ") ON TEXT: " + string);
+			BetterQuesting.logger.error("Line count mismatch (" + list.size() + " != " + noFormat.size() + ") while drawing formatted text!");
 			return;
 		}
 		
@@ -195,6 +195,11 @@ public class RenderUtils
 		
 		for(int i = 0; i < start; i++)
 		{
+			if(i >= noFormat.size())
+			{
+				break;
+			}
+			
 			idxStart += noFormat.get(i).length();
 		}
 		
@@ -216,8 +221,9 @@ public class RenderUtils
 			
 			if(!(i1 == i2 || i1 < 0 || i2 < 0 || i1 > lineSize || i2 > lineSize))
 			{
-				int x1 = renderer.getStringWidth(noFormat.get(i).substring(0, i1));
-				int x2 = renderer.getStringWidth(noFormat.get(i).substring(0, i2));
+				String lastFormat = FontRenderer.getFormatFromString(list.get(i));
+				int x1 = renderer.getStringWidth(lastFormat + noFormat.get(i).substring(0, i1));
+				int x2 = renderer.getStringWidth(lastFormat + noFormat.get(i).substring(0, i2));
 				
 				drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
 			}
@@ -394,10 +400,7 @@ public class RenderUtils
 			
 			if(temp.length() <= i)
 			{
-				if(temp.length() > 0) // Trailing empty strings are not included when split normally so we don't include them here either
-				{
-					list.add(temp);
-				}
+				list.add(temp);
 				break;
 			} else
 			{
@@ -408,6 +411,48 @@ public class RenderUtils
 				temp = temp.substring(i + (flag ? 1 : 0));
 				// NOTE: The index actually stops just before the space/nl so we don't need to remove it from THIS line. This is why the previous line moves forward by one for the NEXT line
 				list.add(s + (flag ? "\n" : "")); // Although we need to remove the spaces between each line we have to replace them with invisible new line characters to preserve the index count
+				
+				if(temp.length() <= 0 && !flag)
+				{
+					break;
+				}
+			}
+		}
+        
+        return list;
+	}
+	
+	/**
+	 * Similar to normally splitting a string with the fontRenderer however this variant does
+	 * not attempt to preserve the formatting between lines. This is particularly important when the
+	 * index positions in the text are required to match the original unwrapped text.
+	 */
+	public static List<String> splitString(String str, int wrapWidth, FontRenderer font)
+	{
+		List<String> list = new ArrayList<>();
+		
+		String temp = str;
+		
+		while(true)
+		{
+			int i = sizeStringToWidth(temp, wrapWidth, font); // Cut to size WITH formatting
+			
+			if(temp.length() <= i)
+			{
+				list.add(temp);
+				break;
+			} else
+			{
+				String s = temp.substring(0, i);
+				char c0 = temp.charAt(i);
+				boolean flag = c0 == ' ' || c0 == '\n';
+				temp = FontRenderer.getFormatFromString(s) + temp.substring(i + (flag ? 1 : 0));
+				list.add(s);
+				
+				if(temp.length() <= 0 && !flag)
+				{
+					break;
+				}
 			}
 		}
         
@@ -419,6 +464,11 @@ public class RenderUtils
 	 */
 	public static int getCursorPos(String text, int x, FontRenderer font)
 	{
+	    if(text.length() <= 0)
+        {
+            return 0;
+        }
+        
 		int i = 0;
 		int swl = 0;
 		int swc;
@@ -429,10 +479,10 @@ public class RenderUtils
 			
 			if(swc > x)
 			{
-				if(Math.abs(x - swl) >= Math.abs(swc - x))
+				/*if(Math.abs(x - swl) >= Math.abs(swc - x))
 				{
 					i++;
-				}
+				}*/
 				
 				break;
 			} else
@@ -440,6 +490,11 @@ public class RenderUtils
 				swl = swc;
 			}
 		}
+		
+		if(i - 1 >= 0 && text.charAt(i - 1) == '\n')
+        {
+            return i - 1;
+        }
 		
 		return i;
 	}

@@ -2,6 +2,8 @@ package betterquesting.client;
 
 import java.io.File;
 import java.io.FileFilter;
+
+import betterquesting.client.gui2.editors.GuiTextEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -14,7 +16,6 @@ import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.client.gui.editors.GuiTextEditor;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
@@ -68,14 +69,7 @@ public final class GuiBuilder implements IGuiHelper
 	@Override
 	public void openTextEditor(GuiScreen parent, ICallback<String> callback, String text)
 	{
-		GuiTextEditor gui = new GuiTextEditor(parent, text);
-		
-		if(callback != null)
-		{
-			gui.setHost(callback);
-		}
-		
-		mc.displayGuiScreen(gui);
+		mc.displayGuiScreen(new GuiTextEditor(parent, text, callback));
 	}
 	
 	@Override
