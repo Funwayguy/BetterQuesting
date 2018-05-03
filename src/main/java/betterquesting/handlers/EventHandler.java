@@ -1,10 +1,6 @@
 package betterquesting.handlers;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -115,53 +111,50 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			boolean refreshCache = false;
 			
-			List<IQuest> syncList = new ArrayList<>();
-			
-			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet()) // Update active tickable tasks
+			for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
 			{
-				ITask task = entry.getKey();
-				IQuest quest = entry.getValue();
-				
-				if(task instanceof ITickableTask && !task.isComplete(uuid))
+				if(quest.canSubmit(player)) // Tasks active or repeating
 				{
-					((ITickableTask)task).updateTask(player, quest);
+					boolean syncMe = false;
 					
-					if(task.isComplete(uuid))
+					for(ITask task : quest.getTasks().getAllValues())
 					{
-						if(!syncList.contains(quest))
+						if(task instanceof ITickableTask && !task.isComplete(uuid))
 						{
-							syncList.add(quest);
+							((ITickableTask)task).updateTask(player, quest);
+							
+							if(task.isComplete(uuid))
+							{
+								syncMe = true;
+							}
 						}
 					}
-				}
-			}
-			
-			Iterator<IQuest> iterator = syncList.iterator();
-			
-			while(iterator.hasNext())
-			{
-				IQuest quest = iterator.next();
 				
-				quest.update(player);
-				
-				if(quest.isComplete(uuid))
-				{
-					if(!quest.canSubmit(player))
+					if(syncMe)
 					{
-						iterator.remove(); // The quest synced itself, we don't need to do it again
+						quest.update(player);
+						
+						if(!quest.isComplete(uuid))
+						{
+							PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+						} else
+						{
+							refreshCache = true;
+						}
+					}
+				} else if(quest.isComplete(uuid)) // Complete & inactive
+				{
+					if(player.ticksExisted % 10 == 0 && quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Waiting to reset
+					{
+						quest.update(player); // This will broadcast a sync anyway
 					} else
 					{
-						PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+						refreshCache = true;
 					}
-					
-					refreshCache = true; // The quest is no longer required in the cache and any child quests need to be added accordingly
-				} else
-				{
-					PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 				}
 			}
 			
-			if(refreshCache)
+			if(refreshCache || player.ticksExisted % 200 == 0)
 			{
 				QuestCache.INSTANCE.updateCache(player);
 			}
