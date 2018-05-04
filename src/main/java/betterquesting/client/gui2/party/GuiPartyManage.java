@@ -121,6 +121,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         btnSetName.setActive(status.ordinal() >= 3);
         
         PanelTextBox txName = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -75, -48, 134, 16, 0), QuestTranslation.translate("betterquesting.gui.name"));
+        txName.setColor(PresetColor.TEXT_HEADER.getColor());
         cvLeftHalf.addPanel(txName);
         
         // Right side
@@ -160,6 +161,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             cvUserList.addPanel(pnPortrait);
             
             PanelTextBox txMemName = new PanelTextBox(new GuiRectangle(32, i * 32 + 4, cvWidth - 32, 12, 0), mName);
+            txMemName.setColor(PresetColor.TEXT_MAIN.getColor());
             cvUserList.addPanel(txMemName);
     
             PanelButtonStorage<UUID> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, i * 32, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), mid);
@@ -179,6 +181,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             }
             
             PanelTextBox txLives = new PanelTextBox(new GuiRectangle(48, i * 32 + 20, cvWidth - 48 - 32, 12, 0), lifeCount);
+            txLives.setColor(PresetColor.TEXT_MAIN.getColor());
             cvUserList.addPanel(txLives);
         }
         

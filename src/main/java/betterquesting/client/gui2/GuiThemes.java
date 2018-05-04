@@ -108,8 +108,9 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		preCanIn0.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor()));
 		
 		CanvasTextured preCanIn1 = new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_INNER.getTexture());
-		preCanIn1.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_0.getColor()));
 		preCan.addPanel(preCanIn1);
+		
+		preCanIn1.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -32, -8, 64, 16, 0), "EXAMPLE").setAlignment(1).setColor(PresetColor.TEXT_AUX_0.getColor()));
 		
 		CanvasTextured preCanIn2 = new CanvasTextured(new GuiTransform(GuiAlign.HALF_BOTTOM, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.AUX_FRAME_0.getTexture());
 		preCan.addPanel(preCanIn2);
@@ -131,8 +132,9 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		preCanIn2.addPanel(pqp);
 		
 		CanvasTextured itemFrame = new CanvasTextured(new GuiTransform(new Vector4f(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), PresetTexture.ITEM_FRAME.getTexture());
-		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook))));
 		preCanIn2.addPanel(itemFrame);
+		
+		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook))));
 		
 		IGuiLine linSeq = new GuiLineSequence(1F, PresetLine.QUEST_LOCKED.getLine(), PresetLine.QUEST_UNLOCKED.getLine(), PresetLine.QUEST_PENDING.getLine(), PresetLine.QUEST_COMPLETE.getLine());
 		IGuiColor colSeq = new GuiColorSequence(1F, PresetColor.QUEST_LINE_LOCKED.getColor(), PresetColor.QUEST_LINE_UNLOCKED.getColor(), PresetColor.QUEST_LINE_PENDING.getColor(), PresetColor.QUEST_LINE_COMPLETE.getColor());

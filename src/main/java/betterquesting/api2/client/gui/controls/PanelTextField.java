@@ -53,7 +53,7 @@ public class PanelTextField implements IGuiPanel
         cursorLine.setParent(this.transform);
         
         this.setTextures(PresetTexture.TEXT_BOX_0.getTexture(), PresetTexture.TEXT_BOX_1.getTexture(), PresetTexture.TEXT_BOX_2.getTexture());
-        this.setMainColors(PresetColor.TEXT_AUX_1.getColor(), PresetColor.TEXT_AUX_1.getColor(), PresetColor.TEXT_AUX_1.getColor());
+        this.setMainColors(PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor());
         this.setAuxColors(PresetColor.TEXT_WATERMARK.getColor(), PresetColor.TEXT_HIGHLIGHT.getColor());
         
 		// Dummy value drivers
