@@ -33,7 +33,7 @@ public class PktHandlerQuestSync implements IPacketHandler
 		if(quest == null)
 		{
 			quest = new QuestInstance();
-			QuestDatabase.INSTANCE.add(quest, questID);
+			QuestDatabase.INSTANCE.add(questID, quest);
 		}
 		
 		quest.readPacket(data);

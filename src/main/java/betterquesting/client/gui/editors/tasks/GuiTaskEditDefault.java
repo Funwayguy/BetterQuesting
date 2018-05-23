@@ -26,8 +26,8 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<NBT
 	{
 		super(parent, task.getUnlocalisedName());
 		this.quest = quest;
-		this.qID = QuestDatabase.INSTANCE.getKey(quest);
-		this.tID = quest.getTasks().getKey(task);
+		this.qID = QuestDatabase.INSTANCE.getID(quest);
+		this.tID = quest.getTasks().getID(task);
 		this.json = task.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
 		this.isDone = false;
 	}

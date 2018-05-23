@@ -46,7 +46,7 @@ public class PktHandlerLineSync implements IPacketHandler
 		if(questLine == null)
 		{
 			questLine = new QuestLine();
-			QuestLineDatabase.INSTANCE.add(questLine, id);
+			QuestLineDatabase.INSTANCE.add(id, questLine);
 		}
 		
 		questLine.readPacket(tag);

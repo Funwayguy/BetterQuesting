@@ -23,6 +23,7 @@ import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -84,10 +85,9 @@ public class CanvasQuestLine extends CanvasScrolling
         
         HashMap<Integer, PanelButtonStorage<IQuest>> questBtns = new HashMap<>();
         
-        for(IQuestLineEntry qle : line.getAllValues())
+        for(DBEntry<IQuestLineEntry> qle : line.getEntries())
         {
-            int id = line.getKey(qle);
-            IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+            IQuest quest = QuestDatabase.INSTANCE.getValue(qle.getID());
             
             if(quest == null || !isQuestShown(quest, pid))
             {
@@ -121,7 +121,7 @@ public class CanvasQuestLine extends CanvasScrolling
                     break;
             }
             
-            IGuiRect rect = new GuiRectangle(qle.getPosX(), qle.getPosY(), qle.getSize(), qle.getSize());
+            IGuiRect rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
             IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
@@ -130,7 +130,7 @@ public class CanvasQuestLine extends CanvasScrolling
             paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             
             this.addPanel(paBtn);
-            questBtns.put(id, paBtn);
+            questBtns.put(qle.getID(), paBtn);
             
             if(!flag)
             {
@@ -186,7 +186,7 @@ public class CanvasQuestLine extends CanvasScrolling
             
             for(IQuest req : reqList)
             {
-                int id = QuestDatabase.INSTANCE.getKey(req);
+                int id = QuestDatabase.INSTANCE.getID(req);
                 
                 PanelButtonStorage<IQuest> parBtn = questBtns.get(id);
                 

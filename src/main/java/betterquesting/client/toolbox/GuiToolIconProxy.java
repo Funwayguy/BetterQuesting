@@ -50,7 +50,7 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setTag("data", base);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
 		
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}

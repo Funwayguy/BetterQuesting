@@ -2,6 +2,8 @@ package betterquesting.api.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.api.api.ApiReference;
@@ -87,10 +89,10 @@ public class QuestLineButtonTree
 			return;
 		}
 		
-		for(int id : line.getAllKeys())
+		for(DBEntry<IQuestLineEntry> qle : line.getEntries())
 		{
-			IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(id);
-			IQuestLineEntry entry = line.getValue(id);
+			IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(qle.getID());
+			IQuestLineEntry entry = qle.getValue();
 			
 			if(quest != null && entry != null)
 			{

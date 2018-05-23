@@ -92,10 +92,10 @@ public class ToolboxToolCopy implements IToolboxTool
 			// Pre-sync
 			IQuest quest = btnQuest.getQuest();
 			IQuestLine qLine = gui.getQuestLine().getQuestLine();
-			int qID = QuestDatabase.INSTANCE.nextKey();
-			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
+			int qID = QuestDatabase.INSTANCE.nextID();
+			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
 			QuestLineEntry qe = new QuestLineEntry(mx, my, Math.max(btnQuest.width, btnQuest.height));
-			qLine.add(qe, qID);
+			qLine.add(qID, qe);
 			btnQuest = null;
 			
 			// Sync Quest

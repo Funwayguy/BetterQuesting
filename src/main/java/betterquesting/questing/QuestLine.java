@@ -1,9 +1,7 @@
 package betterquesting.questing;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -20,10 +18,9 @@ import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
 
-public class QuestLine implements IQuestLine
+public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine
 {
 	private IPropertyContainer info = new PropertyContainer();
-	private final HashMap<Integer,IQuestLineEntry> questList = new HashMap<Integer,IQuestLineEntry>();
 	
 	private IQuestLineDatabase parentDB;
 	
@@ -87,9 +84,9 @@ public class QuestLine implements IQuestLine
 	}
 	
 	@Override
-	public IQuestLineEntry createNewEntry()
+	public IQuestLineEntry createNewEntry(int id)
 	{
-		return new QuestLineEntry(0, 0, 24);
+		return add(id, new QuestLineEntry(0, 0, 24)).getValue();
 	}
 	
 	@Override
@@ -101,7 +98,7 @@ public class QuestLine implements IQuestLine
 	@Override
 	public int getQuestAt(int x, int y)
 	{
-		for(Entry<Integer,IQuestLineEntry> entry : questList.entrySet())
+		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
 			int i1 = entry.getValue().getPosX();
 			int j1 = entry.getValue().getPosY();
@@ -110,89 +107,11 @@ public class QuestLine implements IQuestLine
 			
 			if(x >= i1 && x < i2 && y >= j1 && y < j2)
 			{
-				return entry.getKey();
+				return entry.getID();
 			}
 		}
 		
 		return -1;
-	}
-	
-	/**
-	 * Use <i>QuestDatabase.INSTANCE.nextID()</i>
-	 */
-	@Override
-	@Deprecated
-	public Integer nextKey()
-	{
-		return -1;
-	}
-	
-	@Override
-	public boolean add(IQuestLineEntry entry, Integer questID)
-	{
-		if(questID < 0 || entry == null || questList.containsKey(questID) || questList.containsValue(entry))
-		{
-			return false;
-		}
-		
-		questList.put(questID, entry);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer questID)
-	{
-		return questList.remove(questID) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IQuestLineEntry entry)
-	{
-		return removeKey(getKey(entry));
-	}
-	
-	@Override
-	public IQuestLineEntry getValue(Integer questID)
-	{
-		return questList.get(questID);
-	}
-	
-	@Override
-	public Integer getKey(IQuestLineEntry entry)
-	{
-		for(Entry<Integer,IQuestLineEntry> list : questList.entrySet())
-		{
-			if(list.getValue() == entry)
-			{
-				return list.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public List<IQuestLineEntry> getAllValues()
-	{
-		return new ArrayList<IQuestLineEntry>(questList.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(questList.keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return questList.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		questList.clear();
 	}
 	
 	@Override
@@ -202,7 +121,7 @@ public class QuestLine implements IQuestLine
 		NBTTagCompound base = new NBTTagCompound();
 		base.setTag("line", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		tags.setTag("data", base);
-		tags.setInteger("lineID", parentDB.getKey(this));
+		tags.setInteger("lineID", parentDB.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
 	}
@@ -221,14 +140,14 @@ public class QuestLine implements IQuestLine
 			return json;
 		}
 		
-		json.setTag("properties", info.writeToNBT(new NBTTagCompound(), saveType));
+		json.setTag("properties", info.writeToNBT(new NBTTagCompound()));
 		
 		NBTTagList jArr = new NBTTagList();
 		
-		for(Entry<Integer,IQuestLineEntry> entry : questList.entrySet())
+		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
 			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
-			qle.setInteger("id", entry.getKey());
+			qle.setInteger("id", entry.getID());
 			jArr.appendTag(qle);
 		}
 		
@@ -244,15 +163,16 @@ public class QuestLine implements IQuestLine
 			return;
 		}
 		
-		info.readFromNBT(json.getCompoundTag("properties"), saveType);
+		info.readFromNBT(json.getCompoundTag("properties"));
 		
-		questList.clear();
+		reset();
+		
 		NBTTagList qList = json.getTagList("quests", 10);
 		for(int i = 0; i < qList.tagCount(); i++)
 		{
 			NBTBase entry = qList.get(i);
 			
-			if(entry == null || entry.getId() != 10)
+			if(entry.getId() != 10)
 			{
 				continue;
 			}
@@ -263,7 +183,7 @@ public class QuestLine implements IQuestLine
 			
 			if(id >= 0)
 			{
-				questList.put(id, new QuestLineEntry(qTag));
+				add(id, new QuestLineEntry(qTag));
 			}
 		}
 		

@@ -1,9 +1,7 @@
 package betterquesting.storage;
 
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 
@@ -30,14 +28,14 @@ public class PropertyContainer implements IPropertyContainer
 			return null;
 		}
 		
-		NBTBase jProp = getJsonDomain(prop.getKey()).getTag(prop.getKey().getResourcePath());
+		NBTTagCompound jProp = getDomain(prop.getKey());
 		
-		if(jProp == null)
+		if(!jProp.hasKey(prop.getKey().getResourcePath()))
 		{
 			return def;
 		}
 		
-		return prop.readValue(jProp);
+		return prop.readValue(jProp.getTag(prop.getKey().getResourcePath()));
 	}
 	
 	@Override
@@ -48,7 +46,7 @@ public class PropertyContainer implements IPropertyContainer
 			return false;
 		}
 		
-		return getJsonDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
+		return getDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
 	}
 	
 	@Override
@@ -59,26 +57,26 @@ public class PropertyContainer implements IPropertyContainer
 			return;
 		}
 		
-		NBTTagCompound dom = getJsonDomain(prop.getKey());
+		NBTTagCompound dom = getDomain(prop.getKey());
 		dom.setTag(prop.getKey().getResourcePath(), prop.writeValue(value));
 		nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
 		nbt.merge(nbtInfo);
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
 		nbtInfo = new NBTTagCompound();
 		nbtInfo.merge(nbt);
 	}
 	
-	private NBTTagCompound getJsonDomain(ResourceLocation res)
+	private NBTTagCompound getDomain(ResourceLocation res)
 	{
 		return nbtInfo.getCompoundTag(res.getResourceDomain());
 	}

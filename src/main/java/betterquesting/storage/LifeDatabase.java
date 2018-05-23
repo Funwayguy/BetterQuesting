@@ -19,8 +19,8 @@ public final class LifeDatabase implements ILifeDatabase
 {
 	public static final LifeDatabase INSTANCE = new LifeDatabase();
 	
-	private final HashMap<UUID,Integer> playerLives = new HashMap<UUID,Integer>();
-	private final HashMap<Integer,Integer> partyLives = new HashMap<Integer,Integer>();
+	private final HashMap<UUID,Integer> playerLives = new HashMap<>();
+	private final HashMap<Integer,Integer> partyLives = new HashMap<>();
 	
 	private LifeDatabase()
 	{
@@ -59,7 +59,7 @@ public final class LifeDatabase implements ILifeDatabase
 	@Override
 	public int getLives(IParty party)
 	{
-		int id = party == null? -1 : PartyManager.INSTANCE.getKey(party);
+		int id = party == null? -1 : PartyManager.INSTANCE.getID(party);
 		
 		if(id < 0)
 		{
@@ -80,7 +80,7 @@ public final class LifeDatabase implements ILifeDatabase
 	@Override
 	public void setLives(IParty party, int value)
 	{
-		int id = party == null? -1 : PartyManager.INSTANCE.getKey(party);
+		int id = party == null? -1 : PartyManager.INSTANCE.getID(party);
 		
 		if(id < 0)
 		{

@@ -2,6 +2,8 @@ package betterquesting.commands.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -30,15 +32,15 @@ public class QuestCommandDelete extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		}
 		
@@ -68,7 +70,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			{
 				int id = Integer.parseInt(args[1].trim());
 				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-				QuestDatabase.INSTANCE.removeKey(id);
+				QuestDatabase.INSTANCE.removeID(id);
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getUnlocalisedName())));

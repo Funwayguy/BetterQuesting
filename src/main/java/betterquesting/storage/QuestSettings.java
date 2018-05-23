@@ -23,14 +23,14 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		tags.setTag("data", writeToNBT(new NBTTagCompound()));
 		return new QuestingPacket(PacketTypeNative.SETTINGS.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getCompoundTag("data"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data"));
 	}
 	
 	@Override
@@ -45,16 +45,16 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		super.readFromNBT(json, saveType);
+		super.readFromNBT(json);
 		
 		this.setupProps();
 	}
 	
 	public void reset()
 	{
-		this.readFromNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+		this.readFromNBT(new NBTTagCompound());
 	}
 	
 	private void setupProps()

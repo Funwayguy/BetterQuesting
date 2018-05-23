@@ -35,7 +35,7 @@ public class GuiQuestLineDesigner extends GuiScreenThemed implements IVolatileSc
 	{
 		super(parent, "betterquesting.title.designer"); // This title won't be shown but for the sake of labels...
 		this.qLine = qLine;
-		this.lineID = QuestLineDatabase.INSTANCE.getKey(qLine);
+		this.lineID = QuestLineDatabase.INSTANCE.getID(qLine);
 	}
 	
 	public GuiQuestLinesEmbedded getEmbeddedGui()

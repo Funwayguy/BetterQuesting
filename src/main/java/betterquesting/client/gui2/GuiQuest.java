@@ -2,6 +2,7 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
@@ -65,7 +66,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     private int taskIndex = 0;
     
     // TODO: Replace this stupid variable when legacy tasks/rewards are less dumb
-    private long autoRefreshTime = 0;
+    private long autoRefreshTime;
     
     public GuiQuest(GuiScreen parent, int questID)
     {
@@ -281,12 +282,12 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         } else if(btn.getButtonID() == 6) // Reward claim
         {
             NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+            tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
         } else if(btn.getButtonID() == 7) // Task detect/submit
         {
             NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+            tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.DETECT.GetLocation(), tags));
         }
     }
@@ -316,10 +317,18 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             return;
         }
         
-        IReward rew = quest.getRewards().getAllValues().get(rewardIndex);
+        IReward rew = quest.getRewards().getEntries()[rewardIndex].getValue();
         
-        pnReward = new PanelLegacyEmbed<>(rectReward, rew.getRewardGui(rectReward.getX(), rectReward.getY(), rectReward.getWidth(), rectReward.getHeight(), quest));
-        cvInner.addPanel(pnReward);
+        IGuiEmbedded gem = rew.getRewardGui(rectReward.getX(), rectReward.getY(), rectReward.getWidth(), rectReward.getHeight(), quest);
+        
+        if(gem != null)
+        {
+            pnReward = new PanelLegacyEmbed<>(rectReward, gem);
+            cvInner.addPanel(pnReward);
+        } else
+        {
+            pnReward = null;
+        }
     
         titleReward.setText(QuestTranslation.translate(rew.getUnlocalisedName()));
         
@@ -347,10 +356,18 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             return;
         }
         
-        ITask tsk = quest.getTasks().getAllValues().get(taskIndex);
+        ITask tsk = quest.getTasks().getEntries()[taskIndex].getValue();
         
-        pnTask = new PanelLegacyEmbed<>(rectTask, tsk.getTaskGui(rectTask.getX(), rectTask.getY(), rectTask.getWidth(), rectTask.getHeight(), quest));
-        cvInner.addPanel(pnTask);
+        IGuiEmbedded gem = tsk.getTaskGui(rectTask.getX(), rectTask.getY(), rectTask.getWidth(), rectTask.getHeight(), quest);
+        
+        if(gem != null)
+        {
+            pnTask = new PanelLegacyEmbed<>(rectTask, gem);
+            cvInner.addPanel(pnTask);
+        } else
+        {
+            pnTask = null;
+        }
         
         titleTask.setText(QuestTranslation.translate(tsk.getUnlocalisedName()));
         

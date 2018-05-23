@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.tasks.ITask;
 
 /**
@@ -23,7 +25,8 @@ public class QuestCache
 	public static final QuestCache INSTANCE = new QuestCache();
 	
 	// Player UUID > Quest IDs > Task IDs
-	private final HashMap<UUID,HashMap<Integer,List<Integer>>> rawCache = new HashMap<UUID,HashMap<Integer,List<Integer>>>();
+	// TODO: Make thread safe. OSS is likey the only build-in GUI using it but expansions may use it too.
+	private final HashMap<UUID,HashMap<Integer,List<Integer>>> rawCache = new HashMap<>();
 	
 	private QuestCache()
 	{
@@ -40,12 +43,12 @@ public class QuestCache
 		
 		HashMap<Integer,List<Integer>> pCache = new HashMap<Integer,List<Integer>>();
 		
-		IQuestDatabase questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB);
-		List<Integer> idList = questDB.getAllKeys();
+		IDatabase<IQuest> questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB);
+		DBEntry<IQuest>[] idList = questDB.getEntries();
 		
-		for(int qID : idList)
+		for(DBEntry<IQuest> entry : idList)
 		{
-			IQuest quest = questDB.getValue(qID);
+			IQuest quest = questDB.getValue(entry.getID());
 			
 			if(quest == null || (!quest.isUnlocked(uuid) && !quest.getProperties().getProperty(NativeProps.LOCKED_PROGRESS)))
 			{
@@ -62,19 +65,17 @@ public class QuestCache
 				continue;
 			}
 			
-			List<Integer> tList = new ArrayList<Integer>();
+			List<Integer> tList = new ArrayList<>();
 			
-			for(int tID : quest.getTasks().getAllKeys())
+			for(DBEntry<ITask> task : quest.getTasks().getEntries())
 			{
-				ITask task = quest.getTasks().getValue(tID);
-				
-				if(task != null && !task.isComplete(uuid))
+				if(!task.getValue().isComplete(uuid))
 				{
-					tList.add(tID);
+					tList.add(task.getID());
 				}
 			}
 			
-			pCache.put(qID, tList);
+			pCache.put(entry.getID(), tList);
 		}
 		
 		rawCache.put(uuid, pCache);

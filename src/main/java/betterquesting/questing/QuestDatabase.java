@@ -1,133 +1,27 @@
 package betterquesting.questing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api2.storage.BigDatabase;
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.network.PacketTypeNative;
 
-public final class QuestDatabase implements IQuestDatabase
+public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDatabase
 {
 	public static final QuestDatabase INSTANCE = new QuestDatabase();
 	
-	private final ConcurrentHashMap<Integer, IQuest> database = new ConcurrentHashMap<Integer, IQuest>();
-	
-	private QuestDatabase()
-	{
-	}
-	
 	@Override
-	public IQuest createNew()
+	public IQuest createNew(int id)
 	{
 		IQuest q = new QuestInstance();
 		q.setParentDatabase(this);
+		this.add(id, q);
 		return q;
-	}
-	
-	@Override
-	public Integer nextKey()
-	{
-		int id = 0;
-		
-		while(database.containsKey(id))
-		{
-			id++;
-		}
-		
-		return id;
-	}
-	
-	@Override
-	public boolean add(IQuest obj, Integer id)
-	{
-		if(id < 0 || obj == null || database.containsKey(id) || database.containsValue(obj))
-		{
-			return false;
-		}
-		
-		obj.setParentDatabase(this);
-		database.put(id, obj);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		IQuest remQ = database.remove(id);
-		
-		if(remQ == null)
-		{
-			return false;
-		}
-		
-		for(IQuest quest : this.getAllValues())
-		{
-			// Remove from all pre-requisites
-			quest.getPrerequisites().remove(remQ);
-		}
-		
-		// Clear quest from quest lines
-		QuestLineDatabase.INSTANCE.removeQuest(id);
-		
-		return true;
-	}
-	
-	@Override
-	public boolean removeValue(IQuest quest)
-	{
-		return removeKey(getKey(quest));
-	}
-	
-	@Override
-	public IQuest getValue(Integer id)
-	{
-		return database.get(id);
-	}
-	
-	@Override
-	public Integer getKey(IQuest quest)
-	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
-		{
-			if(entry.getValue() == quest)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public List<IQuest> getAllValues()
-	{
-		return new ArrayList<IQuest>(database.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(((Map<Integer,IQuest>)database).keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return database.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		database.clear();
 	}
 	
 	@Override
@@ -156,11 +50,9 @@ public final class QuestDatabase implements IQuestDatabase
 		switch(saveType)
 		{
 			case CONFIG:
-				writeToJson_Config(json);
-				break;
+				return writeToJson_Config(json);
 			case PROGRESS:
-				writeToJson_Progress(json);
-				break;
+				return writeToJson_Progress(json);
 			default:
 				break;
 		}
@@ -186,25 +78,26 @@ public final class QuestDatabase implements IQuestDatabase
 	
 	private NBTTagList writeToJson_Config(NBTTagList json)
 	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
+		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
 			entry.getValue().writeToNBT(jq, EnumSaveType.CONFIG);
-			jq.setInteger("questID", entry.getKey());
+			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
 		
 		return json;
 	}
 	
-	private void readFromJson_Config(NBTTagList json)
+	private void readFromJson_Config(NBTTagList nbt)
 	{
-		database.clear();
-		for(int i = 0; i < json.tagCount(); i++)
+		this.reset();
+		
+		for(int i = 0; i < nbt.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
+			NBTBase entry = nbt.get(i);
 			
-			if(entry == null || entry.getId() != 10)
+			if(entry.getId() != 10)
 			{
 				continue;
 			}
@@ -219,19 +112,18 @@ public final class QuestDatabase implements IQuestDatabase
 			}
 			
 			IQuest quest = getValue(qID);
-			quest = quest != null? quest : this.createNew();
+			quest = quest != null? quest : this.createNew(qID);
 			quest.readFromNBT(qTag, EnumSaveType.CONFIG);
-			database.put(qID, quest);
 		}
 	}
 	
 	private NBTTagList writeToJson_Progress(NBTTagList json)
 	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
+		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
 			entry.getValue().writeToNBT(jq, EnumSaveType.PROGRESS);
-			jq.setInteger("questID", entry.getKey());
+			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
 		
@@ -244,7 +136,7 @@ public final class QuestDatabase implements IQuestDatabase
 		{
 			NBTBase entry = json.get(i);
 			
-			if(entry == null || entry.getId() != 10)
+			if(entry.getId() != 10)
 			{
 				continue;
 			}

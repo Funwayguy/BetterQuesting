@@ -39,7 +39,7 @@ public class PktHandlerPartySync implements IPacketHandler
 		if(party == null)
 		{
 			party = new PartyInstance();
-			PartyManager.INSTANCE.add(party, partyID);
+			PartyManager.INSTANCE.add(partyID, party);
 		}
 		
 		party.readPacket(tag);

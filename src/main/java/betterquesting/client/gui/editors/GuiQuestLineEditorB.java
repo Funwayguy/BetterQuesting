@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,8 +40,8 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	private IQuestLine line;
 	
 	GuiBigTextField searchBox;
-	List<Integer> searchResults = new ArrayList<Integer>();
-	List<Integer> lineQuests = new ArrayList<Integer>();
+	List<Integer> searchResults = new ArrayList<>();
+	DBEntry<IQuestLineEntry>[] lineQuests = new DBEntry[0];
 	
 	private GuiScrollingButtons dbBtnList;
 	private GuiScrollingButtons qlBtnList;
@@ -49,7 +50,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	{
 		super(parent, I18n.format("betterquesting.title.edit_line2", line == null? "?" : I18n.format(line.getUnlocalisedName())));
 		this.line = line;
-		this.lineID = QuestLineDatabase.INSTANCE.getKey(line);
+		this.lineID = QuestLineDatabase.INSTANCE.getID(line);
 	}
 	
 	@Override
@@ -135,7 +136,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				}
 			} else if(column == 1 && line != null) // Remove quest
 			{
-				line.removeKey(id);
+				line.removeID(id);
 				//RefreshColumns();
 				SendChanges(EnumPacketAction.EDIT, lineID);
 			} else if(column == 4 && id >= 0) // Delete quest
@@ -153,11 +154,11 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				topLoop:
 				while(true)
 				{
-					for(IQuestLineEntry qe2 : line.getAllValues())
+					for(DBEntry<IQuestLineEntry> qe2 : line.getEntries())
 					{
-						int x2 = qe2.getPosX();
-						int y2 = qe2.getPosY();
-						int s2 = qe2.getSize();
+						int x2 = qe2.getValue().getPosX();
+						int y2 = qe2.getValue().getPosY();
+						int s2 = qe2.getValue().getSize();
 						
 						if(x1 >= x2 && x1 < x2 + s2 && y1 >= y2 && y1 < y2 + s2)
 						{
@@ -171,7 +172,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 				}
 				
 				qe.setPosition(x1, y1);
-				line.add(qe, id);
+				line.add(id, qe);
 				RefreshColumns();
 				SendChanges(EnumPacketAction.EDIT, lineID);
 			}
@@ -202,7 +203,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		}
 		
 		tags.setInteger("action", action.ordinal());
-		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
+		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
 		
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
@@ -211,17 +212,17 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 	{
 		if(line == null)
 		{
-			lineQuests.clear();
+			lineQuests = new DBEntry[0];
 		} else
 		{
-			lineQuests = line.getAllKeys();
+			lineQuests = line.getEntries();
 		}
     	
 		qlBtnList.getEntryList().clear();
 		
-		for(int qID : lineQuests)
+		for(DBEntry<IQuestLineEntry> qID : lineQuests)
 		{
-			IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
+			IQuest quest = QuestDatabase.INSTANCE.getValue(qID.getID());
 			
 			if(quest == null)
 			{
@@ -229,7 +230,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			}
 			
 			int bWidth = qlBtnList.getListWidth();
-			int bID = (2 + qID) << 3; // First 3 bits reserved for column index
+			int bID = (2 + qID.getID()) << 3; // First 3 bits reserved for column index
 			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 20, 20, I18n.format(quest.getUnlocalisedName()));
 			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, TextFormatting.YELLOW + ">");
 			
@@ -250,7 +251,7 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 			int bWidth = dbBtnList.getListWidth();
 			int bID = (2 + qID) << 3; // First 3 bits reserved for column index
 			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, TextFormatting.GREEN + "<");
-			btn3.enabled = line != null && !lineQuests.contains(qID);
+			btn3.enabled = line != null && line.getValue(qID) == null;
 			GuiButtonThemed btn4 = new GuiButtonThemed(bID + 3, 0, 0, bWidth - 40, 20, I18n.format(quest.getUnlocalisedName()));
 			GuiButtonThemed btn5 = new GuiButtonThemed(bID + 4, 0, 0, 20, 20, "" + TextFormatting.BOLD + TextFormatting.RED + "x");
 			
@@ -281,13 +282,13 @@ public class GuiQuestLineEditorB extends GuiScreenThemed implements IVolatileScr
 		searchResults.clear();
 		String query = searchBox.getText().toLowerCase();
 		
-		for(int id : QuestDatabase.INSTANCE.getAllKeys())
+		for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
 		{
-			IQuest q = QuestDatabase.INSTANCE.getValue(id);
+			IQuest q = entry.getValue();
 			
-			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
+			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + entry.getID()))
 			{
-				searchResults.add(id);
+				searchResults.add(entry.getID());
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -233,7 +235,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 			
 			selQuest = Math.max(0, activeQuests.indexOf(quest));
-			selTask = Math.max(0, quest.getTasks().getAllValues().indexOf(task));
+			selTask = Math.max(0, indexOfTask(quest, task));
 			
 			for(int i = 1; i <= 4; i++)
 			{
@@ -267,7 +269,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			task = null;
 		} else
 		{
-			task = quest.getTasks().getAllValues().get(selTask);
+			task = quest.getTasks().getEntries()[selTask].getValue();
 		}
 		
 		if(task == null)
@@ -283,7 +285,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			}
 		}
 		
-		btnSelect.enabled = task != null && (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.player));
+		btnSelect.enabled = (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.player));
 	}
 	
 	/**
@@ -292,5 +294,21 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 	int PositiveModulo(int value, int mod) // Shortcut method because I'm lazy
 	{
 		return (value%mod + mod)%mod;
+	}
+	
+	// TODO: Please kill this code when replacing with BQ3 GUI. Using the raw index order is a BAD IDEA!
+	private static int indexOfTask(IQuest quest, ITask task)
+	{
+		DBEntry<ITask>[] db = quest.getTasks().getEntries();
+		
+		for(int i = 0; i < db.length; i++)
+		{
+			if(db[i].getValue() == task)
+			{
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 }

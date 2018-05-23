@@ -74,7 +74,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 		if(args[1].equalsIgnoreCase("save"))
 		{
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
 			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			base.setString("format", BetterQuesting.FORMAT);
@@ -93,7 +93,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 			{
 				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
-				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"), EnumSaveType.CONFIG);
+				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
 				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
 				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);

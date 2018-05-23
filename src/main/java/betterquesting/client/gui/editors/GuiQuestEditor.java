@@ -49,7 +49,7 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 	{
 		super(parent, I18n.format("betterquesting.title.edit_quest", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
-		this.id = QuestDatabase.INSTANCE.getKey(quest);
+		this.id = QuestDatabase.INSTANCE.getID(quest);
 	}
 	
 	@Override

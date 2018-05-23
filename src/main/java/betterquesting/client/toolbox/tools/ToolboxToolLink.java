@@ -88,7 +88,7 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 				base1.setTag("progress", b1.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 				tag1.setTag("data", base1);
 				tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag1.setInteger("questID", QuestDatabase.INSTANCE.getKey(b1.getQuest()));
+				tag1.setInteger("questID", QuestDatabase.INSTANCE.getID(b1.getQuest()));
 				
 				// Sync Quest 2
 				NBTTagCompound tag2 = new NBTTagCompound();
@@ -97,7 +97,7 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 				base1.setTag("progress", b2.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 				tag2.setTag("data", base2);
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag2.setInteger("questID", QuestDatabase.INSTANCE.getKey(b2.getQuest()));
+				tag2.setInteger("questID", QuestDatabase.INSTANCE.getID(b2.getQuest()));
 				
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));

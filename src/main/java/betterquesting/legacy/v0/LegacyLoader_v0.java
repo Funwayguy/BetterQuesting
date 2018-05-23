@@ -1,7 +1,11 @@
 package betterquesting.legacy.v0;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import betterquesting.api2.storage.IDatabaseNBT;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumSaveType;
@@ -14,7 +18,6 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.legacy.ILegacyLoader;
@@ -80,9 +83,9 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			quest = quest != null? quest : new QuestInstance();
 			readQuest(quest, json);
 			
-			if(quest != null && flag)
+			if(flag)
 			{
-				QuestDatabase.INSTANCE.add(quest, qID);
+				QuestDatabase.INSTANCE.add(qID, quest);
 			}
 		}
 	}
@@ -101,7 +104,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			IQuestLine qLine = new QuestLine();
 			readLine(qLine, je.getAsJsonObject());
 			
-			QuestLineDatabase.INSTANCE.add(qLine, QuestLineDatabase.INSTANCE.nextKey());
+			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), qLine);
 		}
 	}
 	
@@ -136,14 +139,14 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			if(prq == null)
 			{
 				prq = new QuestInstance();
-				QuestDatabase.INSTANCE.add(prq, qID);
+				QuestDatabase.INSTANCE.add(qID, prq);
 			}
 			
 			quest.getPrerequisites().add(prq);
 		}
 		
-		IRegStorageBase<Integer,ITask> taskDB = quest.getTasks();
-		ArrayList<ITask> uaTasks = new ArrayList<ITask>();
+		IDatabaseNBT<ITask, NBTTagList> taskDB = quest.getTasks();
+		List<ITask> uaTasks = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "tasks"))
 		{
@@ -178,7 +181,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				
 				if(index >= 0)
 				{
-					taskDB.add(task, index);
+					taskDB.add(index, task);
 				} else
 				{
 					uaTasks.add(task);
@@ -190,7 +193,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				
 				if(index >= 0)
 				{
-					taskDB.add(tph, index);
+					taskDB.add(index, tph);
 				} else
 				{
 					uaTasks.add(tph);
@@ -200,11 +203,11 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		
 		for(ITask t : uaTasks)
 		{
-			taskDB.add(t, taskDB.nextKey());
+			taskDB.add(taskDB.nextID(), t);
 		}
 		
-		IRegStorageBase<Integer,IReward> rewardDB = quest.getRewards();
-		ArrayList<IReward> unassigned = new ArrayList<IReward>();
+		IDatabaseNBT<IReward, NBTTagList> rewardDB = quest.getRewards();
+		List<IReward> unassigned = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "rewards"))
 		{
@@ -239,7 +242,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				
 				if(index >= 0)
 				{
-					rewardDB.add(reward, index);
+					rewardDB.add(index, reward);
 				} else
 				{
 					unassigned.add(reward);
@@ -251,7 +254,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				
 				if(index >= 0)
 				{
-					rewardDB.add(rph, index);
+					rewardDB.add(index, rph);
 				} else
 				{
 					unassigned.add(rph);
@@ -261,7 +264,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		
 		for(IReward r : unassigned)
 		{
-			rewardDB.add(r, rewardDB.nextKey());
+			rewardDB.add(rewardDB.nextID(), r);
 		}
 	}
 	
@@ -285,7 +288,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			
 			if(qID >= 0)
 			{
-				qLine.add(entry, qID);
+				qLine.add(qID, entry);
 			}
 		}
 	}

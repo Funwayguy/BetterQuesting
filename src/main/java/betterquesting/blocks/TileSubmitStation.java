@@ -38,7 +38,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 {
 	private final IItemHandler itemHandler;
 	private final IFluidHandler fluidHandler;
-	private NonNullList<ItemStack> itemStack = NonNullList.<ItemStack>withSize(2, ItemStack.EMPTY);
+	private NonNullList<ItemStack> itemStack = NonNullList.withSize(2, ItemStack.EMPTY);
 	boolean needsUpdate = false;
 	public UUID owner;
 	public int questID;
@@ -324,8 +324,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			return;
 		}
 		
-		this.questID = QuestDatabase.INSTANCE.getKey(quest);
-		this.taskID = quest.getTasks().getKey(task);
+		this.questID = QuestDatabase.INSTANCE.getID(quest);
+		this.taskID = quest.getTasks().getID(task);
 		
 		if(this.questID < 0 || this.taskID < 0)
 		{

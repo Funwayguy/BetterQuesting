@@ -4,6 +4,7 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -21,14 +22,13 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui.editors.GuiQuestLineEditorA;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-
-import java.util.List;
 import java.util.UUID;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
@@ -91,13 +91,13 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         cvBackground.addPanel(pnQScroll);
         pnQScroll.getTransform().setParent(cvList.getTransform());
     
-        List<IQuestLine> lineList = QuestLineDatabase.INSTANCE.getAllValues();
-        this.qlBtns = new PanelButtonStorage[lineList.size()];
+        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getEntries();
+        this.qlBtns = new PanelButtonStorage[lineList.length];
         UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
     
-        for(int i = 0; i < lineList.size(); i++)
+        for(int i = 0; i < lineList.length; i++)
         {
-            IQuestLine ql = lineList.get(i);
+            IQuestLine ql = lineList[i].getValue();
     
             PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, QuestTranslation.translate(ql.getUnlocalisedName()), ql);
             
@@ -105,9 +105,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             
             if(!show)
             {
-                for(int qID : ql.getAllKeys())
+                for(DBEntry<IQuestLineEntry> qID : ql.getEntries())
                 {
-                    IQuest q = QuestDatabase.INSTANCE.getValue(qID);
+                    IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
                     
                     if(q != null && CanvasQuestLine.isQuestShown(q, playerID))
                     {
@@ -211,7 +211,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             @SuppressWarnings("unchecked")
             IQuestLine ql = ((PanelButtonStorage<IQuestLine>)btn).getStoredValue();
             selectedLine = ql;
-            selectedLineId = QuestLineDatabase.INSTANCE.getKey(ql);
+            selectedLineId = QuestLineDatabase.INSTANCE.getID(ql);
             cvQuest.setQuestLine(ql);
             paDesc.setText(QuestTranslation.translate(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
@@ -223,7 +223,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         {
             @SuppressWarnings("unchecked")
             IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
-            GuiHome.bookmark = new GuiQuest(this, QuestDatabase.INSTANCE.getKey(quest));
+            GuiHome.bookmark = new GuiQuest(this, QuestDatabase.INSTANCE.getID(quest));
             this.lastScrollX = cvQuest.getScrollX();
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();

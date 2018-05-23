@@ -5,12 +5,9 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.regex.Pattern;
-
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -88,6 +85,8 @@ public class RenderUtils
 		    itemRender.renderItemAndEffectIntoGUI(rStack, x, y);
 		    itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, text);
 		    
+		    // TODO: Fix stack numbers above 3 digits long
+		    
 		    RenderHelper.disableStandardItemLighting();
 		} catch(Exception e)
 		{
@@ -117,7 +116,7 @@ public class RenderUtils
 	        GlStateManager.translate(0D, entity.getYOffset(), 0D);
 	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
-	        rendermanager.doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
 	        GlStateManager.popMatrix();
@@ -185,7 +184,7 @@ public class RenderUtils
 		
 		if(list.size() != noFormat.size())
 		{
-			BetterQuesting.logger.error("Line count mismatch (" + list.size() + " != " + noFormat.size() + ") while drawing formatted text!");
+			//BetterQuesting.logger.error("Line count mismatch (" + list.size() + " != " + noFormat.size() + ") while drawing formatted text!");
 			return;
 		}
 		
@@ -211,7 +210,24 @@ public class RenderUtils
 			}
 			
 			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
-			//renderer.drawString(noFormat.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			
+			// DEBUG
+			/*boolean b = (System.currentTimeMillis()/1000)%2 == 0;
+			
+			if(b)
+			{
+				renderer.drawString(i + ": " + list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			}
+			
+			if(i >= noFormat.size())
+			{
+				continue;
+			}
+			
+			if(!b)
+			{
+				renderer.drawString(i + ": " + noFormat.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			}*/
 			
 			int lineSize = noFormat.get(i).length();
 			int idxEnd = idxStart + lineSize;
@@ -407,7 +423,7 @@ public class RenderUtils
 				String s = temp.substring(0, i);
 				char c0 = temp.charAt(i);
 				boolean flag = c0 == ' ' || c0 == '\n';
-				lastFormat = FontRenderer.getFormatFromString(s);
+				lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
 				temp = temp.substring(i + (flag ? 1 : 0));
 				// NOTE: The index actually stops just before the space/nl so we don't need to remove it from THIS line. This is why the previous line moves forward by one for the NEXT line
 				list.add(s + (flag ? "\n" : "")); // Although we need to remove the spaces between each line we have to replace them with invisible new line characters to preserve the index count

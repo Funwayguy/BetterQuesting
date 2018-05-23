@@ -3,6 +3,8 @@ package betterquesting.commands.admin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -31,15 +33,15 @@ public class QuestCommandReset extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		} else if(args.length == 3)
 		{
@@ -76,14 +78,14 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
+			for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
 			{
 				if(uuid != null)
 				{
-					quest.resetUser(uuid, true); // Clear progress and state
+					entry.getValue().resetUser(uuid, true); // Clear progress and state
 				} else
 				{
-					quest.resetAll(true);
+					entry.getValue().resetAll(true);
 				}
 			}
 			

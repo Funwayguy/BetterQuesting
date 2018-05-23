@@ -226,7 +226,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             UUID id = ((PanelButtonStorage<UUID>)btn).getStoredValue();
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
-			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
 			tags.setString("target", id.toString());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         } else if(btn.getButtonID() == 4) // Change name
@@ -245,7 +245,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 		
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+		tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
 		tags.setTag("data", party.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}

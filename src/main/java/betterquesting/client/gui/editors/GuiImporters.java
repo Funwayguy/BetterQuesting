@@ -2,6 +2,8 @@ package betterquesting.client.gui.editors;
 
 import java.io.File;
 import java.io.IOException;
+
+import betterquesting.core.BetterQuesting;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -112,7 +114,7 @@ public class GuiImporters extends GuiScreenThemed implements IMultiCallback<File
 	{
 		if(selected != null)
 		{
-			IQuestDatabase questDB = new ImportedQuests();
+			ImportedQuests questDB = new ImportedQuests();
 			IQuestLineDatabase lineDB = new ImportedQuestLines();
 			
 			selected.loadFiles(questDB, lineDB, files);

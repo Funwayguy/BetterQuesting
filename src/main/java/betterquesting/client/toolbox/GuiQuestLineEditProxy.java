@@ -55,7 +55,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		}
 		
 		tags.setInteger("action", action.ordinal());
-		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
+		tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
 		
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}

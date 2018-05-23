@@ -2,9 +2,9 @@ package betterquesting.questing.party;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -16,26 +16,20 @@ import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.NameCache;
 
-public final class PartyManager implements IPartyDatabase
+public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase
 {
 	public static final PartyManager INSTANCE = new PartyManager();
-	
-	private final ConcurrentHashMap<Integer, IParty> partyList = new ConcurrentHashMap<Integer, IParty>();
-	
-	private PartyManager()
-	{
-	}
 	
 	@Override
 	public IParty getUserParty(UUID uuid)
 	{
-		for(IParty p : getAllValues())
+		for(DBEntry<IParty> entry : getEntries())
 		{
-			EnumPartyStatus status = p.getStatus(uuid);
+			EnumPartyStatus status = entry.getValue().getStatus(uuid);
 			
 			if(status != null && status != EnumPartyStatus.INVITE)
 			{
-				return p;
+				return entry.getValue();
 			}
 		}
 		
@@ -45,100 +39,19 @@ public final class PartyManager implements IPartyDatabase
 	@Override
 	public List<Integer> getPartyInvites(UUID uuid)
 	{
-		ArrayList<Integer> invites = new ArrayList<Integer>();
+		List<Integer> invites = new ArrayList<>();
 		
 		boolean isOp = NameCache.INSTANCE.isOP(uuid);
 		
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
+		for(DBEntry<IParty> entry : getEntries())
 		{
 			if(isOp || entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
 			{
-				invites.add(entry.getKey());
+				invites.add(entry.getID());
 			}
 		}
 		
 		return invites;
-	}
-	
-	@Override
-	public Integer nextKey()
-	{
-		int i = 0;
-		
-		while(partyList.containsKey(i))
-		{
-			i++;
-		}
-		
-		return i;
-	}
-	
-	@Override
-	public boolean add(IParty party, Integer id)
-	{
-		if(party == null || id < 0 || partyList.containsKey(id) || partyList.containsValue(party))
-		{
-			return false;
-		}
-		
-		partyList.put(id, party);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		return partyList.remove(id) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IParty party)
-	{
-		return removeKey(getKey(party));
-	}
-	
-	@Override
-	public IParty getValue(Integer id)
-	{
-		return partyList.get(id);
-	}
-	
-	@Override
-	public Integer getKey(IParty party)
-	{
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
-		{
-			if(entry.getValue() == party)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public int size()
-	{
-		return partyList.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		partyList.clear();
-	}
-	
-	@Override
-	public List<IParty> getAllValues()
-	{
-		return new ArrayList<IParty>(partyList.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(partyList.keySet());
 	}
 	
 	@Override
@@ -163,10 +76,10 @@ public final class PartyManager implements IPartyDatabase
 			return json;
 		}
 		
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
+		for(DBEntry<IParty> entry : getEntries())
 		{
 			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
-			jp.setInteger("partyID", entry.getKey());
+			jp.setInteger("partyID", entry.getID());
 			json.appendTag(jp);
 		}
 		
@@ -181,12 +94,13 @@ public final class PartyManager implements IPartyDatabase
 			return;
 		}
 		
-		partyList.clear();
+		reset();
+		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
 			NBTBase element = json.get(i);
 			
-			if(element == null || element.getId() != 10)
+			if(element.getId() != 10)
 			{
 				continue;
 			}
@@ -205,7 +119,7 @@ public final class PartyManager implements IPartyDatabase
 			
 			if(party.getMembers().size() > 0)
 			{
-				partyList.put(partyID, party);
+				add(partyID, party);
 			}
 		}
 	}

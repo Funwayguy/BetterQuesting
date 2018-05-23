@@ -2,6 +2,8 @@ package betterquesting.handlers;
 
 import java.io.File;
 import java.util.UUID;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -117,13 +119,13 @@ public class EventHandler
 				{
 					boolean syncMe = false;
 					
-					for(ITask task : quest.getTasks().getAllValues())
+					for(DBEntry<ITask> task : quest.getTasks().getEntries())
 					{
-						if(task instanceof ITickableTask && !task.isComplete(uuid))
+						if(task.getValue() instanceof ITickableTask && !task.getValue().isComplete(uuid))
 						{
-							((ITickableTask)task).updateTask(player, quest);
+							((ITickableTask)task.getValue()).updateTask(player, quest);
 							
-							if(task.isComplete(uuid))
+							if(task.getValue().isComplete(uuid))
 							{
 								syncMe = true;
 							}
@@ -180,7 +182,7 @@ public class EventHandler
 			
 			NBTTagCompound jsonCon = new NBTTagCompound();
 			
-			jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
 			jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 			
@@ -343,7 +345,7 @@ public class EventHandler
 		
 		if(loader == null)
 		{
-			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"), EnumSaveType.CONFIG);
+			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
 			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
 			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 		} else

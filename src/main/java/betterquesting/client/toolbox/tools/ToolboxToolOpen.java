@@ -33,7 +33,7 @@ public class ToolboxToolOpen implements IToolboxTool
 		
 		if(btn != null)
 		{
-			int qID = QuestDatabase.INSTANCE.getKey(btn.getQuest());
+			int qID = QuestDatabase.INSTANCE.getID(btn.getQuest());
 			
 			Minecraft mc = Minecraft.getMinecraft();
 			btn.playPressSound(mc.getSoundHandler());

@@ -91,11 +91,11 @@ public class ToolboxToolScale implements IToolboxTool
 		if(grabbed == null)
 		{
 			grabbed = gui.getQuestLine().getButtonAt(mx, my);
-			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getKey(grabbed.getQuest());
+			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getID(grabbed.getQuest());
 		} else
 		{
 			IQuestLine qLine = gui.getQuestLine().getQuestLine();
-			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
+			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
 			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
 			
 			if(qle != null)

@@ -41,15 +41,15 @@ public class ToolboxToolRemove implements IToolboxTool
 		
 		if(line != null && btn != null)
 		{
-			int qID = QuestDatabase.INSTANCE.getKey(btn.getQuest());
-			line.removeKey(qID);
+			int qID = QuestDatabase.INSTANCE.getID(btn.getQuest());
+			line.removeID(qID);
 			
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 			NBTTagCompound base = new NBTTagCompound();
 			base.setTag("line", line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 			tags.setTag("data", base);
-			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getKey(line));
+			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 		}
 	}

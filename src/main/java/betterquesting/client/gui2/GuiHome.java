@@ -131,9 +131,9 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null, (NBTTagCompound value) ->
+			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), null, (NBTTagCompound value) ->
 			{
-				QuestSettings.INSTANCE.readFromNBT(value, EnumSaveType.CONFIG);
+				QuestSettings.INSTANCE.readFromNBT(value);
 				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 			}));
 		} else if(btn.getButtonID() == 5)

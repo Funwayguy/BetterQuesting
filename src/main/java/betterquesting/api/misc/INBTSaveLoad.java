@@ -5,6 +5,6 @@ import betterquesting.api.enums.EnumSaveType;
 
 public interface INBTSaveLoad<T extends NBTBase>
 {
-	public T writeToNBT(T nbt, EnumSaveType saveType);
-	public void readFromNBT(T nbt, EnumSaveType saveType);
+	T writeToNBT(T nbt, EnumSaveType saveType);
+	void readFromNBT(T nbt, EnumSaveType saveType);
 }

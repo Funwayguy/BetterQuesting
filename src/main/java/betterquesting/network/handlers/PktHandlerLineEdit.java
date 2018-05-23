@@ -57,7 +57,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 		if(action == EnumPacketAction.ADD) 
 		{
 			IQuestLine nq = new QuestLine();
-			int nID = QuestLineDatabase.INSTANCE.nextKey();
+			int nID = QuestLineDatabase.INSTANCE.nextID();
 			
 			if(data.hasKey("data") && lID >= 0)
 			{
@@ -67,7 +67,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 				nq.readFromNBT(base.getCompoundTag("line"), EnumSaveType.CONFIG);
 			}
 			
-			QuestLineDatabase.INSTANCE.add(nq, nID);
+			QuestLineDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
@@ -85,7 +85,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 			return;
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
-			QuestLineDatabase.INSTANCE.removeKey(lID);
+			QuestLineDatabase.INSTANCE.removeID(lID);
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			return;
 		}

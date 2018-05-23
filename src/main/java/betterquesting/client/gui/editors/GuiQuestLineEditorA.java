@@ -1,8 +1,7 @@
 package betterquesting.client.gui.editors;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -33,7 +32,7 @@ import betterquesting.questing.QuestLineDatabase;
 @SideOnly(Side.CLIENT)
 public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<String>, IVolatileScreen, INeedsRefresh
 {
-	private List<Integer> questList = new ArrayList<Integer>();
+	private DBEntry<IQuestLine>[] questList = new DBEntry[0];
 	private GuiButtonThemed btnDesign;
 	private GuiTextField lineTitle;
 	private GuiBigTextField lineDesc;
@@ -120,7 +119,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 	
 	public void SendChanges(EnumPacketAction action, IQuestLine questLine)
 	{
-		SendChanges(action, QuestLineDatabase.INSTANCE.getKey(questLine));
+		SendChanges(action, QuestLineDatabase.INSTANCE.getID(questLine));
 	}
 
 	public void SendChanges(EnumPacketAction action, int lineID)
@@ -146,7 +145,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 			tags.setTag("data", base);
 		}
 		
-		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getKey(questLine));
+		tags.setInteger("lineID", questLine == null? -1 : QuestLineDatabase.INSTANCE.getID(questLine));
 		tags.setInteger("order", order);
 		tags.setInteger("action", action.ordinal());
 		
@@ -311,7 +310,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 	
 	public void RefreshColumns()
 	{
-		questList = QuestLineDatabase.INSTANCE.getAllKeys();
+		questList = QuestLineDatabase.INSTANCE.getEntries();
 		
 		if(btnDesign != null)
 		{
@@ -320,19 +319,12 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 		
 		btnList.getEntryList().clear();
 		
-		for(int qlid : questList)
+		for(DBEntry<IQuestLine> qlid : questList)
 		{
-			IQuestLine line = QuestLineDatabase.INSTANCE.getValue(qlid);
-			
-			if(line == null)
-			{
-				continue;
-			}
-			
 			int bWidth = btnList.getListWidth();
-			int bID = (5 + qlid) << 2; // Offsets the quest line ID to avoid conflict with existing button IDs and reserves 2 bits for column index
-			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 40, 20, I18n.format(line.getUnlocalisedName()));
-			btn1.enabled = line != selected;
+			int bID = (5 + qlid.getID()) << 2; // Offsets the quest line ID to avoid conflict with existing button IDs and reserves 2 bits for column index
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, bWidth - 40, 20, I18n.format(qlid.getValue().getUnlocalisedName()));
+			btn1.enabled = qlid.getValue() != selected;
 			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			GuiButtonThemed btn3 = new GuiButtonThemed(bID + 2, 0, 0, 20, 20, "" + TextFormatting.YELLOW + TextFormatting.BOLD + "^");
 			

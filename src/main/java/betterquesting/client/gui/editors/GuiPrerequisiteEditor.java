@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -44,7 +45,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 	{
 		super(parent, "betterquesting.title.pre_requisites");
 		this.quest = quest;
-		this.questID = QuestDatabase.INSTANCE.getKey(quest);
+		this.questID = QuestDatabase.INSTANCE.getID(quest);
 	}
 	
 	@Override
@@ -168,7 +169,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		tags.setTag("data", base);
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
@@ -179,7 +180,7 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		
 		for(IQuest prq : quest.getPrerequisites())
 		{
-			int qID = QuestDatabase.INSTANCE.getKey(prq);
+			int qID = QuestDatabase.INSTANCE.getID(prq);
 			int btnWidth = prBtnList.getListWidth();
 			int bID = (2 + qID) << 3; // First 3 bits reserved for column index
 			
@@ -234,13 +235,13 @@ public class GuiPrerequisiteEditor extends GuiScreenThemed implements IVolatileS
 		searchResults.clear();
 		String query = searchBox.getText().toLowerCase();
 		
-		for(int id : QuestDatabase.INSTANCE.getAllKeys())
+		for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
 		{
-			IQuest q = QuestDatabase.INSTANCE.getValue(id);
+			IQuest q = entry.getValue();
 			
-			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + id))
+			if(query.length() <= 0 || q.getUnlocalisedName().toLowerCase().contains(query) || I18n.format(q.getUnlocalisedName()).toLowerCase().contains(query) || query.equalsIgnoreCase("" + entry.getID()))
 			{
-				searchResults.add(id);
+				searchResults.add(entry.getID());
 			}
 		}
 	}

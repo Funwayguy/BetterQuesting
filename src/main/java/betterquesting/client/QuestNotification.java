@@ -38,6 +38,12 @@ public class QuestNotification
 			return;
 		}
 		
+		if(notices.size() >= 20) // I can't do it anymore. BURN IT ALL
+		{
+			notices.clear();
+			return;
+		}
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		ScaledResolution resolution = new ScaledResolution(mc);
 		int width = resolution.getScaledWidth();

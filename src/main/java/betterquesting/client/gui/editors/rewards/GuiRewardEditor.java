@@ -3,6 +3,8 @@ package betterquesting.client.gui.editors.rewards;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -30,10 +32,10 @@ import betterquesting.questing.rewards.RewardRegistry;
 @SideOnly(Side.CLIENT)
 public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IFactory<? extends IReward>> rewardTypes = new ArrayList<IFactory<? extends IReward>>();
-	private List<Integer> rewardIDs = new ArrayList<Integer>();
+	private List<IFactory<? extends IReward>> rewardTypes = new ArrayList<>();
+	private DBEntry<IReward>[] rewardIDs = new DBEntry[0];
 	private IQuest quest;
-	private int qID = -1;
+	private int qID;
 	
 	private GuiScrollingButtons btnsLeft;
 	private GuiScrollingButtons btnsRight;
@@ -42,7 +44,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 	{
 		super(parent, I18n.format("betterquesting.title.edit_rewards", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
-		this.qID = QuestDatabase.INSTANCE.getKey(quest);
+		this.qID = QuestDatabase.INSTANCE.getID(quest);
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		super.initGui();
 		
 		rewardTypes = RewardRegistry.INSTANCE.getAll();
-		rewardIDs = quest.getRewards().getAllKeys();
+		rewardIDs = quest.getRewards().getEntries();
 		
 		btnsLeft = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
 		btnsRight = new GuiScrollingButtons(mc, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 64);
@@ -73,7 +75,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		}
 		
 		this.quest = tmp;
-		this.rewardIDs = quest.getRewards().getAllKeys();
+		this.rewardIDs = quest.getRewards().getEntries();
 		RefreshColumns();
 	}
 	
@@ -116,13 +118,13 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 			}
 		} else if(column == 1) // Delete reward
 		{
-			quest.getRewards().removeKey(id);
+			quest.getRewards().removeID(id);
 			SendChanges();
 		} else if(column == 2) // Add reward
 		{
 			if(id >= 0 && id < rewardTypes.size())
 			{
-				quest.getRewards().add(RewardRegistry.INSTANCE.createReward(rewardTypes.get(id).getRegistryName()), quest.getRewards().nextKey());
+				quest.getRewards().add(quest.getRewards().nextID(), RewardRegistry.INSTANCE.createReward(rewardTypes.get(id).getRegistryName()));
 				SendChanges();
 			}
 		}
@@ -164,7 +166,7 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
 		tags.setTag("data",base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
@@ -174,12 +176,12 @@ public class GuiRewardEditor extends GuiScreenThemed implements IVolatileScreen,
 		btnsLeft.getEntryList().clear();
 		btnsRight.getEntryList().clear();
 		
-		for(int tID : rewardIDs)
+		for(DBEntry<IReward> entry : rewardIDs)
 		{
 			int btnWidth = btnsLeft.getListWidth();
-			int bID = (1 + tID) << 2; // First 2 bits reserved for column index
+			int bID = (1 + entry.getID()) << 2; // First 2 bits reserved for column index
 			
-			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, btnWidth - 20, 20, I18n.format(quest.getRewards().getValue(tID).getUnlocalisedName()));
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, btnWidth - 20, 20, I18n.format(quest.getRewards().getValue(entry.getID()).getUnlocalisedName()));
 			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			
 			btnsLeft.addButtonRow(btn1, btn2);

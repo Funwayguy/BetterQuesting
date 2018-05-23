@@ -1,6 +1,9 @@
 package betterquesting.network.handlers;
 
 import java.util.UUID;
+
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -72,7 +75,8 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			}
 			
 			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getUnlocalisedName());
-			QuestDatabase.INSTANCE.removeKey(qID);
+			QuestDatabase.INSTANCE.removeID(qID);
+			QuestLineDatabase.INSTANCE.removeQuest(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
@@ -93,9 +97,9 @@ public class PktHandlerQuestEdit implements IPacketHandler
 					
 					if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 					{
-						for(ITask task : quest.getTasks().getAllValues())
+						for(DBEntry<ITask> entry : quest.getTasks().getEntries())
 						{
-							task.setComplete(senderID);
+							entry.getValue().setComplete(senderID);
 							done += 1;
 							
 							if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
@@ -115,7 +119,8 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		} else if(action == EnumPacketAction.ADD)
 		{
 			IQuest nq = new QuestInstance();
-			int nID = QuestDatabase.INSTANCE.nextKey();
+			//nq.setParentDatabase(QuestDatabase.INSTANCE);
+			int nID = QuestDatabase.INSTANCE.nextID();
 			
 			if(data.hasKey("data") && data.hasKey("questID"))
 			{
@@ -125,7 +130,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				nq.readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
 			}
 			
-			QuestDatabase.INSTANCE.add(nq, nID);
+			QuestDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
 			return;
 		}

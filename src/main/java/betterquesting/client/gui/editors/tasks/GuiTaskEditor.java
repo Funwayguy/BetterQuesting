@@ -3,6 +3,8 @@ package betterquesting.client.gui.editors.tasks;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -30,8 +32,8 @@ import betterquesting.questing.tasks.TaskRegistry;
 @SideOnly(Side.CLIENT)
 public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, INeedsRefresh
 {
-	private List<IFactory<? extends ITask>> taskTypes = new ArrayList<IFactory<? extends ITask>>();
-	private List<Integer> taskIDs = new ArrayList<Integer>();
+	private List<IFactory<? extends ITask>> taskTypes = new ArrayList<>();
+	private DBEntry<ITask>[] taskIDs = new DBEntry[0];
 	private IQuest quest;
 	private int qId = -1;
 	
@@ -42,7 +44,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 	{
 		super(parent, I18n.format("betterquesting.title.edit_tasks", I18n.format(quest.getUnlocalisedName())));
 		this.quest = quest;
-		this.qId = QuestDatabase.INSTANCE.getKey(quest);
+		this.qId = QuestDatabase.INSTANCE.getID(quest);
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		super.initGui();
 		
 		taskTypes = TaskRegistry.INSTANCE.getAll();
-		taskIDs = quest.getTasks().getAllKeys();
+		taskIDs = quest.getTasks().getEntries();
 		
 		btnsLeft = new GuiScrollingButtons(mc, guiLeft + 16, guiTop + 32, sizeX/2 - 24, sizeY - 64);
 		btnsRight = new GuiScrollingButtons(mc, guiLeft + sizeX/2 + 8, guiTop + 32, sizeX/2 - 24, sizeY - 64);
@@ -73,7 +75,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		}
 		
 		this.quest = tmp;
-		this.taskIDs = quest.getTasks().getAllKeys();
+		this.taskIDs = quest.getTasks().getEntries();
 		RefreshColumns();
 	}
 	
@@ -112,13 +114,13 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 			}
 		} else if(column == 1) // Delete reward
 		{
-			quest.getTasks().removeKey(id);
+			quest.getTasks().removeID(id);
 			SendChanges();
 		} else if(column == 2) // Add reward
 		{
 			if(id >= 0 && id < taskTypes.size())
 			{
-				quest.getTasks().add(TaskRegistry.INSTANCE.createTask(taskTypes.get(id).getRegistryName()), quest.getTasks().nextKey());
+				quest.getTasks().add(quest.getTasks().nextID(), TaskRegistry.INSTANCE.createTask(taskTypes.get(id).getRegistryName()));
 				SendChanges();
 			}
 		}
@@ -160,7 +162,7 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(quest));
+		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
 		tags.setTag("data", base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}
@@ -170,12 +172,12 @@ public class GuiTaskEditor extends GuiScreenThemed implements IVolatileScreen, I
 		btnsLeft.getEntryList().clear();
 		btnsRight.getEntryList().clear();
 		
-		for(int tID : taskIDs)
+		for(DBEntry<ITask> tID : taskIDs)
 		{
 			int btnWidth = btnsLeft.getListWidth();
-			int bID = (1 + tID) << 2; // First 2 bits reserved for column index
+			int bID = (1 + tID.getID()) << 2; // First 2 bits reserved for column index
 			
-			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, btnWidth - 20, 20, I18n.format(quest.getTasks().getValue(tID).getUnlocalisedName()));
+			GuiButtonThemed btn1 = new GuiButtonThemed(bID + 0, 0, 0, btnWidth - 20, 20, I18n.format(quest.getTasks().getValue(tID.getID()).getUnlocalisedName()));
 			GuiButtonThemed btn2 = new GuiButtonThemed(bID + 1, 0, 0, 20, 20, "" + TextFormatting.RED + TextFormatting.BOLD + "x");
 			
 			btnsLeft.addButtonRow(btn1, btn2);

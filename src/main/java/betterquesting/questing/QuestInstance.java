@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
@@ -22,7 +24,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.input.Keyboard;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
@@ -34,12 +35,10 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
@@ -56,8 +55,11 @@ public class QuestInstance implements IQuest
 	private final TaskStorage tasks = new TaskStorage();
 	private final RewardStorage rewards = new RewardStorage();
 	
-	private final ArrayList<UserEntry> completeUsers = new ArrayList<UserEntry>();
-	private final ArrayList<IQuest> preRequisites = new ArrayList<IQuest>();
+	private final ArrayList<UserEntry> completeUsers = new ArrayList<>();
+	// TODO: Change this to IDs. Keeping references to the objects hinders garbage collection and requires whole databases to be rewritten when a requisite is deleted.
+    // TODO: A broadcasted event will need to be fired to clean unused IDs when a quest is deleted however it does not have to save to NBT/disk when doing so.
+    // NOTE: IDs are much faster to read/write to NBT because we don't require database lookups to convert to/from objects.
+	private final ArrayList<IQuest> preRequisites = new ArrayList<>();
 	
 	private PropertyContainer qInfo = new PropertyContainer();
 	
@@ -219,9 +221,9 @@ public class QuestInstance implements IQuest
 		{
 			int done = 0;
 			
-			for(ITask tsk : tasks.getAllValues())
+			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
-				if(tsk.isComplete(playerID))
+				if(entry.getValue().isComplete(playerID))
 				{
 					IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 					
@@ -229,7 +231,7 @@ public class QuestInstance implements IQuest
 					{
 						for(UUID mem : party.getMembers())
 						{
-							tsk.setComplete(mem);
+							entry.getValue().setComplete(mem);
 						}
 					}
 					
@@ -279,13 +281,13 @@ public class QuestInstance implements IQuest
 			int done = 0;
 			boolean update = false;
 			
-			for(ITask tsk : tasks.getAllValues())
+			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
-				if(!tsk.isComplete(playerID))
+				if(!entry.getValue().isComplete(playerID))
 				{
-					tsk.detect(player, this);
+					entry.getValue().detect(player, this);
 					
-					if(tsk.isComplete(playerID))
+					if(entry.getValue().isComplete(playerID))
 					{
 						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
 						
@@ -293,7 +295,7 @@ public class QuestInstance implements IQuest
 						{
 							for(UUID mem : party.getMembers())
 							{
-								tsk.setComplete(mem);
+								entry.getValue().setComplete(mem);
 							}
 						}
 						
@@ -447,9 +449,9 @@ public class QuestInstance implements IQuest
 			return false;
 		} else
 		{
-			for(IReward rew : rewards.getAllValues())
+			for(DBEntry<IReward> rew : rewards.getEntries())
 			{
-				if(!rew.canClaim(player, this))
+				if(!rew.getValue().canClaim(player, this))
 				{
 					return false;
 				}
@@ -462,9 +464,9 @@ public class QuestInstance implements IQuest
 	@Override
 	public void claimReward(EntityPlayer player)
 	{
-		for(IReward rew : rewards.getAllValues())
+		for(DBEntry<IReward> rew : rewards.getEntries())
 		{
-			rew.claimReward(player, this);
+			rew.getValue().claimReward(player, this);
 		}
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);
@@ -526,9 +528,9 @@ public class QuestInstance implements IQuest
 		{
 			int done = 0;
 			
-			for(ITask tsk : tasks.getAllValues())
+			for(DBEntry<ITask> tsk : tasks.getEntries())
 			{
-				if(tsk.isComplete(playerID))
+				if(tsk.getValue().isComplete(playerID))
 				{
 					done += 1;
 				}
@@ -550,11 +552,11 @@ public class QuestInstance implements IQuest
 		
 		float total = 0F;
 		
-		for(ITask t : tasks.getAllValues())
+		for(DBEntry<ITask> t : tasks.getEntries())
 		{
-			if(t instanceof IProgression)
+			if(t.getValue() instanceof IProgression)
 			{
-				total += ((IProgression<?>)t).getParticipation(uuid);
+				total += ((IProgression)t.getValue()).getParticipation(uuid);
 			}
 		}
 		
@@ -580,7 +582,7 @@ public class QuestInstance implements IQuest
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		
-		list.add(QuestTranslation.translate(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getKey(this))));
+		list.add(QuestTranslation.translate(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getID(this))));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
@@ -624,9 +626,9 @@ public class QuestInstance implements IQuest
 		{
 			int n = 0;
 			
-			for(ITask task : tasks.getAllValues())
+			for(DBEntry<ITask> task : tasks.getEntries())
 			{
-				if(task.isComplete(playerID))
+				if(task.getValue().isComplete(playerID))
 				{
 					n++;
 				}
@@ -706,7 +708,8 @@ public class QuestInstance implements IQuest
 		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		base.setTag("progress", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		tags.setTag("data", base);
-		tags.setInteger("questID", parentDB.getKey(this));
+		int id = parentDB.getID(this);
+		tags.setInteger("questID", parentDB.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
@@ -866,9 +869,9 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		for(ITask t : tasks.getAllValues())
+		for(DBEntry<ITask> t : tasks.getEntries())
 		{
-			t.resetUser(uuid);
+			t.getValue().resetUser(uuid);
 		}
 	}
 	
@@ -889,20 +892,20 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		for(ITask t : tasks.getAllValues())
+		for(DBEntry<ITask> t : tasks.getEntries())
 		{
-			t.resetAll();
+			t.getValue().resetAll();
 		}
 	}
 	
 	@Override
-	public IRegStorageBase<Integer,ITask> getTasks()
+	public IDatabaseNBT<ITask, NBTTagList> getTasks()
 	{
 		return tasks;
 	}
 	
 	@Override
-	public IRegStorageBase<Integer,IReward> getRewards()
+	public IDatabaseNBT<IReward, NBTTagList> getRewards()
 	{
 		return rewards;
 	}
@@ -949,14 +952,14 @@ public class QuestInstance implements IQuest
 	
 	private NBTTagCompound writeToJson_Config(NBTTagCompound jObj)
 	{
-		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound()));
 		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		
 		int[] reqArr = new int[preRequisites.size()];
 		for(int i = 0; i < preRequisites.size(); i++)
 		{
-			reqArr[i] = parentDB.getKey(preRequisites.get(i));
+			reqArr[i] = parentDB.getID(preRequisites.get(i));
 		}
 		jObj.setTag("preRequisites", new NBTTagIntArray(reqArr));
 		
@@ -965,7 +968,7 @@ public class QuestInstance implements IQuest
 	
 	private void readFromJson_Config(NBTTagCompound jObj)
 	{
-		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"), EnumSaveType.CONFIG);
+		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"));
 		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), EnumSaveType.CONFIG);
 		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), EnumSaveType.CONFIG);
 		
@@ -984,8 +987,7 @@ public class QuestInstance implements IQuest
 				
 				if(tmp == null)
 				{
-					tmp = parentDB.createNew();
-					parentDB.add(tmp, prID);
+					tmp = parentDB.createNew(prID);
 				}
 				
 				preRequisites.add(tmp);
@@ -1007,8 +1009,7 @@ public class QuestInstance implements IQuest
 				
 				if(tmp == null)
 				{
-					tmp = parentDB.createNew();
-					parentDB.add(tmp, prID);
+					tmp = ((QuestDatabase)parentDB).createNew(prID);
 				}
 				
 				preRequisites.add(tmp);
@@ -1041,7 +1042,7 @@ public class QuestInstance implements IQuest
 		{
 			NBTBase entry = comList.get(i);
 			
-			if(entry == null || entry.getId() != 10)
+			if(entry.getId() != 10)
 			{
 				continue;
 			}

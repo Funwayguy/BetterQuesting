@@ -144,14 +144,14 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         {
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-			tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
 			tags.setString("target", flName.getText());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
             NBTTagCompound tags = new NBTTagCompound();
             tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-            tags.setInteger("partyID", PartyManager.INSTANCE.getKey(party));
+            tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
             tags.setString("target", ((PanelButtonStorage<String>)btn).getStoredValue());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         }

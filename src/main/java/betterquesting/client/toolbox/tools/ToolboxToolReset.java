@@ -39,7 +39,7 @@ public class ToolboxToolReset implements IToolboxTool
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.SET.ordinal()); // Complete quest
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(btn.getQuest()));
+			tags.setInteger("questID", QuestDatabase.INSTANCE.getID(btn.getQuest()));
 			tags.setBoolean("status", false);
 			
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));

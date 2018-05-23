@@ -44,7 +44,7 @@ public class ToolboxToolDelete implements IToolboxTool
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(btn.getQuest()));
+			tags.setInteger("questID", QuestDatabase.INSTANCE.getID(btn.getQuest()));
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 		}
 	}

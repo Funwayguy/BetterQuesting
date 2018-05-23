@@ -3,6 +3,9 @@ package betterquesting.misc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api2.storage.IDatabaseNBT;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -12,12 +15,11 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.IRegStorageBase;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.storage.PropertyContainer;
+import net.minecraft.nbt.NBTTagList;
 
 public class DummyQuest implements IQuest
 {
@@ -68,7 +70,7 @@ public class DummyQuest implements IQuest
 	@Override
 	public List<String> getTooltip(EntityPlayer player)
 	{
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 	
 	@Override
@@ -164,13 +166,13 @@ public class DummyQuest implements IQuest
 	}
 	
 	@Override
-	public IRegStorageBase<Integer,ITask> getTasks()
+	public IDatabaseNBT<ITask, NBTTagList> getTasks()
 	{
 		return null;
 	}
 	
 	@Override
-	public IRegStorageBase<Integer,IReward> getRewards()
+	public IDatabaseNBT<IReward, NBTTagList> getRewards()
 	{
 		return null;
 	}

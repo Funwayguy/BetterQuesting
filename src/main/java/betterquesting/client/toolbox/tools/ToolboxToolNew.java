@@ -79,10 +79,10 @@ public class ToolboxToolNew implements IToolboxTool
 		// Pre-sync
 		IQuestLine qLine = gui.getQuestLine().getQuestLine();
 		IQuest quest = new QuestInstance();
-		int qID = QuestDatabase.INSTANCE.nextKey();
-		int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
+		int qID = QuestDatabase.INSTANCE.nextID();
+		int lID = QuestLineDatabase.INSTANCE.getID(qLine);
 		QuestLineEntry qe = new QuestLineEntry(mx, my, 24);
-		qLine.add(qe, qID);
+		qLine.add(qID, qe);
 		
 		// Sync Quest
 		NBTTagCompound tag1 = new NBTTagCompound();

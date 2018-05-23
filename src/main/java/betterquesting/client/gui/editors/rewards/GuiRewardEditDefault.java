@@ -20,14 +20,14 @@ public class GuiRewardEditDefault extends GuiScreenThemed implements ICallback<N
 	private final int qID;
 	private final int rID;
 	private final NBTTagCompound json;
-	private boolean isDone = false;
+	private boolean isDone;
 	
 	public GuiRewardEditDefault(GuiScreen parent, IQuest quest, IReward reward)
 	{
 		super(parent, reward.getUnlocalisedName());
 		this.quest = quest;
-		this.qID = QuestDatabase.INSTANCE.getKey(quest);
-		this.rID = quest.getRewards().getKey(reward);
+		this.qID = QuestDatabase.INSTANCE.getID(quest);
+		this.rID = quest.getRewards().getID(reward);
 		this.json = reward.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
 		this.isDone = false;
 	}

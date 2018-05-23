@@ -213,7 +213,7 @@ public class PartyInstance implements IParty
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		tags.setInteger("partyID", PartyManager.INSTANCE.getKey(this));
+		tags.setInteger("partyID", PartyManager.INSTANCE.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
 	}
@@ -242,7 +242,7 @@ public class PartyInstance implements IParty
 		}
 		json.setTag("members", memJson);
 		
-		json.setTag("properties", pInfo.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		json.setTag("properties", pInfo.writeToNBT(new NBTTagCompound()));
 		
 		return json;
 	}
@@ -257,10 +257,10 @@ public class PartyInstance implements IParty
 		
 		if(jObj.hasKey("properties", 10))
 		{
-			pInfo.readFromNBT(jObj.getCompoundTag("properties"), EnumSaveType.CONFIG);
+			pInfo.readFromNBT(jObj.getCompoundTag("properties"));
 		} else // Legacy stuff
 		{
-			pInfo.readFromNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			pInfo.readFromNBT(new NBTTagCompound());
 			pInfo.setProperty(NativeProps.NAME, jObj.getString("name"));
 			pInfo.setProperty(NativeProps.PARTY_LIVES, jObj.getBoolean("lifeShare"));
 			pInfo.setProperty(NativeProps.PARTY_LOOT, jObj.getBoolean("lootShare"));
