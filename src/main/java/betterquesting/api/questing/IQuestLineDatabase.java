@@ -1,5 +1,6 @@
 package betterquesting.api.questing;
 
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabase;
 import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.misc.IDataSync;
@@ -16,5 +17,7 @@ public interface IQuestLineDatabase extends IDatabase<IQuestLine>, INBTSaveLoad<
 	
 	int getOrderIndex(int lineID);
 	void setOrderIndex(int lineID, int index);
+	
+	DBEntry<IQuestLine>[] getSortedEntries();
 	
 }

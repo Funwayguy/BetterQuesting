@@ -170,7 +170,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
         }
         
-        if(quest.getTasks().size() > 0)
+        //if(quest.getTasks().size() > 0)
         {
             btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
             btnDetect.setActive(false);
@@ -301,14 +301,9 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(rewardIndex < 0 || rewardIndex >= quest.getRewards().size())
         {
-            if(rectReward != null && quest.getRewards().size() == 0)
-            {
-                this.initPanel();
-            } else
-            {
-                titleReward.setText("?");
-                updateButtons();
-            }
+            titleReward.setText("?");
+            titleReward.setEnabled(false);
+            updateButtons();
             
             return;
         } else if(rectReward == null)
@@ -331,6 +326,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         }
     
         titleReward.setText(QuestTranslation.translate(rew.getUnlocalisedName()));
+        titleReward.setEnabled(true);
         
         updateButtons();
     }
@@ -344,14 +340,9 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(taskIndex < 0 || taskIndex >= quest.getTasks().size())
         {
-            if(rectTask != null && quest.getTasks().size() == 0)
-            {
-                this.initPanel();
-            } else
-            {
-                titleTask.setText("?");
-                updateButtons();
-            }
+            titleTask.setText("?");
+            titleTask.setEnabled(false);
+            updateButtons();
             
             return;
         }
@@ -370,6 +361,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         }
         
         titleTask.setText(QuestTranslation.translate(tsk.getUnlocalisedName()));
+        titleTask.setEnabled(true);
         
         updateButtons();
     }

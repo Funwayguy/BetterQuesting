@@ -1,11 +1,10 @@
 package betterquesting.client.importers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.utils.QuestLineSorter;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -17,7 +16,8 @@ import betterquesting.questing.QuestLine;
 
 public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
-	private final List<Integer> lineOrder = new ArrayList<Integer>();
+	private final List<Integer> lineOrder = new ArrayList<>();
+	private final QuestLineSorter SORTER = new QuestLineSorter(this);
 	
 	@Override
 	public int getOrderIndex(int lineID)
@@ -38,6 +38,14 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	{
 		lineOrder.remove((Integer)lineID);
 		lineOrder.add(index, lineID);
+	}
+	
+	@Override
+	public DBEntry<IQuestLine>[] getSortedEntries()
+	{
+		DBEntry<IQuestLine>[] ary = getEntries();
+		Arrays.sort(ary, SORTER);
+		return ary;
 	}
 	
 	@Override

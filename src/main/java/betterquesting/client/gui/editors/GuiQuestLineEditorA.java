@@ -310,7 +310,7 @@ public class GuiQuestLineEditorA extends GuiScreenThemed implements ICallback<St
 	
 	public void RefreshColumns()
 	{
-		questList = QuestLineDatabase.INSTANCE.getEntries();
+		questList = QuestLineDatabase.INSTANCE.getSortedEntries();
 		
 		if(btnDesign != null)
 		{

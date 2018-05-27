@@ -308,7 +308,7 @@ public class QuestInstance implements IQuest
 				}
 			}
 			
-			if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
+			if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
 				setComplete(playerID, player.world.getTotalWorldTime());
 				
@@ -526,6 +526,11 @@ public class QuestInstance implements IQuest
 			return true;
 		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Complete but repeatable
 		{
+			if(tasks.size() <= 0)
+			{
+				return true;
+			}
+			
 			int done = 0;
 			
 			for(DBEntry<ITask> tsk : tasks.getEntries())

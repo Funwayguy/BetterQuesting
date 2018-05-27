@@ -115,9 +115,9 @@ public class EventHandler
 			
 			for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
 			{
-				if(quest.canSubmit(player)) // Tasks active or repeating
+				if(quest.getTasks().size() <= 0 || quest.canSubmit(player)) // Tasks active or repeating
 				{
-					boolean syncMe = false;
+					boolean syncMe = quest.getTasks().size() <= 0;
 					
 					for(DBEntry<ITask> task : quest.getTasks().getEntries())
 					{
@@ -150,6 +150,16 @@ public class EventHandler
 					{
 						quest.update(player); // This will broadcast a sync anyway
 					} else
+					{
+						refreshCache = true;
+					}
+				} else if(player.ticksExisted % 60 == 0)
+				{
+					// Quest is in a state where the user can't manually update the tasks but it isn't yet considered complete.
+					// Likely an event based task like block break or crafting that doesn't force the quest itself to update
+					quest.update(player);
+					
+					if(quest.isComplete(uuid))
 					{
 						refreshCache = true;
 					}

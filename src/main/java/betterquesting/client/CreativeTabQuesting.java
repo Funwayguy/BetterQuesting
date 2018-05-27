@@ -12,7 +12,7 @@ public class CreativeTabQuesting extends CreativeTabs
 	{
 		super(BetterQuesting.MODID);
 	}
-
+	
 	@Override
 	public ItemStack getTabIconItem()
 	{

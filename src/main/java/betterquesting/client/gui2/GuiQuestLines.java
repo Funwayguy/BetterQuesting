@@ -91,7 +91,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         cvBackground.addPanel(pnQScroll);
         pnQScroll.getTransform().setParent(cvList.getTransform());
     
-        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getEntries();
+        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
         this.qlBtns = new PanelButtonStorage[lineList.length];
         UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
     
