@@ -1,14 +1,13 @@
 package betterquesting.api.utils;
 
 import java.awt.Color;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -17,16 +16,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.core.BetterQuesting;
+
+import javax.annotation.Nonnull;
 
 // TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
@@ -46,7 +48,7 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
 	{
-		if(stack == null)
+		if(stack == null || stack.isEmpty())
 		{
 			return;
 		}
@@ -68,30 +70,70 @@ public class RenderUtils
 		GlStateManager.pushMatrix();
 		RenderItem itemRender = mc.getRenderItem();
 	    float preZ = itemRender.zLevel;
-        
+		
+		float r = (float)(color >> 16 & 255) / 255.0F;
+		float g = (float)(color >> 8 & 255) / 255.0F;
+		float b = (float)(color & 255) / 255.0F;
+		GlStateManager.color(r, g, b);
+		RenderHelper.enableGUIStandardItemLighting();
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.enableDepth();
+		
+		// TODO: Fix item clipping into panel
+		GlStateManager.translate(0.0F, 0.0F, 16.0F);
+		//itemRender.zLevel = 0F;//200.0F;
+		itemRender.zLevel = -150F;
+		//itemRender.zLevel -= 150F;
+		FontRenderer font = rStack.getItem().getFontRenderer(rStack);
+		if (font == null) font = mc.fontRenderer;
+		
 		try
 		{
-			float r = (float)(color >> 16 & 255) / 255.0F;
-			float g = (float)(color >> 8 & 255) / 255.0F;
-			float b = (float)(color & 255) / 255.0F;
-		    GlStateManager.color(r, g, b);
-			RenderHelper.enableGUIStandardItemLighting();
-		    GlStateManager.enableRescaleNormal();
-			
-		    GlStateManager.translate(0.0F, 0.0F, 32.0F);
-		    itemRender.zLevel = 200.0F;
-		    FontRenderer font = rStack.getItem().getFontRenderer(rStack);
-		    if (font == null) font = mc.fontRenderer;
 		    itemRender.renderItemAndEffectIntoGUI(rStack, x, y);
-		    itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, text);
 		    
-		    // TODO: Fix stack numbers above 3 digits long
-		    
-		    RenderHelper.disableStandardItemLighting();
+		    if (stack.getCount() != 1 || text != null)
+			{
+				GlStateManager.pushMatrix();
+				
+				int w = font.getStringWidth(text);
+				float tx = 0;
+				float ty = 0;
+				float s = 1F;
+				
+				if(w > 17)
+				{
+					s = 17F / w;
+					ty = 17 - font.FONT_HEIGHT * s;
+				} else
+				{
+					tx = 17 - w;
+					ty = 18 - font.FONT_HEIGHT;
+				}
+				
+				GlStateManager.translate(x + tx, y + ty, 0);
+				GlStateManager.scale(s, s, 1F);
+				
+				GlStateManager.disableLighting();
+				GlStateManager.disableDepth();
+				GlStateManager.disableBlend();
+				
+				font.drawString(text, 0, 0, 16777215, true);
+				
+				GlStateManager.enableLighting();
+				//GlStateManager.enableDepth();
+				GlStateManager.enableBlend();
+				
+		    	GlStateManager.popMatrix();
+			}
+			
+			itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, "");
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.warn("Unabled to render item " + stack);
+			BetterQuesting.logger.warn("Unabled to render item " + stack, e);
 		}
+		
+		GlStateManager.disableDepth();
+		RenderHelper.disableStandardItemLighting();
 		
 	    itemRender.zLevel = preZ; // Just in case
 		
@@ -322,6 +364,24 @@ public class RenderUtils
         
         GlStateManager.popMatrix();
 	}
+    
+    public static void drawColoredRect(IGuiRect rect, IGuiColor color)
+    {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        color.applyGlColor();
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION);
+        vertexbuffer.pos((double)rect.getX(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
+        vertexbuffer.pos((double)rect.getX() + rect.getWidth(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
+        vertexbuffer.pos((double)rect.getX() + rect.getWidth(), (double)rect.getY(), 0.0D).endVertex();
+        vertexbuffer.pos((double)rect.getX(), (double)rect.getY(), 0.0D).endVertex();
+        tessellator.draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+    }
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution
@@ -329,19 +389,23 @@ public class RenderUtils
 	@Deprecated
 	public static void guiScissor(Minecraft mc, int x, int y, int w, int h)
 	{
-		ScaledResolution r = new ScaledResolution(mc);
-		int f = r.getScaleFactor();
-		
-		GL11.glScissor(x * f, (r.getScaledHeight() - y - h)*f, w * f, h * f);
+		startScissor(new GuiRectangle(x, y, w, h));
 	}
 	
+	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
 	private static Stack<IGuiRect> scissorStack = new Stack<>();
+	
+	@Deprecated
+	public static void startScissor(Minecraft mc, IGuiRect rect)
+	{
+		startScissor(rect);
+	}
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
 	 * Not using this method will result in incorrect scissoring and scaling of parent/child GUIs
 	 */
-	public static void startScissor(Minecraft mc, IGuiRect rect)
+	public static void startScissor(IGuiRect rect)
 	{
 		if(scissorStack.size() >= 100)
 		{
@@ -349,20 +413,14 @@ public class RenderUtils
 			return;
 		}
 		
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		ScaledResolution r = new ScaledResolution(mc);
-		int f = r.getScaleFactor();
+		GL11.glEnable(GL11.GL_STENCIL_TEST);
+		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 		
-		// Have to do all this fancy stuff because glScissor() isn't affected by glScale() or glTranslate() and rather than try and convince devs to use some custom hack
-		// we'll just deal with it by reading from the current MODELVIEW MATRIX to convert between screen spaces at their relative scales and translations.
-		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
-		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, fb);
-		fb.rewind();
-		Matrix4f fm = new Matrix4f();
-		fm.load(fb);
+		GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+		GL11.glStencilMask(0xFF);
 		
-		// GL screenspace rectangle
-		GuiRectangle sRect = new GuiRectangle((int)(rect.getX() * f  * fm.m00 + (fm.m30 * f)), (r.getScaledHeight() - (int)((rect.getY() + rect.getHeight()) * fm.m11 + fm.m31)) * f, (int)(rect.getWidth() * f * fm.m00), (int)(rect.getHeight() * f * fm.m11));
+		GuiRectangle sRect = new GuiRectangle(rect);
 		
 		if(!scissorStack.empty())
 		{
@@ -376,7 +434,17 @@ public class RenderUtils
 			sRect = new GuiRectangle(x, y, w, h, 0);
 		}
 		
-		GL11.glScissor(sRect.getX(),sRect.getY(), sRect.getWidth(), sRect.getHeight());
+		GL11.glColorMask(false, false, false, false);
+		GL11.glDepthMask(false);
+		
+		drawColoredRect(sRect, STENCIL_COLOR);
+		
+		GL11.glStencilMask(0x00);
+		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+		
+		GL11.glColorMask(true, true, true, true);
+		GL11.glDepthMask(true);
+		
 		scissorStack.add(sRect);
 	}
 	
@@ -389,11 +457,25 @@ public class RenderUtils
 		
 		if(scissorStack.empty())
 		{
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+			
+			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+			GL11.glStencilMask(0xFF);
+			
+			GL11.glDisable(GL11.GL_STENCIL_TEST);
 		} else
 		{
-			IGuiRect rect = scissorStack.peek();
-			GL11.glScissor(rect.getX(),rect.getY(), rect.getWidth(), rect.getHeight());
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+			
+			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+			GL11.glStencilMask(0xFF);
+			
+			drawColoredRect(scissorStack.peek(), STENCIL_COLOR);
+			
+			GL11.glStencilMask(0x00);
+			GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 		}
 	}
 	
@@ -486,24 +568,12 @@ public class RenderUtils
         }
         
 		int i = 0;
-		int swl = 0;
-		int swc;
 		
 		for(; i < text.length(); i++)
 		{
-			swc = font.getStringWidth(text.substring(0, i + 1));
-			
-			if(swc > x)
+			if(font.getStringWidth(text.substring(0, i + 1)) > x)
 			{
-				/*if(Math.abs(x - swl) >= Math.abs(swc - x))
-				{
-					i++;
-				}*/
-				
 				break;
-			} else
-			{
-				swl = swc;
 			}
 		}
 		
@@ -635,4 +705,188 @@ public class RenderUtils
 		
 		return (a3 << 24) + (r3 << 16) + (g3 << 8) + b3;
 	}
+	
+    public static void drawHoveringText(List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font)
+    {
+        drawHoveringText(ItemStack.EMPTY, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
+    }
+	
+	/**
+	 * Modified version of Forge's tooltip rendering that doesn't adjust Z depth
+	 */
+    public static void drawHoveringText(@Nonnull final ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font)
+    {
+    	if(textLines == null || textLines.isEmpty())
+		{
+			return;
+		}
+  
+		RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
+		
+		if (MinecraftForge.EVENT_BUS.post(event))
+		{
+			return;
+		}
+		
+		mouseX = event.getX();
+		mouseY = event.getY();
+		screenWidth = event.getScreenWidth();
+		screenHeight = event.getScreenHeight();
+		maxTextWidth = event.getMaxWidth();
+		font = event.getFontRenderer();
+		
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0F, 0F, 32F);
+		GlStateManager.disableRescaleNormal();
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.disableLighting();
+		GlStateManager.enableDepth();
+		//GlStateManager.disableDepth();
+		int tooltipTextWidth = 0;
+
+		for (String textLine : textLines)
+		{
+			int textLineWidth = font.getStringWidth(textLine);
+
+			if (textLineWidth > tooltipTextWidth)
+			{
+				tooltipTextWidth = textLineWidth;
+			}
+		}
+
+		boolean needsWrap = false;
+
+		int titleLinesCount = 1;
+		int tooltipX = mouseX + 12;
+		
+		if (tooltipX + tooltipTextWidth + 4 > screenWidth)
+		{
+			tooltipX = mouseX - 16 - tooltipTextWidth;
+			
+			if (tooltipX < 4) // if the tooltip doesn't fit on the screen
+			{
+				if (mouseX > screenWidth / 2)
+				{
+					tooltipTextWidth = mouseX - 12 - 8;
+				}
+				else
+				{
+					tooltipTextWidth = screenWidth - 16 - mouseX;
+				}
+				needsWrap = true;
+			}
+		}
+
+		if (maxTextWidth > 0 && tooltipTextWidth > maxTextWidth)
+		{
+			tooltipTextWidth = maxTextWidth;
+			needsWrap = true;
+		}
+
+		if (needsWrap)
+		{
+			int wrappedTooltipWidth = 0;
+			List<String> wrappedTextLines = new ArrayList<>();
+			
+			for (int i = 0; i < textLines.size(); i++)
+			{
+				String textLine = textLines.get(i);
+				List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);
+				if (i == 0)
+				{
+					titleLinesCount = wrappedLine.size();
+				}
+
+				for (String line : wrappedLine)
+				{
+					int lineWidth = font.getStringWidth(line);
+					if (lineWidth > wrappedTooltipWidth)
+					{
+						wrappedTooltipWidth = lineWidth;
+					}
+					wrappedTextLines.add(line);
+				}
+			}
+			
+			tooltipTextWidth = wrappedTooltipWidth;
+			textLines = wrappedTextLines;
+
+			if (mouseX > screenWidth / 2)
+			{
+				tooltipX = mouseX - 16 - tooltipTextWidth;
+			}
+			else
+			{
+				tooltipX = mouseX + 12;
+			}
+		}
+
+		int tooltipY = mouseY - 12;
+		int tooltipHeight = 8;
+
+		if (textLines.size() > 1)
+		{
+			tooltipHeight += (textLines.size() - 1) * 10;
+			
+			if (textLines.size() > titleLinesCount)
+			{
+				tooltipHeight += 2; // gap between title lines and next lines
+			}
+		}
+
+		if (tooltipY < 4)
+		{
+			tooltipY = 4;
+		} else if (tooltipY + tooltipHeight + 4 > screenHeight)
+		{
+			tooltipY = screenHeight - tooltipHeight - 4;
+		}
+		
+		int backgroundColor = 0xF0100010;
+		int borderColorStart = 0x505000FF;
+		int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
+		
+		RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(stack, textLines, tooltipX, tooltipY, font, backgroundColor, borderColorStart, borderColorEnd);
+		MinecraftForge.EVENT_BUS.post(colorEvent);
+		backgroundColor = colorEvent.getBackground();
+		borderColorStart = colorEvent.getBorderStart();
+		borderColorEnd = colorEvent.getBorderEnd();
+		
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+		GuiUtils.drawGradientRect(0, tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+		GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+		GuiUtils.drawGradientRect(0, tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
+		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
+
+		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
+		int tooltipTop = tooltipY;
+		
+		GlStateManager.translate(0F, 0F, 0.1F);
+
+		for (int lineNumber = 0; lineNumber < textLines.size(); ++lineNumber)
+		{
+			String line = textLines.get(lineNumber);
+			font.drawStringWithShadow(line, (float)tooltipX, (float)tooltipY, -1);
+
+			if (lineNumber + 1 == titleLinesCount)
+			{
+				tooltipY += 2;
+			}
+
+			tooltipY += 10;
+		}
+
+		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
+
+		GlStateManager.enableLighting();
+		GlStateManager.disableDepth();
+		//GlStateManager.enableDepth();
+		RenderHelper.enableStandardItemLighting();
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.popMatrix();
+    }
 }

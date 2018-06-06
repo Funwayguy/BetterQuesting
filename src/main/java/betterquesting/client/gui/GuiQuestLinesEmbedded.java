@@ -124,7 +124,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		if(qLine != null)
 		{
 			GlStateManager.pushMatrix();
-			RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, sizeX, sizeY));
+			RenderUtils.startScissor(new GuiRectangle(posX, posY, sizeX, sizeY));
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			
@@ -137,9 +137,8 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 				GlStateManager.popMatrix();
 			}
 			
-			for(int i = 0; i < qBtns.size(); i++)
+			for(GuiButtonQuestInstance btnQuest : qBtns)
 			{
-				GuiButtonQuestInstance btnQuest = qBtns.get(i);
 				btnQuest.drawButton(mc, rmx, rmy, partialTick);
 				
 				if(btnQuest.visible && isWithin(rmx, rmy, btnQuest.x, btnQuest.y, btnQuest.width, btnQuest.height) && isWithin(mx, my, posX, posY, sizeX, sizeY))
@@ -155,7 +154,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		if(curTool != null)
 		{
 			GlStateManager.pushMatrix();
-			RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, sizeX, sizeY));
+			RenderUtils.startScissor(new GuiRectangle(posX, posY, sizeX, sizeY));
 			GlStateManager.translate(posX + (scrollX)*zs, posY + (scrollY)*zs, 0);
 			GlStateManager.scale(zs, zs, 1F);
 			curTool.drawTool(rmx, rmy, partialTick);
@@ -274,7 +273,7 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 			this.qBtns.addAll(tree.getButtonTree());
 
 			String bgn = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_IMAGE, "");
-			int bgs = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_SIZE, 256).intValue();
+			int bgs = tree.getQuestLine().getProperties().getProperty(NativeProps.BG_SIZE, 256);
 			
 			if(bgn.length() > 0)
 			{

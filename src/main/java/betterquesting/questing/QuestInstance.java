@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
@@ -55,11 +56,11 @@ public class QuestInstance implements IQuest
 	private final TaskStorage tasks = new TaskStorage();
 	private final RewardStorage rewards = new RewardStorage();
 	
-	private final ArrayList<UserEntry> completeUsers = new ArrayList<>();
+	private final List<UserEntry> completeUsers = new CopyOnWriteArrayList<>();
 	// TODO: Change this to IDs. Keeping references to the objects hinders garbage collection and requires whole databases to be rewritten when a requisite is deleted.
     // TODO: A broadcasted event will need to be fired to clean unused IDs when a quest is deleted however it does not have to save to NBT/disk when doing so.
     // NOTE: IDs are much faster to read/write to NBT because we don't require database lookups to convert to/from objects.
-	private final ArrayList<IQuest> preRequisites = new ArrayList<>();
+	private final List<IQuest> preRequisites = new ArrayList<>();
 	
 	private PropertyContainer qInfo = new PropertyContainer();
 	

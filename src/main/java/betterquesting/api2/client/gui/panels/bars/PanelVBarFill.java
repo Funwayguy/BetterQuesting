@@ -113,14 +113,12 @@ public class PanelVBarFill implements IBarFill
 		
 		float f = MathHelper.clamp(fillDriver.readValue(), 0F, 1F);
 		
-		Minecraft mc = Minecraft.getMinecraft();
-		
 		if(this.flipBar)
 		{
-			RenderUtils.startScissor(mc, new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
+			RenderUtils.startScissor(new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
 		} else
 		{
-			RenderUtils.startScissor(mc, new GuiRectangle(bounds.getX(), bounds.getY() + (int)(bounds.getHeight() - (bounds.getHeight() * f)), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
+			RenderUtils.startScissor(new GuiRectangle(bounds.getX(), bounds.getY() + (int)(bounds.getHeight() - (bounds.getHeight() * f)), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
 		}
 		
 		if(this.clrThreshold > 0 && f < this.clrThreshold)

@@ -1,26 +1,17 @@
 package betterquesting.api2.client.gui.panels.lists;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
-import betterquesting.api2.client.gui.misc.GuiAlign;
-import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -260,14 +251,13 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		GlStateManager.pushMatrix();
 		
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderUtils.startScissor(mc, transform);
+		RenderUtils.startScissor(transform);
 		
 		int tx = transform.getX();
 		int ty = transform.getY();
 		
 		GlStateManager.translate(tx - lsx * zs, ty - lsy * zs, 0F);
-		GlStateManager.scale(zs, zs, 1F);
+		GlStateManager.scale(zs, zs, zs);
 		
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;

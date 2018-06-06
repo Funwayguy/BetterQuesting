@@ -754,7 +754,7 @@ public class PanelTextField implements IGuiPanel
         }
     
         GlStateManager.pushMatrix();
-        RenderUtils.startScissor(mc, bounds);
+        RenderUtils.startScissor(bounds);
         GlStateManager.translate(-getScrollX(), -getScrollY(), 0);
         
         if(text.length() <= 0)

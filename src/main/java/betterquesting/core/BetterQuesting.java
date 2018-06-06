@@ -39,7 +39,7 @@ import betterquesting.items.ItemGuideBook;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
 
-@Mod(modid = BetterQuesting.MODID, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
+@Mod(modid = BetterQuesting.MODID, version = "@VERSION@", name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
 {
     public static final String MODID = "betterquesting";

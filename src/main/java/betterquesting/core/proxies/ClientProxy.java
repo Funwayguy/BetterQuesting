@@ -41,7 +41,10 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
-		//MinecraftForge.EVENT_BUS.register(new UpdateNotification());
+		if(!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
+		{
+			Minecraft.getMinecraft().getFramebuffer().enableStencil();
+		}
 		
 		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
 		

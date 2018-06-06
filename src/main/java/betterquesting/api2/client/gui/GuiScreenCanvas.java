@@ -1,17 +1,19 @@
 package betterquesting.api2.client.gui;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
@@ -20,6 +22,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.client.BQ_Keybindings;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.Project;
 
 public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
@@ -104,10 +108,10 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 		super.drawScreen(mx, my, partialTick);
 		
-		// GL push/pop for added safety
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-
+		GlStateManager.disableDepth();
+		
 		this.drawPanel(mx, my, partialTick);
 		
 		List<String> tt = this.getTooltip(mx, my);
@@ -116,7 +120,8 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		{
 			this.drawHoveringText(tt, mx, my);
 		}
-
+		
+		GlStateManager.enableDepth();
 		GlStateManager.popMatrix();
 	}
 	
@@ -344,4 +349,17 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 		return super.addButton(button);
 	}
+	
+	@Override
+    protected void renderToolTip(ItemStack stack, int x, int y)
+    {
+        FontRenderer font = stack.getItem().getFontRenderer(stack);
+        RenderUtils.drawHoveringText(stack, this.getItemToolTip(stack), x, y, width, height, -1, (font == null ? fontRenderer : font));
+    }
+	
+	@Override
+    protected void drawHoveringText(List<String> textLines, int x, int y, FontRenderer font)
+    {
+        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
+    }
 }

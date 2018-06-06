@@ -82,7 +82,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, width - 8, height));
+				RenderUtils.startScissor(new GuiRectangle(posX, posY, width - 8, height));
 			}
 			
 			e.drawBackground(mx2, my2, posX, listY, width - 8);
@@ -143,7 +143,7 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 			
 			if(scissor)
 			{
-				RenderUtils.startScissor(mc, new GuiRectangle(posX, posY, width - 8, height));
+				RenderUtils.startScissor(new GuiRectangle(posX, posY, width - 8, height));
 			}
 			
 			e.drawForeground(mx2, my2, posX, listY, width - 8);

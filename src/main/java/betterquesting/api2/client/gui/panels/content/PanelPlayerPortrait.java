@@ -127,8 +127,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderUtils.startScissor(mc, new GuiRectangle(bounds));
+		RenderUtils.startScissor(new GuiRectangle(bounds));
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		int scale = Math.min(bounds.getWidth(), bounds.getHeight());
