@@ -1,6 +1,8 @@
 package betterquesting.client.gui;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -19,9 +21,9 @@ public class GuiBQConfig extends GuiConfig
 		super(parent, getCategories(ConfigHandler.config), BetterQuesting.MODID, false, false, BetterQuesting.NAME);
 	}
 	
-	public static ArrayList<IConfigElement> getCategories(Configuration config)
+	public static List<IConfigElement> getCategories(Configuration config)
 	{
-		ArrayList<IConfigElement> cats = new ArrayList<IConfigElement>();
+		List<IConfigElement> cats = new ArrayList<>();
 		
 		for(String s : config.getCategoryNames())
 		{

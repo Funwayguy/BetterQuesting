@@ -2,6 +2,7 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import net.minecraft.client.Minecraft;
@@ -131,7 +132,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), null, (NBTTagCompound value) ->
+			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
 				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());

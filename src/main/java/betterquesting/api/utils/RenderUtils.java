@@ -1,6 +1,7 @@
 package betterquesting.api.utils;
 
 import java.awt.Color;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -23,6 +24,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -79,7 +82,6 @@ public class RenderUtils
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableDepth();
 		
-		// TODO: Fix item clipping into panel
 		GlStateManager.translate(0.0F, 0.0F, 16.0F);
 		//itemRender.zLevel = 0F;//200.0F;
 		itemRender.zLevel = -150F;
@@ -96,13 +98,14 @@ public class RenderUtils
 				GlStateManager.pushMatrix();
 				
 				int w = font.getStringWidth(text);
-				float tx = 0;
-				float ty = 0;
+				float tx;
+				float ty;
 				float s = 1F;
 				
 				if(w > 17)
 				{
 					s = 17F / w;
+					tx = 0;
 					ty = 17 - font.FONT_HEIGHT * s;
 				} else
 				{
@@ -393,7 +396,7 @@ public class RenderUtils
 	}
 	
 	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
-	private static Stack<IGuiRect> scissorStack = new Stack<>();
+	private static Stack<ByteBuffer> scissorStack = new Stack<>();
 	
 	@Deprecated
 	public static void startScissor(Minecraft mc, IGuiRect rect)
@@ -407,6 +410,8 @@ public class RenderUtils
 	 */
 	public static void startScissor(IGuiRect rect)
 	{
+		// TODO: Somehow restore the previous scissor mask, NOT THE COORDINATES! Ongoing translations and rotations fuck them up when popped
+		
 		if(scissorStack.size() >= 100)
 		{
 			BetterQuesting.logger.log(Level.ERROR, "More than 100 recursive scissor calls have been made!");
@@ -416,11 +421,11 @@ public class RenderUtils
 		GL11.glEnable(GL11.GL_STENCIL_TEST);
 		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 		
-		GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 		GL11.glStencilMask(0xFF);
 		
-		GuiRectangle sRect = new GuiRectangle(rect);
+		/*IGuiRect sRect = new GuiRectangle(rect);
 		
 		if(!scissorStack.empty())
 		{
@@ -432,12 +437,12 @@ public class RenderUtils
 			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
 			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
 			sRect = new GuiRectangle(x, y, w, h, 0);
-		}
+		}*/
 		
 		GL11.glColorMask(false, false, false, false);
 		GL11.glDepthMask(false);
 		
-		drawColoredRect(sRect, STENCIL_COLOR);
+		drawColoredRect(rect, STENCIL_COLOR);
 		
 		GL11.glStencilMask(0x00);
 		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
@@ -445,7 +450,13 @@ public class RenderUtils
 		GL11.glColorMask(true, true, true, true);
 		GL11.glDepthMask(true);
 		
-		scissorStack.add(sRect);
+		int sw = Display.getDisplayMode().getWidth();
+		int sh = Display.getDisplayMode().getHeight();
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(sw * sh * 4);
+		GL11.glReadPixels(0, 0, sw, sh, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_INT, buf);
+		
+		scissorStack.add(buf);
 	}
 	
 	/**
@@ -472,10 +483,20 @@ public class RenderUtils
 			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 			GL11.glStencilMask(0xFF);
 			
-			drawColoredRect(scissorStack.peek(), STENCIL_COLOR);
+			GL11.glColorMask(false, false, false, false);
+			GL11.glDepthMask(false);
+			
+			int sw = Display.getDisplayMode().getWidth();
+			int sh = Display.getDisplayMode().getHeight();
+			
+			GL11.glDrawPixels(sw, sh, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_INT, scissorStack.peek());
+			//drawColoredRect(scissorStack.peek(), STENCIL_COLOR);
 			
 			GL11.glStencilMask(0x00);
 			GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+			
+			GL11.glColorMask(true, true, true, true);
+			GL11.glDepthMask(true);
 		}
 	}
 	
@@ -740,8 +761,8 @@ public class RenderUtils
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
-		GlStateManager.enableDepth();
-		//GlStateManager.disableDepth();
+		//GlStateManager.enableDepth();
+		GlStateManager.disableDepth();
 		int tooltipTextWidth = 0;
 
 		for (String textLine : textLines)
@@ -883,7 +904,7 @@ public class RenderUtils
 		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, textLines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
 
 		GlStateManager.enableLighting();
-		GlStateManager.disableDepth();
+		//GlStateManager.disableDepth();
 		//GlStateManager.enableDepth();
 		RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();

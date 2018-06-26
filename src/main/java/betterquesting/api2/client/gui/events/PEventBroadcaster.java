@@ -9,7 +9,7 @@ public class PEventBroadcaster
 {
 	public static PEventBroadcaster INSTANCE = new PEventBroadcaster();
 	
-	private final HashMap<Class<? extends PanelEvent>, PEventEntry<? extends PanelEvent>> entryList = new HashMap<Class<? extends PanelEvent>, PEventEntry<? extends PanelEvent>>();
+	private final HashMap<Class<? extends PanelEvent>, PEventEntry<? extends PanelEvent>> entryList = new HashMap<>();
 	
 	/**
 	 * Registers an event listener for multiple given event types
@@ -41,7 +41,7 @@ public class PEventBroadcaster
 		
 		if(pe == null)
 		{
-			pe = new PEventEntry<T>(type);
+			pe = new PEventEntry<>(type);
 			entryList.put(type, pe);
 		}
 		
@@ -66,7 +66,7 @@ public class PEventBroadcaster
 			e.getValue().fire(event);
 		}
 		
-		return event.canCancel()? event.isCancelled() : false;
+		return event.canCancel() && event.isCancelled();
 	}
 	
 	/**
