@@ -1,10 +1,8 @@
 package betterquesting.api.utils;
 
 import java.awt.Color;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
@@ -23,14 +21,10 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
-import org.apache.logging.log4j.Level;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.core.BetterQuesting;
-
 import javax.annotation.Nonnull;
 
 // TODO: Move text related stuff to its own utility class
@@ -395,14 +389,14 @@ public class RenderUtils
 		startScissor(new GuiRectangle(x, y, w, h));
 	}
 	
-	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
-	private static Stack<ByteBuffer> scissorStack = new Stack<>();
-	
 	@Deprecated
 	public static void startScissor(Minecraft mc, IGuiRect rect)
 	{
 		startScissor(rect);
 	}
+	
+	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
+	private static int scissorDepth = 0;
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
@@ -410,34 +404,22 @@ public class RenderUtils
 	 */
 	public static void startScissor(IGuiRect rect)
 	{
-		// TODO: Somehow restore the previous scissor mask, NOT THE COORDINATES! Ongoing translations and rotations fuck them up when popped
-		
-		if(scissorStack.size() >= 100)
+		if(scissorDepth >= 255)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "More than 100 recursive scissor calls have been made!");
-			return;
+			throw new IndexOutOfBoundsException("Exceeded the maximum number of nested stencils (255)");
 		}
 		
-		GL11.glEnable(GL11.GL_STENCIL_TEST);
-		GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-		
-		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
-		GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-		GL11.glStencilMask(0xFF);
-		
-		/*IGuiRect sRect = new GuiRectangle(rect);
-		
-		if(!scissorStack.empty())
+		if(scissorDepth == 0)
 		{
-			IGuiRect parentRect = scissorStack.peek();
-			int x = Math.max(parentRect.getX(), sRect.getX());
-			int y = Math.max(parentRect.getY(), sRect.getY());
-			int w = Math.min(parentRect.getX() + parentRect.getWidth(), sRect.getX() + sRect.getWidth());
-			int h = Math.min(parentRect.getY() + parentRect.getHeight(), sRect.getY() + sRect.getHeight());
-			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
-			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
-			sRect = new GuiRectangle(x, y, w, h, 0);
-		}*/
+			GL11.glEnable(GL11.GL_STENCIL_TEST);
+			GL11.glStencilMask(0xFF);
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+		}
+		
+		// Note: This is faster with inverted logic (skips depth tests when writing)
+		GL11.glStencilFunc(GL11.GL_LESS, scissorDepth, 0xFF);
+		GL11.glStencilOp(GL11.GL_INCR, GL11.GL_KEEP, GL11.GL_KEEP);
+		GL11.glStencilMask(0xFF);
 		
 		GL11.glColorMask(false, false, false, false);
 		GL11.glDepthMask(false);
@@ -445,58 +427,80 @@ public class RenderUtils
 		drawColoredRect(rect, STENCIL_COLOR);
 		
 		GL11.glStencilMask(0x00);
-		GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+		GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth + 1, 0xFF);
 		
 		GL11.glColorMask(true, true, true, true);
 		GL11.glDepthMask(true);
 		
-		int sw = Display.getDisplayMode().getWidth();
-		int sh = Display.getDisplayMode().getHeight();
-		
-		ByteBuffer buf = BufferUtils.createByteBuffer(sw * sh * 4);
-		GL11.glReadPixels(0, 0, sw, sh, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_INT, buf);
-		
-		scissorStack.add(buf);
+		scissorDepth++;
 	}
+	
+	private static void fillScreen()
+    {
+    	int w = Minecraft.getMinecraft().displayWidth;
+    	int h = Minecraft.getMinecraft().displayHeight;
+    	
+        GL11.glPushAttrib(GL11.GL_TEXTURE_BIT | GL11.GL_DEPTH_TEST | GL11.GL_LIGHTING);
+    	
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_LIGHTING);
+        
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+        GL11.glOrtho(0, w, h, 0, -1, 1);  //or whatever size you want
+    	
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPushMatrix();
+        GL11.glLoadIdentity();
+    	
+        drawColoredRect(new GuiRectangle(0, 0, w, h), STENCIL_COLOR);
+    	
+        GL11.glMatrixMode(GL11.GL_PROJECTION);
+        GL11.glPopMatrix();
+    
+        GL11.glMatrixMode(GL11.GL_MODELVIEW);
+        GL11.glPopMatrix();
+    
+        GL11.glPopAttrib();
+    }
 	
 	/**
 	 * Pops the last scissor off the stack and returns to the last parent scissor or disables it if there are none
 	 */
 	public static void endScissor()
 	{
-		scissorStack.pop();
+		scissorDepth--;
 		
-		if(scissorStack.empty())
+		if(scissorDepth < 0)
 		{
-			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+			throw new IndexOutOfBoundsException("No stencil to end");
+		} else if(scissorDepth == 0)
+		{
+			GL11.glStencilMask(0xFF);
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Note: Clearing actually requires the mask to be enabled
 			
 			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-			GL11.glStencilMask(0xFF);
+			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+			GL11.glStencilMask(0x00);
 			
 			GL11.glDisable(GL11.GL_STENCIL_TEST);
 		} else
 		{
-			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-			
-			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+			GL11.glStencilFunc(GL11.GL_LEQUAL, scissorDepth, 0xFF);
+			GL11.glStencilOp(GL11.GL_DECR, GL11.GL_KEEP, GL11.GL_KEEP);
 			GL11.glStencilMask(0xFF);
 			
 			GL11.glColorMask(false, false, false, false);
 			GL11.glDepthMask(false);
 			
-			int sw = Display.getDisplayMode().getWidth();
-			int sh = Display.getDisplayMode().getHeight();
-			
-			GL11.glDrawPixels(sw, sh, GL11.GL_STENCIL_INDEX, GL11.GL_UNSIGNED_INT, scissorStack.peek());
-			//drawColoredRect(scissorStack.peek(), STENCIL_COLOR);
-			
-			GL11.glStencilMask(0x00);
-			GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+			fillScreen();
 			
 			GL11.glColorMask(true, true, true, true);
 			GL11.glDepthMask(true);
+			
+			GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth, 0xFF);
+			GL11.glStencilMask(0x00);
 		}
 	}
 	

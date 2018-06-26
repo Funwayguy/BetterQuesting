@@ -78,6 +78,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			QuestDatabase.INSTANCE.removeID(qID);
 			QuestLineDatabase.INSTANCE.removeQuest(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
 		{

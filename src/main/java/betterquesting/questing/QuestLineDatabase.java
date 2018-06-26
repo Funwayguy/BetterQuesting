@@ -20,7 +20,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	
 	// TODO: Probably should make this thread safe
 	private final List<Integer> lineOrder = new ArrayList<>();
-private final QuestLineSorter SORTER = new QuestLineSorter(this);
+	private final QuestLineSorter SORTER = new QuestLineSorter(this);
 	
 	@Override
 	public int getOrderIndex(int lineID)

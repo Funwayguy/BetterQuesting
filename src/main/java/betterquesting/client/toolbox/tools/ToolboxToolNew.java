@@ -1,5 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.api.questing.IQuestLineEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
@@ -81,8 +82,18 @@ public class ToolboxToolNew implements IToolboxTool
 		IQuest quest = new QuestInstance();
 		int qID = QuestDatabase.INSTANCE.nextID();
 		int lID = QuestLineDatabase.INSTANCE.getID(qLine);
-		QuestLineEntry qe = new QuestLineEntry(mx, my, 24);
-		qLine.add(qID, qe);
+		IQuestLineEntry qe = qLine.getValue(qID);//new QuestLineEntry(mx, my, 24);
+		
+		
+		if(qe == null)
+		{
+			qe = new QuestLineEntry(mx, my, 24);
+			qLine.add(qID, qe);
+		} else
+		{
+			qe.setPosition(mx, my);
+			qe.setSize(24);
+		}
 		
 		// Sync Quest
 		NBTTagCompound tag1 = new NBTTagCompound();
