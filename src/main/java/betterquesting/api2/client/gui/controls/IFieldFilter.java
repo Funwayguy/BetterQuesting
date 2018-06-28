@@ -4,5 +4,5 @@ public interface IFieldFilter<T>
 {
     boolean isValid(String input);
     String filterText(String input);
-    T parseValue();
+    T parseValue(String input);
 }

@@ -11,6 +11,7 @@ import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -43,7 +44,7 @@ import java.util.UUID;
 
 public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
-    private PanelTextField flName;
+    private PanelTextField<String> flName;
     
     public GuiPartyCreate(GuiScreen parent)
     {
@@ -96,7 +97,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         txName.setColor(PresetColor.TEXT_HEADER.getColor());
         cvLeftHalf.addPanel(txName);
         
-        flName = new PanelTextField(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -32, 16, 16), 0), "New Party");
+        flName = new PanelTextField<>(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -32, 16, 16), 0), "New Party", FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
         
         PanelButton btnCreate = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -16, 16, 0), 0), 1, QuestTranslation.translate("betterquesting.btn.party_new"));
@@ -176,7 +177,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         {
             NBTTagCompound tags = new NBTTagCompound();
             tags.setInteger("action", EnumPacketAction.ADD.ordinal());
-            tags.setString("name", flName.getText());
+            tags.setString("name", flName.getRawText());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Join
         {

@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -39,7 +40,7 @@ import java.util.UUID;
 public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
 {
     private IParty party;
-    private PanelTextField flName;
+    private PanelTextField<String> flName;
     
     public GuiPartyInvite(GuiScreen parent)
     {
@@ -73,7 +74,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         
-        flName = new PanelTextField(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(32, 32, 72, -48), 0), "");
+        flName = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(32, 32, 72, -48), 0), "", FieldFilterString.INSTANCE);
         flName.setMaxLength(16);
         flName.setWatermark("Username");
         cvBackground.addPanel(flName);
@@ -140,12 +141,12 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         if(btn.getButtonID() == 0) // Exit
         {
             mc.displayGuiScreen(this.parent);
-        } else if(btn.getButtonID() == 1 && flName.getText().length() > 0) // Manual Invite
+        } else if(btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
         {
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-			tags.setString("target", flName.getText());
+			tags.setString("target", flName.getRawText());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {

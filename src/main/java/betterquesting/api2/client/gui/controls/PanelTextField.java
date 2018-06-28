@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.controls;
 
+import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -17,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 import java.util.List;
 
-public class PanelTextField implements IGuiPanel
+public class PanelTextField<T> implements IGuiPanel
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;
@@ -47,10 +48,14 @@ public class PanelTextField implements IGuiPanel
     private int scrollWidth = 0;
     private int scrollHeight = 0;
     
-    public PanelTextField(IGuiRect rect, String text)
+    private final IFieldFilter<T> filter;
+    private ICallback<T> callback;
+    
+    public PanelTextField(IGuiRect rect, String text, IFieldFilter<T> filter)
     {
         this.transform = rect;
         cursorLine.setParent(this.transform);
+        this.filter = filter;
         
         this.setTextures(PresetTexture.TEXT_BOX_0.getTexture(), PresetTexture.TEXT_BOX_1.getTexture(), PresetTexture.TEXT_BOX_2.getTexture());
         this.setMainColors(PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor());
@@ -95,7 +100,13 @@ public class PanelTextField implements IGuiPanel
         this.setText(text);
     }
     
-    public PanelTextField setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture focused)
+    public PanelTextField<T> setCallback(ICallback<T> callback)
+    {
+        this.callback = callback;
+        return this;
+    }
+    
+    public PanelTextField<T> setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture focused)
     {
         this.texState[0] = disabled;
         this.texState[1] = idle;
@@ -103,7 +114,7 @@ public class PanelTextField implements IGuiPanel
         return this;
     }
     
-    public PanelTextField setMainColors(IGuiColor disabled, IGuiColor idle, IGuiColor focused)
+    public PanelTextField<T> setMainColors(IGuiColor disabled, IGuiColor idle, IGuiColor focused)
     {
         this.colStates[0] = disabled;
         this.colStates[1] = idle;
@@ -111,14 +122,14 @@ public class PanelTextField implements IGuiPanel
         return this;
     }
     
-    public PanelTextField setAuxColors(IGuiColor watermark, IGuiColor highlight)
+    public PanelTextField<T> setAuxColors(IGuiColor watermark, IGuiColor highlight)
     {
         this.colWatermark = watermark;
         this.colHighlight = highlight;
         return this;
     }
     
-    public PanelTextField setMaxLength(int size)
+    public PanelTextField<T> setMaxLength(int size)
     {
         this.maxLength = size;
         return this;
@@ -127,14 +138,14 @@ public class PanelTextField implements IGuiPanel
     /**
      * Enables text wrapping for multi-line editing
      */
-    public PanelTextField enableWrapping(boolean state)
+    public PanelTextField<T> enableWrapping(boolean state)
     {
         this.canWrap = state;
         updateScrollBounds();
         return this;
     }
     
-    public PanelTextField lockFocus(boolean state)
+    public void lockFocus(boolean state)
     {
         this.lockFocus = state;
         
@@ -142,17 +153,15 @@ public class PanelTextField implements IGuiPanel
         {
             this.isFocused = true;
         }
-        
-        return this;
     }
     
-    public PanelTextField setScrollDriverX(IValueIO<Float> driver)
+    public PanelTextField<T> setScrollDriverX(IValueIO<Float> driver)
     {
         this.scrollX = driver;
         return this;
     }
     
-    public PanelTextField setScrollDriverY(IValueIO<Float> driver)
+    public PanelTextField<T> setScrollDriverY(IValueIO<Float> driver)
     {
         this.scrollY = driver;
         return this;
@@ -217,14 +226,19 @@ public class PanelTextField implements IGuiPanel
     
     public void setText(String text)
     {
-        this.text = text;
+        this.text = filter.filterText(text);
         updateScrollBounds();
         setCursorPosition(0);
     }
     
-    public String getText()
+    public String getRawText()
     {
         return this.text;
+    }
+    
+    public T getValue()
+    {
+        return this.filter.parseValue(getRawText());
     }
     
     public String getSelectedText()
@@ -266,12 +280,17 @@ public class PanelTextField implements IGuiPanel
             out.append(text, r, text.length());
         }
         
-        //TODO: if(filter.isValid(text))
+        //if(filter.isValid(text))
         {
-            this.text = out.toString();
+            this.text = filter.filterText(out.toString());
             updateScrollBounds();
             moveCursorBy(l - selectEnd + used);
-            // TODO: Broadcast value change
+            
+            // Broadcast changes
+            if(callback != null)
+            {
+                callback.setValue(filter.parseValue(this.text));
+            }
         }
     }
     
@@ -323,9 +342,9 @@ public class PanelTextField implements IGuiPanel
                     s = s + this.text.substring(j);
                 }
 
-                // TODO: if(filter.isValid(s))
+                //if(filter.isValid(s))
                 {
-                    this.text = s;
+                    this.text = filter.filterText(s);
                     
                     updateScrollBounds();
 
@@ -333,8 +352,12 @@ public class PanelTextField implements IGuiPanel
                     {
                         this.moveCursorBy(num);
                     }
-
-                    // TODO: Broadcast value change
+                    
+                    // Broadcast changes
+                    if(callback != null)
+                    {
+                        callback.setValue(filter.parseValue(this.text));
+                    }
                 }
             }
         }
@@ -805,12 +828,11 @@ public class PanelTextField implements IGuiPanel
             }
             dragging = true;
             
-            return true;
-        }
-        
-        if(this.isFocused && !lockFocus)
+            //return true;
+        } else if(this.isFocused && !lockFocus)
         {
             this.isFocused = false;
+            this.text = filter.parseValue(this.text).toString();
             //setCursorPosition(0);
         }
         
@@ -834,12 +856,14 @@ public class PanelTextField implements IGuiPanel
         if(canWrap)
         {
             setScrollY(getScrollY() + (scroll * 4));
-        } else
+            return true;
+        } /*else
         {
-            setScrollX(getScrollX() + (scroll * 12));
-        }
+            // This is kinda annoying in lists
+            //setScrollX(getScrollX() + (scroll * 12));
+        }*/
         
-        return true;
+        return false;
     }
     
     @Override

@@ -7,6 +7,7 @@ import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -31,7 +32,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
     private final ICallback<String> callback;
     private final String textIn;
     
-    private PanelTextField flText;
+    private PanelTextField<String> flText;
     
     public GuiTextEditor(GuiScreen parent, String text, ICallback<String> callback)
     {
@@ -59,7 +60,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         
-        flText = new PanelTextField(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(124, 32, 24, 32), 0), flText != null ? flText.getText() : textIn);
+        flText = new PanelTextField<>(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(124, 32, 24, 32), 0), flText != null ? flText.getRawText() : textIn, FieldFilterString.INSTANCE);
         cvBackground.addPanel(flText);
         flText.setMaxLength(Integer.MAX_VALUE);
         flText.enableWrapping(true);
@@ -112,7 +113,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
         
         if(callback != null)
         {
-            callback.setValue(flText.getText());
+            callback.setValue(flText.getRawText());
         }
     }
 }

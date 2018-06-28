@@ -4,6 +4,7 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterDouble;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -20,7 +21,6 @@ import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.*;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.Iterator;
 
@@ -129,7 +129,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 } else if(entry.getId() > 1 && entry.getId() < 7) // Number
                 {
                     // TODO: Handle each number type filter individually
-                    PanelTextField text = new PanelTextField(new GuiRectangle(width / 2, i * 16, rw - 32, 16, 0), "" + ((NBTPrimitive)entry).getDouble());
+                    PanelTextField<Double> text = new PanelTextField<>(new GuiRectangle(width / 2, i * 16, rw - 32, 16, 0), "" + ((NBTPrimitive)entry).getDouble(), FieldFilterDouble.INSTANCE);
                     this.addPanel(text);
                 }
                 
@@ -171,7 +171,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 } else if(entry.getId() > 1 && entry.getId() < 7) // Number
                 {
                     // TODO: Handle each number type filter individually
-                    PanelTextField text = new PanelTextField(new GuiRectangle(width / 2, i * 16, rw - 32, 16, 0), "" + ((NBTPrimitive)entry).getDouble());
+                    PanelTextField<Double> text = new PanelTextField<>(new GuiRectangle(width / 2, i * 16, rw - 32, 16, 0), "" + ((NBTPrimitive)entry).getDouble(), FieldFilterDouble.INSTANCE);
                     this.addPanel(text);
                 }
                 

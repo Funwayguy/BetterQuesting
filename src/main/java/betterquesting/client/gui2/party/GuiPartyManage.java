@@ -14,6 +14,7 @@ import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -51,7 +52,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 {
     private IParty party;
 	private EnumPartyStatus status; // 0 = INVITE, 1 = MEMBER, 2 = ADMIN, 3 = OWNER/OP
-    private PanelTextField flName;
+    private PanelTextField<String> flName;
     
     public GuiPartyManage(GuiScreen parent)
     {
@@ -110,7 +111,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
         cvLeftHalf.addPanel(btnInvite);
         
-        flName = new PanelTextField(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName());
+        flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName(), FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
         flName.setActive(status.ordinal() >= 3);
         
@@ -231,7 +232,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         } else if(btn.getButtonID() == 4) // Change name
         {
-            party.getProperties().setProperty(NativeProps.NAME, flName.getText());
+            party.getProperties().setProperty(NativeProps.NAME, flName.getRawText());
             SendChanges();
         }
     }
