@@ -265,7 +265,11 @@ public class PanelTextField<T> implements IGuiPanel
         
         int used;
         
-        if(space < in.length()) // Written string won fit
+        if(space < 0) // Can happen if someone instantiates the field with more characters than it normally allows
+        {
+            out.substring(0, this.maxLength);
+            used = 0;
+        } else if(space < in.length()) // Written string won fit
         {
             out.append(in, 0, space); // Cut to size
             used = space; // Mark all space as used

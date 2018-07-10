@@ -13,7 +13,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector4f;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -33,7 +32,6 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
@@ -92,7 +90,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			inCan.addPanel(btnEdit);
 		}
 		
-		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?");
+		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?"); // Test screen
 		inCan.addPanel(tstBtn);*/
 	}
 	
@@ -132,19 +130,14 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			/*mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
-			{
-				QuestSettings.INSTANCE.readFromNBT(value);
-				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
-			}));*/
-			mc.displayGuiScreen(new GuiJsonEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), null, (NBTTagCompound value) ->
+			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
 				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 			}));
-		} else if(btn.getButtonID() == 5)
+		}/* else if(btn.getButtonID() == 5) // Test screen
 		{
-			//mc.displayGuiScreen(new GuiPartyInvite(this));
-		}
+			mc.displayGuiScreen(new GuiPartyInvite(this));
+		}*/
 	}
 }

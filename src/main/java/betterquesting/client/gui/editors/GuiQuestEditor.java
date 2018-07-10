@@ -1,6 +1,7 @@
 package betterquesting.client.gui.editors;
 
 import java.io.IOException;
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -24,7 +25,6 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.editors.rewards.GuiRewardEditor;
 import betterquesting.client.gui.editors.tasks.GuiTaskEditor;
 import betterquesting.network.PacketSender;
@@ -147,7 +147,7 @@ public class GuiQuestEditor extends GuiScreenThemed implements ICallback<String>
 			quest.writeToNBT(lastEdit, EnumSaveType.CONFIG);
 			JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(null, "jdoc.betterquesting.quest"));
 			MinecraftForge.EVENT_BUS.post(event);
-			mc.displayGuiScreen(new GuiJsonEditor(this, lastEdit, event.getJdocResult()));
+			mc.displayGuiScreen(new GuiNbtEditor(this, lastEdit, null));
 		} else if(button.id == 5)
 		{
 			boolean main = !quest.getProperties().getProperty(NativeProps.MAIN);

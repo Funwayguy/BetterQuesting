@@ -2,8 +2,8 @@ package betterquesting.client;
 
 import java.io.File;
 import java.io.FileFilter;
-
 import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -19,7 +19,6 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
-import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.client.gui.misc.GuiFileExplorer;
 
 public final class GuiBuilder implements IGuiHelper
@@ -39,13 +38,11 @@ public final class GuiBuilder implements IGuiHelper
 	{
 		if(json.getId() == 9)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(parent, (NBTTagList)json, jdoc, (ICallback<NBTTagList>)callback));
+			mc.displayGuiScreen(new GuiNbtEditor(parent, (NBTTagList)json, (ICallback<NBTTagList>)callback));
 		} else if(json.getId() == 10)
 		{
-			mc.displayGuiScreen(new GuiJsonEditor(parent, (NBTTagCompound)json, jdoc, (ICallback<NBTTagCompound>)callback));
+			mc.displayGuiScreen(new GuiNbtEditor(parent, (NBTTagCompound)json, (ICallback<NBTTagCompound>)callback));
 		}
-		
-		return;
 	}
 	
 	@Override

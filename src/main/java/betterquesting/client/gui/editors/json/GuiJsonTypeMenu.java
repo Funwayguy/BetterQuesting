@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors.json;
 
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -21,7 +22,6 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
 import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
-import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
@@ -136,7 +136,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		} else if(button.id == 3)
 		{
 			this.lastType = EditType.NONE;
-			this.mc.displayGuiScreen(new GuiJsonEditor(this, json, null));
+			this.mc.displayGuiScreen(new GuiNbtEditor(this, json, null));
 		} else if(button.id == 4)
 		{
 			this.lastType = EditType.FLUID;

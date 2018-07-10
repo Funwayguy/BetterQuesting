@@ -11,10 +11,13 @@ import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
+import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.gui.GuiScreen;
@@ -75,6 +78,22 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener
         PanelVScrollBar scEdit = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-24, 32, 16, 32), 0));
         cvBackground.addPanel(scEdit);
         pnEdit.setScrollDriverY(scEdit);
+        
+        // === DECORATIVE LINES ===
+    
+        IGuiRect ls0 = new GuiTransform(GuiAlign.TOP_LEFT, 16, 32, 0, 0, 0);
+        ls0.setParent(cvBackground.getTransform());
+        IGuiRect le0 = new GuiTransform(GuiAlign.TOP_RIGHT, -16, 32, 0, 0, 0);
+        le0.setParent(cvBackground.getTransform());
+        PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), -1);
+        cvBackground.addPanel(paLine0);
+    
+        IGuiRect ls1 = new GuiTransform(GuiAlign.BOTTOM_LEFT, 16, -32, 0, 0, 0);
+        ls1.setParent(cvBackground.getTransform());
+        IGuiRect le1 = new GuiTransform(GuiAlign.BOTTOM_RIGHT, -16, -32, 0, 0, 0);
+        le1.setParent(cvBackground.getTransform());
+        PanelLine paLine1 = new PanelLine(ls1, le1, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), -1);
+        cvBackground.addPanel(paLine1);
     }
     
     @Override

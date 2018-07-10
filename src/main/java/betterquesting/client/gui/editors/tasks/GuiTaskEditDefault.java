@@ -1,5 +1,6 @@
 package betterquesting.client.gui.editors.tasks;
 
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiScreenThemed;
@@ -9,7 +10,6 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.client.gui.editors.json.scrolling.GuiJsonEditor;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -44,7 +44,7 @@ public class GuiTaskEditDefault extends GuiScreenThemed implements ICallback<NBT
 			
 			if(task != null)
 			{
-				this.mc.displayGuiScreen(new GuiJsonEditor(this, json, task.getDocumentation(), this));
+				this.mc.displayGuiScreen(new GuiNbtEditor(this, json, this));
 			} else
 			{
 				this.mc.displayGuiScreen(parent);
