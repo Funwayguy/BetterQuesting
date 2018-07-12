@@ -15,6 +15,7 @@ import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -217,11 +218,19 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 
                 i++;
             }
+            
+            this.addPanel(new PanelGeneric(new GuiRectangle(0, i * 16, width - 32, 16, 0), null)); // Keeps the list from auto resizing
+            
+            PanelButtonStorage<String> btnI = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), btnInsert, "+", "");
+            btnI.setTextHighlight(new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(0, 255, 0, 255), new GuiColorStatic(0, 255, 0, 255));
+            this.addPanel(btnI);
         } else if(nbt.getId() == 9) // NBTTagList
         {
             NBTTagList list = (NBTTagList)nbt;
             
-            for(int i = 0; i < list.tagCount(); i++)
+            int i = 0;
+            
+            for(; i < list.tagCount(); i++)
             {
                 NBTBase entry = list.get(i);
                 
@@ -231,14 +240,14 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 
                 if(entry.getId() == 10) // Object
                 {
-                    PanelButtonStorage<Integer> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw - 16, 16, 0), btnEdit, getButtonTitle((NBTTagCompound)entry), i);
+                    PanelButtonStorage<Integer> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw - 48, 16, 0), btnEdit, getButtonTitle((NBTTagCompound)entry), i);
                     this.addPanel(btn);
                     
-                    btn = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), btnAdv, "...", i);
+                    btn = new PanelButtonStorage<>(new GuiRectangle(width - 48, i * 16, 16, 16, 0), btnAdv, "...", i);
                     this.addPanel(btn);
                 } else if(entry.getId() == 9) // List
                 {
-                    PanelButtonStorage<Integer> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw, 16, 0), btnEdit, "List...", i);
+                    PanelButtonStorage<Integer> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw - 32, 16, 0), btnEdit, "List...", i);
                     this.addPanel(btn);
                 } else if(entry.getId() == 8) // Text
                 {
@@ -318,6 +327,12 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 btnD.setTextHighlight(new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 0, 0, 255), new GuiColorStatic(255, 0, 0, 255));
                 this.addPanel(btnD);
             }
+            
+            this.addPanel(new PanelGeneric(new GuiRectangle(0, i * 16, width - 32, 16, 0), null)); // Keeps the list from auto resizing
+            
+            PanelButtonStorage<Integer> btnI = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), btnInsert, "+", i);
+            btnI.setTextHighlight(new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(0, 255, 0, 255), new GuiColorStatic(0, 255, 0, 255));
+            this.addPanel(btnI);
         }
         
         this.setScrollX(preSX);
