@@ -1,29 +1,26 @@
 package betterquesting.api2.client.gui;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.CopyOnWriteArrayList;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.item.ItemStack;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.client.BQ_Keybindings;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.Project;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
@@ -329,9 +326,9 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	@Override
-	public List<IGuiPanel> getAllPanels()
+	public void resetCanvas()
 	{
-		return guiPanels;
+		guiPanels.clear();
 	}
 	
 	@Override

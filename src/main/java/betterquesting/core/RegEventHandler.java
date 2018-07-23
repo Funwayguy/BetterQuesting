@@ -22,9 +22,9 @@ import betterquesting.api.placeholders.ItemPlaceholder;
 @Mod.EventBusSubscriber
 public class RegEventHandler
 {
-	public static final List<Item> ALL_ITEMS = new ArrayList<Item>();
-	public static final List<Block> ALL_BLOCKS = new ArrayList<Block>();
-	public static final List<IRecipe> ALL_RECIPES = new ArrayList<IRecipe>();
+	public static final List<Item> ALL_ITEMS = new ArrayList<>();
+	public static final List<Block> ALL_BLOCKS = new ArrayList<>();
+	public static final List<IRecipe> ALL_RECIPES = new ArrayList<>();
 	
 	private static boolean setupRecipes = false;
 	

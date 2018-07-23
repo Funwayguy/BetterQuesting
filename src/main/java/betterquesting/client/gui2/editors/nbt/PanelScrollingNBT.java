@@ -98,7 +98,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
     
     private void refreshList()
     {
-        this.getAllPanels().clear();
+        this.resetCanvas();
         
         if(this.nbt == null)
         {

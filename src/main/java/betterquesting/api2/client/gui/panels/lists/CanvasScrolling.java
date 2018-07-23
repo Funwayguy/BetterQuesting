@@ -1,10 +1,9 @@
 package betterquesting.api2.client.gui.panels.lists;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
@@ -24,6 +23,7 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	// Scrolling bounds
 	protected final GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
+	private final GuiRectangle scrollWindow = new GuiRectangle(0, 0 ,0, 0);
 	protected boolean extendedScroll = false;
 	protected boolean zoomMode = false;
 	protected int margin = 0;
@@ -45,6 +45,10 @@ public class CanvasScrolling implements IGuiCanvas
 	// Last known scroll position (unscaled)
 	private int lsx = 0;
 	private int lsy = 0;
+	
+	// Enables the auto-disabling panels outside the cropped region. Useful for very large lists
+	private boolean useBlocking = true;
+	private final CanvasCullingManager cullingManager = new CanvasCullingManager();
 	
 	public CanvasScrolling(IGuiRect rect)
 	{
@@ -136,6 +140,12 @@ public class CanvasScrolling implements IGuiCanvas
 		return this;
 	}
 	
+	public CanvasScrolling enableBlocking(boolean state)
+	{
+		this.useBlocking = state;
+		return this;
+	}
+	
 	public IGuiRect getScrollBounds()
 	{
 		return this.scrollBounds;
@@ -188,6 +198,7 @@ public class CanvasScrolling implements IGuiCanvas
 	public void initPanel()
 	{
 		this.guiPanels.clear();
+		this.cullingManager.reset();
 	}
 	
 	@Override
@@ -262,7 +273,7 @@ public class CanvasScrolling implements IGuiCanvas
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
 		
-		for(IGuiPanel panel : guiPanels)
+		for(IGuiPanel panel : getVisiblePanels())
 		{
 			if(panel.isEnabled())
 			{
@@ -448,7 +459,8 @@ public class CanvasScrolling implements IGuiCanvas
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
 		
-		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		List<IGuiPanel> tmpList = getVisiblePanels();
+		ListIterator<IGuiPanel> pnIter = tmpList.listIterator(tmpList.size());
 		List<String> tt;
 		
 		while(pnIter.hasPrevious())
@@ -481,6 +493,9 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		guiPanels.add(panel);
 		guiPanels.sort(ComparatorGuiDepth.INSTANCE);
+		
+		cullingManager.addPanel(panel, true);
+		
 		panel.initPanel();
 		
 		this.refreshScrollBounds();
@@ -493,6 +508,7 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		if(b)
 		{
+			cullingManager.removePanel(panel);
 			this.refreshScrollBounds();
 		}
 		
@@ -507,10 +523,9 @@ public class CanvasScrolling implements IGuiCanvas
 		int top = 0;
 		int bottom = 0;
 		
-		List<IGuiPanel> tmp = new ArrayList<IGuiPanel>(guiPanels);
 		float zs = zoomScale.readValue();
 
-		for(IGuiPanel panel : tmp)
+		for(IGuiPanel panel : guiPanels)
 		{
 			if(first)
 			{
@@ -558,13 +573,32 @@ public class CanvasScrolling implements IGuiCanvas
 		lsx = this.getScrollX();
 		lsy = this.getScrollY();
 		
-		// TODO: Add in dynamic loading/unloading of panels out of view (account for zoom scale). Required for huge item lists with 1000s of entries but should be toggled off for for quest lines.
-		// TODO: Make a child version of this class for item lists that auto-assign item panels to canvas blocks (16x16) that can be loaded/unloaded in bulk
+		float zs = zoomScale.readValue();
+		
+		scrollWindow.x = lsx;
+		scrollWindow.y = lsy;
+		scrollWindow.w = (int)Math.ceil(transform.getWidth() / zs);
+		scrollWindow.h = (int)Math.ceil(transform.getHeight() / zs);
+		
+		cullingManager.updateVisiblePanels(scrollWindow);
 	}
 	
 	@Override
-	public List<IGuiPanel> getAllPanels()
+	public void resetCanvas()
 	{
-		return guiPanels;
+		guiPanels.clear();
+		cullingManager.reset();
+		refreshScrollBounds();
+	}
+	
+	private List<IGuiPanel> getVisiblePanels()
+	{
+		if(useBlocking)
+		{
+			return cullingManager.getVisiblePanels();
+		} else
+		{
+			return guiPanels;
+		}
 	}
 }

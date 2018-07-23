@@ -57,7 +57,7 @@ public class CanvasQuestLine extends CanvasScrolling
     public void setQuestLine(IQuestLine line)
     {
         // Rest contents
-        this.getAllPanels().clear();
+        this.resetCanvas();
         
         if(line == null)
         {
