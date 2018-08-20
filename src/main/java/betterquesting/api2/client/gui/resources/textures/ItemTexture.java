@@ -20,6 +20,8 @@ public class ItemTexture implements IGuiTexture
     private final boolean showCount;
     private final boolean keepAspect;
     
+    private float zDepth = 16F;
+    
     // Dummy value
     private final IGuiRect bounds;
     
@@ -35,6 +37,12 @@ public class ItemTexture implements IGuiTexture
         this.keepAspect = keepAspect;
         
         this.bounds = new GuiRectangle(0, 0, 16, 16);
+    }
+    
+    public ItemTexture setDepth(float z)
+    {
+        this.zDepth = z;
+        return this;
     }
     
     @Override
@@ -69,7 +77,7 @@ public class ItemTexture implements IGuiTexture
         GlStateManager.scale(sx, sy, 1F);
         color.applyGlColor();
         
-        RenderUtils.RenderItemStack(Minecraft.getMinecraft(), stack.getBaseStack(), 0, 0, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "");
+        RenderUtils.RenderItemStack(Minecraft.getMinecraft(), stack.getBaseStack(), 0, 0, zDepth, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "", 0xFFFFFFFF);
         
         GlStateManager.popMatrix();
     }

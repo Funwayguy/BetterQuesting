@@ -1,9 +1,5 @@
 package betterquesting.network.handlers;
 
-import java.util.UUID;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
@@ -15,6 +11,11 @@ import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyInstance;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.UUID;
 
 public class PktHandlerPartyAction implements IPacketHandler
 {
@@ -50,7 +51,7 @@ public class PktHandlerPartyAction implements IPacketHandler
 		int partyID = !data.hasKey("partyID")? -1 : data.getInteger("partyID");
 		
 		UUID tarUser = null;
-		IParty tarParty = null;
+		IParty tarParty;
 		EnumPartyStatus status = null;
 		
 		UUID senderID = QuestingAPI.getQuestingUUID(sender);
@@ -75,13 +76,16 @@ public class PktHandlerPartyAction implements IPacketHandler
 			}
 		}
 		
-		try
+		if(data.hasKey("target"))
 		{
-			tarUser = UUID.fromString(data.getString("target"));
-		} catch(Exception e)
-		{
-			// In case an unrecognized name was used instead of their UUID
-			tarUser = NameCache.INSTANCE.getUUID(data.getString("target"));
+			try
+			{
+				tarUser = UUID.fromString(data.getString("target"));
+			} catch(Exception e)
+			{
+				// In case an unrecognized name was used instead of their UUID
+				tarUser = NameCache.INSTANCE.getUUID(data.getString("target"));
+			}
 		}
 		
 		if(action == EnumPacketAction.ADD && tarParty == null) // Create new party if not currently in a party
@@ -93,22 +97,18 @@ public class PktHandlerPartyAction implements IPacketHandler
 			nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(PartyManager.INSTANCE.nextID(), nParty);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.REMOVE && tarParty != null && status == EnumPartyStatus.OWNER) // Operator force deletes party or owner disbands it
 		{
 			PartyManager.INSTANCE.removeID(partyID);
 			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
-			return;
-		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser == senderID)) // Kick/leave party
+		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser.equals(senderID))) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.EDIT && tarParty != null && status == EnumPartyStatus.OWNER) // Edit party
 		{
 			tarParty.readPacket(data);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.JOIN && tarParty != null && (isOp || status == EnumPartyStatus.INVITE)) // Join party
 		{
 			if(isOp)
@@ -118,15 +118,11 @@ public class PktHandlerPartyAction implements IPacketHandler
 			
 			tarParty.setStatus(senderID, EnumPartyStatus.MEMBER);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
-			return;
-		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status.ordinal() >= 2) // Invite to party
+		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status != null && status.ordinal() >= 2) // Invite to party
 		{
 			tarParty.inviteUser(tarUser);
 			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
-			return;
 		}
-		
-		return;
 	}
 	
 	@Override

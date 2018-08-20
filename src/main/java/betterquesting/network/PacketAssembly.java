@@ -1,5 +1,11 @@
 package betterquesting.network;
 
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTSizeTracker;
+import net.minecraft.nbt.NBTTagByteArray;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.MathHelper;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,20 +14,13 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.MathHelper;
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
 
 public final class PacketAssembly
 {
 	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
 	// Player assigned packet buffers
-	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<UUID,byte[]>();
+	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<>();
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
 	private int id = 0;
@@ -32,12 +31,13 @@ public final class PacketAssembly
 	
 	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		ArrayList<NBTTagCompound> pkts = new ArrayList<NBTTagCompound>();
+		ArrayList<NBTTagCompound> pkts = new ArrayList<>();
 		
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			CompressedStreamTools.writeCompressed(tags, baos);
+			baos.flush();
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
@@ -49,10 +49,7 @@ public final class PacketAssembly
 				NBTTagCompound container = new NBTTagCompound();
 				byte[] part = new byte[s];
 				
-				for(int n = 0; n < s; n++)
-				{
-					part[n] = data[idx + n];
-				}
+				System.arraycopy(data, idx, part, 0, s);
 				
 				container.setInteger("size", data.length); // If the buffer isn't yet created, how big is it
 				container.setInteger("index", idx); // Where should this piece start writing too
@@ -64,7 +61,7 @@ public final class PacketAssembly
 			}
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.INFO, "Unable to build packet", e);
+			throw new RuntimeException("Unable to build BQ packet", e);
 		}
 		
 		id = (id + 1)%100; // Cycle the index
@@ -84,10 +81,13 @@ public final class PacketAssembly
 		
 		byte[] tmp = getBuffer(owner);
 		
-		if(tmp == null || tmp.length != size)
+		if(tmp == null)
 		{
 			tmp = new byte[size];
 			setBuffer(owner, tmp);
+		} else if(tmp.length != size)
+		{
+			throw new RuntimeException("Unexpected change in BQ packet byte length: " + size + " > " + tmp.length);
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)
@@ -107,7 +107,7 @@ public final class PacketAssembly
 				return tag;
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.INFO, "Unable to assemble packet", e);
+				throw new RuntimeException("Unable to assemble BQ packet", e);
 			}
 		}
 		
@@ -132,6 +132,11 @@ public final class PacketAssembly
 			serverBuf = value;
 		} else
 		{
+			if(buffer.containsKey(owner))
+			{
+				throw new IllegalStateException("Attepted to start more than one BQ packet assembly for UUID " + owner.toString());
+			}
+			
 			buffer.put(owner, value);
 		}
 	}

@@ -1,15 +1,12 @@
 package betterquesting.api2.storage;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 // Divides the database into smaller indexed blocks to speed up search times.
 public abstract class BigDatabase<T> implements IDatabase<T>
 {
     // Simple entries here represent the block index, NOT the index of the child database entries
-    private final SortedSet<DBEntry<SortedSet<DBEntry<T>>>> dbBlocks = Collections.synchronizedSortedSet(new TreeSet<>());
+    private final SortedSet<DBEntry<SortedSet<DBEntry<T>>>> dbBlocks = Collections.synchronizedSortedSet(new TreeSet<>((Comparator<DBEntry>)(o1, o2) -> o1.getValue() == o2.getValue() ? 0 : Integer.compare(o1.getID(), o2.getID())));
     private final int blockSize; // The size of indexed blocks
     
     public BigDatabase()
@@ -40,7 +37,7 @@ public abstract class BigDatabase<T> implements IDatabase<T>
                     continue;
                 }
                 
-                DBEntry<T>[] entryList = blockEntry.getValue().toArray(new DBEntry[0]);
+                DBEntry[] entryList = blockEntry.getValue().toArray(new DBEntry[0]);
                 int startID = blockID * blockSize;
                 
                 for(int i = 0; i < entryList.length; i++)
@@ -80,11 +77,6 @@ public abstract class BigDatabase<T> implements IDatabase<T>
                     break;
                 } else if(blockEntry.getID() == blockID)
                 {
-                    if(checkEntriesInBlock(blockEntry.getValue(), id, value))
-                    {
-                        throw new IllegalArgumentException("ID or value is already contained within database");
-                    }
-                    
                     DBEntry<T> entry = new DBEntry<>(id, value);
                     
                     if(blockEntry.getValue().add(entry))
@@ -103,19 +95,6 @@ public abstract class BigDatabase<T> implements IDatabase<T>
             dbBlocks.add(new DBEntry<>(blockID, block));
             return entry;
         }
-    }
-    
-    private boolean checkEntriesInBlock(SortedSet<DBEntry<T>> block, int id, T value)
-    {
-        for(DBEntry<T> entry : block)
-        {
-            if(entry.getID() == id || entry.getValue().equals(value))
-            {
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     @Override

@@ -88,10 +88,10 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 32), 0));
         cvBackground.addPanel(cvLeftHalf);
     
-        PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiTransform(GuiAlign.TOP_CENTER, -32, 0, 64, 64, 0), mc.player);
+        PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiTransform(GuiAlign.TOP_CENTER, -32, 0, 64, 64, 0), mc.player).setDepth(-16F);
         cvLeftHalf.addPanel(pnPortrait);
         
-        cvLeftHalf.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_CENTER, 16, 48, 24, 24, 0), new ItemTexture(new BigItemStack(BetterQuesting.extraLife, LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mc.player))), true, true)));
+        cvLeftHalf.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_CENTER, 16, 48, 24, 24, 0), new ItemTexture(new BigItemStack(BetterQuesting.extraLife, LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mc.player))), true, true).setDepth(32F)));
         
         PanelTextBox txName = new PanelTextBox(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -44, 16, 28), 0), QuestTranslation.translate("betterquesting.gui.name"));
         txName.setColor(PresetColor.TEXT_HEADER.getColor());

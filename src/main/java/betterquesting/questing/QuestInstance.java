@@ -1,30 +1,5 @@
 package betterquesting.questing;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import betterquesting.api.questing.IQuestDatabase;
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.IDatabaseNBT;
-import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
@@ -36,11 +11,15 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
 import betterquesting.network.PacketSender;
@@ -50,6 +29,23 @@ import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class QuestInstance implements IQuest
 {
@@ -185,15 +181,14 @@ public class QuestInstance implements IQuest
 					}
 					
 					return;
-				} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0)
+				} else if(qInfo.getProperty(NativeProps.REPEAT_TIME) < 0 || rewards.size() <= 0)
 				{
 					// Task is non repeatable or has no rewards to claim
 					return;
-				} else
-				{
-					// Task logic will now run for repeat quest
 				}
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 && player.world.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME).intValue())
+				
+				// Task logic will now run for repeat quest
+			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && player.world.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
 			{
 				// Task is scheduled to reset
 				if(qInfo.getProperty(NativeProps.GLOBAL))
@@ -269,7 +264,7 @@ public class QuestInstance implements IQuest
 	{
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
-		if(isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0 || rewards.size() <= 0))
+		if(isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME) < 0 || rewards.size() <= 0))
 		{
 			return;
 		} else if(!canSubmit(player))
@@ -374,7 +369,7 @@ public class QuestInstance implements IQuest
 	
 	private List<EntityPlayerMP> getPartyPlayers(EntityPlayerMP player)
 	{
-		List<EntityPlayerMP> list = new ArrayList<EntityPlayerMP>();
+		List<EntityPlayerMP> list = new ArrayList<>();
 		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
 		
 		if(party == null)
@@ -410,7 +405,7 @@ public class QuestInstance implements IQuest
 				
 		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
-			if(GetParticipation(uuid) < qInfo.getProperty(NativeProps.PARTICIPATION).floatValue())
+			if(GetParticipation(uuid) < qInfo.getProperty(NativeProps.PARTICIPATION))
 			{
 				return true;
 			} else if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE))
@@ -525,7 +520,7 @@ public class QuestInstance implements IQuest
 		if(entry == null) // Incomplete
 		{
 			return true;
-		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Complete but repeatable
+		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
 		{
 			if(tasks.size() <= 0)
 			{
@@ -586,7 +581,7 @@ public class QuestInstance implements IQuest
 	@SideOnly(Side.CLIENT)
 	private List<String> getStandardTooltip(EntityPlayer player)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		list.add(QuestTranslation.translate(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getID(this))));
 		
@@ -599,7 +594,7 @@ public class QuestInstance implements IQuest
 			if(!hasClaimed(playerID))
 			{
 				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
-			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() > 0)
+			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME) > 0)
 			{
 				long time = getRepeatSeconds(player);
 				DecimalFormat df = new DecimalFormat("00");
@@ -649,7 +644,7 @@ public class QuestInstance implements IQuest
 	@SideOnly(Side.CLIENT)
 	private List<String> getAdvancedTooltip(EntityPlayer player)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		//list.add(I18n.format(getUnlocalisedName()) + " #" + parentDB.getKey(this));
 		
@@ -664,7 +659,7 @@ public class QuestInstance implements IQuest
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
 		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
 		{
-			long time = qInfo.getProperty(NativeProps.REPEAT_TIME).intValue()/20;
+			long time = qInfo.getProperty(NativeProps.REPEAT_TIME)/20;
 			DecimalFormat df = new DecimalFormat("00");
 			String timeTxt = "";
 			
@@ -690,7 +685,7 @@ public class QuestInstance implements IQuest
 	@SideOnly(Side.CLIENT)
 	public long getRepeatSeconds(EntityPlayer player)
 	{
-		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() < 0)
+		if(qInfo.getProperty(NativeProps.REPEAT_TIME) < 0)
 		{
 			return -1;
 		}
@@ -702,7 +697,7 @@ public class QuestInstance implements IQuest
 			return 0;
 		} else
 		{
-			return (qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() - (player.world.getTotalWorldTime() - ue.getTimestamp()))/20L;
+			return (qInfo.getProperty(NativeProps.REPEAT_TIME) - (player.world.getTotalWorldTime() - ue.getTimestamp()))/20L;
 		}
 	}
 	
@@ -714,7 +709,6 @@ public class QuestInstance implements IQuest
 		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
 		base.setTag("progress", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		tags.setTag("data", base);
-		int id = parentDB.getID(this);
 		tags.setInteger("questID", parentDB.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
@@ -928,16 +922,12 @@ public class QuestInstance implements IQuest
 		switch(saveType)
 		{
 			case CONFIG:
-				writeToJson_Config(json);
-				break;
+				return writeToJson_Config(json);
 			case PROGRESS:
-				writeToJson_Progress(json);
-				break;
+				return writeToJson_Progress(json);
 			default:
-				break;
+				return json;
 		}
-		
-		return json;
 	}
 	
 	@Override
@@ -993,6 +983,8 @@ public class QuestInstance implements IQuest
 				
 				if(tmp == null)
 				{
+					// TODO: Make this unnecessary and only use IDs. Seriously, it adds out-of-order loading and that's a problem.
+					// Track parent-child mapping in a separate database which also holds the conditions and their data
 					tmp = parentDB.createNew(prID);
 				}
 				
@@ -1015,7 +1007,7 @@ public class QuestInstance implements IQuest
 				
 				if(tmp == null)
 				{
-					tmp = ((QuestDatabase)parentDB).createNew(prID);
+					tmp = parentDB.createNew(prID);
 				}
 				
 				preRequisites.add(tmp);

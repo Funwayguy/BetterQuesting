@@ -1,10 +1,10 @@
 package betterquesting.api.utils;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
@@ -22,10 +22,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.core.BetterQuesting;
+
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
@@ -44,6 +45,11 @@ public class RenderUtils
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
+	{
+		RenderItemStack(mc, stack, x, y, 16F, text, color);
+	}
+	
+	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, float z, String text, int color)
 	{
 		if(stack == null || stack.isEmpty())
 		{
@@ -76,10 +82,9 @@ public class RenderUtils
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableDepth();
 		
-		GlStateManager.translate(0.0F, 0.0F, 16.0F);
-		//itemRender.zLevel = 0F;//200.0F;
-		itemRender.zLevel = -150F;
-		//itemRender.zLevel -= 150F;
+		GlStateManager.translate(0.0F, 0.0F, z);
+		itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
+		
 		FontRenderer font = rStack.getItem().getFontRenderer(rStack);
 		if (font == null) font = mc.fontRenderer;
 		
@@ -117,7 +122,7 @@ public class RenderUtils
 				font.drawString(text, 0, 0, 16777215, true);
 				
 				GlStateManager.enableLighting();
-				//GlStateManager.enableDepth();
+				GlStateManager.enableDepth();
 				GlStateManager.enableBlend();
 				
 		    	GlStateManager.popMatrix();
@@ -136,16 +141,21 @@ public class RenderUtils
 		
         GlStateManager.popMatrix();
 	}
-
+	
     public static void RenderEntity(int posX, int posY, int scale, float rotation, float pitch, Entity entity)
+    {
+    	RenderEntity(posX, posY, 64F, scale, rotation, pitch, entity);
+	}
+	
+    public static void RenderEntity(float posX, float posY, float posZ, int scale, float rotation, float pitch, Entity entity)
     {
     	try
     	{
 	        GlStateManager.enableColorMaterial();
 	        GlStateManager.pushMatrix();
 	        GlStateManager.enableDepth();
-	        GlStateManager.translate((float)posX, (float)posY, 100.0F);
-	        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
+	        GlStateManager.translate(posX, posY, posZ);
+	        GlStateManager.scale((float)-scale, (float)scale, (float)scale); // Not entirely sure why mobs are flipped but this is how vanilla GUIs fix it so...
 	        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
 	        GlStateManager.rotate(pitch, 1F, 0F, 0F);
 	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
@@ -158,12 +168,14 @@ public class RenderUtils
 	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
+	        GlStateManager.disableDepth();
 	        GlStateManager.popMatrix();
 	        RenderHelper.disableStandardItemLighting();
 	        GlStateManager.disableRescaleNormal();
 	        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 	        GlStateManager.disableTexture2D();
 	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+	        GlStateManager.enableTexture2D(); // Breaks subsequent text rendering if not included
     	} catch(Exception e)
     	{
     		// Hides rendering errors with entities which are common for invalid/technical entities

@@ -70,14 +70,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else if(sender != null)
 			{
-				sender.getServer().addScheduledTask(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						handler.handleServer(message, sender);
-					}
-				});
+				sender.getServer().addScheduledTask(() -> handler.handleServer(message, sender));
 			}
 			
 			return null;
@@ -114,16 +107,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else
 			{
-				Minecraft mc = Minecraft.getMinecraft();
-				
-				mc.addScheduledTask(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						handler.handleClient(message);
-					}
-				});
+				Minecraft.getMinecraft().addScheduledTask(() -> handler.handleClient(message));
 			}
 			
 			return null;

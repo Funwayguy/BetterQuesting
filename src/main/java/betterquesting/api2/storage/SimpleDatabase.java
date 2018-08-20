@@ -5,7 +5,7 @@ import java.util.*;
 // It's up to child classes to define how T is parsed as K
 public abstract class SimpleDatabase<T> implements IDatabase<T>
 {
-    private final SortedSet<DBEntry<T>> listDB = Collections.synchronizedSortedSet(new TreeSet<>());
+    private final SortedSet<DBEntry<T>> listDB = Collections.synchronizedSortedSet(new TreeSet<>((Comparator<DBEntry>)(o1, o2) -> o1.getValue() == o2.getValue() ? 0 : Integer.compare(o1.getID(), o2.getID())));
     
     @Override
     public int nextID()
@@ -39,9 +39,6 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
         } else if(id < 0)
         {
             throw new IllegalArgumentException("ID cannot be negative");
-        } else if(checkEntries(id, value))
-        {
-            throw new IllegalArgumentException("ID or value is already contained within database");
         } else
         {
             DBEntry<T> entry = new DBEntry<>(id, value);
@@ -54,22 +51,6 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
                 throw new IllegalArgumentException("ID or value is already contained within database");
             }
         }
-    }
-    
-    private boolean checkEntries(int id, T value)
-    {
-        synchronized(listDB)
-        {
-            for(DBEntry<T> entry : listDB)
-            {
-                if(entry.getID() == id || entry.getValue().equals(value))
-                {
-                    return true;
-                }
-            }
-        }
-        
-        return false;
     }
     
     @Override

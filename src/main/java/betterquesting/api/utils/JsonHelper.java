@@ -198,7 +198,11 @@ public class JsonHelper
 				{
 					file.getParentFile().mkdirs();
 				}
-				file.createNewFile();
+				
+				if(!file.createNewFile())
+				{
+					throw new FileNotFoundException("Unable to create file " + file.getAbsolutePath());
+				}
 			}
 		} catch(Exception e)
 		{

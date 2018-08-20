@@ -1,11 +1,13 @@
 package betterquesting.client.gui.editors.json;
 
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiBigTextField;
+import betterquesting.api.client.gui.controls.GuiButtonStorage;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.lists.GuiScrollingButtons;
+import betterquesting.api.misc.ICallback;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -20,14 +22,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.controls.GuiBigTextField;
-import betterquesting.api.client.gui.controls.GuiButtonStorage;
-import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.lists.GuiScrollingButtons;
-import betterquesting.api.misc.ICallback;
-import betterquesting.api.utils.RenderUtils;
-import betterquesting.core.BetterQuesting;
+
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonEntitySelection extends GuiScreenThemed
@@ -132,7 +133,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 			
 			GlStateManager.color(1F, 1F, 1F, 1F);
 			
-			float angle = ((float)Minecraft.getSystemTime()%30000F)/30000F * 360F;
+			float angle = (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D);
 			float scale = 64F;
 			
 			if(entity.height * scale > this.sizeY/2F)
@@ -145,12 +146,7 @@ public class GuiJsonEntitySelection extends GuiScreenThemed
 				scale = (this.sizeX/4F)/entity.width;
 			}
 			
-			try
-			{
-				RenderUtils.RenderEntity(this.guiLeft + this.sizeX/4, this.guiTop + this.sizeY/2 + MathHelper.ceil(entity.height/2F*scale), (int)scale, angle, 0F, entity);
-			} catch(Exception e)
-			{
-			}
+			RenderUtils.RenderEntity(this.guiLeft + this.sizeX/4, this.guiTop + this.sizeY/2 + MathHelper.ceil(entity.height/2F*scale), (int)scale, angle, 0F, entity);
 			
 			GlStateManager.popMatrix();
 		}
