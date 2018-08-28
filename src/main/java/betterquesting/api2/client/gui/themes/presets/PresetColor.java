@@ -17,6 +17,8 @@ public enum PresetColor
 	TEXT_HIGHLIGHT("text_highlight"),
 	TEXT_WATERMARK("text_watermark"),
 	
+	ITEM_HIGHLIGHT("item_highlight"),
+	
 	GUI_DIVIDER("gui_divider"),
 	
 	GRID_MAJOR("grid_major"),
@@ -61,6 +63,8 @@ public enum PresetColor
 		reg.setDefaultColor(TEXT_AUX_1.key, new GuiColorStatic(0, 0, 0, 255)); // Light panels (Black Text)
 		reg.setDefaultColor(TEXT_HIGHLIGHT.key, new GuiColorStatic(0, 0, 255, 255)); // Selection Highlight (Blue Invert)
 		reg.setDefaultColor(TEXT_WATERMARK.key, new GuiColorStatic(128, 128, 128, 255)); // Text Field Watermark (Grey Text)
+		
+		reg.setDefaultColor(ITEM_HIGHLIGHT.key, new GuiColorStatic(255, 255, 255, 128));
 		
 		reg.setDefaultColor(GUI_DIVIDER.key, new GuiColorStatic(0, 0, 0, 255));
 		

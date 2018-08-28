@@ -1,8 +1,15 @@
 package betterquesting.client;
 
-import java.io.File;
-import java.io.FileFilter;
+import betterquesting.api.client.gui.misc.IGuiHelper;
+import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.misc.ICallback;
+import betterquesting.api.misc.IMultiCallback;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
+import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
+import betterquesting.client.gui.misc.GuiFileExplorer;
 import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -11,15 +18,9 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.FluidStack;
-import betterquesting.api.client.gui.misc.IGuiHelper;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.misc.ICallback;
-import betterquesting.api.misc.IMultiCallback;
-import betterquesting.api.utils.BigItemStack;
-import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
-import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
-import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
-import betterquesting.client.gui.misc.GuiFileExplorer;
+
+import java.io.File;
+import java.io.FileFilter;
 
 public final class GuiBuilder implements IGuiHelper
 {
@@ -48,7 +49,7 @@ public final class GuiBuilder implements IGuiHelper
 	@Override
 	public void openItemEditor(GuiScreen parent, ICallback<BigItemStack> callback, BigItemStack stack)
 	{
-		mc.displayGuiScreen(new GuiJsonItemSelection(parent, callback, stack));
+		mc.displayGuiScreen(new GuiItemSelection(parent, stack, callback));
 	}
 	
 	@Override

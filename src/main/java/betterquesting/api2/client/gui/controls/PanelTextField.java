@@ -219,9 +219,10 @@ public class PanelTextField<T> implements IGuiPanel
         return this.isActive;
     }
     
-    public void setWatermark(String text)
+    public PanelTextField<T> setWatermark(String text)
     {
         this.watermark = text;
+        return this;
     }
     
     public void setText(String text)

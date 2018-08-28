@@ -1,5 +1,14 @@
 package betterquesting.client.gui.editors.json;
 
+import betterquesting.api.client.gui.GuiScreenThemed;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
+import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
+import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
+import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -14,14 +23,6 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.client.gui.GuiScreenThemed;
-import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.utils.BigItemStack;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
-import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
-import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
 
 @SideOnly(Side.CLIENT)
 public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
@@ -128,7 +129,7 @@ public class GuiJsonTypeMenu extends GuiScreenThemed implements IVolatileScreen
 		if(button.id == 1)
 		{
 			this.lastType = EditType.ITEM;
-			this.mc.displayGuiScreen(new GuiJsonItemSelection(this, itemCallback, stack));
+			this.mc.displayGuiScreen(new GuiItemSelection(this, stack, itemCallback));
 		} else if(button.id == 2)
 		{
 			this.lastType = EditType.ENTITY;

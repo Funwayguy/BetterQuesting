@@ -1,6 +1,17 @@
 package betterquesting.core.proxies;
 
-import java.util.ArrayList;
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.ItemPlaceholder;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
+import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.QuestNotification;
+import betterquesting.client.renderer.PlaceholderRenderFactory;
+import betterquesting.client.toolbox.ToolboxRegistry;
+import betterquesting.client.toolbox.ToolboxTabMain;
+import betterquesting.core.BetterQuesting;
+import betterquesting.core.ExpansionLoader;
+import betterquesting.misc.QuestResourcesFile;
+import betterquesting.misc.QuestResourcesFolder;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -14,18 +25,8 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.placeholders.EntityPlaceholder;
-import betterquesting.api.placeholders.ItemPlaceholder;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.client.BQ_Keybindings;
-import betterquesting.client.QuestNotification;
-import betterquesting.client.renderer.PlaceholderRenderFactory;
-import betterquesting.client.toolbox.ToolboxRegistry;
-import betterquesting.client.toolbox.ToolboxTabMain;
-import betterquesting.core.BetterQuesting;
-import betterquesting.core.ExpansionLoader;
-import betterquesting.misc.QuestResourcesFile;
-import betterquesting.misc.QuestResourcesFolder;
+
+import java.util.ArrayList;
 
 public class ClientProxy extends CommonProxy
 {
@@ -43,7 +44,10 @@ public class ClientProxy extends CommonProxy
 		
 		if(!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
 		{
-			Minecraft.getMinecraft().getFramebuffer().enableStencil();
+			if(!Minecraft.getMinecraft().getFramebuffer().enableStencil())
+			{
+				BetterQuesting.logger.fatal("[!] FAILED TO ENABLE STENCIL BUFFER. GUIS WILL BREAK! [!]");
+			}
 		}
 		
 		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);

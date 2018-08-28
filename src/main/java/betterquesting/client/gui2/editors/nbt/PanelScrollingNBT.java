@@ -2,11 +2,11 @@ package betterquesting.client.gui2.editors.nbt;
 
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api2.client.gui.controls.callbacks.CallbackMulti;
-import betterquesting.api2.client.gui.controls.callbacks.CallbackNBTPrimitive;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
+import betterquesting.api2.client.gui.controls.callbacks.CallbackMulti;
+import betterquesting.api2.client.gui.controls.callbacks.CallbackNBTPrimitive;
 import betterquesting.api2.client.gui.controls.callbacks.CallbackNBTTagString;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterNumber;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
@@ -14,14 +14,18 @@ import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.json.*;
+import betterquesting.client.gui.editors.json.GuiJsonAdd;
+import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
+import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
+import betterquesting.client.gui.editors.json.GuiJsonTypeMenu;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
 import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
@@ -384,7 +388,8 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 
                 if(JsonHelper.isItem(tag))
                 {
-                    mc.displayGuiScreen(new GuiJsonItemSelection(mc.currentScreen, new JsonItemCallback(tag), JsonHelper.JsonToItemStack(tag)));
+                    mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, tag, new JsonItemCallback(tag)));
+                    //mc.displayGuiScreen(new GuiJsonItemSelection(mc.currentScreen, new JsonItemCallback(tag), JsonHelper.JsonToItemStack(tag)));
                 } else if(JsonHelper.isFluid(tag))
                 {
                     mc.displayGuiScreen(new GuiJsonFluidSelection(mc.currentScreen, new JsonFluidCallback(tag), JsonHelper.JsonToFluidStack(tag)));

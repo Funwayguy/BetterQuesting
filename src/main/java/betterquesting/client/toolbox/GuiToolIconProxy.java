@@ -1,8 +1,5 @@
 package betterquesting.client.toolbox;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
@@ -11,10 +8,13 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.client.gui.editors.json.GuiJsonItemSelection;
+import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.init.Items;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigItemStack>
 {
@@ -37,7 +37,7 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 		} else
 		{
 			flag = true;
-			mc.displayGuiScreen(new GuiJsonItemSelection(this, this, quest.getItemIcon()));
+			mc.displayGuiScreen(new GuiItemSelection(this, quest.getItemIcon(), this));
 		}
 	}
 	
