@@ -28,9 +28,9 @@ public class NativeProps
 	public static final IPropertyType<Boolean> LOCKED_PROGRESS =			new PropertyTypeBoolean(new ResourceLocation("betterquesting:lockedProgress"), false);
 	public static final IPropertyType<Boolean> SIMULTANEOUS =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:simultaneous"), false);
 	
-	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<EnumQuestVisibility>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
-	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
-	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
+	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
+	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
+	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
 	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
 	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
@@ -58,4 +58,7 @@ public class NativeProps
 	public static final IPropertyType<Float> HOME_ANC_Y =					new PropertyTypeFloat(new ResourceLocation("betterquesting:home_anchor_y"), 0F);
 	public static final IPropertyType<Integer> HOME_OFF_X =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_x"), -128);
 	public static final IPropertyType<Integer> HOME_OFF_Y =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_y"), 0);
+	
+	public static final IPropertyType<Integer> PACK_VER =					new PropertyTypeInteger(new ResourceLocation("betterquesting:pack_version"), 0);
+	public static final IPropertyType<String> PACK_NAME =					new PropertyTypeString(new ResourceLocation("betterquesting:pack_name"), "");
 }

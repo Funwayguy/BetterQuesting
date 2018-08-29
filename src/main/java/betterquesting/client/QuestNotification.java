@@ -1,7 +1,6 @@
 package betterquesting.client;
 
-import java.awt.Color;
-import java.util.ArrayList;
+import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
@@ -18,7 +17,10 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.utils.RenderUtils;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class QuestNotification
@@ -28,7 +30,12 @@ public class QuestNotification
 		notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
 	}
 	
-	static ArrayList<QuestNotice> notices = new ArrayList<QuestNotice>();
+	private static final List<QuestNotice> notices = new ArrayList<>();
+	
+	public static void resetNotices()
+	{
+		notices.clear();
+	}
 	
 	@SubscribeEvent
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)

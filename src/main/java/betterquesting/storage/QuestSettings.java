@@ -1,14 +1,13 @@
 package betterquesting.storage;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
 import betterquesting.network.PacketTypeNative;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class QuestSettings extends PropertyContainer implements IQuestSettings
 {
@@ -59,6 +58,9 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	
 	private void setupProps()
 	{
+		this.setupValue(NativeProps.PACK_NAME);
+		this.setupValue(NativeProps.PACK_VER);
+		
 		this.setupValue(NativeProps.EDIT_MODE);
 		this.setupValue(NativeProps.HARDCORE);
 		this.setupValue(NativeProps.LIVES_DEF);

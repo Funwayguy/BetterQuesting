@@ -1,29 +1,29 @@
 package betterquesting.api2.client.gui.panels.content;
 
-import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
-import betterquesting.api2.client.gui.resources.textures.ItemTexture;
+import betterquesting.api2.client.gui.resources.textures.FluidTexture;
 import betterquesting.api2.client.gui.resources.textures.LayeredTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fluids.FluidStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
+public class PanelFluidSlot extends PanelButtonStorage<FluidStack>
 {
     private final boolean showCount;
     
-    public PanelItemSlot(IGuiRect rect, int id, BigItemStack value)
+    public PanelFluidSlot(IGuiRect rect, int id, FluidStack value)
     {
         this(rect, id, value, false);
     }
     
-    public PanelItemSlot(IGuiRect rect, int id, BigItemStack value, boolean showCount)
+    public PanelFluidSlot(IGuiRect rect, int id, FluidStack value, boolean showCount)
     {
         super(rect, id, "", value);
         this.showCount = showCount;
@@ -34,15 +34,17 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
     }
     
     @Override
-    public PanelItemSlot setStoredValue(BigItemStack value)
+    public PanelFluidSlot setStoredValue(FluidStack value)
     {
         super.setStoredValue(value);
         
         if(value != null)
         {
-            Minecraft mc = Minecraft.getMinecraft();
-            this.setIcon(new ItemTexture(value, showCount, true), 1);
-            this.setTooltip(value.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+            this.setIcon(new FluidTexture(value, showCount, true), 1);
+            List<String> tooltip = new ArrayList<>();
+            tooltip.add(value.getLocalizedName());
+            tooltip.add(TextFormatting.GRAY.toString() + value.amount + "mB");
+            this.setTooltip(tooltip);
         } else
         {
             this.setIcon(null);
@@ -50,17 +52,5 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         }
         
         return this;
-    }
-    
-    @Override
-    public List<String> getTooltip(int mx, int my)
-    {
-        if(getStoredValue() != null && getTransform().contains(mx, my))
-        {
-            Minecraft mc = Minecraft.getMinecraft();
-            return getStoredValue().getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
-        }
-        
-        return null;
     }
 }

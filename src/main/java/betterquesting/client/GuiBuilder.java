@@ -6,9 +6,9 @@ import betterquesting.api.misc.ICallback;
 import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
-import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.misc.GuiFileExplorer;
 import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.GuiFluidSelection;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import net.minecraft.client.Minecraft;
@@ -55,7 +55,7 @@ public final class GuiBuilder implements IGuiHelper
 	@Override
 	public void openFluidEditor(GuiScreen parent, ICallback<FluidStack> callback, FluidStack stack)
 	{
-		mc.displayGuiScreen(new GuiJsonFluidSelection(parent, callback, stack));
+		mc.displayGuiScreen(new GuiFluidSelection(parent, stack, callback));
 	}
 	
 	@Override

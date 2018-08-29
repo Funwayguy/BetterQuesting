@@ -1,5 +1,6 @@
 package betterquesting.core;
 
+import betterquesting.handlers.SaveLoadHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -14,10 +15,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -112,5 +110,13 @@ public class BetterQuesting
 		{
 			manager.registerCommand(new BQ_CommandDebug());
 		}
+		
+		SaveLoadHandler.INSTANCE.loadDatabases(server);
+	}
+	
+	@EventHandler
+	public void serverStop(FMLServerStoppedEvent event)
+	{
+		SaveLoadHandler.INSTANCE.unloadDatabases();
 	}
 }

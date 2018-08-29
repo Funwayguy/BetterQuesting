@@ -24,7 +24,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui.editors.json.GuiJsonAdd;
 import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
-import betterquesting.client.gui.editors.json.GuiJsonFluidSelection;
 import betterquesting.client.gui.editors.json.GuiJsonTypeMenu;
 import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
 import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
@@ -389,10 +388,9 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 if(JsonHelper.isItem(tag))
                 {
                     mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, tag, new JsonItemCallback(tag)));
-                    //mc.displayGuiScreen(new GuiJsonItemSelection(mc.currentScreen, new JsonItemCallback(tag), JsonHelper.JsonToItemStack(tag)));
                 } else if(JsonHelper.isFluid(tag))
                 {
-                    mc.displayGuiScreen(new GuiJsonFluidSelection(mc.currentScreen, new JsonFluidCallback(tag), JsonHelper.JsonToFluidStack(tag)));
+                    mc.displayGuiScreen(new GuiFluidSelection(mc.currentScreen, tag, new JsonFluidCallback(tag)));
                 } else if(JsonHelper.isEntity(tag))
                 {
                     mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(tag), JsonHelper.JsonToEntity(tag, mc.world)));

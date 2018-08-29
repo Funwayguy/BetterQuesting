@@ -23,7 +23,7 @@ public class ItemTexture implements IGuiTexture
     private float zDepth = 16F;
     
     // Dummy value
-    private final IGuiRect bounds;
+    private final IGuiRect bounds = new GuiRectangle(0, 0, 16, 16);
     
     public ItemTexture(BigItemStack stack)
     {
@@ -35,8 +35,6 @@ public class ItemTexture implements IGuiTexture
         this.stack = stack;
         this.showCount = showCount;
         this.keepAspect = keepAspect;
-        
-        this.bounds = new GuiRectangle(0, 0, 16, 16);
     }
     
     public ItemTexture setDepth(float z)

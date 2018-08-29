@@ -238,7 +238,7 @@ public class QuestInstance implements IQuest
 			if(!isUnlocked(playerID))
 			{
 				return;
-			} else if((tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
+			} else if(!isComplete(playerID) && (tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
 				setComplete(playerID, player.world.getTotalWorldTime());
 				
@@ -248,7 +248,7 @@ public class QuestInstance implements IQuest
 				{
 					postPresetNotice(player, 2);
 				}
-			} else if(done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
+			} else if(!isComplete(playerID) && done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -346,6 +346,11 @@ public class QuestInstance implements IQuest
 	
 	public void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
 	{
+		if(QuestDatabase.INSTANCE.getID(this) < 0)
+		{
+			BetterQuesting.logger.error("Non-existant quest is posting notifications!", new Exception());
+		}
+		
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setString("Main", mainTxt);
 		tags.setString("Sub", subTxt);
