@@ -13,4 +13,9 @@ public class QuestTranslation
         
         return I18n.format(text, args);
     }
+    
+    public static String translateTrimmed(String text, Object... args)
+    {
+        return translate(text, args).replaceAll("\r", "");
+    }
 }

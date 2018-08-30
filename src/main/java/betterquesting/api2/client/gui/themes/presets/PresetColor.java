@@ -21,6 +21,8 @@ public enum PresetColor
 	
 	GUI_DIVIDER("gui_divider"),
 	
+	UPDATE_NOTICE("update_notice"),
+	
 	GRID_MAJOR("grid_major"),
 	GRID_MINOR("grid_minor"),
 	
@@ -67,6 +69,8 @@ public enum PresetColor
 		reg.setDefaultColor(ITEM_HIGHLIGHT.key, new GuiColorStatic(255, 255, 255, 128));
 		
 		reg.setDefaultColor(GUI_DIVIDER.key, new GuiColorStatic(0, 0, 0, 255));
+		
+		reg.setDefaultColor(UPDATE_NOTICE.key, new GuiColorPulse(quickMix(255, 255, 0, 255), quickMix(128, 128, 0, 255), 1F, 0F));
 		
 		reg.setDefaultColor(GRID_MAJOR.key, new GuiColorStatic(0, 0, 0, 255));
 		reg.setDefaultColor(GRID_MINOR.key, new GuiColorStatic(0, 0, 0, 255));

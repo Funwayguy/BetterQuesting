@@ -35,7 +35,10 @@ import net.minecraft.nbt.*;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 // Self contained editing panel
 // TODO: Add ability for expansions to register modules for identifying and providing custom editors to various NBT data sets (inventory, tinker tool, magic, etc.)
@@ -117,7 +120,9 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         if(nbt.getId() == 10) // NBTTagCompound
         {
             NBTTagCompound tag = (NBTTagCompound)nbt;
-            Iterator<String> keys = tag.getKeySet().iterator();
+            List<String> sortedKeys = new ArrayList<>(tag.getKeySet());
+            Collections.sort(sortedKeys);
+            Iterator<String> keys = sortedKeys.iterator();
             int i = 0;
             
             while(keys.hasNext())

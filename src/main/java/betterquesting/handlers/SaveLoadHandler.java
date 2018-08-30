@@ -2,6 +2,7 @@ package betterquesting.handlers;
 
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -29,6 +30,18 @@ import java.io.File;
 public class SaveLoadHandler
 {
     public static SaveLoadHandler INSTANCE = new SaveLoadHandler();
+    
+    private boolean hasUpdate = false;
+    
+    public boolean hasUpdate()
+	{
+		return this.hasUpdate;
+	}
+	
+	public void resetUpdate()
+	{
+		this.hasUpdate = false;
+	}
     
     public void loadDatabases(MinecraftServer server)
     {
@@ -87,10 +100,19 @@ public class SaveLoadHandler
 		// === CONFIG ===
 		
 		boolean useDef = !fileDatabase.exists();
+		int packVer = 0;
+		String packName = "";
 		
 		if(useDef) // LOAD DEFAULTS
 		{
 			fileDatabase = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+		} else
+		{
+			JsonObject defTmp = JsonHelper.ReadFromFile(new File(BQ_Settings.defaultDir, "DefaultQuests.json"));
+			QuestSettings tmpSettings = new QuestSettings();
+			tmpSettings.readFromNBT(NBTConverter.JSONtoNBT_Object(defTmp, new NBTTagCompound(), true).getCompoundTag("questSettings"));
+			packVer = tmpSettings.getProperty(NativeProps.PACK_VER);
+			packName = tmpSettings.getProperty(NativeProps.PACK_NAME);
 		}
 		
 		JsonObject j1 = JsonHelper.ReadFromFile(fileDatabase);
@@ -126,6 +148,8 @@ public class SaveLoadHandler
 			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
 			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
 			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), EnumSaveType.CONFIG);
+			
+			hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
 		} else
 		{
 			loader.readFromJson(j1, EnumSaveType.CONFIG);
@@ -226,6 +250,7 @@ public class SaveLoadHandler
     public void unloadDatabases()
     {
         BQ_Settings.curWorldDir = null;
+        hasUpdate = false;
         
         QuestSettings.INSTANCE.reset();
         QuestDatabase.INSTANCE.reset();

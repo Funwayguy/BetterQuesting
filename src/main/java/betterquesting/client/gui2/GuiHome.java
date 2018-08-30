@@ -1,23 +1,16 @@
 package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
-import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
-import betterquesting.client.gui2.party.GuiPartyCreate;
-import betterquesting.client.gui2.party.GuiPartyManage;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.util.vector.Vector4f;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.JsonHelper;
+import betterquesting.api.utils.NBTConverter;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -30,11 +23,30 @@ import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
+import betterquesting.client.gui2.party.GuiPartyCreate;
+import betterquesting.client.gui2.party.GuiPartyManage;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.util.vector.Vector4f;
+
+import java.io.File;
+import java.util.Arrays;
 
 @SideOnly(Side.CLIENT)
 public class GuiHome extends GuiScreenCanvas implements IPEventListener
@@ -90,7 +102,15 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			inCan.addPanel(btnEdit);
 		}
 		
-		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "?"); // Test screen
+		if(Minecraft.getMinecraft().isIntegratedServerRunning() && SaveLoadHandler.INSTANCE.hasUpdate())
+		{
+			PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "");
+			tstBtn.setIcon(PresetIcon.ICON_NOTICE.getTexture(), PresetColor.UPDATE_NOTICE.getColor(), 0);
+			tstBtn.setTooltip(Arrays.asList(QuestTranslation.translateTrimmed("betterquesting.tooltip.update_quests", true)));
+			inCan.addPanel(tstBtn);
+		}
+		
+		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -32, 0, 16, 16, 0), 5, "?"); // Test screen
 		inCan.addPanel(tstBtn);*/
 	}
 	
@@ -135,7 +155,27 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 				QuestSettings.INSTANCE.readFromNBT(value);
 				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
 			}));
-		}/* else if(btn.getButtonID() == 5) // Test screen
+		} else if(btn.getButtonID() == 5) // Update me
+		{
+			File qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+			
+			if(qFile.exists())
+			{
+				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
+				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
+				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
+				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
+				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
+				
+				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+				
+				SaveLoadHandler.INSTANCE.resetUpdate();
+				
+				this.initGui(); // Reset the whole thing
+			}
+		}/* else if(btn.getButtonID() == 6) // Test screen
 		{
 			mc.displayGuiScreen(new GuiPartyInvite(this));
 		}*/

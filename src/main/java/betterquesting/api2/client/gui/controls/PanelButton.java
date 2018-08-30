@@ -1,21 +1,21 @@
 package betterquesting.api2.client.gui.controls;
 
-import java.util.List;
-
-import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
+import betterquesting.api2.client.gui.events.types.PEventButton;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import org.lwjgl.input.Mouse;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.api2.client.gui.themes.presets.PresetColor;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import org.lwjgl.input.Mouse;
+
+import java.util.List;
 
 public class PanelButton implements IPanelButton
 {
@@ -25,6 +25,7 @@ public class PanelButton implements IPanelButton
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
 	private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
 	private IGuiTexture texIcon = null;
+	private IGuiColor colIcon = null;
 	private int icoPadding = 0;
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
@@ -73,7 +74,13 @@ public class PanelButton implements IPanelButton
 	
 	public PanelButton setIcon(IGuiTexture icon, int padding)
 	{
+		return setIcon(icon, null, padding);
+	}
+	
+	public PanelButton setIcon(IGuiTexture icon, IGuiColor color, int padding)
+	{
 		this.texIcon = icon;
+		this.colIcon = color;
 		this.icoPadding = padding * 2;
 		return this;
 	}
@@ -161,7 +168,13 @@ public class PanelButton implements IPanelButton
 			
 			if(isz > 0)
 			{
-				texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick);
+				if(colIcon != null)
+				{
+					texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick, colIcon);
+				} else
+				{
+					texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick);
+				}
 			}
 		}
 		

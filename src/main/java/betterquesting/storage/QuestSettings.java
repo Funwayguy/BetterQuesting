@@ -13,7 +13,7 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 {
 	public static final QuestSettings INSTANCE = new QuestSettings();
 	
-	private QuestSettings()
+	public QuestSettings()
 	{
 		this.setupProps();
 	}
