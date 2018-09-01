@@ -45,6 +45,9 @@ import java.util.UUID;
 public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private PanelTextField<String> flName;
+    private CanvasScrolling invitePanel;
+    private PanelVScrollBar inviteScroll;
+    private UUID playerID;
     
     public GuiPartyCreate(GuiScreen parent)
     {
@@ -54,7 +57,15 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        this.initPanel();
+        IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        
+        if(curParty != null)
+        {
+            mc.displayGuiScreen(new GuiPartyManage(parent));
+            return;
+        }
+        
+        refreshInvites();
     }
     
     @Override
@@ -62,7 +73,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     {
         super.initPanel();
         
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        playerID = QuestingAPI.getQuestingUUID(mc.player);
         
         IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
         
@@ -106,45 +117,18 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvRightHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 32), 0));
         cvBackground.addPanel(cvRightHalf);
     
-        CanvasScrolling cvInviteList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
-        cvRightHalf.addPanel(cvInviteList);
+        invitePanel = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
+        cvRightHalf.addPanel(invitePanel);
     
-        PanelVScrollBar scInvite = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 16, 0, 0), 0));
-        cvRightHalf.addPanel(scInvite);
-        cvInviteList.setScrollDriverY(scInvite);
+        inviteScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 16, 0, 0), 0));
+        cvRightHalf.addPanel(inviteScroll);
+        invitePanel.setScrollDriverY(inviteScroll);
     
         PanelTextBox txInvite = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.party_invites")).setAlignment(1);
         txInvite.setColor(PresetColor.TEXT_HEADER.getColor());
         cvRightHalf.addPanel(txInvite);
         
-        int cvWidth = cvInviteList.getTransform().getWidth();
-        List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
-        int elSize = mc.fontRenderer.getStringWidth("...");
-        
-        for(int i = 0; i < invites.size(); i++)
-        {
-            Integer pid = invites.get(i);
-            IParty party = PartyManager.INSTANCE.getValue(pid);
-            
-            if(party == null)
-            {
-                continue;
-            }
-    
-            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
-            cvInviteList.addPanel(btnJoin);
-            
-            String pName = party.getName();
-            if(mc.fontRenderer.getStringWidth(pName) > cvWidth - 58)
-            {
-                pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
-            }
-            
-            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
-            cvInviteList.addPanel(txPartyName);
-        }
-        
-        scInvite.setActive(cvInviteList.getScrollBounds().getHeight() > 0);
+        refreshInvites();
         
         // Divider
     
@@ -186,5 +170,37 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             tags.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
         }
+    }
+    
+    private void refreshInvites()
+    {
+        int cvWidth = invitePanel.getTransform().getWidth();
+        List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
+        int elSize = mc.fontRenderer.getStringWidth("...");
+        
+        for(int i = 0; i < invites.size(); i++)
+        {
+            Integer pid = invites.get(i);
+            IParty party = PartyManager.INSTANCE.getValue(pid);
+            
+            if(party == null)
+            {
+                continue;
+            }
+    
+            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
+            invitePanel.addPanel(btnJoin);
+            
+            String pName = party.getName();
+            if(mc.fontRenderer.getStringWidth(pName) > cvWidth - 58)
+            {
+                pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
+            }
+            
+            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
+            invitePanel.addPanel(txPartyName);
+        }
+        
+        inviteScroll.setActive(invitePanel.getScrollBounds().getHeight() > 0);
     }
 }

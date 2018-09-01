@@ -161,6 +161,9 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			
 			if(qFile.exists())
 			{
+				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+				
 				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
@@ -168,6 +171,10 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
 				
+				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
+				QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
+				
+				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 				

@@ -486,6 +486,11 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void addPanel(IGuiPanel panel)
 	{
+		addCulledPanel(panel, true);
+	}
+	
+	public void addCulledPanel(IGuiPanel panel, boolean useCulling)
+	{
 		if(panel == null || guiPanels.contains(panel))
 		{
 			return;
@@ -494,7 +499,7 @@ public class CanvasScrolling implements IGuiCanvas
 		guiPanels.add(panel);
 		guiPanels.sort(ComparatorGuiDepth.INSTANCE);
 		
-		cullingManager.addPanel(panel, true);
+		cullingManager.addPanel(panel, useCulling);
 		
 		panel.initPanel();
 		

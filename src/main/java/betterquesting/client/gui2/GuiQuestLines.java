@@ -139,7 +139,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         
         paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0, 0), "", true);
         paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
-        cvDesc.addPanel(paDesc);
+        cvDesc.addCulledPanel(paDesc, false);
     
         scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-24, -66, 16, 16), 0));
         cvDesc.setScrollDriverY(scDesc);

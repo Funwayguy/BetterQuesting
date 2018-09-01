@@ -129,7 +129,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvInner.addPanel(cvDesc);
             PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getUnlocalisedDescription()), true);
             paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
-            cvDesc.addPanel(paDesc);
+            cvDesc.addCulledPanel(paDesc, false);
             
             PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.MID_CENTER), new GuiPadding(-16, 0, 8, 16), 0));
             cvInner.addPanel(paDescScroll);
@@ -162,7 +162,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvInner.addPanel(cvDesc);
             PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getUnlocalisedDescription()), true);
             paDesc.setColor(PresetColor.TEXT_MAIN.getColor());
-            cvDesc.addPanel(paDesc);
+            cvDesc.addCulledPanel(paDesc, false);
             
             PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.BOTTOM_CENTER), new GuiPadding(-16, 0, 8, 0), 0));
             cvInner.addPanel(paDescScroll);

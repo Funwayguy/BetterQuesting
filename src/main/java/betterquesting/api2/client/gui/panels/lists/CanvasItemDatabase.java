@@ -13,10 +13,10 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CanvasItemDatabase extends CanvasScrolling
@@ -27,6 +27,7 @@ public class CanvasItemDatabase extends CanvasScrolling
     private final Stopwatch searchTime = Stopwatch.createStarted();
     private int resultWidth = 256; // Used for organising ongoing search results even if the size changes midway
     private int searchIdx = 0; // Where are we in the ongoing search?
+    private final ArrayDeque<ItemStack> pendingResults = new ArrayDeque<>();
     
     public CanvasItemDatabase(IGuiRect rect, int buttonId)
     {
@@ -43,6 +44,7 @@ public class CanvasItemDatabase extends CanvasScrolling
         this.searchIdx = 0;
         this.searching = Item.REGISTRY.iterator();
         this.resultWidth = this.getTransform().getWidth();
+        this.pendingResults.clear();
     }
     
     @Override
@@ -53,12 +55,14 @@ public class CanvasItemDatabase extends CanvasScrolling
         this.searchIdx = 0;
         this.searching = Item.REGISTRY.iterator();
         this.resultWidth = this.getTransform().getWidth();
+        this.pendingResults.clear();
     }
     
     @Override
     public void drawPanel(int mx, int my, float partialTick)
     {
         updateSearch();
+        updateResults();
         
         super.drawPanel(mx, my, partialTick);
     }
@@ -70,17 +74,15 @@ public class CanvasItemDatabase extends CanvasScrolling
             return;
         } else if(!searching.hasNext())
         {
-            searchIdx = 0;
             searching = null;
             return;
         }
     
-        List<ItemStack> addThese = new ArrayList<>();
         Minecraft mc = Minecraft.getMinecraft();
         
         searchTime.reset().start();
         
-        while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 40)
+        while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 10)
         {
             Item item = searching.next();
             
@@ -96,23 +98,40 @@ public class CanvasItemDatabase extends CanvasScrolling
             
             item.getSubItems(CreativeTabs.SEARCH, subList);
             
+            boolean oreMatch = false;
+            
+            for(int oid : OreDictionary.getOreIDs(item.getDefaultInstance()))
+            {
+                if(OreDictionary.getOreName(oid).toLowerCase().contains(searchTerm))
+                {
+                    pendingResults.addAll(subList);
+                    oreMatch = true;
+                    break;
+                }
+            }
+            
+            if(oreMatch)
+            {
+                continue;
+            }
+            
             if(item.getUnlocalizedName().toLowerCase().contains(searchTerm) || QuestTranslation.translate(item.getUnlocalizedName()).toLowerCase().contains(searchTerm) || item.getRegistryName().toString().toLowerCase().contains(searchTerm))
             {
-                addThese.addAll(subList);
+                pendingResults.addAll(subList);
             } else
             {
                 for(ItemStack subItem : subList)
                 {
                     if(subItem.getUnlocalizedName().toLowerCase().contains(searchTerm) || subItem.getDisplayName().toLowerCase().contains(searchTerm))
                     {
-                        addThese.add(subItem);
+                        pendingResults.add(subItem);
                     } else
                     {
                         for(String tooltip : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
                         {
                             if(tooltip.toLowerCase().contains(searchTerm))
                             {
-                                addThese.add(subItem);
+                                pendingResults.add(subItem);
                                 break;
                             }
                         }
@@ -121,10 +140,29 @@ public class CanvasItemDatabase extends CanvasScrolling
             }
         }
         
+        searchTime.stop();
+    }
+    
+    private void updateResults()
+    {
+        if(pendingResults.isEmpty())
+        {
+            return;
+        }
+        
         int rowMax = resultWidth / 18;
         
-        for(ItemStack stack : addThese)
+        searchTime.reset().start();
+        
+        while(!pendingResults.isEmpty() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 100)
         {
+            ItemStack stack = pendingResults.poll();
+            
+            if(stack == null || stack.isEmpty())
+            {
+                continue;
+            }
+            
             int x = (searchIdx % rowMax) * 18;
             int y = (searchIdx / rowMax) * 18;
             

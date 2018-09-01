@@ -1,16 +1,7 @@
 package betterquesting.commands.admin;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.enums.EnumSaveType;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
@@ -21,6 +12,17 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentTranslation;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandDefaults extends QuestCommandBase
 {
@@ -91,12 +93,18 @@ public class QuestCommandDefaults extends QuestCommandBase
 		{
 			if(qFile.exists())
 			{
+				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+				
 				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
 				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
 				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
+				
+				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
+				QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 				
 				if(args.length == 3 && !args[2].equalsIgnoreCase("DefaultQuests"))
 				{
@@ -106,6 +114,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
 				}
 				
+				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 			} else

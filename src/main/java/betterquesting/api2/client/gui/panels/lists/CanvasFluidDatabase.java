@@ -8,9 +8,8 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CanvasFluidDatabase extends CanvasScrolling
@@ -21,6 +20,7 @@ public class CanvasFluidDatabase extends CanvasScrolling
     private final Stopwatch searchTime = Stopwatch.createStarted();
     private int resultWidth = 256; // Used for organising ongoing search results even if the size changes midway
     private int searchIdx = 0; // Where are we in the ongoing search?
+    private final ArrayDeque<FluidStack> pendingResults = new ArrayDeque<>();
     
     public CanvasFluidDatabase(IGuiRect rect, int buttonId)
     {
@@ -37,6 +37,7 @@ public class CanvasFluidDatabase extends CanvasScrolling
         this.searchIdx = 0;
         this.searching = FluidRegistry.getRegisteredFluids().values().iterator();
         this.resultWidth = this.getTransform().getWidth();
+        this.pendingResults.clear();
     }
     
     @Override
@@ -47,12 +48,14 @@ public class CanvasFluidDatabase extends CanvasScrolling
         this.searchIdx = 0;
         this.searching = FluidRegistry.getRegisteredFluids().values().iterator();
         this.resultWidth = this.getTransform().getWidth();
+        this.pendingResults.clear();
     }
     
     @Override
     public void drawPanel(int mx, int my, float partialTick)
     {
         updateSearch();
+        updateResults();
         
         super.drawPanel(mx, my, partialTick);
     }
@@ -64,16 +67,13 @@ public class CanvasFluidDatabase extends CanvasScrolling
             return;
         } else if(!searching.hasNext())
         {
-            searchIdx = 0;
             searching = null;
             return;
         }
-    
-        List<FluidStack> addThese = new ArrayList<>();
         
         searchTime.reset().start();
         
-        while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 40)
+        while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 10)
         {
             Fluid item = searching.next();
             
@@ -89,14 +89,33 @@ public class CanvasFluidDatabase extends CanvasScrolling
             
             if(item.getUnlocalizedName().toLowerCase().contains(searchTerm) || item.getLocalizedName(stack).toLowerCase().contains(searchTerm) || item.getName().toLowerCase().contains(searchTerm))
             {
-                addThese.add(stack);
+                pendingResults.add(stack);
             }
+        }
+        
+        searchTime.stop();
+    }
+    
+    private void updateResults()
+    {
+        if(pendingResults.isEmpty())
+        {
+            return;
         }
         
         int rowMax = resultWidth / 18;
         
-        for(FluidStack stack : addThese)
+        searchTime.reset().start();
+        
+        while(!pendingResults.isEmpty() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 100)
         {
+            FluidStack stack = pendingResults.poll();
+            
+            if(stack == null)
+            {
+                continue;
+            }
+            
             int x = (searchIdx % rowMax) * 18;
             int y = (searchIdx / rowMax) * 18;
             

@@ -62,7 +62,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        initPanel();
+        //initPanel();
     }
     
     @Override
@@ -111,7 +111,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
         cvLeftHalf.addPanel(btnInvite);
         
-        flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName(), FieldFilterString.INSTANCE);
+        if(flName == null) flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName(), FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
         flName.setActive(status.ordinal() >= 3);
         

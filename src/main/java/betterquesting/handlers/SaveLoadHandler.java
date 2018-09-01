@@ -149,6 +149,11 @@ public class SaveLoadHandler
 			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
 			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), EnumSaveType.CONFIG);
 			
+			if(useDef)
+			{
+				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
+			}
+			
 			hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
 		} else
 		{
