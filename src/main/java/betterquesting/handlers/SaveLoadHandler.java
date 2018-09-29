@@ -50,10 +50,14 @@ public class SaveLoadHandler
 		QuestLineDatabase.INSTANCE.reset();
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
+        
+        QuestCache.INSTANCE.reset();
+        hasUpdate = false;
 		
 		if(BetterQuesting.proxy.isClient())
 		{
 			GuiHome.bookmark = null;
+			QuestNotification.resetNotices();
 		}
 		
 		File rootDir;
@@ -264,6 +268,11 @@ public class SaveLoadHandler
         NameCache.INSTANCE.reset();
         
         QuestCache.INSTANCE.reset();
-        QuestNotification.resetNotices();
+        
+        if(BetterQuesting.proxy.isClient())
+		{
+			GuiHome.bookmark = null;
+			QuestNotification.resetNotices();
+		}
     }
 }

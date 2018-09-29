@@ -12,6 +12,7 @@ import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
 
+@Deprecated
 public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.ScrollingEntryItem>
 {
 	private final Minecraft mc;

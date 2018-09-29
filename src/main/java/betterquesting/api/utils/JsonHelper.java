@@ -1,9 +1,8 @@
 package betterquesting.api.utils;
 
-import java.io.*;
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.placeholders.PlaceholderConverter;
+import com.google.gson.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.init.Blocks;
@@ -17,13 +16,11 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.placeholders.PlaceholderConverter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 /**
  * Used to read JSON data with pre-made checks for null entries and casting.

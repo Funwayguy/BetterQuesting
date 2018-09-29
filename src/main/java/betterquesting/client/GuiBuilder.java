@@ -5,9 +5,9 @@ import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
 import betterquesting.client.gui.misc.GuiFileExplorer;
 import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.GuiEntitySelection;
 import betterquesting.client.gui2.editors.nbt.GuiFluidSelection;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
@@ -61,7 +61,7 @@ public final class GuiBuilder implements IGuiHelper
 	@Override
 	public void openEntityEditor(GuiScreen parent, ICallback<Entity> callback, Entity entity)
 	{
-		mc.displayGuiScreen(new GuiJsonEntitySelection(parent, callback, entity));
+		mc.displayGuiScreen(new GuiEntitySelection(parent, entity, callback));
 	}
 	
 	@Override

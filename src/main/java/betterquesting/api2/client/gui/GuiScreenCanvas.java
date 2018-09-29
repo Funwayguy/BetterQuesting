@@ -1,5 +1,7 @@
 package betterquesting.api2.client.gui;
 
+import betterquesting.api.client.gui.GuiYesNoLocked;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
@@ -7,6 +9,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -166,11 +169,22 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
     public void keyTyped(char c, int keyCode) throws IOException
     {
-        super.keyTyped(c, keyCode);
-        
-        if(keyCode == 1)
+        if (keyCode == 1)
         {
-        	return;
+        	if(this instanceof IVolatileScreen)
+        	{
+        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	} else
+			{
+				this.mc.displayGuiScreen(null);
+				
+				if(this.mc.currentScreen == null)
+				{
+					this.mc.setIngameFocus();
+				}
+			}
+			
+			return;
         }
         
         this.onKeyTyped(c, keyCode);
@@ -359,4 +373,17 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
     {
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
+	
+	@Override
+    public void confirmClicked(boolean confirmed, int id)
+	{
+		if(confirmed && id == 0)
+		{
+            this.mc.displayGuiScreen(null);
+            this.mc.setIngameFocus();
+		} else
+		{
+			this.mc.displayGuiScreen(this);
+		}
+	}
 }

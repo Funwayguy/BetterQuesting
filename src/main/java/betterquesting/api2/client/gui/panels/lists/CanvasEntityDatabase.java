@@ -1,31 +1,28 @@
 package betterquesting.api2.client.gui.panels.lists;
 
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.content.PanelFluidSlot;
 import com.google.common.base.Stopwatch;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class CanvasFluidDatabase extends CanvasScrolling
+public class CanvasEntityDatabase extends CanvasScrolling
 {
     private final int btnId;
     private String searchTerm = "";
-    private Iterator<Fluid> searching = null;
+    private Iterator<EntityEntry> searching;
     private final Stopwatch searchTime = Stopwatch.createStarted();
     private int resultWidth = 256; // Used for organising ongoing search results even if the size changes midway
     private int searchIdx = 0; // Where are we in the ongoing search?
-    private final ArrayDeque<FluidStack> pendingResults = new ArrayDeque<>();
+    private final List<EntityEntry> pendingResults = new ArrayList<>();
     
-    public CanvasFluidDatabase(IGuiRect rect, int buttonId)
+    public CanvasEntityDatabase(IGuiRect rect, int buttonId)
     {
         super(rect);
-        
         this.btnId = buttonId;
     }
     
@@ -35,7 +32,7 @@ public class CanvasFluidDatabase extends CanvasScrolling
         
         this.searchTerm = text.toLowerCase();
         this.searchIdx = 0;
-        this.searching = FluidRegistry.getRegisteredFluids().values().iterator();
+        this.searching = ForgeRegistries.ENTITIES.iterator();
         this.resultWidth = this.getTransform().getWidth();
         this.pendingResults.clear();
     }
@@ -46,7 +43,7 @@ public class CanvasFluidDatabase extends CanvasScrolling
         super.initPanel();
         
         this.searchIdx = 0;
-        this.searching = FluidRegistry.getRegisteredFluids().values().iterator();
+        this.searching = ForgeRegistries.ENTITIES.iterator();
         this.resultWidth = this.getTransform().getWidth();
         this.pendingResults.clear();
     }
@@ -55,7 +52,11 @@ public class CanvasFluidDatabase extends CanvasScrolling
     public void drawPanel(int mx, int my, float partialTick)
     {
         updateSearch();
-        updateResults();
+        
+        if(searching == null)
+        {
+            updateResults();
+        }
         
         super.drawPanel(mx, my, partialTick);
     }
@@ -68,31 +69,26 @@ public class CanvasFluidDatabase extends CanvasScrolling
         } else if(!searching.hasNext())
         {
             searching = null;
+            
+            pendingResults.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+            
             return;
         }
         
         searchTime.reset().start();
-        
+    
         while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 10)
         {
-            Fluid fluid = searching.next();
+            EntityEntry ee = searching.next();
             
-            if(fluid == null || fluid.getName() == null)
+            if(ee == null || ee.getRegistryName() == null)
             {
                 continue;
             }
             
-            try
+            if(ee.getRegistryName().toString().toLowerCase().contains(searchTerm) || ee.getName().toLowerCase().contains(searchTerm) || ee.getEntityClass().toString().toLowerCase().contains(searchTerm))
             {
-                FluidStack stack = new FluidStack(fluid, 1000);
-    
-                if(fluid.getUnlocalizedName().toLowerCase().contains(searchTerm) || fluid.getLocalizedName(stack).toLowerCase().contains(searchTerm) || fluid.getName().toLowerCase().contains(searchTerm))
-                {
-                    pendingResults.add(stack);
-                }
-            } catch(Exception e)
-            {
-                throw new RuntimeException("Fluid \"" + fluid.getName() + "\" (" + fluid.getClass().getName() + ") threw a fatal error during search!", e);
+                pendingResults.add(ee);
             }
         }
         
@@ -106,23 +102,18 @@ public class CanvasFluidDatabase extends CanvasScrolling
             return;
         }
         
-        int rowMax = resultWidth / 18;
-        
         searchTime.reset().start();
         
         while(!pendingResults.isEmpty() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 100)
         {
-            FluidStack stack = pendingResults.poll();
+            EntityEntry ee = pendingResults.remove(0);
             
-            if(stack == null)
+            if(ee == null)
             {
                 continue;
             }
             
-            int x = (searchIdx % rowMax) * 18;
-            int y = (searchIdx / rowMax) * 18;
-            
-            this.addPanel(new PanelFluidSlot(new GuiRectangle(x, y, 18, 18, 0), btnId, stack));
+            this.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, searchIdx * 16, resultWidth, 16, 0), btnId, ee.getName(), ee));
             
             searchIdx++;
         }

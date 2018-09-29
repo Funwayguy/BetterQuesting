@@ -1,16 +1,18 @@
 package betterquesting.api.client.gui.lists;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.utils.RenderUtils;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraftforge.fluids.FluidStack;
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.utils.RenderUtils;
-import com.mojang.realmsclient.gui.ChatFormatting;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Deprecated
 public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.ScrollingEntryFluid>
 {
 	private final Minecraft mc;

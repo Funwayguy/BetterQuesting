@@ -162,7 +162,6 @@ public class RenderUtils
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
 	        RenderHelper.enableStandardItemLighting();
-	        GlStateManager.translate(0D, entity.getYOffset(), 0D);
 	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
 	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);

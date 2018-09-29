@@ -5,22 +5,18 @@ import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.utils.EntityPlayerPreview;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
-import java.util.UUID;
 
-public class PanelPlayerPortrait implements IGuiPanel
+public class PanelEntityPreview implements IGuiPanel
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;
 	
-	private final AbstractClientPlayer player;
+    public Entity entity;
 	
 	private final IValueIO<Float> basePitch;
 	private final IValueIO<Float> baseYaw;
@@ -28,26 +24,11 @@ public class PanelPlayerPortrait implements IGuiPanel
 	private IValueIO<Float> yawDriver;
 	
 	private float zDepth = 100F;
-	
-	public PanelPlayerPortrait(IGuiRect rect, UUID playerID, String username)
-	{
-		this(rect, new EntityPlayerPreview(Minecraft.getMinecraft().world, new GameProfile(playerID, username)));
-	}
-	
-	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player)
-	{
+    
+    public PanelEntityPreview(IGuiRect rect, Entity entity)
+    {
 		this.transform = rect;
-		this.player = new EntityPlayerPreview(player.world, player.getGameProfile());
-		this.player.limbSwing = 0F;
-		this.player.limbSwingAmount = 0F;
-		this.player.rotationYawHead = 0F;
-		
-		ResourceLocation resource = this.player.getLocationSkin();
-		
-		if(Minecraft.getMinecraft().getTextureManager().getTexture(resource) == null)
-		{
-			AbstractClientPlayer.getDownloadImageSkin(resource, player.getGameProfile().getName());
-		}
+		this.entity = entity;
 		
 		this.basePitch = new IValueIO<Float>()
 		{
@@ -84,9 +65,9 @@ public class PanelPlayerPortrait implements IGuiPanel
 			}
 		};
 		this.yawDriver = baseYaw;
-	}
+    }
 	
-	public PanelPlayerPortrait setRotationFixed(float pitch, float yaw)
+	public PanelEntityPreview setRotationFixed(float pitch, float yaw)
 	{
 		this.pitchDriver = basePitch;
 		this.yawDriver = baseYaw;
@@ -95,18 +76,23 @@ public class PanelPlayerPortrait implements IGuiPanel
 		return this;
 	}
 	
-	public PanelPlayerPortrait setRotationDriven(IValueIO<Float> pitch, IValueIO<Float> yaw)
+	public PanelEntityPreview setRotationDriven(IValueIO<Float> pitch, IValueIO<Float> yaw)
 	{
 		this.pitchDriver = pitch == null? basePitch : pitch;
 		this.yawDriver = yaw == null? baseYaw : yaw;
 		return this;
 	}
 	
-	public PanelPlayerPortrait setDepth(float z)
+	public PanelEntityPreview setDepth(float z)
 	{
 		this.zDepth = z;
 		return this;
 	}
+	
+	public void setEntity(Entity entity)
+    {
+        this.entity = entity;
+    }
 	
 	@Override
 	public void initPanel()
@@ -133,18 +119,27 @@ public class PanelPlayerPortrait implements IGuiPanel
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
-	{
-		IGuiRect bounds = this.getTransform();
-		GlStateManager.pushMatrix();
-		RenderUtils.startScissor(new GuiRectangle(bounds));
+    {
+        if(entity == null)
+        {
+            return;
+        }
+        
+        IGuiRect bounds = this.getTransform();
+        GlStateManager.pushMatrix();
+        RenderUtils.startScissor(new GuiRectangle(bounds));
 		
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		int scale = Math.min(bounds.getWidth(), bounds.getHeight());
-		RenderUtils.RenderEntity(bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 + (int)(scale*1.5F), zDepth, scale, yawDriver.readValue(), pitchDriver.readValue(), player);
+		
+		int sizeX = bounds.getWidth();
+		int sizeY = bounds.getHeight();
+		float scale = Math.min((sizeY/2F)/entity.height, (sizeX/2F)/entity.width);
+		
+		RenderUtils.RenderEntity(bounds.getX() + sizeX/2, bounds.getY() + sizeY/2 + MathHelper.ceil(entity.height * scale / 2F), (int)scale, yawDriver.readValue(), pitchDriver.readValue(), entity);
 		
 		RenderUtils.endScissor();
 		GlStateManager.popMatrix();
-	}
+    }
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)

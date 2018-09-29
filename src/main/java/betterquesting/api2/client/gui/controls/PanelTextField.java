@@ -219,6 +219,11 @@ public class PanelTextField<T> implements IGuiPanel
         return this.isActive;
     }
     
+    public boolean isFocused()
+    {
+        return this.isFocused;
+    }
+    
     public PanelTextField<T> setWatermark(String text)
     {
         this.watermark = text;

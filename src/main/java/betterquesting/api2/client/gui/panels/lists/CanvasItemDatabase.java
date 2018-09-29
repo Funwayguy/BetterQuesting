@@ -91,45 +91,62 @@ public class CanvasItemDatabase extends CanvasScrolling
                 continue;
             }
             
-            // NOTE: Not going to "safely" catch crashes while searching the item database anymore.
-            // If someone registers something that breaks this then it's certainly going to break elsewhere and needs reporting.
-            
-			NonNullList<ItemStack> subList = NonNullList.create();
-            
-            item.getSubItems(CreativeTabs.SEARCH, subList);
-            
-            boolean oreMatch = false;
-            
-            for(int oid : OreDictionary.getOreIDs(item.getDefaultInstance()))
+            try
             {
-                if(OreDictionary.getOreName(oid).toLowerCase().contains(searchTerm))
+                NonNullList<ItemStack> subList = NonNullList.create();
+                
+                item.getSubItems(CreativeTabs.SEARCH, subList);
+                
+                if(item.getDefaultInstance().isEmpty())
+                {
+                    // We could move this check to the IF block below but I'm actively looking for faults here
+                    throw new IllegalArgumentException("Invalid default stack instance for item \"" + item.getRegistryName() + "\"!");
+                }
+                
+                if(subList.isEmpty())
+                {
+                    /*if(item.getDefaultInstance().isEmpty())
+                    {
+                        throw new IllegalArgumentException("Invalid default item stack instance for item \"" + item.getRegistryName() + "\"!");
+                    }*/
+                    
+                    subList.add(item.getDefaultInstance());
+                }
+                
+                if(item.getUnlocalizedName().toLowerCase().contains(searchTerm) || QuestTranslation.translate(item.getUnlocalizedName()).toLowerCase().contains(searchTerm) || item.getRegistryName().toString().toLowerCase().contains(searchTerm))
                 {
                     pendingResults.addAll(subList);
-                    oreMatch = true;
-                    break;
-                }
-            }
-            
-            if(oreMatch)
-            {
-                continue;
-            }
-            
-            if(item.getUnlocalizedName().toLowerCase().contains(searchTerm) || QuestTranslation.translate(item.getUnlocalizedName()).toLowerCase().contains(searchTerm) || item.getRegistryName().toString().toLowerCase().contains(searchTerm))
-            {
-                pendingResults.addAll(subList);
-            } else
-            {
-                for(ItemStack subItem : subList)
+                } else
                 {
-                    if(subItem.getUnlocalizedName().toLowerCase().contains(searchTerm) || subItem.getDisplayName().toLowerCase().contains(searchTerm))
+                    for(ItemStack subItem : subList)
                     {
-                        pendingResults.add(subItem);
-                    } else
-                    {
-                        for(String tooltip : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
+                        if(subItem.isEmpty())
                         {
-                            if(tooltip.toLowerCase().contains(searchTerm))
+                            throw new IllegalArgumentException("Invalid item stack \"" + subItem + "\" registed to creative search tab!");
+                        }
+                        
+                        if(subItem.getUnlocalizedName().toLowerCase().contains(searchTerm) || subItem.getDisplayName().toLowerCase().contains(searchTerm))
+                        {
+                            pendingResults.add(subItem);
+                            continue;
+                        }
+                        
+                        boolean match = false;
+                        
+                        for(String s : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
+                        {
+                            if(s.toLowerCase().contains(searchTerm))
+                            {
+                                pendingResults.add(subItem);
+                                match = true;
+                                break;
+                            }
+                        }
+                        
+                        int[] oids = OreDictionary.getOreIDs(subItem);
+                        for(int i = 0; i < oids.length && !match; i++)
+                        {
+                            if(OreDictionary.getOreName(oids[i]).toLowerCase().contains(searchTerm))
                             {
                                 pendingResults.add(subItem);
                                 break;
@@ -137,6 +154,9 @@ public class CanvasItemDatabase extends CanvasScrolling
                         }
                     }
                 }
+            } catch(Exception e)
+            {
+                throw new RuntimeException("Item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ") threw a fatal error during search! Please report this to the item's developer(s).", e);
             }
         }
         

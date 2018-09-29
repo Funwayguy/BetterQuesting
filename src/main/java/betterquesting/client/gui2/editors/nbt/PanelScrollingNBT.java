@@ -22,13 +22,10 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.json.GuiJsonAdd;
-import betterquesting.client.gui.editors.json.GuiJsonEntitySelection;
-import betterquesting.client.gui.editors.json.GuiJsonTypeMenu;
-import betterquesting.client.gui.editors.json.callback.JsonEntityCallback;
-import betterquesting.client.gui.editors.json.callback.JsonFluidCallback;
-import betterquesting.client.gui.editors.json.callback.JsonItemCallback;
 import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.callback.NbtEntityCallback;
+import betterquesting.client.gui2.editors.nbt.callback.NbtFluidCallback;
+import betterquesting.client.gui2.editors.nbt.callback.NbtItemCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.*;
@@ -392,13 +389,13 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 
                 if(JsonHelper.isItem(tag))
                 {
-                    mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, tag, new JsonItemCallback(tag)));
+                    mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, tag, new NbtItemCallback(tag)));
                 } else if(JsonHelper.isFluid(tag))
                 {
-                    mc.displayGuiScreen(new GuiFluidSelection(mc.currentScreen, tag, new JsonFluidCallback(tag)));
+                    mc.displayGuiScreen(new GuiFluidSelection(mc.currentScreen, tag, new NbtFluidCallback(tag)));
                 } else if(JsonHelper.isEntity(tag))
                 {
-                    mc.displayGuiScreen(new GuiJsonEntitySelection(mc.currentScreen, new JsonEntityCallback(tag), JsonHelper.JsonToEntity(tag, mc.world)));
+                    mc.displayGuiScreen(new GuiEntitySelection(mc.currentScreen, tag, new NbtEntityCallback(tag)));
                 } else
                 {
                     mc.displayGuiScreen(new GuiNbtEditor(mc.currentScreen, tag, null));
@@ -427,8 +424,8 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         {
             if(entry.getId() == 10)
             {
-                // TODO: Replace
-                mc.displayGuiScreen(new GuiJsonTypeMenu(mc.currentScreen, (NBTTagCompound)entry));
+                //mc.displayGuiScreen(new GuiJsonTypeMenu(mc.currentScreen, (NBTTagCompound)entry));
+                mc.displayGuiScreen(new GuiNbtType(mc.currentScreen, (NBTTagCompound)entry));
             } else if(entry.getId() == 9) // Not currently available but will be when context list editors (enchantments/inventories/etc) are available
             {
                 // TODO: Replace with context based list editors
@@ -438,10 +435,10 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         {
             if(nbt.getId() == 10)
             {
-                mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, (NBTTagCompound)nbt));
+                mc.displayGuiScreen(new GuiNbtAdd(mc.currentScreen, (NBTTagCompound)nbt));
             } else if(nbt.getId() == 9)
             {
-                mc.displayGuiScreen(new GuiJsonAdd(mc.currentScreen, (NBTTagList)nbt, ((PanelButtonStorage<Integer>)btn).getStoredValue()));
+                mc.displayGuiScreen(new GuiNbtAdd(mc.currentScreen, (NBTTagList)nbt, ((PanelButtonStorage<Integer>)btn).getStoredValue()));
             }
         } else if(btn.getButtonID() == btnDelete)
         {
