@@ -129,7 +129,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 200, 16, 0), 2, NBTTagDouble.class.getSimpleName(), new NBTTagDouble(0D)));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 200, 16, 0), 2, NBTTagByteArray.class.getSimpleName(), new NBTTagByteArray(new byte[0])));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 200, 16, 0), 2, NBTTagIntArray.class.getSimpleName(), new NBTTagIntArray(new int[0])));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 200, 16, 0), 2, NBTTagLongArray.class.getSimpleName(), new NBTTagLongArray(new long[0])));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n * 16, 200, 16, 0), 2, NBTTagLongArray.class.getSimpleName(), new NBTTagLongArray(new long[0])));
     
         CanvasScrolling cvOptions = new CanvasScrolling(new GuiTransform(new Vector4f(0.5F, 0F, 0.5F, 1F), new GuiPadding(-100, 64, -92, 32), 0));
         cvBackground.addPanel(cvOptions);
@@ -153,6 +153,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
         }
     }
     
+    @SuppressWarnings("unchecked")
     private void onButtonPress(PEventButton event)
     {
         IPanelButton btn = event.getButton();
@@ -213,10 +214,10 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
     
     private void updateConfirm()
     {
-        if(flKey.getValue().isEmpty())
+        if(flKey == null)
         {
-            btnConfirm.setActive(false);
-        } else if(((NBTTagCompound)nbt).hasKey(flKey.getValue()))
+            btnConfirm.setActive(selected != null);
+        } else if(flKey.getValue().isEmpty() || ((NBTTagCompound)nbt).hasKey(flKey.getValue()))
         {
             btnConfirm.setActive(false);
         } else

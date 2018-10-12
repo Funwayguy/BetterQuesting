@@ -27,8 +27,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui.editors.GuiPrerequisiteEditor;
-import betterquesting.client.gui.editors.rewards.GuiRewardEditor;
-import betterquesting.client.gui.editors.tasks.GuiTaskEditor;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.network.PacketSender;
@@ -153,12 +151,17 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         if(!quest.getUnlocalisedName().equals(flName.getValue()))
         {
             quest.getProperties().setProperty(NativeProps.NAME, flName.getValue());
-            SendChanges();
+            flag = true;
         }
         
         if(!quest.getUnlocalisedDescription().equals(flDesc.getValue()))
         {
             quest.getProperties().setProperty(NativeProps.DESC, flDesc.getValue());
+            flag = true;
+        }
+        
+        if(flag)
+        {
             SendChanges();
         }
         
@@ -187,12 +190,12 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             }
             case 1: // Edit tasks
             {
-			    mc.displayGuiScreen(new GuiTaskEditor(this, quest));
+			    mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiTaskEditor(this, quest));
 			    break;
             }
             case 2: // Edit rewards
             {
-			    mc.displayGuiScreen(new GuiRewardEditor(this, quest));
+			    mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiRewardEditor(this, quest));
 			    break;
             }
             case 3: // Requirements
