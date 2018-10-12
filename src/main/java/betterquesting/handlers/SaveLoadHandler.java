@@ -22,14 +22,10 @@ import com.google.gson.JsonObject;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.storage.IThreadedFileIO;
-import net.minecraft.world.storage.ThreadedFileIOBase;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SaveLoadHandler
 {
@@ -208,41 +204,6 @@ public class SaveLoadHandler
 	    BetterQuesting.logger.info("Loaded " + NameCache.INSTANCE.size() + " names");
 	    
 	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load());
-    }
-    
-    static class AsyncSave implements IThreadedFileIO {
-
-      private final List<AsyncSaveJob> jobs = new ArrayList<>(); 
-
-      void enqueue(File file, JsonObject jObj) {
-        jobs.add(new AsyncSaveJob(file, jObj));
-      }
-      
-      void start() {
-        ThreadedFileIOBase.getThreadedIOInstance().queueIO(this);
-      }
-
-      @Override
-      public boolean writeNextIO() {
-        if (!jobs.isEmpty()) {
-          AsyncSaveJob job = jobs.remove(0);
-          JsonHelper.WriteToFile(job.file, job.jObj);
-        }
-        return !jobs.isEmpty();
-      }
-
-    }
-
-    static class AsyncSaveJob  {
-
-      final File file; 
-      final JsonObject jObj;
-
-      AsyncSaveJob(File file, JsonObject jObj) {
-        this.file = file;
-        this.jObj = jObj;
-      }
-
     }
     
     public void saveDatabases()
