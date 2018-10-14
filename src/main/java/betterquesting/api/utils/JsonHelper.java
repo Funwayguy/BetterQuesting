@@ -2,6 +2,7 @@ package betterquesting.api.utils;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.placeholders.PlaceholderConverter;
+import betterquesting.api2.utils.BQThreadedIO;
 import com.google.gson.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -187,34 +188,36 @@ public class JsonHelper
 	
 	public static void WriteToFile(File file, JsonObject jObj)
 	{
-		try
-		{
-			if(!file.exists())
+		BQThreadedIO.INSTANCE.enqueue(() -> {
+			try
 			{
-				if(file.getParentFile() != null)
+				if(!file.exists())
 				{
-					file.getParentFile().mkdirs();
+					if(file.getParentFile() != null)
+					{
+						file.getParentFile().mkdirs();
+					}
+					
+					if(!file.createNewFile())
+					{
+						throw new FileNotFoundException("Unable to create file " + file.getAbsolutePath());
+					}
 				}
-				
-				if(!file.createNewFile())
-				{
-					throw new FileNotFoundException("Unable to create file " + file.getAbsolutePath());
-				}
+			} catch(Exception e)
+			{
+				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+				return;
 			}
-		} catch(Exception e)
-		{
-			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
-			return;
-		}
-		
-		try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))
-		{
-			GSON.toJson(jObj, fw);
-			fw.flush();
-		} catch(Exception e)
-		{
-			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
-		}
+			
+			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))
+			{
+				GSON.toJson(jObj, fw);
+				fw.flush();
+			} catch(Exception e)
+			{
+				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+			}
+		});
 	}
 	
 	public static void CopyPaste(File fileIn, File fileOut)

@@ -1,6 +1,20 @@
 package betterquesting.core;
 
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.blocks.BlockSubmitStation;
+import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.CreativeTabQuesting;
+import betterquesting.commands.BQ_CommandAdmin;
+import betterquesting.commands.BQ_CommandDebug;
+import betterquesting.commands.BQ_CommandUser;
+import betterquesting.core.proxies.CommonProxy;
+import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.items.ItemExtraLife;
+import betterquesting.items.ItemGuideBook;
+import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -22,20 +36,6 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
-import betterquesting.api.placeholders.EntityPlaceholder;
-import betterquesting.api.placeholders.FluidPlaceholder;
-import betterquesting.blocks.BlockSubmitStation;
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.CreativeTabQuesting;
-import betterquesting.commands.BQ_CommandAdmin;
-import betterquesting.commands.BQ_CommandDebug;
-import betterquesting.commands.BQ_CommandUser;
-import betterquesting.core.proxies.CommonProxy;
-import betterquesting.handlers.ConfigHandler;
-import betterquesting.items.ItemExtraLife;
-import betterquesting.items.ItemGuideBook;
-import betterquesting.network.PacketQuesting;
-import betterquesting.network.PacketTypeRegistry;
 
 @Mod(modid = BetterQuesting.MODID, version = "@VERSION@", name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
