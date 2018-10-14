@@ -178,18 +178,23 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(!event.player.world.isRemote && event.player instanceof EntityPlayerMP)
+		if(event.player.world.isRemote || !(event.player instanceof EntityPlayerMP))
 		{
-			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
-			
-			NameCache.INSTANCE.updateNames(event.player.getServer());
-			
-			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
+			return;
+		} else if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning() && Minecraft.getMinecraft().getIntegratedServer() == event.player.getServer())
+		{
+			return;
 		}
+		
+		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+		
+		NameCache.INSTANCE.updateNames(event.player.getServer());
+		
+		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
 	}
 	
 	@SubscribeEvent

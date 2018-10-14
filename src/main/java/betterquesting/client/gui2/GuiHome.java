@@ -41,6 +41,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector4f;
@@ -157,30 +158,33 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			}));
 		} else if(btn.getButtonID() == 5) // Update me
 		{
-			File qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+			final File qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
 			
 			if(qFile.exists())
 			{
-				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
-				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+				FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+					
+					NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
+					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
+					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
+					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
+					QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
+					
+					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
+					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
+					
+					PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
+					PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+					PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+					
+					SaveLoadHandler.INSTANCE.resetUpdate();
+				});
 				
-				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
-				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
-				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
-				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
-				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
-				
-				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
-				QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
-				
-				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
-				
-				SaveLoadHandler.INSTANCE.resetUpdate();
-				
-				this.initGui(); // Reset the whole thing
+				//this.initGui(); // Reset the whole thing
+				mc.displayGuiScreen(null);
 			}
 		}/* else if(btn.getButtonID() == 6) // Test screen
 		{

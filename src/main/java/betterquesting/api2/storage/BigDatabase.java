@@ -124,8 +124,6 @@ public abstract class BigDatabase<T> implements IDatabase<T>
             return false;
         }
         
-        DBEntry<T> removed = null;
-        
         Iterator<DBEntry<T>> iter = block.iterator();
 
         while(iter.hasNext())
@@ -135,15 +133,14 @@ public abstract class BigDatabase<T> implements IDatabase<T>
             if(entry.getID() == id)
             {
                 iter.remove();
-                removed = entry;
-                break;
+                return true;
             } else if(entry.getID() > id)
             {
                 break;
             }
         }
         
-        return removed != null;
+        return false;
     }
     
     @Override
@@ -170,23 +167,18 @@ public abstract class BigDatabase<T> implements IDatabase<T>
             return false;
         }
         
-        DBEntry<T> removed = null;
-        
         Iterator<DBEntry<T>> iter = block.iterator();
 
         while(iter.hasNext())
         {
-            DBEntry<T> entry = iter.next();
-            
-            if(entry.getValue() == value)
+            if(iter.next().getValue() == value)
             {
                 iter.remove();
-                removed = entry;
-                break;
+                return true;
             }
         }
         
-        return removed != null;
+        return false;
     }
     
     @Override

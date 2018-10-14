@@ -72,6 +72,12 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
     public void initPanel()
     {
         super.initPanel();
+	    
+	    if(qID < 0)
+        {
+            mc.displayGuiScreen(this.parent);
+            return;
+        }
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         
@@ -139,17 +145,17 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         } else if(btn.getButtonID() ==  1 && btn instanceof PanelButtonStorage) // Add
         {
             IFactory<? extends ITask> fact = ((PanelButtonStorage<IFactory<? extends ITask>>)btn).getStoredValue();
-            quest.getTasks().add(quest.getRewards().nextID(), fact.createNew());
+            quest.getTasks().add(quest.getTasks().nextID(), fact.createNew());
             
-            refreshRewards();
             SendChanges();
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Remove
         {
             ITask reward = ((PanelButtonStorage<ITask>)btn).getStoredValue();
-            quest.getTasks().removeValue(reward);
             
-            refreshRewards();
-            SendChanges();
+            if(quest.getTasks().removeValue(reward))
+            {
+                SendChanges();
+            }
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
             ITask reward = ((PanelButtonStorage<ITask>)btn).getStoredValue();
@@ -198,7 +204,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
 		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
+		tags.setInteger("questID", qID);
 		tags.setTag("data",base);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 	}

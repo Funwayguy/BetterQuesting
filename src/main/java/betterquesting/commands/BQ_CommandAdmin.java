@@ -1,20 +1,15 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.commands.admin.*;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import betterquesting.commands.admin.QuestCommandComplete;
-import betterquesting.commands.admin.QuestCommandDefaults;
-import betterquesting.commands.admin.QuestCommandDelete;
-import betterquesting.commands.admin.QuestCommandEdit;
-import betterquesting.commands.admin.QuestCommandHardcore;
-import betterquesting.commands.admin.QuestCommandLives;
-import betterquesting.commands.admin.QuestCommandReset;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BQ_CommandAdmin extends CommandBase
 {

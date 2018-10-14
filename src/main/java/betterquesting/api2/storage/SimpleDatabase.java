@@ -61,8 +61,6 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             return false;
         }
         
-        DBEntry<T> removed = null;
-        
         synchronized(listDB)
         {
             Iterator<DBEntry<T>> iter = listDB.iterator();
@@ -74,8 +72,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
                 if(entry.getID() == key)
                 {
                     iter.remove();
-                    removed = entry;
-                    break;
+                    return true;
                 } else if(entry.getID() > key)
                 {
                     break;
@@ -83,7 +80,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             }
         }
         
-        return removed != null;
+        return false;
     }
     
     @Override
@@ -94,26 +91,21 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             return false;
         }
         
-        DBEntry<T> removed = null;
-        
         synchronized(listDB)
         {
             Iterator<DBEntry<T>> iter = listDB.iterator();
     
             while(iter.hasNext())
             {
-                DBEntry<T> entry = iter.next();
-                
-                if(entry.getValue() == value)
+                if(iter.next().getValue() == value)
                 {
                     iter.remove();
-                    removed = entry;
-                    break;
+                    return true;
                 }
             }
         }
         
-        return removed != null;
+        return false;
     }
     
     @Override

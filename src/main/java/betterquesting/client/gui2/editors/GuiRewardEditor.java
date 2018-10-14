@@ -72,6 +72,12 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     public void initPanel()
     {
         super.initPanel();
+	    
+	    if(qID < 0)
+        {
+            mc.displayGuiScreen(this.parent);
+            return;
+        }
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         
@@ -141,15 +147,15 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
             IFactory<? extends IReward> fact = ((PanelButtonStorage<IFactory<? extends IReward>>)btn).getStoredValue();
             quest.getRewards().add(quest.getRewards().nextID(), fact.createNew());
             
-            refreshRewards();
             SendChanges();
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Remove
         {
             IReward reward = ((PanelButtonStorage<IReward>)btn).getStoredValue();
-            quest.getRewards().removeValue(reward);
             
-            refreshRewards();
-            SendChanges();
+            if(quest.getRewards().removeValue(reward))
+            {
+                SendChanges();
+            }
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
             IReward reward = ((PanelButtonStorage<IReward>)btn).getStoredValue();
