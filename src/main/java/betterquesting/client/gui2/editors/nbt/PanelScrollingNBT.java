@@ -378,7 +378,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
             entry = ((NBTTagList)nbt).get(((PanelButtonStorage<Integer>)btn).getStoredValue());
         } else
         {
-            entry = new NBTTagEnd(); // Fallback that should NEVER have to be used
+            throw new RuntimeException("Invalid NBT tag type!");
         }
         
         if(btn.getButtonID() == btnEdit) // Context dependent action/toggle
