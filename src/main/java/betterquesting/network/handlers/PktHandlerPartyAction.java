@@ -78,13 +78,25 @@ public class PktHandlerPartyAction implements IPacketHandler
 		
 		if(data.hasKey("target"))
 		{
+			String tarName = data.getString("target");
+			
 			try
 			{
-				tarUser = UUID.fromString(data.getString("target"));
+				tarUser = UUID.fromString(tarName);
 			} catch(Exception e)
 			{
 				// In case an unrecognized name was used instead of their UUID
-				tarUser = NameCache.INSTANCE.getUUID(data.getString("target"));
+				tarUser = NameCache.INSTANCE.getUUID(tarName);
+				
+				if(tarUser == null) // Last ditch attempt to identify this player somehow
+				{
+					EntityPlayerMP tpmp = sender.world.getMinecraftServer().getPlayerList().getPlayerByUsername(tarName);
+					
+					if(tpmp != null)
+					{
+						tarUser = QuestingAPI.getQuestingUUID(tpmp);
+					}
+				}
 			}
 		}
 		

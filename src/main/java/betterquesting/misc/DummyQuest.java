@@ -1,32 +1,52 @@
 package betterquesting.misc;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import betterquesting.api.questing.IQuestDatabase;
-import betterquesting.api2.storage.IDatabaseNBT;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api.properties.IPropertyType;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.storage.PropertyContainer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class DummyQuest implements IQuest
 {
-	public static DummyQuest dummyQuest = new DummyQuest();
-	public static UUID dummyID = UUID.randomUUID();
+	//public static DummyQuest dummyQuest = new DummyQuest();
+	//public static UUID dummyID = UUID.randomUUID();
 	
-	private PropertyContainer propContainer = new PropertyContainer();
+	private PropertyContainer propContainer = new HookedStorage();
+	private final EnumQuestState qState;
+	private IMainQuery mainCallback;
+	
+	public DummyQuest()
+	{
+		this(null);
+	}
+	
+	public DummyQuest(EnumQuestState state)
+	{
+		this.qState = state;
+	}
+	
+	public DummyQuest setMainCallback(IMainQuery callback)
+	{
+		this.mainCallback = callback;
+		return this;
+	}
 	
 	@Override
 	public void setParentDatabase(IQuestDatabase questDB)
@@ -88,6 +108,11 @@ public class DummyQuest implements IQuest
 	@Override
 	public EnumQuestState getState(UUID uuid)
 	{
+		if(qState != null)
+		{
+			return qState;
+		}
+		
 		int state = (int)(Minecraft.getSystemTime()/1000)%4;
 		
 		switch(state)
@@ -183,4 +208,26 @@ public class DummyQuest implements IQuest
 		return null;
 	}
 	
+	private class HookedStorage extends PropertyContainer
+	{
+		@Override
+		@SuppressWarnings("unchecked")
+		public <T> T getProperty(IPropertyType<T> prop, T def)
+		{
+			if(prop == null)
+			{
+				return def;
+			} else if(mainCallback != null && prop == NativeProps.MAIN)
+			{
+				return (T)mainCallback.getMain(); // WARNING: THIS IS DANGEROUS AND ONLY FOR LEGACY USE
+			}
+			
+			return super.getProperty(prop, def);
+		}
+	}
+	
+	public interface IMainQuery
+	{
+		Boolean getMain();
+	}
 }

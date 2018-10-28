@@ -181,7 +181,7 @@ public class EventHandler
 		if(event.player.world.isRemote || !(event.player instanceof EntityPlayerMP))
 		{
 			return;
-		} else if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning() && Minecraft.getMinecraft().getIntegratedServer() == event.player.getServer())
+		} else if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning() && Minecraft.getMinecraft().getIntegratedServer() == event.player.getServer() && QuestingAPI.getQuestingUUID(event.player).equals(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player)))
 		{
 			return;
 		}

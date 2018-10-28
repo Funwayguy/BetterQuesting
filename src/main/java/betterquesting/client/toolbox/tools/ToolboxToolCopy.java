@@ -94,8 +94,11 @@ public class ToolboxToolCopy implements IToolboxTool
 			IQuestLine qLine = gui.getQuestLine().getQuestLine();
 			int qID = QuestDatabase.INSTANCE.nextID();
 			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
-			QuestLineEntry qe = new QuestLineEntry(mx, my, Math.max(btnQuest.width, btnQuest.height));
-			qLine.add(qID, qe);
+			if(qLine.getValue(qID) == null)
+			{
+				QuestLineEntry qe = new QuestLineEntry(mx, my, Math.max(btnQuest.width, btnQuest.height));
+				qLine.add(qID, qe);
+			}
 			btnQuest = null;
 			
 			// Sync Quest

@@ -1,28 +1,31 @@
 package betterquesting.api2.client.gui.themes;
 
-import java.util.HashMap;
-
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.api2.client.gui.resources.lines.SimpleLine;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.HashMap;
 
 public class LegacyThemeWrapper implements IGuiTheme
 {
 	private final ITheme oldTheme;
-	private final IGuiLine line = new SimpleLine();
+	//private final IGuiLine line = new SimpleLine();
 	private final IGuiColor color;
+	private final IGuiColor colLine;
 	
-	private final HashMap<ResourceLocation, IGuiTexture> TEX_MAP = new HashMap<ResourceLocation, IGuiTexture>();
+	private final HashMap<ResourceLocation, IGuiTexture> TEX_MAP = new HashMap<>();
+	private final HashMap<ResourceLocation, IGuiLine> LINE_MAP = new HashMap<>();
 	
 	public LegacyThemeWrapper(ITheme oldTheme)
 	{
@@ -58,7 +61,13 @@ public class LegacyThemeWrapper implements IGuiTheme
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_2.getKey(), qTexNorm);
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), qTexNorm);
 		
+		LINE_MAP.put(PresetLine.QUEST_LOCKED.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.LOCKED));
+		LINE_MAP.put(PresetLine.QUEST_UNLOCKED.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.UNLOCKED));
+		LINE_MAP.put(PresetLine.QUEST_PENDING.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.UNCLAIMED));
+		LINE_MAP.put(PresetLine.QUEST_COMPLETE.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.COMPLETED));
+		
 		this.color = new GuiColorStatic(oldTheme.getTextColor());
+		this.colLine = new GuiColorStatic(0xFFFFFFFF);
 	}
 	
 	@Override
@@ -82,7 +91,7 @@ public class LegacyThemeWrapper implements IGuiTheme
 	@Override
 	public IGuiLine getLine(ResourceLocation key)
 	{
-		return this.line;
+		return LINE_MAP.get(key);
 	}
 	
 	@Override
@@ -91,6 +100,9 @@ public class LegacyThemeWrapper implements IGuiTheme
 		if(key == null || key.equals(PresetColor.TEXT_MAIN.getKey()) || key.equals(PresetColor.TEXT_HEADER.getKey()) || key.equals(PresetColor.TEXT_AUX_1.getKey()) || key.equals(PresetColor.GUI_DIVIDER.getKey()))
 		{
 			return this.color;
+		} else if(key.equals(PresetColor.QUEST_LINE_LOCKED.getKey()) || key.equals(PresetColor.QUEST_LINE_UNLOCKED.getKey()) || key.equals(PresetColor.QUEST_LINE_PENDING.getKey()) || key.equals(PresetColor.QUEST_LINE_COMPLETE.getKey()))
+		{
+			return this.colLine;
 		}
 		
 		return null;
