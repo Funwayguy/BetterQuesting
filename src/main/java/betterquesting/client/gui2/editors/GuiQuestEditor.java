@@ -101,6 +101,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         
         PanelTextBox pnName = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -100, -60, 200, 12, 0), QuestTranslation.translate("betterquesting.gui.name"));
+        pnName.setColor(PresetColor.TEXT_MAIN.getColor());
         cvBackground.addPanel(pnName);
         
         flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -48, 200, 16, 0), quest.getUnlocalisedName(), FieldFilterString.INSTANCE);
@@ -108,6 +109,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         cvBackground.addPanel(flName);
         
         PanelTextBox pnDesc = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -100, -28, 200, 12, 0), QuestTranslation.translate("betterquesting.gui.description"));
+        pnDesc.setColor(PresetColor.TEXT_MAIN.getColor());
         cvBackground.addPanel(pnDesc);
         
         flDesc = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -16, 184, 16, 0), quest.getUnlocalisedDescription(), FieldFilterString.INSTANCE);

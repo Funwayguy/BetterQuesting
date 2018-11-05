@@ -24,11 +24,12 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.GuiQuestLineEditorA;
+import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+
 import java.util.UUID;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
@@ -231,7 +232,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
             mc.displayGuiScreen(GuiHome.bookmark);
         } else if(btn.getButtonID() == 3)
         {
-            mc.displayGuiScreen(new GuiQuestLineEditorA(this));
+            //mc.displayGuiScreen(new GuiQuestLineEditorA(this));
+            mc.displayGuiScreen(new GuiQuestLinesEditor(this));
         }
     }
 }

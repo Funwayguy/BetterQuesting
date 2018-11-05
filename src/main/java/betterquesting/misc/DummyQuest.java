@@ -25,17 +25,16 @@ import java.util.UUID;
 
 public class DummyQuest implements IQuest
 {
-	//public static DummyQuest dummyQuest = new DummyQuest();
-	//public static UUID dummyID = UUID.randomUUID();
-	
 	private PropertyContainer propContainer = new HookedStorage();
 	private final EnumQuestState qState;
 	private IMainQuery mainCallback;
+	private final BigItemStack icon = new BigItemStack(Items.AIR);
+	private final List<String> tooltip = new ArrayList<>();
 	
-	public DummyQuest()
+	/*public DummyQuest()
 	{
 		this(null);
-	}
+	}*/
 	
 	public DummyQuest(EnumQuestState state)
 	{
@@ -90,13 +89,13 @@ public class DummyQuest implements IQuest
 	@Override
 	public List<String> getTooltip(EntityPlayer player)
 	{
-		return new ArrayList<>();
+		return tooltip;
 	}
 	
 	@Override
 	public BigItemStack getItemIcon()
 	{
-		return new BigItemStack(Items.NETHER_STAR);
+		return icon;
 	}
 	
 	@Override

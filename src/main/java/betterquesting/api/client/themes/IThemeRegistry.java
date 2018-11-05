@@ -1,20 +1,22 @@
 package betterquesting.api.client.themes;
 
-import java.util.List;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.List;
+
+@Deprecated
 public interface IThemeRegistry
 {
-	public void registerTheme(ITheme theme);
-	public ITheme getTheme(ResourceLocation name);
-	public List<ITheme> getAllThemes();
+	void registerTheme(ITheme theme);
+	ITheme getTheme(ResourceLocation name);
+	List<ITheme> getAllThemes();
 	
-	public void registerLoader(IThemeLoader loader);
-	public IThemeLoader getLoader(ResourceLocation name);
-	public List<IThemeLoader> getAllLoaders();
+	void registerLoader(IThemeLoader loader);
+	IThemeLoader getLoader(ResourceLocation name);
+	List<IThemeLoader> getAllLoaders();
 	
-	public void setCurrentTheme(ITheme theme);
-	public ITheme getCurrentTheme();
+	void setCurrentTheme(ITheme theme);
+	ITheme getCurrentTheme();
 	
-	public void reloadThemes();
+	void reloadThemes();
 }

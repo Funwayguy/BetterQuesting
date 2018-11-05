@@ -101,11 +101,13 @@ public class EventHandler
 				if(quest.getTasks().size() <= 0 || quest.canSubmit(player)) // Tasks active or repeating
 				{
 					boolean syncMe = quest.getTasks().size() <= 0;
+					boolean wat = true; // Work around for non-tickable tasks
 					
 					for(DBEntry<ITask> task : quest.getTasks().getEntries())
 					{
 						if(task.getValue() instanceof ITickableTask && !task.getValue().isComplete(uuid))
 						{
+							wat = false;
 							((ITickableTask)task.getValue()).updateTask(player, quest);
 							
 							if(task.getValue().isComplete(uuid))
@@ -115,7 +117,7 @@ public class EventHandler
 						}
 					}
 				
-					if(syncMe)
+					if(syncMe || (wat && player.ticksExisted % 10 == 0))
 					{
 						quest.update(player);
 						
@@ -178,10 +180,10 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(event.player.world.isRemote || !(event.player instanceof EntityPlayerMP))
+		if(event.player.world.isRemote || event.player.getServer() == null || !(event.player instanceof EntityPlayerMP))
 		{
 			return;
-		} else if(BetterQuesting.proxy.isClient() && Minecraft.getMinecraft().isIntegratedServerRunning() && Minecraft.getMinecraft().getIntegratedServer() == event.player.getServer() && QuestingAPI.getQuestingUUID(event.player).equals(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player)))
+		} else if(BetterQuesting.proxy.isClient() && !event.player.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(event.player.getGameProfile().getName()))
 		{
 			return;
 		}

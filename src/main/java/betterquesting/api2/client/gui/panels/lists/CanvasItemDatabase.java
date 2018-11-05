@@ -5,6 +5,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.core.BetterQuesting;
 import com.google.common.base.Stopwatch;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
@@ -12,6 +13,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -97,19 +99,8 @@ public class CanvasItemDatabase extends CanvasScrolling
                 
                 item.getSubItems(CreativeTabs.SEARCH, subList);
                 
-                if(item.getDefaultInstance().isEmpty())
-                {
-                    // We could move this check to the IF block below but I'm actively looking for faults here
-                    throw new IllegalArgumentException("Invalid default stack instance for item \"" + item.getRegistryName() + "\"!");
-                }
-                
                 if(subList.isEmpty())
                 {
-                    /*if(item.getDefaultInstance().isEmpty())
-                    {
-                        throw new IllegalArgumentException("Invalid default item stack instance for item \"" + item.getRegistryName() + "\"!");
-                    }*/
-                    
                     subList.add(item.getDefaultInstance());
                 }
                 
@@ -120,43 +111,44 @@ public class CanvasItemDatabase extends CanvasScrolling
                 {
                     for(ItemStack subItem : subList)
                     {
-                        if(subItem.isEmpty())
+                        try
                         {
-                            throw new IllegalArgumentException("Invalid item stack \"" + subItem + "\" registed to creative search tab!");
-                        }
-                        
-                        if(subItem.getUnlocalizedName().toLowerCase().contains(searchTerm) || subItem.getDisplayName().toLowerCase().contains(searchTerm))
-                        {
-                            pendingResults.add(subItem);
-                            continue;
-                        }
-                        
-                        boolean match = false;
-                        
-                        for(String s : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
-                        {
-                            if(s.toLowerCase().contains(searchTerm))
+                            if(subItem.getUnlocalizedName().toLowerCase().contains(searchTerm) || subItem.getDisplayName().toLowerCase().contains(searchTerm))
                             {
                                 pendingResults.add(subItem);
-                                match = true;
-                                break;
+                                continue;
                             }
-                        }
-                        
-                        int[] oids = OreDictionary.getOreIDs(subItem);
-                        for(int i = 0; i < oids.length && !match; i++)
-                        {
-                            if(OreDictionary.getOreName(oids[i]).toLowerCase().contains(searchTerm))
+    
+                            boolean match = false;
+    
+                            for(String s : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
                             {
-                                pendingResults.add(subItem);
-                                break;
+                                if(s.toLowerCase().contains(searchTerm))
+                                {
+                                    pendingResults.add(subItem);
+                                    match = true;
+                                    break;
+                                }
                             }
+    
+                            int[] oids = OreDictionary.getOreIDs(subItem);
+                            for(int i = 0; i < oids.length && !match; i++)
+                            {
+                                if(OreDictionary.getOreName(oids[i]).toLowerCase().contains(searchTerm))
+                                {
+                                    pendingResults.add(subItem);
+                                    break;
+                                }
+                            }
+                        } catch(Exception e)
+                        {
+                            BetterQuesting.logger.error("An error occured while searching itemstack " + subItem.toString() + " from item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ").\nNBT: " + subItem.writeToNBT(new NBTTagCompound()), e);
                         }
                     }
                 }
             } catch(Exception e)
             {
-                throw new RuntimeException("Item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ") threw a fatal error during search! Please report this to the item's developer(s).", e);
+                BetterQuesting.logger.error("An error occured while searching item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ")", e);
             }
         }
         

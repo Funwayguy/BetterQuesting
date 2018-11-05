@@ -1,6 +1,9 @@
 package betterquesting.api.client.gui;
 
-import java.util.List;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.placeholders.ThemeDummy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
@@ -11,11 +14,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.themes.ITheme;
-import betterquesting.api.placeholders.ThemeDummy;
 
+import java.util.List;
+
+@Deprecated
 public abstract class GuiElement
 {
 	public float zLevel = 0F;

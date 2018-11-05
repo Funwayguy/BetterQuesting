@@ -3,6 +3,7 @@ package betterquesting.api2.client.gui.panels.lists;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelFluidSlot;
+import betterquesting.core.BetterQuesting;
 import com.google.common.base.Stopwatch;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -92,7 +93,7 @@ public class CanvasFluidDatabase extends CanvasScrolling
                 }
             } catch(Exception e)
             {
-                throw new RuntimeException("Fluid \"" + fluid.getName() + "\" (" + fluid.getClass().getName() + ") threw a fatal error during search!", e);
+                BetterQuesting.logger.error("An error occured while searching fluid \"" + fluid.getName() + "\" (" + fluid.getClass().getName() + ")", e);
             }
         }
         

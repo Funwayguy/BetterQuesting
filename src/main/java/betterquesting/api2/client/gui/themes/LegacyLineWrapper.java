@@ -18,11 +18,6 @@ public class LegacyLineWrapper implements IGuiLine, IMainQuery
 	private final DummyQuest dummyQuest;
 	
 	private int lastWidth = 4;
-	
-	public LegacyLineWrapper(ITheme theme)
-    {
-        this(theme, null);
-    }
  
 	public LegacyLineWrapper(ITheme theme, EnumQuestState state)
     {

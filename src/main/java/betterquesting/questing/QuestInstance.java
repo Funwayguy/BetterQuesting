@@ -56,7 +56,7 @@ public class QuestInstance implements IQuest
 	// TODO: Change this to IDs. Keeping references to the objects hinders garbage collection and requires whole databases to be rewritten when a requisite is deleted.
     // TODO: A broadcasted event will need to be fired to clean unused IDs when a quest is deleted however it does not have to save to NBT/disk when doing so.
     // NOTE: IDs are much faster to read/write to NBT because we don't require database lookups to convert to/from objects.
-	private final List<IQuest> preRequisites = new ArrayList<>();
+	private final List<IQuest> preRequisites = new CopyOnWriteArrayList<>();
 	
 	private PropertyContainer qInfo = new PropertyContainer();
 	
@@ -921,33 +921,42 @@ public class QuestInstance implements IQuest
 		return preRequisites;
 	}
 	
+	// Temporary dummy variable used to prevent IO while reading/writing
+	private final Boolean syncLock = true;
+	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
-		switch(saveType)
+		synchronized(syncLock)
 		{
-			case CONFIG:
-				return writeToJson_Config(json);
-			case PROGRESS:
-				return writeToJson_Progress(json);
-			default:
-				return json;
+			switch(saveType)
+			{
+				case CONFIG:
+					return writeToJson_Config(json);
+				case PROGRESS:
+					return writeToJson_Progress(json);
+				default:
+					return json;
+			}
 		}
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
 	{
-		switch(saveType)
+		synchronized(syncLock)
 		{
-			case CONFIG:
-				readFromJson_Config(json);
-				break;
-			case PROGRESS:
-				readFromJson_Progress(json);
-				break;
-			default:
-				break;
+			switch(saveType)
+			{
+				case CONFIG:
+					readFromJson_Config(json);
+					break;
+				case PROGRESS:
+					readFromJson_Progress(json);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 	
@@ -957,10 +966,11 @@ public class QuestInstance implements IQuest
 		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		
+		IQuest[] pri = preRequisites.toArray(new IQuest[0]);
 		int[] reqArr = new int[preRequisites.size()];
-		for(int i = 0; i < preRequisites.size(); i++)
+		for(int i = 0; i < pri.length; i++)
 		{
-			reqArr[i] = parentDB.getID(preRequisites.get(i));
+			reqArr[i] = parentDB.getID(pri[i]);
 		}
 		jObj.setTag("preRequisites", new NBTTagIntArray(reqArr));
 		

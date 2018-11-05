@@ -4,15 +4,16 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public interface ITheme
 {
-	public ResourceLocation getThemeID();
-	public String getDisplayName();
+	ResourceLocation getThemeID();
+	String getDisplayName();
 	
-	public ResourceLocation getGuiTexture();
+	ResourceLocation getGuiTexture();
 	
-	public int getTextColor();
+	int getTextColor();
 	
-	public IThemeRenderer getRenderer();
+	IThemeRenderer getRenderer();
 }

@@ -1,5 +1,6 @@
 package betterquesting.network;
 
+import betterquesting.core.BetterQuesting;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
@@ -21,6 +22,7 @@ public final class PacketAssembly
 	
 	// Player assigned packet buffers
 	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<>();
+	
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
 	private int id = 0;
@@ -61,7 +63,8 @@ public final class PacketAssembly
 			}
 		} catch(Exception e)
 		{
-			throw new RuntimeException("Unable to build BQ packet", e);
+			BetterQuesting.logger.error("Unable to split build packet!", e);
+			return pkts;
 		}
 		
 		id = (id + 1)%100; // Cycle the index
@@ -87,7 +90,9 @@ public final class PacketAssembly
 			setBuffer(owner, tmp);
 		} else if(tmp.length != size)
 		{
-			throw new RuntimeException("Unexpected change in BQ packet byte length: " + size + " > " + tmp.length);
+			BetterQuesting.logger.error("Unexpected change in BQ packet byte length: " + size + " > " + tmp.length);
+			clearBuffer(owner);
+			return null;
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)

@@ -15,6 +15,14 @@ public class EntityPlayerPreview extends EntityOtherPlayerMP
 {
 	private final ResourceLocation resource;
 	
+	/**
+	 * Backup constructor. DO NOT USE
+	 */
+	public EntityPlayerPreview(World worldIn)
+	{
+		this(worldIn, new GameProfile(null, "Notch"));
+	}
+	
 	public EntityPlayerPreview(World worldIn, GameProfile gameProfileIn)
 	{
 		super(worldIn, gameProfileIn);

@@ -20,7 +20,6 @@ import java.util.HashMap;
 public class LegacyThemeWrapper implements IGuiTheme
 {
 	private final ITheme oldTheme;
-	//private final IGuiLine line = new SimpleLine();
 	private final IGuiColor color;
 	private final IGuiColor colLine;
 	
@@ -49,17 +48,27 @@ public class LegacyThemeWrapper implements IGuiTheme
 		TEX_MAP.put(PresetTexture.ITEM_FRAME.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 48, 18, 18), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		TEX_MAP.put(PresetTexture.AUX_FRAME_0.getKey(), new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 128, 128, 128), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		
-		IGuiTexture qTexMain = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
+		// TODO: Switch to legacy icon texture (why am I supporting this...)
+		/*IGuiTexture qTexMain = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(0, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
 		TEX_MAP.put(PresetTexture.QUEST_NORM_0.getKey(), qTexMain);
 		TEX_MAP.put(PresetTexture.QUEST_NORM_1.getKey(), qTexMain);
 		TEX_MAP.put(PresetTexture.QUEST_NORM_2.getKey(), qTexMain);
-		TEX_MAP.put(PresetTexture.QUEST_NORM_3.getKey(), qTexMain);
+		TEX_MAP.put(PresetTexture.QUEST_NORM_3.getKey(), qTexMain);*/
+		TEX_MAP.put(PresetTexture.QUEST_NORM_0.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.LOCKED, false));
+		TEX_MAP.put(PresetTexture.QUEST_NORM_1.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.UNLOCKED, false));
+		TEX_MAP.put(PresetTexture.QUEST_NORM_2.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.UNCLAIMED, false));
+		TEX_MAP.put(PresetTexture.QUEST_NORM_3.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.COMPLETED, false));
 		
-		IGuiTexture qTexNorm = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(24, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
+		// TODO: Switch to legacy icon texture (why am I supporting this...)
+		/*IGuiTexture qTexNorm = new SlicedTexture(oldTheme.getGuiTexture(), new GuiRectangle(24, 104, 24, 24), new GuiPadding(8, 8, 8, 8));
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_0.getKey(), qTexNorm);
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_1.getKey(), qTexNorm);
 		TEX_MAP.put(PresetTexture.QUEST_MAIN_2.getKey(), qTexNorm);
-		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), qTexNorm);
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), qTexNorm);*/
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_0.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.LOCKED, true));
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_1.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.UNLOCKED, true));
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_2.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.UNCLAIMED, true));
+		TEX_MAP.put(PresetTexture.QUEST_MAIN_3.getKey(), new LegacyIconTexture(oldTheme, EnumQuestState.COMPLETED, true));
 		
 		LINE_MAP.put(PresetLine.QUEST_LOCKED.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.LOCKED));
 		LINE_MAP.put(PresetLine.QUEST_UNLOCKED.getKey(), new LegacyLineWrapper(oldTheme, EnumQuestState.UNLOCKED));

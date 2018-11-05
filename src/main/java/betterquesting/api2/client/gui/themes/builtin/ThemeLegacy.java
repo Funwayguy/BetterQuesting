@@ -1,11 +1,9 @@
 package betterquesting.api2.client.gui.themes.builtin;
 
-import java.util.HashMap;
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
@@ -14,7 +12,11 @@ import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
+import net.minecraft.util.ResourceLocation;
 
+import java.util.HashMap;
+
+// NOTE: Once the old themes are gone, this will be used for loading old texture atlases
 public class ThemeLegacy implements IGuiTheme
 {
 	public static final ResourceLocation TX_LEGACY = new ResourceLocation(BetterQuesting.MODID, "textures/gui/legacy_gui.png");
