@@ -26,7 +26,6 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.GuiPrerequisiteEditor;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.network.PacketSender;
@@ -202,7 +201,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             }
             case 3: // Requirements
             {
-                mc.displayGuiScreen(new GuiPrerequisiteEditor(this, quest));
+                mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiPrerequisiteEditor(this, quest));
                 break;
             }
             case 4: // Advanced

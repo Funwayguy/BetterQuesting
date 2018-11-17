@@ -1,11 +1,23 @@
 package betterquesting.client.gui2;
 
-import java.util.List;
-
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
+import betterquesting.api2.client.gui.events.IPEventListener;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
+import betterquesting.api2.client.gui.events.PanelEvent;
+import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.panels.CanvasEmpty;
+import betterquesting.api2.client.gui.panels.CanvasTextured;
+import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
+import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorSequence;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.GuiLineSequence;
@@ -14,29 +26,17 @@ import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
+import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import org.lwjgl.util.vector.Vector4f;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.themes.ITheme;
-import betterquesting.api.utils.BigItemStack;
-import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.controls.PanelButtonStorage;
-import betterquesting.api2.client.gui.events.IPEventListener;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.events.PanelEvent;
-import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.panels.CanvasEmpty;
-import betterquesting.api2.client.gui.panels.CanvasTextured;
-import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
-import betterquesting.api2.client.gui.panels.content.PanelTextBox;
-import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
-import betterquesting.api2.client.gui.themes.presets.PresetColor;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.core.BetterQuesting;
+import org.lwjgl.util.vector.Vector4f;
+
+import java.util.List;
 
 public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 {
@@ -73,6 +73,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		CanvasScrolling canScroll = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 16, 16, 16), 0));
 		inCan.addPanel(canScroll);
 		
+		betterquesting.client.themes.ThemeRegistry.INSTANCE.reloadThemes();
 		List<ITheme> themes = betterquesting.client.themes.ThemeRegistry.INSTANCE.getAllThemes();
 		//List<IGuiTheme> themes = ThemeRegistry.INSTANCE.getAllThemes();
 		int width = canScroll.getTransform().getWidth();

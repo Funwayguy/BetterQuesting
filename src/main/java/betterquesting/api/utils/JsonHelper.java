@@ -22,6 +22,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.Future;
 
 /**
  * Used to read JSON data with pre-made checks for null entries and casting.
@@ -158,31 +159,41 @@ public class JsonHelper
 	
 	public static JsonObject ReadFromFile(File file)
 	{
-		if(file == null || !file.exists())
-		{
-			return new JsonObject();
-		}
-		
-		try(InputStreamReader fr = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))
-		{
-			return GSON.fromJson(fr, JsonObject.class);
-		} catch(Exception e)
-		{
-			QuestingAPI.getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
-			
-			int i = 0;
-			File bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
-			
-			while(bkup.exists())
+		Future<JsonObject> task = BQThreadedIO.INSTANCE.enqueue(() -> {
+			if(file == null || !file.exists())
 			{
-				i++;
-				bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
+				return new JsonObject();
 			}
 			
-			QuestingAPI.getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
-			CopyPaste(file, bkup);
-			
-			return new JsonObject(); // Just a safety measure against NPEs
+			try(InputStreamReader fr = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))
+			{
+				return GSON.fromJson(fr, JsonObject.class);
+			} catch(Exception e)
+			{
+				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
+				
+				int i = 0;
+				File bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
+				
+				while(bkup.exists())
+				{
+					i++;
+					bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
+				}
+				
+				QuestingAPI.getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
+				CopyPaste(file, bkup);
+				
+				return new JsonObject(); // Just a safety measure against NPEs
+			}
+		});
+		
+		try
+		{
+			return task.get(); // Wait for other scheduled file ops to finish
+		} catch(Exception e)
+		{
+			return new JsonObject();
 		}
 	}
 	

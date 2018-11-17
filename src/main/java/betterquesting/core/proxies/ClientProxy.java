@@ -127,4 +127,12 @@ public class ClientProxy extends CommonProxy
 		
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
 	}
+	
+	@Override
+	public void registerExpansions()
+	{
+		super.registerExpansions();
+		
+		betterquesting.client.themes.ThemeRegistry.INSTANCE.reloadThemes();
+	}
 }
