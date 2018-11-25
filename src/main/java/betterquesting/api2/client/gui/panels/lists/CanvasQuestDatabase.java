@@ -5,9 +5,9 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.questing.QuestDatabase;
-import scala.actors.threadpool.Arrays;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, DBEntry<IQuest>>
