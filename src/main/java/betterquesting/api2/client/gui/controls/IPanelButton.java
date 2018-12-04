@@ -8,4 +8,6 @@ public interface IPanelButton extends IGuiPanel
     
     boolean isActive();
     void setActive(boolean state);
+    
+    void onButtonClick();
 }

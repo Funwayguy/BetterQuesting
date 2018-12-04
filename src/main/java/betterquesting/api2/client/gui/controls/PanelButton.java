@@ -216,6 +216,7 @@ public class PanelButton implements IPanelButton
 		if(clicked)
 		{
 	        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+	        onButtonClick();
 		}
 		
 		return clicked;
@@ -243,4 +244,9 @@ public class PanelButton implements IPanelButton
 		
 		return null;
 	}
+	
+	@Override
+    public void onButtonClick()
+    {
+    }
 }

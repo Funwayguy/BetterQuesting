@@ -6,6 +6,8 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -34,59 +36,75 @@ import betterquesting.client.gui2.GuiQuest;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.questing.QuestLineEntry;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
-public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
+import javax.annotation.Nullable;
+
+public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
-    private IQuest quest;
-    private final int questID;
+    @Nullable
+    private IQuestLine questLine;
+    private final int lineID;
     
     private CanvasQuestDatabase canvasDB;
-    private CanvasScrolling canvasPreReq;
+    private CanvasScrolling canvasQL;
     
-    public GuiPrerequisiteEditor(GuiScreen parent, IQuest quest)
+    public GuiQuestLineAddRemove(GuiScreen parent, @Nullable IQuestLine questLine)
     {
         super(parent);
-        this.quest = quest;
-        this.questID = QuestDatabase.INSTANCE.getID(quest);
+        this.questLine = questLine;
+        this.lineID = QuestLineDatabase.INSTANCE.getID(questLine);
     }
     
     @Override
     public void refreshGui()
     {
-        quest = QuestDatabase.INSTANCE.getValue(questID);
-        
-        if(quest == null)
-        {
-            mc.displayGuiScreen(parent);
-            return;
-        }
-        
+        questLine = lineID < 0 ? null : QuestLineDatabase.INSTANCE.getValue(lineID);
         canvasDB.refreshSearch();
-        refreshReqCanvas();
+        if(questLine != null) refreshQuestList();
     }
     
     @Override
     public void initPanel()
     {
         super.initPanel();
-		
-		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
+    
+        PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
-        
+    
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
-        
-        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.pre_requisites")).setAlignment(1);
+    
+        PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.edit_line2", questLine == null ? "" : QuestTranslation.translate(questLine.getUnlocalisedName()))).setAlignment(1);
         panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(panTxt);
-        
+    
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         
-        // === RIGHT SIDE ===
+        // === LEFT SIDE ===
+    
+        CanvasEmpty cvLeft = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 24), 8));
+        cvBackground.addPanel(cvLeft);
+        
+        if(questLine != null)
+        {
+            PanelTextBox txtQuest = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate(questLine.getUnlocalisedName())).setAlignment(1);
+            cvLeft.addPanel(txtQuest);
+        }
+        
+        canvasQL = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
+        cvLeft.addPanel(canvasQL);
+        
+        PanelVScrollBar scReq = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 16, 0, 0), 0));
+        cvLeft.addPanel(scReq);
+        canvasQL.setScrollDriverY(scReq);
+        
+        // === RIGHT SIDE ==
         
         CanvasEmpty cvRight = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 24), 0));
         cvBackground.addPanel(cvRight);
@@ -103,9 +121,14 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             @Override
             protected boolean addResult(DBEntry<IQuest> entry, int index, int width)
             {
+                if(questLine == null)
+                {
+                    return false;
+                }
+                
                 PanelButtonStorage<DBEntry<IQuest>> btnAdd = new PanelButtonStorage<>(new GuiRectangle(0, index * 16, 16, 16, 0), 2, "", entry);
                 btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
-                btnAdd.setActive(!containsQuest(entry));
+                btnAdd.setActive(questLine.getValue(entry.getID()) == null);
                 this.addPanel(btnAdd);
                 
                 PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getUnlocalisedName()), entry);
@@ -129,21 +152,6 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         PanelButton btnNew = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(0, -16, 0, 0), 0), 5, QuestTranslation.translate("betterquesting.btn.new"));
         cvRight.addPanel(btnNew);
         
-        // === LEFT SIDE ===
-		
-        CanvasEmpty cvLeft = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 24), 0));
-        cvBackground.addPanel(cvLeft);
-        
-        PanelTextBox txtQuest = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate(quest.getUnlocalisedName())).setAlignment(1);
-        cvLeft.addPanel(txtQuest);
-        
-        canvasPreReq = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
-        cvLeft.addPanel(canvasPreReq);
-        
-        PanelVScrollBar scReq = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 16, 0, 0), 0));
-        cvLeft.addPanel(scReq);
-        canvasPreReq.setScrollDriverY(scReq);
-        
         // === DIVIDERS ===
         
 		IGuiRect ls0 = new GuiTransform(GuiAlign.TOP_CENTER, 0, 32, 0, 0, 0);
@@ -152,37 +160,8 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 		le0.setParent(cvBackground.getTransform());
 		PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
 		cvBackground.addPanel(paLine0);
-		
-		refreshReqCanvas();
-    }
-    
-    private void refreshReqCanvas()
-    {
-        canvasPreReq.resetCanvas();
-        int width = canvasPreReq.getTransform().getWidth();
         
-        IQuest[] arrReq = quest.getPrerequisites().toArray(new IQuest[0]);
-        for(int i = 0; i < arrReq.length; i++)
-        {
-            int reqID = QuestDatabase.INSTANCE.getID(arrReq[i]);
-            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(arrReq[i].getUnlocalisedName()), new DBEntry<>(reqID, arrReq[i]));
-            canvasPreReq.addPanel(btnEdit);
-            
-            PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", new DBEntry<>(reqID, arrReq[i]));
-            btnRem.setIcon(PresetIcon.ICON_NEGATIVE.getTexture());
-            canvasPreReq.addPanel(btnRem);
-        }
-    }
-    
-    private boolean containsQuest(DBEntry<IQuest> entry)
-    {
-        IQuest[] arrReq = quest.getPrerequisites().toArray(new IQuest[0]);
-        for(IQuest anArrReq : arrReq)
-        {
-            if(entry.getValue() == anArrReq) return true;
-        }
-        
-        return false;
+        refreshQuestList();
     }
 	
 	@Override
@@ -196,27 +175,52 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 	
 	@SuppressWarnings("unchecked")
 	private void onButtonPress(PEventButton event)
-	{
+    {
         IPanelButton btn = event.getButton();
         
         if(btn.getButtonID() == 0) // Exit
         {
             mc.displayGuiScreen(this.parent);
-        } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) // Edit Quest
+        } else if(btn.getButtonID() == 1) // Edit
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
             mc.displayGuiScreen(new GuiQuest(this, entry.getID()));
-        } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Add
+        } else if(btn.getButtonID() == 2) // Add
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            quest.getPrerequisites().add(entry.getValue());
+            IQuestLineEntry qe = new QuestLineEntry(0, 0);
+            int x1 = 0;
+            int y1 = 0;
+            
+            topLoop:
+            while(questLine != null)
+            {
+                for(DBEntry<IQuestLineEntry> qe2 : questLine.getEntries())
+                {
+                    int x2 = qe2.getValue().getPosX();
+                    int y2 = qe2.getValue().getPosY();
+                    int s2 = qe2.getValue().getSize();
+                    
+                    if(x1 >= x2 && x1 < x2 + s2 && y1 >= y2 && y1 < y2 + s2)
+                    {
+                        x1 += s2;
+                        y1 += s2;
+                        continue topLoop; // We're in the way, move over and try again
+                    }
+                }
+                
+                break;
+            }
+            
+            qe.setPosition(x1, y1);
+            questLine.add(entry.getID(), qe);
             SendChanges();
-        } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Remove
+        } else if(btn.getButtonID() == 3 && questLine != null) // Remove
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            quest.getPrerequisites().remove(entry.getValue());
+            questLine.removeID(entry.getID());
             SendChanges();
-        } else if(btn.getButtonID() == 4 && btn instanceof PanelButtonStorage) // Delete
+        } else if(btn.getButtonID() == 4) // Delete
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
             NBTTagCompound tags = new NBTTagCompound();
@@ -230,16 +234,47 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
         }
     }
+    
+    private void refreshQuestList()
+    {
+        canvasQL.resetCanvas();
+        
+        if(questLine == null)
+        {
+            return;
+        }
+        
+        int width = canvasQL.getTransform().getWidth();
+    
+        DBEntry<IQuestLineEntry>[] qles = questLine.getEntries();
+        for(int i = 0; i < qles.length; i++)
+        {
+            DBEntry<IQuestLineEntry> entry = qles[i];
+            
+            IQuest quest = QuestDatabase.INSTANCE.getValue(entry.getID());
+            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(quest.getUnlocalisedName()), new DBEntry<>(entry.getID(), quest));
+            canvasQL.addPanel(btnEdit);
+            
+            PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", new DBEntry<>(entry.getID(), quest));
+            btnRem.setIcon(PresetIcon.ICON_NEGATIVE.getTexture());
+            canvasQL.addPanel(btnRem);
+        }
+    }
 	
 	private void SendChanges()
 	{
+	    if(questLine == null)
+        {
+            return;
+        }
+        
 		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
-		tags.setTag("data", base);
-		tags.setInteger("questID", questID);
+        NBTTagCompound base = new NBTTagCompound();
+        base.setTag("line", questLine.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+        tags.setTag("data", base);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		tags.setInteger("lineID", lineID);
+		
+		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
 	}
 }

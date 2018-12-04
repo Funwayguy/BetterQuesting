@@ -99,6 +99,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         this.refreshList();
     }
     
+    @SuppressWarnings("unchecked")
     private void refreshList()
     {
         this.resetCanvas();
@@ -412,9 +413,6 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 {
                     mc.displayGuiScreen(new GuiTextEditor(mc.currentScreen, ((NBTTagString)entry).getString(), new CallbackNBTTagString((NBTTagList)nbt, ((PanelButtonStorage<Integer>)btn).getStoredValue())));
                 }
-            } else if(entry.getId() == 1) // Byte/Boolean toggle
-            {
-                ((PanelButtonStorage)btn).fireCallback();
             } else if(entry.getId() == 7 || entry.getId() == 11 || entry.getId() == 12) // Byte/Integer/Long array
             {
                 // TODO: Add supportted editors for Byte, Integer and Long Arrays

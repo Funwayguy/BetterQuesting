@@ -117,7 +117,7 @@ public class EventHandler
 						}
 					}
 				
-					if(syncMe || (wat && player.ticksExisted % 10 == 0))
+					if(syncMe || (wat && player.ticksExisted % 60 == 0))
 					{
 						quest.update(player);
 						
@@ -131,7 +131,7 @@ public class EventHandler
 					}
 				} else if(quest.isComplete(uuid)) // Complete & inactive
 				{
-					if(player.ticksExisted % 10 == 0 && quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Waiting to reset
+					if(player.ticksExisted % 20 == 0 && quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0) // Waiting to reset
 					{
 						quest.update(player); // This will broadcast a sync anyway
 					} else

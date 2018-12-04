@@ -3,9 +3,8 @@ package betterquesting.client;
 import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.ICallback;
-import betterquesting.api.misc.IMultiCallback;
 import betterquesting.api.utils.BigItemStack;
-import betterquesting.client.gui.misc.GuiFileExplorer;
+import betterquesting.client.gui2.editors.GuiFileBrowser;
 import betterquesting.client.gui2.editors.GuiTextEditor;
 import betterquesting.client.gui2.editors.nbt.GuiEntitySelection;
 import betterquesting.client.gui2.editors.nbt.GuiFluidSelection;
@@ -71,9 +70,9 @@ public final class GuiBuilder implements IGuiHelper
 	}
 	
 	@Override
-	public void openFileExplorer(GuiScreen parent, IMultiCallback<File> callback, File rootDir, FileFilter filter, boolean multiSelect)
+	public void openFileExplorer(GuiScreen parent, ICallback<File[]> callback, File rootDir, FileFilter filter, boolean multiSelect)
 	{
-		mc.displayGuiScreen(new GuiFileExplorer(parent, callback, rootDir, filter).setMultiSelect(multiSelect));
+		mc.displayGuiScreen(new GuiFileBrowser(parent, callback, rootDir, filter).allowMultiSelect(multiSelect));
 	}
 	
 }

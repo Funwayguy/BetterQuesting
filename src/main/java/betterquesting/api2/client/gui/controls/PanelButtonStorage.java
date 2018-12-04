@@ -36,11 +36,9 @@ public class PanelButtonStorage<T> extends PanelButton
         return this.callback;
     }
     
-    /*
-    Lazy internal way of sending the contained value to the callback
-     */
-    public void fireCallback()
+    @Override
+    public void onButtonClick()
     {
-        this.callback.setValue(this.getStoredValue());
+        if(callback != null) this.callback.setValue(this.getStoredValue());
     }
 }

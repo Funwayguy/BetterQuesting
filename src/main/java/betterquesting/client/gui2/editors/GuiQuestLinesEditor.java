@@ -30,9 +30,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.GuiImporters;
 import betterquesting.client.gui.editors.GuiQuestLineDesigner;
-import betterquesting.client.gui.editors.GuiQuestLineEditorB;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
@@ -224,10 +222,11 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 			SendChanges(EnumPacketAction.ADD, null);
         } else if(btn.getButtonID() == 2) // Import
         {
-			mc.displayGuiScreen(new GuiImporters(this));
+            mc.displayGuiScreen(new GuiImporters(this));
+			//mc.displayGuiScreen(new GuiImporters(this));
         } else if(btn.getButtonID() == 3) // Add/Remove Quests
         {
-			mc.displayGuiScreen(new GuiQuestLineEditorB(this, selected));
+            mc.displayGuiScreen(new GuiQuestLineAddRemove(this, selected));
         } else if(btn.getButtonID() == 4 && selected != null) // Designer
         {
 			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));

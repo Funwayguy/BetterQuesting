@@ -1,6 +1,7 @@
 package betterquesting.api.misc;
 
+@Deprecated
 public interface IMultiCallback<T>
 {
-	public void setValues(T[] values);
+	void setValues(T[] values);
 }
