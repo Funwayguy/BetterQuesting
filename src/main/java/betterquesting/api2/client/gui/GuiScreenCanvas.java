@@ -310,7 +310,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 			
 			tt = entry.getTooltip(mx, my);
 			
-			if(tt != null && tt.size() > 0)
+			if(tt != null)
 			{
 				return tt;
 			}

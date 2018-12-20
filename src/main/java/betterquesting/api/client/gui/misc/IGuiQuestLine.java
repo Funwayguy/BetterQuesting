@@ -4,6 +4,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.client.toolbox.IToolboxTool;
 
+@Deprecated
 public interface IGuiQuestLine extends IGuiEmbedded
 {
 	public IToolboxTool getActiveTool();

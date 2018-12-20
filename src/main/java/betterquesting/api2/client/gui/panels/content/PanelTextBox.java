@@ -1,15 +1,15 @@
 package betterquesting.api2.client.gui.panels.content;
 
-import java.util.List;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.math.MathHelper;
-import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
+
+import java.util.List;
 
 public class PanelTextBox implements IGuiPanel
 {
@@ -231,11 +231,11 @@ public class PanelTextBox implements IGuiPanel
 			return x >= x1 && x < x2 && y >= y1 && y < y2;
 		}
 		
-		@Override
+		/*@Override
 		public void translate(int x, int y)
 		{
 			proxy.translate(x, y);
-		}
+		}*/
 		
 		@Override
 		public int compareTo(IGuiRect o)

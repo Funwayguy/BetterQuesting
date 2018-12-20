@@ -1,13 +1,5 @@
 package betterquesting.questing.party;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
@@ -18,11 +10,22 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 public class PartyInstance implements IParty
 {
-	private HashMap<UUID, EnumPartyStatus> members = new HashMap<UUID, EnumPartyStatus>();
-	private PropertyContainer pInfo = new PropertyContainer();
+	private final HashMap<UUID, EnumPartyStatus> members = new HashMap<>();
+	private final PropertyContainer pInfo = new PropertyContainer();
+	
+	private final List<UUID> memCache = new ArrayList<>();
 	
 	public PartyInstance()
 	{
@@ -45,6 +48,19 @@ public class PartyInstance implements IParty
 	{
 		pInfo.setProperty(prop, pInfo.getProperty(prop, def));
 	}
+	
+	private void refreshCache()
+    {
+        memCache.clear();
+        
+        for(Entry<UUID, EnumPartyStatus> entry : members.entrySet())
+        {
+            if(entry.getValue() != EnumPartyStatus.INVITE)
+            {
+                memCache.add(entry.getKey());
+            }
+        }
+    }
 	
 	@Override
 	public String getName()
@@ -74,6 +90,7 @@ public class PartyInstance implements IParty
 			members.put(uuid, EnumPartyStatus.INVITE);
 		}
 		
+		refreshCache();
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
@@ -98,6 +115,7 @@ public class PartyInstance implements IParty
 			hostMigrate();
 		}
 		
+		refreshCache();
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
@@ -160,6 +178,7 @@ public class PartyInstance implements IParty
 			}
 		}
 		
+		refreshCache();
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
@@ -172,15 +191,13 @@ public class PartyInstance implements IParty
 	@Override
 	public List<UUID> getMembers()
 	{
-		return new ArrayList<UUID>(members.keySet());
+		return memCache;
 	}
 	
 	private void hostMigrate()
 	{
-		List<UUID> tmp = getMembers();
-		
 		// Pre check for existing owners
-		for(UUID uuid : tmp)
+		for(UUID uuid : memCache)
 		{
 			if(members.get(uuid) == EnumPartyStatus.OWNER)
 			{
@@ -305,6 +322,7 @@ public class PartyInstance implements IParty
 			}
 		}
 		
+		refreshCache();
 		this.setupProps();
 	}
 }

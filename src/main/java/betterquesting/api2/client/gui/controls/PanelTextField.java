@@ -273,7 +273,6 @@ public class PanelTextField<T> implements IGuiPanel
         
         if(space < 0) // Can happen if someone instantiates the field with more characters than it normally allows
         {
-            out.substring(0, this.maxLength);
             used = 0;
         } else if(space < in.length()) // Written string won fit
         {

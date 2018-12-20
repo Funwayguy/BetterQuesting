@@ -115,11 +115,11 @@ public final class GuiTransform implements IGuiRect
 		return x3 >= x1 && x3 < x2 && y3 >= y1 && y3 < y2;
 	}
 	
-	@Override
+	/*@Override
 	public void translate(int x, int y)
 	{
 		this.padding.setPadding(padding.getLeft() + x, padding.getTop() + y, padding.getRight() - x, padding.getBottom() - y);
-	}
+	}*/
 
 	@Override
 	public int compareTo(IGuiRect o)

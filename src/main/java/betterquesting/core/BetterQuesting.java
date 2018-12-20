@@ -85,7 +85,7 @@ public class BetterQuesting
     {
     	FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
     	
-    	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
+    	GameRegistry.registerTileEntity(TileSubmitStation.class, new ResourceLocation(MODID + ":submit_station"));
     	
     	EntityRegistry.registerModEntity(new ResourceLocation(MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     }

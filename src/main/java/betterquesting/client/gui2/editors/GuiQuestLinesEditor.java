@@ -128,6 +128,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         cvRight.addPanel(txtDesc);
     
         tfDesc = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 48, 16, -64), 0), "", FieldFilterString.INSTANCE);
+        tfDesc.setMaxLength(Integer.MAX_VALUE);
         tfDesc.setCallback(value -> {
         
         });
@@ -223,13 +224,13 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         } else if(btn.getButtonID() == 2) // Import
         {
             mc.displayGuiScreen(new GuiImporters(this));
-			//mc.displayGuiScreen(new GuiImporters(this));
         } else if(btn.getButtonID() == 3) // Add/Remove Quests
         {
             mc.displayGuiScreen(new GuiQuestLineAddRemove(this, selected));
         } else if(btn.getButtonID() == 4 && selected != null) // Designer
         {
 			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
+			//mc.displayGuiScreen(new GuiDesigner(this, selected));
         } else if(btn.getButtonID() == 5 && btn instanceof PanelButtonStorage) // Select Quest
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();

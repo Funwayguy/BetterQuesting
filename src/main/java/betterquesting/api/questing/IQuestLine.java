@@ -1,5 +1,6 @@
 package betterquesting.api.questing;
 
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.IDataSync;
@@ -15,7 +16,5 @@ public interface IQuestLine extends IDataSync, IDatabaseNBT<IQuestLineEntry, NBT
 	
 	IPropertyContainer getProperties();
 	
-	int getQuestAt(int x, int y);
-	
-	IQuestLineEntry createNewEntry(int id);
+	DBEntry<IQuestLineEntry> getEntryAt(int x, int y);
 }

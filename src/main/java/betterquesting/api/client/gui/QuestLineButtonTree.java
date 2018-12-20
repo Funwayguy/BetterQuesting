@@ -1,23 +1,24 @@
 package betterquesting.api.client.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import betterquesting.api2.storage.DBEntry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.storage.DBEntry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Builds a tree of connected buttons based on the given quest line.
  * Intended for use in the within the draggable quest line GUI.<br>
  * <b>WARNING:</b> Button IDs will all be initialized as 0
  */
+@Deprecated
 @SideOnly(Side.CLIENT)
 public class QuestLineButtonTree
 {
@@ -59,8 +60,8 @@ public class QuestLineButtonTree
 			return null;
 		}
 		
-		int id = line.getQuestAt(x, y);
-		IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(id);
+		DBEntry<IQuestLineEntry> entry = line.getEntryAt(x, y);
+		IQuest quest = entry == null ? null : QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(entry.getID());
 		
 		if(quest == null)
 		{

@@ -77,12 +77,12 @@ public class GuiRectangle implements IGuiRect
 		return x >= x1 && x < x2 && y >= y1 && y < y2;
 	}
 	
-	@Override
+	/*@Override
 	public void translate(int dx, int dy)
 	{
 		this.x += dx;
 		this.y += dy;
-	}
+	}*/
 	
 	@Override
 	public int compareTo(IGuiRect o)

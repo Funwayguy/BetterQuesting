@@ -155,9 +155,13 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         PanelButtonStorage<File> btnNew = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -1, "", curDirectory);
         btnNew.setIcon(PresetIcon.ICON_DIR_UP.getTexture());
         btnNew.setCallback(value -> {
-            curDirectory = curDirectory.getParentFile();
-            cvDirectory.setCurDirectory(curDirectory);
-            txtTitle.setText(curDirectory.getAbsolutePath());
+            File tmp = curDirectory.getParentFile();
+            
+            if(tmp != null)
+            {
+                cvDirectory.setCurDirectory(curDirectory);
+                txtTitle.setText(curDirectory.getAbsolutePath());
+            }
         });
         cvRight.addPanel(btnNew);
         
