@@ -65,6 +65,25 @@ public final class NameCache implements INameCache
 		}
 	}
 	
+	/**
+	 * Updates the cache when a player joins the world.
+	 */
+	public void updateName(MinecraftServer server, EntityPlayerMP player)
+	{
+		GameProfile prof = player == null? null : player.getGameProfile();
+		if(prof == null) return;
+
+		removeUserFromCache(prof.getName());
+		
+		boolean isOp = server.getPlayerList().canSendCommands(prof);
+		NBTTagCompound json = new NBTTagCompound();
+		json.setString("name", prof.getName());
+		json.setBoolean("isOP", isOp);
+		cache.put(prof.getId(), json);
+
+		PacketSender.INSTANCE.sendToAll(getUpdateSyncPacket(prof.getId(), prof.getName(), isOp));
+	}
+	
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
@@ -77,15 +96,8 @@ public final class NameCache implements INameCache
 			
 			if(prof != null)
 			{
-				UUID oldID = getUUID(prof.getName());
-				
-				while(oldID != null)
-				{
-					// Cleans out all name duplicates
-					cache.remove(oldID);
-					oldID = getUUID(prof.getName());
-				}
-				
+				removeUserFromCache(prof.getName());
+
 				NBTTagCompound json = new NBTTagCompound();
 				json.setString("name", prof.getName());
 				json.setBoolean("isOP", server.getPlayerList().canSendCommands(prof));
@@ -102,18 +114,43 @@ public final class NameCache implements INameCache
 		return cache.size();
 	}
 	
+	public QuestingPacket getUpdateSyncPacket(UUID uuid, String name, boolean isOp)
+	{
+		NBTTagCompound jn = new NBTTagCompound();
+		jn.setString("uuid", uuid.toString());
+		jn.setString("name", name);
+		jn.setBoolean("isOP", isOp);
+		
+		NBTTagList json = new NBTTagList();
+		json.appendTag(jn);
+
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setBoolean("isUpdate", true);
+		tags.setTag("data", json);
+		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
+	}
+	
+	public void readUpdatePacket(NBTTagCompound payload)
+	{
+		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG, false);
+	}
+	
 	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
+		tags.setBoolean("isUpdate", false);
 		tags.setTag("data", this.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	
+	/**
+	 * Server -> Client packet about name updates
+	 */
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
+		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG, payload.getBoolean("isUpdate"));
 	}
 
 	@Override
@@ -136,15 +173,24 @@ public final class NameCache implements INameCache
 		return json;
 	}
 
+	/**
+	 * Name cache import
+	 */
 	@Override
 	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	{
+		readFromNBT(json, saveType, false);
+	}
+	
+	private void readFromNBT(NBTTagList json, EnumSaveType saveType, boolean updateOnly)
 	{
 		if(saveType != EnumSaveType.CONFIG)
 		{
 			return;
 		}
 		
-		cache.clear();
+		if (!updateOnly) cache.clear();
+		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
 			NBTBase element = json.get(i);
@@ -161,6 +207,8 @@ public final class NameCache implements INameCache
 				String name = jn.getString("name");
 				boolean isOP = jn.getBoolean("isOP");
 				
+				if (updateOnly) removeUserFromCache(name);
+				
 				NBTTagCompound j2 = new NBTTagCompound();
 				j2.setString("name", name);
 				j2.setBoolean("isOP", isOP);
@@ -169,6 +217,18 @@ public final class NameCache implements INameCache
 			{
 				continue;
 			}
+		}
+	}
+	
+	private void removeUserFromCache(String name)
+	{
+		UUID oldID = getUUID(name);
+		
+		while(oldID != null)
+		{
+			// Cleans out all name duplicates
+			cache.remove(oldID);
+			oldID = getUUID(name);
 		}
 	}
 

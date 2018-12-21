@@ -189,14 +189,15 @@ public class EventHandler
 		}
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
-		
-		NameCache.INSTANCE.updateNames(event.player.getServer());
-		
+
+		PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
+
+		NameCache.INSTANCE.updateName(event.player.getServer(), mpPlayer);
 	}
 	
 	@SubscribeEvent
