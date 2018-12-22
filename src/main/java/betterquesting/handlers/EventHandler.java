@@ -1,5 +1,6 @@
 package betterquesting.handlers;
 
+import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
@@ -121,14 +122,16 @@ public class EventHandler
 					{
 						quest.update(player);
 						
-						if(!quest.isComplete(uuid))
-						{
-							PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-						} else
+						if(quest.isComplete(uuid))
 						{
 							refreshCache = true;
 						}
 					}
+					if ((syncMe || player.ticksExisted % 60 == 0) && !quest.isComplete(uuid))
+					{
+						QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(quest.getProgressSyncPacket(uuid), player);
+					}
+					
 				} else if(quest.isComplete(uuid)) // Complete & inactive
 				{
 					if(player.ticksExisted % 20 == 0 && (quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 || quest.getProperties().getProperty(NativeProps.AUTO_CLAIM))) // Waiting to reset

@@ -139,7 +139,6 @@ public final class NameCache implements INameCache
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setBoolean("isUpdate", false);
 		tags.setTag("data", this.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}

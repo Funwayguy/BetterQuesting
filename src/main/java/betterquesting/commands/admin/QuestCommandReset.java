@@ -10,6 +10,8 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
@@ -89,6 +91,7 @@ public class QuestCommandReset extends QuestCommandBase
 				}
 			}
 			
+			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			if(uuid != null)
 			{
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
@@ -106,10 +109,14 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
+					QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(quest.getProgressSyncPacket(uuid), server, uuid);
+					
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
 				} else
 				{
 					quest.resetAll(true);
+					quest.notifyAllOnlineOfConfigChange();
+
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
 				}
 			} catch(Exception e)
@@ -117,8 +124,6 @@ public class QuestCommandReset extends QuestCommandBase
 				throw getException(command);
 			}
 		}
-		
-		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 	
 	@Override
