@@ -1,14 +1,14 @@
 package betterquesting.api.placeholders.rewards;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
 public class RewardPlaceholder implements IReward
 {
@@ -86,7 +86,7 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuest quest)
+	public IGuiPanel getRewardGui(int x, int y, int w, int h, IQuest quest)
 	{
 		return null;
 	}

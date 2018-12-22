@@ -1,18 +1,5 @@
 package betterquesting.client.gui.inventory;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
-import betterquesting.api2.storage.DBEntry;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.text.TextFormatting;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
@@ -24,7 +11,22 @@ import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.QuestCache;
+import betterquesting.api2.client.gui.panels.EmbeddedPanel;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.blocks.TileSubmitStation;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.util.text.TextFormatting;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
@@ -227,12 +229,16 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			quest = tile.getQuest();
 			task = tile.getRawTask();
-			taskUI = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			IGuiPanel tmp = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
 			
-			if(taskUI != null)
+			if(tmp != null)
 			{
+			    taskUI = new EmbeddedPanel(tmp);
 				embedded.add(taskUI);
-			}
+			} else
+            {
+                taskUI = null;
+            }
 			
 			selQuest = Math.max(0, activeQuests.indexOf(quest));
 			selTask = Math.max(0, indexOfTask(quest, task));
@@ -277,12 +283,16 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			taskUI = null;
 		} else
 		{
-			taskUI = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			IGuiPanel tmp = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
 			
-			if(taskUI != null)
+			if(tmp != null)
 			{
+			    taskUI = new EmbeddedPanel(tmp);
 				embedded.add(taskUI);
-			}
+			} else
+            {
+                taskUI = null;
+            }
 		}
 		
 		btnSelect.enabled = (task instanceof IFluidTask || task instanceof IItemTask) && !task.isComplete(QuestingAPI.getQuestingUUID(mc.player));

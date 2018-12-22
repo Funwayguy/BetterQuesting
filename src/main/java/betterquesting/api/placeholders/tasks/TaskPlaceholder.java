@@ -1,15 +1,16 @@
 package betterquesting.api.placeholders.tasks;
 
-import java.util.UUID;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.UUID;
 
 public class TaskPlaceholder implements ITask
 {
@@ -110,7 +111,7 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-	public IGuiEmbedded getTaskGui(int x, int y, int w, int h, IQuest quest)
+	public IGuiPanel getTaskGui(int x, int y, int w, int h, IQuest quest)
 	{
 		return null;
 	}
