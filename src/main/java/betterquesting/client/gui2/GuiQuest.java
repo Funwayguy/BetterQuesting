@@ -313,7 +313,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         IReward rew = quest.getRewards().getEntries()[rewardIndex].getValue();
         
-        pnReward = rew.getRewardGui(rectReward.getX(), rectReward.getY(), rectReward.getWidth(), rectReward.getHeight(), quest);
+        pnReward = rew.getRewardGui(rectReward, quest);
         
         if(pnReward != null)
         {
@@ -344,7 +344,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         ITask tsk = quest.getTasks().getEntries()[taskIndex].getValue();
         
-        pnTask = tsk.getTaskGui(rectTask.getX(), rectTask.getY(), rectTask.getWidth(), rectTask.getHeight(), quest);
+        pnTask = tsk.getTaskGui(rectTask, quest);
         
         if(pnTask != null)
         {
