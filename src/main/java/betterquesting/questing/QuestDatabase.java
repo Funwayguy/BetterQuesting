@@ -1,11 +1,20 @@
 package betterquesting.questing;
 
 import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
@@ -52,7 +61,7 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 			case CONFIG:
 				return writeToJson_Config(json);
 			case PROGRESS:
-				return writeToJson_Progress(json);
+				return writeToJson_Progress(json, null);
 			default:
 				break;
 		}
@@ -117,12 +126,12 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 		}
 	}
 	
-	private NBTTagList writeToJson_Progress(NBTTagList json)
+	private NBTTagList writeToJson_Progress(NBTTagList json, List<UUID> playerFilter)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
-			entry.getValue().writeToNBT(jq, EnumSaveType.PROGRESS);
+			entry.getValue().writeToJson_Progress(jq, playerFilter);
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
@@ -157,5 +166,19 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 				quest.readFromNBT(qTag, EnumSaveType.PROGRESS);
 			}
 		}
+	}
+	
+	public QuestingPacket getSyncPrivatePacket(UUID forPlayer)
+	{
+		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
+		IParty userParty = partys.getUserParty(forPlayer);
+		List<UUID> users = userParty != null ? userParty.getMembers() : Collections.singletonList(forPlayer);
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		base.setTag("progress", writeToJson_Progress(new NBTTagList(), users));
+		tags.setTag("data", base);
+		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
 	}
 }

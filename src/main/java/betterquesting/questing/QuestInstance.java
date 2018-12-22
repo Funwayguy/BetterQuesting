@@ -773,6 +773,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
+	@Override
 	public QuestingPacket getProgressSyncPacket(UUID player)
 	{
 		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
@@ -1108,7 +1109,7 @@ public class QuestInstance implements IQuest
 		this.setupProps();
 	}
 	
-	private NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
+	public NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
 	{
 		NBTTagList comJson = new NBTTagList();
 		for(UserEntry entry : completeUsers)

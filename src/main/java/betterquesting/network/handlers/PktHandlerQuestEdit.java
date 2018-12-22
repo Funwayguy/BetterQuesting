@@ -63,6 +63,13 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		
 		if(action == EnumPacketAction.EDIT && quest != null)
 		{
+			NBTTagCompound base = data.getCompoundTag("data");
+			if (base.hasKey("progress"))
+			{
+				// Clients never tell the server what's the current progress
+				base.removeTag("progress");
+			}
+			
 			quest.readPacket(data);
 			quest.notifyAllOnlineOfConfigChange();
 			return;
