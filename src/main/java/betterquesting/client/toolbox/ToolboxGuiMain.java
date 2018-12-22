@@ -331,4 +331,8 @@ public class ToolboxGuiMain extends GuiElement implements IGuiEmbedded
 	{
 		return dragSnap;
 	}
+
+	@Override
+	public void onMouseRelease(int mx, int my, int click) {
+	}
 }

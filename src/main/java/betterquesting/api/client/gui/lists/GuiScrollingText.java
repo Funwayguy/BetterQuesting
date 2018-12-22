@@ -148,5 +148,9 @@ public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.Scrollin
 		{
 			return false;
 		}
+
+		@Override
+		public void onMouseRelease(int mx, int my, int px, int py, int click, int index) {
+		}
 	}
 }

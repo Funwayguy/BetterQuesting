@@ -1,7 +1,9 @@
 package betterquesting.api.client.gui.lists;
 
 import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
+
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,6 +13,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 @Deprecated
 public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.ScrollingEntryFluid>
@@ -24,16 +27,18 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		this.allowDragScroll(true);
 	}
 	
-	public void addFluid(FluidStack stack)
+	public ScrollingEntryFluid addFluid(FluidStack stack)
 	{
 		String desc = stack.getLocalizedName();
 		desc += "\n" + stack.amount + "mB";
-		addFluid(stack, desc);
+		return addFluid(stack, desc);
 	}
 	
-	public void addFluid(FluidStack stack, String description)
+	public ScrollingEntryFluid addFluid(FluidStack stack, String description)
 	{
-		this.getEntryList().add(new ScrollingEntryFluid(mc, stack, description));
+		ScrollingEntryFluid item = new ScrollingEntryFluid(mc, stack, description);
+		this.getEntryList().add(item);
+		return item;
 	}
 	
 	public static class ScrollingEntryFluid extends GuiElement implements IScrollingEntry
@@ -41,6 +46,7 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		private final Minecraft mc;
 		private FluidStack stack;
 		private String desc = "";
+		private BiConsumer<FluidStack, Integer> clickHandler;
 		
 		public ScrollingEntryFluid(Minecraft mc, FluidStack stack, String desc)
 		{
@@ -110,6 +116,14 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		{
 			// JEI/NEI support here
 		}
+		
+		@Override
+		public void onMouseRelease(int mx, int my, int px, int py, int click, int index) {
+			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
+			{
+				clickHandler.accept(stack, click);
+			}
+		}
 
 		@Override
 		public int getHeight()
@@ -121,6 +135,11 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		public boolean canDrawOutsideBox(boolean isForeground)
 		{
 			return isForeground;
+		}
+
+		public void setClickHandler(BiConsumer<FluidStack, Integer> clickHandler)
+		{
+			this.clickHandler = clickHandler;
 		}
 	}
 }
