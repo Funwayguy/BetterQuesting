@@ -192,15 +192,17 @@ public class EventHandler
 		}
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
-
+		
 		PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
-
 		NameCache.INSTANCE.updateName(event.player.getServer(), mpPlayer);
+		
+		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(mpPlayer.getName());
+
+		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPrivatePacket(uuid), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
 	}
 	
 	@SubscribeEvent
@@ -259,6 +261,7 @@ public class EventHandler
 				int lives = LifeDatabase.INSTANCE.getLives(party);
 				LifeDatabase.INSTANCE.setLives(party, lives - 1);
 			}
+			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(QuestingAPI.getAPI(ApiReference.LIFE_DB).getProgressSyncPacket(uuid), (EntityPlayer) event.getEntityLiving());
 		}
 	}
 	

@@ -239,4 +239,9 @@ public class DummyQuest implements IQuest
 	@Override
 	public void notifyAllOnlineOfConfigChange() {
 	}
+
+	@Override
+	public NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter) {
+		return json;
+	}
 }

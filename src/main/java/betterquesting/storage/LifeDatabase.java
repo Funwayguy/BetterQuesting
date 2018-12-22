@@ -1,16 +1,21 @@
 package betterquesting.storage;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
@@ -91,6 +96,36 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
+	public QuestingPacket getProgressSyncPacket(UUID player)
+	{
+		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
+		IParty userParty = partys.getUserParty(player);
+		List<UUID> users = userParty != null ? userParty.getMembers() : Collections.singletonList(player);
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("lives", writeToJson_Progress(new NBTTagCompound(), users));
+		tags.setTag("data", base);
+		tags.setBoolean("isProgressUpdate", true);
+		
+		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
+	}
+	
+	public QuestingPacket getSyncPrivatePacket(UUID forPlayer)
+	{
+		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
+		IParty userParty = partys.getUserParty(forPlayer);
+		List<UUID> users = userParty != null ? userParty.getMembers() : Collections.singletonList(forPlayer);
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("lives", writeToJson_Progress(new NBTTagCompound(), users));
+		tags.setTag("data", base);
+		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
+	}
+	
+	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
@@ -105,8 +140,11 @@ public final class LifeDatabase implements ILifeDatabase
 	public void readPacket(NBTTagCompound payload)
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
-		
-		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
+		boolean isProgressUpdate = payload.getBoolean("isProgressUpdate");
+		if(!isProgressUpdate)
+		{
+			readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
+		}
 		readFromNBT(base.getCompoundTag("lives"), EnumSaveType.PROGRESS);
 	}
 	
@@ -118,7 +156,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return json;
 		}
 		
-		return writeToJson_Progress(json);
+		return writeToJson_Progress(json, null);
 	}
 	
 	@Override
@@ -132,11 +170,13 @@ public final class LifeDatabase implements ILifeDatabase
 		readFromJson_Progress(json);
 	}
 	
-	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
+	private NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
 	{
 		NBTTagList jul = new NBTTagList();
 		for(Entry<UUID,Integer> entry : playerLives.entrySet())
 		{
+			if(userFilter != null && !userFilter.contains(entry.getKey())) continue;
+			
 			NBTTagCompound j = new NBTTagCompound();
 			j.setString("uuid", entry.getKey().toString());
 			j.setInteger("lives", entry.getValue());
@@ -147,6 +187,12 @@ public final class LifeDatabase implements ILifeDatabase
 		NBTTagList jpl = new NBTTagList();
 		for(Entry<Integer,Integer> entry : partyLives.entrySet())
 		{
+			if(userFilter != null)
+			{
+				IParty p = QuestingAPI.getAPI(ApiReference.PARTY_DB).getValue(entry.getKey());
+				if (p == null || !p.getMembers().stream().anyMatch(pm -> userFilter.contains(pm))) continue;
+			}
+			
 			NBTTagCompound j = new NBTTagCompound();
 			j.setInteger("partyID", entry.getKey());
 			j.setInteger("lives", entry.getValue());
