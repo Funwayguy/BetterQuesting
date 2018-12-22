@@ -11,6 +11,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.handlers.JEIHandler;
 
 @Deprecated
 public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.ScrollingEntryItem>
@@ -158,9 +159,16 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		@Override
 		public void onMouseClick(int mx, int my, int px, int py, int click, int index)
 		{
-			// JEI/NEI support here
 		}
 
+		@Override
+		public void onMouseRelease(int mx, int my, int px, int py, int click, int index) {
+			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
+			{
+				JEIHandler.show(stack.getBaseStack(), click != 1);
+			}
+		}
+		
 		@Override
 		public int getHeight()
 		{

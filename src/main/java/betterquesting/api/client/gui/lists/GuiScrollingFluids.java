@@ -2,6 +2,8 @@ package betterquesting.api.client.gui.lists;
 
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.handlers.JEIHandler;
+
 import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -109,6 +111,14 @@ public class GuiScrollingFluids extends GuiScrollingBase<GuiScrollingFluids.Scro
 		public void onMouseClick(int mx, int my, int px, int py, int click, int index)
 		{
 			// JEI/NEI support here
+		}
+		
+		@Override
+		public void onMouseRelease(int mx, int my, int px, int py, int click, int index) {
+			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
+			{
+				JEIHandler.show(stack, click != 1);
+			}
 		}
 
 		@Override
