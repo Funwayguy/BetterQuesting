@@ -3,6 +3,7 @@ package betterquesting.api.questing.tasks;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,7 +32,7 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>
 	IJsonDoc getDocumentation();
 	
 	@SideOnly(Side.CLIENT)
-    IGuiPanel getTaskGui(int x, int y, int w, int h, IQuest quest);
+    IGuiPanel getTaskGui(IGuiRect rect, IQuest quest);
 	
 	@Nullable
 	@SideOnly(Side.CLIENT)

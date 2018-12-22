@@ -4,6 +4,7 @@ import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -86,7 +87,7 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public IGuiPanel getRewardGui(int x, int y, int w, int h, IQuest quest)
+	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
 		return null;
 	}

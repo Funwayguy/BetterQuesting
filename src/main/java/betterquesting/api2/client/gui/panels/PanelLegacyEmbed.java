@@ -1,10 +1,10 @@
 package betterquesting.api2.client.gui.panels;
 
-import java.util.List;
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
+
+import java.util.List;
 
 /**
  * <b>WARNING:</b> For use ONLY when IGuiEmbedded cannot be reasonably replaced currently

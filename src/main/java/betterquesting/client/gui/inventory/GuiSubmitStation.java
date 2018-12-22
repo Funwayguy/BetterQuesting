@@ -11,6 +11,7 @@ import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.QuestCache;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.panels.EmbeddedPanel;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
@@ -229,7 +230,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			quest = tile.getQuest();
 			task = tile.getRawTask();
-			IGuiPanel tmp = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16), quest);
 			
 			if(tmp != null)
 			{
@@ -283,7 +284,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			taskUI = null;
 		} else
 		{
-			IGuiPanel tmp = task.getTaskGui(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16, quest);
+			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16), quest);
 			
 			if(tmp != null)
 			{

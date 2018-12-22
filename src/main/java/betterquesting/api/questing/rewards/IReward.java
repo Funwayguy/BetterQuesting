@@ -3,6 +3,7 @@ package betterquesting.api.questing.rewards;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,7 +26,7 @@ public interface IReward extends INBTSaveLoad<NBTTagCompound>
 	IJsonDoc getDocumentation();
 	
 	@SideOnly(Side.CLIENT)
-    IGuiPanel getRewardGui(int x, int y, int w, int h, IQuest quest);
+    IGuiPanel getRewardGui(IGuiRect rect, IQuest quest);
 	
 	@Nullable
 	@SideOnly(Side.CLIENT)
