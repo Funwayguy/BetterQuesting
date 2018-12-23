@@ -12,13 +12,20 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraftforge.oredict.OreDictionary;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
 {
     private final boolean showCount;
     private final boolean oreDict;
+    
+    private final List<BigItemStack> oreVariants = new ArrayList<>();
     
     public PanelItemSlot(IGuiRect rect, int id, BigItemStack value)
     {
@@ -38,7 +45,6 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         
         this.setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(), new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(), new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(), new GuiPadding(1, 1, 1, 1))));
         this.setStoredValue(value); // Need to run this again because of the instatiation order of showCount
-    
     }
     
     @Override
@@ -57,6 +63,8 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
             this.setTooltip(null);
         }
         
+        updateOreStacks();
+        
         return this;
     }
     
@@ -65,10 +73,61 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
     {
         if(getStoredValue() != null && getTransform().contains(mx, my))
         {
+            BigItemStack ttStack = getStoredValue();
+            
+            if(oreDict && oreVariants.size() > 0)
+            {
+                ttStack = oreVariants.get((int)(System.currentTimeMillis()/1000D)%oreVariants.size());
+            }
+            
             Minecraft mc = Minecraft.getMinecraft();
-            return getStoredValue().getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+            return ttStack.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
         }
         
         return null;
+    }
+    
+    private void updateOreStacks()
+    {
+        if(oreVariants == null) // Pre-instantiation check. Crashes otherwise >_>
+        {
+            return;
+        }
+        
+        oreVariants.clear();
+        
+        BigItemStack stack = getStoredValue();
+        
+        if(stack == null)
+        {
+            return;
+        }
+        
+        if(stack.oreDict == null || stack.oreDict.length() <= 0)
+        {
+            oreVariants.add(stack);
+            return;
+        }
+        
+        for(ItemStack iStack : OreDictionary.getOres(stack.oreDict))
+        {
+            if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            {
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                iStack.getItem().getSubItems(CreativeTabs.SEARCH, subItems);
+                
+                for(ItemStack sStack : subItems)
+                {
+                    BigItemStack bStack = new BigItemStack(sStack);
+                    bStack.stackSize = stack.stackSize;
+                    oreVariants.add(bStack);
+                }
+            } else
+            {
+                BigItemStack bStack = new BigItemStack(iStack);
+                bStack.stackSize = stack.stackSize;
+                oreVariants.add(bStack);
+            }
+        }
     }
 }
