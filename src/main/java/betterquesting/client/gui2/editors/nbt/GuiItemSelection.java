@@ -101,7 +101,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         txSelection.setColor(PresetColor.TEXT_MAIN.getColor());
         cvTopLeft.addPanel(txSelection);
         
-        itemPreview = new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 36, 36, 0), 99, itemStack);
+        itemPreview = new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 36, 36, 0), 99, itemStack, false, true);
         cvTopLeft.addPanel(itemPreview);
         
         PanelTextBox txMulti = new PanelTextBox(new GuiTransform(GuiAlign.TOP_LEFT, 36, 20, 16, 12, 0), "x").setAlignment(1);
@@ -204,10 +204,12 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             {
                 itemStack.oreDict = "";
                 ((PanelButtonStorage<Integer>)btn).setStoredValue(-1).setText("Ore: NONE");
+                itemPreview.setStoredValue(itemStack); // Refreshes OD
             } else
             {
                 itemStack.oreDict = OreDictionary.getOreName(oreIds[idx]);
                 ((PanelButtonStorage<Integer>)btn).setStoredValue(idx).setText("Ore: " + itemStack.oreDict);
+                itemPreview.setStoredValue(itemStack); // Refreshes OD
             }
         }
     }
