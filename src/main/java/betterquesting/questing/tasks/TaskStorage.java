@@ -2,8 +2,6 @@ package betterquesting.questing.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.SimpleDatabase;
@@ -26,7 +24,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 			case CONFIG:
 				return writeToJson_Config(json);
 			case PROGRESS:
-				return writeToJson_Progress(json, null);
+				return writeToJson_Progress(json);
 			default:
 				return json;
 		}
@@ -128,13 +126,13 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 		}
 	}
 	
-	public NBTTagList writeToJson_Progress(NBTTagList json, List<UUID> userFilter)
+	private NBTTagList writeToJson_Progress(NBTTagList json)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeProgressToJson(new NBTTagCompound(), userFilter);
+			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS);
 			qJson.setString("taskID", taskID.toString());
 			qJson.setInteger("index", entry.getID());
 			json.appendTag(qJson);

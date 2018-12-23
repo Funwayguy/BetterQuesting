@@ -6,7 +6,6 @@ public interface IScrollingEntry
 	public void drawForeground(int mx, int my, int px, int py, int width);
 	
 	public void onMouseClick(int mx, int my, int px, int py, int click, int index);
-	public void onMouseRelease(int mx, int my, int px, int py, int click, int index);
 	
 	public int getHeight();
 	public boolean canDrawOutsideBox(boolean isForeground);

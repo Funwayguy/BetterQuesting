@@ -183,10 +183,4 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		
 		this.setupProps();
 	}
-
-	@Override
-	public IQuestLineEntry createNewEntry(int id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

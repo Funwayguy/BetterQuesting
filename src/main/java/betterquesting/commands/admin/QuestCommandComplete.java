@@ -10,8 +10,6 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -100,13 +98,14 @@ public class QuestCommandComplete extends QuestCommandBase
 					}
 				}
 			}
-			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(quest.getProgressSyncPacket(uuid), server, uuid);
 			
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
 		} catch(Exception e)
 		{
 			throw getException(command);
 		}
+		
+		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 	
 	@Override

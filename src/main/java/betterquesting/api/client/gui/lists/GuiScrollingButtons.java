@@ -119,9 +119,5 @@ public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.Sc
 		{
 			return isForeground;
 		}
-
-		@Override
-		public void onMouseRelease(int mx, int my, int px, int py, int click, int index) {
-		}
 	}
 }

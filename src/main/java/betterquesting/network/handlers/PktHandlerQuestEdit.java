@@ -64,7 +64,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		if(action == EnumPacketAction.EDIT && quest != null)
 		{
 			quest.readPacket(data);
-			quest.notifyAllOnlineOfConfigChange();
+			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.REMOVE)
 		{
@@ -115,7 +115,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				quest.resetAll(true);
 			}
 			
-			quest.notifyAllOnlineOfConfigChange();
+			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 			return;
 		} else if(action == EnumPacketAction.ADD)
 		{

@@ -6,7 +6,6 @@ import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.IPacketSender;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -14,18 +13,15 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.INameCache;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
-import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
@@ -47,13 +43,7 @@ import org.apache.logging.log4j.Level;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -214,7 +204,7 @@ public class QuestInstance implements IQuest
 					postPresetNotice(player, 1);
 				}
 				
-				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(playerID), player);
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				return;
 			} else
 			{
@@ -252,7 +242,7 @@ public class QuestInstance implements IQuest
 			{
 				setComplete(playerID, player.world.getTotalWorldTime());
 				
-				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(playerID), player);
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
@@ -261,7 +251,7 @@ public class QuestInstance implements IQuest
 			} else if(!isComplete(playerID) && done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
-				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(playerID), player);
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			}
 		}
 	}
@@ -325,6 +315,7 @@ public class QuestInstance implements IQuest
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
+				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 			} else if(update)
 			{
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
@@ -332,7 +323,8 @@ public class QuestInstance implements IQuest
 					postPresetNotice(player, 1);
 				}
 			}
-			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(playerID), player);
+			
+			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
 	
@@ -514,7 +506,8 @@ public class QuestInstance implements IQuest
 			
 			entry.setClaimed(true, player.world.getTotalWorldTime());
 		}
-		QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(pID), player);
+		
+		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
 	@Override
@@ -714,7 +707,6 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	@Deprecated // TODO: This will send a massive amount of progress data to players. Must be replaced with only config and filtered progress
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
@@ -727,77 +719,12 @@ public class QuestInstance implements IQuest
 		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
 	}
 	
-	/**
-	 * For every online party and single player compose a suitable update packet that contains both
-	 * the main config and their progress and then send it.
-	 */
-	public void notifyAllOnlineOfConfigChange()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		tags.setTag("data", base);
-		tags.setInteger("questID", parentDB.getID(this));
-
-		Set<IParty> partysOnline = new HashSet<IParty>();
-		Map<EntityPlayerMP, UUID> nonPartiedPlayersOnline = new HashMap<EntityPlayerMP, UUID>();
-		
-		INameCache names = QuestingAPI.getAPI(ApiReference.NAME_CACHE);
-		IPartyDatabase parties = QuestingAPI.getAPI(ApiReference.PARTY_DB);
-		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-		for(EntityPlayerMP player : server.getPlayerList().getPlayers())
-		{
-			UUID uuid = names.getUUID(player.getName());
-			IParty p = parties.getUserParty(uuid);
-			
-			if (p != null) partysOnline.add(p);
-			else nonPartiedPlayersOnline.put(player, uuid);
-		}
-		
-		IPacketSender tunnel = QuestingAPI.getAPI(ApiReference.PACKET_SENDER);
-		for (IParty p : partysOnline)
-		{
-			if (p.getMembers().isEmpty()) continue;
-
-			base.setTag("progress", writeToJson_Progress(new NBTTagCompound(), p.getMembers()));
-			QuestingPacket packet = new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
-			
-			tunnel.sendToParty(packet, server, p);
-		}
-		for (Entry<EntityPlayerMP, UUID> p : nonPartiedPlayersOnline.entrySet())
-		{
-			base.setTag("progress", writeToJson_Progress(new NBTTagCompound(), Collections.singletonList(p.getValue())));
-			QuestingPacket packet = new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
-			
-			tunnel.sendToParty(packet, p.getKey());
-		}
-	}
-	
-	public QuestingPacket getProgressSyncPacket(UUID player)
-	{
-		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
-		IParty userParty = partys.getUserParty(player);
-		List<UUID> users = userParty != null ? userParty.getMembers() : Collections.singletonList(player);
-		
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("progress", writeToJson_Progress(new NBTTagCompound(), users));
-		tags.setTag("data", base);
-		tags.setInteger("questID", parentDB.getID(this));
-		tags.setBoolean("isProgressUpdate", true);
-		
-		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
-	}
-	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
-		boolean isProgressUpdate = payload.getBoolean("isProgressUpdate");
-		if(!isProgressUpdate)
-		{
-			readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
-		}
+		
+		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
 		readFromNBT(base.getCompoundTag("progress"), EnumSaveType.PROGRESS);
 	}
 	
@@ -891,10 +818,7 @@ public class QuestInstance implements IQuest
 		
 		if(flag)
 		{
-			for(UUID id : uuid)
-			{
-				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(id), FMLCommonHandler.instance().getMinecraftServerInstance(), id);
-			}
+			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
 	
@@ -1010,7 +934,7 @@ public class QuestInstance implements IQuest
 				case CONFIG:
 					return writeToJson_Config(json);
 				case PROGRESS:
-					return writeToJson_Progress(json, null);
+					return writeToJson_Progress(json);
 				default:
 					return json;
 			}
@@ -1108,7 +1032,7 @@ public class QuestInstance implements IQuest
 		this.setupProps();
 	}
 	
-	private NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
+	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
 	{
 		NBTTagList comJson = new NBTTagList();
 		for(UserEntry entry : completeUsers)
@@ -1117,7 +1041,7 @@ public class QuestInstance implements IQuest
 		}
 		json.setTag("completed", comJson);
 		
-		NBTTagList tskJson = tasks.writeToJson_Progress(new NBTTagList(), userFilter);
+		NBTTagList tskJson = tasks.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
 		json.setTag("tasks", tskJson);
 		
 		return json;

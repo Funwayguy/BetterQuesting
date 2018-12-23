@@ -211,10 +211,6 @@ public class GuiQuestLinesEmbedded extends GuiElement implements IGuiQuestLine
 		
 		noScroll = curTool != null && !curTool.allowScrolling(click);
 	}
-
-	@Override
-	public void onMouseRelease(int mx, int my, int click) {
-	}
 	
 	@Override
 	public void onMouseScroll(int mx, int my, int SDX)
