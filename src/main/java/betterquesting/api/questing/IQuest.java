@@ -41,7 +41,6 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
 	 */
 	void notifyAllOnlineOfConfigChange();
 	QuestingPacket getProgressSyncPacket(UUID player);
-	NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter);
 	
 	void update(EntityPlayer player);
 	void detect(EntityPlayer player);

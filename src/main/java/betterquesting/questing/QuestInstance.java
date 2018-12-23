@@ -25,6 +25,7 @@ import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
+import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
@@ -197,7 +198,7 @@ public class QuestInstance implements IQuest
 				}
 				
 				// Task logic will now run for repeat quest
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
+			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && player.world.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
 			{
 				// Task is scheduled to reset
 				if(qInfo.getProperty(NativeProps.GLOBAL))
@@ -249,7 +250,7 @@ public class QuestInstance implements IQuest
 				return;
 			} else if(!isComplete(playerID) && (tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+				setComplete(playerID, player.world.getTotalWorldTime());
 				
 				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(getProgressSyncPacket(playerID), player);
 				
@@ -315,7 +316,7 @@ public class QuestInstance implements IQuest
 			
 			if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+				setComplete(playerID, player.world.getTotalWorldTime());
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
@@ -568,7 +569,7 @@ public class QuestInstance implements IQuest
 		{
 			if(t.getValue() instanceof IProgression)
 			{
-				total += ((IProgression<?>)t.getValue()).getParticipation(uuid);
+				total += ((IProgression)t.getValue()).getParticipation(uuid);
 			}
 		}
 		
@@ -772,7 +773,6 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
-	@Override
 	public QuestingPacket getProgressSyncPacket(UUID player)
 	{
 		IPartyDatabase partys = QuestingAPI.getAPI(ApiReference.PARTY_DB);
@@ -1108,7 +1108,7 @@ public class QuestInstance implements IQuest
 		this.setupProps();
 	}
 	
-	public NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
+	private NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter)
 	{
 		NBTTagList comJson = new NBTTagList();
 		for(UserEntry entry : completeUsers)
