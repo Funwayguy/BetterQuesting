@@ -188,7 +188,7 @@ public class QuestInstance implements IQuest
 				}
 				
 				// Task logic will now run for repeat quest
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && player.world.getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
+			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
 			{
 				// Task is scheduled to reset
 				if(qInfo.getProperty(NativeProps.GLOBAL))
@@ -240,7 +240,7 @@ public class QuestInstance implements IQuest
 				return;
 			} else if(!isComplete(playerID) && (tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, player.world.getTotalWorldTime());
+				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 				
 				PacketSender.INSTANCE.sendToAll(getSyncPacket());
 				
@@ -306,7 +306,7 @@ public class QuestInstance implements IQuest
 			
 			if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, player.world.getTotalWorldTime());
+				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 				
 				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
 				{
@@ -492,7 +492,7 @@ public class QuestInstance implements IQuest
 					this.completeUsers.add(entry);
 				}
 				
-				entry.setClaimed(true, player.world.getTotalWorldTime());
+				entry.setClaimed(true, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 			}
 		} else
 		{
@@ -504,7 +504,7 @@ public class QuestInstance implements IQuest
 				this.completeUsers.add(entry);
 			}
 			
-			entry.setClaimed(true, player.world.getTotalWorldTime());
+			entry.setClaimed(true, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 		}
 		
 		PacketSender.INSTANCE.sendToAll(getSyncPacket());
@@ -702,6 +702,7 @@ public class QuestInstance implements IQuest
 			return 0;
 		} else
 		{
+		    // TODO: This isn't accurate outside of the overworld dimension. Adjust later
 			return (qInfo.getProperty(NativeProps.REPEAT_TIME) - (player.world.getTotalWorldTime() - ue.getTimestamp()))/20L;
 		}
 	}

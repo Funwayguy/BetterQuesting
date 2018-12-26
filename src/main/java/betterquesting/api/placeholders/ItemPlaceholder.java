@@ -1,7 +1,5 @@
 package betterquesting.api.placeholders;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,6 +10,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class ItemPlaceholder extends Item
 {
@@ -46,7 +47,7 @@ public class ItemPlaceholder extends Item
 	@Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held)
     {
-    	if(!stack.hasTagCompound() || !(entity instanceof EntityPlayer) || world.getTotalWorldTime()%20 != 0) // Process this only once a second
+    	if(!stack.hasTagCompound() || !(entity instanceof EntityPlayer) || world.getTotalWorldTime()%100 != 0) // Process this only once a second
     	{
     		return;
     	}
@@ -54,7 +55,7 @@ public class ItemPlaceholder extends Item
     	EntityPlayer player = (EntityPlayer)entity;
     	
     	NBTTagCompound tags = stack.getTagCompound();
-    	Item i = (Item)Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
+    	Item i = Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
     	int m = stack.getItemDamage() > 0? stack.getItemDamage() : tags.getInteger("orig_meta");
     	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
     	

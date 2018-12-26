@@ -15,6 +15,11 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 {
 	public static final QuestDatabase INSTANCE = new QuestDatabase();
 	
+	public QuestDatabase()
+    {
+        super(20);
+    }
+	
 	@Override
 	public IQuest createNew(int id)
 	{

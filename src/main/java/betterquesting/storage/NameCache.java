@@ -1,54 +1,76 @@
 package betterquesting.storage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.storage.INameCache;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class NameCache implements INameCache
 {
 	public static final NameCache INSTANCE = new NameCache();
 	
-	private final ConcurrentHashMap<UUID,NBTTagCompound> cache = new ConcurrentHashMap<UUID,NBTTagCompound>();
+	private final ConcurrentHashMap<UUID,NBTTagCompound> cache = new ConcurrentHashMap<>();
 	
-	private NameCache()
-	{
-	}
+	@Override
+    public void setName(UUID uuid, String name)
+    {
+        if(uuid == null || name == null) return;
+        
+        synchronized(cache)
+        {
+            NBTTagCompound tag = cache.get(uuid);
+            
+            if(tag == null)
+            {
+                tag = new NBTTagCompound();
+                tag.setBoolean("isOP", false);
+            }
+            
+            tag.setString("name", name);
+        }
+    }
 	
 	@Override
 	public String getName(UUID uuid)
 	{
-		if(!cache.containsKey(uuid))
-		{
-			return uuid.toString();
-		} else
-		{
-			return cache.get(uuid).getString("name");
-		}
+	    synchronized(cache)
+        {
+            if(!cache.containsKey(uuid))
+            {
+                return uuid.toString();
+            } else
+            {
+                return cache.get(uuid).getString("name");
+            }
+        }
 	}
 	
 	@Override
 	public UUID getUUID(String name)
 	{
-		for(Entry<UUID,NBTTagCompound> entry : cache.entrySet())
-		{
-			if(entry.getValue().getString("name").equalsIgnoreCase(name))
-			{
-				return entry.getKey();
-			}
-		}
+	    synchronized(cache)
+        {
+            for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
+            {
+                if(entry.getValue().getString("name").equalsIgnoreCase(name))
+                {
+                    return entry.getKey();
+                }
+            }
+        }
 		
 		return null;
 	}
@@ -56,18 +78,22 @@ public final class NameCache implements INameCache
 	@Override
 	public boolean isOP(UUID uuid)
 	{
-		if(!cache.containsKey(uuid))
-		{
-			return false;
-		} else
-		{
-			return cache.get(uuid).getBoolean("isOP");
-		}
+	    synchronized(cache)
+        {
+            if(!cache.containsKey(uuid))
+            {
+                return false;
+            } else
+            {
+                return cache.get(uuid).getBoolean("isOP");
+            }
+        }
 	}
 	
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
+	 
 		String[] names = server.getPlayerProfileCache().getUsernames();
 		
 		for(String name : names)
@@ -77,19 +103,22 @@ public final class NameCache implements INameCache
 			
 			if(prof != null)
 			{
-				UUID oldID = getUUID(prof.getName());
-				
-				while(oldID != null)
-				{
-					// Cleans out all name duplicates
-					cache.remove(oldID);
-					oldID = getUUID(prof.getName());
-				}
-				
-				NBTTagCompound json = new NBTTagCompound();
-				json.setString("name", prof.getName());
-				json.setBoolean("isOP", server.getPlayerList().canSendCommands(prof));
-				cache.put(prof.getId(), json);
+			    synchronized(cache)
+                {
+                    UUID oldID = getUUID(prof.getName());
+    
+                    while(oldID != null)
+                    {
+                        // Cleans out all name duplicates
+                        cache.remove(oldID);
+                        oldID = getUUID(prof.getName());
+                    }
+    
+                    NBTTagCompound json = new NBTTagCompound();
+                    json.setString("name", prof.getName());
+                    json.setBoolean("isOP", server.getPlayerList().canSendCommands(prof));
+                    cache.put(prof.getId(), json);
+                }
 			}
 		}
 		
@@ -124,14 +153,17 @@ public final class NameCache implements INameCache
 			return json;
 		}
 		
-		for(Entry<UUID,NBTTagCompound> entry : cache.entrySet())
-		{
-			NBTTagCompound jn = new NBTTagCompound();
-			jn.setString("uuid", entry.getKey().toString());
-			jn.setString("name", entry.getValue().getString("name"));
-			jn.setBoolean("isOP", entry.getValue().getBoolean("isOP"));
-			json.appendTag(jn);
-		}
+		synchronized(cache)
+        {
+            for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
+            {
+                NBTTagCompound jn = new NBTTagCompound();
+                jn.setString("uuid", entry.getKey().toString());
+                jn.setString("name", entry.getValue().getString("name"));
+                jn.setBoolean("isOP", entry.getValue().getBoolean("isOP"));
+                json.appendTag(jn);
+            }
+        }
 		
 		return json;
 	}
@@ -144,32 +176,33 @@ public final class NameCache implements INameCache
 			return;
 		}
 		
-		cache.clear();
-		for(int i = 0; i < json.tagCount(); i++)
-		{
-			NBTBase element = json.get(i);
-			if(element == null || element.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jn = (NBTTagCompound)element;
-			
-			try
-			{
-				UUID uuid = UUID.fromString(jn.getString("uuid"));
-				String name = jn.getString("name");
-				boolean isOP = jn.getBoolean("isOP");
-				
-				NBTTagCompound j2 = new NBTTagCompound();
-				j2.setString("name", name);
-				j2.setBoolean("isOP", isOP);
-				cache.put(uuid, j2);
-			} catch(Exception e)
-			{
-				continue;
-			}
-		}
+		synchronized(cache)
+        {
+            cache.clear();
+            for(int i = 0; i < json.tagCount(); i++)
+            {
+                NBTBase element = json.get(i);
+        
+                if(element.getId() != 10)
+                {
+                    continue;
+                }
+        
+                NBTTagCompound jn = (NBTTagCompound)element;
+        
+                try
+                {
+                    UUID uuid = UUID.fromString(jn.getString("uuid"));
+                    String name = jn.getString("name");
+                    boolean isOP = jn.getBoolean("isOP");
+            
+                    NBTTagCompound j2 = new NBTTagCompound();
+                    j2.setString("name", name);
+                    j2.setBoolean("isOP", isOP);
+                    cache.put(uuid, j2);
+                } catch(Exception ignored){}
+            }
+        }
 	}
 
 	public void reset()
@@ -180,15 +213,18 @@ public final class NameCache implements INameCache
 	@Override
 	public List<String> getAllNames()
 	{
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
-		for(NBTTagCompound json : cache.values())
-		{
-			if(json != null && json.hasKey("name", 8))
-			{
-				list.add(json.getString("name"));
-			}
-		}
+		synchronized(cache)
+        {
+            for(NBTTagCompound json : cache.values())
+            {
+                if(json != null && json.hasKey("name", 8))
+                {
+                    list.add(json.getString("name"));
+                }
+            }
+        }
 		
 		return list;
 	}

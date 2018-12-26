@@ -129,10 +129,10 @@ public enum PresetTexture
 		reg.setDefaultTexture(SCROLL_H_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(24, 20, 8, 8), new GuiPadding(3, 3, 3, 3)));
 		
 		reg.setDefaultTexture(METER_V_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(48, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
-		reg.setDefaultTexture(METER_V_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(52, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
+		reg.setDefaultTexture(METER_V_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(56, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
 		
 		reg.setDefaultTexture(METER_H_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(48, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
-		reg.setDefaultTexture(METER_H_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(52, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
+		reg.setDefaultTexture(METER_H_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(56, 12, 8, 8), new GuiPadding(3, 3, 3, 3)));
 		
 		reg.setDefaultTexture(QUEST_NORM_0.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 0, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_NORM_1.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 24, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));

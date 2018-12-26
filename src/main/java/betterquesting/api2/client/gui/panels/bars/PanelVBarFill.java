@@ -1,16 +1,16 @@
 package betterquesting.api2.client.gui.panels.bars;
 
-import java.awt.Color;
-import java.util.List;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.math.MathHelper;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
+
+import java.util.List;
 
 public class PanelVBarFill implements IBarFill
 {
@@ -21,10 +21,7 @@ public class PanelVBarFill implements IBarFill
 	private IGuiTexture texFill;
 	private IValueIO<Float> fillDriver;
 	private boolean flipBar = false;
-	private int clrNorm = Color.WHITE.getRGB();
-	private int clrLow = Color.WHITE.getRGB();
-	private float clrThreshold = 0.25F;
-	private boolean lerpClr = false;
+	private IGuiColor color;
 	
 	public PanelVBarFill(IGuiRect rect)
 	{
@@ -32,21 +29,12 @@ public class PanelVBarFill implements IBarFill
 		this.texFill = PresetTexture.METER_V_1.getTexture();
 		
 		this.transform = rect;
-		this.fillDriver = new IValueIO<Float>()
-		{
-			public Float readValue()
-			{
-				return 1F;
-			}
-			
-			public void writeValue(Float value){}
-		};
 	}
 	
 	@Override
 	public PanelVBarFill setFillDriver(IValueIO<Float> driver)
 	{
-		this.fillDriver = driver;
+	    this.fillDriver = driver;
 		return this;
 	}
 	
@@ -58,12 +46,9 @@ public class PanelVBarFill implements IBarFill
 	}
 	
 	@Override
-	public PanelVBarFill setFillColor(int low, int high, float threshold, boolean lerp)
+	public PanelVBarFill setFillColor(IGuiColor color)
 	{
-		this.clrNorm = high;
-		this.clrLow = low;
-		this.clrThreshold = threshold;
-		this.lerpClr = lerp;
+	    this.color = color;
 		return this;
 	}
 	
@@ -121,32 +106,9 @@ public class PanelVBarFill implements IBarFill
 			RenderUtils.startScissor(new GuiRectangle(bounds.getX(), bounds.getY() + (int)(bounds.getHeight() - (bounds.getHeight() * f)), bounds.getWidth(), (int)(bounds.getHeight() * f), 0));
 		}
 		
-		if(this.clrThreshold > 0 && f < this.clrThreshold)
-		{
-			int tmpC = this.clrLow;
-			
-			if(lerpClr)
-			{
-				tmpC = RenderUtils.lerpRGB(clrLow, clrNorm, f / clrThreshold);
-			}
-			
-			int a1 = (tmpC >> 24) & 255;
-			int r1 = (tmpC >> 16) & 255;
-			int g1 = (tmpC >> 8) & 255;
-			int b1 = tmpC & 255;
-			GlStateManager.color(r1/255F, g1/255F, b1/255F, a1/255F);
-		} else
-		{
-			int a1 = this.clrNorm >> 24 & 255;
-			int r1 = this.clrNorm >> 16 & 255;
-			int g1 = this.clrNorm >> 8 & 255;
-			int b1 = this.clrNorm & 255;
-			GlStateManager.color(r1/255F, g1/255F, b1/255F, a1/255F);
-		}
-		
 		if(texFill != null)
 		{
-			texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
+			texFill.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick, color);
 		}
 		
 		RenderUtils.endScissor();
