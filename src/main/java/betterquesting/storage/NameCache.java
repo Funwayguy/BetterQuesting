@@ -46,6 +46,8 @@ public final class NameCache implements INameCache
 	@Override
 	public String getName(UUID uuid)
 	{
+	    if(uuid == null) return null;
+	    
 	    synchronized(cache)
         {
             if(!cache.containsKey(uuid))
@@ -61,6 +63,8 @@ public final class NameCache implements INameCache
 	@Override
 	public UUID getUUID(String name)
 	{
+	    if(name == null) return null;
+	    
 	    synchronized(cache)
         {
             for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
@@ -78,6 +82,8 @@ public final class NameCache implements INameCache
 	@Override
 	public boolean isOP(UUID uuid)
 	{
+	    if(uuid == null) return false;
+	    
 	    synchronized(cache)
         {
             if(!cache.containsKey(uuid))
@@ -128,7 +134,10 @@ public final class NameCache implements INameCache
 	@Override
 	public int size()
 	{
-		return cache.size();
+	    synchronized(cache)
+        {
+            return cache.size();
+        }
 	}
 	
 	@Override
@@ -207,7 +216,10 @@ public final class NameCache implements INameCache
 
 	public void reset()
 	{
-		cache.clear();
+	    synchronized(cache)
+        {
+            cache.clear();
+        }
 	}
 	
 	@Override
