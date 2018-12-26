@@ -12,7 +12,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
-import java.util.List;
 
 public class TaskPlaceholder implements ITask
 {
@@ -50,7 +49,7 @@ public class TaskPlaceholder implements ITask
 			nbt.setTag("orig_data", nbtData.getCompoundTag("orig_data"));
 		} else if(saveType == EnumSaveType.PROGRESS)
 		{
-			return writeProgressToJson(nbtData, null);
+			nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
 		}
 		
 		return nbt;
@@ -122,11 +121,5 @@ public class TaskPlaceholder implements ITask
 	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
 	{
 		return null;
-	}
-
-	@Override
-	public NBTTagCompound writeProgressToJson(NBTTagCompound nbt, List<UUID> userFilter) {
-		nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
-		return nbt;
 	}
 }

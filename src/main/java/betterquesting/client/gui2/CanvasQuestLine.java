@@ -16,10 +16,7 @@ import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
-import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.api2.client.gui.resources.textures.ItemTexture;
-import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
+import betterquesting.api2.client.gui.resources.textures.*;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -125,7 +122,7 @@ public class CanvasQuestLine extends CanvasScrolling
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
             IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
-            paBtn.setIcon(new ItemTexture(quest.getItemIcon()), 4);
+            paBtn.setIcon(new OreDictTexture(1F, quest.getItemIcon(), false, true), 4);
             paBtn.setTooltip(quest.getTooltip(player));
             paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             

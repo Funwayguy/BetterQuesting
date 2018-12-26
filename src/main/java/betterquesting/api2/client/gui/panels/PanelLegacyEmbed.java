@@ -66,7 +66,6 @@ public class PanelLegacyEmbed<T extends IGuiEmbedded> implements IGuiPanel
 	@Override
 	public boolean onMouseRelease(int mx, int my, int button)
 	{
-		embed.onMouseRelease(mx, my, button);
 		// Unable to determine use
 		return transform.contains(mx, my);
 	}

@@ -6,11 +6,6 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-
-import java.util.UUID;
-
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
@@ -33,11 +28,9 @@ public class QuestCommandRefresh extends QuestCommandBase
 		if(sender instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP player = (EntityPlayerMP)sender;
-			UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(player.getName());
-			
-			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), player);
+			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), player);
-			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPrivatePacket(uuid), player);
+			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), player);
 			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), player);
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));

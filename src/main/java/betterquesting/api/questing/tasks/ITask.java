@@ -14,7 +14,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.List;
 
 public interface ITask extends INBTSaveLoad<NBTTagCompound>
 {
@@ -31,13 +30,6 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>
 	
 	@Deprecated
 	IJsonDoc getDocumentation();
-
-	/**
-	 * Writes users named in userFilter progress into the nbt tag.
-	 * This is used only to notify related users of their progress change and not
-	 * for saving. Server side save uses writeToNBT.
-	 */
-	NBTTagCompound writeProgressToJson(NBTTagCompound nbt, List<UUID> userFilter);
 	
 	@SideOnly(Side.CLIENT)
     IGuiPanel getTaskGui(IGuiRect rect, IQuest quest);
