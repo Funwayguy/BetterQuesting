@@ -746,7 +746,7 @@ public class QuestInstance implements IQuest
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		for(EntityPlayerMP player : server.getPlayerList().getPlayers())
 		{
-			UUID uuid = names.getUUID(player.getName());
+			UUID uuid = names.registerAndGetUUID(player);
 			IParty p = parties.getUserParty(uuid);
 			
 			if (p != null) partysOnline.add(p);

@@ -56,7 +56,7 @@ public class QuestingAPI
 		
 		if(player.world.isRemote)
 		{
-			UUID uuid = getAPI(ApiReference.NAME_CACHE).getUUID(player.getGameProfile().getName());
+			UUID uuid = getAPI(ApiReference.NAME_CACHE).getUUID(player.getName());
 			
 			if(uuid != null)
 			{

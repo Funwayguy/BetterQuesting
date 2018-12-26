@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,6 +41,23 @@ public final class NameCache implements INameCache
 		}
 	}
 	
+	public UUID registerAndGetUUID(EntityPlayer player)
+	{
+		synchronized (cache)
+		{
+			UUID uuid = getUUID(player.getName());
+			if (uuid != null) return uuid;
+			
+			updateName(player.getServer(), player);
+			uuid = getUUID(player.getName());
+			if (uuid == null)
+			{
+				throw new RuntimeException("player.getGameProfile() returns null or is missing UUID.");
+			}
+			return uuid;
+		}
+	}
+	
 	@Override
 	public UUID getUUID(String name)
 	{
@@ -68,7 +87,7 @@ public final class NameCache implements INameCache
 	/**
 	 * Updates the cache when a player joins the world.
 	 */
-	public void updateName(MinecraftServer server, EntityPlayerMP player)
+	public void updateName(MinecraftServer server, EntityPlayer player)
 	{
 		GameProfile prof = player == null? null : player.getGameProfile();
 		if(prof == null) return;

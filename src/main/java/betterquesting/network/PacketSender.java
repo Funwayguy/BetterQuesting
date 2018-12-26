@@ -43,7 +43,7 @@ public class PacketSender implements IPacketSender
 	public void sendToParty(QuestingPacket payload, EntityPlayer player)
 	{
 		INameCache names = QuestingAPI.getAPI(ApiReference.NAME_CACHE);
-		sendToParty(payload, player.getServer(), names.getUUID(player.getName()));
+		sendToParty(payload, player.getServer(), names.registerAndGetUUID(player));
 	}
 	
 	public void sendToParty(QuestingPacket payload, MinecraftServer server, UUID player)

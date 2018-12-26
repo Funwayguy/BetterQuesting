@@ -196,7 +196,7 @@ public class EventHandler
 		PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), mpPlayer);
 		NameCache.INSTANCE.updateName(event.player.getServer(), mpPlayer);
 		
-		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(mpPlayer.getName());
+		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).registerAndGetUUID(mpPlayer);
 
 		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), mpPlayer);

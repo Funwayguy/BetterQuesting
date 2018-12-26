@@ -30,7 +30,7 @@ public class PktHandlerQuestDB implements IPacketHandler
 		{
 			return;
 		}
-		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(sender.getName());
+		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).registerAndGetUUID(sender);
 		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), sender);
 	}
 	
