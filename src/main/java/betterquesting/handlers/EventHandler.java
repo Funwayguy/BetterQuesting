@@ -1,5 +1,6 @@
 package betterquesting.handlers;
 
+import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
@@ -121,14 +122,16 @@ public class EventHandler
 					{
 						quest.update(player);
 						
-						if(!quest.isComplete(uuid))
-						{
-							PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-						} else
+						if(quest.isComplete(uuid))
 						{
 							refreshCache = true;
 						}
 					}
+					if ((syncMe || player.ticksExisted % 60 == 0) && !quest.isComplete(uuid))
+					{
+						QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(quest.getProgressSyncPacket(uuid), player);
+					}
+					
 				} else if(quest.isComplete(uuid)) // Complete & inactive
 				{
 					if(player.ticksExisted % 20 == 0 && (quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 || quest.getProperties().getProperty(NativeProps.AUTO_CLAIM))) // Waiting to reset
@@ -190,12 +193,15 @@ public class EventHandler
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 		
-		NameCache.INSTANCE.updateNames(event.player.getServer());
+		PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), mpPlayer);
+		NameCache.INSTANCE.updateName(event.player.getServer(), mpPlayer);
 		
+		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(mpPlayer.getName());
+
 		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPrivatePacket(uuid), mpPlayer);
 		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
 	}
 	
@@ -255,6 +261,7 @@ public class EventHandler
 				int lives = LifeDatabase.INSTANCE.getLives(party);
 				LifeDatabase.INSTANCE.setLives(party, lives - 1);
 			}
+			QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(QuestingAPI.getAPI(ApiReference.LIFE_DB).getProgressSyncPacket(uuid), (EntityPlayer) event.getEntityLiving());
 		}
 	}
 	

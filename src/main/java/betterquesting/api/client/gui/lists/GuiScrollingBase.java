@@ -162,13 +162,31 @@ public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiEle
 	@Override
 	public void onMouseClick(int mx, int my, int click)
 	{
-		int listY = posY - scroll;
-		
-		for(int i = entries.size() - 1; i >= 0; i--)
+		if(isWithin(mx, my, posX, posY, width, height))
 		{
-			IScrollingEntry e = entries.get(i);
-			e.onMouseClick(mx, my, posX, listY, click, i);
-			listY += e.getHeight();
+			int listY = posY - scroll;
+			
+			for(int i = 0; i < entries.size(); i++)
+			{
+				IScrollingEntry e = entries.get(i);
+				e.onMouseClick(mx, my, posX, listY, click, i);
+				listY += e.getHeight();
+			}
+		}
+	}
+	
+	@Override
+	public void onMouseRelease(int mx, int my, int click) {
+		if(isWithin(mx, my, posX, posY, width, height))
+		{
+			int listY = posY - scroll;
+			
+			for(int i = 0; i < entries.size(); i++)
+			{
+				IScrollingEntry e = entries.get(i);
+				e.onMouseRelease(mx, my, posX, listY, click, i);
+				listY += e.getHeight();
+			}
 		}
 	}
 	

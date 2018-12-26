@@ -1,5 +1,7 @@
 package betterquesting.blocks;
 
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -196,7 +198,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 			if(((ITask)t).isComplete(owner))
 			{
-				PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
+				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(q.getProgressSyncPacket(owner), world.getMinecraftServer(), owner);
 				reset();
 				world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
 			} else
@@ -287,7 +289,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 					
 					if(((ITask)t).isComplete(owner))
 					{
-						PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
+						QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(q.getProgressSyncPacket(owner), world.getMinecraftServer(), owner);
 						reset();
 						world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
 					} else
@@ -305,9 +307,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 			{
 				needsUpdate = false;
 				
-				if(q != null && !world.isRemote)
+				if(q != null)
 				{
-					PacketSender.INSTANCE.sendToAll(q.getSyncPacket());
+					QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(q.getProgressSyncPacket(owner), world.getMinecraftServer(), owner);
 				}
 			} else if(t != null && ((ITask)t).isComplete(owner))
 			{

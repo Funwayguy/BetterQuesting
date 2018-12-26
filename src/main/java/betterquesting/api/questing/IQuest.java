@@ -13,6 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.misc.IDataSync;
 import betterquesting.api.misc.INBTSaveLoad;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
@@ -33,6 +34,14 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
 	IPropertyContainer getProperties();
 	
 	EnumQuestState getState(UUID uuid);
+	
+	/**
+	 * For every online party and single player compose a suitable update packet that contains both
+	 * the main config and their progress and then send it.
+	 */
+	void notifyAllOnlineOfConfigChange();
+	QuestingPacket getProgressSyncPacket(UUID player);
+	NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter);
 	
 	void update(EntityPlayer player);
 	void detect(EntityPlayer player);

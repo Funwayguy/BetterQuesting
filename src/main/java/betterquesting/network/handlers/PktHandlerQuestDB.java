@@ -4,6 +4,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+
+import java.util.UUID;
+
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.network.PacketSender;
@@ -25,8 +30,8 @@ public class PktHandlerQuestDB implements IPacketHandler
 		{
 			return;
 		}
-		
-		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), sender);
+		UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(sender.getName());
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), sender);
 	}
 	
 	@Override

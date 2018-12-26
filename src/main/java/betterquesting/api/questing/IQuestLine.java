@@ -17,4 +17,5 @@ public interface IQuestLine extends IDataSync, IDatabaseNBT<IQuestLineEntry, NBT
 	IPropertyContainer getProperties();
 	
 	DBEntry<IQuestLineEntry> getEntryAt(int x, int y);
+	IQuestLineEntry createNewEntry(int id);
 }

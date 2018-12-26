@@ -9,6 +9,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
@@ -88,6 +89,7 @@ public class QuestCommandLives extends QuestCommandBase
 			{
 				LifeDatabase.INSTANCE.setLives(playerID, value);
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
+				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(QuestingAPI.getAPI(ApiReference.LIFE_DB).getProgressSyncPacket(playerID), sender.getServer(), playerID);
 			} else if(args.length == 3)
 			{
 				for(EntityPlayer p : server.getPlayerList().getPlayers())
@@ -95,9 +97,9 @@ public class QuestCommandLives extends QuestCommandBase
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
 				}
 				
+				PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
-			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action.equalsIgnoreCase("add"))
 		{
@@ -107,6 +109,7 @@ public class QuestCommandLives extends QuestCommandBase
 				LifeDatabase.INSTANCE.setLives(playerID, lives + value);
 				lives = LifeDatabase.INSTANCE.getLives(playerID);
 				
+				QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToParty(QuestingAPI.getAPI(ApiReference.LIFE_DB).getProgressSyncPacket(playerID), sender.getServer(), playerID);
 				if(value >= 0)
 				{
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));
@@ -122,6 +125,7 @@ public class QuestCommandLives extends QuestCommandBase
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
 				}
 				
+				PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 				if(value >= 0)
 				{
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_all", value));
@@ -131,7 +135,6 @@ public class QuestCommandLives extends QuestCommandBase
 				}
 			}
 			
-			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else if(action.equalsIgnoreCase("max"))
 		{

@@ -1,7 +1,7 @@
 package betterquesting.api.misc;
 
-import net.minecraft.nbt.NBTBase;
 import betterquesting.api.enums.EnumSaveType;
+import net.minecraft.nbt.NBTBase;
 
 public interface INBTSaveLoad<T extends NBTBase>
 {

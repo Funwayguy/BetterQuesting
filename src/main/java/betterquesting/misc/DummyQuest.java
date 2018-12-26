@@ -229,4 +229,19 @@ public class DummyQuest implements IQuest
 	{
 		Boolean getMain();
 	}
+
+	@Override
+	public QuestingPacket getProgressSyncPacket(UUID player)
+	{
+		return null;
+	}
+
+	@Override
+	public void notifyAllOnlineOfConfigChange() {
+	}
+
+	@Override
+	public NBTTagCompound writeToJson_Progress(NBTTagCompound json, List<UUID> userFilter) {
+		return json;
+	}
 }
