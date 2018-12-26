@@ -33,7 +33,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 		if(sender instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP player = (EntityPlayerMP)sender;
-			UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).getUUID(player.getName());
+			UUID uuid = QuestingAPI.getAPI(ApiReference.NAME_CACHE).registerAndGetUUID(player);
 			
 			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPrivatePacket(uuid), player);
 			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), player);
