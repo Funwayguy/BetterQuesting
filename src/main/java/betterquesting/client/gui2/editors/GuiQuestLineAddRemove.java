@@ -93,7 +93,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         
         if(questLine != null)
         {
-            PanelTextBox txtQuest = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate(questLine.getUnlocalisedName())).setAlignment(1);
+            PanelTextBox txtQuest = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate(questLine.getUnlocalisedName())).setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
             cvLeft.addPanel(txtQuest);
         }
         
@@ -109,7 +109,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         CanvasEmpty cvRight = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 24), 0));
         cvBackground.addPanel(cvRight);
         
-        PanelTextBox txtDb = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.database")).setAlignment(1);
+        PanelTextBox txtDb = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.database")).setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
         cvRight.addPanel(txtDb);
         
         PanelTextField<String> searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 8, -32), 0), "", FieldFilterString.INSTANCE);

@@ -91,19 +91,19 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         CanvasEmpty cvRight = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 32, 16, 24), 0));
         cvBackground.addPanel(cvRight);
         
-        impName = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), "").setAlignment(1);
+        impName = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), "").setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
         cvRight.addPanel(impName);
         
         impDescCV = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 24), 0));
         cvRight.addPanel(impDescCV);
         
-        PanelVScrollBar scDesc= new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
+        PanelVScrollBar scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
         cvRight.addPanel(scDesc);
         scDesc.getTransform().setParent(impDescCV.getTransform());
         impDescCV.setScrollDriverY(scDesc);
         
         width = impDescCV.getTransform().getWidth();
-        impDescTX = new PanelTextBox(new GuiRectangle(0, 0, width, 16, 0), "", true);
+        impDescTX = new PanelTextBox(new GuiRectangle(0, 0, width, 16, 0), "", true).setColor(PresetColor.TEXT_MAIN.getColor());
         impDescCV.addPanel(impDescTX);
         
         impBtn = new PanelButtonStorage<>(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(0, -16, 0, 0), 0), 2, QuestTranslation.translate("betterquesting.btn.import"), null);

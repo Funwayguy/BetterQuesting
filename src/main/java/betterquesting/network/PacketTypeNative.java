@@ -2,6 +2,7 @@ package betterquesting.network;
 
 import net.minecraft.util.ResourceLocation;
 
+// TODO: Move this to the API. Expansions need to make use of the edit and sync packets
 public enum PacketTypeNative
 {
 	QUEST_DATABASE,
@@ -24,7 +25,7 @@ public enum PacketTypeNative
 	
 	private final ResourceLocation ID;
 	
-	private PacketTypeNative()
+	PacketTypeNative()
 	{
 		this.ID = new ResourceLocation("betterquesting:" + this.toString().toLowerCase());
 	}
