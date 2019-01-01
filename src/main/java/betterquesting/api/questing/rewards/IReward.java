@@ -1,10 +1,10 @@
 package betterquesting.api.questing.rewards;
 
 import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

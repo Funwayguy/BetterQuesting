@@ -1,15 +1,17 @@
 package betterquesting.questing;
 
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.questing.IQuest;
-import betterquesting.network.PacketTypeNative;
+
+import java.util.List;
+import java.util.UUID;
 
 public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDatabase
 {
@@ -34,8 +36,8 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
-		base.setTag("progress", writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS));
+		base.setTag("config", writeToNBT(new NBTTagList()));
+		base.setTag("progress", writeProgressToNBT(new NBTTagList(), null));
 		tags.setTag("data", base);
 		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
 	}
@@ -45,48 +47,17 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromNBT(base.getTagList("config", 10), EnumSaveType.CONFIG);
-		readFromNBT(base.getTagList("progress", 10), EnumSaveType.PROGRESS);
+		readFromNBT(base.getTagList("config", 10));
+		readProgressFromNBT(base.getTagList("progress", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
-	{
-		switch(saveType)
-		{
-			case CONFIG:
-				return writeToJson_Config(json);
-			case PROGRESS:
-				return writeToJson_Progress(json);
-			default:
-				break;
-		}
-		
-		return json;
-	}
-	
-	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
-	{
-		switch(saveType)
-		{
-			case CONFIG:
-				readFromJson_Config(json);
-				break;
-			case PROGRESS:
-				readFromJson_Progress(json);
-				break;
-			default:
-				break;
-		}
-	}
-	
-	private NBTTagList writeToJson_Config(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
-			entry.getValue().writeToNBT(jq, EnumSaveType.CONFIG);
+			entry.getValue().writeToNBT(jq);
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
@@ -94,7 +65,8 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 		return json;
 	}
 	
-	private void readFromJson_Config(NBTTagList nbt)
+	@Override
+	public void readFromNBT(NBTTagList nbt)
 	{
 		this.reset();
 		
@@ -118,16 +90,17 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 			
 			IQuest quest = getValue(qID);
 			quest = quest != null? quest : this.createNew(qID);
-			quest.readFromNBT(qTag, EnumSaveType.CONFIG);
+			quest.readFromNBT(qTag);
 		}
 	}
 	
-	private NBTTagList writeToJson_Progress(NBTTagList json)
+	@Override
+	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
-			entry.getValue().writeToNBT(jq, EnumSaveType.PROGRESS);
+			entry.getValue().writeProgressToNBT(jq, users);
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
@@ -135,7 +108,8 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 		return json;
 	}
 	
-	private void readFromJson_Progress(NBTTagList json)
+	@Override
+	public void readProgressFromNBT(NBTTagList json, boolean merge)
 	{
 		for(int i = 0; i < json.tagCount(); i++)
 		{
@@ -159,7 +133,7 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 			
 			if(quest != null)
 			{
-				quest.readFromNBT(qTag, EnumSaveType.PROGRESS);
+				quest.readProgressFromNBT(qTag, merge);
 			}
 		}
 	}

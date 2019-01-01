@@ -1,14 +1,14 @@
 package betterquesting.api.storage;
 
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.INBTSaveLoad;
+import betterquesting.api2.storage.INBTProgress;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface INameCache extends INBTSaveLoad<NBTTagList>, IDataSync
+public interface INameCache extends INBTProgress<NBTTagList>, IDataSync
 {
     void setName(UUID uuid, String name);
 	String getName(UUID uuid);
@@ -24,4 +24,6 @@ public interface INameCache extends INBTSaveLoad<NBTTagList>, IDataSync
 	void updateNames(MinecraftServer server);
 	
 	int size();
+	
+	void reset();
 }

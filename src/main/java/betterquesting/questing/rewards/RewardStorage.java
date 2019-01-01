@@ -1,7 +1,7 @@
 package betterquesting.questing.rewards;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.placeholders.rewards.RewardPlaceholder;
+import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.SimpleDatabase;
@@ -9,25 +9,21 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.placeholders.rewards.RewardPlaceholder;
-import betterquesting.api.questing.rewards.IReward;
 
-public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, NBTTagList>
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, NBTTagList, NBTTagList>
 {
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		for(DBEntry<IReward> rew : getEntries())
 		{
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
 			
-			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound());
 			rJson.setString("rewardID", rewardID.toString());
 			rJson.setInteger("index", rew.getID());
 			json.appendTag(rJson);
@@ -37,13 +33,8 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		reset();
 		
 		List<IReward> unassigned = new ArrayList<>();
@@ -77,7 +68,7 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 			
 			if(reward != null)
 			{
-				reward.readFromNBT(jsonReward, EnumSaveType.CONFIG);
+				reward.readFromNBT(jsonReward);
 				
 				if(index >= 0)
 				{
@@ -89,7 +80,7 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 			} else
 			{
 				RewardPlaceholder rph = new RewardPlaceholder();
-				rph.setRewardData(jsonReward, EnumSaveType.CONFIG);
+				rph.setRewardConfigData(jsonReward);
 				
 				if(index >= 0)
 				{
@@ -106,4 +97,17 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 			add(nextID(), r);
 		}
 	}
+	
+	// === Future support ===
+	
+	@Override
+    public NBTTagList writeProgressToNBT(NBTTagList nbt, List<UUID> users)
+    {
+        return nbt;
+    }
+    
+    @Override
+    public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+    {
+    }
 }

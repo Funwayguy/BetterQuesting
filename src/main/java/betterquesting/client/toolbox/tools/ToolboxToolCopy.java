@@ -1,12 +1,9 @@
 package betterquesting.client.toolbox.tools;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
 import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
@@ -17,6 +14,8 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class ToolboxToolCopy implements IToolboxTool
 {
@@ -84,7 +83,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			if(tmpBtn != null)
 			{
 				QuestInstance tmpQ = new QuestInstance(); // Unregistered but setup
-				tmpQ.readFromNBT(tmpBtn.getQuest().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), EnumSaveType.CONFIG);
+				tmpQ.readFromNBT(tmpBtn.getQuest().writeToNBT(new NBTTagCompound()));
 				btnQuest = new GuiButtonQuestInstance(0, mx, my, tmpBtn.width, tmpBtn.height, tmpQ);
 			}
 		} else
@@ -104,7 +103,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			// Sync Quest
 			NBTTagCompound tag1 = new NBTTagCompound();
 			NBTTagCompound base1 = new NBTTagCompound();
-			base1.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base1.setTag("config", quest.writeToNBT(new NBTTagCompound()));
 			tag1.setTag("data", base1);
 			tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
 			tag1.setInteger("questID", qID);
@@ -113,7 +112,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			// Sync Line
 			NBTTagCompound tag2 = new NBTTagCompound();
 			NBTTagCompound base2 = new NBTTagCompound();
-			base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base2.setTag("line", qLine.writeToNBT(new NBTTagCompound()));
 			tag2.setTag("data", base2);
 			tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 			tag2.setInteger("lineID", lID);

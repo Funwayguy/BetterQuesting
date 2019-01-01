@@ -3,7 +3,6 @@ package betterquesting.client.gui2.editors;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
@@ -270,7 +269,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         
 		NBTTagCompound tags = new NBTTagCompound();
         NBTTagCompound base = new NBTTagCompound();
-        base.setTag("line", questLine.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+        base.setTag("line", questLine.writeToNBT(new NBTTagCompound()));
         tags.setTag("data", base);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("lineID", lineID);

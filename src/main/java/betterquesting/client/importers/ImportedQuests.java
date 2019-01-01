@@ -1,15 +1,17 @@
 package betterquesting.client.importers;
 
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.questing.QuestInstance;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.questing.IQuest;
-import betterquesting.questing.QuestInstance;
+
+import java.util.List;
+import java.util.UUID;
 
 public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabase
 {
@@ -34,17 +36,12 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
-			entry.getValue().writeToNBT(jq, saveType);
+			entry.getValue().writeToNBT(jq);
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
@@ -53,13 +50,8 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		this.reset();
 		
 		for(int i = 0; i < json.tagCount(); i++)
@@ -82,7 +74,18 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 			
 			IQuest quest = getValue(qID);
 			quest = quest != null? quest : this.createNew(qID);
-			quest.readFromNBT(qTag, EnumSaveType.CONFIG);
+			quest.readFromNBT(qTag);
 		}
 	}
+	
+	@Override
+    public NBTTagList writeProgressToNBT(NBTTagList nbt, List<UUID> users)
+    {
+        return nbt;
+    }
+    
+    @Override
+    public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+    {
+    }
 }

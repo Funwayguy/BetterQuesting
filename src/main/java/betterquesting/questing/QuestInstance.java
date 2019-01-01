@@ -5,7 +5,6 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -333,13 +332,13 @@ public class QuestInstance implements IQuest
 		switch(preset)
 		{
 			case 0:
-				postNotice(player, "betterquesting.notice.unlock", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UNLOCK), getItemIcon());
+				postNotice(player, "betterquesting.notice.unlock", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UNLOCK), getProperties().getProperty(NativeProps.ICON));
 				break;
 			case 1:
-				postNotice(player, "betterquesting.notice.update", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UPDATE), getItemIcon());
+				postNotice(player, "betterquesting.notice.update", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UPDATE), getProperties().getProperty(NativeProps.ICON));
 				break;
 			case 2:
-				postNotice(player, "betterquesting.notice.complete", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_COMPLETE), getItemIcon());
+				postNotice(player, "betterquesting.notice.complete", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_COMPLETE), getProperties().getProperty(NativeProps.ICON));
 				break;
 		}
 	}
@@ -712,8 +711,8 @@ public class QuestInstance implements IQuest
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		base.setTag("progress", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		base.setTag("config", writeToNBT(new NBTTagCompound()));
+		base.setTag("progress", writeProgressToNBT(new NBTTagCompound(), null));
 		tags.setTag("data", base);
 		tags.setInteger("questID", parentDB.getID(this));
 		
@@ -725,8 +724,8 @@ public class QuestInstance implements IQuest
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
-		readFromNBT(base.getCompoundTag("progress"), EnumSaveType.PROGRESS);
+		readFromNBT(base.getCompoundTag("config"));
+		readProgressFromNBT(base.getCompoundTag("progress"), false);
 	}
 	
 	public boolean isUnlocked(UUID uuid)
@@ -905,13 +904,13 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public IDatabaseNBT<ITask, NBTTagList> getTasks()
+	public IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks()
 	{
 		return tasks;
 	}
 	
 	@Override
-	public IDatabaseNBT<IReward, NBTTagList> getRewards()
+	public IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards()
 	{
 		return rewards;
 	}
@@ -926,46 +925,11 @@ public class QuestInstance implements IQuest
 	private final Boolean syncLock = true;
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
-	{
-		synchronized(syncLock)
-		{
-			switch(saveType)
-			{
-				case CONFIG:
-					return writeToJson_Config(json);
-				case PROGRESS:
-					return writeToJson_Progress(json);
-				default:
-					return json;
-			}
-		}
-	}
-	
-	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
-	{
-		synchronized(syncLock)
-		{
-			switch(saveType)
-			{
-				case CONFIG:
-					readFromJson_Config(json);
-					break;
-				case PROGRESS:
-					readFromJson_Progress(json);
-					break;
-				default:
-					break;
-			}
-		}
-	}
-	
-	private NBTTagCompound writeToJson_Config(NBTTagCompound jObj)
+	public NBTTagCompound writeToNBT(NBTTagCompound jObj)
 	{
 		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound()));
-		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
-		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList()));
+		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList()));
 		
 		IQuest[] pri = preRequisites.toArray(new IQuest[0]);
 		int[] reqArr = new int[preRequisites.size()];
@@ -978,11 +942,12 @@ public class QuestInstance implements IQuest
 		return jObj;
 	}
 	
-	private void readFromJson_Config(NBTTagCompound jObj)
+	@Override
+	public void readFromNBT(NBTTagCompound jObj)
 	{
 		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"));
-		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), EnumSaveType.CONFIG);
-		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), EnumSaveType.CONFIG);
+		this.tasks.readFromNBT(jObj.getTagList("tasks", 10));
+		this.rewards.readFromNBT(jObj.getTagList("rewards", 10));
 		
 		preRequisites.clear();
 		
@@ -1033,7 +998,8 @@ public class QuestInstance implements IQuest
 		this.setupProps();
 	}
 	
-	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
+	@Override
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
 	{
 		NBTTagList comJson = new NBTTagList();
 		for(UserEntry entry : completeUsers)
@@ -1042,13 +1008,14 @@ public class QuestInstance implements IQuest
 		}
 		json.setTag("completed", comJson);
 		
-		NBTTagList tskJson = tasks.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+		NBTTagList tskJson = tasks.writeProgressToNBT(new NBTTagList(), users);
 		json.setTag("tasks", tskJson);
 		
 		return json;
 	}
 	
-	private void readFromJson_Progress(NBTTagCompound json)
+	@Override
+	public void readProgressFromNBT(NBTTagCompound json, boolean merge)
 	{
 		completeUsers.clear();
 		NBTTagList comList = json.getTagList("completed", 10);
@@ -1074,7 +1041,7 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		tasks.readFromNBT(json.getTagList("tasks", 10), EnumSaveType.PROGRESS);
+		tasks.readProgressFromNBT(json.getTagList("tasks", 10), merge);
 	}
 	
 	/**

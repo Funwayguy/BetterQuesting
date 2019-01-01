@@ -4,7 +4,6 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
@@ -247,7 +246,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-		tags.setTag("data", party.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		tags.setTag("data", party.writeToNBT(new NBTTagCompound()));
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
 	}
 }

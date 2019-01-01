@@ -2,7 +2,6 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
@@ -166,12 +165,12 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 					
-					NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
 					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
-					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
-					QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
+					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10));
+					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10));
+					QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 					
 					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
 					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);

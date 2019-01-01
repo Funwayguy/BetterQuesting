@@ -1,25 +1,29 @@
 package betterquesting.api.questing;
 
-import java.util.List;
-import java.util.UUID;
-
+import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.misc.IDataSync;
+import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.storage.INBTProgress;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.INBTSaveLoad;
-import betterquesting.api.properties.IPropertyContainer;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.BigItemStack;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
+import java.util.List;
+import java.util.UUID;
+
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IDataSync
 {
+    @Deprecated
 	String getUnlocalisedName();
+    
+    @Deprecated
 	String getUnlocalisedDescription();
 	
 	// Defaults to the API if not used
@@ -28,6 +32,7 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
 	@SideOnly(Side.CLIENT)
 	List<String> getTooltip(EntityPlayer player);
 	
+	@Deprecated
 	BigItemStack getItemIcon();
 	
 	IPropertyContainer getProperties();
@@ -50,8 +55,8 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, IDataSync
 	void resetUser(UUID uuid, boolean fullReset);
 	void resetAll(boolean fullReset);
 	
-	IDatabaseNBT<ITask, NBTTagList> getTasks();
-	IDatabaseNBT<IReward, NBTTagList> getRewards();
+	IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
+	IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
 	
 	List<IQuest> getPrerequisites();
 }

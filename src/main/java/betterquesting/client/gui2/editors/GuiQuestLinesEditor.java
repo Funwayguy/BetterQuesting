@@ -3,7 +3,6 @@ package betterquesting.client.gui2.editors;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
@@ -303,7 +302,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 		if(action == EnumPacketAction.EDIT && entry != null)
 		{
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base.setTag("line", entry.getValue().writeToNBT(new NBTTagCompound()));
 			tags.setTag("data", base);
 		}
 		

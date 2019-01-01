@@ -1,18 +1,17 @@
 package betterquesting.client.importers;
 
-import java.util.*;
-
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
-import betterquesting.api2.utils.QuestLineSorter;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.utils.QuestLineSorter;
 import betterquesting.questing.QuestLine;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+
+import java.util.*;
 
 public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
@@ -49,13 +48,8 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
 			if(entry.getValue() == null)
@@ -65,7 +59,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 			
 			int id = entry.getID();
 			
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound());
 			jObj.setInteger("lineID", id);
 			jObj.setInteger("order", getOrderIndex(id));
 			json.appendTag(jObj);
@@ -75,16 +69,11 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		reset();
 		
-		HashMap<Integer,Integer> orderMap = new HashMap<Integer,Integer>();
+		HashMap<Integer,Integer> orderMap = new HashMap<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
@@ -100,7 +89,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			QuestLine line = new QuestLine();
-			line.readFromNBT(jql, saveType);
+			line.readFromNBT(jql);
 			
 			if(id >= 0)
 			{

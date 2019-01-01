@@ -1,21 +1,12 @@
 package betterquesting.network.handlers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-
-import betterquesting.api.questing.*;
-import betterquesting.api2.storage.DBEntry;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineDatabase;
+import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
@@ -23,6 +14,17 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import org.apache.logging.log4j.Level;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class PktHandlerImport implements IPacketHandler
 {
@@ -35,12 +37,12 @@ public class PktHandlerImport implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound tag, EntityPlayerMP sender)
 	{
-		if(sender == null)
+		if(sender == null || sender.getServer() == null)
 		{
 			return;
 		}
 		
-		boolean isOP = sender.world.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
+		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
 		if(!isOP)
 		{
@@ -54,8 +56,8 @@ public class PktHandlerImport implements IPacketHandler
 		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), EnumSaveType.CONFIG);
-		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), EnumSaveType.CONFIG);
+		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10));
+		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10));
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		

@@ -1,7 +1,6 @@
 package betterquesting.misc;
 
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -31,11 +30,6 @@ public class DummyQuest implements IQuest
 	private final BigItemStack icon = new BigItemStack(Items.AIR);
 	private final List<String> tooltip = new ArrayList<>();
 	
-	/*public DummyQuest()
-	{
-		this(null);
-	}*/
-	
 	public DummyQuest(EnumQuestState state)
 	{
 		this.qState = state;
@@ -53,15 +47,26 @@ public class DummyQuest implements IQuest
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
 	}
+	
+	@Override
+    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, List<UUID> users)
+    {
+        return nbt;
+    }
+    
+    @Override
+    public void readProgressFromNBT(NBTTagCompound nbt, boolean merge)
+    {
+    }
 	
 	@Override
 	public QuestingPacket getSyncPacket()
@@ -190,13 +195,13 @@ public class DummyQuest implements IQuest
 	}
 	
 	@Override
-	public IDatabaseNBT<ITask, NBTTagList> getTasks()
+	public IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks()
 	{
 		return null;
 	}
 	
 	@Override
-	public IDatabaseNBT<IReward, NBTTagList> getRewards()
+	public IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards()
 	{
 		return null;
 	}

@@ -5,5 +5,5 @@ import com.google.gson.JsonElement;
 
 public interface ILegacyLoader
 {
-	public void readFromJson(JsonElement json, EnumSaveType saveType);
+	void readFromJson(JsonElement json, EnumSaveType saveType);
 }

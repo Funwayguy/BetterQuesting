@@ -1,6 +1,5 @@
 package betterquesting.storage;
 
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.storage.INameCache;
 import betterquesting.network.PacketSender;
@@ -144,24 +143,19 @@ public final class NameCache implements INameCache
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", this.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		tags.setTag("data", this.writeProgressToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
+		readProgressFromNBT(payload.getTagList("data", 10), false);
 	}
 
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		synchronized(cache)
         {
             for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
@@ -178,19 +172,14 @@ public final class NameCache implements INameCache
 	}
 
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readProgressFromNBT(NBTTagList nbt, boolean merge)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		synchronized(cache)
         {
             cache.clear();
-            for(int i = 0; i < json.tagCount(); i++)
+            for(int i = 0; i < nbt.tagCount(); i++)
             {
-                NBTBase element = json.get(i);
+                NBTBase element = nbt.get(i);
         
                 if(element.getId() != 10)
                 {
@@ -213,7 +202,8 @@ public final class NameCache implements INameCache
             }
         }
 	}
-
+	
+	@Override
 	public void reset()
 	{
 	    synchronized(cache)

@@ -1,8 +1,17 @@
 package betterquesting.network.handlers;
 
-import java.util.UUID;
-
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,18 +19,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
+
+import java.util.UUID;
 
 public class PktHandlerQuestEdit implements IPacketHandler
 {
@@ -34,12 +33,12 @@ public class PktHandlerQuestEdit implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
-		if(sender == null)
+		if(sender == null || sender.getServer() == null)
 		{
 			return;
 		}
 		
-		boolean isOP = sender.world.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
+		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
 		if(!isOP)
 		{
@@ -52,7 +51,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
 		IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
 		
-		EnumPacketAction action = null;
+		EnumPacketAction action;
 		
 		if(aID < 0 || aID >= EnumPacketAction.values().length)
 		{
@@ -65,7 +64,6 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		{
 			quest.readPacket(data);
 			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.REMOVE)
 		{
 			if(quest == null || qID < 0)
@@ -74,12 +72,11 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getUnlocalisedName());
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperties().getProperty(NativeProps.NAME));
 			QuestDatabase.INSTANCE.removeID(qID);
 			QuestLineDatabase.INSTANCE.removeQuest(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
 		{
 			if(data.getBoolean("state"))
@@ -116,7 +113,6 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			}
 			
 			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.ADD)
 		{
 			IQuest nq = new QuestInstance();
@@ -128,18 +124,16 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				nID = data.getInteger("questID");
 				NBTTagCompound base = data.getCompoundTag("data");
 				
-				nq.readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
+				nq.readFromNBT(base.getCompoundTag("config"));
 			}
 			
 			QuestDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
-			return;
 		}
 	}
 
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
-		return;
 	}
 }

@@ -1,6 +1,5 @@
 package betterquesting.api.placeholders.rewards;
 
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
@@ -15,45 +14,27 @@ public class RewardPlaceholder implements IReward
 {
 	private NBTTagCompound nbtSaved = new NBTTagCompound();
 	
-	public void setRewardData(NBTTagCompound nbt, EnumSaveType saveType)
+	public void setRewardConfigData(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			nbtSaved = nbt;
-		}
+        nbtSaved = nbt;
 	}
 	
-	public NBTTagCompound getRewardData(EnumSaveType saveType)
+	public NBTTagCompound getRewardConfigData()
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			return nbtSaved;
-		}
-		
-		return new NBTTagCompound();
+        return nbtSaved;
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return nbt;
-		}
-		
 		nbt.setTag("orig_data", nbtSaved);
 		
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		nbtSaved = nbt.getCompoundTag("orig_data");
 	}
 	

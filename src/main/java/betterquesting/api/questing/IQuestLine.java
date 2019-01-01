@@ -1,12 +1,13 @@
 package betterquesting.api.questing;
 
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.IDatabaseNBT;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.IDataSync;
 import betterquesting.api.properties.IPropertyContainer;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTSaveLoad;
+import net.minecraft.nbt.NBTTagCompound;
 
-public interface IQuestLine extends IDataSync, IDatabaseNBT<IQuestLineEntry, NBTTagCompound>
+public interface IQuestLine extends IDataSync, IDatabase<IQuestLineEntry>, INBTSaveLoad<NBTTagCompound>
 {
 	String getUnlocalisedName();
 	String getUnlocalisedDescription();

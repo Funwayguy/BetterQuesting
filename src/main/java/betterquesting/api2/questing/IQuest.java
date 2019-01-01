@@ -9,18 +9,19 @@ Notes:
 - The quest cache, although periodically automatic, can and should be updated manually from now on whenever the quest state changes.
  */
 
-import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTProgress;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
 {
     IPropertyContainer getProperties();
     

@@ -1,12 +1,5 @@
 package betterquesting.legacy.v0;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import betterquesting.api2.storage.IDatabaseNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
@@ -20,18 +13,21 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.legacy.ILegacyLoader;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
-import betterquesting.questing.QuestLine;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.questing.QuestLineEntry;
+import betterquesting.questing.*;
 import betterquesting.questing.rewards.RewardRegistry;
 import betterquesting.questing.tasks.TaskRegistry;
 import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class LegacyLoader_v0 implements ILegacyLoader
 {
@@ -145,7 +141,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			quest.getPrerequisites().add(prq);
 		}
 		
-		IDatabaseNBT<ITask, NBTTagList> taskDB = quest.getTasks();
+		IDatabaseNBT<ITask, NBTTagList, NBTTagList> taskDB = quest.getTasks();
 		List<ITask> uaTasks = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "tasks"))
@@ -177,7 +173,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			
 			if(task != null)
 			{
-				task.readFromNBT(nbtTask, EnumSaveType.CONFIG);
+				task.readFromNBT(nbtTask);
 				
 				if(index >= 0)
 				{
@@ -189,7 +185,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			} else
 			{
 				TaskPlaceholder tph = new TaskPlaceholder();
-				tph.setTaskData(nbtTask, EnumSaveType.CONFIG);
+				tph.setTaskConfigData(nbtTask);
 				
 				if(index >= 0)
 				{
@@ -206,7 +202,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			taskDB.add(taskDB.nextID(), t);
 		}
 		
-		IDatabaseNBT<IReward, NBTTagList> rewardDB = quest.getRewards();
+		IDatabaseNBT<IReward, NBTTagList, NBTTagList> rewardDB = quest.getRewards();
 		List<IReward> unassigned = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "rewards"))
@@ -238,7 +234,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			
 			if(reward != null)
 			{
-				reward.readFromNBT(nbtReward, EnumSaveType.CONFIG);
+				reward.readFromNBT(nbtReward);
 				
 				if(index >= 0)
 				{
@@ -250,7 +246,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			} else
 			{
 				RewardPlaceholder rph = new RewardPlaceholder();
-				rph.setRewardData(nbtReward, EnumSaveType.CONFIG);
+				rph.setRewardConfigData(nbtReward);
 				
 				if(index >= 0)
 				{

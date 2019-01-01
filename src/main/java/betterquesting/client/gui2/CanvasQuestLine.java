@@ -122,7 +122,7 @@ public class CanvasQuestLine extends CanvasScrolling
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
             IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
-            paBtn.setIcon(new OreDictTexture(1F, quest.getItemIcon(), false, true), 4);
+            paBtn.setIcon(new OreDictTexture(1F, quest.getProperties().getProperty(NativeProps.ICON), false, true), 4);
             paBtn.setTooltip(quest.getTooltip(player));
             paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             

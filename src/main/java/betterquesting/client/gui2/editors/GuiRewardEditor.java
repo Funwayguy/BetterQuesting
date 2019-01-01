@@ -3,7 +3,6 @@ package betterquesting.client.gui2.editors;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.IFactory;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
@@ -166,12 +165,12 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
                 mc.displayGuiScreen(editor);
             } else
             {
-                mc.displayGuiScreen(new GuiNbtEditor(this, reward.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), value -> {
-                    reward.readFromNBT(value, EnumSaveType.CONFIG);
+                mc.displayGuiScreen(new GuiNbtEditor(this, reward.writeToNBT(new NBTTagCompound()), value -> {
+                    reward.readFromNBT(value);
                     
                     NBTTagCompound base = new NBTTagCompound();
-                    base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-                    base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+                    base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+                    base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
                     NBTTagCompound tags = new NBTTagCompound();
                     tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
                     tags.setInteger("questID", qID);
@@ -200,8 +199,8 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
 	private void SendChanges()
 	{
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));

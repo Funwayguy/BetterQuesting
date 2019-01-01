@@ -1,7 +1,6 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -10,7 +9,6 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -154,10 +152,9 @@ public class PartyInstance implements IParty
 			// Find new owner
 			for(UUID mem : getMembers())
 			{
-				if(mem == uuid)
-				{
-					continue;
-				} else if(members.get(mem) == EnumPartyStatus.ADMIN)
+				if(mem == uuid) continue;
+				
+				if(members.get(mem) == EnumPartyStatus.ADMIN)
 				{
 					migrate = mem;
 					break;
@@ -229,7 +226,7 @@ public class PartyInstance implements IParty
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		tags.setTag("data", writeToNBT(new NBTTagCompound()));
 		tags.setInteger("partyID", PartyManager.INSTANCE.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
@@ -238,17 +235,12 @@ public class PartyInstance implements IParty
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getCompoundTag("data"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data"));
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		NBTTagList memJson = new NBTTagList();
 		for(Entry<UUID,EnumPartyStatus> mem : members.entrySet())
 		{
@@ -265,13 +257,8 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound jObj, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound jObj)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		if(jObj.hasKey("properties", 10))
 		{
 			pInfo.readFromNBT(jObj.getCompoundTag("properties"));
@@ -288,16 +275,9 @@ public class PartyInstance implements IParty
 		NBTTagList memList = jObj.getTagList("members", 10);
 		for(int i = 0; i < memList.tagCount(); i++)
 		{
-			NBTBase entry = memList.get(i);
-			
-			if(entry == null || entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jMem = (NBTTagCompound)entry;
-			UUID uuid = null;
-			EnumPartyStatus priv = EnumPartyStatus.INVITE;
+			NBTTagCompound jMem = memList.getCompoundTagAt(i);
+			UUID uuid;
+			EnumPartyStatus priv;
 			
 			try
 			{
@@ -310,7 +290,6 @@ public class PartyInstance implements IParty
 			try
 			{
 				priv = EnumPartyStatus.valueOf(jMem.hasKey("status", 8) ? jMem.getString("status") : EnumPartyStatus.INVITE.toString());
-				priv = priv != null? priv : EnumPartyStatus.INVITE;
 			} catch(Exception e)
 			{
 				priv = EnumPartyStatus.INVITE;

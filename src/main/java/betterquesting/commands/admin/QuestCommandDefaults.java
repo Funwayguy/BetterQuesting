@@ -1,6 +1,5 @@
 package betterquesting.commands.admin;
 
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
@@ -41,11 +40,11 @@ public class QuestCommandDefaults extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"save","load", "set"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, "save", "load", "set");
 		} else if(args.length == 3)
 		{
 			list.add("DefaultQuests");
@@ -77,8 +76,8 @@ public class QuestCommandDefaults extends QuestCommandBase
 		{
 			NBTTagCompound base = new NBTTagCompound();
 			base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
-			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList()));
+			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList()));
 			base.setString("format", BetterQuesting.FORMAT);
 			JsonHelper.WriteToFile(qFile, NBTConverter.NBTtoJSON_Compound(base, new JsonObject(), true));
 			
@@ -96,12 +95,12 @@ public class QuestCommandDefaults extends QuestCommandBase
 				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 				
-				NBTTagList jsonP = QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS);
+				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
-				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), EnumSaveType.CONFIG);
-				QuestDatabase.INSTANCE.readFromNBT(jsonP, EnumSaveType.PROGRESS);
+				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10));
+				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10));
+				QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 				
 				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
 				QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);

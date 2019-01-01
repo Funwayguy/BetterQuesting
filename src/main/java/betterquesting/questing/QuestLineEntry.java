@@ -1,8 +1,7 @@
 package betterquesting.questing;
 
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.questing.IQuestLineEntry;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class QuestLineEntry implements IQuestLineEntry
 {
@@ -12,7 +11,7 @@ public class QuestLineEntry implements IQuestLineEntry
 	
 	public QuestLineEntry(NBTTagCompound json)
 	{
-		this.readFromNBT(json, EnumSaveType.CONFIG);
+		this.readFromNBT(json);
 	}
 	
 	public QuestLineEntry(int x, int y)
@@ -59,13 +58,8 @@ public class QuestLineEntry implements IQuestLineEntry
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		json.setInteger("size", size);
 		json.setInteger("x", posX);
 		json.setInteger("y", posY);
@@ -73,13 +67,8 @@ public class QuestLineEntry implements IQuestLineEntry
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		size = json.getInteger("size");
 		posX = json.getInteger("x");
 		posY = json.getInteger("y");

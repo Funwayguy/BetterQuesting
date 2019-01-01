@@ -1,6 +1,5 @@
 package betterquesting.api.placeholders.tasks;
 
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -11,61 +10,58 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TaskPlaceholder implements ITask
 {
 	private NBTTagCompound nbtData = new NBTTagCompound();
 	
-	public void setTaskData(NBTTagCompound nbt, EnumSaveType saveType)
+	public void setTaskConfigData(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			nbtData.setTag("orig_data", nbt);
-		} else if(saveType == EnumSaveType.PROGRESS)
-		{
-			nbtData.setTag("orig_prog", nbt);
-		}
+        nbtData.setTag("orig_data", nbt);
 	}
 	
-	public NBTTagCompound getTaskData(EnumSaveType saveType)
+	public void setTaskProgressData(NBTTagCompound nbt)
+    {
+        nbtData.setTag("orig_prog", nbt);
+    }
+	
+	public NBTTagCompound getTaskConfigData()
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			return nbtData.getCompoundTag("orig_data");
-		} else if(saveType == EnumSaveType.PROGRESS)
-		{
-			return nbtData.getCompoundTag("orig_prog");
-		}
-		
-		return new NBTTagCompound();
+        return nbtData.getCompoundTag("orig_data");
 	}
+	
+	public NBTTagCompound getTaskProgressData()
+    {
+        return nbtData.getCompoundTag("orig_prog");
+    }
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			nbt.setTag("orig_data", nbtData.getCompoundTag("orig_data"));
-		} else if(saveType == EnumSaveType.PROGRESS)
-		{
-			nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
-		}
-		
+        nbt.setTag("orig_data", nbtData.getCompoundTag("orig_data"));
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			nbtData.setTag("orig_data", nbt.getCompoundTag("orig_data"));
-		} else if(saveType == EnumSaveType.PROGRESS)
-		{
-			nbtData.setTag("orig_prog", nbt.getCompoundTag("orig_prog"));
-		}
+        nbtData.setTag("orig_data", nbt.getCompoundTag("orig_data"));
 	}
+	
+	@Override
+    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, List<UUID> users)
+    {
+        nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
+        return nbt;
+    }
+    
+    @Override
+    public void readProgressFromNBT(NBTTagCompound nbt, boolean merge)
+    {
+        nbtData.setTag("orig_prog", nbt.getCompoundTag("orig_prog"));
+    }
 	
 	@Override
 	public String getUnlocalisedName()

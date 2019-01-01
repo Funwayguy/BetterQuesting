@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.importers.IImporter;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLineDatabase;
@@ -170,8 +169,8 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         if(questDB.size() > 0 || lineDB.size() > 0)
         {
             NBTTagCompound jsonBase = new NBTTagCompound();
-            jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
-            jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+            jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList()));
+            jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList()));
             
             NBTTagCompound tag = new NBTTagCompound();
             tag.setTag("data", jsonBase);

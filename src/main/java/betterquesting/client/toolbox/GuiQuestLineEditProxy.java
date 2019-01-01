@@ -1,18 +1,17 @@
 package betterquesting.client.toolbox;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<NBTTagCompound>
 {
@@ -30,11 +29,10 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		if(flag)
 		{
 			mc.displayGuiScreen(parent);
-			return;
 		} else
 		{
 			flag = true;
-			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG), null);
+			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToNBT(new NBTTagCompound()), null);
 		}
 	}
 	
@@ -50,7 +48,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		if(action == EnumPacketAction.EDIT && line != null)
 		{
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", line.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+			base.setTag("line", line.writeToNBT(new NBTTagCompound()));
 			tags.setTag("data", base);
 		}
 		
@@ -63,7 +61,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 	@Override
 	public void setValue(NBTTagCompound value)
 	{
-		line.readFromNBT(value, EnumSaveType.CONFIG);
+		line.readFromNBT(value);
 		SendChanges(EnumPacketAction.EDIT);
 	}
 }

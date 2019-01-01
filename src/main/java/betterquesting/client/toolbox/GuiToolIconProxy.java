@@ -2,7 +2,6 @@ package betterquesting.client.toolbox;
 
 import betterquesting.api.client.gui.GuiScreenThemed;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
@@ -33,11 +32,10 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 		if(flag)
 		{
 			this.mc.displayGuiScreen(parent);
-			return;
 		} else
 		{
 			flag = true;
-			mc.displayGuiScreen(new GuiItemSelection(this, quest.getItemIcon(), this));
+			mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperties().getProperty(NativeProps.ICON), this));
 		}
 	}
 	
@@ -45,8 +43,8 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 	public void SendChanges()
 	{
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		base.setTag("progress", quest.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setTag("data", base);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());

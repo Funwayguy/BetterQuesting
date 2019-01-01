@@ -1,20 +1,20 @@
 package betterquesting.questing.party;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.NameCache;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase
 {
@@ -58,27 +58,22 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		tags.setTag("data", writeProgressToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
+		readProgressFromNBT(payload.getTagList("data", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		for(DBEntry<IParty> entry : getEntries())
 		{
-			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound());
 			jp.setInteger("partyID", entry.getID());
 			json.appendTag(jp);
 		}
@@ -87,13 +82,8 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readProgressFromNBT(NBTTagList json, boolean merge)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		reset();
 		
 		for(int i = 0; i < json.tagCount(); i++)
@@ -115,7 +105,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 			}
 			
 			IParty party = new PartyInstance();
-			party.readFromNBT(jp, EnumSaveType.CONFIG);
+			party.readFromNBT(jp);
 			
 			if(party.getMembers().size() > 0)
 			{

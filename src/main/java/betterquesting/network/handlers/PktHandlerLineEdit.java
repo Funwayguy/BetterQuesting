@@ -1,14 +1,7 @@
 package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.core.BetterQuesting;
@@ -16,6 +9,12 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLine;
 import betterquesting.questing.QuestLineDatabase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import org.apache.logging.log4j.Level;
 
 public class PktHandlerLineEdit implements IPacketHandler
 {
@@ -28,12 +27,12 @@ public class PktHandlerLineEdit implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
-		if(sender == null)
+		if(sender == null || sender.getServer() == null)
 		{
 			return;
 		}
 		
-		boolean isOP = sender.world.getMinecraftServer().getPlayerList().canSendCommands(sender.getGameProfile());
+		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
 		if(!isOP)
 		{
@@ -64,12 +63,11 @@ public class PktHandlerLineEdit implements IPacketHandler
 				nID = lID;
 				
 				NBTTagCompound base = data.getCompoundTag("data");
-				nq.readFromNBT(base.getCompoundTag("line"), EnumSaveType.CONFIG);
+				nq.readFromNBT(base.getCompoundTag("line"));
 			}
 			
 			QuestLineDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{
 			questLine.readPacket(data);
@@ -82,12 +80,10 @@ public class PktHandlerLineEdit implements IPacketHandler
 			{
 				PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket());
 			}
-			return;
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
 			QuestLineDatabase.INSTANCE.removeID(lID);
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
-			return;
 		}
 	}
 	

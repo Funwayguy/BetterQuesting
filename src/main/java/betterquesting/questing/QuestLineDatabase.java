@@ -1,18 +1,17 @@
 package betterquesting.questing;
 
-import java.util.*;
-
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
-import betterquesting.api2.utils.QuestLineSorter;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.utils.QuestLineSorter;
 import betterquesting.network.PacketTypeNative;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+
+import java.util.*;
 
 public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
@@ -73,27 +72,22 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		tags.setTag("data", writeToNBT(new NBTTagList()));
 		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		this.readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
+		this.readFromNBT(payload.getTagList("data", 10));
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound());
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);
@@ -103,13 +97,8 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
@@ -131,7 +120,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			
 			QuestLine line = new QuestLine();
-			line.readFromNBT(jql, saveType);
+			line.readFromNBT(jql);
 			
 			if(id >= 0)
 			{

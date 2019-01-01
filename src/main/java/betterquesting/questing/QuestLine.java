@@ -1,13 +1,7 @@
 package betterquesting.questing;
 
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -15,8 +9,13 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine
 {
@@ -113,7 +112,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("line", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
+		base.setTag("line", writeToNBT(new NBTTagCompound()));
 		tags.setTag("data", base);
 		tags.setInteger("lineID", parentDB.getID(this));
 		
@@ -123,24 +122,19 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"));
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
 		json.setTag("properties", info.writeToNBT(new NBTTagCompound()));
 		
 		NBTTagList jArr = new NBTTagList();
 		
 		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
-			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
+			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound());
 			qle.setInteger("id", entry.getID());
 			jArr.appendTag(qle);
 		}
@@ -150,13 +144,8 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		info.readFromNBT(json.getCompoundTag("properties"));
 		
 		reset();

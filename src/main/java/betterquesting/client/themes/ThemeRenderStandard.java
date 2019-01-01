@@ -1,18 +1,19 @@
 package betterquesting.client.themes;
 
-import java.awt.Color;
-import java.util.UUID;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.themes.IThemeRenderer;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.RenderUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+import java.util.UUID;
 
 public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
 {
@@ -94,9 +95,9 @@ public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
     	if(quest == null)
     	{
     		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), new ItemStack(Items.NETHER_STAR), 4, 4, "");
-    	} else if(quest.getItemIcon() != null)
+    	} else if(quest.getProperties().getProperty(NativeProps.ICON) != null)
     	{
-    		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), quest.getItemIcon().getBaseStack(), 4, 4, "");
+    		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), quest.getProperties().getProperty(NativeProps.ICON).getBaseStack(), 4, 4, "");
     	}
     	
     	GlStateManager.popMatrix();

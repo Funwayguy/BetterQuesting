@@ -150,8 +150,8 @@ public class SaveLoadHandler
 		if(loader == null)
 		{
 			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
-			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), EnumSaveType.CONFIG);
-			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), EnumSaveType.CONFIG);
+			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10));
+			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10));
 			
 			if(useDef)
 			{
@@ -171,7 +171,7 @@ public class SaveLoadHandler
 		if(loader == null)
 		{
 			NBTTagCompound nbt2 = NBTConverter.JSONtoNBT_Object(j2, new NBTTagCompound(), true);
-			QuestDatabase.INSTANCE.readFromNBT(nbt2.getTagList("questProgress", 10), EnumSaveType.PROGRESS);
+			QuestDatabase.INSTANCE.readProgressFromNBT(nbt2.getTagList("questProgress", 10), false);
 		} else
 		{
 			loader.readFromJson(j2, EnumSaveType.PROGRESS);
@@ -182,21 +182,21 @@ public class SaveLoadHandler
 	    JsonObject j3 = JsonHelper.ReadFromFile(fileParties);
 	    
 		NBTTagCompound nbt3 = NBTConverter.JSONtoNBT_Object(j3, new NBTTagCompound(), true);
-	    PartyManager.INSTANCE.readFromNBT(nbt3.getTagList("parties", 10), EnumSaveType.CONFIG);
+	    PartyManager.INSTANCE.readProgressFromNBT(nbt3.getTagList("parties", 10), false);
 	    
 	    // === NAMES ===
 	    
 	    JsonObject j4 = JsonHelper.ReadFromFile(fileNames);
 	    
 		NBTTagCompound nbt4 = NBTConverter.JSONtoNBT_Object(j4, new NBTTagCompound(), true);
-	    NameCache.INSTANCE.readFromNBT(nbt4.getTagList("nameCache", 10), EnumSaveType.CONFIG);
+	    NameCache.INSTANCE.readProgressFromNBT(nbt4.getTagList("nameCache", 10), false);
 	    
 	    // === LIVES ===
 	    
 	    JsonObject j5 = JsonHelper.ReadFromFile(fileLives);
 	    
 		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
-	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), EnumSaveType.PROGRESS);
+	    LifeDatabase.INSTANCE.readProgressFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
 	    
 	    BetterQuesting.logger.info("Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.info("Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
@@ -213,8 +213,8 @@ public class SaveLoadHandler
         NBTTagCompound jsonCon = new NBTTagCompound();
         
         jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-        jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
-        jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+        jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList()));
+        jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList()));
         
         jsonCon.setString("format", BetterQuesting.FORMAT);
         jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
@@ -225,7 +225,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonProg = new NBTTagCompound();
         
-        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.PROGRESS));
+        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
         
@@ -233,7 +233,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonP = new NBTTagCompound();
         
-        jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+        jsonP.setTag("parties", PartyManager.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true));
         
@@ -241,7 +241,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonN = new NBTTagCompound();
         
-        jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+        jsonN.setTag("nameCache", NameCache.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true));
         
@@ -249,7 +249,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonL = new NBTTagCompound();
         
-        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeProgressToNBT(new NBTTagCompound(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         

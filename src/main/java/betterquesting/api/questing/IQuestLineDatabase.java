@@ -1,10 +1,10 @@
 package betterquesting.api.questing;
 
+import betterquesting.api.misc.IDataSync;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.INBTSaveLoad;
 
 public interface IQuestLineDatabase extends IDatabase<IQuestLine>, INBTSaveLoad<NBTTagList>, IDataSync
 {
