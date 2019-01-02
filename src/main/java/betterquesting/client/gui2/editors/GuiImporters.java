@@ -169,8 +169,8 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         if(questDB.size() > 0 || lineDB.size() > 0)
         {
             NBTTagCompound jsonBase = new NBTTagCompound();
-            jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList()));
-            jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList()));
+            jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList(), null));
+            jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList(), null));
             
             NBTTagCompound tag = new NBTTagCompound();
             tag.setTag("data", jsonBase);

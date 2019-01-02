@@ -17,6 +17,9 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import java.util.List;
+import java.util.UUID;
+
 public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine
 {
 	private IPropertyContainer info = new PropertyContainer();
@@ -112,7 +115,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("line", writeToNBT(new NBTTagCompound()));
+		base.setTag("line", writeToNBT(new NBTTagCompound(), null));
 		tags.setTag("data", base);
 		tags.setInteger("lineID", parentDB.getID(this));
 		
@@ -122,11 +125,11 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"));
+		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"), false);
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json)
+	public NBTTagCompound writeToNBT(NBTTagCompound json, List<UUID> users)
 	{
 		json.setTag("properties", info.writeToNBT(new NBTTagCompound()));
 		
@@ -144,7 +147,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json)
+	public void readFromNBT(NBTTagCompound json, boolean merge)
 	{
 		info.readFromNBT(json.getCompoundTag("properties"));
 		

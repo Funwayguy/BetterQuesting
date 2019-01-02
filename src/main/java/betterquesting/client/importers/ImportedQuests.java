@@ -36,7 +36,7 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
@@ -50,7 +50,7 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
 		this.reset();
 		

@@ -103,7 +103,7 @@ public class ToolboxToolGrab extends GuiElement implements IToolboxTool
 				// Sync Line
 				NBTTagCompound tag2 = new NBTTagCompound();
 				NBTTagCompound base2 = new NBTTagCompound();
-				base2.setTag("line", qLine.writeToNBT(new NBTTagCompound()));
+				base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
 				tag2.setTag("data", base2);
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 				tag2.setInteger("lineID", lID);

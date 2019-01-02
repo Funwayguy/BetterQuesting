@@ -58,18 +58,18 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeProgressToNBT(new NBTTagList(), null));
+		tags.setTag("data", writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readProgressFromNBT(payload.getTagList("data", 10), false);
+		readFromNBT(payload.getTagList("data", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IParty> entry : getEntries())
 		{
@@ -82,7 +82,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public void readProgressFromNBT(NBTTagList json, boolean merge)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
 		reset();
 		

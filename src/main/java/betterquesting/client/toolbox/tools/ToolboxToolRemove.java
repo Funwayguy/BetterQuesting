@@ -46,7 +46,7 @@ public class ToolboxToolRemove implements IToolboxTool
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", line.writeToNBT(new NBTTagCompound()));
+			base.setTag("line", line.writeToNBT(new NBTTagCompound(), null));
 			tags.setTag("data", base);
 			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));

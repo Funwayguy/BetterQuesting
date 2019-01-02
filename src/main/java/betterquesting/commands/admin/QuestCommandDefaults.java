@@ -76,8 +76,8 @@ public class QuestCommandDefaults extends QuestCommandBase
 		{
 			NBTTagCompound base = new NBTTagCompound();
 			base.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList()));
-			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList()));
+			base.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
+			base.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
 			base.setString("format", BetterQuesting.FORMAT);
 			JsonHelper.WriteToFile(qFile, NBTConverter.NBTtoJSON_Compound(base, new JsonObject(), true));
 			
@@ -98,8 +98,8 @@ public class QuestCommandDefaults extends QuestCommandBase
 				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10));
-				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10));
+				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
+				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
 				QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 				
 				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);

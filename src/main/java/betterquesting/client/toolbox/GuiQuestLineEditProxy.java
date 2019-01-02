@@ -32,7 +32,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		} else
 		{
 			flag = true;
-			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToNBT(new NBTTagCompound()), null);
+			QuestingAPI.getAPI(ApiReference.GUI_HELPER).openJsonEditor(this, this, line.writeToNBT(new NBTTagCompound(), null), null);
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 		if(action == EnumPacketAction.EDIT && line != null)
 		{
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", line.writeToNBT(new NBTTagCompound()));
+			base.setTag("line", line.writeToNBT(new NBTTagCompound(), null));
 			tags.setTag("data", base);
 		}
 		
@@ -61,7 +61,7 @@ public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<
 	@Override
 	public void setValue(NBTTagCompound value)
 	{
-		line.readFromNBT(value);
+		line.readFromNBT(value, false);
 		SendChanges(EnumPacketAction.EDIT);
 	}
 }

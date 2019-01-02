@@ -36,7 +36,7 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagList()));
+		base.setTag("config", writeToNBT(new NBTTagList(), null));
 		base.setTag("progress", writeProgressToNBT(new NBTTagList(), null));
 		tags.setTag("data", base);
 		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
@@ -47,12 +47,12 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromNBT(base.getTagList("config", 10));
+		readFromNBT(base.getTagList("config", 10), false);
 		readProgressFromNBT(base.getTagList("progress", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
@@ -66,7 +66,7 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList nbt)
+	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
 		this.reset();
 		

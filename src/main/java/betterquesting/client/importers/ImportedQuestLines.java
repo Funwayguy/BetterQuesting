@@ -48,7 +48,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
@@ -59,7 +59,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 			
 			int id = entry.getID();
 			
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound());
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
 			jObj.setInteger("lineID", id);
 			jObj.setInteger("order", getOrderIndex(id));
 			json.appendTag(jObj);
@@ -69,7 +69,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
 		reset();
 		
@@ -89,7 +89,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			QuestLine line = new QuestLine();
-			line.readFromNBT(jql);
+			line.readFromNBT(jql, merge);
 			
 			if(id >= 0)
 			{

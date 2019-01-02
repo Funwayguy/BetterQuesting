@@ -63,7 +63,7 @@ public class PktHandlerLineEdit implements IPacketHandler
 				nID = lID;
 				
 				NBTTagCompound base = data.getCompoundTag("data");
-				nq.readFromNBT(base.getCompoundTag("line"));
+				nq.readFromNBT(base.getCompoundTag("line"), false);
 			}
 			
 			QuestLineDatabase.INSTANCE.add(nID, nq);

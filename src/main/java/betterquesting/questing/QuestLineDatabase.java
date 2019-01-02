@@ -72,22 +72,22 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList()));
+		tags.setTag("data", writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		this.readFromNBT(payload.getTagList("data", 10));
+		this.readFromNBT(payload.getTagList("data", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound());
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);
@@ -97,7 +97,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
 		reset();
 		
@@ -120,7 +120,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			
 			QuestLine line = new QuestLine();
-			line.readFromNBT(jql);
+			line.readFromNBT(jql, merge);
 			
 			if(id >= 0)
 			{

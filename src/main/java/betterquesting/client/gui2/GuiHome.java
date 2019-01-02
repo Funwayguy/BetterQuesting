@@ -168,8 +168,8 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
 					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10));
-					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10));
+					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
+					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
 					QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 					
 					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);

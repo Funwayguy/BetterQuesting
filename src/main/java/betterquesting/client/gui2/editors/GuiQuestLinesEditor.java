@@ -302,7 +302,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 		if(action == EnumPacketAction.EDIT && entry != null)
 		{
 			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", entry.getValue().writeToNBT(new NBTTagCompound()));
+			base.setTag("line", entry.getValue().writeToNBT(new NBTTagCompound(), null));
 			tags.setTag("data", base);
 		}
 		

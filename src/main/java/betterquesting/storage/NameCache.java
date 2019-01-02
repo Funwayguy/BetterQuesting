@@ -143,18 +143,18 @@ public final class NameCache implements INameCache
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", this.writeProgressToNBT(new NBTTagList(), null));
+		tags.setTag("data", this.writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readProgressFromNBT(payload.getTagList("data", 10), false);
+		readFromNBT(payload.getTagList("data", 10), false);
 	}
 
 	@Override
-	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
 		synchronized(cache)
         {
@@ -172,7 +172,7 @@ public final class NameCache implements INameCache
 	}
 
 	@Override
-	public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
 		synchronized(cache)
         {

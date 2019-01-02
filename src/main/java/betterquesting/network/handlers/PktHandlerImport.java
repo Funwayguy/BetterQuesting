@@ -56,8 +56,8 @@ public class PktHandlerImport implements IPacketHandler
 		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10));
-		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10));
+		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), false);
+		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), false);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		

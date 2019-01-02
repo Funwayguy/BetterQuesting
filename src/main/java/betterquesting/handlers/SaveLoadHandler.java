@@ -150,8 +150,8 @@ public class SaveLoadHandler
 		if(loader == null)
 		{
 			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
-			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10));
-			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10));
+			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), false);
+			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), false);
 			
 			if(useDef)
 			{
@@ -182,14 +182,14 @@ public class SaveLoadHandler
 	    JsonObject j3 = JsonHelper.ReadFromFile(fileParties);
 	    
 		NBTTagCompound nbt3 = NBTConverter.JSONtoNBT_Object(j3, new NBTTagCompound(), true);
-	    PartyManager.INSTANCE.readProgressFromNBT(nbt3.getTagList("parties", 10), false);
+	    PartyManager.INSTANCE.readFromNBT(nbt3.getTagList("parties", 10), false);
 	    
 	    // === NAMES ===
 	    
 	    JsonObject j4 = JsonHelper.ReadFromFile(fileNames);
 	    
 		NBTTagCompound nbt4 = NBTConverter.JSONtoNBT_Object(j4, new NBTTagCompound(), true);
-	    NameCache.INSTANCE.readProgressFromNBT(nbt4.getTagList("nameCache", 10), false);
+	    NameCache.INSTANCE.readFromNBT(nbt4.getTagList("nameCache", 10), false);
 	    
 	    // === LIVES ===
 	    
@@ -213,8 +213,8 @@ public class SaveLoadHandler
         NBTTagCompound jsonCon = new NBTTagCompound();
         
         jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-        jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList()));
-        jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList()));
+        jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
+        jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
         
         jsonCon.setString("format", BetterQuesting.FORMAT);
         jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
@@ -233,7 +233,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonP = new NBTTagCompound();
         
-        jsonP.setTag("parties", PartyManager.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
+        jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true));
         
@@ -241,7 +241,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonN = new NBTTagCompound();
         
-        jsonN.setTag("nameCache", NameCache.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
+        jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true));
         
