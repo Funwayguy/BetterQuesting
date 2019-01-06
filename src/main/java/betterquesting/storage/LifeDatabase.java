@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+// TODO: Make this thread safe
 public final class LifeDatabase implements ILifeDatabase
 {
 	public static final LifeDatabase INSTANCE = new LifeDatabase();

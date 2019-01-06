@@ -12,28 +12,29 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 
 public final class PacketAssembly
 {
 	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
+	// TODO: Allow for simultaneous packet assembly
+    // TODO: Implement PROPER thread safety that doesn't cause dirty read/writes
+    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick
 	// Player assigned packet buffers
-	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<>();
+	private final HashMap<UUID,byte[]> buffer = new HashMap<>();
 	
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
 	private int id = 0;
 	
-	private PacketAssembly()
-	{
-	}
-	
 	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
 		ArrayList<NBTTagCompound> pkts = new ArrayList<>();
+		int dTotal = 0;
+		int pCount = 0;
 		
 		try
 		{
@@ -43,6 +44,8 @@ public final class PacketAssembly
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
+			dTotal = data.length;
+            pCount = req;
 			
 			for(int p = 0; p < req; p++)
 			{
@@ -69,6 +72,7 @@ public final class PacketAssembly
 		
 		id = (id + 1)%100; // Cycle the index
 		
+        //System.out.println("Split " + dTotal + "B among " + pCount + " packet(s)...");
 		return pkts;
 	}
 	
@@ -126,7 +130,10 @@ public final class PacketAssembly
 			return serverBuf;
 		} else
 		{
-			return buffer.get(owner);
+		    synchronized(buffer)
+            {
+                return buffer.get(owner);
+            }
 		}
 	}
 	
@@ -137,12 +144,15 @@ public final class PacketAssembly
 			serverBuf = value;
 		} else
 		{
-			if(buffer.containsKey(owner))
-			{
-				throw new IllegalStateException("Attepted to start more than one BQ packet assembly for UUID " + owner.toString());
-			}
-			
-			buffer.put(owner, value);
+		    synchronized(buffer)
+            {
+                if(buffer.containsKey(owner))
+                {
+                    throw new IllegalStateException("Attepted to start more than one BQ packet assembly for UUID " + owner.toString());
+                }
+    
+                buffer.put(owner, value);
+            }
 		}
 	}
 	
@@ -153,7 +163,10 @@ public final class PacketAssembly
 			serverBuf = null;
 		} else
 		{
-			buffer.remove(owner);
+		    synchronized(buffer)
+            {
+                buffer.remove(owner);
+            }
 		}
 	}
 }

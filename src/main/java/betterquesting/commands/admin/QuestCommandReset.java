@@ -1,20 +1,21 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.questing.IQuest;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.NameCache;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandReset extends QuestCommandBase
 {
@@ -106,11 +107,11 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
 				} else
 				{
 					quest.resetAll(true);
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
+					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
 				}
 			} catch(Exception e)
 			{

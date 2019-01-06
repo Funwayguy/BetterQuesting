@@ -2,11 +2,14 @@ package betterquesting.api2.client.gui.themes;
 
 import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.misc.DummyQuest;
 import betterquesting.misc.DummyQuest.IMainQuery;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
@@ -24,6 +27,7 @@ public class LegacyIconTexture implements IGuiTexture, IMainQuery
         this.oldTheme = theme;
         this.isMain = main;
         this.dummyQuest = new DummyQuest(state).setMainCallback(this);
+        this.dummyQuest.setProperty(NativeProps.ICON, new BigItemStack(ItemStack.EMPTY));
     }
 	
     @Override

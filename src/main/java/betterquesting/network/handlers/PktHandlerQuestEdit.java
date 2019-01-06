@@ -72,7 +72,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperties().getProperty(NativeProps.NAME));
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperty(NativeProps.NAME));
 			QuestDatabase.INSTANCE.removeID(qID);
 			QuestLineDatabase.INSTANCE.removeQuest(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
@@ -93,14 +93,14 @@ public class PktHandlerQuestEdit implements IPacketHandler
 					
 					int done = 0;
 					
-					if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
+					if(!quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 					{
 						for(DBEntry<ITask> entry : quest.getTasks().getEntries())
 						{
 							entry.getValue().setComplete(senderID);
 							done += 1;
 							
-							if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
+							if(quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
 							{
 								break; // Only complete enough quests to claim the reward
 							}

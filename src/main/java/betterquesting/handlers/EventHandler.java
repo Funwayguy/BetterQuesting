@@ -7,10 +7,9 @@ import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.questing.tasks.ITickableTask;
 import betterquesting.api.storage.BQ_Settings;
-import betterquesting.api.utils.QuestCache;
+import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.BQ_Keybindings;
@@ -25,15 +24,18 @@ import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -44,6 +46,8 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -78,6 +82,23 @@ public class EventHandler
 	}
 	
 	@SubscribeEvent
+    public void onCapabilityPlayer(AttachCapabilitiesEvent<Entity> event)
+    {
+        if(!(event.getObject() instanceof EntityPlayer)) return;
+        event.addCapability(CapabilityProviderQuestCache.LOC_QUEST_CACHE, new CapabilityProviderQuestCache());
+        System.out.println("Capability QUEST_CACHE attached to player");
+    }
+    
+    @SubscribeEvent
+    public void onPlayerClone(Clone event)
+    {
+        betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        betterquesting.api2.cache.QuestCache nCache = event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        
+        if(oCache != null && nCache != null) nCache.deserializeNBT(oCache.serializeNBT());
+    }
+	
+	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
 		if(event.getEntityLiving().world.isRemote)
@@ -87,74 +108,97 @@ public class EventHandler
 		
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
-			if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
-			{
-				return;
-			}
+			if(event.getEntityLiving().ticksExisted%20 != 0 || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return; // Only triggers once per second
 			
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
+            betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+            
+            if(qc == null) return;
+            
+            List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()); // TODO: Replace with quests marked dirty when functionality is implemented
+            List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
+            QResetTime[] pendingResets = qc.getScheduledResets();
+            
+            List<DBEntry<IQuest>> syncMe = new ArrayList<>();
+			
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			boolean refreshCache = false;
 			
-			for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
-			{
-				if(quest.getTasks().size() <= 0 || quest.canSubmit(player)) // Tasks active or repeating
-				{
-					boolean syncMe = quest.getTasks().size() <= 0;
-					boolean wat = true; // Work around for non-tickable tasks
-					
-					for(DBEntry<ITask> task : quest.getTasks().getEntries())
-					{
-						if(task.getValue() instanceof ITickableTask && !task.getValue().isComplete(uuid))
-						{
-							wat = false;
-							((ITickableTask)task.getValue()).updateTask(player, quest);
-							
-							if(task.getValue().isComplete(uuid))
-							{
-								syncMe = true;
-							}
-						}
-					}
-				
-					if(syncMe || (wat && player.ticksExisted % 60 == 0))
-					{
-						quest.update(player);
-						
-						if(!quest.isComplete(uuid))
-						{
-							PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-						} else
-						{
-							refreshCache = true;
-						}
-					}
-				} else if(quest.isComplete(uuid)) // Complete & inactive
-				{
-					if(player.ticksExisted % 20 == 0 && (quest.getProperties().getProperty(NativeProps.REPEAT_TIME).intValue() >= 0 || quest.getProperties().getProperty(NativeProps.AUTO_CLAIM))) // Waiting to reset
-					{
-						quest.update(player); // This will broadcast a sync anyway
-					} else
-					{
-						refreshCache = true;
-					}
-				} else if(player.ticksExisted % 60 == 0)
-				{
-					// Quest is in a state where the user can't manually update the tasks but it isn't yet considered complete.
-					// Likely an event based task like block break or crafting that doesn't force the quest itself to update
-					quest.update(player);
-					
-					if(quest.isComplete(uuid))
-					{
-						refreshCache = true;
-					}
-				}
-			}
-			
-			if(refreshCache || player.ticksExisted % 200 == 0)
-			{
-				QuestCache.INSTANCE.updateCache(player);
-			}
+			if(player.ticksExisted%100 == 0) // Passive quest state check every 5 seconds
+            {
+                for(DBEntry<IQuest> quest : activeQuests)
+                {
+                    quest.getValue().update(player);
+                    
+                    if(quest.getValue().isComplete(uuid))
+                    {
+                        refreshCache = true;
+                        if(!syncMe.contains(quest)) syncMe.add(quest);
+                    }
+                }
+            }
+            
+            if(player.getServer() != null) // Repeatable quest resets
+            {
+                for(QResetTime rTime : pendingResets)
+                {
+                    if(player.getServer().getWorld(0).getTotalWorldTime() >= rTime.time)
+                    {
+                        IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
+                        
+                        if(entry.getProperty(NativeProps.GLOBAL))
+                        {
+                            entry.resetAll(false);
+                        } else
+                        {
+                            entry.resetUser(uuid, false);
+                        }
+                        
+                        refreshCache = true;
+                        DBEntry<IQuest> dbe = new DBEntry<>(rTime.questID, entry);
+                        if(!syncMe.contains(dbe)) syncMe.add(dbe);
+                    }
+                }
+            }
+            
+            for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
+            {
+                if(entry.getValue().canClaim(player))
+                {
+                    entry.getValue().claimReward(player);
+                    refreshCache = true;
+                    if(!syncMe.contains(entry)) syncMe.add(entry);
+                }
+            }
+            
+            if(refreshCache || player.ticksExisted % 200 == 0)
+            {
+                qc.updateCache(player);
+            }
+            
+            // TODO: Check partial data writes from here when fully implemented
+            for(DBEntry<IQuest> entry : syncMe)
+            {
+                if(entry.getValue().getProperty(NativeProps.GLOBAL))
+                {
+                    PacketSender.INSTANCE.sendToAll(entry.getValue().getSyncPacket());
+                } else if(player instanceof EntityPlayerMP)
+                {
+                    IParty party = PartyManager.INSTANCE.getUserParty(uuid);
+                    
+                    if(party != null && player.getServer() != null)
+                    {
+                        for(UUID memID : party.getMembers()) // Send to party only
+                        {
+                            EntityPlayerMP memPlayer = player.getServer().getPlayerList().getPlayerByUUID(memID);
+                            if(memPlayer != null) PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), memPlayer);
+                        }
+                    } else
+                    {
+                        PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), (EntityPlayerMP)player);
+                    }
+                }
+            }
 		}
 	}
 	

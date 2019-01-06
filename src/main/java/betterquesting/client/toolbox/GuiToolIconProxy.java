@@ -35,7 +35,7 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 		} else
 		{
 			flag = true;
-			mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperties().getProperty(NativeProps.ICON), this));
+			mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperty(NativeProps.ICON), this));
 		}
 	}
 	
@@ -57,7 +57,7 @@ public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigIt
 	public void setValue(BigItemStack value)
 	{
 		BigItemStack stack = value != null? value : new BigItemStack(Items.NETHER_STAR);
-		quest.getProperties().setProperty(NativeProps.ICON, stack);
+		quest.setProperty(NativeProps.ICON, stack);
 		SendChanges();
 	}
 }

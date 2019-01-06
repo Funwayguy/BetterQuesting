@@ -1,19 +1,20 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.questing.IQuest;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestLineDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandDelete extends QuestCommandBase
 {
@@ -73,7 +74,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				QuestDatabase.INSTANCE.removeID(id);
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
-				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getUnlocalisedName())));
+				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
 			} catch(Exception e)
 			{
 				throw getException(command);

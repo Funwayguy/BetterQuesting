@@ -4,6 +4,7 @@ import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
@@ -130,7 +131,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
                 btnAdd.setActive(questLine.getValue(entry.getID()) == null);
                 this.addPanel(btnAdd);
                 
-                PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getUnlocalisedName()), entry);
+                PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)), entry);
                 this.addPanel(btnEdit);
                 
                 PanelButtonStorage<DBEntry<IQuest>> btnDel = new PanelButtonStorage<>(new GuiRectangle(width - 16, index * 16, 16, 16, 0), 4, "", entry);
@@ -251,7 +252,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
             DBEntry<IQuestLineEntry> entry = qles[i];
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(entry.getID());
-            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(quest.getUnlocalisedName()), new DBEntry<>(entry.getID(), quest));
+            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(quest.getProperty(NativeProps.NAME)), new DBEntry<>(entry.getID(), quest));
             canvasQL.addPanel(btnEdit);
             
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", new DBEntry<>(entry.getID(), quest));

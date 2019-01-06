@@ -261,6 +261,71 @@ public abstract class BigDatabase<T> implements IDatabase<T>
         return null;
     }
     
+    /**
+     * Unlike getValue(), this method can retrieve a whole set of entries in one pass instead of one for every ID
+     * @param ids
+     * @return List of database entries that match the provided IDs (may be rearranged during this action)
+     */
+    public List<DBEntry<T>> bulkLookup(int... ids)
+    {
+        if(ids == null || ids.length <= 0) return Collections.emptyList();
+        
+        Arrays.sort(ids);
+        List<DBEntry<T>> values = new ArrayList<>();
+        int index = 0;
+        
+        synchronized(dbBlocks)
+        {
+            for(DBEntry<SortedSet<DBEntry<T>>> blockEntry : dbBlocks)
+            {
+                Iterator<DBEntry<T>> blockSearch = null;
+                DBEntry<T> entry = null;
+                
+                while(index < ids.length)
+                {
+                    int nxt = ids[index];
+                    
+                    if(nxt < 0 || nxt / blockSize < blockEntry.getID()) // Allow ID to catch up to block
+                    {
+                        index++;
+                        continue;
+                    } else if(nxt / blockSize > blockEntry.getID()) // Allow block to catch up to ID
+                    {
+                        break;
+                    } else if(blockEntry.getValue().size() <= 0) // Empty block
+                    {
+                        break;
+                    }
+                    
+                    if(blockSearch == null)
+                    {
+                        blockSearch = blockEntry.getValue().iterator();
+                        entry = blockSearch.next();
+                    }
+                    
+                    while(entry != null)
+                    {
+                        if(entry.getID() > nxt) break;
+                        
+                        if(entry.getID() == nxt)
+                        {
+                            values.add(entry);
+                            entry = blockSearch.hasNext() ? blockSearch.next() : null;
+                            break;
+                        }
+                        entry = blockSearch.hasNext() ? blockSearch.next() : null;
+                    }
+                    
+                    index++; // Block search complete
+                }
+                
+                if(index >= ids.length) break; // No more IDs to search
+            }
+        }
+        
+        return values;
+    }
+    
     @Override
     public int size()
     {

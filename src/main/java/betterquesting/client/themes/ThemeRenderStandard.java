@@ -39,7 +39,7 @@ public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
 	@Override
 	public void drawLine(IQuest quest, UUID playerID, float x1, float y1, float x2, float y2, int mx, int my, float partialTick)
 	{
-		boolean isMain = quest == null? false : quest.getProperties().getProperty(NativeProps.MAIN);
+		boolean isMain = quest == null? false : quest.getProperty(NativeProps.MAIN);
 		EnumQuestState qState = quest == null || playerID == null? EnumQuestState.LOCKED : quest.getState(playerID);
 		
 		GlStateManager.pushMatrix();
@@ -72,7 +72,7 @@ public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
 	@Override
 	public void drawIcon(IQuest quest, UUID playerID, float px, float py, float sx, float sy, int mx, int my, float partialTick)
 	{
-		boolean isMain = quest == null? false : quest.getProperties().getProperty(NativeProps.MAIN);
+		boolean isMain = quest == null? false : quest.getProperty(NativeProps.MAIN);
 		EnumQuestState qState = quest == null || playerID == null? EnumQuestState.LOCKED : quest.getState(playerID);
 		boolean hover = mx >= px && my >= py && mx < px + sx && my < py + sy;
 		
@@ -95,9 +95,9 @@ public class ThemeRenderStandard extends GuiElement implements IThemeRenderer
     	if(quest == null)
     	{
     		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), new ItemStack(Items.NETHER_STAR), 4, 4, "");
-    	} else if(quest.getProperties().getProperty(NativeProps.ICON) != null)
+    	} else if(quest.getProperty(NativeProps.ICON) != null)
     	{
-    		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), quest.getProperties().getProperty(NativeProps.ICON).getBaseStack(), 4, 4, "");
+    		RenderUtils.RenderItemStack(Minecraft.getMinecraft(), quest.getProperty(NativeProps.ICON).getBaseStack(), 4, 4, "");
     	}
     	
     	GlStateManager.popMatrix();

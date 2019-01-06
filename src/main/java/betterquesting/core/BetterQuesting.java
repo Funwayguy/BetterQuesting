@@ -2,6 +2,7 @@ package betterquesting.core;
 
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.blocks.BlockSubmitStation;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
@@ -78,6 +79,8 @@ public class BetterQuesting
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
+    
+        CapabilityProviderQuestCache.register();
     }
     
     @EventHandler

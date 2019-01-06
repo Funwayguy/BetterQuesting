@@ -86,7 +86,7 @@ public class CanvasQuestLine extends CanvasScrolling
         {
             IQuest quest = QuestDatabase.INSTANCE.getValue(qle.getID());
             
-            if(quest == null || !isQuestShown(quest, pid))
+            if(!isQuestShown(quest, pid))
             {
                 continue;
             }
@@ -94,7 +94,7 @@ public class CanvasQuestLine extends CanvasScrolling
             EnumQuestState qState = quest.getState(pid);
             IGuiTexture txFrame = null;
             IGuiColor txIconCol = null;
-            boolean main = quest.getProperties().getProperty(NativeProps.MAIN);
+            boolean main = quest.getProperty(NativeProps.MAIN);
             boolean lock = false;
             
             switch(qState)
@@ -122,7 +122,7 @@ public class CanvasQuestLine extends CanvasScrolling
             PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
             IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
-            paBtn.setIcon(new OreDictTexture(1F, quest.getProperties().getProperty(NativeProps.ICON), false, true), 4);
+            paBtn.setIcon(new OreDictTexture(1F, quest.getProperty(NativeProps.ICON), false, true), 4);
             paBtn.setTooltip(quest.getTooltip(player));
             paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             
@@ -156,7 +156,7 @@ public class CanvasQuestLine extends CanvasScrolling
                 continue;
             }
             
-            boolean main = quest.getProperties().getProperty(NativeProps.MAIN);
+            boolean main = quest.getProperty(NativeProps.MAIN);
             EnumQuestState qState = quest.getState(pid);
             IGuiLine lineRender = null;
             IGuiColor txLineCol = null;
@@ -228,7 +228,7 @@ public class CanvasQuestLine extends CanvasScrolling
         
         Minecraft mc = Minecraft.getMinecraft();
         
-        EnumQuestVisibility vis = quest.getProperties().getProperty(NativeProps.VISIBILITY);
+        EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
         
         if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player) || vis == EnumQuestVisibility.ALWAYS)
         {

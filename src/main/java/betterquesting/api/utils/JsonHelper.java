@@ -21,6 +21,8 @@ import org.apache.logging.log4j.Level;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
 
@@ -199,74 +201,56 @@ public class JsonHelper
 	
 	public static void WriteToFile(File file, JsonObject jObj)
 	{
+	    final File tmp = new File(file.getAbsolutePath() + ".tmp");
+	    
 		BQThreadedIO.INSTANCE.enqueue(() -> {
 			try
 			{
-				if(!file.exists())
+	            if(tmp.exists())
+                {
+                    tmp.delete();
+                } else
 				{
-					if(file.getParentFile() != null)
+					if(tmp.getParentFile() != null)
 					{
-						file.getParentFile().mkdirs();
+						tmp.getParentFile().mkdirs();
 					}
 					
-					if(!file.createNewFile())
-					{
-						throw new FileNotFoundException("Unable to create file " + file.getAbsolutePath());
-					}
+					tmp.createNewFile();
 				}
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
 				return;
 			}
 			
-			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))
+			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8))
 			{
 				GSON.toJson(jObj, fw);
 				fw.flush();
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while saving JSON to file:", e);
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
+				return;
 			}
+			
+			try
+            {
+                Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch(Exception e)
+            {
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
+            }
 		});
 	}
 	
 	public static void CopyPaste(File fileIn, File fileOut)
 	{
-		if(!fileIn.exists())
-		{
-			return;
-		}
+		if(!fileIn.exists()) return;
 		
 		try
 		{
-			if(!fileOut.exists())
-			{
-				if(fileOut.getParentFile() != null)
-				{
-					fileOut.getParentFile().mkdirs();
-				}
-				
-				fileOut.createNewFile();
-			} else
-			{
-				throw new IOException("File already exists!");
-			}
-		} catch(Exception e)
-		{
-			QuestingAPI.getLogger().log(Level.ERROR, "Failed copy paste", e);
-			return;
-		}
-		
-		try(BufferedReader fr = new BufferedReader(new InputStreamReader(new FileInputStream(fileIn), StandardCharsets.UTF_8));
-			BufferedWriter fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileOut), StandardCharsets.UTF_8)))
-		{
-			char[] buffer = new char[256];
-			int read;
-			while((read = fr.read(buffer)) != -1)
-			{
-				fw.write(buffer, 0, read);
-			}
+		    Files.copy(fileIn.toPath(), fileOut.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch(Exception e)
 		{
 			QuestingAPI.getLogger().log(Level.ERROR, "Failed copy paste", e);

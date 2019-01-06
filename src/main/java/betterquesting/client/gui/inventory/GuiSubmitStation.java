@@ -10,12 +10,14 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.QuestCache;
+import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.panels.EmbeddedPanel;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,14 +27,12 @@ import net.minecraft.util.text.TextFormatting;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
 	private final TileSubmitStation tile;
-	private final List<IQuest> activeQuests = new ArrayList<IQuest>();
+	private final List<DBEntry<IQuest>> activeQuests = new ArrayList<>();
 	private int selQuest = 0;
 	private int selTask = 0;
 	private IQuest quest;
@@ -63,20 +63,11 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		}
 		
 		activeQuests.clear();
-		UUID pID = QuestingAPI.getQuestingUUID(mc.player);
-		QuestCache.INSTANCE.updateCache(mc.player);
-		activeQuests.addAll(QuestCache.INSTANCE.getActiveQuests(pID));
-		Iterator<IQuest> qit = activeQuests.iterator();
-		
-		while(qit.hasNext())
-		{
-			IQuest q = qit.next();
-			
-			if(q.getProperties().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)
-			{
-				qit.remove(); // These should not be shown to players
-			}
-		}
+		QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+		if(qc != null) activeQuests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        
+        // These should not be shown to players
+        activeQuests.removeIf(q -> q.getValue().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN);
 		
 		buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<", true)); // Prev Quest
 		buttonList.add(new GuiButtonThemed(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">", true)); // Next Quest
@@ -149,7 +140,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		
 		if(quest != null)
 		{
-			mc.fontRenderer.drawString(I18n.format(quest.getUnlocalisedName()), guiLeft + sizeX/2 - 92, guiTop + 40, getTextColor(), false);
+			mc.fontRenderer.drawString(I18n.format(quest.getProperty(NativeProps.NAME)), guiLeft + sizeX/2 - 92, guiTop + 40, getTextColor(), false);
 		}
 		
 		if(task != null)
@@ -246,7 +237,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			
 			for(int i = 1; i <= 4; i++)
 			{
-				((GuiButton)buttonList.get(i)).enabled = false; // Cannot change tile until old values are removed
+				buttonList.get(i).enabled = false; // Cannot change tile until old values are removed
 			}
 			
 			btnSelect.enabled = false;
@@ -256,7 +247,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			for(int i = 1; i <= 4; i++)
 			{
-				((GuiButton)buttonList.get(i)).enabled = true;
+				buttonList.get(i).enabled = true;
 			}
 			
 			btnRemove.enabled = false;
@@ -268,7 +259,7 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			task = null;
 		} else
 		{
-			quest = activeQuests.get(selQuest);
+			quest = activeQuests.get(selQuest).getValue();
 		}
 		
 		if(quest == null || selTask < 0 || selTask >= quest.getTasks().size())

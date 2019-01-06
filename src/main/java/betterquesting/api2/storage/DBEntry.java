@@ -1,8 +1,11 @@
 package betterquesting.api2.storage;
 
+import javax.annotation.Nonnull;
+
 public final class DBEntry<T> implements Comparable<DBEntry<T>>
 {
     private final int id;
+    @Nonnull
     private final T obj;
     
     public DBEntry(int id, T obj)
@@ -24,6 +27,7 @@ public final class DBEntry<T> implements Comparable<DBEntry<T>>
         return this.id;
     }
     
+    @Nonnull
     public final T getValue()
     {
         return obj;

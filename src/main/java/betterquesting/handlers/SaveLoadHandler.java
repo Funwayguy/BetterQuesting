@@ -6,7 +6,6 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
-import betterquesting.api.utils.QuestCache;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.core.BetterQuesting;
@@ -51,7 +50,7 @@ public class SaveLoadHandler
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
         
-        QuestCache.INSTANCE.reset();
+        //QuestCache.INSTANCE.reset();
         hasUpdate = false;
 		
 		if(BetterQuesting.proxy.isClient())
@@ -267,7 +266,7 @@ public class SaveLoadHandler
         LifeDatabase.INSTANCE.reset();
         NameCache.INSTANCE.reset();
         
-        QuestCache.INSTANCE.reset();
+        //QuestCache.INSTANCE.reset();
         
         if(BetterQuesting.proxy.isClient())
 		{

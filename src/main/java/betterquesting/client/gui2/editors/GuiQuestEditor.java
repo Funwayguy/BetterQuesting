@@ -62,11 +62,11 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             mc.displayGuiScreen(this.parent);
         } else
         {
-            pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperties().getProperty(NativeProps.NAME))));
-            if(!flName.isFocused()) flName.setText(quest.getProperties().getProperty(NativeProps.NAME));
-            if(!flDesc.isFocused()) flDesc.setText(quest.getProperties().getProperty(NativeProps.DESC));
-            btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperties().getProperty(NativeProps.LOGIC_QUEST));
-            btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperties().getProperty(NativeProps.VISIBILITY));
+            pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperty(NativeProps.NAME))));
+            if(!flName.isFocused()) flName.setText(quest.getProperty(NativeProps.NAME));
+            if(!flDesc.isFocused()) flDesc.setText(quest.getProperty(NativeProps.DESC));
+            btnLogic.setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
+            btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
         }
     }
     
@@ -90,7 +90,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
         
-        pnTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperties().getProperty(NativeProps.NAME)))).setAlignment(1);
+        pnTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperty(NativeProps.NAME)))).setAlignment(1);
         pnTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(pnTitle);
         
@@ -102,7 +102,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         pnName.setColor(PresetColor.TEXT_MAIN.getColor());
         cvBackground.addPanel(pnName);
         
-        flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -48, 200, 16, 0), quest.getProperties().getProperty(NativeProps.NAME), FieldFilterString.INSTANCE);
+        flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -48, 200, 16, 0), quest.getProperty(NativeProps.NAME), FieldFilterString.INSTANCE);
         flName.setMaxLength(Integer.MAX_VALUE);
         cvBackground.addPanel(flName);
         
@@ -110,7 +110,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         pnDesc.setColor(PresetColor.TEXT_MAIN.getColor());
         cvBackground.addPanel(pnDesc);
         
-        flDesc = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -16, 184, 16, 0), quest.getProperties().getProperty(NativeProps.DESC), FieldFilterString.INSTANCE);
+        flDesc = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -100, -16, 184, 16, 0), quest.getProperty(NativeProps.DESC), FieldFilterString.INSTANCE);
         flDesc.setMaxLength(Integer.MAX_VALUE);
         cvBackground.addPanel(flDesc);
         
@@ -132,10 +132,10 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         PanelButton btnIco = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 32, 100, 16, 0), 8, QuestTranslation.translate("betterquesting.btn.icon"));
         cvBackground.addPanel(btnIco);
         
-        btnVis = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 48, 100, 16, 0), 5, QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperties().getProperty(NativeProps.VISIBILITY));
+        btnVis = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 48, 100, 16, 0), 5, QuestTranslation.translate("betterquesting.btn.show") + ": " + quest.getProperty(NativeProps.VISIBILITY));
         cvBackground.addPanel(btnVis);
         
-        btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperties().getProperty(NativeProps.LOGIC_QUEST));
+        btnLogic = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 0, 48, 100, 16, 0), 6, QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
         cvBackground.addPanel(btnLogic);
         
         PanelButton btnAdv = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -100, 64, 200, 16, 0), 4, QuestTranslation.translate("betterquesting.btn.advanced"));
@@ -148,15 +148,15 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         boolean result = super.onMouseClick(mx, my, button);
         boolean flag = false;
         
-        if(!quest.getProperties().getProperty(NativeProps.NAME).equals(flName.getValue()))
+        if(!quest.getProperty(NativeProps.NAME).equals(flName.getValue()))
         {
-            quest.getProperties().setProperty(NativeProps.NAME, flName.getValue());
+            quest.setProperty(NativeProps.NAME, flName.getValue());
             flag = true;
         }
         
-        if(!quest.getProperties().getProperty(NativeProps.DESC).equals(flDesc.getValue()))
+        if(!quest.getProperty(NativeProps.DESC).equals(flDesc.getValue()))
         {
-            quest.getProperties().setProperty(NativeProps.DESC, flDesc.getValue());
+            quest.setProperty(NativeProps.DESC, flDesc.getValue());
             flag = true;
         }
         
@@ -214,9 +214,9 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             case 5: // Visibility
             {
                 EnumQuestVisibility[] visList = EnumQuestVisibility.values();
-                EnumQuestVisibility vis = quest.getProperties().getProperty(NativeProps.VISIBILITY);
+                EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
                 vis = visList[(vis.ordinal() + 1)%visList.length];
-                quest.getProperties().setProperty(NativeProps.VISIBILITY, vis);
+                quest.setProperty(NativeProps.VISIBILITY, vis);
                 ((PanelButton)btn).setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
                 SendChanges();
                 break;
@@ -224,25 +224,25 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             case 6: // Logic
             {
                 EnumLogic[] logicList = EnumLogic.values();
-                EnumLogic logic = quest.getProperties().getProperty(NativeProps.LOGIC_QUEST);
+                EnumLogic logic = quest.getProperty(NativeProps.LOGIC_QUEST);
                 logic = logicList[(logic.ordinal() + 1)%logicList.length];
-                quest.getProperties().setProperty(NativeProps.LOGIC_QUEST, logic);
+                quest.setProperty(NativeProps.LOGIC_QUEST, logic);
                 ((PanelButton)btn).setText(QuestTranslation.translate("betterquesting.btn.logic") + ": " + logic);
                 SendChanges();
                 break;
             }
             case 7: // Description Editor
             {
-                mc.displayGuiScreen(new GuiTextEditor(this, quest.getProperties().getProperty(NativeProps.DESC), value -> {
-                    quest.getProperties().setProperty(NativeProps.DESC, value);
+                mc.displayGuiScreen(new GuiTextEditor(this, quest.getProperty(NativeProps.DESC), value -> {
+                    quest.setProperty(NativeProps.DESC, value);
                     SendChanges();
                 }));
                 break;
             }
             case 8:
             {
-                mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperties().getProperty(NativeProps.ICON), value -> {
-                    quest.getProperties().setProperty(NativeProps.ICON, value);
+                mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperty(NativeProps.ICON), value -> {
+                    quest.setProperty(NativeProps.ICON, value);
                     SendChanges();
                 }));
             }

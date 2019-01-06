@@ -6,7 +6,6 @@ import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -42,12 +41,15 @@ import org.apache.logging.log4j.Level;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class QuestInstance implements IQuest
 {
+    // TODO: MAKE THIS ALL THREAD SAFE PLEAAAAAASE
+    
 	private final TaskStorage tasks = new TaskStorage();
 	private final RewardStorage rewards = new RewardStorage();
 	
@@ -108,54 +110,6 @@ public class QuestInstance implements IQuest
 		this.parentDB = questDB;
 	}
 	
-	@Override
-	public String getUnlocalisedName()
-	{
-		String def = "New Quest";
-		
-		if(!qInfo.hasProperty(NativeProps.NAME))
-		{
-			qInfo.setProperty(NativeProps.NAME, def);
-			return def;
-		}
-		
-		return qInfo.getProperty(NativeProps.NAME, def);
-	}
-	
-	@Override
-	public String getUnlocalisedDescription()
-	{
-		String def = "No Description";
-		
-		if(!qInfo.hasProperty(NativeProps.DESC))
-		{
-			qInfo.setProperty(NativeProps.DESC, def);
-			return def;
-		}
-		
-		return qInfo.getProperty(NativeProps.DESC, def);
-	}
-	
-	@Override
-	public BigItemStack getItemIcon()
-	{
-		BigItemStack def = new BigItemStack(Items.NETHER_STAR);
-		
-		if(!qInfo.hasProperty(NativeProps.ICON))
-		{
-			qInfo.setProperty(NativeProps.ICON, def);
-			return def;
-		}
-		
-		return qInfo.getProperty(NativeProps.ICON, def);
-	}
-	
-	@Override
-	public IPropertyContainer getProperties()
-	{
-		return qInfo;
-	}
-	
 	/**
 	 * Quest specific living update event. Do not use for item submissions
 	 */
@@ -166,7 +120,7 @@ public class QuestInstance implements IQuest
 		
 		if(isComplete(playerID))
 		{
-			UserEntry entry = GetUserEntry(playerID);
+			UserEntry entry = getCompletionInfo(playerID);
 			
 			if(!hasClaimed(playerID))
 			{
@@ -332,13 +286,13 @@ public class QuestInstance implements IQuest
 		switch(preset)
 		{
 			case 0:
-				postNotice(player, "betterquesting.notice.unlock", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UNLOCK), getProperties().getProperty(NativeProps.ICON));
+				postNotice(player, "betterquesting.notice.unlock", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_UNLOCK), getProperty(NativeProps.ICON));
 				break;
 			case 1:
-				postNotice(player, "betterquesting.notice.update", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_UPDATE), getProperties().getProperty(NativeProps.ICON));
+				postNotice(player, "betterquesting.notice.update", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_UPDATE), getProperty(NativeProps.ICON));
 				break;
 			case 2:
-				postNotice(player, "betterquesting.notice.complete", getUnlocalisedName(), qInfo.getProperty(NativeProps.SOUND_COMPLETE), getProperties().getProperty(NativeProps.ICON));
+				postNotice(player, "betterquesting.notice.complete", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_COMPLETE), getProperty(NativeProps.ICON));
 				break;
 		}
 	}
@@ -406,7 +360,7 @@ public class QuestInstance implements IQuest
 		{
 			return true;
 		}
-				
+  
 		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{
 			if(GetParticipation(uuid) < qInfo.getProperty(NativeProps.PARTICIPATION))
@@ -416,7 +370,7 @@ public class QuestInstance implements IQuest
 			{
 				for(UserEntry entry : completeUsers)
 				{
-					if(entry.hasClaimed())
+					if(entry.getNbtData().getBoolean("claimed"))
 					{
 						return true;
 					}
@@ -426,20 +380,20 @@ public class QuestInstance implements IQuest
 			}
 		}
 		
-		UserEntry entry = GetUserEntry(uuid);
+		UserEntry entry = getCompletionInfo(uuid);
 		
 		if(entry == null)
 		{
 			return false;
 		}
 		
-		return entry.hasClaimed();
+		return entry.getNbtData().getBoolean("claimed");
 	}
 	
 	@Override
 	public boolean canClaim(EntityPlayer player)
 	{
-		UserEntry entry = GetUserEntry(QuestingAPI.getQuestingUUID(player));
+		UserEntry entry = getCompletionInfo(QuestingAPI.getQuestingUUID(player));
 		
 		if(entry == null || hasClaimed(QuestingAPI.getQuestingUUID(player)))
 		{
@@ -483,7 +437,7 @@ public class QuestInstance implements IQuest
 					continue;
 				}
 				
-				UserEntry entry = GetUserEntry(mem);
+				UserEntry entry = getCompletionInfo(mem);
 				
 				if(entry == null)
 				{
@@ -495,7 +449,7 @@ public class QuestInstance implements IQuest
 			}
 		} else
 		{
-			UserEntry entry = GetUserEntry(pID);
+			UserEntry entry = getCompletionInfo(pID);
 			
 			if(entry == null)
 			{
@@ -519,12 +473,12 @@ public class QuestInstance implements IQuest
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
-		UserEntry entry = this.GetUserEntry(playerID);
+		UserEntry entry = this.getCompletionInfo(playerID);
 		
 		if(entry == null) // Incomplete
 		{
 			return true;
-		} else if(!entry.hasClaimed() && getProperties().getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
+		} else if(!entry.hasClaimed() && getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
 		{
 			if(tasks.size() <= 0)
 			{
@@ -587,7 +541,7 @@ public class QuestInstance implements IQuest
 	{
 		List<String> list = new ArrayList<>();
 		
-		list.add(QuestTranslation.translate(getUnlocalisedName()) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getID(this))));
+		list.add(QuestTranslation.translate(qInfo.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + parentDB.getID(this))));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
@@ -624,7 +578,7 @@ public class QuestInstance implements IQuest
 			{
 				if(!req.isComplete(playerID))
 				{
-					list.add(TextFormatting.RED + "- " + QuestTranslation.translate(req.getUnlocalisedName()));
+					list.add(TextFormatting.RED + "- " + QuestTranslation.translate(req.getProperty(NativeProps.NAME)));
 				}
 			}
 		} else
@@ -694,7 +648,7 @@ public class QuestInstance implements IQuest
 			return -1;
 		}
 		
-		UserEntry ue = GetUserEntry(QuestingAPI.getQuestingUUID(player));
+		UserEntry ue = getCompletionInfo(QuestingAPI.getQuestingUUID(player));
 		
 		if(ue == null)
 		{
@@ -756,7 +710,7 @@ public class QuestInstance implements IQuest
 		
 		if(party == null)
 		{
-			UserEntry entry = this.GetUserEntry(uuid);
+			UserEntry entry = this.getCompletionInfo(uuid);
 			
 			if(entry != null)
 			{
@@ -769,7 +723,7 @@ public class QuestInstance implements IQuest
 		{
 			for(UUID mem : party.getMembers())
 			{
-				UserEntry entry = this.GetUserEntry(mem);
+				UserEntry entry = this.getCompletionInfo(mem);
 				
 				if(entry != null)
 				{
@@ -793,7 +747,7 @@ public class QuestInstance implements IQuest
 			return completeUsers.size() > 0;
 		} else
 		{
-			return GetUserEntry(uuid) != null;
+			return getCompletionInfo(uuid) != null;
 		}
 	}
 	
@@ -842,7 +796,8 @@ public class QuestInstance implements IQuest
 		return EnumQuestState.LOCKED;
 	}
 	
-	private UserEntry GetUserEntry(UUID uuid)
+	@Override
+	public UserEntry getCompletionInfo(UUID uuid)
 	{
 		for(UserEntry entry : completeUsers)
 		{
@@ -855,6 +810,31 @@ public class QuestInstance implements IQuest
 		return null;
 	}
 	
+	@Override
+    public void setCompletionInfo(UUID uuid, NBTTagCompound nbt)
+    {
+        if(uuid == null) return;
+        
+        if(nbt == null)
+        {
+            Iterator<UserEntry> iterEntry = completeUsers.iterator();
+            
+            while(iterEntry.hasNext())
+            {
+                if(iterEntry.next().getUUID().equals(uuid))
+                {
+                    iterEntry.remove();
+                    break;
+                }
+            }
+        } else
+        {
+            UserEntry ue = new UserEntry(uuid);
+            ue.readFromJson(nbt);
+            completeUsers.add(ue);
+        }
+    }
+	
 	/**
 	 * Resets task progress and claim status. If performing a full reset, completion status will also be erased
 	 */
@@ -866,7 +846,7 @@ public class QuestInstance implements IQuest
 			this.RemoveUserEntry(uuid);
 		} else
 		{
-			UserEntry entry = GetUserEntry(uuid);
+			UserEntry entry = getCompletionInfo(uuid);
 			
 			if(entry != null)
 			{
@@ -1053,7 +1033,7 @@ public class QuestInstance implements IQuest
 		
 		if(party == null)
 		{
-			UserEntry entry = this.GetUserEntry(uuid);
+			UserEntry entry = this.getCompletionInfo(uuid);
 			
 			if(entry != null)
 			{
@@ -1068,7 +1048,7 @@ public class QuestInstance implements IQuest
 		{
 			for(UUID mem : party.getMembers())
 			{
-				UserEntry entry = this.GetUserEntry(mem);
+				UserEntry entry = this.getCompletionInfo(mem);
 				
 				if(entry != null)
 				{
@@ -1082,4 +1062,28 @@ public class QuestInstance implements IQuest
 			}
 		}
 	}
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop)
+    {
+        return qInfo.getProperty(prop);
+    }
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop, T def)
+    {
+        return qInfo.getProperty(prop, def);
+    }
+    
+    @Override
+    public boolean hasProperty(IPropertyType<?> prop)
+    {
+        return qInfo.hasProperty(prop);
+    }
+    
+    @Override
+    public <T> void setProperty(IPropertyType<T> prop, T value)
+    {
+        qInfo.setProperty(prop, value);
+    }
 }

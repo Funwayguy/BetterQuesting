@@ -12,6 +12,7 @@ import betterquesting.api.properties.basic.PropertyTypeItemStack;
 import betterquesting.api.properties.basic.PropertyTypeString;
 import betterquesting.api.utils.BigItemStack;
 
+// TODO: SPLIT THIS DAMN FILE UP. It's already too big and it needs to be divided up per-purpose
 /**
  * List of native properties used in BetterQuesting
  */

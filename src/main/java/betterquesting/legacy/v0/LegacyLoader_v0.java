@@ -106,21 +106,19 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	
 	public void readQuest(IQuest quest, JsonObject json)
 	{
-		IPropertyContainer props = quest.getProperties();
-		
-		props.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest"));
-		props.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
-		props.setProperty(NativeProps.MAIN, JsonHelper.GetBoolean(json, "isMain", false));
-		props.setProperty(NativeProps.SILENT, JsonHelper.GetBoolean(json, "isSilent", false));
-		props.setProperty(NativeProps.LOCKED_PROGRESS, JsonHelper.GetBoolean(json, "lockedProgress", false));
-		props.setProperty(NativeProps.SIMULTANEOUS, JsonHelper.GetBoolean(json, "simultaneous", false));
-		props.setProperty(NativeProps.GLOBAL, JsonHelper.GetBoolean(json, "globalQuest", false));
-		props.setProperty(NativeProps.GLOBAL_SHARE, JsonHelper.GetBoolean(json, "globalShare", false));
-		props.setProperty(NativeProps.AUTO_CLAIM, JsonHelper.GetBoolean(json, "autoClaim", false));
-		props.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000).intValue());
-		props.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
-		props.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
-		props.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound())));
+		quest.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest"));
+		quest.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
+		quest.setProperty(NativeProps.MAIN, JsonHelper.GetBoolean(json, "isMain", false));
+		quest.setProperty(NativeProps.SILENT, JsonHelper.GetBoolean(json, "isSilent", false));
+		quest.setProperty(NativeProps.LOCKED_PROGRESS, JsonHelper.GetBoolean(json, "lockedProgress", false));
+		quest.setProperty(NativeProps.SIMULTANEOUS, JsonHelper.GetBoolean(json, "simultaneous", false));
+		quest.setProperty(NativeProps.GLOBAL, JsonHelper.GetBoolean(json, "globalQuest", false));
+		quest.setProperty(NativeProps.GLOBAL_SHARE, JsonHelper.GetBoolean(json, "globalShare", false));
+		quest.setProperty(NativeProps.AUTO_CLAIM, JsonHelper.GetBoolean(json, "autoClaim", false));
+		quest.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000).intValue());
+		quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
+		quest.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
+		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound())));
 		
 		for(JsonElement je : JsonHelper.GetArray(json, "preRequisites"))
 		{

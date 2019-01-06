@@ -2,19 +2,16 @@ package betterquesting.misc;
 
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.storage.PropertyContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -27,7 +24,6 @@ public class DummyQuest implements IQuest
 	private PropertyContainer propContainer = new HookedStorage();
 	private final EnumQuestState qState;
 	private IMainQuery mainCallback;
-	private final BigItemStack icon = new BigItemStack(Items.AIR);
 	private final List<String> tooltip = new ArrayList<>();
 	
 	public DummyQuest(EnumQuestState state)
@@ -80,33 +76,9 @@ public class DummyQuest implements IQuest
 	}
 	
 	@Override
-	public String getUnlocalisedName()
-	{
-		return "Dummy";
-	}
-	
-	@Override
-	public String getUnlocalisedDescription()
-	{
-		return "Dummy";
-	}
-	
-	@Override
 	public List<String> getTooltip(EntityPlayer player)
 	{
 		return tooltip;
-	}
-	
-	@Override
-	public BigItemStack getItemIcon()
-	{
-		return icon;
-	}
-	
-	@Override
-	public IPropertyContainer getProperties()
-	{
-		return propContainer;
 	}
 	
 	@Override
@@ -211,8 +183,43 @@ public class DummyQuest implements IQuest
 	{
 		return null;
 	}
-	
-	private class HookedStorage extends PropertyContainer
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop)
+    {
+        return propContainer.getProperty(prop);
+    }
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop, T def)
+    {
+        return propContainer.getProperty(prop, def);
+    }
+    
+    @Override
+    public boolean hasProperty(IPropertyType<?> prop)
+    {
+        return propContainer.hasProperty(prop);
+    }
+    
+    @Override
+    public <T> void setProperty(IPropertyType<T> prop, T value)
+    {
+        propContainer.setProperty(prop, value);
+    }
+    
+    @Override
+    public UserEntry getCompletionInfo(UUID uuid)
+    {
+        return null;
+    }
+    
+    @Override
+    public void setCompletionInfo(UUID uuid, NBTTagCompound tags)
+    {
+    }
+    
+    private class HookedStorage extends PropertyContainer
 	{
 		@Override
 		@SuppressWarnings("unchecked")
