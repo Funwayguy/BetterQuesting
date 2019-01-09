@@ -2,12 +2,14 @@ package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -23,6 +25,8 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	@Override
 	public IParty getUserParty(UUID uuid)
 	{
+	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null;
+	    
 		for(DBEntry<IParty> entry : getEntries())
 		{
 			EnumPartyStatus status = entry.getValue().getStatus(uuid);

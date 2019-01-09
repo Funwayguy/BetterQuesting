@@ -28,6 +28,7 @@ import net.minecraft.util.text.TextFormatting;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefresh
 {
@@ -63,11 +64,12 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		}
 		
 		activeQuests.clear();
+        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
 		QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 		if(qc != null) activeQuests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
         
-        // These should not be shown to players
-        activeQuests.removeIf(q -> q.getValue().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN);
+        // Even though locked progression may be enabled, that still doesn't allow it to be visible in the submission station
+        activeQuests.removeIf(q -> q.getValue().getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN || !q.getValue().isUnlocked(playerID));
 		
 		buttonList.add(new GuiButtonThemed(1, guiLeft + sizeX/2 - 120, guiTop + 32, 20, 20, "<", true)); // Prev Quest
 		buttonList.add(new GuiButtonThemed(2, guiLeft + sizeX/2 + 100, guiTop + 32, 20, 20, ">", true)); // Next Quest
@@ -221,18 +223,19 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		{
 			quest = tile.getQuest();
 			task = tile.getRawTask();
-			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16), quest);
+			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 96, sizeX/2 - 24, sizeY - 96 - 16, 0), quest);
 			
 			if(tmp != null)
 			{
 			    taskUI = new EmbeddedPanel(tmp);
+			    tmp.initPanel();
 				embedded.add(taskUI);
 			} else
             {
                 taskUI = null;
             }
 			
-			selQuest = Math.max(0, activeQuests.indexOf(quest));
+			selQuest = Math.max(0, indexOfQuest(quest));
 			selTask = Math.max(0, indexOfTask(quest, task));
 			
 			for(int i = 1; i <= 4; i++)
@@ -275,11 +278,12 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 			taskUI = null;
 		} else
 		{
-			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 92, sizeX/2 - 24, sizeY - 92 - 16), quest);
+			IGuiPanel tmp = task.getTaskGui(new GuiRectangle(guiLeft + sizeX/2 + 8, guiTop + 96, sizeX/2 - 24, sizeY - 96 - 16), quest);
 			
 			if(tmp != null)
 			{
 			    taskUI = new EmbeddedPanel(tmp);
+			    tmp.initPanel();
 				embedded.add(taskUI);
 			} else
             {
@@ -313,4 +317,14 @@ public class GuiSubmitStation extends GuiContainerThemed implements INeedsRefres
 		
 		return -1;
 	}
+	
+	private int indexOfQuest(IQuest quest)
+    {
+        for(int i = 0; i < activeQuests.size(); i++)
+        {
+            if(activeQuests.get(i).getValue().equals(quest)) return i;
+        }
+        
+        return -1;
+    }
 }

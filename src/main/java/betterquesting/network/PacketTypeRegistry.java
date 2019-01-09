@@ -1,26 +1,11 @@
 package betterquesting.network;
 
-import java.util.HashMap;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.IPacketRegistry;
-import betterquesting.network.handlers.PktHandlerClaim;
-import betterquesting.network.handlers.PktHandlerDetect;
-import betterquesting.network.handlers.PktHandlerImport;
-import betterquesting.network.handlers.PktHandlerLineDB;
-import betterquesting.network.handlers.PktHandlerLineEdit;
-import betterquesting.network.handlers.PktHandlerLineSync;
-import betterquesting.network.handlers.PktHandlerLives;
-import betterquesting.network.handlers.PktHandlerNameCache;
-import betterquesting.network.handlers.PktHandlerNotification;
-import betterquesting.network.handlers.PktHandlerPartyAction;
-import betterquesting.network.handlers.PktHandlerPartyDB;
-import betterquesting.network.handlers.PktHandlerPartySync;
-import betterquesting.network.handlers.PktHandlerQuestDB;
-import betterquesting.network.handlers.PktHandlerQuestEdit;
-import betterquesting.network.handlers.PktHandlerQuestSync;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.network.handlers.PktHandlerTileEdit;
+import betterquesting.network.handlers.*;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.HashMap;
 
 public class PacketTypeRegistry implements IPacketRegistry {
 	public static final PacketTypeRegistry INSTANCE = new PacketTypeRegistry();
@@ -54,6 +39,7 @@ public class PacketTypeRegistry implements IPacketRegistry {
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
 		registerHandler(new PktHandlerSettings());
+		registerHandler(new PktHandlerCacheSync());
 	}
 	
 	@Override

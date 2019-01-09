@@ -15,6 +15,8 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
@@ -29,10 +31,8 @@ import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.*;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -110,103 +110,28 @@ public class QuestInstance implements IQuest
 		this.parentDB = questDB;
 	}
 	
-	/**
-	 * Quest specific living update event. Do not use for item submissions
-	 */
 	@Override
 	public void update(EntityPlayer player)
 	{
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
-		if(isComplete(playerID))
-		{
-			UserEntry entry = getCompletionInfo(playerID);
-			
-			if(!hasClaimed(playerID))
-			{
-				if(canClaim(player))
-				{
-					// Quest is complete and pending claim.
-					// Task logic is not required to run.
-					if(qInfo.getProperty(NativeProps.AUTO_CLAIM) && player.ticksExisted%20 == 0)
-					{
-						claimReward(player);
-					}
-					
-					return;
-				} else if(qInfo.getProperty(NativeProps.REPEAT_TIME) < 0 || rewards.size() <= 0)
-				{
-					// Task is non repeatable or has no rewards to claim
-					return;
-				}
-				
-				// Task logic will now run for repeat quest
-			} else if(rewards.size() > 0 && qInfo.getProperty(NativeProps.REPEAT_TIME) >= 0 && FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime() - entry.getTimestamp() >= qInfo.getProperty(NativeProps.REPEAT_TIME))
-			{
-				// Task is scheduled to reset
-				if(qInfo.getProperty(NativeProps.GLOBAL))
-				{
-					resetAll(false);
-				} else
-				{
-					resetUser(playerID, false);
-				}
-				
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 1);
-				}
-				
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				return;
-			} else
-			{
-				// No reset or reset is pending
-				return;
-			}
-		}
-		
-		if(isUnlocked(playerID) || qInfo.getProperty(NativeProps.LOCKED_PROGRESS))
-		{
-			int done = 0;
-			
-			for(DBEntry<ITask> entry : tasks.getEntries())
-			{
-				if(entry.getValue().isComplete(playerID))
-				{
-					IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-					
-					if(party != null) // Ensures task is marked as complete for all team members
-					{
-						for(UUID mem : party.getMembers())
-						{
-							entry.getValue().setComplete(mem);
-						}
-					}
-					
-					done += 1;
-				}
-			}
-			
-			if(!isUnlocked(playerID))
-			{
-				return;
-			} else if(!isComplete(playerID) && (tasks.size() > 0 || !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) && qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
-			{
-				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
-				
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-				
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 2);
-				}
-			} else if(!isComplete(playerID) && done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS))
-			{
-				resetUser(playerID, false);
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
-			}
-		}
+        int done = 0;
+        
+        for(DBEntry<ITask> entry : tasks.getEntries())
+        {
+            if(entry.getValue().isComplete(playerID))
+            {
+                done++;
+            }
+        }
+        
+        if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
+        {
+            setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+        } else if(done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS)) // TODO: There is actually an exploit here to do with locked progression bypassing simultaneous reset conditions. Fix?
+        {
+            resetUser(playerID, false);
+        }
 	}
 	
 	/**
@@ -216,6 +141,9 @@ public class QuestInstance implements IQuest
 	public void detect(EntityPlayer player)
 	{
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
+        QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        if(qc == null) return;
+        int questID = QuestDatabase.INSTANCE.getID(this);
 		
 		if(isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME) < 0 || rewards.size() <= 0))
 		{
@@ -238,118 +166,28 @@ public class QuestInstance implements IQuest
 					
 					if(entry.getValue().isComplete(playerID))
 					{
-						IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-						
-						if(party != null) // Ensures task is marked as complete for all team members
-						{
-							for(UUID mem : party.getMembers())
-							{
-								entry.getValue().setComplete(mem);
-							}
-						}
-						
-						done += 1;
+						done++;
 						update = true;
 					}
 				} else
 				{
-					done += 1;
+					done++;
 				}
 			}
-			
+			// Note: Tasks can mark the quest dirty themselves if progress changed but hasn't fully completed.
 			if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
-				setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
-				
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 2);
-				}
+			    // State won't be auto updated in edit mode so we force change it here and mark it for re-sync
+				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+				qc.markQuestDirty(questID);
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
 				resetUser(playerID, false);
-				PacketSender.INSTANCE.sendToAll(getSyncPacket());
+				qc.markQuestDirty(questID);
 			} else if(update)
 			{
-				if(!QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) && !qInfo.getProperty(NativeProps.SILENT))
-				{
-					postPresetNotice(player, 1);
-				}
+				qc.markQuestDirty(questID);
 			}
-			
-			PacketSender.INSTANCE.sendToAll(getSyncPacket());
-		}
-	}
-	
-	public void postPresetNotice(EntityPlayer player, int preset)
-	{
-		switch(preset)
-		{
-			case 0:
-				postNotice(player, "betterquesting.notice.unlock", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_UNLOCK), getProperty(NativeProps.ICON));
-				break;
-			case 1:
-				postNotice(player, "betterquesting.notice.update", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_UPDATE), getProperty(NativeProps.ICON));
-				break;
-			case 2:
-				postNotice(player, "betterquesting.notice.complete", getProperty(NativeProps.NAME), getProperty(NativeProps.SOUND_COMPLETE), getProperty(NativeProps.ICON));
-				break;
-		}
-	}
-	
-	public void postNotice(EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
-	{
-		if(QuestDatabase.INSTANCE.getID(this) < 0)
-		{
-			BetterQuesting.logger.error("Non-existant quest is posting notifications!", new Exception());
-		}
-		
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setString("Main", mainTxt);
-		tags.setString("Sub", subTxt);
-		tags.setString("Sound", sound);
-		tags.setTag("Icon", icon.writeToNBT(new NBTTagCompound()));
-		QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-		
-		if(qInfo.getProperty(NativeProps.GLOBAL))
-		{
-			PacketSender.INSTANCE.sendToAll(payload);
-		} else if(player instanceof EntityPlayerMP)
-		{
-			List<EntityPlayerMP> tarList = getPartyPlayers((EntityPlayerMP)player);
-			
-			for(EntityPlayerMP p : tarList)
-			{
-				PacketSender.INSTANCE.sendToPlayer(payload, p);
-			}
-		}
-	}
-	
-	private List<EntityPlayerMP> getPartyPlayers(EntityPlayerMP player)
-	{
-		List<EntityPlayerMP> list = new ArrayList<>();
-		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
-		
-		if(party == null)
-		{
-			list.add(player);
-			return list;
-		} else
-		{
-			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-			
-			for(UUID mem : party.getMembers())
-			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayers())
-				{
-					if(p != null && QuestingAPI.getQuestingUUID(p).equals(mem))
-					{
-						list.add(p);
-					}
-				}
-			}
-			
-			return list;
 		}
 	}
 	

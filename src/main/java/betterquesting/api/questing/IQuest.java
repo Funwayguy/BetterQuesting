@@ -42,9 +42,7 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
 	boolean isComplete(UUID uuid);
 	void setComplete(UUID uuid, long timeStamp);
 	
-	@Deprecated
 	boolean canClaim(EntityPlayer player);
-	@Deprecated
 	boolean hasClaimed(UUID uuid);
 	void claimReward(EntityPlayer player);
 	

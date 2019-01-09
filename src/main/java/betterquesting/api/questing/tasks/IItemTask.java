@@ -1,10 +1,11 @@
 package betterquesting.api.questing.tasks;
 
-import java.util.UUID;
 import net.minecraft.item.ItemStack;
 
-public interface IItemTask
+import java.util.UUID;
+
+public interface IItemTask extends ITask
 {
-	public boolean canAcceptItem(UUID owner, ItemStack stack);
-	public ItemStack submitItem(UUID owner, ItemStack stack);
+	boolean canAcceptItem(UUID owner, ItemStack stack);
+	ItemStack submitItem(UUID owner, ItemStack stack);
 }

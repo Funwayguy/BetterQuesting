@@ -3,11 +3,13 @@ package betterquesting.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
@@ -16,6 +18,7 @@ import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
@@ -27,6 +30,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
@@ -46,7 +50,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,7 +89,6 @@ public class EventHandler
     {
         if(!(event.getObject() instanceof EntityPlayer)) return;
         event.addCapability(CapabilityProviderQuestCache.LOC_QUEST_CACHE, new CapabilityProviderQuestCache());
-        System.out.println("Capability QUEST_CACHE attached to player");
     }
     
     @SubscribeEvent
@@ -108,37 +110,40 @@ public class EventHandler
 		
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
-			if(event.getEntityLiving().ticksExisted%20 != 0 || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return; // Only triggers once per second
+			if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
 			
 			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
             betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+            boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
             
             if(qc == null) return;
             
             List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()); // TODO: Replace with quests marked dirty when functionality is implemented
             List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
             QResetTime[] pendingResets = qc.getScheduledResets();
-            
-            List<DBEntry<IQuest>> syncMe = new ArrayList<>();
 			
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			boolean refreshCache = false;
 			
-			if(player.ticksExisted%100 == 0) // Passive quest state check every 5 seconds
+			if(!editMode && player.ticksExisted%100 == 0) // Passive quest state check every 5 seconds
             {
                 for(DBEntry<IQuest> quest : activeQuests)
                 {
+                    if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
+                    
                     quest.getValue().update(player);
                     
                     if(quest.getValue().isComplete(uuid))
                     {
                         refreshCache = true;
-                        if(!syncMe.contains(quest)) syncMe.add(quest);
+                        qc.markQuestDirty(quest.getID());
+                        
+                        if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
                     }
                 }
             }
             
-            if(player.getServer() != null) // Repeatable quest resets
+            if(!editMode && player.getServer() != null) // Repeatable quest resets
             {
                 for(QResetTime rTime : pendingResets)
                 {
@@ -155,19 +160,23 @@ public class EventHandler
                         }
                         
                         refreshCache = true;
-                        DBEntry<IQuest> dbe = new DBEntry<>(rTime.questID, entry);
-                        if(!syncMe.contains(dbe)) syncMe.add(dbe);
+                        qc.markQuestDirty(rTime.questID);
+                        if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
                     }
                 }
             }
             
-            for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
+            if(!editMode)
             {
-                if(entry.getValue().canClaim(player))
+                for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
                 {
-                    entry.getValue().claimReward(player);
-                    refreshCache = true;
-                    if(!syncMe.contains(entry)) syncMe.add(entry);
+                    if(entry.getValue().canClaim(player))
+                    {
+                        entry.getValue().claimReward(player);
+                        refreshCache = true;
+                        qc.markQuestDirty(entry.getID());
+                        // Not going to notify of auto-claims anymore. Kinda pointless if they're already being pinged for completion
+                    }
                 }
             }
             
@@ -175,6 +184,8 @@ public class EventHandler
             {
                 qc.updateCache(player);
             }
+            
+            List<DBEntry<IQuest>> syncMe = QuestDatabase.INSTANCE.bulkLookup(qc.getDirtyQuests());
             
             // TODO: Check partial data writes from here when fully implemented
             for(DBEntry<IQuest> entry : syncMe)
@@ -191,6 +202,7 @@ public class EventHandler
                         for(UUID memID : party.getMembers()) // Send to party only
                         {
                             EntityPlayerMP memPlayer = player.getServer().getPlayerList().getPlayerByUUID(memID);
+                            //noinspection ConstantConditions // No idea why IntelliJ is being silly with this null check
                             if(memPlayer != null) PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), memPlayer);
                         }
                     } else
@@ -199,6 +211,47 @@ public class EventHandler
                     }
                 }
             }
+            
+            qc.cleanAllQuests();
+		}
+	}
+	
+	private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset)
+	{
+		switch(preset)
+		{
+			case 0:
+				postNotice(quest, player, "betterquesting.notice.unlock", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UNLOCK), quest.getProperty(NativeProps.ICON));
+				break;
+			case 1:
+				postNotice(quest, player, "betterquesting.notice.update", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UPDATE), quest.getProperty(NativeProps.ICON));
+				break;
+			case 2:
+				postNotice(quest, player, "betterquesting.notice.complete", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_COMPLETE), quest.getProperty(NativeProps.ICON));
+				break;
+		}
+	}
+	
+	private static void postNotice(IQuest quest, EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
+	{
+		if(QuestDatabase.INSTANCE.getID(quest) < 0)
+		{
+			BetterQuesting.logger.error("Non-existant quest is posting notifications!", new Exception());
+		}
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setString("Main", mainTxt);
+		tags.setString("Sub", subTxt);
+		tags.setString("Sound", sound);
+		tags.setTag("Icon", icon.writeToNBT(new NBTTagCompound()));
+		QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+		
+		if(quest.getProperty(NativeProps.GLOBAL))
+		{
+			PacketSender.INSTANCE.sendToAll(payload);
+		} else if(player instanceof EntityPlayerMP)
+		{
+		    PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 		}
 	}
 	
@@ -251,7 +304,7 @@ public class EventHandler
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
-			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES)) ? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -318,6 +371,7 @@ public class EventHandler
 	{
 		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
 		
+		// TODO: Change this to a proper panel event. Also explain WHAT updated
 		if(screen instanceof INeedsRefresh)
 		{
 			((INeedsRefresh)screen).refreshGui();

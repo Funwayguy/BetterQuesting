@@ -105,10 +105,10 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         
         PanelButtonStorage<UUID> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), playerID);
         cvLeftHalf.addPanel(btnLeave);
-        btnLifeShare.setActive(status.ordinal() >= 2);
         
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
         cvLeftHalf.addPanel(btnInvite);
+        btnInvite.setActive(status.ordinal() >= 2);
         
         if(flName == null) flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName(), FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
@@ -223,12 +223,18 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 			mc.displayGuiScreen(new GuiPartyInvite(this));
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Kick/Leave
         {
+            UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
             UUID id = ((PanelButtonStorage<UUID>)btn).getStoredValue();
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.KICK.ordinal());
 			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
 			tags.setString("target", id.toString());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+			
+			if(id.equals(playerID))
+            {
+                mc.displayGuiScreen(new GuiPartyCreate(parent));
+            }
         } else if(btn.getButtonID() == 4) // Change name
         {
             party.getProperties().setProperty(NativeProps.NAME, flName.getRawText());

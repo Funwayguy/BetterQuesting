@@ -20,7 +20,6 @@ public class EmbeddedPanel implements IGuiEmbedded
     @Override
     public void drawForeground(int mx, int my, float partialTick)
     {
-    
     }
     
     @Override

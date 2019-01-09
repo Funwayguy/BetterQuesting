@@ -34,6 +34,8 @@ public class NativeProps
 	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
 	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
+	
+	@Deprecated
 	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
 	
 	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
@@ -47,6 +49,7 @@ public class NativeProps
 	
 	public static final IPropertyType<Boolean> PARTY_LOOT =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:partySingleReward"), false);
 	public static final IPropertyType<Boolean> PARTY_LIVES =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLives"), false);
+	public static final IPropertyType<Boolean> PARTY_ENABLE =               new PropertyTypeBoolean(new ResourceLocation("betterquesting:party_enable"), true);
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);

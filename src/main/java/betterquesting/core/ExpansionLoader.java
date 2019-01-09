@@ -1,11 +1,5 @@
 package betterquesting.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.IQuestExpansion;
 import betterquesting.api.api.QuestExpansion;
@@ -24,12 +18,19 @@ import betterquesting.questing.tasks.TaskRegistry;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.List;
+
+// TODO: Move this into a forge event. Really don't need to do all this ASM hackery, it's not load order friendly, and it makes anything dependent on subsequent init events difficult
 public class ExpansionLoader
 {
 	public static final ExpansionLoader INSTANCE = new ExpansionLoader();
 	
-	private final ArrayList<IQuestExpansion> expansions = new ArrayList<IQuestExpansion>();
+	private final List<IQuestExpansion> expansions = new ArrayList<>();
 	
 	private ExpansionLoader()
 	{
@@ -47,7 +48,7 @@ public class ExpansionLoader
 				expansions.add(expClass.newInstance());
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.INFO, "Unable to load BetterQuesting expansion: ", e);
+				BetterQuesting.logger.error("Unable to load BetterQuesting expansion: ", e);
 			}
 		}
 	}

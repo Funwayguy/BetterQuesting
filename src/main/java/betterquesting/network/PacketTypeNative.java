@@ -21,7 +21,8 @@ public enum PacketTypeNative
 	NAME_CACHE,
 	NOTIFICATION,
 	SETTINGS,
-	IMPORT;
+	IMPORT,
+    CACHE_SYNC;
 	
 	private final ResourceLocation ID;
 	

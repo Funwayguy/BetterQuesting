@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -108,8 +109,9 @@ public class BetterQuesting
 		
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
-		
-		if("${version}".equalsIgnoreCase(Loader.instance().activeModContainer().getVersion()))
+        
+        ModContainer activeMod = Loader.instance().activeModContainer();
+		if(activeMod != null && "${version}".equalsIgnoreCase(activeMod.getVersion()))
 		{
 			manager.registerCommand(new BQ_CommandDebug());
 		}

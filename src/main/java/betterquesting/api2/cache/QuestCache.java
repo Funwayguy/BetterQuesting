@@ -3,11 +3,14 @@ package betterquesting.api2.cache;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestVisibility;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.misc.UserEntry;
+import betterquesting.network.PacketTypeNative;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
@@ -31,6 +34,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     
     // Quests with pending auto claims (usually should be empty unless a condition needs to be met)
     private final TreeSet<Integer> autoClaims = new TreeSet<>();
+    
+    // Quests that need to be sent to the client to update progression (NOT for edits. Handle that elsewhere)
+    private final TreeSet<Integer> markedDirty = new TreeSet<>();
     
     public int[] getActiveQuests()
     {
@@ -76,14 +82,55 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         }
     }
     
+    public void markQuestDirty(int questID)
+    {
+        if(questID < 0) return;
+        
+        synchronized(syncLock)
+        {
+            markedDirty.add(questID);
+        }
+    }
+    
+    public void markQuestClean(int questID)
+    {
+        if(questID < 0) return;
+        
+        synchronized(syncLock)
+        {
+            markedDirty.remove(questID);
+        }
+    }
+    
+    public void cleanAllQuests()
+    {
+        synchronized(syncLock)
+        {
+            markedDirty.clear();
+        }
+    }
+    
+    public int[] getDirtyQuests()
+    {
+        synchronized(syncLock)
+        {
+            // Probably a better way of doing this but this will do for now
+            int i = 0;
+            int[] aryMD = new int[markedDirty.size()];
+            for(Integer q : markedDirty) aryMD[i++] = q;
+            return aryMD;
+        }
+    }
+    
     // TODO: Ensure this is thread safe because we're likely going to run this in the background
+    // NOTE: Only run this when the quests completion and claim states change. Use markQuestDirty() for progression changes that need syncing
     public void updateCache(EntityPlayer player)
     {
         if(player == null) return;
         
         UUID uuid = QuestingAPI.getQuestingUUID(player);
         DBEntry<IQuest>[] questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB).getEntries();
-    
+        
         NonNullList<Integer> tmpVisible = NonNullList.create();
         NonNullList<Integer> tmpActive = NonNullList.create();
         NonNullList<QResetTime> tmpReset = NonNullList.create();
@@ -96,7 +143,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
                 int repeat = entry.getValue().getProperty(NativeProps.REPEAT_TIME);
                 UserEntry ue = entry.getValue().getCompletionInfo(uuid);
                 
-                if((ue == null && entry.getValue().getTasks().size() <= 0) || entry.getValue().canSubmit(player)) // Can be active without completion in the case of locked progress
+                if((ue == null && entry.getValue().getTasks().size() <= 0) || entry.getValue().canSubmit(player)) // Can be active without completion in the case of locked progress. Also account for taskless quests
                 {
                     tmpActive.add(entry.getID());
                 } else if(ue != null) // These conditions only trigger after first completion
@@ -104,7 +151,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
                     if(repeat >= 0)
                     {
                         tmpReset.add(new QResetTime(entry.getID(), ue.getNbtData().getLong("timestamp") + repeat));
-                    } else if(!ue.getNbtData().getBoolean("claimed") && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))
+                    }
+                    
+                    if(!ue.getNbtData().getBoolean("claimed") && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))
                     {
                         tmpAutoClaim.add(entry.getID());
                     }
@@ -131,6 +180,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             autoClaims.clear();
             autoClaims.addAll(tmpAutoClaim);
         }
+        NBTTagCompound tags = new NBTTagCompound();
+        tags.setTag("data", serializeNBT());
+        if(player instanceof EntityPlayerMP) QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(new QuestingPacket(PacketTypeNative.CACHE_SYNC.GetLocation(), tags), (EntityPlayerMP)player);
     }
     
     @Override
@@ -141,6 +193,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         tags.setIntArray("visibleQuests", getVisibleQuests());
         tags.setIntArray("activeQuests", getActiveQuests());
         tags.setIntArray("autoClaims", getPendingAutoClaims());
+        tags.setIntArray("markedDirty", getDirtyQuests());
         
         NBTTagList tagSchedule = new NBTTagList();
         for(QResetTime entry : getScheduledResets())
@@ -164,10 +217,12 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             activeQuests.clear();
             resetSchedule.clear();
             autoClaims.clear();
+            markedDirty.clear();
             
             for(int i : nbt.getIntArray("visibleQuests")) visibleQuests.add(i);
             for(int i : nbt.getIntArray("activeQuests")) activeQuests.add(i);
             for(int i : nbt.getIntArray("autoClaims")) autoClaims.add(i);
+            for(int i : nbt.getIntArray("markedDirty")) markedDirty.add(i);
             
             NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
             for(int i = 0; i < tagList.tagCount(); i++)
@@ -207,6 +262,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     }
     
     // TODO: Make this based on a fixed state stored on the quest instead of calculated on demand
+    // TODO: Also make this thread safe
     public static boolean isQuestShown(IQuest quest, UUID uuid, EntityPlayer player)
     {
         if(quest == null || uuid == null)
