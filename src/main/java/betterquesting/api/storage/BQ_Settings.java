@@ -17,6 +17,7 @@ public class BQ_Settings
 	public static String curTheme = "betterquesting:light";
 	public static int guiWidth = -1;
 	public static int guiHeight = -1;
+	public static boolean questNotices = true;
 	
-	public static boolean hideUpdates = false;
+	//public static boolean hideUpdates = false;
 }

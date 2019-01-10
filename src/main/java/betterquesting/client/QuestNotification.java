@@ -1,5 +1,6 @@
 package betterquesting.client;
 
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -27,7 +28,7 @@ public class QuestNotification
 {
 	public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 	{
-		notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
+	    if(BQ_Settings.questNotices) notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
 	}
 	
 	private static final List<QuestNotice> notices = new ArrayList<>();
@@ -45,7 +46,7 @@ public class QuestNotification
 			return;
 		}
 		
-		if(notices.size() >= 20) // I can't do it anymore. BURN IT ALL
+		if(notices.size() >= 20 || !BQ_Settings.questNotices)
 		{
 			notices.clear();
 			return;
@@ -111,12 +112,12 @@ public class QuestNotification
 	
 	public static class QuestNotice
 	{
-		long startTime = 0;
+		public long startTime;
 		public boolean init = false;
-		public String mainTxt = "";
-		public String subTxt = "";
-		public ItemStack icon = null;
-		public String sound = "random.levelup";
+		private final String mainTxt;
+		private final String subTxt;
+		private final ItemStack icon;
+		private final String sound;
 		
 		public QuestNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 		{
