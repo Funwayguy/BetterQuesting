@@ -263,8 +263,9 @@ public class QuestInstance implements IQuest
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);
 		IParty party = PartyManager.INSTANCE.getUserParty(pID);
+        QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 		
-		if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT))
+		if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT)) // One claim per-party
 		{
 			for(UUID mem : party.getMembers())
 			{
@@ -285,7 +286,7 @@ public class QuestInstance implements IQuest
 				
 				entry.setClaimed(true, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 			}
-		} else
+		} else // One claim per-person
 		{
 			UserEntry entry = getCompletionInfo(pID);
 			
@@ -298,7 +299,7 @@ public class QuestInstance implements IQuest
 			entry.setClaimed(true, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
 		}
 		
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		if(qc != null) qc.markQuestDirty(QuestDatabase.INSTANCE.getID(this));
 	}
 	
 	@Override
@@ -589,6 +590,7 @@ public class QuestInstance implements IQuest
 		}
 	}
 	
+	@Deprecated
 	private void RemoveUserEntry(UUID... uuid)
 	{
 		boolean flag = false;
@@ -610,6 +612,7 @@ public class QuestInstance implements IQuest
 		
 		if(flag)
 		{
+		    // TODO: Fine a workaround for this (global dirty?)
 			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
@@ -681,7 +684,7 @@ public class QuestInstance implements IQuest
 	{
 		if(fullReset)
 		{
-			this.RemoveUserEntry(uuid);
+            completeUsers.removeIf(userEntry -> userEntry.getUUID().equals(uuid));
 		} else
 		{
 			UserEntry entry = getCompletionInfo(uuid);

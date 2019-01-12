@@ -2,6 +2,7 @@ package betterquesting.network;
 
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.IPacketRegistry;
+import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.*;
 import net.minecraft.util.ResourceLocation;
 
@@ -39,7 +40,11 @@ public class PacketTypeRegistry implements IPacketRegistry {
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
 		registerHandler(new PktHandlerSettings());
-		registerHandler(new PktHandlerCacheSync());
+		
+		if(BetterQuesting.proxy.isClient())
+        {
+            registerHandler(new PktHandlerCacheSync());
+        }
 	}
 	
 	@Override

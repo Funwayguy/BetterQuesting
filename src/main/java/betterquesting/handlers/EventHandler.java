@@ -118,7 +118,7 @@ public class EventHandler
             
             if(qc == null) return;
             
-            List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()); // TODO: Replace with quests marked dirty when functionality is implemented
+            List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
             List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
             QResetTime[] pendingResets = qc.getScheduledResets();
 			
@@ -131,9 +131,9 @@ public class EventHandler
                 {
                     if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
                     
-                    quest.getValue().update(player);
+                    if(quest.getValue().canSubmit(player)) quest.getValue().update(player);
                     
-                    if(quest.getValue().isComplete(uuid))
+                    if(quest.getValue().isComplete(uuid) && !quest.getValue().canSubmit(player))
                     {
                         refreshCache = true;
                         qc.markQuestDirty(quest.getID());
@@ -147,10 +147,10 @@ public class EventHandler
             {
                 for(QResetTime rTime : pendingResets)
                 {
-                    if(player.getServer().getWorld(0).getTotalWorldTime() >= rTime.time)
+                    IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
+                    
+                    if(player.getServer().getWorld(0).getTotalWorldTime() >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
                     {
-                        IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
-                        
                         if(entry.getProperty(NativeProps.GLOBAL))
                         {
                             entry.resetAll(false);
@@ -162,7 +162,7 @@ public class EventHandler
                         refreshCache = true;
                         qc.markQuestDirty(rTime.questID);
                         if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
-                    }
+                    } else break; // Entries are sorted by time so we fail fast and skip checking the others
                 }
             }
             

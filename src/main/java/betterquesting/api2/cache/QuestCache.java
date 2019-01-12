@@ -148,12 +148,12 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
                     tmpActive.add(entry.getID());
                 } else if(ue != null) // These conditions only trigger after first completion
                 {
-                    if(repeat >= 0)
+                    if(repeat >= 0 && entry.getValue().hasClaimed(uuid))
                     {
                         tmpReset.add(new QResetTime(entry.getID(), ue.getNbtData().getLong("timestamp") + repeat));
                     }
                     
-                    if(!ue.getNbtData().getBoolean("claimed") && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))
+                    if(!entry.getValue().hasClaimed(uuid) && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))
                     {
                         tmpAutoClaim.add(entry.getID());
                     }

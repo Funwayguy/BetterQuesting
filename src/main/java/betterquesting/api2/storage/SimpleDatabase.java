@@ -31,7 +31,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    public DBEntry<T> add(int id, T value)
+    public DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
     {
         if(value == null)
         {
