@@ -55,17 +55,19 @@ public class GuiQuestHelp extends GuiScreenCanvas
         cvBackground.addPanel(scTopic);
         cvTopics.setScrollDriverY(scTopic);
         
-        CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(124, 48, 16, 24), 0)).enableBlocking(false);
+        CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(124, 48, 24, 24), 0)).enableBlocking(false);
         cvBackground.addPanel(cvDesc);
         
         PanelVScrollBar scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-24, 48, 16, 24), 0));
         cvBackground.addPanel(scDesc);
         cvDesc.setScrollDriverY(scDesc);
         
-        PanelTextBox txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(124, 32, 16, -48), 0), "").setAlignment(1);
+        PanelTextBox txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(124, 36, 16, -48), 0), "").setAlignment(1);
+        txtTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txtTitle);
         
         PanelTextBox txtDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 16, 0), "", true);
+        txtDesc.setColor(PresetColor.TEXT_MAIN.getColor());
         cvDesc.addPanel(txtDesc);
         
         int width = cvTopics.getTransform().getWidth();
