@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 
+@Deprecated
 public class GuiToolIconProxy extends GuiScreenThemed implements ICallback<BigItemStack>
 {
 	private final IQuest quest;

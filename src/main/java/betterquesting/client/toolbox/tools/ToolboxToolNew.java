@@ -1,13 +1,14 @@
 package betterquesting.client.toolbox.tools;
 
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxGuiMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -15,24 +16,25 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
+
+import java.util.List;
 
 public class ToolboxToolNew implements IToolboxTool
 {
-	IGuiQuestLine gui = null;
-	GuiButtonQuestInstance nQuest;
+	private CanvasQuestLine gui = null;
+	PanelButtonQuest nQuest;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 		
-		nQuest = new GuiButtonQuestInstance(0, 0, 0, 24, 24, new QuestInstance());
+		nQuest = new PanelButtonQuest(new GuiRectangle(0, 0, 24, 24), -1, "", new QuestInstance());
 	}
 	
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(nQuest == null)
 		{
@@ -45,29 +47,40 @@ public class ToolboxToolNew implements IToolboxTool
 		mx -= modX;
 		my -= modY;
 		
-		nQuest.x = mx;
-		nQuest.y = my;
-		nQuest.drawButton(Minecraft.getMinecraft(), mx, my, partialTick);
+		nQuest.rect.x = mx;
+		nQuest.rect.y = my;
+		nQuest.drawPanel(mx, my, partialTick); // TODO: Draw relative
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}
+	
+	@Override
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return null;
+    }
 	
 	@Override
 	public void disableTool()
 	{
 		if(nQuest != null)
 		{
-			gui.getQuestLine().getButtonTree().remove(nQuest);
+			//gui.getQuestLine().getButtonTree().remove(nQuest);
 			nQuest = null;
 		}
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+	public boolean onMouseClick(int mx, int my, int click)
 	{
 		if(click != 0)
 		{
-			return;
+			return false;
 		}
 		
 		int snap = ToolboxGuiMain.getSnapValue();
@@ -77,7 +90,7 @@ public class ToolboxToolNew implements IToolboxTool
 		my -= modY;
 		
 		// Pre-sync
-		IQuestLine qLine = gui.getQuestLine().getQuestLine();
+		IQuestLine qLine = gui.getQuestLine();
 		IQuest quest = new QuestInstance();
 		int qID = QuestDatabase.INSTANCE.nextID();
 		int lID = QuestLineDatabase.INSTANCE.getID(qLine);
@@ -111,34 +124,26 @@ public class ToolboxToolNew implements IToolboxTool
 		tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 		tag2.setInteger("lineID", lID);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
-	}
-	
-	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
-	{
-	}
-	
-	@Override
-	public void onKeyPressed(char c, int keyCode)
-	{
-	}
-	
-	@Override
-	public boolean allowTooltips()
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return click == 2;
-	}
-	
-	@Override
-	public boolean allowZoom()
-	{
+		
 		return true;
+	}
+	
+	@Override
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
+	{
+	    return false;
+	}
+	
+	@Override
+	public boolean onKeyPressed(char c, int keyCode)
+	{
+	    return false;
 	}
 	
 	@Override

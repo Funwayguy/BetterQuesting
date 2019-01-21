@@ -4,6 +4,7 @@ package betterquesting.api.client.gui.controls;
 /**
  * Variant of GuiButtonThemed that can store an arbitrary value
  */
+@Deprecated
 public class GuiButtonStorage<T> extends GuiButtonThemed
 {
 	private T storage = null;

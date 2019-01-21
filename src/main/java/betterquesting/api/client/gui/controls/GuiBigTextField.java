@@ -1,14 +1,16 @@
 package betterquesting.api.client.gui.controls;
 
-import java.awt.Color;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.misc.ICallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import org.lwjgl.input.Mouse;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.misc.ICallback;
 
+import java.awt.*;
+
+@Deprecated
 public class GuiBigTextField extends GuiTextField
 {
 	private GuiButtonThemed bigEdit;

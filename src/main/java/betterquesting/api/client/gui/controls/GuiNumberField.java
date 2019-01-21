@@ -1,13 +1,15 @@
 package betterquesting.api.client.gui.controls;
 
-import java.text.NumberFormat;
+import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.utils.RenderUtils;
+
+import java.text.NumberFormat;
 
 @SideOnly(Side.CLIENT)
+@Deprecated
 public class GuiNumberField extends GuiTextField
 {
 	public GuiNumberField(FontRenderer renderer, int posX, int posY, int sizeX, int sizeY)

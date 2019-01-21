@@ -1,17 +1,11 @@
 package betterquesting.api.utils;
 
-import java.util.ArrayList;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.*;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for comparing ItemStacks in quests
@@ -59,13 +53,13 @@ public class ItemComparison
     
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial)
     {
-    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null))
+    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null)) // One is null, the other is not
     	{
     		return false;
-    	} else if(tag1 == null && tag2 == null)
+    	} else if(tag1 == null) // The opposing tag will always be null at this point if the other already is
     	{
     		return true;
-    	}
+    	} else if(!(tag1 instanceof NBTPrimitive && tag2 instanceof NBTPrimitive) && tag1.getId() != tag2.getId()) return false; // Incompatible tag types (and not a numbers we can cast)
     	
     	if(tag1 instanceof NBTTagCompound && tag2 instanceof NBTTagCompound)
     	{
@@ -105,42 +99,14 @@ public class ItemComparison
     			return false; // Sample is missing requested tags or is not exact
     		}
     		
+    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		
     		topLoop:
     		for(int i = 0; i < list1.getIntArray().length; i++)
     		{
     			for(int j = 0; j < list2.getIntArray().length; j++)
     			{
-    				if(list1.getIntArray()[i] == list2.getIntArray()[j])
-    				{
-    					continue topLoop;
-    				}
-    			}
-    			
-    			return false; // Couldn't find requested integer in list
-    		}
-    		
-    		return false;
-    	} else if(tag1 instanceof NBTTagByteArray && tag2 instanceof NBTTagByteArray)
-    	{
-    		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
-    		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
-    		
-    		if(list1.getByteArray().length > list2.getByteArray().length || (!partial && list1.getByteArray().length != list2.getByteArray().length))
-    		{
-    			return false; // Sample is missing requested tags or is not exact
-    		}
-    		
-    		ArrayList<Integer> usedIdxs = new ArrayList<Integer>(); // Duplicate control
-    		
-    		topLoop:
-    		for(int i = 0; i < list1.getByteArray().length; i++)
-    		{
-    			for(int j = 0; j < list2.getByteArray().length; j++)
-    			{
-    				if(usedIdxs.contains(j))
-    				{
-    					continue;
-    				} else if(list1.getByteArray()[i] == list2.getByteArray()[j])
+    				if(!usedIdxs.contains(j) && list1.getIntArray()[i] == list2.getIntArray()[j])
     				{
     					usedIdxs.add(j);
     					continue topLoop;
@@ -150,8 +116,63 @@ public class ItemComparison
     			return false; // Couldn't find requested integer in list
     		}
     		
-    		return false;
-    	} else if(tag1 instanceof NBTTagString && tag2 instanceof NBTTagString)
+    		return true;
+    	} else if(tag1 instanceof NBTTagByteArray && tag2 instanceof NBTTagByteArray)
+    	{
+    		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
+    		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
+    		
+    		if(list1.getByteArray().length > list2.getByteArray().length || (!partial && list1.getByteArray().length != list2.getByteArray().length))
+    		{
+    			return false; // Sample is missing requested tags or is not exact for non-partial match
+    		}
+    		
+    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		
+    		topLoop:
+    		for(int i = 0; i < list1.getByteArray().length; i++)
+    		{
+    			for(int j = 0; j < list2.getByteArray().length; j++)
+    			{
+    				if(!usedIdxs.contains(j) && list1.getByteArray()[i] == list2.getByteArray()[j])
+    				{
+    					usedIdxs.add(j);
+    					continue topLoop;
+    				}
+    			}
+    			
+    			return false; // Couldn't find requested integer in list
+    		}
+    	} else if(tag1 instanceof NBTTagLongArray && tag2 instanceof NBTTagLongArray)
+    	{
+    		NBTTagLongArray list1 = (NBTTagLongArray)tag1;
+    		NBTTagLongArray list2 = (NBTTagLongArray)tag2;
+    		
+    		final long[] la1 = NBTConverter.readLongArray(list1);
+    		final long[] la2 = NBTConverter.readLongArray(list2);
+    		
+    		if(la1.length > la2.length || (!partial && la1.length != la2.length))
+    		{
+    			return false; // Sample is missing requested tags or is not exact for non-partial match
+    		}
+    		
+    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		
+    		topLoop:
+    		for(int i = 0; i < la1.length; i++)
+    		{
+    			for(int j = 0; j < la2.length; j++)
+    			{
+    				if(!usedIdxs.contains(j) && la1[i] == la2[j])
+    				{
+    					usedIdxs.add(j);
+    					continue topLoop;
+    				}
+    			}
+    			
+    			return false; // Couldn't find requested integer in list
+    		}
+        } else if(tag1 instanceof NBTTagString && tag2 instanceof NBTTagString)
     	{
     		return tag1.equals(tag2);
     	} else if(tag1 instanceof NBTPrimitive && tag2 instanceof NBTPrimitive) // Standardize numbers to not care about format
@@ -197,7 +218,7 @@ public class ItemComparison
     }
     
     /**
-     * Check if the item stack is part of the ore dictionary listing with the given name (NBT ignored)
+     * Check if the item stack is part of the ore dictionary listing with the given name
      * @param stack
      * @param name
      * @return

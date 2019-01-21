@@ -75,7 +75,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		IQuest q = getQuest();
 		
-		if(q == null || taskID < 0 || taskID >= q.getTasks().size())
+		if(q == null || taskID < 0)
 		{
 			return null;
 		} else
@@ -347,7 +347,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	
 	public boolean isSetup()
 	{
-		return owner != null && questID > 0 && taskID > 0;
+		return owner != null && questID >= 0 && taskID >= 0;
 	}
 	
 	public void reset()
@@ -391,15 +391,13 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     {
     	if(!world.isRemote)
     	{
-    		this.readFromNBT(data);
+    		if(data != null) this.readFromNBT(data); // Note: The handler has already read out the "tile" subtag in advance
     		this.markDirty();
     		if(world.getMinecraftServer() != null) world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
     	} else
     	{
     		NBTTagCompound payload = new NBTTagCompound();
-    		NBTTagCompound tileData = new NBTTagCompound();
-    		this.writeToNBT(tileData);
-    		payload.setTag("tile", tileData);
+    		payload.setTag("tile", this.writeToNBT(new NBTTagCompound()));
     		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
     	}
     }
@@ -423,7 +421,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		questID = tags.hasKey("questID")? tags.getInteger("questID") : -1;
 		taskID = tags.hasKey("task")? tags.getInteger("task") : -1;
 		
-		if(isSetup()) // All data must be present for this to run correctly
+		if(!isSetup()) // All data must be present for this to run correctly
 		{
 			this.reset();
 		}

@@ -16,10 +16,13 @@ import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
@@ -30,6 +33,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
     // Not final because I hope to support hot swapping in future
     private IQuestLine questLine;
     private int lineID;
+    private PanelToolController toolController;
     
     private CanvasQuestLine cvQuest;
     
@@ -53,6 +57,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
+        ToolboxTabMain.instance.tempInit();
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 96, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -77,9 +82,26 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         PanelButton btnTabRight = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(0, 32, 16, -40), 0), 3, "");
         btnTabRight.setIcon(PresetIcon.ICON_RIGHT.getTexture());
         cvTray.addPanel(btnTabRight);
-    
-        PanelTextBox txtTabTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 20, 16, -32), 0), "Main").setAlignment(1);
+        
+        // TODO: Actually use the registered tabs
+        PanelTextBox txtTabTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 20, 16, -32), 0), "Main").setAlignment(1).setColor(PresetColor.TEXT_HEADER.getColor());
         cvTray.addPanel(txtTabTitle);
+        
+        toolController = new PanelToolController(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), -1), cvQuest);
+        cvBackground.addPanel(toolController);
+        cvQuest.setScrollDriverX(toolController.getScrollX());
+        cvQuest.setScrollDriverY(toolController.getScrollY());
+        
+        PanelButton btnTest = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 48, 16, -64), 0), -1, "")
+        {
+            @Override
+            public void onButtonClick()
+            {
+                toolController.setActiveTool(ToolboxTabMain.instance.toolGrab);
+            }
+        };
+        btnTest.setIcon(PresetIcon.ICON_GRAB.getTexture());
+        cvTray.addPanel(btnTest);
     }
 	
 	@Override

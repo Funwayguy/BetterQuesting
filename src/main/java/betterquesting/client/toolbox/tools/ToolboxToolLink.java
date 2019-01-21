@@ -1,26 +1,20 @@
 package betterquesting.client.toolbox.tools;
 
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
-import net.minecraft.nbt.NBTTagCompound;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.client.gui2.CanvasQuestLine;
 
-import java.awt.*;
+import java.util.Collections;
+import java.util.List;
 
-public class ToolboxToolLink extends GuiElement implements IToolboxTool
+public class ToolboxToolLink implements IToolboxTool
 {
-	IGuiQuestLine gui;
-	GuiButtonQuestInstance b1;
+	private CanvasQuestLine gui;
+	private PanelButtonQuest b1;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 		b1 = null;
@@ -33,34 +27,51 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 	}
 	
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(b1 == null)
 		{
 			return;
 		}
 		
-		RenderUtils.DrawLine(b1.x + b1.width/2, b1.y + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
+		RenderUtils.DrawLine(b1.rect.x + b1.rect.w/2, b1.rect.y + b1.rect.h/2, mx, my, 4F, 0xFF00FF00); // TODO: Draw relative
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return Collections.emptyList();
+    }
+	
+	@Override
+	public boolean onMouseClick(int mx, int my, int click)
 	{
 		if(click == 1)
 		{
-			b1 = null;
-			return;
+		    if(b1 != null)
+            {
+                b1 = null;
+                return true;
+            }
+            
+            return false;
 		} else if(click != 0)
 		{
-			return;
+			return false;
 		}
 		
 		if(b1 == null)
 		{
-			b1 = gui.getQuestLine().getButtonAt(mx, my);
+			b1 = gui.getButtonAt(mx, my);
+			return b1 != null;
 		} else
 		{
-			GuiButtonQuestInstance b2 = gui.getQuestLine().getButtonAt(mx, my);
+			/*PanelButtonQuest b2 = gui.getButtonAt(mx, my);
 			
 			if(b1 == b2)
 			{
@@ -103,36 +114,27 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
 				
 				b1 = null;
-			}
+			}*/
+			return true;
 		}
 	}
 	
 	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
+	    return false;
 	}
 	
 	@Override
-	public void onKeyPressed(char c, int keyCode)
+	public boolean onKeyPressed(char c, int keyCode)
 	{
-	}
-	
-	@Override
-	public boolean allowTooltips()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return b1 == null || click == 2;
-	}
-	
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
+	    return false;
 	}
 	
 	@Override

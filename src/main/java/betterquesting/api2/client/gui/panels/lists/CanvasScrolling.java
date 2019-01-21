@@ -1,12 +1,5 @@
 package betterquesting.api2.client.gui.panels.lists;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
@@ -14,6 +7,13 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
+import org.lwjgl.input.Mouse;
+
+import java.util.List;
+import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CanvasScrolling implements IGuiCanvas
 {
@@ -43,8 +43,8 @@ public class CanvasScrolling implements IGuiCanvas
 	private int dragMX = 0;
 	private int dragMY = 0;
 	// Last known scroll position (unscaled)
-	private int lsx = 0;
-	private int lsy = 0;
+	protected int lsx = 0;
+	protected int lsy = 0;
 	
 	// Enables the auto-disabling panels outside the cropped region. Useful for very large lists
 	private boolean useBlocking = true;
@@ -185,7 +185,7 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		scrollY.writeValue((sy - scrollBounds.getY()) / (float)scrollBounds.getHeight());
-		lsx = this.getScrollY();
+		lsy = this.getScrollY();
 	}
 	
 	public void setZoom(float z)

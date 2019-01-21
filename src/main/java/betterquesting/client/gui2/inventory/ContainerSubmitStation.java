@@ -1,12 +1,11 @@
-package betterquesting.client.gui.inventory;
+package betterquesting.client.gui2.inventory;
 
-import java.util.ArrayList;
+import betterquesting.blocks.TileSubmitStation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import betterquesting.blocks.TileSubmitStation;
 
 public class ContainerSubmitStation extends Container
 {
@@ -52,15 +51,13 @@ public class ContainerSubmitStation extends Container
 	
 	public void moveInventorySlots(int x, int y)
 	{
-		ArrayList<Slot> slots = (ArrayList<Slot>)inventorySlots;
-		
 		int idx = 2;
 		
 		for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 9; ++j)
             {
-            	Slot s = slots.get(idx);
+            	Slot s = inventorySlots.get(idx);
             	s.xPos = j * 18 + x;
             	s.yPos = i * 18 + y;
             	idx++;
@@ -69,7 +66,7 @@ public class ContainerSubmitStation extends Container
 
         for (int i = 0; i < 9; ++i)
         {
-        	Slot s = slots.get(idx);
+        	Slot s = inventorySlots.get(idx);
         	s.xPos = i * 18 + x;
         	s.yPos = 58 + y;
         	idx++;
@@ -81,8 +78,10 @@ public class ContainerSubmitStation extends Container
      */
     public ItemStack transferStackInSlot(EntityPlayer player, int idx)
     {
+        if(idx < 0) return ItemStack.EMPTY;
+        
         ItemStack itemstack = ItemStack.EMPTY;
-        Slot slot = (Slot)this.inventorySlots.get(idx);
+        Slot slot = this.inventorySlots.get(idx);
 
         if (slot != null && slot.getHasStack())
         {
@@ -105,14 +104,14 @@ public class ContainerSubmitStation extends Container
                     return ItemStack.EMPTY;
                 }
             }
-            else if (idx >= 1 && idx < 28)
+            else if (idx < 28)
             {
                 if (!this.mergeItemStack(itemstack1, 28, 37, false))
                 {
                     return ItemStack.EMPTY;
                 }
             }
-            else if (idx >= 28 && idx < 37)
+            else if (idx < 37)
             {
                 if (!this.mergeItemStack(itemstack1, 1, 28, false))
                 {
@@ -124,7 +123,7 @@ public class ContainerSubmitStation extends Container
                 return ItemStack.EMPTY;
             }
 
-            if (itemstack1.getCount() == 0)
+            if (itemstack1.isEmpty())
             {
                 slot.putStack(ItemStack.EMPTY);
             }
@@ -146,14 +145,14 @@ public class ContainerSubmitStation extends Container
 	
 	public void moveSubmitSlot(int x, int y)
 	{
-		Slot s = (Slot)inventorySlots.get(0);
+		Slot s = inventorySlots.get(0);
 		s.xPos = x;
 		s.yPos = y;
 	}
 	
 	public void moveReturnSlot(int x, int y)
 	{
-		Slot s = (Slot)inventorySlots.get(1);
+		Slot s = inventorySlots.get(1);
 		s.xPos = x;
 		s.yPos = y;
 	}

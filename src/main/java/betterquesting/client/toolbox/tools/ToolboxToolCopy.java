@@ -1,29 +1,20 @@
 package betterquesting.client.toolbox.tools;
 
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestLine;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxGuiMain;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.questing.QuestLineEntry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ToolboxToolCopy implements IToolboxTool
 {
-	IGuiQuestLine gui = null;
-	GuiButtonQuestInstance btnQuest = null;
+	private CanvasQuestLine gui = null;
+	private PanelButtonQuest btnQuest = null;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 		this.btnQuest = null;
@@ -39,7 +30,7 @@ public class ToolboxToolCopy implements IToolboxTool
 	}
 	
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(btnQuest == null)
 		{
@@ -52,25 +43,38 @@ public class ToolboxToolCopy implements IToolboxTool
 		mx -= modX;
 		my -= modY;
 		
-		btnQuest.x = mx;
-		btnQuest.y = my;
-		btnQuest.drawButton(Minecraft.getMinecraft(), mx, my, partialTick);
+		btnQuest.rect.x = mx;
+		btnQuest.rect.y = my;
+		btnQuest.drawPanel(mx, my, partialTick); // TODO: Use relative canvas coordinates
 		
 		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return btnQuest == null ? null : Collections.emptyList();
+    }
+	
+	@Override
+	public boolean onMouseClick(int mx, int my, int click)
 	{
 		if(click == 1 && btnQuest != null)
 		{
 			btnQuest = null;
+			return true;
 		} else if(click != 0)
 		{
-			return;
+			return false;
 		}
 		
-		int snap = ToolboxGuiMain.getSnapValue();
+		// TODO
+		/*int snap = ToolboxGuiMain.getSnapValue();
 		int modX = ((mx%snap) + snap)%snap;
 		int modY = ((my%snap) + snap)%snap;
 		mx -= modX;
@@ -78,7 +82,7 @@ public class ToolboxToolCopy implements IToolboxTool
 		
 		if(btnQuest == null)
 		{
-			GuiButtonQuestInstance tmpBtn = gui.getQuestLine().getButtonAt(mx, my);
+			GuiButtonQuestInstance tmpBtn = gui.getButtonAt(mx, my);
 			
 			if(tmpBtn != null)
 			{
@@ -117,35 +121,27 @@ public class ToolboxToolCopy implements IToolboxTool
 			tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 			tag2.setInteger("lineID", lID);
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
-		}
-	}
-	
-	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
-	{
-	}
-	
-	@Override
-	public void onKeyPressed(char c, int keyCode)
-	{
-	}
-	
-	@Override
-	public boolean allowTooltips()
-	{
-		return btnQuest == null;
-	}
-	
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return btnQuest == null || click == 2;
-	}
-	
-	@Override
-	public boolean allowZoom()
-	{
+		}*/
+		
 		return true;
+	}
+	
+	@Override
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
+	{
+	    return false;
+	}
+	
+	@Override
+	public boolean onKeyPressed(char c, int keyCode)
+	{
+	    return false;
 	}
 	
 	@Override

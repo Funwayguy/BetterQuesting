@@ -1,21 +1,24 @@
 package betterquesting.api.client.toolbox;
 
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.client.gui2.CanvasQuestLine;
+
+import java.util.List;
 
 public interface IToolboxTool
 {
-	public void initTool(IGuiQuestLine gui);
-	public void disableTool();
+	void initTool(CanvasQuestLine gui);
+	void disableTool();
 	
-	public void drawTool(int mx, int my, float partialTick);
+	/** Draws within the relative scrolling portion of the canvas */
+	void drawCanvas(int mx, int my, float partialTick);
+	/** Draws over the top of the canvas without being affected by scrolling */
+	void drawOverlay(int mx, int my, float partialTick);
 	
-	public void onMouseClick(int mx, int my, int click);
-	public void onMouseScroll(int mx, int my, int scroll);
-	public void onKeyPressed(char c, int key);
+	boolean onMouseClick(int mx, int my, int click);
+	boolean onMouseRelease(int mx, int my, int click);
+	boolean onMouseScroll(int mx, int my, int scroll);
+	boolean onKeyPressed(char c, int key);
+	List<String> getTooltip(int mx, int my);
 	
-	public boolean allowTooltips();
-	public boolean allowScrolling(int click);
-	public boolean allowZoom();
-	
-	public boolean clampScrolling();
+	boolean clampScrolling();
 }

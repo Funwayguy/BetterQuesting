@@ -58,6 +58,21 @@ public class ToolboxTabMain implements IToolboxTab
 		toolSca = new ToolboxToolScale();
 	}
 	
+	public void tempInit()
+    {
+		toolOpen = new ToolboxToolOpen();
+		toolNew = new ToolboxToolNew();
+		toolGrab = new ToolboxToolGrab();
+		toolLink = new ToolboxToolLink();
+		toolCopy = new ToolboxToolCopy();
+		toolRem = new ToolboxToolRemove();
+		toolDel = new ToolboxToolDelete();
+		toolCom = new ToolboxToolComplete();
+		toolRes = new ToolboxToolReset();
+		toolIco = new ToolboxToolIcon();
+		toolSca = new ToolboxToolScale();
+    }
+	
 	@Override
 	public IGuiEmbedded getTabGui(int posX, int posY, int sizeX, int sizeZ)
 	{

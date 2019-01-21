@@ -1,5 +1,6 @@
 package betterquesting.api.client.gui.lists;
 
+@Deprecated
 public interface IScrollingEntry
 {
 	public void drawBackground(int mx, int my, int px, int py, int width);

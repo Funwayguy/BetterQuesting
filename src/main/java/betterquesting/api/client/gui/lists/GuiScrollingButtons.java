@@ -1,10 +1,12 @@
 package betterquesting.api.client.gui.lists;
 
-import java.util.List;
-import net.minecraft.client.Minecraft;
 import betterquesting.api.client.gui.GuiElement;
 import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import net.minecraft.client.Minecraft;
 
+import java.util.List;
+
+@Deprecated
 public class GuiScrollingButtons extends GuiScrollingBase<GuiScrollingButtons.ScrollingEntryButtonRow>
 {
 	public GuiScrollingButtons(Minecraft mc, int x, int y, int w, int h)

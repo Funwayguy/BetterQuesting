@@ -23,10 +23,7 @@ public class PktHandlerTileEdit implements IPacketHandler
 		NBTTagCompound tileData = data.getCompoundTag("tile");
 		TileEntity tile = sender.world.getTileEntity(new BlockPos(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z")));
 		
-		if(tile != null && tile instanceof TileSubmitStation)
-		{
-			((TileSubmitStation)tile).SyncTile(tileData);
-		}
+		if(tile instanceof TileSubmitStation) ((TileSubmitStation)tile).SyncTile(tileData);
 	}
 	
 	@Override

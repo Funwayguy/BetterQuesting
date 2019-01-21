@@ -13,6 +13,7 @@ import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 
+@Deprecated
 public class GuiQuestLineEditProxy extends GuiScreenThemed implements ICallback<NBTTagCompound>
 {
 	private final IQuestLine line;

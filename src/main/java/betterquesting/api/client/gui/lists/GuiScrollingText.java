@@ -1,15 +1,17 @@
 package betterquesting.api.client.gui.lists;
 
-import java.util.List;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.math.MathHelper;
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.utils.RenderUtils;
+
+import java.util.List;
 
 /**
  * Creates a scrolling region of split text. Line spacing is slightly larger for better readability
  */
+@Deprecated
 public class GuiScrollingText extends GuiScrollingBase<GuiScrollingText.ScrollingEntryText>
 {
 	private final FontRenderer fontRenderer;

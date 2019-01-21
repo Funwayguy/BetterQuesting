@@ -1,26 +1,16 @@
 package betterquesting.api.utils;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagShort;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.nbt.*;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import org.apache.logging.log4j.Level;
+
+import java.util.ArrayList;
+import java.util.Map.Entry;
 
 public class NBTConverter
 {
@@ -90,11 +80,40 @@ public class NBTConverter
 			}
 			
 			return jAry;
-		} else
+		} else if(tag instanceof NBTTagLongArray)
+		{
+		    JsonArray jAry = new JsonArray();
+		    
+		    for(long l : readLongArray((NBTTagLongArray)tag))
+            {
+                jAry.add(new JsonPrimitive(l));
+            }
+            
+            return jAry;
+        } else
 		{
 			return new JsonObject(); // No valid types found. We'll just return this to prevent a NPE
 		}
 	}
+	
+	// The fact that this is necessary is so dumb
+	public static long[] readLongArray(NBTTagLongArray tag)
+    {
+        if(tag == null) return new long[0];
+        
+        String s = tag.toString();
+        String[] entry = s.substring(3, s.length() - 1).split(","); // Cut off square braces and "L;" before splitting elements
+        long[] ary = new long[entry.length];
+        for(int i = 0; i < entry.length; i++)
+        {
+            try
+            {
+                ary[i] = Long.parseLong(entry[i].substring(0, entry[i].length() - 1)); // Trim the L off and parse
+            } catch(Exception ignored){}
+        }
+        
+        return ary;
+    }
 	
 	@Deprecated
 	public static JsonObject NBTtoJSON_Compound(NBTTagCompound parent, JsonObject jObj)
@@ -222,7 +241,19 @@ public class NBTConverter
 				}
 				
 				return new NBTTagIntArray(iAry);
-			} else if(tagID == 9)
+			} else if(tagID == 12)
+			{
+			    JsonArray jAry = jObj.getAsJsonArray();
+			    
+			    long[] lAry = new long[jAry.size()];
+			    
+			    for(int i = 0; i < jAry.size(); i++)
+                {
+                    lAry[i] = jAry.get(i).getAsLong();
+                }
+                
+                return new NBTTagLongArray(lAry);
+            } else if(tagID == 9)
 			{
 				NBTTagList tList = new NBTTagList();
 				

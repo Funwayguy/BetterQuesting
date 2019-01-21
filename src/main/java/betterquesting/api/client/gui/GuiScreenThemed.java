@@ -1,8 +1,13 @@
 package betterquesting.api.client.gui;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import betterquesting.api.api.ApiReference;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.controls.GuiButtonThemed;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.client.gui.misc.IVolatileScreen;
+import betterquesting.api.client.themes.ITheme;
+import betterquesting.api.placeholders.ThemeDummy;
+import betterquesting.api.storage.BQ_Settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -14,15 +19,12 @@ import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import scala.actors.threadpool.Arrays;
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.controls.GuiButtonThemed;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.themes.ITheme;
-import betterquesting.api.placeholders.ThemeDummy;
-import betterquesting.api.storage.BQ_Settings;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+@Deprecated
 public class GuiScreenThemed extends GuiScreen implements GuiYesNoCallback
 {
 	public CopyOnWriteArrayList<IGuiEmbedded> embedded = new CopyOnWriteArrayList<IGuiEmbedded>();

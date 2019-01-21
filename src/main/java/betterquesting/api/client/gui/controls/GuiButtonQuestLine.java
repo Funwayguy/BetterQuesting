@@ -7,6 +7,7 @@ import betterquesting.api.client.gui.QuestLineButtonTree;
 import betterquesting.api.questing.IQuestLine;
 
 @SideOnly(Side.CLIENT)
+@Deprecated
 public class GuiButtonQuestLine extends GuiButtonThemed
 {
 	private IQuestLine line;

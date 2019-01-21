@@ -1,23 +1,25 @@
 package betterquesting.client.toolbox.tools;
 
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.List;
+
 public class ToolboxToolRemove implements IToolboxTool
 {
-	private IGuiQuestLine gui;
+	private CanvasQuestLine gui;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 	}
@@ -28,19 +30,19 @@ public class ToolboxToolRemove implements IToolboxTool
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+	public boolean onMouseClick(int mx, int my, int click)
 	{
 		if(click != 0)
 		{
-			return;
+			return false;
 		}
 		
-		IQuestLine line = gui.getQuestLine().getQuestLine();
-		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
+		IQuestLine line = gui.getQuestLine();
+		PanelButtonQuest btn = gui.getButtonAt(mx, my);
 		
 		if(line != null && btn != null)
 		{
-			int qID = QuestDatabase.INSTANCE.getID(btn.getQuest());
+			int qID = QuestDatabase.INSTANCE.getID(btn.getStoredValue());
 			line.removeID(qID);
 			
 			NBTTagCompound tags = new NBTTagCompound();
@@ -50,40 +52,44 @@ public class ToolboxToolRemove implements IToolboxTool
 			tags.setTag("data", base);
 			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+			return true;
 		}
+		
+		return false;
+	}
+	
+	@Override
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+
+	@Override
+	public void drawCanvas(int mx, int my, float partialTick)
+	{
+	}
+	
+	@Override
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return null;
+    }
+
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
+	{
+	    return false;
 	}
 
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+	public boolean onKeyPressed(char c, int key)
 	{
-	}
-
-	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
-	{
-	}
-
-	@Override
-	public void onKeyPressed(char c, int key)
-	{
-	}
-
-	@Override
-	public boolean allowTooltips()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
+	    return false;
 	}
 
 	@Override

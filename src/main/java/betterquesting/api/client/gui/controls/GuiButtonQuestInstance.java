@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SideOnly(Side.CLIENT)
+@Deprecated
 public class GuiButtonQuestInstance extends GuiButtonThemed
 {
 	private IQuest quest;

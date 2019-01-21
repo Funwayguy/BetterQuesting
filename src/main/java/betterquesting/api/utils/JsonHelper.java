@@ -195,6 +195,7 @@ public class JsonHelper
 			return task.get(); // Wait for other scheduled file ops to finish
 		} catch(Exception e)
 		{
+		    QuestingAPI.getLogger().error("Unable to read from file " + file, e);
 			return new JsonObject();
 		}
 	}
@@ -225,7 +226,10 @@ public class JsonHelper
 			}
 			
 			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8))
+            //try
 			{
+			    //FileOutputStream fos = new FileOutputStream(tmp);
+			    
 				GSON.toJson(jObj, fw);
 				fw.flush();
 			} catch(Exception e)

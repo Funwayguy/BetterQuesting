@@ -1,17 +1,19 @@
 package betterquesting.client.toolbox.tools;
 
-import net.minecraft.client.Minecraft;
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.toolbox.GuiToolIconProxy;
+import net.minecraft.client.Minecraft;
+
+import java.util.List;
 
 public class ToolboxToolIcon implements IToolboxTool
 {
-	IGuiQuestLine gui;
+	private CanvasQuestLine gui;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 	}
@@ -22,55 +24,58 @@ public class ToolboxToolIcon implements IToolboxTool
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+	public boolean onMouseClick(int mx, int my, int click)
 	{
 		if(click != 0)
 		{
-			return;
+			return false;
 		}
 		
-		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
+		PanelButtonQuest btn = gui.getButtonAt(mx, my);
 		
 		if(btn != null)
 		{
-			Minecraft mc = Minecraft.getMinecraft();
-			btn.playPressSound(mc.getSoundHandler());
-			mc.displayGuiScreen(new GuiToolIconProxy(mc.currentScreen, btn.getQuest()));
+		    Minecraft mc = Minecraft.getMinecraft();
+			mc.displayGuiScreen(new GuiToolIconProxy(mc.currentScreen, btn.getStoredValue()));
+			return true;
 		}
+		
+		return false;
 	}
 	
 	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
+	{
+	    return false;
+	}
+	
+	@Override
+	public boolean onKeyPressed(char c, int keyCode)
+	{
+	    return false;
+	}
+
+	@Override
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
 	}
 	
 	@Override
-	public void onKeyPressed(char c, int keyCode)
-	{
-	}
-
-	@Override
-	public void drawTool(int mx, int my, float partialTick)
-	{
-	}
-
-	@Override
-	public boolean allowTooltips()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
-	}
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return null;
+    }
 
 	@Override
 	public boolean clampScrolling()

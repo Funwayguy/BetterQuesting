@@ -29,7 +29,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui.editors.GuiQuestLineDesigner;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
@@ -228,8 +227,8 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             mc.displayGuiScreen(new GuiQuestLineAddRemove(this, selected));
         } else if(btn.getButtonID() == 4 && selected != null) // Designer
         {
-			mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
-			//mc.displayGuiScreen(new GuiDesigner(this, selected));
+			//mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
+			mc.displayGuiScreen(new GuiDesigner(this, selected));
         } else if(btn.getButtonID() == 5 && btn instanceof PanelButtonStorage) // Select Quest
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();

@@ -121,14 +121,10 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
             @Override
             protected boolean addResult(DBEntry<IQuest> entry, int index, int width)
             {
-                if(questLine == null)
-                {
-                    return false;
-                }
                 
                 PanelButtonStorage<DBEntry<IQuest>> btnAdd = new PanelButtonStorage<>(new GuiRectangle(0, index * 16, 16, 16, 0), 2, "", entry);
                 btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
-                btnAdd.setActive(questLine.getValue(entry.getID()) == null);
+                btnAdd.setActive(questLine != null && questLine.getValue(entry.getID()) == null);
                 this.addPanel(btnAdd);
                 
                 PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)), entry);

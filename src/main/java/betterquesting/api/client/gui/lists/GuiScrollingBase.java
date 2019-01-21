@@ -1,19 +1,21 @@
 package betterquesting.api.client.gui.lists;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.client.gui.GuiElement;
+import betterquesting.api.client.gui.misc.IGuiEmbedded;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
+@Deprecated
 public abstract class GuiScrollingBase<T extends IScrollingEntry> extends GuiElement implements IGuiEmbedded
 {
 	private List<T> entries = new ArrayList<>();

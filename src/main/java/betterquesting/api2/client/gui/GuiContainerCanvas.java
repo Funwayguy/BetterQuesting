@@ -1,4 +1,4 @@
-package betterquesting.client.gui2.inventory;
+package betterquesting.api2.client.gui;
 
 import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
@@ -56,6 +56,18 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		super.initGui();
 		
+		int marginX = 16;
+		int marginY = 16;
+		
+		if(BQ_Settings.guiWidth > 0) marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+		if(BQ_Settings.guiHeight > 0) marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+		
+		// Make the container somewhat behave using the root transform bounds
+		this.guiLeft = marginX;
+		this.guiTop = marginY;
+		this.xSize = width - marginX * 2;
+		this.ySize = height - marginY * 2;
+		
 		initPanel();
 	}
 	
@@ -73,15 +85,8 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 		int marginX = 16;
 		int marginY = 16;
 		
-		if(BQ_Settings.guiWidth > 0)
-		{
-			marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		}
-		
-		if(BQ_Settings.guiHeight > 0)
-		{
-			marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		}
+		if(BQ_Settings.guiWidth > 0) marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+		if(BQ_Settings.guiHeight > 0) marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
 		
 		transform.x = marginX;
 		transform.y = marginY;

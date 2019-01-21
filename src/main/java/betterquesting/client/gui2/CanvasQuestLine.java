@@ -8,6 +8,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -16,7 +17,10 @@ import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.api2.client.gui.resources.textures.*;
+import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
+import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -25,26 +29,59 @@ import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 /**
  * My class for lazy quest line setup on a scrolling canvas
  */
 public class CanvasQuestLine extends CanvasScrolling
 {
+    private final List<PanelButtonQuest> btnList = new ArrayList<>();
+    
     private final int buttonId;
+    private IQuestLine lastQL;
     
     public CanvasQuestLine(IGuiRect rect, int buttonId)
     {
         super(rect);
         this.setupAdvanceScroll(true, true, 24);
-        
+        this.enableBlocking(false);
         this.buttonId = buttonId;
+    }
+    
+    public Collection<PanelButtonQuest> getQuestButtons()
+    {
+        return Collections.unmodifiableCollection(this.btnList);
+    }
+    
+    public PanelButtonQuest getButtonAt(int mx, int my)
+    {
+        float zs = zoomScale.readValue();
+        int tx = getTransform().getX();
+        int ty = getTransform().getY();
+        int smx = (int)((mx - tx) / zs) + lsx;
+        int smy = (int)((my - ty) / zs) + lsy;
+			
+        for(PanelButtonQuest btn : btnList)
+        {
+            if(btn.rect.contains(smx, smy)) return btn;
+        }
+        
+        return null;
+    }
+    
+    public IQuestLine getQuestLine()
+    {
+        return lastQL;
+    }
+    
+    public void refreshQuestLine()
+    {
+        setQuestLine(lastQL);
     }
     
     /**
@@ -55,22 +92,20 @@ public class CanvasQuestLine extends CanvasScrolling
     {
         // Rest contents
         this.resetCanvas();
+        this.btnList.clear();
+        lastQL = line;
         
-        if(line == null)
-        {
-            return;
-        }
+        if(line == null) return;
         
         EntityPlayer player = Minecraft.getMinecraft().player;
         UUID pid = QuestingAPI.getQuestingUUID(player);
         
         String bgString = line.getProperties().getProperty(NativeProps.BG_IMAGE);
         
-        if(bgString != null && bgString.length() > 0)
+        if(!StringUtils.isNullOrEmpty(bgString))
         {
-            ResourceLocation bgRes = new ResourceLocation(bgString);
             int bgSize = line.getProperties().getProperty(NativeProps.BG_SIZE);
-            this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize), new SimpleTexture(bgRes, new GuiRectangle(0, 0, 256, 256))));
+            this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize), new SimpleTexture(new ResourceLocation(bgString), new GuiRectangle(0, 0, 256, 256))));
         }
         
         // Used later to center focus the quest line within the window
@@ -118,8 +153,8 @@ public class CanvasQuestLine extends CanvasScrolling
                     break;
             }
             
-            IGuiRect rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
-            PanelButtonStorage<IQuest> paBtn = new PanelButtonStorage<>(rect, buttonId, "", quest);
+            GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
+            PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", quest);
             IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
             paBtn.setIcon(new OreDictTexture(1F, quest.getProperty(NativeProps.ICON), false, true), 4);
@@ -127,6 +162,7 @@ public class CanvasQuestLine extends CanvasScrolling
             paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
             
             this.addPanel(paBtn);
+            this.btnList.add(paBtn);
             questBtns.put(qle.getID(), paBtn);
             
             if(!flag)

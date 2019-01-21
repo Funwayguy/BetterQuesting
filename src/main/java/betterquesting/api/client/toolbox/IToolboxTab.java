@@ -5,6 +5,8 @@ import betterquesting.api.client.gui.misc.IGuiQuestLine;
 
 public interface IToolboxTab
 {
+    // TODO: Revise all this for the new panels
+    // TODO: Allow additional buttons to be registered to tabs
 	public String getUnlocalisedName();
 	
 	public void initTools(IGuiQuestLine gui);
