@@ -1,16 +1,16 @@
 package betterquesting.client.toolbox;
 
-import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.toolbox.IToolTab;
 import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelTabMain;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
 
 public class ToolboxTabMain implements IToolTab
 {
@@ -71,35 +71,44 @@ public class ToolboxTabMain implements IToolTab
         
         IGuiColor gMinor = PresetColor.GRID_MINOR.getColor();
         IGuiColor gMajor = PresetColor.GRID_MAJOR.getColor();
+        IGuiLine lMinor = PresetLine.GRID_MINOR.getLine();
+        IGuiLine lMajor = PresetLine.GRID_MAJOR.getLine();
+        
+        GuiRectangle p1 = new GuiRectangle(0, 0, 0, 0);
+        GuiRectangle p2 = new GuiRectangle(0, 0, 0, 0);
 		
+        p1.y = y;
+        p2.y = y + height;
+        
 		for(int i = 0; i < divX; i++)
 		{
-			GlStateManager.pushMatrix();
-			GL11.glEnable(GL11.GL_LINE_STIPPLE);
-			if(i != midX)
-			{
-				GL11.glLineStipple(2, (short)0b1010101010101010);
-			}
 			int lx = x + (int)(i * getSnapValue() * zs + offX);
-			RenderUtils.DrawLine(lx, y, lx, y + height, i == midX ? 2F : 1F, i == midX ? gMajor.getRGB() : gMinor.getRGB());
-			GL11.glLineStipple(1, (short)0xFFFF);
-			GL11.glDisable(GL11.GL_LINE_STIPPLE);
-			GlStateManager.popMatrix();
+			p1.x = lx;
+			p2.x = lx;
+            if(i == midX)
+            {
+                lMajor.drawLine(p1, p2, 2, gMajor, 1F);
+            } else
+            {
+                lMinor.drawLine(p1, p2, 1, gMinor, 1F);
+            }
 		}
+		
+		p1.x = x;
+		p2.x = x + width;
 		
 		for(int j = 0; j < divY; j++)
 		{
-			GlStateManager.pushMatrix();
-			GL11.glEnable(GL11.GL_LINE_STIPPLE);
-			if(j != midY)
-			{
-				GL11.glLineStipple(2, (short)0b1010101010101010);
-			}
 			int ly = y + (int)(j * getSnapValue() * zs + offY);
-			RenderUtils.DrawLine(x, ly, x + width, ly, j == midY ? 2F : 1F, j == midY ? gMajor.getRGB() : gMinor.getRGB());
-			GL11.glLineStipple(1, (short)0xFFFF);
-			GL11.glDisable(GL11.GL_LINE_STIPPLE);
-			GlStateManager.popMatrix();
+			p1.y = ly;
+			p2.y = ly;
+            if(j == midY)
+            {
+                lMajor.drawLine(p1, p2, 2, gMajor, 1F);
+            } else
+            {
+                lMinor.drawLine(p1, p2, 1, gMinor, 1F);
+            }
 		}
 	}
 }
