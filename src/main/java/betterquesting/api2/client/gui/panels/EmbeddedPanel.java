@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.panels;
 
 import betterquesting.api.client.gui.misc.IGuiEmbedded;
 
+@Deprecated
 public class EmbeddedPanel implements IGuiEmbedded
 {
     private final IGuiPanel panel;

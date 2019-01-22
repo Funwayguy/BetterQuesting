@@ -7,10 +7,9 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
-import betterquesting.client.toolbox.ToolboxGuiMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -49,13 +48,18 @@ public class ToolboxToolScale implements IToolboxTool
 		grabbed = null;
 		grabID = -1;
 	}
+	
+	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
 
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(grabbed != null)
 		{
-			int snap = ToolboxGuiMain.getSnapValue();
+			int snap = ToolboxTabMain.INSTANCE.getSnapValue();
 			
 			int size = Math.max(mx - grabbed.rect.x, my - grabbed.rect.y);
 			int mult = Math.max(1, (int)Math.ceil(size/(float)snap));
@@ -64,13 +68,12 @@ public class ToolboxToolScale implements IToolboxTool
 			grabbed.rect.w = size;
 			grabbed.rect.h = size;
 		}
-		
-		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
     public void drawOverlay(int mx, int my, float partialTick)
     {
+        if(grabbed != null) ToolboxTabMain.INSTANCE.drawGrid(gui);
     }
     
     @Override
@@ -104,7 +107,7 @@ public class ToolboxToolScale implements IToolboxTool
 		if(grabbed == null)
 		{
 			grabbed = gui.getButtonAt(mx, my);
-			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getID(grabbed.getStoredValue());
+			grabID = grabbed == null? -1 : grabbed.getStoredValue().getID();
 			return grabID >= 0;
 		} else
 		{
@@ -154,7 +157,7 @@ public class ToolboxToolScale implements IToolboxTool
 	@Override
 	public boolean clampScrolling()
 	{
-		return true;
+		return grabbed == null;
 	}
 	
 }

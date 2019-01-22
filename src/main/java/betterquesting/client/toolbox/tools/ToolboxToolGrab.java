@@ -7,7 +7,7 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
-import betterquesting.client.toolbox.ToolboxGuiMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -51,11 +51,16 @@ public class ToolboxToolGrab implements IToolboxTool
 	}
 	
 	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
+	
+	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(grabbed != null)
 		{
-			int snap = ToolboxGuiMain.getSnapValue();
+			int snap = ToolboxTabMain.INSTANCE.getSnapValue();
 			grabbed.rect.x = mx;
 			grabbed.rect.y = my;
 			int modX = ((grabbed.rect.x%snap) + snap)%snap;
@@ -68,15 +73,13 @@ public class ToolboxToolGrab implements IToolboxTool
 	@Override
     public void drawOverlay(int mx, int my, float partialTick)
     {
-        //if(grabbed != null)
-            ToolboxGuiMain.drawGrid(gui);
+        ToolboxTabMain.INSTANCE.drawGrid(gui);
     }
     
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        if(grabbed != null) return Collections.emptyList();
-        return null;
+        return grabbed == null ? null : Collections.emptyList();
     }
 	
 	@Override
@@ -95,7 +98,7 @@ public class ToolboxToolGrab implements IToolboxTool
 			
 			grabbed = null;
 			return true;
-		} else if(click != 0)
+		} else if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
@@ -103,7 +106,7 @@ public class ToolboxToolGrab implements IToolboxTool
 		if(grabbed == null)
 		{
 			grabbed = gui.getButtonAt(mx, my);
-			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getID(grabbed.getStoredValue());
+			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getID(grabbed.getStoredValue().getValue());
 			return grabID >= 0;
 		} else
 		{

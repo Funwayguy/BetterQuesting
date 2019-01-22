@@ -180,8 +180,8 @@ public class ItemComparison
     		Number num1 = NBTConverter.getNumber(tag1);
     		Number num2 = NBTConverter.getNumber(tag2);
     		
-    		// Second number will be cast to the requested number format
-    		if(tag1 instanceof NBTTagFloat || tag1 instanceof NBTTagDouble)
+    		// Check if floating point precesion needs to be preserved in comparison
+    		if(tag1 instanceof NBTTagFloat || tag1 instanceof NBTTagDouble || tag2 instanceof NBTTagFloat || tag2 instanceof NBTTagDouble)
     		{
     			return num1.doubleValue() == num2.doubleValue();
     		} else

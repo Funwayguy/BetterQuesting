@@ -21,6 +21,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -85,6 +86,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		transform.h = this.height - marginY * 2;
 		
 		this.guiPanels.clear();
+        Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
 	}
 	
 	@Override

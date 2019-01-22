@@ -101,14 +101,13 @@ public class NBTConverter
     {
         if(tag == null) return new long[0];
         
-        String s = tag.toString();
-        String[] entry = s.substring(3, s.length() - 1).split(","); // Cut off square braces and "L;" before splitting elements
-        long[] ary = new long[entry.length];
+        String[] entry = tag.toString().replaceAll("[\\[\\]L;]","").split(","); // Cut off square braces and "L;" before splitting elements
+        final long[] ary = new long[entry.length];
         for(int i = 0; i < entry.length; i++)
         {
             try
             {
-                ary[i] = Long.parseLong(entry[i].substring(0, entry[i].length() - 1)); // Trim the L off and parse
+                ary[i] = Long.parseLong(entry[i]);
             } catch(Exception ignored){}
         }
         

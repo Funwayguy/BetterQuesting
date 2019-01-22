@@ -1,9 +1,21 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuestLine;
+import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.client.gui2.CanvasQuestLine;
-import betterquesting.client.toolbox.ToolboxGuiMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.questing.QuestLineEntry;
+import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +42,11 @@ public class ToolboxToolCopy implements IToolboxTool
 	}
 	
 	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
+	
+	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(btnQuest == null)
@@ -37,7 +54,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			return;
 		}
 		
-		int snap = ToolboxGuiMain.getSnapValue();
+		int snap = ToolboxTabMain.INSTANCE.getSnapValue();
 		int modX = ((mx%snap) + snap)%snap;
 		int modY = ((my%snap) + snap)%snap;
 		mx -= modX;
@@ -46,13 +63,12 @@ public class ToolboxToolCopy implements IToolboxTool
 		btnQuest.rect.x = mx;
 		btnQuest.rect.y = my;
 		btnQuest.drawPanel(mx, my, partialTick); // TODO: Use relative canvas coordinates
-		
-		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
     public void drawOverlay(int mx, int my, float partialTick)
     {
+        if(btnQuest != null) ToolboxTabMain.INSTANCE.drawGrid(gui);
     }
     
     @Override
@@ -68,39 +84,33 @@ public class ToolboxToolCopy implements IToolboxTool
 		{
 			btnQuest = null;
 			return true;
-		} else if(click != 0)
+		} else if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
 		
-		// TODO
-		/*int snap = ToolboxGuiMain.getSnapValue();
-		int modX = ((mx%snap) + snap)%snap;
-		int modY = ((my%snap) + snap)%snap;
-		mx -= modX;
-		my -= modY;
-		
 		if(btnQuest == null)
 		{
-			GuiButtonQuestInstance tmpBtn = gui.getButtonAt(mx, my);
+			PanelButtonQuest tmpBtn = gui.getButtonAt(mx, my);
 			
 			if(tmpBtn != null)
 			{
-				QuestInstance tmpQ = new QuestInstance(); // Unregistered but setup
-				tmpQ.readFromNBT(tmpBtn.getQuest().writeToNBT(new NBTTagCompound()));
-				btnQuest = new GuiButtonQuestInstance(0, mx, my, tmpBtn.width, tmpBtn.height, tmpQ);
+				btnQuest = new PanelButtonQuest(new GuiRectangle(mx, my, tmpBtn.rect.w, tmpBtn.rect.h, 0), tmpBtn.getButtonID(), "", tmpBtn.getStoredValue()); // We don't actually need to copy the quest instance
 			}
+			
+			return btnQuest != null;
 		} else
 		{
 			// Pre-sync
-			IQuest quest = btnQuest.getQuest();
-			IQuestLine qLine = gui.getQuestLine().getQuestLine();
+			IQuest quest = btnQuest.getStoredValue().getValue();
+			IQuestLine qLine = gui.getQuestLine();
 			int qID = QuestDatabase.INSTANCE.nextID();
 			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
 			if(qLine.getValue(qID) == null)
 			{
-				QuestLineEntry qe = new QuestLineEntry(mx, my, Math.max(btnQuest.width, btnQuest.height));
-				qLine.add(qID, qe);
+			 
+				IQuestLineEntry qe = new QuestLineEntry(btnQuest.rect.x, btnQuest.rect.y, Math.max(btnQuest.rect.w, btnQuest.rect.h));
+                qLine.add(qID, qe);
 			}
 			btnQuest = null;
 			
@@ -121,7 +131,7 @@ public class ToolboxToolCopy implements IToolboxTool
 			tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
 			tag2.setInteger("lineID", lID);
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
-		}*/
+		}
 		
 		return true;
 	}

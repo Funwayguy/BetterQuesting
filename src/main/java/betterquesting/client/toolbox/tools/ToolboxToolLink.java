@@ -1,11 +1,16 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.Collections;
 import java.util.List;
 
 public class ToolboxToolLink implements IToolboxTool
@@ -27,6 +32,11 @@ public class ToolboxToolLink implements IToolboxTool
 	}
 	
 	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
+	
+	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
 		if(b1 == null)
@@ -45,7 +55,7 @@ public class ToolboxToolLink implements IToolboxTool
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        return Collections.emptyList();
+        return null;
     }
 	
 	@Override
@@ -60,7 +70,7 @@ public class ToolboxToolLink implements IToolboxTool
             }
             
             return false;
-		} else if(click != 0)
+		} else if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
@@ -71,7 +81,7 @@ public class ToolboxToolLink implements IToolboxTool
 			return b1 != null;
 		} else
 		{
-			/*PanelButtonQuest b2 = gui.getButtonAt(mx, my);
+			PanelButtonQuest b2 = gui.getButtonAt(mx, my);
 			
 			if(b1 == b2)
 			{
@@ -79,42 +89,42 @@ public class ToolboxToolLink implements IToolboxTool
 			} else if(b2 != null)
 			{
 				// LINK!
-				
-				if(!b2.getParents().contains(b1) && !b2.getQuest().getPrerequisites().contains(b1.getQuest()) && !b1.getParents().contains(b2) && !b1.getQuest().getPrerequisites().contains(b2.getQuest()))
+				IQuest q1 = b1.getStoredValue().getValue();
+				IQuest q2 = b2.getStoredValue().getValue();
+    
+				// Don't have to worry about the lines anymore. The panel is getting refereshed anyway
+				if(!q2.getPrerequisites().contains(q1) && !q1.getPrerequisites().contains(q2))
 				{
-					b2.addParent(b1);
-					b2.getQuest().getPrerequisites().add(b1.getQuest());
+					q2.getPrerequisites().add(q1);
 				} else
 				{
-					b2.getParents().remove(b1);
-					b1.getParents().remove(b2);
-					b2.getQuest().getPrerequisites().remove(b1.getQuest());
-					b1.getQuest().getPrerequisites().remove(b2.getQuest());
+					q2.getPrerequisites().remove(q1);
+					q1.getPrerequisites().remove(q2);
 				}
 				
 				// Sync Quest 1
 				NBTTagCompound tag1 = new NBTTagCompound();
 				NBTTagCompound base1 = new NBTTagCompound();
-				base1.setTag("config", b1.getQuest().writeToNBT(new  NBTTagCompound()));
-				base1.setTag("progress", b1.getQuest().writeProgressToNBT(new NBTTagCompound(), null));
+				base1.setTag("config",q1.writeToNBT(new  NBTTagCompound()));
+				base1.setTag("progress", q1.writeProgressToNBT(new NBTTagCompound(), null));
 				tag1.setTag("data", base1);
 				tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag1.setInteger("questID", QuestDatabase.INSTANCE.getID(b1.getQuest()));
+				tag1.setInteger("questID", b1.getStoredValue().getID());
 				
 				// Sync Quest 2
 				NBTTagCompound tag2 = new NBTTagCompound();
 				NBTTagCompound base2 = new NBTTagCompound();
-				base2.setTag("config", b2.getQuest().writeToNBT(new NBTTagCompound()));
-				base1.setTag("progress", b2.getQuest().writeProgressToNBT(new NBTTagCompound(), null));
+				base2.setTag("config", q2.writeToNBT(new NBTTagCompound()));
+				base1.setTag("progress", q2.writeProgressToNBT(new NBTTagCompound(), null));
 				tag2.setTag("data", base2);
 				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag2.setInteger("questID", QuestDatabase.INSTANCE.getID(b2.getQuest()));
+				tag2.setInteger("questID", b2.getStoredValue().getID());
 				
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
 				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
 				
 				b1 = null;
-			}*/
+			}
 			return true;
 		}
 	}

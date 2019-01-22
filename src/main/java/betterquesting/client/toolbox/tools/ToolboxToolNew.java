@@ -9,7 +9,7 @@ import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.client.gui2.CanvasQuestLine;
-import betterquesting.client.toolbox.ToolboxGuiMain;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
@@ -18,20 +18,26 @@ import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ToolboxToolNew implements IToolboxTool
 {
 	private CanvasQuestLine gui = null;
-	PanelButtonQuest nQuest;
+	private PanelButtonQuest nQuest;
 	
 	@Override
 	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 		
-		nQuest = new PanelButtonQuest(new GuiRectangle(0, 0, 24, 24), -1, "", new QuestInstance());
+		nQuest = new PanelButtonQuest(new GuiRectangle(0, 0, 24, 24), -1, "", null);
 	}
+	
+	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
 	
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
@@ -41,7 +47,7 @@ public class ToolboxToolNew implements IToolboxTool
 			return;
 		}
 		
-		int snap = ToolboxGuiMain.getSnapValue();
+		int snap = ToolboxTabMain.INSTANCE.getSnapValue();
 		int modX = ((mx%snap) + snap)%snap;
 		int modY = ((my%snap) + snap)%snap;
 		mx -= modX;
@@ -50,44 +56,33 @@ public class ToolboxToolNew implements IToolboxTool
 		nQuest.rect.x = mx;
 		nQuest.rect.y = my;
 		nQuest.drawPanel(mx, my, partialTick); // TODO: Draw relative
-		
-		ToolboxGuiMain.drawGrid(gui);
 	}
 	
 	@Override
     public void drawOverlay(int mx, int my, float partialTick)
     {
+        ToolboxTabMain.INSTANCE.drawGrid(gui);
     }
     
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        return null;
+        return Collections.emptyList();
     }
 	
 	@Override
 	public void disableTool()
 	{
-		if(nQuest != null)
-		{
-			//gui.getQuestLine().getButtonTree().remove(nQuest);
-			nQuest = null;
-		}
+		if(nQuest != null) nQuest = null;
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
+		if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
-		
-		int snap = ToolboxGuiMain.getSnapValue();
-		int modX = ((mx%snap) + snap)%snap;
-		int modY = ((my%snap) + snap)%snap;
-		mx -= modX;
-		my -= modY;
 		
 		// Pre-sync
 		IQuestLine qLine = gui.getQuestLine();
@@ -99,11 +94,11 @@ public class ToolboxToolNew implements IToolboxTool
 		
 		if(qe == null)
 		{
-			qe = new QuestLineEntry(mx, my, 24);
+			qe = new QuestLineEntry(nQuest.rect.x, nQuest.rect.y, 24);
 			qLine.add(qID, qe);
 		} else
 		{
-			qe.setPosition(mx, my);
+			qe.setPosition(nQuest.rect.x, nQuest.rect.y);
 			qe.setSize(24);
 		}
 		

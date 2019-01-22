@@ -1,37 +1,41 @@
 package betterquesting.client.toolbox;
 
-import java.util.ArrayList;
-import java.util.List;
 import betterquesting.api.client.toolbox.IToolRegistry;
-import betterquesting.api.client.toolbox.IToolboxTab;
+import betterquesting.api2.client.toolbox.IToolTab;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 public class ToolboxRegistry implements IToolRegistry
 {
 	public static final ToolboxRegistry INSTANCE = new ToolboxRegistry();
 	
-	private final ArrayList<IToolboxTab> toolTabs = new ArrayList<IToolboxTab>();
-	
-	private ToolboxRegistry()
-	{
-	}
+	private final HashMap<ResourceLocation, IToolTab> toolTabs = new HashMap<>();
 	
 	@Override
-	public void registerToolbox(IToolboxTab toolbox)
+	public void registerToolTab(ResourceLocation tabID, IToolTab tab)
 	{
-		if(toolbox == null)
+		if(tabID == null || tab == null)
 		{
-			throw new NullPointerException("Tried to register null toolbox");
-		} else if(toolTabs.contains(toolbox))
+			throw new NullPointerException("Tried to register null tab or null ID");
+		} else if(toolTabs.containsKey(tabID))
 		{
-			throw new IllegalArgumentException("Cannot register duplicate toolbox: " + toolbox.getClass());
+			throw new IllegalArgumentException("Cannot register duplicate tab ID: " + tabID);
 		}
 		
-		toolTabs.add(toolbox);
+		toolTabs.put(tabID, tab);
 	}
 	
 	@Override
-	public List<IToolboxTab> getAllTools()
+    public IToolTab getTabByID(ResourceLocation tabID)
+    {
+        return toolTabs.get(tabID);
+    }
+	
+	@Override
+	public Collection<IToolTab> getAllTabs()
 	{
-		return toolTabs;
+		return toolTabs.values();
 	}
 }

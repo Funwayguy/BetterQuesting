@@ -223,8 +223,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select
         {
             @SuppressWarnings("unchecked")
-            IQuest quest = ((PanelButtonStorage<IQuest>)btn).getStoredValue();
-            GuiHome.bookmark = new GuiQuest(this, QuestDatabase.INSTANCE.getID(quest));
+            DBEntry<IQuest> quest = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
+            GuiHome.bookmark = new GuiQuest(this, quest.getID());
             this.lastScrollX = cvQuest.getScrollX();
             this.lastScrollY = cvQuest.getScrollY();
             this.lastZoom = cvQuest.getZoom();

@@ -6,7 +6,13 @@ import java.util.List;
 
 public interface IToolboxTool
 {
+    /** Starts up the tool in its initial starting state */
 	void initTool(CanvasQuestLine gui);
+	
+	/** Canvas has been refreshed. Restore references to buttons, etc. */
+	void refresh(CanvasQuestLine gui);
+	
+	/** Shut down tool and reset values */
 	void disableTool();
 	
 	/** Draws within the relative scrolling portion of the canvas */

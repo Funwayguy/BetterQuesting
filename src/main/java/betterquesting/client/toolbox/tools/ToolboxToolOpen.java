@@ -4,7 +4,6 @@ import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.gui2.GuiQuest;
-import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 
 import java.util.List;
@@ -24,9 +23,14 @@ public class ToolboxToolOpen implements IToolboxTool
 	}
 	
 	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
+	
+	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
+		if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
@@ -35,7 +39,7 @@ public class ToolboxToolOpen implements IToolboxTool
 		
 		if(btn != null)
 		{
-			int qID = QuestDatabase.INSTANCE.getID(btn.getStoredValue());
+			int qID = btn.getStoredValue().getID();
 			
 			Minecraft mc = Minecraft.getMinecraft();
 			mc.displayGuiScreen(new GuiQuest(mc.currentScreen, qID));

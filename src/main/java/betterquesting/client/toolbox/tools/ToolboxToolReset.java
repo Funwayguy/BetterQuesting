@@ -7,7 +7,6 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
@@ -28,9 +27,14 @@ public class ToolboxToolReset implements IToolboxTool
 	}
 	
 	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
+	
+	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
+		if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
@@ -41,7 +45,7 @@ public class ToolboxToolReset implements IToolboxTool
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.SET.ordinal()); // Complete quest
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getID(btn.getStoredValue()));
+			tags.setInteger("questID",btn.getStoredValue().getID());
 			tags.setBoolean("status", false);
 			
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));

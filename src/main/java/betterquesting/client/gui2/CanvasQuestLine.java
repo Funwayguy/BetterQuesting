@@ -9,7 +9,6 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
-import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
@@ -17,13 +16,9 @@ import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
-import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
@@ -115,7 +110,7 @@ public class CanvasQuestLine extends CanvasScrolling
         int maxX = 0;
         int maxY = 0;
         
-        HashMap<Integer, PanelButtonStorage<IQuest>> questBtns = new HashMap<>();
+        HashMap<Integer, PanelButtonQuest> questBtns = new HashMap<>();
         
         for(DBEntry<IQuestLineEntry> qle : line.getEntries())
         {
@@ -126,7 +121,7 @@ public class CanvasQuestLine extends CanvasScrolling
                 continue;
             }
             
-            EnumQuestState qState = quest.getState(pid);
+            /*EnumQuestState qState = quest.getState(pid);
             IGuiTexture txFrame = null;
             IGuiColor txIconCol = null;
             boolean main = quest.getProperty(NativeProps.MAIN);
@@ -151,15 +146,15 @@ public class CanvasQuestLine extends CanvasScrolling
                     txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
                     txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
                     break;
-            }
+            }*/
             
             GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
-            PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", quest);
-            IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
+            PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", new DBEntry<>(qle.getID(), quest));
+            /*IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
             paBtn.setTextures(btnTx, btnTx, btnTx);
             paBtn.setIcon(new OreDictTexture(1F, quest.getProperty(NativeProps.ICON), false, true), 4);
             paBtn.setTooltip(quest.getTooltip(player));
-            paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
+            paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);*/
             
             this.addPanel(paBtn);
             this.btnList.add(paBtn);
@@ -181,19 +176,19 @@ public class CanvasQuestLine extends CanvasScrolling
             }
         }
         
-        for(Entry<Integer, PanelButtonStorage<IQuest>> entry : questBtns.entrySet())
+        for(Entry<Integer, PanelButtonQuest> entry : questBtns.entrySet())
         {
-            IQuest quest = entry.getValue().getStoredValue();
+            DBEntry<IQuest> quest = entry.getValue().getStoredValue();
             
-            List<IQuest> reqList = quest.getPrerequisites();
+            List<IQuest> reqList = quest.getValue().getPrerequisites();
             
             if(reqList.size() <= 0)
             {
                 continue;
             }
             
-            boolean main = quest.getProperty(NativeProps.MAIN);
-            EnumQuestState qState = quest.getState(pid);
+            boolean main = quest.getValue().getProperty(NativeProps.MAIN);
+            EnumQuestState qState = quest.getValue().getState(pid);
             IGuiLine lineRender = null;
             IGuiColor txLineCol = null;
             
@@ -221,7 +216,7 @@ public class CanvasQuestLine extends CanvasScrolling
             {
                 int id = QuestDatabase.INSTANCE.getID(req);
                 
-                PanelButtonStorage<IQuest> parBtn = questBtns.get(id);
+                PanelButtonQuest parBtn = questBtns.get(id);
                 
                 if(parBtn != null)
                 {

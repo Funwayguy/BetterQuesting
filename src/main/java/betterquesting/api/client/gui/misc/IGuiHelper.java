@@ -13,6 +13,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.io.File;
 import java.io.FileFilter;
 
+@Deprecated
 @SideOnly(Side.CLIENT)
 public interface IGuiHelper
 {

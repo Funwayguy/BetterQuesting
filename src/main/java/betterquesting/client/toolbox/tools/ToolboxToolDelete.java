@@ -7,7 +7,6 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
 import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.List;
@@ -26,6 +25,11 @@ public class ToolboxToolDelete implements IToolboxTool
 	public void disableTool()
 	{
 	}
+	
+	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
 
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
@@ -46,7 +50,7 @@ public class ToolboxToolDelete implements IToolboxTool
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
+		if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
@@ -57,7 +61,7 @@ public class ToolboxToolDelete implements IToolboxTool
 		{
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getID(btn.getStoredValue()));
+			tags.setInteger("questID", btn.getStoredValue().getID());
 			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
 			return true;
 		}

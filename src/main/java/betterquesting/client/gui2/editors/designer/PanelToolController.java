@@ -84,6 +84,16 @@ public class PanelToolController implements IGuiPanel
         tool.initTool(questLine);
     }
     
+    public IToolboxTool getActiveTool()
+    {
+        return this.activeTool;
+    }
+    
+    public CanvasQuestLine getCanvas()
+    {
+        return this.getCanvas();
+    }
+    
     public IValueIO<Float> getScrollX()
     {
         return this.scDriverX;

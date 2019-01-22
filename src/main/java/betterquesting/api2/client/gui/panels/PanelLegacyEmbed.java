@@ -9,6 +9,7 @@ import java.util.List;
 /**
  * <b>WARNING:</b> For use ONLY when IGuiEmbedded cannot be reasonably replaced currently
  */
+@Deprecated
 public class PanelLegacyEmbed<T extends IGuiEmbedded> implements IGuiPanel
 {
 	private final IGuiRect transform;

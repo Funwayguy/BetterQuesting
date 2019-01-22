@@ -4,7 +4,7 @@ public interface IDatabase<T>
 {
     int nextID();
     
-    //T createNew(int id); // Probably useful in future
+    //DBEntry<T> createNew(int id);
     
     DBEntry<T> add(int id, T value);
     boolean removeID(int key);
