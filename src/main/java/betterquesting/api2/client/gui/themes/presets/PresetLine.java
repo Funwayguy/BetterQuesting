@@ -27,7 +27,7 @@ public enum PresetLine
 	
 	public IGuiLine getLine()
 	{
-		return ThemeRegistry.INSTANCE.getLineRenderer(this.key);
+		return ThemeRegistry.INSTANCE.getLine(this.key);
 	}
 	
 	public ResourceLocation getKey()

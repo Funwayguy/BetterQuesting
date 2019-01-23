@@ -1,6 +1,5 @@
 package betterquesting.api.placeholders.rewards;
 
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -59,12 +58,6 @@ public class RewardPlaceholder implements IReward
 	@Override
 	public void claimReward(EntityPlayer player, IQuest quest)
 	{
-	}
-	
-	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
 	}
 	
 	@Override

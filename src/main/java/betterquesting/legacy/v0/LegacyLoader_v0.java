@@ -1,7 +1,6 @@
 package betterquesting.legacy.v0;
 
 import betterquesting.api.enums.EnumLogic;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.placeholders.tasks.TaskPlaceholder;
 import betterquesting.api.properties.IPropertyContainer;
@@ -38,9 +37,9 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	}
 	
 	@Override
-	public void readFromJson(JsonElement rawJson, EnumSaveType saveType)
+	public void readFromJson(JsonElement rawJson)
 	{
-		if(rawJson == null || saveType != EnumSaveType.CONFIG || !rawJson.isJsonObject())
+		if(rawJson == null || !rawJson.isJsonObject())
 		{
 			// Not going to bother with converting progression
 			return;
@@ -85,6 +84,11 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			}
 		}
 	}
+	
+	@Override
+    public void readProgressFromJson(JsonElement json)
+    {
+    }
 	
 	public void readLineDatabase(JsonArray jAry)
 	{

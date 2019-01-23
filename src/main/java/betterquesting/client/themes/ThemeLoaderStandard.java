@@ -1,25 +1,28 @@
 package betterquesting.client.themes;
 
-import java.awt.Color;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api.utils.JsonHelper;
+import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.api2.client.gui.themes.builtin.ThemeLegacy;
 import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
+import net.minecraft.util.ResourceLocation;
+
+import java.awt.*;
 
 public class ThemeLoaderStandard implements IThemeLoader
 {
 	private final ResourceLocation ID = new ResourceLocation(BetterQuesting.MODID + ":standard");
 	
 	@Override
-	public ResourceLocation getLoaderID()
+	public ResourceLocation getID()
 	{
 		return ID;
 	}
 	
 	@Override
-	public ITheme loadTheme(JsonObject json, String domain)
+	public IGuiTheme loadTheme(JsonObject json, String domain)
 	{
 		if(json == null)
 		{
@@ -57,7 +60,7 @@ public class ThemeLoaderStandard implements IThemeLoader
         	}
     	}
 		
-		ThemeStandard theme = new ThemeStandard(name, new ResourceLocation(texture), regName);
+		ThemeLegacy theme = new ThemeLegacy(name, new ResourceLocation(texture), regName);
 		theme.setTextColor(tColor);
 		theme.setLineColors(lLocked, lPending, lComplete);
 		theme.setIconColors(iLocked, iPending, iUnclaimed, iComplete);

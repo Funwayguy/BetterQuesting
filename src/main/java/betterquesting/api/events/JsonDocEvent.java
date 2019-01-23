@@ -1,33 +1,33 @@
 package betterquesting.api.events;
 
 import net.minecraftforge.fml.common.eventhandler.Event;
-import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.INbtDoc;
 
 /**
  * Can be used to override the JsonDocs in the editors with custom ones.
  */
 public class JsonDocEvent extends Event
 {
-	private final IJsonDoc inJdoc;
-	private IJsonDoc outJdoc;
+	private final INbtDoc inJdoc;
+	private INbtDoc outJdoc;
 	
-	public JsonDocEvent(IJsonDoc jdoc)
+	public JsonDocEvent(INbtDoc jdoc)
 	{
 		inJdoc = jdoc;
 		outJdoc = jdoc;
 	}
 	
-	public IJsonDoc getJsonDoc()
+	public INbtDoc getJsonDoc()
 	{
 		return inJdoc;
 	}
 	
-	public void setJdocResult(IJsonDoc jdoc)
+	public void setJdocResult(INbtDoc jdoc)
 	{
 		this.outJdoc = jdoc;
 	}
 	
-	public IJsonDoc getJdocResult()
+	public INbtDoc getJdocResult()
 	{
 		return outJdoc == null? inJdoc : outJdoc;
 	}

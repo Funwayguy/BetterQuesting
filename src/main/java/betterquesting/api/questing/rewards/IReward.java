@@ -1,6 +1,5 @@
 package betterquesting.api.questing.rewards;
 
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -21,9 +20,6 @@ public interface IReward extends INBTSaveLoad<NBTTagCompound>
 	
 	boolean canClaim(EntityPlayer player, IQuest quest);
 	void claimReward(EntityPlayer player, IQuest quest);
-	
-	@Deprecated
-	IJsonDoc getDocumentation();
 	
 	@SideOnly(Side.CLIENT)
     IGuiPanel getRewardGui(IGuiRect rect, IQuest quest);

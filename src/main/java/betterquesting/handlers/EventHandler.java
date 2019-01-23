@@ -13,6 +13,7 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
+import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
@@ -78,7 +79,7 @@ public class EventHandler
 					mc.displayGuiScreen(GuiHome.bookmark);
 				} else
 				{
-					mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getHomeGui(null));
 				}
 			}
 		}

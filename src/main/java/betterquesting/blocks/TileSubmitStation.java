@@ -176,7 +176,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 		IItemTask t = getItemTask();
 		
-		return t != null && itemStack.get(idx).isEmpty() && !t.isComplete(owner) && t.canAcceptItem(owner, stack);
+		return t != null && itemStack.get(idx).isEmpty() && !t.isComplete(owner) && t.canAcceptItem(owner, getQuest(), stack);
 	}
  
 	@Override
@@ -192,7 +192,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 		if(doFill)
 		{
-			remainder = t.submitFluid(owner, fluid);
+			remainder = t.submitFluid(owner, getQuest(), fluid);
 		    consumed = remainder != null? amount - remainder.amount : amount;
 		    
 			if(t.isComplete(owner))
@@ -232,7 +232,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		IFluidTask t = getFluidTask();
 		
-		return t != null && !t.isComplete(owner) && t.canAcceptFluid(owner, new FluidStack(fluid, 1));
+		return t != null && !t.isComplete(owner) && t.canAcceptFluid(owner, getQuest(), new FluidStack(fluid, 1));
 	}
 	
 	@Override
@@ -285,9 +285,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 				ItemStack inStack = itemStack.get(0).copy();
 				ItemStack beforeStack = itemStack.get(0).copy();
 				
-				if(t.canAcceptItem(owner, inStack))
+				if(t.canAcceptItem(owner, getQuest(), inStack))
 				{
-					itemStack.set(0, t.submitItem(owner, inStack)); // Even if this returns an invalid item for submission it will be moved next pass
+					itemStack.set(0, t.submitItem(owner, getQuest(), inStack)); // Even if this returns an invalid item for submission it will be moved next pass
 					
 					if(t.isComplete(owner))
 					{

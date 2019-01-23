@@ -1,9 +1,7 @@
 package betterquesting.api.api;
 
-import net.minecraft.creativetab.CreativeTabs;
 import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.client.importers.IImportRegistry;
-import betterquesting.api.client.themes.IThemeRegistry;
 import betterquesting.api.client.toolbox.IToolRegistry;
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.api.network.IPacketSender;
@@ -15,6 +13,8 @@ import betterquesting.api.questing.tasks.ITaskRegistry;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.api.storage.INameCache;
 import betterquesting.api.storage.IQuestSettings;
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
+import net.minecraft.creativetab.CreativeTabs;
 
 public class ApiReference
 {

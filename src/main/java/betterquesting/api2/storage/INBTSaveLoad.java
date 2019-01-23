@@ -3,7 +3,6 @@ package betterquesting.api2.storage;
 import net.minecraft.nbt.NBTBase;
 
 // TODO: Replace usage with INBTSerializable?
-@Deprecated
 public interface INBTSaveLoad<T extends NBTBase>
 {
     T writeToNBT(T nbt);

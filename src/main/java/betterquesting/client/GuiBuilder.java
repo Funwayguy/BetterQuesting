@@ -1,7 +1,7 @@
 package betterquesting.client;
 
 import betterquesting.api.client.gui.misc.IGuiHelper;
-import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.INbtDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.client.gui2.editors.GuiFileBrowser;
@@ -34,7 +34,7 @@ public final class GuiBuilder implements IGuiHelper
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends NBTBase> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, IJsonDoc jdoc)
+	public <T extends NBTBase> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, INbtDoc jdoc)
 	{
 		if(json.getId() == 9)
 		{

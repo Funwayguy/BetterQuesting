@@ -1,6 +1,5 @@
 package betterquesting.api.questing.tasks;
 
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -28,9 +27,6 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 	
 	void resetUser(UUID uuid);
 	void resetAll();
-	
-	@Deprecated
-	IJsonDoc getDocumentation();
 	
 	@SideOnly(Side.CLIENT)
     IGuiPanel getTaskGui(IGuiRect rect, IQuest quest);

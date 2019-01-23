@@ -1,6 +1,5 @@
 package betterquesting.handlers;
 
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
@@ -160,7 +159,7 @@ public class SaveLoadHandler
 			hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
 		} else
 		{
-			loader.readFromJson(j1, EnumSaveType.CONFIG);
+			loader.readFromJson(j1);
 		}
   
 		// === PROGRESS ===
@@ -173,7 +172,7 @@ public class SaveLoadHandler
 			QuestDatabase.INSTANCE.readProgressFromNBT(nbt2.getTagList("questProgress", 10), false);
 		} else
 		{
-			loader.readFromJson(j2, EnumSaveType.PROGRESS);
+			loader.readProgressFromJson(j2);
 		}
 		
 		// === PARTIES ===

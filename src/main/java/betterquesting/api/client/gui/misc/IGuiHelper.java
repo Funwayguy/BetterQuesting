@@ -1,6 +1,6 @@
 package betterquesting.api.client.gui.misc;
 
-import betterquesting.api.jdoc.IJsonDoc;
+import betterquesting.api.jdoc.INbtDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import net.minecraft.client.gui.GuiScreen;
@@ -17,7 +17,7 @@ import java.io.FileFilter;
 @SideOnly(Side.CLIENT)
 public interface IGuiHelper
 {
-    <T extends NBTBase> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, IJsonDoc jdoc);
+    <T extends NBTBase> void openJsonEditor(GuiScreen parent, ICallback<T> callback, T json, INbtDoc jdoc);
     
     void openItemEditor(GuiScreen parent, ICallback<BigItemStack> callback, BigItemStack stack);
     

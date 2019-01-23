@@ -3,12 +3,12 @@ package betterquesting.api.jdoc;
 import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.events.JsonDocEvent;
 
-public class JsonDocBasic implements IJsonDoc
+public class NbtDocBasic implements INbtDoc
 {
-	private IJsonDoc parent = null;
-	private String prefix = "jdoc";
+	private final INbtDoc parent;
+	private final String prefix;
 	
-	public JsonDocBasic(IJsonDoc parent, String prefix)
+	public NbtDocBasic(INbtDoc parent, String prefix)
 	{
 		this.parent = parent;
 		this.prefix = prefix;
@@ -33,15 +33,15 @@ public class JsonDocBasic implements IJsonDoc
 	}
 	
 	@Override
-	public IJsonDoc getParentDoc()
+	public INbtDoc getParent()
 	{
 		return parent;
 	}
 	
 	@Override
-	public IJsonDoc getChildDoc(String child)
+	public INbtDoc getChild(String child)
 	{
-		JsonDocEvent event = new JsonDocEvent(new JsonDocBasic(this, prefix + "." + child));
+		JsonDocEvent event = new JsonDocEvent(new NbtDocBasic(this, prefix + "." + child));
 		MinecraftForge.EVENT_BUS.post(event);
 		return event.getJdocResult();
 	}

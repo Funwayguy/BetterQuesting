@@ -1,6 +1,5 @@
 package betterquesting.api.placeholders.tasks;
 
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -99,12 +98,6 @@ public class TaskPlaceholder implements ITask
 	@Override
 	public void resetAll()
 	{
-	}
-	
-	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
 	}
 	
 	@Override

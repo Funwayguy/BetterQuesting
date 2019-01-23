@@ -1,12 +1,12 @@
 package betterquesting.api.questing.tasks;
 
+import betterquesting.api.questing.IQuest;
 import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
 
 public interface IItemTask extends ITask
 {
-    // TODO: Add IQuest parameter to these calls
-	boolean canAcceptItem(UUID owner, ItemStack stack);
-	ItemStack submitItem(UUID owner, ItemStack stack);
+	boolean canAcceptItem(UUID owner, IQuest quest, ItemStack stack);
+	ItemStack submitItem(UUID owner, IQuest quest, ItemStack stack);
 }

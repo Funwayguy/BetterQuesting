@@ -1,6 +1,5 @@
 package betterquesting.client.gui2;
 
-import betterquesting.api.client.themes.ITheme;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -26,6 +25,8 @@ import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
+import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -73,19 +74,18 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		CanvasScrolling canScroll = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 16, 16, 16), 0));
 		inCan.addPanel(canScroll);
 		
-		betterquesting.client.themes.ThemeRegistry.INSTANCE.reloadThemes();
-		List<ITheme> themes = betterquesting.client.themes.ThemeRegistry.INSTANCE.getAllThemes();
-		//List<IGuiTheme> themes = ThemeRegistry.INSTANCE.getAllThemes();
+		ThemeRegistry.INSTANCE.reloadThemes();
+		List<IGuiTheme> themes = ThemeRegistry.INSTANCE.getAllThemes();
 		int width = canScroll.getTransform().getWidth();
 		
 		for(int i = 0; i < themes.size(); i++)
 		{
+		    IGuiTheme theme = themes.get(i);
 			GuiRectangle trans = new GuiRectangle(0, i * 24, width, 24, 0);
-			ITheme theme = themes.get(i);
-			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, 1, theme.getDisplayName(), theme.getThemeID());
+			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, 1, theme.getName(), theme.getID());
 			canScroll.addPanel(pbs);
 			
-			if(betterquesting.client.themes.ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
+			if(ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
 			{
 				pbs.setActive(false);
 			}
@@ -176,14 +176,13 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		
 		if(btn.getButtonID() == 0) // Exit
 		{
-			mc.displayGuiScreen(this.parent);
+			mc.displayGuiScreen(ThemeRegistry.INSTANCE.getHomeGui(null));
 		} else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
 		{
 			ResourceLocation res = ((PanelButtonStorage<ResourceLocation>)btn).getStoredValue();
 			
 			float scroll = scrollPanel.readValue();
-			betterquesting.client.themes.ThemeRegistry.INSTANCE.setCurrentTheme(res);
-			//ThemeRegistry.INSTANCE.setTheme(res);
+			ThemeRegistry.INSTANCE.setTheme(res);
 			this.initGui();
 			scrollPanel.writeValue(scroll);
 		}
