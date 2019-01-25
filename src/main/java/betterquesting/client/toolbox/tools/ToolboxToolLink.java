@@ -34,6 +34,18 @@ public class ToolboxToolLink implements IToolboxTool
 	@Override
     public void refresh(CanvasQuestLine gui)
     {
+        if(b1 == null) return;
+        
+        for(PanelButtonQuest btn : gui.getQuestButtons())
+        {
+            if(btn.getStoredValue().getID() == b1.getStoredValue().getID())
+            {
+                b1 = btn;
+                return;
+            }
+        }
+        
+        b1 = null;
     }
 	
 	@Override

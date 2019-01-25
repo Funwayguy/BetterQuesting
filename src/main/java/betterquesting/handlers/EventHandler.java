@@ -3,6 +3,7 @@ package betterquesting.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.QuestEvent.QuestComplete;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
@@ -36,6 +37,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -126,7 +128,7 @@ public class EventHandler
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			boolean refreshCache = false;
 			
-			if(!editMode && player.ticksExisted%100 == 0) // Passive quest state check every 5 seconds
+			if(!editMode && player.ticksExisted%60 == 0) // Passive quest state check every 3 seconds
             {
                 for(DBEntry<IQuest> quest : activeQuests)
                 {
@@ -139,6 +141,8 @@ public class EventHandler
                         refreshCache = true;
                         qc.markQuestDirty(quest.getID());
                         
+                        MinecraftForge.EVENT_BUS.post(new QuestComplete(quest.getID(), uuid));
+                        
                         if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
                     }
                 }
@@ -146,11 +150,13 @@ public class EventHandler
             
             if(!editMode && player.getServer() != null) // Repeatable quest resets
             {
+                long totalTime = player.getServer().getWorld(0).getTotalWorldTime();
+                
                 for(QResetTime rTime : pendingResets)
                 {
                     IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
                     
-                    if(player.getServer().getWorld(0).getTotalWorldTime() >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
+                    if(totalTime >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
                     {
                         if(entry.getProperty(NativeProps.GLOBAL))
                         {
@@ -181,7 +187,7 @@ public class EventHandler
                 }
             }
             
-            if(refreshCache || player.ticksExisted % 200 == 0)
+            if(refreshCache || player.ticksExisted % 200 == 0) // Refresh the cache if something changed or every 10 seconds
             {
                 qc.updateCache(player);
             }

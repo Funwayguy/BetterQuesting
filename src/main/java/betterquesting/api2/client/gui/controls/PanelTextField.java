@@ -779,13 +779,13 @@ public class PanelTextField<T> implements IGuiPanel
         int state = !this.isActive() ? 0 : (isFocused ? 2 : 1);
         Minecraft mc = Minecraft.getMinecraft();
         IGuiTexture t = texState[state];
+        GlStateManager.pushMatrix();
         
         if(t != null) // Full screen text editors probably don't need the backgrounds
         {
             t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
         }
-    
-        GlStateManager.pushMatrix();
+        
         RenderUtils.startScissor(bounds);
         GlStateManager.translate(-getScrollX(), -getScrollY(), 0);
         

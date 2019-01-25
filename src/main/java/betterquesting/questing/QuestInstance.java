@@ -366,7 +366,7 @@ public class QuestInstance implements IQuest
 	{
 		List<String> tooltip = this.getStandardTooltip(player);
 		
-		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips)
+		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
 		{
 			tooltip.add("");
 			tooltip.addAll(this.getAdvancedTooltip(player));

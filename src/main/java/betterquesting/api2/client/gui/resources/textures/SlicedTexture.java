@@ -226,10 +226,10 @@ public class SlicedTexture implements IGuiTexture
 		}
 	}
 	
-	public static enum SliceMode
+	public enum SliceMode
 	{
 		STRETCH,
 		SLICED_TILE,
-		SLICED_STRETCH;
+		SLICED_STRETCH
 	}
 }

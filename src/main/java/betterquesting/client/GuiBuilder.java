@@ -1,7 +1,7 @@
 package betterquesting.client;
 
 import betterquesting.api.client.gui.misc.IGuiHelper;
-import betterquesting.api.jdoc.INbtDoc;
+import betterquesting.api.nbt_doc.INbtDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.client.gui2.editors.GuiFileBrowser;

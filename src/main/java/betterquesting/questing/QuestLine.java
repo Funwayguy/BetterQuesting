@@ -52,6 +52,14 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	}
 	
 	@Override
+    public IQuestLineEntry createNew(int id)
+    {
+        IQuestLineEntry qle = new QuestLineEntry(0, 0, 24);
+        this.add(id, qle);
+        return qle;
+    }
+	
+	@Override
 	public void setParentDatabase(IQuestLineDatabase lineDB)
 	{
 		this.parentDB = lineDB;
@@ -83,12 +91,6 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		}
 		
 		return info.getProperty(NativeProps.DESC, def);
-	}
-	
-	@Override
-	public IPropertyContainer getProperties()
-	{
-		return info;
 	}
 	
 	@Override
@@ -127,6 +129,18 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	{
 		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"), false);
 	}
+	
+	@Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        return writeToNBT(nbt, null);
+    }
+    
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        readFromNBT(nbt, false);
+    }
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound json, List<UUID> users)
@@ -175,4 +189,28 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		
 		this.setupProps();
 	}
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop)
+    {
+        return info.getProperty(prop);
+    }
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop, T def)
+    {
+        return info.getProperty(prop, def);
+    }
+    
+    @Override
+    public boolean hasProperty(IPropertyType<?> prop)
+    {
+        return info.hasProperty(prop);
+    }
+    
+    @Override
+    public <T> void setProperty(IPropertyType<T> prop, T value)
+    {
+        info.setProperty(prop, value);
+    }
 }

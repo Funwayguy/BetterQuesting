@@ -268,7 +268,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	
 	public void readLine(IQuestLine qLine, JsonObject json)
 	{
-		IPropertyContainer props = qLine.getProperties();
+		IPropertyContainer props = qLine;
 		props.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest Line"));
 		props.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
 		

@@ -1,7 +1,7 @@
-package betterquesting.api.jdoc;
+package betterquesting.api.nbt_doc;
 
 import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.events.JsonDocEvent;
+import betterquesting.api.events.NbtDocEvent;
 
 public class NbtDocBasic implements INbtDoc
 {
@@ -41,8 +41,8 @@ public class NbtDocBasic implements INbtDoc
 	@Override
 	public INbtDoc getChild(String child)
 	{
-		JsonDocEvent event = new JsonDocEvent(new NbtDocBasic(this, prefix + "." + child));
+		NbtDocEvent event = new NbtDocEvent(new NbtDocBasic(this, prefix + "." + child));
 		MinecraftForge.EVENT_BUS.post(event);
-		return event.getJdocResult();
+		return event.getNbtDocResult();
 	}
 }

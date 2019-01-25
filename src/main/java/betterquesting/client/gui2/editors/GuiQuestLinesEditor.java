@@ -181,13 +181,13 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     
             if(!tfName.getValue().equals(selected.getUnlocalisedName()))
             {
-                selected.getProperties().setProperty(NativeProps.NAME, tfName.getValue());
+                selected.setProperty(NativeProps.NAME, tfName.getValue());
                 changed = true;
             }
             
             if(!tfDesc.getValue().equals(selected.getUnlocalisedDescription()))
             {
-                selected.getProperties().setProperty(NativeProps.DESC, tfDesc.getValue());
+                selected.setProperty(NativeProps.DESC, tfDesc.getValue());
                 changed = true;
             }
             
@@ -259,7 +259,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                 if(selected != null)
                 {
                     tfDesc.setText(value);
-                    selected.getProperties().setProperty(NativeProps.DESC, value);
+                    selected.setProperty(NativeProps.DESC, value);
                     SendChanges(EnumPacketAction.EDIT, new DBEntry<>(selID, selected));
                 }
             }));

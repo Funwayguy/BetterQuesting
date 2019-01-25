@@ -53,6 +53,19 @@ public class ToolboxToolGrab implements IToolboxTool
 	@Override
     public void refresh(CanvasQuestLine gui)
     {
+        if(grabID < 0) return;
+        
+        for(PanelButtonQuest btn : gui.getQuestButtons())
+        {
+            if(btn.getStoredValue().getID() == grabID)
+            {
+                grabbed = btn;
+                return;
+            }
+        }
+        
+        grabbed = null;
+        grabID = -1;
     }
 	
 	@Override

@@ -1,6 +1,6 @@
 package betterquesting.api.client.gui.misc;
 
-import betterquesting.api.jdoc.INbtDoc;
+import betterquesting.api.nbt_doc.INbtDoc;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import net.minecraft.client.gui.GuiScreen;

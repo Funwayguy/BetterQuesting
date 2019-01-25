@@ -81,18 +81,6 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
     }
     
     @Override
-    public boolean onKeyTyped(char c, int keycode)
-    {
-        if(c == 'r') // TODO: Remove this when finished debugging
-        {
-            refreshGui();
-            return true;
-        }
-        
-        return super.onKeyTyped(c, keycode);
-    }
-    
-    @Override
     public void initPanel()
     {
         super.initPanel();

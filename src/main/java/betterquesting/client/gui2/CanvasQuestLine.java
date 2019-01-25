@@ -95,12 +95,12 @@ public class CanvasQuestLine extends CanvasScrolling
         EntityPlayer player = Minecraft.getMinecraft().player;
         UUID pid = QuestingAPI.getQuestingUUID(player);
         
-        String bgString = line.getProperties().getProperty(NativeProps.BG_IMAGE);
+        String bgString = line.getProperty(NativeProps.BG_IMAGE);
         
         if(!StringUtils.isNullOrEmpty(bgString))
         {
-            int bgSize = line.getProperties().getProperty(NativeProps.BG_SIZE);
-            this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize), new SimpleTexture(new ResourceLocation(bgString), new GuiRectangle(0, 0, 256, 256))));
+            int bgSize = line.getProperty(NativeProps.BG_SIZE);
+            this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize, 1), new SimpleTexture(new ResourceLocation(bgString), new GuiRectangle(0, 0, 256, 256))));
         }
         
         // Used later to center focus the quest line within the window

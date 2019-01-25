@@ -1,4 +1,4 @@
-package betterquesting.api.jdoc;
+package betterquesting.api.nbt_doc;
 
 /** Used to self document the NBT editors with localised tooltips and variable naming */
 public interface INbtDoc
