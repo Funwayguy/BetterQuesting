@@ -74,7 +74,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		CanvasScrolling canScroll = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 16, 16, 16), 0));
 		inCan.addPanel(canScroll);
 		
-		ThemeRegistry.INSTANCE.reloadThemes();
+		ThemeRegistry.INSTANCE.loadResourceThemes();
 		List<IGuiTheme> themes = ThemeRegistry.INSTANCE.getAllThemes();
 		int width = canScroll.getTransform().getWidth();
 		

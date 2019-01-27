@@ -21,7 +21,7 @@ public class ItemComparison
     public static boolean StackMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
     {
     	// Some quick null checks
-    	if(stack1 == null && stack2 == null)
+    	if(stack1 == stack2)
     	{
     		return true;
     	} else if(stack1 == null || stack2 == null)

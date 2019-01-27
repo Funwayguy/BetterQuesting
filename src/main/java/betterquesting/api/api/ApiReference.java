@@ -13,8 +13,11 @@ import betterquesting.api.questing.tasks.ITaskRegistry;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.api.storage.INameCache;
 import betterquesting.api.storage.IQuestSettings;
+import betterquesting.api2.client.gui.themes.IResourceReg;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ApiReference
 {
@@ -32,8 +35,13 @@ public class ApiReference
 	public static final ApiKey<IQuestSettings> SETTINGS = new ApiKey<>();
 	public static final ApiKey<INameCache> NAME_CACHE = new ApiKey<>();
 	
+	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IThemeRegistry> THEME_REG = new ApiKey<>();
+	@SideOnly(Side.CLIENT)
+    public static final ApiKey<IResourceReg> RESOURCE_REG = new ApiKey<>();
+	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IGuiHelper> GUI_HELPER = new ApiKey<>();
+	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IToolRegistry> TOOL_REG = new ApiKey<>();
 	public static final ApiKey<IImportRegistry> IMPORT_REG = new ApiKey<>();
 	

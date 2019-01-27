@@ -1,12 +1,9 @@
-package betterquesting.api.misc;
+package betterquesting.api2.registry;
 
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-@Deprecated
 public interface IFactory<T>
 {
     ResourceLocation getRegistryName();
     T createNew();
-    T loadFromNBT(NBTTagCompound nbt);
 }

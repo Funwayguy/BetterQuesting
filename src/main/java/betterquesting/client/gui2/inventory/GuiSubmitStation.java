@@ -1,6 +1,7 @@
 package betterquesting.client.gui2.inventory;
 
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
@@ -39,7 +40,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.util.Collections;
 
-public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListener
+public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListener, INeedsRefresh
 {
     private final ContainerSubmitStation ssContainer;
     private final TileSubmitStation tile;
@@ -72,13 +73,23 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
     }
     
     @Override
+    public void refreshGui()
+    {
+        quests.clear();
+        QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        if(qc != null) quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        
+        refreshTaskPanel();
+    }
+    
+    @Override
     public void initPanel()
     {
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
-        
+    
         quests.clear();
         taskPanel = null;
         QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
@@ -264,6 +275,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         } else
         {
             btnRem.setActive(false);
+            btnSet.setActive(false);
             
             btnQstLeft.setActive(true);
             btnQstRight.setActive(true);

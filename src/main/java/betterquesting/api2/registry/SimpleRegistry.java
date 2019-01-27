@@ -1,23 +1,18 @@
 package betterquesting.api2.registry;
 
-import betterquesting.api.misc.IFactory;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class SimpleRegistry<T> implements IRegistry<T>
+public class SimpleRegistry<T extends IFactory<E>, E> implements IRegistry<T, E>
 {
-    private final HashMap<ResourceLocation, IFactory<T>> factories = new HashMap<>();
-    private final IFactory<T> placeholder;
-    
-    public SimpleRegistry(IFactory<T> placeholder)
-    {
-        this.placeholder = placeholder;
-    }
+    private final HashMap<ResourceLocation, T> factories = new HashMap<>();
     
     @Override
-    public void register(IFactory<T> factory)
+    public void register(T factory)
     {
         if(factory == null || factory.getRegistryName() == null)
         {
@@ -30,38 +25,25 @@ public class SimpleRegistry<T> implements IRegistry<T>
         factories.put(factory.getRegistryName(), factory);
     }
     
+    @Nullable
     @Override
-    public IFactory<T> getFactory(ResourceLocation idName)
+    public T getFactory(ResourceLocation idName)
     {
         return factories.get(idName);
     }
     
+    @Nullable
     @Override
-    public IFactory<T> getPlaceholder()
+    public E createNew(ResourceLocation idName)
     {
-        return placeholder;
-    }
-    
-    @Override
-    public T createNew(ResourceLocation idName)
-    {
-        IFactory<T> fact = getFactory(idName);
+        IFactory<E> fact = getFactory(idName);
         
         return fact == null ? null : fact.createNew();
     }
     
     @Override
-    public T loadFromNBT(ResourceLocation idName, NBTTagCompound nbt)
+    public List<T> getAll()
     {
-        IFactory<T> fact = getFactory(idName);
-        fact = fact != null ? fact : getPlaceholder();
-        return fact.loadFromNBT(nbt);
-    }
-    
-    @Override
-    @SuppressWarnings("unchecked")
-    public IFactory<T>[] getAll()
-    {
-        return factories.values().toArray(new IFactory[0]);
+        return new ArrayList<>(factories.values());
     }
 }

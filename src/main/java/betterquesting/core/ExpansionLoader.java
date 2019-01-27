@@ -4,6 +4,7 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.IQuestExpansion;
 import betterquesting.api.api.QuestExpansion;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.client.themes.ResourceRegistry;
 import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.client.GuiBuilder;
 import betterquesting.client.importers.ImporterRegistry;
@@ -81,6 +82,7 @@ public class ExpansionLoader
 	public void initClientAPIs()
 	{
 		QuestingAPI.registerAPI(ApiReference.THEME_REG, ThemeRegistry.INSTANCE);
+		QuestingAPI.registerAPI(ApiReference.RESOURCE_REG, ResourceRegistry.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.GUI_HELPER, GuiBuilder.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.TOOL_REG, ToolboxRegistry.INSTANCE);
 		QuestingAPI.registerAPI(ApiReference.IMPORT_REG, ImporterRegistry.INSTANCE);

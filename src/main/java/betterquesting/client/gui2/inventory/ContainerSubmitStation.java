@@ -9,15 +9,13 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerSubmitStation extends Container
 {
-	Slot submitSlot;
-	Slot returnSlot;
-	TileSubmitStation tile;
+	private TileSubmitStation tile;
 	
 	public ContainerSubmitStation(InventoryPlayer inventory, TileSubmitStation tile)
 	{
 		this.tile = tile;
 		
-		submitSlot = this.addSlotToContainer(new Slot(tile, 0, 0, 0)
+		this.addSlotToContainer(new Slot(tile, 0, 0, 0)
 		{
 			@Override
 		    public boolean isItemValid(ItemStack stack)
@@ -26,7 +24,7 @@ public class ContainerSubmitStation extends Container
 		    }
 		});
 		
-		returnSlot = this.addSlotToContainer(new Slot(tile, 1, 0, 0)
+		this.addSlotToContainer(new Slot(tile, 1, 0, 0)
 		{
 			@Override
 		    public boolean isItemValid(ItemStack stack)

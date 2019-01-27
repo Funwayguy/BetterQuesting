@@ -1,17 +1,17 @@
 package betterquesting.api2.registry;
 
-import betterquesting.api.misc.IFactory;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public interface IRegistry<T>
+import javax.annotation.Nullable;
+import java.util.List;
+
+public interface IRegistry<T extends IFactory<E>, E>
 {
-    void register(IFactory<T> factory);
-    IFactory<T> getFactory(ResourceLocation idName);
-    IFactory<T> getPlaceholder();
+    void register(T factory);
+    T getFactory(ResourceLocation idName);
     
-    T createNew(ResourceLocation idName);
-    T loadFromNBT(ResourceLocation idName, NBTTagCompound nbt);
+    @Nullable
+    E createNew(ResourceLocation idName);
     
-    IFactory<T>[] getAll();
+    List<T> getAll();
 }

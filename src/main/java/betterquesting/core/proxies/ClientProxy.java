@@ -3,12 +3,11 @@ package betterquesting.core.proxies;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
-import betterquesting.client.themes.ThemeLoaderStandard;
+import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
@@ -76,7 +75,6 @@ public class ClientProxy extends CommonProxy
 		}
 		
 		ThemeRegistry.INSTANCE.setDefaultHome(GuiHome::new);
-		ThemeRegistry.INSTANCE.registerLoader(new ThemeLoaderStandard());
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new PlaceholderRenderFactory());
 		
@@ -140,6 +138,6 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerExpansions();
 		
-		ThemeRegistry.INSTANCE.reloadThemes();
+		ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 }

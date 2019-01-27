@@ -1,28 +1,16 @@
-package betterquesting.client.themes;
+package betterquesting.api2.client.gui.themes;
 
-import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api.utils.JsonHelper;
-import betterquesting.api2.client.gui.themes.IGuiTheme;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
-import betterquesting.api2.client.gui.themes.builtin.ThemeLegacy;
-import betterquesting.core.BetterQuesting;
 import com.google.gson.JsonObject;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
-public class ThemeLoaderStandard implements IThemeLoader
+public class LegacyThemeLoader
 {
-	private final ResourceLocation ID = new ResourceLocation(BetterQuesting.MODID + ":standard");
-	
-	@Override
-	public ResourceLocation getID()
-	{
-		return ID;
-	}
-	
-	@Override
-	public IGuiTheme loadTheme(JsonObject json, String domain)
+    public static final LegacyThemeLoader INSTANCE = new LegacyThemeLoader();
+    
+	protected IGuiTheme loadTheme(JsonObject json, String domain)
 	{
 		if(json == null)
 		{

@@ -268,7 +268,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public void update()
 	{
-		if(world.isRemote || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return;
+		if(world.isRemote || !isSetup() || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return;
 		
 		long wtt = world.getTotalWorldTime();
 		if(wtt%10 == 0 && owner != null)

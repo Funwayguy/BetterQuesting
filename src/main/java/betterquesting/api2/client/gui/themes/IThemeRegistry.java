@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui.themes;
 
-import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -13,14 +12,12 @@ import java.util.function.Function;
 public interface IThemeRegistry
 {
     void registerTheme(IGuiTheme theme);
-    void registerLoader(IThemeLoader loader);
     
     IGuiTheme getCurrentTheme();
     IGuiTheme getTheme(ResourceLocation key);
     void setTheme(ResourceLocation key);
     
-    IThemeLoader getLoader(ResourceLocation key);
-    void reloadThemes();
+    void loadResourceThemes();
     
     IGuiTexture getTexture(ResourceLocation key);
     IGuiColor getColor(ResourceLocation key);
@@ -33,5 +30,4 @@ public interface IThemeRegistry
     void setDefaultHome(Function<GuiScreen, GuiScreen> ctor);
     
     List<IGuiTheme> getAllThemes();
-    List<IThemeLoader> getAllLoaders();
 }

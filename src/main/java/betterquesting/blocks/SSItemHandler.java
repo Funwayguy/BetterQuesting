@@ -3,6 +3,8 @@ package betterquesting.blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
+import javax.annotation.Nonnull;
+
 public class SSItemHandler implements IItemHandlerModifiable
 {
 	private final TileSubmitStation tile;
@@ -17,14 +19,12 @@ public class SSItemHandler implements IItemHandlerModifiable
 	{
 		return tile.getSizeInventory();
 	}
-
+ 
+	@Nonnull
 	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+	public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
 	{
-		if(stack == null || stack.isEmpty())
-		{
-			return stack;
-		} else if(!tile.isItemValidForSlot(slot, stack))
+		if(stack.isEmpty() || !tile.isItemValidForSlot(slot, stack))
 		{
 			return stack;
 		}
@@ -32,19 +32,19 @@ public class SSItemHandler implements IItemHandlerModifiable
 		// Existing stack
 		ItemStack ts1 = getStackInSlot(slot);
 		
-		if(ts1 != null && !stack.isItemEqual(ts1))
+		if(!stack.isItemEqual(ts1))
 		{
 			return stack;
 		}
 		
-		int inMax = Math.min(stack.getCount(), stack.getMaxStackSize() - (ts1 == null? 0 : ts1.getCount()));
+		int inMax = Math.min(stack.getCount(), stack.getMaxStackSize() - ts1.getCount());
 		// Input stack
 		ItemStack ts2 = stack.copy();
 		ts2.setCount(inMax);
 		
 		if(!simulate)
 		{
-			if(ts1 == null || ts1.isEmpty())
+			if(ts1.isEmpty())
 			{
 				ts1 = ts2;
 			} else
@@ -65,7 +65,8 @@ public class SSItemHandler implements IItemHandlerModifiable
 		
 		return ItemStack.EMPTY;
 	}
-
+ 
+	@Nonnull
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate)
 	{
@@ -81,7 +82,7 @@ public class SSItemHandler implements IItemHandlerModifiable
 		
 		ItemStack stack = getStackInSlot(slot);
 		
-		if(stack == null || stack.isEmpty())
+		if(stack.isEmpty())
 		{
 			return ItemStack.EMPTY;
 		}
@@ -95,11 +96,12 @@ public class SSItemHandler implements IItemHandlerModifiable
 	}
 
 	@Override
-	public void setStackInSlot(int slot, ItemStack stack)
+	public void setStackInSlot(int slot, @Nonnull ItemStack stack)
 	{
 		tile.setInventorySlotContents(slot, stack);
 	}
-
+ 
+	@Nonnull
 	@Override
 	public ItemStack getStackInSlot(int idx)
 	{

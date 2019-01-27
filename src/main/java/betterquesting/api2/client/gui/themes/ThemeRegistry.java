@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui.themes;
 
-import betterquesting.api.client.themes.IThemeLoader;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.misc.GuiPadding;
@@ -16,6 +15,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.themes.ResourceTheme;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
 import com.google.gson.*;
@@ -47,7 +47,6 @@ public class ThemeRegistry implements IThemeRegistry
 	private Function<GuiScreen, GuiScreen> defHome;
 	
 	private final HashMap<ResourceLocation, IGuiTheme> themes = new HashMap<>();
-	private final HashMap<ResourceLocation, IThemeLoader> loaders = new HashMap<>();
 	private final List<ResourceLocation> loadedThemes = new ArrayList<>();
 	
 	private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -79,20 +78,6 @@ public class ThemeRegistry implements IThemeRegistry
 		
 		if(activeTheme == null) setup = false; // A theme was registered that could possibly resolve the currently configured theme
 	}
-	
-	@Override
-    public void registerLoader(IThemeLoader loader)
-    {
-        if(loader == null || loader.getID() == null)
-        {
-            throw new NullPointerException("Cannot register null loader");
-        } else if(loaders.containsKey(loader.getID()))
-        {
-            throw new IllegalArgumentException("Cannot register duplicate loader: " + loader.getID());
-        }
-        
-        loaders.put(loader.getID(), loader);
-    }
 	
 	/**
 	 * Sets the default fallback texture. Only use if you're defining your own custom texture ID
@@ -150,26 +135,27 @@ public class ThemeRegistry implements IThemeRegistry
 	@Override
 	public void setTheme(ResourceLocation id)
 	{
-		setTheme(themes.get(id));
+		setTheme(themes.get(id), id);
 	}
 	
 	@Override
     public IGuiTheme getTheme(ResourceLocation key)
     {
+        if(key == null) return null;
         return themes.get(key);
     }
 	
-	public void setTheme(IGuiTheme theme)
+	private void setTheme(IGuiTheme theme, ResourceLocation id)
 	{
 		this.activeTheme = theme;
 		
-		BQ_Settings.curTheme = theme.getID().toString();
+		BQ_Settings.curTheme = id == null ? "" : id.toString();
 		
 		if(ConfigHandler.config != null)
 		{
 			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(BQ_Settings.curTheme);
 			ConfigHandler.config.save();
-			BetterQuesting.logger.log(Level.INFO, "Theme set to " + theme.getName());
+			BetterQuesting.logger.log(Level.INFO, "Theme set to " + BQ_Settings.curTheme);
 		} else
 		{
 			BetterQuesting.logger.log(Level.WARN, "Unable to save theme setting");
@@ -188,14 +174,8 @@ public class ThemeRegistry implements IThemeRegistry
 		return this.activeTheme;
 	}
 	
-	@Override
-    public IThemeLoader getLoader(ResourceLocation key)
-    {
-        return loaders.get(key);
-    }
-    
     @Override
-    public void reloadThemes()
+    public void loadResourceThemes()
     {
         loadedThemes.forEach(themes::remove);
         loadedThemes.clear();
@@ -210,10 +190,7 @@ public class ThemeRegistry implements IThemeRegistry
             try
             {
                 list = resManager.getAllResources(res);
-            } catch (Exception e)
-            {
-                continue;
-            }
+            } catch (Exception e) { continue; } // Not going to log errors everytime the file isn't found
             
             for(IResource iresource : list)
             {
@@ -223,44 +200,92 @@ public class ThemeRegistry implements IThemeRegistry
                     JsonArray jAry = GSON.fromJson(isr, JsonArray.class);
                     isr.close();
                     
-                    for(JsonElement je : jAry)
+                    for(int i = 0; i < jAry.size(); i++)
                     {
-                        if(je == null || !je.isJsonObject())
+                        JsonElement je = jAry.get(i);
+                        
+                        if(!(je instanceof JsonObject))
                         {
-                            BetterQuesting.logger.log(Level.WARN, "Invalid theme in " + domain);
+                            BetterQuesting.logger.log(Level.WARN, "Invalid theme entry at index " + i + " in " + iresource.getResourceLocation());
                             continue;
                         }
                         
                         JsonObject jThm = je.getAsJsonObject();
                         
-                        ResourceLocation loadID = new ResourceLocation(JsonHelper.GetString(jThm, "themeType", "betterquesting:standard"));
-                        IThemeLoader loader = getLoader(loadID);
-                        
-                        if(loader == null)
+                        if(jThm.has("themeType"))
                         {
-                            BetterQuesting.logger.error("Unable to find loader \"" + loadID + "\" for JSON theme in " + domain);
+                            BetterQuesting.logger.warn("Theme entry " + i + " in " + iresource.getResourceLocation());
+                            loadLegacy(jThm, domain);
                             continue;
                         }
                         
-                        IGuiTheme theme = loader.loadTheme(jThm, domain);
-                        if(theme == null)
+                        ResourceLocation parentID = !jThm.has("themeParent") ? null : new ResourceLocation(JsonHelper.GetString(jThm, "themeParent", "minecraft:null"));
+                        IGuiTheme parentTheme = getTheme(parentID);
+                        String themeName = JsonHelper.GetString(jThm, "themeName", "Unnamed Theme");
+                        String idRaw = themeName.toLowerCase().trim().replaceAll(" ", "_");
+                        ResourceLocation themeId = new ResourceLocation(domain, idRaw);
+                        
+                        int n = 0;
+                        while(themes.containsKey(themeId)) themeId = new ResourceLocation(domain, idRaw + n++);
+                        
+                        ResourceTheme resTheme;
+                        
+                        try
                         {
-                            BetterQuesting.logger.error("Failed to load theme in " + domain);
+                            resTheme = new ResourceTheme(parentTheme, themeId, themeName);
+                        } catch(Exception e)
+                        {
+                            BetterQuesting.logger.error("Failed to load theme entry " + i + " in " + iresource.getResourceLocation(), e);
                             continue;
-                        } else if(themes.containsKey(theme.getID()))
-                        {
-                            BetterQuesting.logger.error("Unable to register JSON theme with duplicate ID: " + theme.getID());
                         }
                         
-                        themes.put(theme.getID(), theme);
-                        loadedThemes.add(theme.getID());
+                        for(JsonElement jeTex : JsonHelper.GetArray(jThm, "textures"))
+                        {
+                            if(!(jeTex instanceof JsonObject)) continue;
+                            
+                            // TODO: Load textures
+                        }
+                        
+                        for(JsonElement jeColor : JsonHelper.GetArray(jThm, "colors"))
+                        {
+                            if(!(jeColor instanceof JsonObject)) continue;
+                            
+                            // TODO: Load colors
+                        }
+                        
+                        for(JsonElement jeLine : JsonHelper.GetArray(jThm, "lines"))
+                        {
+                            if(!(jeLine instanceof JsonObject)) continue;
+                            
+                            // TODO: Load lines
+                        }
+                        
+                        themes.put(resTheme.getID(), resTheme);
+                        loadedThemes.add(resTheme.getID());
                     }
                 } catch (Exception e)
                 {
-                    BetterQuesting.logger.error("Error reading bq_themes.json from " + domain, e);
+                    BetterQuesting.logger.error("Error reading bq_themes.json from " + iresource.getResourceLocation(), e);
                 }
             }
         }
+    }
+    
+    private void loadLegacy(JsonObject json, String domain)
+    {
+        IGuiTheme theme = LegacyThemeLoader.INSTANCE.loadTheme(json, domain);
+        
+        if(theme == null)
+        {
+            BetterQuesting.logger.error("Failed to load legacy theme from " + domain);
+            return;
+        } else if(themes.containsKey(theme.getID()))
+        {
+            BetterQuesting.logger.error("Unable to register legacy resource theme with duplicate ID: " + theme.getID());
+        }
+        
+        themes.put(theme.getID(), theme);
+        loadedThemes.add(theme.getID());
     }
 	
 	@Override
@@ -315,10 +340,4 @@ public class ThemeRegistry implements IThemeRegistry
 	{
 		return new ArrayList<>(themes.values());
 	}
-	
-	@Override
-    public List<IThemeLoader> getAllLoaders()
-    {
-        return new ArrayList<>(loaders.values());
-    }
 }
