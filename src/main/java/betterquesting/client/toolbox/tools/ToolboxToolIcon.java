@@ -6,12 +6,16 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
+import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ToolboxToolIcon implements IToolboxTool
@@ -43,17 +47,23 @@ public class ToolboxToolIcon implements IToolboxTool
 		
 		if(btn != null)
 		{
+            final List<PanelButtonQuest> list = new ArrayList<>(PanelToolController.selected);
+		    if(list.size() <= 0) list.add(btn);
+		    
 		    Minecraft mc = Minecraft.getMinecraft();
             mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, btn.getStoredValue().getValue().getProperty(NativeProps.ICON), value -> {
-                btn.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
-                NBTTagCompound base = new NBTTagCompound();
-                base.setTag("config", btn.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-                base.setTag("progress", btn.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
-                NBTTagCompound tags = new NBTTagCompound();
-                tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-                tags.setInteger("questID", btn.getStoredValue().getID());
-                tags.setTag("data", base);
-                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                for(PanelButtonQuest b : list)
+                {
+                    b.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
+                    NBTTagCompound base = new NBTTagCompound();
+                    base.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
+                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
+                    NBTTagCompound tags = new NBTTagCompound();
+                    tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
+                    tags.setInteger("questID", b.getStoredValue().getID());
+                    tags.setTag("data", base);
+                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                }
             }));
 			return true;
 		}
@@ -76,6 +86,27 @@ public class ToolboxToolIcon implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int keyCode)
 	{
+	    if(PanelToolController.selected.size() > 0 && keyCode == Keyboard.KEY_RETURN)
+        {
+            final List<PanelButtonQuest> list = new ArrayList<>(PanelToolController.selected);
+		    
+		    Minecraft mc = Minecraft.getMinecraft();
+            mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, list.get(0).getStoredValue().getValue().getProperty(NativeProps.ICON), value -> {
+                for(PanelButtonQuest b : list)
+                {
+                    b.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
+                    NBTTagCompound base = new NBTTagCompound();
+                    base.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
+                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
+                    NBTTagCompound tags = new NBTTagCompound();
+                    tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
+                    tags.setInteger("questID", b.getStoredValue().getID());
+                    tags.setTag("data", base);
+                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                }
+            }));
+			return true;
+        }
 	    return false;
 	}
 
@@ -100,4 +131,15 @@ public class ToolboxToolIcon implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return true;
+    }
 }

@@ -6,10 +6,13 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
+import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
@@ -46,8 +49,15 @@ public class ToolboxToolRemove implements IToolboxTool
 		
 		if(line != null && btn != null)
 		{
-			int qID = btn.getStoredValue().getID();
-			line.removeID(qID);
+		    if(PanelToolController.selected.size() > 0)
+            {
+                if(!PanelToolController.selected.contains(btn)) return false;
+                for(PanelButtonQuest b : PanelToolController.selected) line.removeID(b.getStoredValue().getID());
+            } else
+            {
+                int qID = btn.getStoredValue().getID();
+                line.removeID(qID);
+            }
 			
 			NBTTagCompound tags = new NBTTagCompound();
 			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
@@ -93,6 +103,21 @@ public class ToolboxToolRemove implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
+	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
+        {
+            IQuestLine line = gui.getQuestLine();
+            for(PanelButtonQuest b : PanelToolController.selected) line.removeID(b.getStoredValue().getID());
+			
+			NBTTagCompound tags = new NBTTagCompound();
+			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
+			NBTTagCompound base = new NBTTagCompound();
+			base.setTag("line", line.writeToNBT(new NBTTagCompound(), null));
+			tags.setTag("data", base);
+			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
+			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+			return true;
+        }
+        
 	    return false;
 	}
 
@@ -101,4 +126,15 @@ public class ToolboxToolRemove implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return true;
+    }
 }

@@ -6,21 +6,14 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.panels.content.PanelGeneric;
-import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import betterquesting.api2.client.gui.resources.lines.BoxLine;
-import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.util.NonNullList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,22 +23,13 @@ public class ToolboxToolGrab implements IToolboxTool
 {
 	private CanvasQuestLine gui;
 	
-	private boolean isGrabbing;
-	private GuiRectangle selBounds;
-	private final List<GrabEntry> grabList = new ArrayList<>();
-	private final List<IGuiPanel> highlights = new ArrayList<>();
-	
-	private IGuiLine selLine = new BoxLine();
-	private IGuiColor selCol = new GuiColorPulse(0xFFFFFFFF, 0xFF000000, 2F, 0F);
+	private final NonNullList<GrabEntry> grabList = NonNullList.create();
 	
 	@Override
 	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
-		
-		isGrabbing = false;
-		selBounds = null;
-		grabList.clear();
+        grabList.clear();
 	}
 	
 	@Override
@@ -62,20 +46,19 @@ public class ToolboxToolGrab implements IToolboxTool
             }
         }
         
-		isGrabbing = false;
-		selBounds = null;
 		grabList.clear();
-		highlights.clear();
 	}
 	
 	@Override
     public void refresh(CanvasQuestLine gui)
     {
+        if(grabList.size() <= 0) return;
+        
         List<GrabEntry> tmp = new ArrayList<>();
         
         for(GrabEntry grab : grabList)
         {
-            for(PanelButtonQuest btn : gui.getQuestButtons())
+            for(PanelButtonQuest btn : PanelToolController.selected)
             {
                 if(btn.getStoredValue().getID() == grab.btn.getStoredValue().getID())
                 {
@@ -87,36 +70,12 @@ public class ToolboxToolGrab implements IToolboxTool
         
         grabList.clear();
         grabList.addAll(tmp);
-        highlights.clear();
-        
-        if(grabList.size() <= 0)
-        {
-            isGrabbing = false;
-            highlights.clear();
-        } else if(!isGrabbing)
-        {
-            IGuiColor hCol = new GuiColorPulse(0x22FFFFFF, 0x77FFFFFF, 2F, 0F);
-            for(GrabEntry grab : grabList) highlights.add(new PanelGeneric(grab.btn.rect, new ColorTexture(hCol)));
-        }
     }
 	
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
-	    if(selBounds != null)
-        {
-            selBounds.w = mx - selBounds.x;
-            selBounds.h = my - selBounds.y;
-            
-            selLine.drawLine(selBounds, selBounds, 2, selCol, partialTick);
-        }
-        
-	    if(!isGrabbing)
-        {
-            // Draw highlights
-            for(IGuiPanel pn : highlights) pn.drawPanel(mx, my, partialTick);
-            return;
-        }
+	    if(grabList.size() <= 0) return;
 	    
 	    int snap = Math.max(1, ToolboxTabMain.INSTANCE.getSnapValue());
 	    int dx = mx;
@@ -142,13 +101,18 @@ public class ToolboxToolGrab implements IToolboxTool
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        return !isGrabbing && selBounds == null ? null : Collections.emptyList();
+        return grabList.size() <= 0 ? null : Collections.emptyList();
+    }
+    
+    @Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
     }
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click == 1) // Reset tool
+		if(click == 1 && grabList.size() > 0) // Reset tool
 		{
 			for(GrabEntry grab : grabList)
             {
@@ -161,17 +125,14 @@ public class ToolboxToolGrab implements IToolboxTool
                 }
             }
             
-            isGrabbing = false;
-            selBounds = null;
             grabList.clear();
-            highlights.clear();
 			return true;
 		} else if(click != 0 || !gui.getTransform().contains(mx, my)) // Not a click we're listening for
 		{
 			return false;
 		}
 		
-		if(isGrabbing) // Apply positioning
+		if(grabList.size() > 0) // Apply positioning
         {
             IQuestLine qLine = gui.getQuestLine();
 			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
@@ -190,14 +151,7 @@ public class ToolboxToolGrab implements IToolboxTool
             tag2.setInteger("lineID", lID);
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
             
-            isGrabbing = false;
-            selBounds = null;
-            
-            if(grabList.size() <= 1) // Keep multi-selects active
-            {
-                grabList.clear();
-                highlights.clear();
-            }
+            grabList.clear();
             return true;
         }
         
@@ -205,81 +159,28 @@ public class ToolboxToolGrab implements IToolboxTool
 		
 		if(btnClicked != null) // Pickup the group or the single one if none are selected
         {
-            if(grabList.size() > 0)
+            if(PanelToolController.selected.size() > 0)
             {
-                boolean canGrab = false;
-                for(GrabEntry grab : grabList)
-                {
-                    if(grab.btn == btnClicked) canGrab = true;
-                    grab.offX = grab.btn.rect.x - btnClicked.rect.x;
-                    grab.offY = grab.btn.rect.y - btnClicked.rect.y;
-                }
+                if(!PanelToolController.selected.contains(btnClicked)) return false;
                 
-                if(!canGrab) return true; // The clicked button isn't part of the selection
+                for(PanelButtonQuest btn : PanelToolController.selected)
+                {
+                    grabList.add(new GrabEntry(btn, btn.rect.x - btnClicked.rect.x, btn.rect.y - btnClicked.rect.y));
+                }
             } else
             {
                 grabList.add(new GrabEntry(btnClicked, 0, 0));
             }
             
-            isGrabbing = true;
-            return true;
-        } else // Selection start
-        {
-            float zs = gui.getZoom();
-            int lsx = gui.getScrollX();
-            int lsy = gui.getScrollY();
-            int tx = gui.getTransform().getX();
-            int ty = gui.getTransform().getY();
-            int smx = (int)((mx - tx) / zs) + lsx;
-            int smy = (int)((my - ty) / zs) + lsy;
-            
-            selBounds = new GuiRectangle(smx, smy, 0, 0);
             return true;
         }
+        
+        return false;
 	}
 	
 	@Override
     public boolean onMouseRelease(int mx, int my, int click)
     {
-        if(selBounds != null)
-        {
-            if(selBounds.w < 0)
-            {
-                selBounds.x += selBounds.w;
-                selBounds.w *= -1;
-            }
-            
-            if(selBounds.h < 0)
-            {
-                selBounds.y += selBounds.h;
-                selBounds.h *= -1;
-            }
-            
-            IGuiColor hCol = new GuiColorPulse(0x22FFFFFF, 0x77FFFFFF, 2F, 0F);
-            
-            boolean append = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
-            
-            if(!append)
-            {
-                grabList.clear();
-                highlights.clear();
-            }
-            
-            topLoop:
-            for(PanelButtonQuest btn : gui.getQuestButtons())
-            {
-                if(selBounds.contains(btn.rect.x + btn.rect.w / 2, btn.rect.y + btn.rect.h / 2))
-                {
-                    if(append) for(GrabEntry grab : grabList) if(grab.btn == btn) continue topLoop;
-                    grabList.add(new GrabEntry(btn, 0, 0));
-                    highlights.add(new PanelGeneric(btn.rect, new ColorTexture(hCol)));
-                }
-            }
-            
-            selBounds = null;
-            return true;
-        }
-        
         return false;
     }
 	
@@ -292,20 +193,26 @@ public class ToolboxToolGrab implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int keyCode)
 	{
-	    return false;
+	    return grabList.size() > 0;
 	}
 	
 	@Override
 	public boolean clampScrolling()
 	{
-		return !isGrabbing;
+		return grabList.size() <= 0;
 	}
+	
+	@Override
+    public boolean useSelection()
+    {
+        return grabList.size() <= 0;
+    }
 	
 	private class GrabEntry
     {
         private final PanelButtonQuest btn;
-        private int offX;
-        private int offY;
+        private final int offX;
+        private final int offY;
         
         private GrabEntry(PanelButtonQuest btn, int offX, int offY)
         {

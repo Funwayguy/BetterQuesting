@@ -50,6 +50,7 @@ public class PanelTabMain extends CanvasEmpty
         toolEntries.add(new ToolEntry(new ToolboxToolRemove(), PresetIcon.ICON_NEGATIVE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.remove.name"), QuestTranslation.translate("betterquesting.toolbox.tool.remove.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolComplete(), PresetIcon.ICON_TICK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.complete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.complete.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolReset(), PresetIcon.ICON_REFRESH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.reset.name"), QuestTranslation.translate("betterquesting.toolbox.tool.reset.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolIcon(), PresetIcon.ICON_ITEM.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.icon.name"), QuestTranslation.translate("betterquesting.toolbox.tool.icon.desc"))));
     }
     
     @Override
@@ -96,6 +97,7 @@ public class PanelTabMain extends CanvasEmpty
             int x = (i % 2) * (w / 2);
             int y = (i / 2) * 16 + 24;
             PanelButtonStorage<IToolboxTool> btn = new PanelButtonStorage<>(new GuiRectangle(x, y, w / 2, 16, 0), -1, "", entry.tool);
+            btn.setActive(toolController.getActiveTool() != entry.tool);
             btn.setIcon(entry.tex).setTooltip(entry.tt);
             btn.setCallback(value -> {
                 toolController.setActiveTool(value);

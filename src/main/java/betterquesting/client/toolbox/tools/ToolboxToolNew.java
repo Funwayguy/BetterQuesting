@@ -17,6 +17,7 @@ import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 
 import java.util.Collections;
 import java.util.List;
@@ -146,4 +147,15 @@ public class ToolboxToolNew implements IToolboxTool
 	{
 		return false;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return false;
+    }
 }

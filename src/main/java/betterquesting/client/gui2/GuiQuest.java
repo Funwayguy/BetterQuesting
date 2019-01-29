@@ -64,26 +64,10 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     private int rewardIndex = 0;
     private int taskIndex = 0;
     
-    // TODO: Replace this stupid variable when legacy tasks/rewards are less dumb
-    private long autoRefreshTime;
-    
     public GuiQuest(GuiScreen parent, int questID)
     {
         super(parent);
         this.questID = questID;
-        autoRefreshTime = System.currentTimeMillis();
-    }
-    
-    @Override
-    public void drawPanel(int mx, int my, float partialTick)
-    {
-        if(System.currentTimeMillis() - autoRefreshTime > 1000)
-        {
-            autoRefreshTime = System.currentTimeMillis();
-            this.updateButtons();
-        }
-        
-        super.drawPanel(mx, my, partialTick);
     }
     
     @Override
@@ -100,7 +84,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         }
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        // TODO: Register quest updated event
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -204,11 +187,13 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     @Override
     public void refreshGui()
     {
-        this.updateButtons(); // TODO: Replace with a proper event because this interface is dumb
+        this.refreshTaskPanel();
+        this.refreshRewardPanel();
+        this.updateButtons();
     }
     
     @Override
-    public boolean onMouseClick(int mx, int my, int click) // TODO: Replace these with events when legacy support is removed
+    public boolean onMouseClick(int mx, int my, int click)
     {
         if(super.onMouseClick(mx, my, click))
         {
@@ -220,7 +205,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     }
     
     @Override
-    public boolean onMouseScroll(int mx, int my, int scroll) // TODO: Replace these with events when legacy support is removed
+    public boolean onMouseScroll(int mx, int my, int scroll)
     {
         if(super.onMouseScroll(mx, my, scroll))
         {
@@ -232,7 +217,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     }
     
     @Override
-    public boolean onKeyTyped(char c, int keycode) // TODO: Replace these with events when legacy support is removed
+    public boolean onKeyTyped(char c, int keycode)
     {
         if(super.onKeyTyped(c, keycode))
         {

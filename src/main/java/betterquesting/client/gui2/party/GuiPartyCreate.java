@@ -198,6 +198,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             }
             
             PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
+            txPartyName.setColor(PresetColor.TEXT_MAIN.getColor());
             invitePanel.addPanel(txPartyName);
         }
         

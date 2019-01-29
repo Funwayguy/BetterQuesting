@@ -248,6 +248,15 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
             DBEntry<IQuestLineEntry> entry = qles[i];
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(entry.getID());
+            
+            if(quest == null)
+            {
+                PanelButton btnErr = new PanelButton(new GuiRectangle(0, i * 16, width - 16, 16, 0), -1, "[ERROR]");
+                btnErr.setActive(false);
+                canvasQL.addPanel(btnErr);
+                continue;
+            }
+            
             PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(quest.getProperty(NativeProps.NAME)), new DBEntry<>(entry.getID(), quest));
             canvasQL.addPanel(btnEdit);
             

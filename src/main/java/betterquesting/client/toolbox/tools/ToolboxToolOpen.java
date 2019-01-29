@@ -5,6 +5,7 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
 import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.NonNullList;
 
 import java.util.List;
 
@@ -88,4 +89,15 @@ public class ToolboxToolOpen implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return false;
+    }
 }

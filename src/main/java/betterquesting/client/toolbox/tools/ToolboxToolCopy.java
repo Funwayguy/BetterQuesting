@@ -5,10 +5,11 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -16,125 +17,214 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class ToolboxToolCopy implements IToolboxTool
 {
 	private CanvasQuestLine gui = null;
-	private PanelButtonQuest btnQuest = null;
+	
+	private final NonNullList<GrabEntry> grabList = NonNullList.create();
 	
 	@Override
 	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
-		this.btnQuest = null;
+        grabList.clear();
 	}
 	
 	@Override
 	public void disableTool()
 	{
-		if(btnQuest != null)
-		{
-			btnQuest = null;
-		}
+        grabList.clear();
 	}
 	
 	@Override
     public void refresh(CanvasQuestLine gui)
     {
+        if(grabList.size() <= 0) return;
+        
+        List<GrabEntry> tmp = new ArrayList<>();
+        
+        for(GrabEntry grab : grabList)
+        {
+            for(PanelButtonQuest btn : PanelToolController.selected)
+            {
+                if(btn.getStoredValue().getID() == grab.btn.getStoredValue().getID())
+                {
+                    tmp.add(new GrabEntry(btn, grab.offX, grab.offY));
+                    break;
+                }
+            }
+        }
+        
+        grabList.clear();
+        grabList.addAll(tmp);
     }
 	
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
 	{
-		if(btnQuest == null)
-		{
-			return;
-		}
-		
-		int snap = ToolboxTabMain.INSTANCE.getSnapValue();
-		int modX = ((mx%snap) + snap)%snap;
-		int modY = ((my%snap) + snap)%snap;
-		mx -= modX;
-		my -= modY;
-		
-		btnQuest.rect.x = mx;
-		btnQuest.rect.y = my;
-		btnQuest.drawPanel(mx, my, partialTick); // TODO: Use relative canvas coordinates
+        if(grabList.size() <= 0) return;
+	    
+	    int snap = Math.max(1, ToolboxTabMain.INSTANCE.getSnapValue());
+	    int dx = mx;
+	    int dy = my;
+	    dx = ((dx%snap) + snap)%snap;
+	    dy = ((dy%snap) + snap)%snap;
+	    dx = mx - dx;
+	    dy = my - dy;
+	    
+	    for(GrabEntry grab : grabList)
+        {
+            grab.btn.rect.x = dx + grab.offX;
+            grab.btn.rect.y = dy + grab.offY;
+            grab.btn.drawPanel(dx, dy, partialTick);
+        }
 	}
 	
 	@Override
     public void drawOverlay(int mx, int my, float partialTick)
     {
-        if(btnQuest != null) ToolboxTabMain.INSTANCE.drawGrid(gui);
+        if(grabList.size() > 0) ToolboxTabMain.INSTANCE.drawGrid(gui);
     }
     
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        return btnQuest == null ? null : Collections.emptyList();
+        return grabList.size() <= 0 ? null : Collections.emptyList();
     }
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click == 1 && btnQuest != null)
+		if(click == 1 && grabList.size() > 0)
 		{
-			btnQuest = null;
+			grabList.clear();
 			return true;
 		} else if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
 			return false;
 		}
 		
-		if(btnQuest == null)
+		if(grabList.size() <= 0)
 		{
-			PanelButtonQuest tmpBtn = gui.getButtonAt(mx, my);
+			PanelButtonQuest btnClicked = gui.getButtonAt(mx, my);
 			
-			if(tmpBtn != null)
-			{
-				btnQuest = new PanelButtonQuest(new GuiRectangle(mx, my, tmpBtn.rect.w, tmpBtn.rect.h, 0), tmpBtn.getButtonID(), "", tmpBtn.getStoredValue()); // We don't actually need to copy the quest instance
-			}
-			
-			return btnQuest != null;
-		} else
-		{
-			// Pre-sync
-			IQuest quest = btnQuest.getStoredValue().getValue();
-			IQuestLine qLine = gui.getQuestLine();
-			int qID = QuestDatabase.INSTANCE.nextID();
-			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
-			if(qLine.getValue(qID) == null)
-			{
-			 
-				IQuestLineEntry qe = new QuestLineEntry(btnQuest.rect.x, btnQuest.rect.y, Math.max(btnQuest.rect.w, btnQuest.rect.h));
-                qLine.add(qID, qe);
-			}
-			btnQuest = null;
-			
-			// Sync Quest
-			NBTTagCompound tag1 = new NBTTagCompound();
-			NBTTagCompound base1 = new NBTTagCompound();
-			base1.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-			tag1.setTag("data", base1);
-			tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
-			tag1.setInteger("questID", qID);
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
-			
-			// Sync Line
-			NBTTagCompound tag2 = new NBTTagCompound();
-			NBTTagCompound base2 = new NBTTagCompound();
-			base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
-			tag2.setTag("data", base2);
-			tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-			tag2.setInteger("lineID", lID);
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+			if(btnClicked != null) // Pickup the group or the single one if none are selected
+            {
+                if(PanelToolController.selected.size() > 0)
+                {
+                    if(!PanelToolController.selected.contains(btnClicked)) return false;
+                    
+                    for(PanelButtonQuest btn : PanelToolController.selected)
+                    {
+                        GuiRectangle rect = new GuiRectangle(btn.rect);
+                        grabList.add(new GrabEntry(new PanelButtonQuest(rect, -1, "", btn.getStoredValue()), rect.x - btnClicked.rect.x, rect.y - btnClicked.rect.y));
+                    }
+                } else
+                {
+                    grabList.add(new GrabEntry(new PanelButtonQuest(new GuiRectangle(btnClicked.rect), -1, "", btnClicked.getStoredValue()), 0, 0));
+                }
+                
+                return true;
+            }
+            
+            return false;
 		}
+		
+        // Pre-sync
+        IQuestLine qLine = gui.getQuestLine();
+        int lID = QuestLineDatabase.INSTANCE.getID(qLine);
+        NBTTagList bulkTags = new NBTTagList();
+        
+        int[] nextIDs = getNextIDs(grabList.size());
+        HashMap<Integer, Integer> remappedIDs = new HashMap<>();
+        
+        for(int i = 0; i < grabList.size(); i++) remappedIDs.put(grabList.get(i).btn.getStoredValue().getID(), nextIDs[i]);
+        
+        for(int i = 0; i < grabList.size(); i++)
+        {
+            GrabEntry grab = grabList.get(i);
+            IQuest quest = grab.btn.getStoredValue().getValue();
+            int qID = nextIDs[i];
+            
+            if(qLine.getValue(qID) == null) qLine.add(qID, new QuestLineEntry(grab.btn.rect.x, grab.btn.rect.y, grab.btn.rect.w));
+            
+            NBTTagCompound questTags = quest.writeToNBT(new NBTTagCompound());
+            
+            int[] oldIDs = questTags.getIntArray("preRequisites");
+            
+            for(int n = 0; n < oldIDs.length; n++)
+            {
+                if(remappedIDs.containsKey(oldIDs[n]))
+                {
+                    oldIDs[n] = remappedIDs.get(oldIDs[n]);
+                }
+            }
+            questTags.setIntArray("preRequisites", oldIDs);
+            
+            // Sync Quest
+            NBTTagCompound tag1 = new NBTTagCompound();
+            NBTTagCompound base1 = new NBTTagCompound();
+            base1.setTag("config", questTags);
+            tag1.setTag("data", base1);
+            tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
+            tag1.setInteger("questID", qID);
+            tag1.setString("ID", PacketTypeNative.QUEST_EDIT.GetLocation().toString());
+            bulkTags.appendTag(tag1);
+        }
+        
+        grabList.clear();
+        
+        // Sync Line
+        NBTTagCompound tag2 = new NBTTagCompound();
+        NBTTagCompound base2 = new NBTTagCompound();
+        base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
+        tag2.setTag("data", base2);
+        tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+        tag2.setInteger("lineID", lID);
+        tag2.setString("ID", PacketTypeNative.LINE_EDIT.GetLocation().toString());
+        bulkTags.appendTag(tag2);
+        
+        NBTTagCompound tagBase = new NBTTagCompound();
+        tagBase.setTag("bulk", bulkTags);
+        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.BULK.GetLocation(), tagBase));
 		
 		return true;
 	}
+	
+	private int[] getNextIDs(int num)
+    {
+        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        int[] nxtIDs = new int[num];
+        
+        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        {
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            return nxtIDs;
+        }
+        
+        int n1 = 0;
+        int n2 = 0;
+        for(int i = 0; i < num; i++)
+        {
+            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            {
+                n1++;
+                n2++;
+            }
+            
+            nxtIDs[i] = n1++;
+        }
+        
+        return nxtIDs;
+    }
 	
 	@Override
     public boolean onMouseRelease(int mx, int my, int click)
@@ -151,12 +241,37 @@ public class ToolboxToolCopy implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int keyCode)
 	{
-	    return false;
+	    return grabList.size() > 0;
 	}
 	
 	@Override
 	public boolean clampScrolling()
 	{
-		return btnQuest == null;
+		return grabList.size() <= 0;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return grabList.size() <= 0;
+    }
+	
+	private class GrabEntry
+    {
+        private final PanelButtonQuest btn;
+        private final int offX;
+        private final int offY;
+        
+        private GrabEntry(PanelButtonQuest btn, int offX, int offY)
+        {
+            this.btn = btn;
+            this.offX = offX;
+            this.offY = offY;
+        }
+    }
 }

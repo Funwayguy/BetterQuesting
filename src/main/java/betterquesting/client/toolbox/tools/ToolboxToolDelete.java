@@ -5,9 +5,13 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.NonNullList;
+import org.lwjgl.input.Keyboard;
 
 import java.util.List;
 
@@ -50,20 +54,32 @@ public class ToolboxToolDelete implements IToolboxTool
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0 || !gui.getTransform().contains(mx, my))
-		{
-			return false;
-		}
+		if(click != 0 || !gui.getTransform().contains(mx, my)) return false;
 		
 		PanelButtonQuest btn = gui.getButtonAt(mx, my);
 		
 		if(btn != null)
 		{
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
-			tags.setInteger("questID", btn.getStoredValue().getID());
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
-			return true;
+		    if(PanelToolController.selected.size() > 0)
+            {
+                if(!PanelToolController.selected.contains(btn)) return false;
+                
+                for(PanelButtonQuest b : PanelToolController.selected)
+                {
+                    NBTTagCompound tags = new NBTTagCompound();
+                    tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                    tags.setInteger("questID", b.getStoredValue().getID());
+			        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                }
+            } else
+            {
+                NBTTagCompound tags = new NBTTagCompound();
+                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                tags.setInteger("questID", btn.getStoredValue().getID());
+                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+            }
+            
+            return true;
 		}
 		
 		return false;
@@ -84,7 +100,27 @@ public class ToolboxToolDelete implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
-	    return false;
+	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
+        {
+            NBTTagList bulkTagList = new NBTTagList();
+            
+            for(PanelButtonQuest b : PanelToolController.selected)
+            {
+                NBTTagCompound tags = new NBTTagCompound();
+                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                tags.setInteger("questID", b.getStoredValue().getID());
+                tags.setString("ID", PacketTypeNative.QUEST_EDIT.GetLocation().toString());
+                bulkTagList.appendTag(tags);
+            }
+            
+            NBTTagCompound bulkBase = new NBTTagCompound();
+            bulkBase.setTag("bulk", bulkTagList);
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.BULK.GetLocation(), bulkBase));
+            
+            return true;
+        }
+        
+        return false;
 	}
 
 	@Override
@@ -92,4 +128,15 @@ public class ToolboxToolDelete implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(NonNullList<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return false; // TODO: Fix the database before re-enabling this
+    }
 }

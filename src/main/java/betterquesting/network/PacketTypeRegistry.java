@@ -40,6 +40,7 @@ public class PacketTypeRegistry implements IPacketRegistry {
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
 		registerHandler(new PktHandlerSettings());
+		registerHandler(new PktHandlerBulk());
 		
 		if(BetterQuesting.proxy.isClient())
         {

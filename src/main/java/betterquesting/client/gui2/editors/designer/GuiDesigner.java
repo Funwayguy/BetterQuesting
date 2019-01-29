@@ -77,7 +77,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         cvQuest.setScrollX(sx);
         cvQuest.setScrollY(sy);
         
-        if(toolController.getActiveTool() != null) toolController.getActiveTool().refresh(cvQuest);
+        toolController.refreshCanvas();
     }
     
     @Override

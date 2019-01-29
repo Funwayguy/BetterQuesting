@@ -72,7 +72,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				return;
 			}
 			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperty(NativeProps.NAME));
+			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperty(NativeProps.NAME) + " (#" + qID + ")");
 			QuestDatabase.INSTANCE.removeID(qID);
 			QuestLineDatabase.INSTANCE.removeQuest(qID);
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
@@ -115,19 +115,26 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 		} else if(action == EnumPacketAction.ADD)
 		{
-			IQuest nq = new QuestInstance();
-			//nq.setParentDatabase(QuestDatabase.INSTANCE);
-			int nID = QuestDatabase.INSTANCE.nextID();
+			IQuest nq;
+            int nID;
+            
+            if(!data.hasKey("questID", 99))
+            {
+                nID = QuestDatabase.INSTANCE.nextID();
+                nq = QuestDatabase.INSTANCE.createNew(nID);
+                System.out.println("Added with new ID " + nID);
+            } else
+            {
+                nID = data.getInteger("questID");
+                nq = QuestDatabase.INSTANCE.getValue(nID);
+                if(nq == null) nq = QuestDatabase.INSTANCE.createNew(nID);
+            }
 			
-			if(data.hasKey("data") && data.hasKey("questID"))
+			if(data.hasKey("data", 10))
 			{
-				nID = data.getInteger("questID");
-				NBTTagCompound base = data.getCompoundTag("data");
-				
-				nq.readFromNBT(base.getCompoundTag("config"));
+				nq.readFromNBT(data.getCompoundTag("data").getCompoundTag("config"));
 			}
 			
-			QuestDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
 		}
 	}

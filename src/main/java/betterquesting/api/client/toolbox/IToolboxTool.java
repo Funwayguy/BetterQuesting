@@ -1,6 +1,8 @@
 package betterquesting.api.client.toolbox;
 
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.client.gui2.CanvasQuestLine;
+import net.minecraft.util.NonNullList;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ public interface IToolboxTool
 	void drawCanvas(int mx, int my, float partialTick);
 	/** Draws over the top of the canvas without being affected by scrolling */
 	void drawOverlay(int mx, int my, float partialTick);
+	/** Fired when the tool controller has changed its multi-selection */
+	void onSelection(NonNullList<PanelButtonQuest> buttons);
 	
 	boolean onMouseClick(int mx, int my, int click);
 	boolean onMouseRelease(int mx, int my, int click);
@@ -27,4 +31,6 @@ public interface IToolboxTool
 	List<String> getTooltip(int mx, int my);
 	
 	boolean clampScrolling();
+	/** Allows the tool controller to intercept some interactions to perform multi-quest selections*/
+	boolean useSelection();
 }

@@ -22,7 +22,6 @@ import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.misc.UserEntry;
-import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.questing.rewards.RewardStorage;
@@ -262,7 +261,7 @@ public class QuestInstance implements IQuest
 		}
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);
-		IParty party = PartyManager.INSTANCE.getUserParty(pID);
+		IParty party = PartyManager.INSTANCE.getUserParty(pID); // TODO: Remove party share support?
         QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 		
 		if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT)) // One claim per-party
@@ -521,6 +520,7 @@ public class QuestInstance implements IQuest
 		readProgressFromNBT(base.getCompoundTag("progress"), false);
 	}
 	
+	@Override
 	public boolean isUnlocked(UUID uuid)
 	{
 		int A = 0;
@@ -544,37 +544,18 @@ public class QuestInstance implements IQuest
 	
 	@Override
 	public void setComplete(UUID uuid, long timestamp)
-	{
-		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
-		
-		if(party == null)
-		{
-			UserEntry entry = this.getCompletionInfo(uuid);
-			
-			if(entry != null)
-			{
-				entry.setClaimed(false, timestamp);
-			} else
-			{
-				completeUsers.add(new UserEntry(uuid, timestamp));
-			}
-		} else
-		{
-			for(UUID mem : party.getMembers())
-			{
-				UserEntry entry = this.getCompletionInfo(mem);
-				
-				if(entry != null)
-				{
-					entry.setClaimed(false, timestamp);
-				} else
-				{
-					completeUsers.add(new UserEntry(mem, timestamp));
-				}
-			}
-		}
-	}
-	
+    {
+        UserEntry entry = this.getCompletionInfo(uuid);
+        
+        if(entry != null)
+        {
+            entry.setClaimed(false, timestamp);
+        } else
+        {
+            completeUsers.add(new UserEntry(uuid, timestamp));
+        }
+    }
+    
 	/**
 	 * Returns true if the quest has been completed at least once
 	 */
@@ -587,33 +568,6 @@ public class QuestInstance implements IQuest
 		} else
 		{
 			return getCompletionInfo(uuid) != null;
-		}
-	}
-	
-	@Deprecated
-	private void RemoveUserEntry(UUID... uuid)
-	{
-		boolean flag = false;
-		
-		for(int i = completeUsers.size() - 1; i >= 0; i--)
-		{
-			UserEntry entry = completeUsers.get(i);
-			
-			for(UUID id : uuid)
-			{
-				if(entry.getUUID().equals(id))
-				{
-					completeUsers.remove(i);
-					flag = true;
-					break;
-				}
-			}
-		}
-		
-		if(flag)
-		{
-		    // TODO: Fine a workaround for this (global dirty?)
-			PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
 	}
 	
@@ -868,6 +822,7 @@ public class QuestInstance implements IQuest
 	/**
 	 * Temporary hack to make this a thing for users
 	 */
+	// TODO: Remove this and use the proper tool for it
 	public void setClaimed(UUID uuid, long timestamp)
 	{
 		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
