@@ -1,4 +1,4 @@
-package betterquesting.client.gui2.editors.designer;
+package betterquesting.client.toolbox;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
@@ -14,8 +14,8 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
-import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.client.toolbox.tools.*;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;

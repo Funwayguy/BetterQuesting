@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -169,7 +170,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	}
 	
 	@Override
-    public void keyTyped(char c, int keyCode) throws IOException
+    public void keyTyped(char c, int keyCode)
     {
         if (keyCode == 1)
         {
@@ -353,16 +354,6 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
         return false; // Halts packet handling if paused
     }
 	
-	/**
-	 * Should be using PanelButton instead when using a Canvas
-	 */
-	@Override
-	@Deprecated
-	public <T extends GuiButton> T addButton(T button)
-	{
-		return super.addButton(button);
-	}
-	
 	@Override
     protected void renderToolTip(ItemStack stack, int x, int y)
     {
@@ -371,7 +362,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
     }
 	
 	@Override
-    protected void drawHoveringText(List<String> textLines, int x, int y, FontRenderer font)
+    protected void drawHoveringText(List<String> textLines, int x, int y, @Nonnull FontRenderer font)
     {
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }

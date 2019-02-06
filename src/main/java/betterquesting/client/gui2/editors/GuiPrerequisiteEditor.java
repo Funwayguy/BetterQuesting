@@ -38,6 +38,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
     private IQuest quest;
@@ -105,7 +108,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             {
                 PanelButtonStorage<DBEntry<IQuest>> btnAdd = new PanelButtonStorage<>(new GuiRectangle(0, index * 16, 16, 16, 0), 2, "", entry);
                 btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
-                btnAdd.setActive(!containsQuest(entry));
+                btnAdd.setActive(!containsReq(quest, entry.getID()));
                 this.addPanel(btnAdd);
                 
                 PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1, QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)), entry);
@@ -161,28 +164,16 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         canvasPreReq.resetCanvas();
         int width = canvasPreReq.getTransform().getWidth();
         
-        IQuest[] arrReq = quest.getPrerequisites().toArray(new IQuest[0]);
-        for(int i = 0; i < arrReq.length; i++)
+        List<DBEntry<IQuest>> arrReq = QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements());
+        for(int i = 0; i < arrReq.size(); i++)
         {
-            int reqID = QuestDatabase.INSTANCE.getID(arrReq[i]);
-            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(arrReq[i].getProperty(NativeProps.NAME)), new DBEntry<>(reqID, arrReq[i]));
+            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 16, 16, 0), 1, QuestTranslation.translate(arrReq.get(i).getValue().getProperty(NativeProps.NAME)), arrReq.get(i));
             canvasPreReq.addPanel(btnEdit);
             
-            PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", new DBEntry<>(reqID, arrReq[i]));
+            PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));
             btnRem.setIcon(PresetIcon.ICON_NEGATIVE.getTexture());
             canvasPreReq.addPanel(btnRem);
         }
-    }
-    
-    private boolean containsQuest(DBEntry<IQuest> entry)
-    {
-        IQuest[] arrReq = quest.getPrerequisites().toArray(new IQuest[0]);
-        for(IQuest anArrReq : arrReq)
-        {
-            if(entry.getValue() == anArrReq) return true;
-        }
-        
-        return false;
     }
 	
 	@Override
@@ -209,12 +200,12 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Add
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            quest.getPrerequisites().add(entry.getValue());
+            addReq(quest, entry.getID());
             SendChanges();
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Remove
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            quest.getPrerequisites().remove(entry.getValue());
+            removeReq(quest, entry.getID());
             SendChanges();
         } else if(btn.getButtonID() == 4 && btn instanceof PanelButtonStorage) // Delete
         {
@@ -229,6 +220,41 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             tag.setInteger("action", EnumPacketAction.ADD.ordinal());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
         }
+    }
+    
+    private boolean containsReq(IQuest quest, int id)
+    {
+        for(int reqID : quest.getRequirements()) if(id == reqID) return true;
+        return false;
+    }
+    
+    private void removeReq(IQuest quest, int id)
+    {
+        int[] orig = quest.getRequirements();
+        if(orig.length <= 0) return;
+        boolean hasRemoved = false;
+        int[] rem = new int[orig.length - 1];
+        for(int i = 0; i < orig.length; i++)
+        {
+            if(!hasRemoved && orig[i] == id)
+            {
+                hasRemoved = true;
+                continue;
+            } else if(!hasRemoved && i >= rem.length) break;
+            
+            rem[!hasRemoved ? i : (i - 1)] = orig[i];
+        }
+        
+        if(hasRemoved) quest.setRequirements(rem);
+    }
+    
+    private void addReq(IQuest quest, int id)
+    {
+        if(containsReq(quest, id)) return;
+        int[] orig = quest.getRequirements();
+        int[] added = Arrays.copyOf(orig, orig.length + 1);
+        added[orig.length] = id;
+        quest.setRequirements(added);
     }
 	
 	private void SendChanges()

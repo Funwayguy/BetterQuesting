@@ -14,9 +14,6 @@ public class ItemComparison
 {
     /**
      * Check whether two stacks match with optional NBT and Ore Dictionary checks
-     * @param stack1
-     * @param stack2
-     * @return
      */
     public static boolean StackMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
     {
@@ -53,10 +50,10 @@ public class ItemComparison
     
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial)
     {
-    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null)) // One is null, the other is not
+    	if(isEmptyNBT(tag1) != isEmptyNBT(tag2)) // One is null, the other is not
     	{
     		return false;
-    	} else if(tag1 == null) // The opposing tag will always be null at this point if the other already is
+    	} else if(isEmptyNBT(tag1)) // The opposing tag will always be null at this point if the other already is
     	{
     		return true;
     	} else if(!(tag1 instanceof NBTPrimitive && tag2 instanceof NBTPrimitive) && tag1.getId() != tag2.getId()) return false; // Incompatible tag types (and not a numbers we can cast)
@@ -198,6 +195,14 @@ public class ItemComparison
     
     private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample, boolean partial)
     {
+        if(isEmptyNBT(reqTags) != isEmptyNBT(sample)) // One is null, the other is not
+    	{
+    		return false;
+    	} else if(isEmptyNBT(reqTags)) // The opposing tag will always be null at this point if the other already is
+    	{
+    		return true;
+    	}
+    	
     	for(String key : reqTags.getKeySet())
     	{
     		if(!sample.hasKey(key))
@@ -212,27 +217,28 @@ public class ItemComparison
     	return true;
     }
     
+    private static boolean isEmptyNBT(NBTBase tag)
+    {
+        return tag == null || tag.isEmpty();
+    }
+    
     public static boolean OreDictionaryMatch(String name, ItemStack stack)
     {
-    	return OreDictionaryMatch(name, new NBTTagCompound(), stack, false, false);
+    	return OreDictionaryMatch(name, null, stack, false, false);
     }
     
     /**
      * Check if the item stack is part of the ore dictionary listing with the given name
-     * @param stack
-     * @param name
-     * @return
      */
     public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
     {
+        if(stack == null || name == null) return false;
+        
     	for(ItemStack oreStack : OreDictionary.getOres(name))
     	{
-    		ItemStack tmp = oreStack.copy();
-    		tmp.setTagCompound(tags);
-    		
-    		if(StackMatch(tmp, stack, nbtCheck, partialNBT))
+    		if(StackMatch(oreStack, stack, false, false))
     		{
-    			return true;
+    		    return !nbtCheck || CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT);
     		}
     	}
     	
@@ -241,9 +247,6 @@ public class ItemComparison
     
     /**
      * Check if the two stacks match directly or through ore dictionary listings (NBT ignored)
-     * @param stack1
-     * @param stack2
-     * @return
      */
     public static boolean AllMatch(ItemStack stack1, ItemStack stack2)
     {

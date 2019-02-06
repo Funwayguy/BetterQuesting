@@ -200,7 +200,8 @@ public class JsonHelper
 		}
 	}
 	
-	public static void WriteToFile(File file, JsonObject jObj)
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void WriteToFile(File file, JsonObject jObj)
 	{
 	    final File tmp = new File(file.getAbsolutePath() + ".tmp");
 	    
@@ -210,15 +211,12 @@ public class JsonHelper
 	            if(tmp.exists())
                 {
                     tmp.delete();
-                } else
-				{
-					if(tmp.getParentFile() != null)
-					{
-						tmp.getParentFile().mkdirs();
-					}
-					
-					tmp.createNewFile();
-				}
+                } else if(tmp.getParentFile() != null)
+                {
+                    tmp.getParentFile().mkdirs();
+                }
+                
+                tmp.createNewFile();
 			} catch(Exception e)
 			{
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
@@ -226,24 +224,32 @@ public class JsonHelper
 			}
 			
 			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8))
-            //try
 			{
-			    //FileOutputStream fos = new FileOutputStream(tmp);
-			    
+			    // Attempt writing
 				GSON.toJson(jObj, fw);
 				fw.flush();
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
 				return;
 			}
+			
+			try(InputStreamReader fr = new InputStreamReader(new FileInputStream(tmp), StandardCharsets.UTF_8))
+            {
+				// Readback what we wrote to validate it
+                GSON.fromJson(fr, JsonObject.class);
+            } catch(Exception e)
+            {
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Validation check):", e);
+				return;
+            }
 			
 			try
             {
                 Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch(Exception e)
             {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
             }
 		});
 	}

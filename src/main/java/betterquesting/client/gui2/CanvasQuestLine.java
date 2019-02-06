@@ -1,13 +1,12 @@
 package betterquesting.client.gui2;
 
-import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -116,7 +115,7 @@ public class CanvasQuestLine extends CanvasScrolling
         {
             IQuest quest = QuestDatabase.INSTANCE.getValue(qle.getID());
             
-            if(!isQuestShown(quest, pid))
+            if(!QuestCache.isQuestShown(quest, pid, player))
             {
                 continue;
             }
@@ -180,12 +179,9 @@ public class CanvasQuestLine extends CanvasScrolling
         {
             DBEntry<IQuest> quest = entry.getValue().getStoredValue();
             
-            List<IQuest> reqList = quest.getValue().getPrerequisites();
+            List<DBEntry<IQuest>> reqList = QuestDatabase.INSTANCE.bulkLookup(quest.getValue().getRequirements());
             
-            if(reqList.size() <= 0)
-            {
-                continue;
-            }
+            if(reqList.size() <= 0) continue;
             
             boolean main = quest.getValue().getProperty(NativeProps.MAIN);
             EnumQuestState qState = quest.getValue().getState(pid);
@@ -212,11 +208,9 @@ public class CanvasQuestLine extends CanvasScrolling
                     break;
             }
             
-            for(IQuest req : reqList)
+            for(DBEntry<IQuest> req : reqList)
             {
-                int id = QuestDatabase.INSTANCE.getID(req);
-                
-                PanelButtonQuest parBtn = questBtns.get(id);
+                PanelButtonQuest parBtn = questBtns.get(req.getID());
                 
                 if(parBtn != null)
                 {
@@ -248,65 +242,5 @@ public class CanvasQuestLine extends CanvasScrolling
         
         this.setScrollX(scrollX);
         this.setScrollY(scrollY);
-    }
-    
-    public static boolean isQuestShown(IQuest quest, UUID uuid)
-    {
-        if(quest == null || uuid == null)
-        {
-            return false;
-        }
-        
-        Minecraft mc = Minecraft.getMinecraft();
-        
-        EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
-        
-        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player) || vis == EnumQuestVisibility.ALWAYS)
-        {
-            return true;
-        } else if(vis == EnumQuestVisibility.HIDDEN)
-        {
-            return false;
-        } else if(vis == EnumQuestVisibility.UNLOCKED)
-        {
-            return quest.isComplete(uuid) || quest.isUnlocked(uuid);
-        } else if(vis == EnumQuestVisibility.NORMAL)
-        {
-            if(quest.isComplete(uuid) || quest.isUnlocked(uuid))
-            {
-                return true;
-            }
-            
-            for(IQuest q : quest.getPrerequisites())
-            {
-                if(!q.isUnlocked(uuid))
-                {
-                    return false;
-                }
-            }
-            
-            return true;
-        } else if(vis == EnumQuestVisibility.COMPLETED)
-        {
-            return quest.isComplete(uuid);
-        } else if(vis == EnumQuestVisibility.CHAIN)
-        {
-            if(quest.getPrerequisites().size() <= 0)
-            {
-                return true;
-            }
-            
-            for(IQuest q : quest.getPrerequisites())
-            {
-                if(isQuestShown(q, uuid))
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-        
-        return true;
     }
 }

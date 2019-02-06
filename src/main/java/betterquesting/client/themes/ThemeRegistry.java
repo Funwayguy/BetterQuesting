@@ -1,5 +1,6 @@
-package betterquesting.api2.client.gui.themes;
+package betterquesting.client.themes;
 
+import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.misc.GuiPadding;
@@ -10,17 +11,17 @@ import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.lines.SimpleLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
+import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.client.gui2.GuiHome;
-import betterquesting.client.themes.ResourceTheme;
+import betterquesting.client.GuiBuilder;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -31,7 +32,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
 
 public class ThemeRegistry implements IThemeRegistry
 {
@@ -44,7 +44,7 @@ public class ThemeRegistry implements IThemeRegistry
 	private final HashMap<ResourceLocation, IGuiTexture> defTextures = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiLine> defLines = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiColor> defColors = new HashMap<>();
-	private Function<GuiScreen, GuiScreen> defHome;
+	private IGuiHook defGuiHook;
 	
 	private final HashMap<ResourceLocation, IGuiTheme> themes = new HashMap<>();
 	private final List<ResourceLocation> loadedThemes = new ArrayList<>();
@@ -60,7 +60,7 @@ public class ThemeRegistry implements IThemeRegistry
 		PresetIcon.registerIcons(this);
 		PresetLine.registerLines(this);
 		PresetColor.registerColors(this);
-		defHome = GuiHome::new;
+		defGuiHook = GuiBuilder.INSTANCE;
 	}
 	
 	@Override
@@ -122,14 +122,14 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public void setDefaultHome(Function<GuiScreen, GuiScreen> ctor)
+	public void setDefaultGuiHook(IGuiHook guiHook)
     {
-        if(ctor == null)
+        if(guiHook == null)
         {
-            throw new NullPointerException("Tried to register a default home screen with one or more NULL arguments");
+            throw new NullPointerException("Tried to register a default gui hook with one or more NULL arguments");
         }
         
-        defHome = ctor;
+        defGuiHook = guiHook;
     }
 	
 	@Override
@@ -325,14 +325,13 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public GuiScreen getHomeGui(GuiScreen parent)
+	public IGuiHook getGuiHook()
     {
-        GuiScreen screen = null;
+        IGuiHook screen = null;
         
-        if(getCurrentTheme() != null) screen = activeTheme.getHomeGui(parent);
-        if(screen == null && defHome != null) screen = defHome.apply(parent);
+        if(getCurrentTheme() != null) screen = activeTheme.getGuiHook();
         
-        return screen;
+        return screen != null ? screen : defGuiHook;
     }
 	
 	@Override

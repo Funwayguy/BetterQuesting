@@ -3,7 +3,6 @@ package betterquesting.client.toolbox.tools;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
@@ -13,7 +12,6 @@ import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import net.minecraft.nbt.NBTTagCompound;
@@ -87,7 +85,6 @@ public class ToolboxToolNew implements IToolboxTool
 		
 		// Pre-sync
 		IQuestLine qLine = gui.getQuestLine();
-		IQuest quest = new QuestInstance();
 		int qID = QuestDatabase.INSTANCE.nextID();
 		int lID = QuestLineDatabase.INSTANCE.getID(qLine);
 		IQuestLineEntry qe = qLine.getValue(qID);//new QuestLineEntry(mx, my, 24);
@@ -105,9 +102,6 @@ public class ToolboxToolNew implements IToolboxTool
 		
 		// Sync Quest
 		NBTTagCompound tag1 = new NBTTagCompound();
-		NBTTagCompound base1 = new NBTTagCompound();
-		base1.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		tag1.setTag("data", base1);
 		tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
 		tag1.setInteger("questID", qID);
 		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));

@@ -66,15 +66,29 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
 		} else if(action == EnumPacketAction.REMOVE)
 		{
-			if(quest == null || qID < 0)
-			{
-				BetterQuesting.logger.log(Level.ERROR, sender.getName() + " tried to delete non-existent quest with ID:" + qID);
-				return;
-			}
-			
-			BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest " + quest.getProperty(NativeProps.NAME) + " (#" + qID + ")");
-			QuestDatabase.INSTANCE.removeID(qID);
-			QuestLineDatabase.INSTANCE.removeQuest(qID);
+		    int[] bulkIDs;
+		    
+		    if(data.hasKey("bulkIDs"))
+            {
+                bulkIDs = data.getIntArray("bulkIDs");
+            } else
+            {
+                bulkIDs = new int[]{qID};
+            }
+            
+            for(int bid : bulkIDs)
+            {
+                if(bid < 0)
+                {
+                    BetterQuesting.logger.log(Level.ERROR, sender.getName() + " tried to delete non-existent quest with ID:" + bid);
+                    return;
+                }
+    
+                BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest (#" + bid + ")");
+                QuestDatabase.INSTANCE.removeID(bid);
+                QuestLineDatabase.INSTANCE.removeQuest(bid);
+            }
+            
 			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
@@ -86,7 +100,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				
 				if(com && quest instanceof QuestInstance)
 				{
-					((QuestInstance)quest).setClaimed(senderID, 0);
+					quest.setClaimed(senderID, 0);
 				} else
 				{
 					quest.setComplete(senderID, 0);

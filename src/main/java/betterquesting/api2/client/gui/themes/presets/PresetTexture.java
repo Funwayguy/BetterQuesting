@@ -6,7 +6,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
 public enum PresetTexture

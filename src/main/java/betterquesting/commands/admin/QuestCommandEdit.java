@@ -1,17 +1,19 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.storage.NameCache;
-import betterquesting.storage.QuestSettings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandEdit extends QuestCommandBase
 {
@@ -75,6 +77,8 @@ public class QuestCommandEdit extends QuestCommandBase
 		{
 			NameCache.INSTANCE.updateNames(server);
 		}
+		
+        SaveLoadHandler.INSTANCE.markDirty();
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, flag);
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.edit", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)? "options.on" : "options.off")));

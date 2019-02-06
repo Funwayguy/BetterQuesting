@@ -30,6 +30,7 @@ public class SaveLoadHandler
     public static SaveLoadHandler INSTANCE = new SaveLoadHandler();
     
     private boolean hasUpdate = false;
+    private boolean isDirty = false;
     
     public boolean hasUpdate()
 	{
@@ -40,6 +41,11 @@ public class SaveLoadHandler
 	{
 		this.hasUpdate = false;
 	}
+	
+	public void markDirty()
+    {
+        this.isDirty = true;
+    }
     
     public void loadDatabases(MinecraftServer server)
     {
@@ -49,7 +55,6 @@ public class SaveLoadHandler
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
         
-        //QuestCache.INSTANCE.reset();
         hasUpdate = false;
 		
 		if(BetterQuesting.proxy.isClient())
@@ -108,6 +113,7 @@ public class SaveLoadHandler
 		if(useDef) // LOAD DEFAULTS
 		{
 			fileDatabase = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+			isDirty = true;
 		} else
 		{
 			JsonObject defTmp = JsonHelper.ReadFromFile(new File(BQ_Settings.defaultDir, "DefaultQuests.json"));
@@ -208,16 +214,19 @@ public class SaveLoadHandler
     {
         // === CONFIG ===
         
-        NBTTagCompound jsonCon = new NBTTagCompound();
-        
-        jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-        jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
-        jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
-        
-        jsonCon.setString("format", BetterQuesting.FORMAT);
-        jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
-        
-        JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
+        if(!BQ_Settings.dirtyMode || isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+        {
+            NBTTagCompound jsonCon = new NBTTagCompound();
+    
+            jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
+            jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
+            jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
+    
+            jsonCon.setString("format", BetterQuesting.FORMAT);
+            jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
+    
+            JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
+        }
         
         // === PROGRESS ===
         
@@ -252,12 +261,15 @@ public class SaveLoadHandler
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         
         MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
+        
+        isDirty = false;
     }
     
     public void unloadDatabases()
     {
         BQ_Settings.curWorldDir = null;
         hasUpdate = false;
+        isDirty = false;
         
         QuestSettings.INSTANCE.reset();
         QuestDatabase.INSTANCE.reset();

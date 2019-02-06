@@ -6,6 +6,7 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -116,6 +117,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+                SaveLoadHandler.INSTANCE.markDirty();
 			} else
 			{
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.none"));

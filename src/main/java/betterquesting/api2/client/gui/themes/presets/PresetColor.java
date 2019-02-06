@@ -4,7 +4,7 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
 // WARNING: Don't use the ordinal indexes. I'll probably be adding/removing enums infrequently

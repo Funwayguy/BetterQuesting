@@ -22,9 +22,9 @@ import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class PktHandlerImport implements IPacketHandler
 {
@@ -63,19 +63,43 @@ public class PktHandlerImport implements IPacketHandler
 		
 		HashMap<Integer,Integer> remapped = getRemappedIDs(impQuestDB.getEntries());
 		
-		for(Entry<Integer,Integer> entry : remapped.entrySet())
+		for(DBEntry<IQuest> entry : impQuestDB.getEntries())
 		{
-			QuestDatabase.INSTANCE.add(entry.getValue(), impQuestDB.getValue(entry.getKey()));
+		    int[] oldIDs = Arrays.copyOf(entry.getValue().getRequirements(), entry.getValue().getRequirements().length);
+            
+            for(int n = 0; n < oldIDs.length; n++)
+            {
+                if(remapped.containsKey(oldIDs[n]))
+                {
+                    oldIDs[n] = remapped.get(oldIDs[n]);
+                }
+            }
+            
+            entry.getValue().setRequirements(oldIDs);
+            
+			QuestDatabase.INSTANCE.add(remapped.get(entry.getID()), entry.getValue());
 		}
 		
 		for(DBEntry<IQuestLine> questLine : impQuestLineDB.getEntries())
 		{
+		    List<DBEntry<IQuestLineEntry>> pendingQLE = new ArrayList<>();
+		    
 			for(DBEntry<IQuestLineEntry> qle : questLine.getValue().getEntries())
 			{
-				int oldID = qle.getID();
+			    pendingQLE.add(qle);
 				questLine.getValue().removeID(qle.getID());
-				questLine.getValue().add(remapped.get(oldID), qle.getValue());
 			}
+			
+			for(DBEntry<IQuestLineEntry> qle : pendingQLE)
+            {
+                if(!remapped.containsKey(qle.getID()))
+                {
+                    BetterQuesting.logger.error("Failed to import quest into quest line. Unable to remap ID " + qle.getID());
+                    continue;
+                }
+                
+                questLine.getValue().add(remapped.get(qle.getID()), qle.getValue());
+            }
 			
 			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), questLine.getValue());
 		}
@@ -94,27 +118,41 @@ public class PktHandlerImport implements IPacketHandler
 	 */
 	private HashMap<Integer,Integer> getRemappedIDs(DBEntry<IQuest>[] idList)
 	{
-		List<Integer> existing = new ArrayList<>();
-		
-		for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
-		{
-			existing.add(entry.getID());
-		}
-		
+	    int[] nextIDs = getNextIDs(idList.length);
 		HashMap<Integer,Integer> remapped = new HashMap<>();
-		
-		int n = 0;
-		
-		for(DBEntry<IQuest> id : idList)
-		{
-			while(existing.contains(n) || remapped.containsValue(n))
-			{
-				n++;
-			}
-			
-			remapped.put(id.getID(), n);
-		}
+	    
+	    for(int i = 0; i < nextIDs.length; i++)
+        {
+            remapped.put(idList[i].getID(), nextIDs[i]);
+        }
 		
 		return remapped;
 	}
+	
+	private int[] getNextIDs(int num)
+    {
+        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        int[] nxtIDs = new int[num];
+        
+        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        {
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            return nxtIDs;
+        }
+        
+        int n1 = 0;
+        int n2 = 0;
+        for(int i = 0; i < num; i++)
+        {
+            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            {
+                n1++;
+                n2++;
+            }
+            
+            nxtIDs[i] = n1++;
+        }
+        
+        return nxtIDs;
+    }
 }

@@ -6,6 +6,7 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
@@ -102,8 +103,12 @@ public class PartyInstance implements IParty
 		
 		EnumPartyStatus old = members.get(uuid);
 		
-		members.remove(uuid);
-		
+		if(members.remove(uuid) == null)
+        {
+            BetterQuesting.logger.error("Unabled to locate user \"" + uuid + "\" to kick from party " + this.getName());
+            return;
+        }
+        
 		if(members.size() <= 0)
 		{
 			PartyManager.INSTANCE.removeValue(this);
@@ -111,10 +116,9 @@ public class PartyInstance implements IParty
 		} else if(old == EnumPartyStatus.OWNER)
 		{
 			hostMigrate();
+            refreshCache();
+		    PacketSender.INSTANCE.sendToAll(getSyncPacket());
 		}
-		
-		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
 	@Override
@@ -193,8 +197,9 @@ public class PartyInstance implements IParty
 	
 	private void hostMigrate()
 	{
+	    System.out.println("Migrating host...");
 		// Pre check for existing owners
-		for(UUID uuid : memCache)
+		for(UUID uuid : members.keySet())
 		{
 			if(members.get(uuid) == EnumPartyStatus.OWNER)
 			{
@@ -204,9 +209,11 @@ public class PartyInstance implements IParty
 		
 		UUID migrate = null;
 		
-		for(UUID mem : getMembers())
+		for(UUID mem : members.keySet())
 		{
-			if(members.get(mem) == EnumPartyStatus.ADMIN)
+		    EnumPartyStatus status = members.get(mem);
+		    
+			if(status == EnumPartyStatus.ADMIN || status == EnumPartyStatus.OWNER)
 			{
 				migrate = mem;
 				break;
@@ -219,7 +226,10 @@ public class PartyInstance implements IParty
 		if(migrate != null)
 		{
 			members.put(migrate, EnumPartyStatus.OWNER);
-		}
+		} else
+        {
+            BetterQuesting.logger.error("Failed to find suitable host to migrate party " + this.getName() + ". This should not happen and may now requires an admin to disband this party.");
+        }
 	}
 	
 	@Override

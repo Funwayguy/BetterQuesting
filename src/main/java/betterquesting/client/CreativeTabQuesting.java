@@ -14,7 +14,7 @@ public class CreativeTabQuesting extends CreativeTabs
 	}
 	
 	@Override
-	public ItemStack getTabIconItem()
+	public ItemStack createIcon()
 	{
 		if(tabStack == null)
 		{

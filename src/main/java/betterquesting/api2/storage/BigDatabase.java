@@ -162,10 +162,7 @@ public abstract class BigDatabase<T> implements IDatabase<T>
     
     private boolean removeValueFromBlock(SortedSet<DBEntry<T>> block, T value)
     {
-        if(value == null)
-        {
-            return false;
-        }
+        if(value == null) return false;
         
         Iterator<DBEntry<T>> iter = block.iterator();
 
@@ -184,6 +181,8 @@ public abstract class BigDatabase<T> implements IDatabase<T>
     @Override
     public int getID(T value)
     {
+        if(value == null) return -1;
+        
         synchronized(dbBlocks)
         {
             for(DBEntry<SortedSet<DBEntry<T>>> blockEntry : dbBlocks)
@@ -202,10 +201,7 @@ public abstract class BigDatabase<T> implements IDatabase<T>
     
     private int getIDFromBlock(SortedSet<DBEntry<T>> block, T value)
     {
-        if(value == null)
-        {
-            return -1;
-        }
+        if(value == null) return -1;
         
         for(DBEntry<T> entry : block)
         {
@@ -221,6 +217,8 @@ public abstract class BigDatabase<T> implements IDatabase<T>
     @Override
     public T getValue(int id)
     {
+        if(id < 0) return null;
+        
         synchronized(dbBlocks)
         {
             for(DBEntry<SortedSet<DBEntry<T>>> blockEntry : dbBlocks)

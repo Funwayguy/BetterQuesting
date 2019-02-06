@@ -7,7 +7,6 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
 import betterquesting.network.PacketTypeNative;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -17,29 +16,34 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 {
 	public static final QuestLineDatabase INSTANCE = new QuestLineDatabase();
 	
-	// TODO: Probably should make this thread safe
 	private final List<Integer> lineOrder = new ArrayList<>();
 	private final QuestLineSorter SORTER = new QuestLineSorter(this);
 	
 	@Override
 	public int getOrderIndex(int lineID)
 	{
-		if(getValue(lineID) == null)
-		{
-			return -1;
-		} else if(!lineOrder.contains(lineID))
-		{
-			lineOrder.add(lineID);
-		}
-		
-		return lineOrder.indexOf(lineID);
+	    synchronized(lineOrder)
+        {
+            if(getValue(lineID) == null)
+            {
+                return -1;
+            } else if(!lineOrder.contains(lineID))
+            {
+                lineOrder.add(lineID);
+            }
+    
+            return lineOrder.indexOf(lineID);
+        }
 	}
 	
 	@Override
 	public void setOrderIndex(int lineID, int index)
 	{
-		lineOrder.remove((Integer)lineID);
-		lineOrder.add(index, lineID);
+	    synchronized(lineOrder)
+        {
+            lineOrder.remove((Integer)lineID);
+            lineOrder.add(index, lineID);
+        }
 	}
 	
 	@Override
@@ -102,19 +106,11 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 		reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
-		
 		HashMap<Integer,Integer> orderMap = new HashMap<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jql = (NBTTagCompound)entry;
+			NBTTagCompound jql = json.getCompoundTagAt(i);
 			
 			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
@@ -130,26 +126,19 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 				unassigned.add(line);
 			}
 			
-			if(order >= 0)
-			{
-				orderMap.put(order, id);
-			}
+			if(order >= 0) orderMap.put(order, id);
 		}
 		
 		// Legacy support ONLY
-		for(IQuestLine q : unassigned)
-		{
-			add(nextID(), q);
-		}
+		for(IQuestLine q : unassigned) add(nextID(), q);
 		
 		List<Integer> orderKeys = new ArrayList<>(orderMap.keySet());
 		Collections.sort(orderKeys);
 		
-		lineOrder.clear();
-		
-		for(int o : orderKeys)
-		{
-			lineOrder.add(orderMap.get(o));
-		}
+		synchronized(lineOrder)
+        {
+            lineOrder.clear();
+            for(int o : orderKeys) lineOrder.add(orderMap.get(o));
+        }
 	}
 }

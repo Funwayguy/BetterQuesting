@@ -4,7 +4,7 @@ import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
 // TODO: Reorganise these when the icon atlas is no longer bound by legacy constraints

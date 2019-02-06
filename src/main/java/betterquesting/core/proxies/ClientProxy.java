@@ -3,11 +3,11 @@ package betterquesting.core.proxies;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.GuiBuilder;
 import betterquesting.client.QuestNotification;
-import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
@@ -74,7 +74,7 @@ public class ClientProxy extends CommonProxy
 			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loaders", e);
 		}
 		
-		ThemeRegistry.INSTANCE.setDefaultHome(GuiHome::new);
+		ThemeRegistry.INSTANCE.setDefaultGuiHook(GuiBuilder.INSTANCE);
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new PlaceholderRenderFactory());
 		

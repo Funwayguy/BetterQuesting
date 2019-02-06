@@ -4,6 +4,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -65,6 +66,7 @@ public class QuestCommandDelete extends QuestCommandBase
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 		    
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.all"));
+            SaveLoadHandler.INSTANCE.markDirty();
 		} else
 		{
 			try
@@ -75,6 +77,7 @@ public class QuestCommandDelete extends QuestCommandBase
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
+                SaveLoadHandler.INSTANCE.markDirty();
 			} catch(Exception e)
 			{
 				throw getException(command);

@@ -56,7 +56,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
                 subList.add(item.getDefaultInstance());
             }
             
-            if(item.getUnlocalizedName().toLowerCase().contains(query) || QuestTranslation.translate(item.getUnlocalizedName()).toLowerCase().contains(query) || item.getRegistryName().toString().toLowerCase().contains(query))
+            if(item.getTranslationKey().toLowerCase().contains(query) || QuestTranslation.translate(item.getTranslationKey()).toLowerCase().contains(query) || item.getRegistryName().toString().toLowerCase().contains(query))
             {
                 results.addAll(subList);
             } else
@@ -65,7 +65,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
                 {
                     try
                     {
-                        if(subItem.getUnlocalizedName().toLowerCase().contains(query) || subItem.getDisplayName().toLowerCase().contains(query))
+                        if(subItem.getTranslationKey().toLowerCase().contains(query) || subItem.getDisplayName().toLowerCase().contains(query))
                         {
                             results.add(subItem);
                             continue;

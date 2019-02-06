@@ -3,7 +3,6 @@ package betterquesting.legacy.v0;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.placeholders.tasks.TaskPlaceholder;
-import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
@@ -124,23 +123,18 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		quest.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
 		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound())));
 		
-		for(JsonElement je : JsonHelper.GetArray(json, "preRequisites"))
+		JsonArray reqAry = JsonHelper.GetArray(json, "preRequisites");
+		int[] req = new int[reqAry.size()];
+		for(int i = 0; i < req.length; i++)
 		{
+		    JsonElement je = reqAry.get(i);
 			if(je == null || !je.isJsonPrimitive() || !je.getAsJsonPrimitive().isNumber())
 			{
-				continue;
-			}
-			
-			int qID = je.getAsInt();
-			IQuest prq = QuestDatabase.INSTANCE.getValue(qID);
-			
-			if(prq == null)
-			{
-				prq = new QuestInstance();
-				QuestDatabase.INSTANCE.add(qID, prq);
-			}
-			
-			quest.getPrerequisites().add(prq);
+			    req[i] = -1;
+			} else
+            {
+                req[i] = je.getAsInt();
+            }
 		}
 		
 		IDatabaseNBT<ITask, NBTTagList, NBTTagList> taskDB = quest.getTasks();
@@ -268,9 +262,8 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	
 	public void readLine(IQuestLine qLine, JsonObject json)
 	{
-		IPropertyContainer props = qLine;
-		props.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest Line"));
-		props.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
+        qLine.setProperty(NativeProps.NAME, JsonHelper.GetString(json, "name", "New Quest Line"));
+		qLine.setProperty(NativeProps.DESC, JsonHelper.GetString(json, "description", "No Description"));
 		
 		for(JsonElement je : JsonHelper.GetArray(json, "quests"))
 		{

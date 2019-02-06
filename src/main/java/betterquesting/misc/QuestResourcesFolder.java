@@ -1,5 +1,12 @@
 package betterquesting.misc;
 
+import betterquesting.core.BetterQuesting;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.client.resources.data.MetadataSerializer;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,12 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.MetadataSerializer;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
 
 public class QuestResourcesFolder implements IResourcePack
 {
@@ -26,13 +27,13 @@ public class QuestResourcesFolder implements IResourcePack
 			return null;
 		}
 		
-		return new FileInputStream(new File(rootFolder.getPath() + "/" + location.getResourceDomain(), location.getResourcePath()));
+		return new FileInputStream(new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath()));
 	}
 	
 	@Override
 	public boolean resourceExists(ResourceLocation location)
 	{
-		File res = new File(rootFolder.getPath() + "/" + location.getResourceDomain(), location.getResourcePath());
+		File res = new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath());
 		return res.exists();
 	}
 	

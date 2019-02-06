@@ -61,7 +61,19 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        //initPanel();
+        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        
+        this.party = PartyManager.INSTANCE.getUserParty(playerID);
+        
+        if(party == null)
+        {
+            mc.displayGuiScreen(new GuiPartyCreate(parent));
+            return;
+        }
+        
+        if(!flName.isFocused()) flName.setText(party.getName());
+        
+        initPanel();
     }
     
     @Override

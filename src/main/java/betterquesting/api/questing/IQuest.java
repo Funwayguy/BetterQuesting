@@ -8,29 +8,28 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
-import betterquesting.misc.UserEntry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer, IDataSync
 {
-	// TODO: Make this part of the constructor so it can't be modified
-	void setParentDatabase(IQuestDatabase questDB);
-	
+	/** Deprecated: GUIs can build the tooltips themselves based on theme and purpose */
+	@Deprecated
 	@SideOnly(Side.CLIENT)
 	List<String> getTooltip(EntityPlayer player);
 	
 	EnumQuestState getState(UUID uuid);
 	
 	@Nullable
-	UserEntry getCompletionInfo(UUID uuid);
+	NBTTagCompound getCompletionInfo(UUID uuid);
 	void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
 	
 	void update(EntityPlayer player);
@@ -45,6 +44,7 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
 	boolean canClaim(EntityPlayer player);
 	boolean hasClaimed(UUID uuid);
 	void claimReward(EntityPlayer player);
+	void setClaimed(UUID uuid, long timestamp);
 	
 	void resetUser(UUID uuid, boolean fullReset);
 	void resetAll(boolean fullReset);
@@ -52,7 +52,7 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
 	IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
 	IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
 	
-	@Deprecated
-	List<IQuest> getPrerequisites();
-	//NonNullList<Integer> getRequirements();
+	@Nonnull
+	int[] getRequirements();
+	void setRequirements(@Nonnull int[] req);
 }

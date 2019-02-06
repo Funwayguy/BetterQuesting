@@ -14,7 +14,7 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
@@ -81,7 +81,7 @@ public class EventHandler
 					mc.displayGuiScreen(GuiHome.bookmark);
 				} else
 				{
-					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getHomeGui(null));
+					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGuiHook().getHomeScreen(null));
 				}
 			}
 		}
@@ -379,6 +379,7 @@ public class EventHandler
 		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
 		
 		// TODO: Change this to a proper panel event. Also explain WHAT updated
+        // TODO: This NEEDS to be thread safe. In rare cases the game WILL crash!
 		if(screen instanceof INeedsRefresh)
 		{
 			((INeedsRefresh)screen).refreshGui();

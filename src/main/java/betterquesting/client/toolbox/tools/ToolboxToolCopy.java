@@ -20,10 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ToolboxToolCopy implements IToolboxTool
 {
@@ -158,7 +155,7 @@ public class ToolboxToolCopy implements IToolboxTool
             
             NBTTagCompound questTags = quest.writeToNBT(new NBTTagCompound());
             
-            int[] oldIDs = questTags.getIntArray("preRequisites");
+            int[] oldIDs = Arrays.copyOf(quest.getRequirements(), quest.getRequirements().length);
             
             for(int n = 0; n < oldIDs.length; n++)
             {
@@ -167,6 +164,7 @@ public class ToolboxToolCopy implements IToolboxTool
                     oldIDs[n] = remappedIDs.get(oldIDs[n]);
                 }
             }
+            
             questTags.setIntArray("preRequisites", oldIDs);
             
             // Sync Quest

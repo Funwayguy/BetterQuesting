@@ -9,7 +9,6 @@ import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import org.lwjgl.input.Keyboard;
 
@@ -102,20 +101,17 @@ public class ToolboxToolDelete implements IToolboxTool
 	{
 	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
         {
-            NBTTagList bulkTagList = new NBTTagList();
-            
-            for(PanelButtonQuest b : PanelToolController.selected)
+            int[] bulkIDs = new int[PanelToolController.selected.size()];
+            for(int i = 0; i < bulkIDs.length; i++)
             {
-                NBTTagCompound tags = new NBTTagCompound();
-                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
-                tags.setInteger("questID", b.getStoredValue().getID());
-                tags.setString("ID", PacketTypeNative.QUEST_EDIT.GetLocation().toString());
-                bulkTagList.appendTag(tags);
+                bulkIDs[i] = PanelToolController.selected.get(i).getStoredValue().getID();
             }
             
-            NBTTagCompound bulkBase = new NBTTagCompound();
-            bulkBase.setTag("bulk", bulkTagList);
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.BULK.GetLocation(), bulkBase));
+            NBTTagCompound tags = new NBTTagCompound();
+            tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+            tags.setInteger("questID", -1);
+            tags.setIntArray("bulkIDs", bulkIDs);
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
             
             return true;
         }
@@ -137,6 +133,6 @@ public class ToolboxToolDelete implements IToolboxTool
 	@Override
     public boolean useSelection()
     {
-        return false; // TODO: Fix the database before re-enabling this
+        return true; // TODO: Fix the database before re-enabling this
     }
 }

@@ -13,7 +13,6 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -170,21 +169,12 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		NBTTagList qList = json.getTagList("quests", 10);
 		for(int i = 0; i < qList.tagCount(); i++)
 		{
-			NBTBase entry = qList.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound qTag = (NBTTagCompound)entry;
+			NBTTagCompound qTag = qList.getCompoundTagAt(i);
 			
 			int id = qTag.hasKey("id", 99) ? qTag.getInteger("id") : -1;
+			if(id< 0) continue;
 			
-			if(id >= 0)
-			{
-				add(id, new QuestLineEntry(qTag));
-			}
+			add(id, new QuestLineEntry(qTag));
 		}
 		
 		this.setupProps();

@@ -9,14 +9,13 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.toolbox.IToolTab;
 import betterquesting.client.gui2.CanvasQuestLine;
-import betterquesting.client.gui2.editors.designer.PanelTabMain;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 
 public class ToolboxTabMain implements IToolTab
 {
 	public static final ToolboxTabMain INSTANCE = new ToolboxTabMain();
 	
-	private int dragSnap = 2;
+	private int dragSnap = 4;
 	private int[] snaps = new int[]{1,4,6,8,12,16,24,32};
 	
 	@Override

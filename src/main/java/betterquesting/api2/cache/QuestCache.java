@@ -7,8 +7,8 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.misc.UserEntry;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -141,7 +141,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             if(entry.getValue().isUnlocked(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
             {
                 int repeat = entry.getValue().getProperty(NativeProps.REPEAT_TIME);
-                UserEntry ue = entry.getValue().getCompletionInfo(uuid);
+                NBTTagCompound ue = entry.getValue().getCompletionInfo(uuid);
                 
                 if((ue == null && entry.getValue().getTasks().size() <= 0) || entry.getValue().canSubmit(player)) // Can be active without completion in the case of locked progress. Also account for taskless quests
                 {
@@ -150,7 +150,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
                 {
                     if(repeat >= 0 && entry.getValue().hasClaimed(uuid))
                     {
-                        tmpReset.add(new QResetTime(entry.getID(), ue.getNbtData().getLong("timestamp") + repeat));
+                        tmpReset.add(new QResetTime(entry.getID(), ue.getLong("timestamp") + repeat));
                     }
                     
                     if(!entry.getValue().hasClaimed(uuid) && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))
@@ -289,9 +289,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             }
             
             // Previous quest is underway and this one is visible but still locked (foreshadowing)
-            for(IQuest q : quest.getPrerequisites())
+            for(DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements()))
             {
-                if(!q.isUnlocked(uuid))
+                if(!q.getValue().isUnlocked(uuid))
                 {
                     return false;
                 }
@@ -303,16 +303,16 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             return quest.isComplete(uuid);
         } else if(vis == EnumQuestVisibility.CHAIN)
         {
-            if(quest.getPrerequisites().size() <= 0)
+            if(quest.getRequirements().length <= 0)
             {
                 return true;
             }
             
-            for(IQuest q : quest.getPrerequisites())
+            for(DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements()))
             {
                 if(q == null) return true;
                 
-                if(isQuestShown(q, uuid, player))
+                if(isQuestShown(q.getValue(), uuid, player))
                 {
                     return true;
                 }

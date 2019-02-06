@@ -37,6 +37,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IFluidTankProperties
@@ -44,14 +45,15 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	private final IItemHandler itemHandler;
 	private final IFluidHandler fluidHandler;
 	private NonNullList<ItemStack> itemStack = NonNullList.withSize(2, ItemStack.EMPTY);
-	boolean needsUpdate = false;
+	private boolean needsUpdate = false;
 	public UUID owner;
 	public int questID;
 	public int taskID;
 	
 	private IQuest qCached;
 	
-	public TileSubmitStation()
+	@SuppressWarnings("WeakerAccess")
+    public TileSubmitStation()
 	{
 		super();
 		
@@ -71,7 +73,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		}
 	}
 	
-	public ITask getRawTask()
+	@SuppressWarnings("WeakerAccess")
+    public ITask getRawTask()
 	{
 		IQuest q = getQuest();
 		
@@ -84,13 +87,15 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		}
 	}
 	
-	public IItemTask getItemTask()
+	@SuppressWarnings("WeakerAccess")
+    public IItemTask getItemTask()
 	{
 		ITask t = getRawTask();
 		return t == null? null : (t instanceof IItemTask? (IItemTask)t : null);
 	}
 	
-	public IFluidTask getFluidTask()
+	@SuppressWarnings("WeakerAccess")
+    public IFluidTask getFluidTask()
 	{
 		ITask t = getRawTask();
 		return t == null? null : (t instanceof IFluidTask? (IFluidTask)t : null);
@@ -103,6 +108,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
+    @Nonnull
 	public ItemStack getStackInSlot(int idx)
 	{
 		if(idx < 0 || idx >= itemStack.size())
@@ -115,13 +121,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
+    @Nonnull
 	public ItemStack decrStackSize(int idx, int amount)
 	{
 		return ItemStackHelper.getAndSplit(itemStack, idx, amount);
 	}
 
 	@Override
-	public void setInventorySlotContents(int idx, ItemStack stack)
+	public void setInventorySlotContents(int idx, @Nonnull ItemStack stack)
 	{
 		if(idx < 0 || idx >= itemStack.size())
 		{
@@ -132,6 +139,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
+    @Nonnull
 	public String getName()
 	{
 		return BetterQuesting.submitStation.getLocalizedName();
@@ -150,24 +158,24 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public boolean isUsableByPlayer(EntityPlayer player)
+	public boolean isUsableByPlayer(@Nonnull EntityPlayer player)
 	{
         return owner == null || player.getUniqueID().equals(owner);
         
     }
 
 	@Override
-	public void openInventory(EntityPlayer player)
+	public void openInventory(@Nonnull EntityPlayer player)
 	{
 	}
 
 	@Override
-	public void closeInventory(EntityPlayer player)
+	public void closeInventory(@Nonnull EntityPlayer player)
 	{
 	}
 
 	@Override
-	public boolean isItemValidForSlot(int idx, ItemStack stack)
+	public boolean isItemValidForSlot(int idx, @Nonnull ItemStack stack)
 	{
 		if(idx != 0)
 		{
@@ -428,6 +436,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 	
 	@Override
+    @Nonnull
 	public NBTTagCompound writeToNBT(NBTTagCompound tags)
 	{
 		super.writeToNBT(tags);
@@ -440,25 +449,29 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		return tags;
 	}
 
+	private static final int[] slotsForFace = new int[]{0, 1};
+ 
 	@Override
-	public int[] getSlotsForFace(EnumFacing side)
+    @Nonnull
+	public int[] getSlotsForFace(@Nullable EnumFacing side)
 	{
-		return new int[]{0,1};
+		return slotsForFace;
 	}
 
 	@Override
-	public boolean canInsertItem(int slot, ItemStack stack, EnumFacing side)
+	public boolean canInsertItem(int slot, @Nonnull ItemStack stack, @Nullable EnumFacing side)
 	{
 		return isItemValidForSlot(slot, stack);
 	}
 
 	@Override
-	public boolean canExtractItem(int slot, ItemStack stack, EnumFacing side)
+	public boolean canExtractItem(int slot, @Nonnull ItemStack stack, @Nullable EnumFacing side)
 	{
 		return slot == 1;
 	}
 
 	@Override
+    @Nonnull
 	public ItemStack removeStackFromSlot(int index)
 	{
 		return ItemStackHelper.getAndRemove(itemStack, index);
@@ -488,13 +501,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
+    @Nonnull
 	public ITextComponent getDisplayName()
 	{
 		return new TextComponentString(BetterQuesting.submitStation.getLocalizedName());
 	}
 	
 	@Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
     {
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{
@@ -508,7 +522,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     }
 	
 	@Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+    @Nullable
+    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
     {
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 		{

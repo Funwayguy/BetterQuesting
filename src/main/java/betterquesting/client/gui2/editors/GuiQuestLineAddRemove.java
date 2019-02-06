@@ -228,6 +228,12 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
             NBTTagCompound tag = new NBTTagCompound();
             tag.setInteger("action", EnumPacketAction.ADD.ordinal());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
+        } else if(btn.getButtonID() == 6) // Error resolve
+        {
+            NBTTagCompound tags = new NBTTagCompound();
+            tags.setInteger("action", EnumPacketAction.REMOVE.ordinal());
+            tags.setInteger("questID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
         }
     }
     
@@ -251,8 +257,8 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
             
             if(quest == null)
             {
-                PanelButton btnErr = new PanelButton(new GuiRectangle(0, i * 16, width - 16, 16, 0), -1, "[ERROR]");
-                btnErr.setActive(false);
+                PanelButtonStorage<Integer> btnErr = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 6, "[ERROR]", entry.getID());
+                btnErr.setActive(true);
                 canvasQL.addPanel(btnErr);
                 continue;
             }

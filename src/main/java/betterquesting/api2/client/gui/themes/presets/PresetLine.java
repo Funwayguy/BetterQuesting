@@ -3,7 +3,7 @@ package betterquesting.api2.client.gui.themes.presets;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.lines.SimpleLine;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 
 public enum PresetLine

@@ -31,6 +31,7 @@ public class FluidTexture implements IGuiTexture
         this(fluid, false, true);
     }
     
+    // TODO: Add tiling option
     public FluidTexture(FluidStack fluid, boolean showCount, boolean keepAspect)
     {
         this.fluid = fluid;

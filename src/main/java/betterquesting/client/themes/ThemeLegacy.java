@@ -1,5 +1,6 @@
-package betterquesting.api2.client.gui.themes;
+package betterquesting.client.themes;
 
+import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
@@ -9,9 +10,9 @@ import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode;
+import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -93,7 +94,7 @@ public class ThemeLegacy implements IGuiTheme
     }
     
     @Override
-    public GuiScreen getHomeGui(GuiScreen parent)
+    public IGuiHook getGuiHook()
     {
         return null;
     }

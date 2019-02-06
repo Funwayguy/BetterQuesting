@@ -28,7 +28,7 @@ public class ItemExtraLife extends Item
 {
 	public ItemExtraLife()
 	{
-		this.setUnlocalizedName("betterquesting.extra_life");
+		this.setTranslationKey("betterquesting.extra_life");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 		this.setHasSubtypes(true);
 	}
@@ -99,16 +99,16 @@ public class ItemExtraLife extends Item
      * different names based on their damage or NBT.
      */
     @Override
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         switch(stack.getItemDamage()%3)
         {
         	case 2:
-        		return this.getUnlocalizedName() + ".quarter";
+        		return this.getTranslationKey() + ".quarter";
         	case 1:
-        		return this.getUnlocalizedName() + ".half";
+        		return this.getTranslationKey() + ".half";
         	default:
-        		return this.getUnlocalizedName() + ".full";	
+        		return this.getTranslationKey() + ".full";
         }
     }
 	

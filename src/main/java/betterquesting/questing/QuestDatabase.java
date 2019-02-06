@@ -25,11 +25,46 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 	@Override
 	public IQuest createNew(int id)
 	{
-		IQuest q = new QuestInstance();
-		q.setParentDatabase(this);
-		this.add(id, q);
-		return q;
+		return this.add(id, new QuestInstance()).getValue();
 	}
+	
+	@Override
+    public boolean removeID(int id)
+    {
+        boolean success = super.removeID(id);
+        if(success) for(DBEntry<IQuest> entry : getEntries()) removeReq(entry.getValue(), id);
+        return success;
+    }
+    
+    @Override
+    public boolean removeValue(IQuest value)
+    {
+        int id = this.getID(value);
+        if(id < 0) return false;
+        boolean success = this.removeValue(value);
+        if(success) for(DBEntry<IQuest> entry : getEntries()) removeReq(entry.getValue(), id);
+        return success;
+    }
+    
+    private void removeReq(IQuest quest, int id)
+    {
+        int[] orig = quest.getRequirements();
+        if(orig.length <= 0) return;
+        boolean hasRemoved = false;
+        int[] rem = new int[orig.length - 1];
+        for(int i = 0; i < orig.length; i++)
+        {
+            if(!hasRemoved && orig[i] == id)
+            {
+                hasRemoved = true;
+                continue;
+            } else if(!hasRemoved && i >= rem.length) break;
+            
+            rem[!hasRemoved ? i : (i - 1)] = orig[i];
+        }
+        
+        if(hasRemoved) quest.setRequirements(rem);
+    }
 	
 	@Override
 	public QuestingPacket getSyncPacket()
@@ -72,21 +107,10 @@ public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDa
 		
 		for(int i = 0; i < nbt.tagCount(); i++)
 		{
-			NBTBase entry = nbt.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound qTag = (NBTTagCompound)entry;
+			NBTTagCompound qTag = nbt.getCompoundTagAt(i);
 			
 			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
-			
-			if(qID < 0)
-			{
-				continue;
-			}
+			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
 			quest = quest != null? quest : this.createNew(qID);

@@ -1,10 +1,10 @@
 package betterquesting.client.themes;
 
+import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -96,9 +96,9 @@ public class ResourceTheme implements IGuiTheme
     }
     
     @Override
-    public GuiScreen getHomeGui(GuiScreen parent)
+    public IGuiHook getGuiHook()
     {
         // Resource themes obviously can't define something as complex as GUI so we'll let the parent deal with that
-        return parentTheme == null ? null : parentTheme.getHomeGui(parent);
+        return parentTheme == null ? null : parentTheme.getGuiHook();
     }
 }

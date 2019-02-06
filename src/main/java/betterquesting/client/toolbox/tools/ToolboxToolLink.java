@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ToolboxToolLink implements IToolboxTool
@@ -123,14 +124,13 @@ public class ToolboxToolLink implements IToolboxTool
                     boolean mod1 = false;
                     
                     // Don't have to worry about the lines anymore. The panel is getting refereshed anyway
-                    if(!q2.getPrerequisites().contains(q1) && !q1.getPrerequisites().contains(q2))
+                    if(!containsReq(q2, b1.getStoredValue().getID()) && !containsReq(q1, b2.getStoredValue().getID()))
                     {
-                        q2.getPrerequisites().add(q1);
-                        mod2 = true;
+                        mod2 = addReq(q2, b1.getStoredValue().getID());
                     } else
                     {
-                        if(q2.getPrerequisites().remove(q1)) mod2 = true;
-                        mod1 = q1.getPrerequisites().remove(q2);
+                        mod2 = removeReq(q2, b1.getStoredValue().getID()) || mod2;
+                        mod1 = removeReq(q1, b2.getStoredValue().getID());
                     }
                     
                     if(mod1)
@@ -202,5 +202,42 @@ public class ToolboxToolLink implements IToolboxTool
     public boolean useSelection()
     {
         return linking.size() <= 0;
+    }
+    
+    private boolean containsReq(IQuest quest, int id)
+    {
+        for(int reqID : quest.getRequirements()) if(id == reqID) return true;
+        return false;
+    }
+    
+    private boolean removeReq(IQuest quest, int id)
+    {
+        int[] orig = quest.getRequirements();
+        if(orig.length <= 0) return false;
+        boolean hasRemoved = false;
+        int[] rem = new int[orig.length - 1];
+        for(int i = 0; i < orig.length; i++)
+        {
+            if(!hasRemoved && orig[i] == id)
+            {
+                hasRemoved = true;
+                continue;
+            } else if(!hasRemoved && i >= rem.length) break;
+            
+            rem[!hasRemoved ? i : (i - 1)] = orig[i];
+        }
+        
+        if(hasRemoved) quest.setRequirements(rem);
+        return hasRemoved;
+    }
+    
+    private boolean addReq(IQuest quest, int id)
+    {
+        if(containsReq(quest, id)) return false;
+        int[] orig = quest.getRequirements();
+        int[] added = Arrays.copyOf(orig, orig.length + 1);
+        added[orig.length] = id;
+        quest.setRequirements(added);
+        return true;
     }
 }

@@ -1,6 +1,5 @@
 package betterquesting.api.api;
 
-import betterquesting.api.client.gui.misc.IGuiHelper;
 import betterquesting.api.client.importers.IImportRegistry;
 import betterquesting.api.client.toolbox.IToolRegistry;
 import betterquesting.api.network.IPacketRegistry;
@@ -16,10 +15,8 @@ import betterquesting.api.storage.IQuestSettings;
 import betterquesting.api2.client.gui.themes.IResourceReg;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ApiReference
+public class ApiReference // Note to self: Don't make these client side only. It'll just crash servers regardless of which are used
 {
 	public static final ApiKey<IQuestDatabase> QUEST_DB = new ApiKey<>();
 	public static final ApiKey<IQuestLineDatabase> LINE_DB = new ApiKey<>();
@@ -35,13 +32,8 @@ public class ApiReference
 	public static final ApiKey<IQuestSettings> SETTINGS = new ApiKey<>();
 	public static final ApiKey<INameCache> NAME_CACHE = new ApiKey<>();
 	
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IThemeRegistry> THEME_REG = new ApiKey<>();
-	@SideOnly(Side.CLIENT)
     public static final ApiKey<IResourceReg> RESOURCE_REG = new ApiKey<>();
-	@SideOnly(Side.CLIENT)
-	public static final ApiKey<IGuiHelper> GUI_HELPER = new ApiKey<>();
-	@SideOnly(Side.CLIENT)
 	public static final ApiKey<IToolRegistry> TOOL_REG = new ApiKey<>();
 	public static final ApiKey<IImportRegistry> IMPORT_REG = new ApiKey<>();
 	

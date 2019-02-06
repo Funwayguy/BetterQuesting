@@ -72,7 +72,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
     
-        txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), curDirectory.getAbsolutePath()).setAlignment(1);
+        txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), curDirectory.getPath()).setAlignment(1);
         txtTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txtTitle);
     
@@ -159,6 +159,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
             
             if(tmp != null)
             {
+                curDirectory = tmp;
                 cvDirectory.setCurDirectory(curDirectory);
                 txtTitle.setText(curDirectory.getAbsolutePath());
             }

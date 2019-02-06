@@ -5,6 +5,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -110,7 +111,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
                 {
                     IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
                     
-                    if(q != null && CanvasQuestLine.isQuestShown(q, playerID))
+                    if(q != null && QuestCache.isQuestShown(q, playerID, mc.player))
                     {
                         show = true;
                         break;

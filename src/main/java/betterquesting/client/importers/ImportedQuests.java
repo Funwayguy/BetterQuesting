@@ -6,7 +6,6 @@ import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.questing.QuestInstance;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -18,10 +17,7 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	@Override
 	public IQuest createNew(int id)
 	{
-		IQuest q = new QuestInstance();
-		q.setParentDatabase(this);
-		this.add(id, q);
-		return q;
+		return this.add(id, new QuestInstance()).getValue();
 	}
 	
 	@Override
@@ -36,41 +32,30 @@ public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabas
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList nbt, List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 			NBTTagCompound jq = new NBTTagCompound();
 			entry.getValue().writeToNBT(jq);
 			jq.setInteger("questID", entry.getID());
-			json.appendTag(jq);
+			nbt.appendTag(jq);
 		}
 		
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
 		this.reset();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < nbt.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound qTag = (NBTTagCompound)entry;
+			NBTTagCompound qTag = nbt.getCompoundTagAt(i);
 			
 			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
-			
-			if(qID < 0)
-			{
-				continue;
-			}
+			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
 			quest = quest != null? quest : this.createNew(qID);
