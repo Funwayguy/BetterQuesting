@@ -52,6 +52,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     private IParty party;
 	private EnumPartyStatus status; // 0 = INVITE, 1 = MEMBER, 2 = ADMIN, 3 = OWNER/OP
     private PanelTextField<String> flName;
+    private PanelVScrollBar scUserList;
     
     public GuiPartyManage(GuiScreen parent)
     {
@@ -148,7 +149,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasScrolling cvUserList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
         cvRightHalf.addPanel(cvUserList);
     
-        PanelVScrollBar scUserList = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
+        if(scUserList == null) scUserList = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
         cvRightHalf.addPanel(scUserList);
         scUserList.getTransform().setParent(cvUserList.getTransform());
         cvUserList.setScrollDriverY(scUserList);

@@ -155,6 +155,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
             tags.setString("target", ((PanelButtonStorage<String>)btn).getStoredValue());
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+            btn.setActive(false);
         }
     }
 }
