@@ -8,7 +8,6 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.IProgression;
@@ -427,8 +426,6 @@ public class QuestInstance implements IQuest
 	{
 		List<String> list = new ArrayList<>();
 		
-		//list.add(I18n.format(getUnlocalisedName()) + " #" + parentDB.getKey(this));
-		
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
 		if(qInfo.getProperty(NativeProps.GLOBAL))
@@ -770,7 +767,7 @@ public class QuestInstance implements IQuest
 		
 		synchronized(completeUsers)
         {
-            if(party == null)
+            if(party == null || !getProperty(NativeProps.PARTY_LOOT))
             {
                 NBTTagCompound entry = this.getCompletionInfo(uuid);
         

@@ -6,14 +6,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.nbt.*;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.Level;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
 public class NBTConverter
 {
+    private static Field f_tagList;
 	/**
 	 * Convert NBT tags to a JSON object
 	 */
@@ -298,10 +299,17 @@ public class NBTConverter
 	/**
 	 * Pulls the raw list out of the NBTTagList
 	 */
+	@SuppressWarnings("unchecked")
 	public static ArrayList<NBTBase> getTagList(NBTTagList tag)
 	{
-		return ObfuscationReflectionHelper.getPrivateValue(NBTTagList.class, tag, new String[]{"tagList", "field_74747_a"});
-	}
+        try
+        {
+            return (ArrayList<NBTBase>)f_tagList.get(tag);
+        } catch(IllegalAccessException e)
+        {
+            return null;
+        }
+    }
 	
 	public static Number getNumber(NBTBase tag)
 	{
@@ -423,4 +431,23 @@ public class NBTConverter
 		
 		return tagID;
 	}
+	
+	static
+    {
+        try
+        {
+            f_tagList = NBTTagList.class.getDeclaredField("field_74747_a");
+            f_tagList.setAccessible(true);
+        } catch(Exception e1)
+        {
+            try
+            {
+                f_tagList = NBTTagList.class.getDeclaredField("tagList");
+                f_tagList.setAccessible(true);
+            } catch(Exception e2)
+            {
+                QuestingAPI.getLogger().log(Level.ERROR, "Unable to hook into NBTTagList!", e2);
+            }
+        }
+    }
 }

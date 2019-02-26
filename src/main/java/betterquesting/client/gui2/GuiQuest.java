@@ -286,8 +286,11 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(rewardIndex < 0 || rewardIndex >= quest.getRewards().size())
         {
-            titleReward.setText("?");
-            titleReward.setEnabled(false);
+            if(titleReward != null)
+            {
+                titleReward.setText("?");
+                titleReward.setEnabled(false);
+            }
             updateButtons();
             
             return;
@@ -305,9 +308,12 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         {
             cvInner.addPanel(pnReward);
         }
-    
-        titleReward.setText(QuestTranslation.translate(rew.getUnlocalisedName()));
-        titleReward.setEnabled(true);
+        
+        if(titleReward != null)
+        {
+            titleReward.setText(QuestTranslation.translate(rew.getUnlocalisedName()));
+            titleReward.setEnabled(true);
+        }
         
         updateButtons();
     }

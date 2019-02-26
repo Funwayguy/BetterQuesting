@@ -382,17 +382,10 @@ public class JsonHelper
 	
 	public static NBTTagCompound FluidStackToJson(FluidStack stack, NBTTagCompound json)
 	{
-		if(stack == null)
-		{
-			return json;
-		}
-		
+		if(stack == null) return json;
 		json.setString("FluidName", FluidRegistry.getFluidName(stack));
 		json.setInteger("Amount", stack.amount);
-		if(stack.tag != null)
-		{
-			json.setTag("Tag", stack.tag);
-		}
+		if(stack.tag != null) json.setTag("Tag", stack.tag);
 		return json;
 	}
 	
@@ -406,12 +399,6 @@ public class JsonHelper
 		}
 		
 		return PlaceholderConverter.convertEntity(entity, world, tags);
-	}
-	
-	@Deprecated
-	public static Entity JsonToEntity(NBTTagCompound tags, World world, boolean allowPlaceholder)
-	{
-		return JsonToEntity(tags, world);
 	}
 	
 	public static NBTTagCompound EntityToJson(Entity entity, NBTTagCompound json)

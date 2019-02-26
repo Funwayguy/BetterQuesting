@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.controls;
 
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.IGuiRect;
@@ -188,7 +189,7 @@ public class PanelButton implements IPanelButton
 	
     private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
     {
-        font.drawString(text, x - font.getStringWidth(text) / 2, y, color, shadow);
+        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2, y, color, shadow);
     }
     
 	@Override

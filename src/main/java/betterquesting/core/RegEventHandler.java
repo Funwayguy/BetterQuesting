@@ -1,7 +1,6 @@
 package betterquesting.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.placeholders.ItemPlaceholder;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -17,7 +16,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import betterquesting.api.placeholders.ItemPlaceholder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber
 public class RegEventHandler

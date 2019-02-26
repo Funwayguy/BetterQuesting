@@ -17,6 +17,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.registry.IFactoryJSON;
 import betterquesting.client.GuiBuilder;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
@@ -242,7 +243,24 @@ public class ThemeRegistry implements IThemeRegistry
                         for(JsonElement jeTex : JsonHelper.GetArray(jThm, "textures"))
                         {
                             if(!(jeTex instanceof JsonObject)) continue;
+                            JsonObject joTex = jeTex.getAsJsonObject();
                             
+                            ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joTex, "texType", ""));
+                            IFactoryJSON<IGuiTexture, JsonObject> tFact = ResourceRegistry.INSTANCE.getTexReg().getFactory(typeID);
+                            
+                            if(tFact == null)
+                            {
+                                BetterQuesting.logger.error("Unknown texture type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
+                                continue;
+                            }
+                            
+                            IGuiTexture gTex = tFact.loadFromJSON(joTex);
+                            
+                            if(gTex == null)
+                            {
+                                BetterQuesting.logger.error("Failed to load texture type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
+                                continue;
+                            }
                             // TODO: Load textures
                         }
                         

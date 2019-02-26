@@ -42,10 +42,7 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File>
     @Override
     protected void queryMatches(File value, String query, ArrayDeque<File> results)
     {
-        if(value.getName().contains(query))
-        {
-            results.add(value);
-        }
+        if(value.getName().toLowerCase().contains(query.toLowerCase())) results.add(value);
     }
     
     private static class FileSort implements Comparator<File>

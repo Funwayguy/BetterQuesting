@@ -2,6 +2,8 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
@@ -9,6 +11,7 @@ import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
@@ -26,14 +29,19 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
+public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private IQuestLine selectedLine = null;
     private int selectedLineId = -1;
@@ -46,10 +54,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
     private CanvasScrolling cvDesc;
     private PanelVScrollBar scDesc;
     private PanelTextBox paDesc;
+    private PanelButton claimAll;
     
     public GuiQuestLines(GuiScreen parent)
     {
         super(parent);
+    }
+    
+    @Override
+    public void refreshGui()
+    {
+        refreshContent();
     }
     
     @Override
@@ -60,11 +75,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         if(selectedLineId >= 0)
         {
             selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);
-            
-            if(selectedLine == null)
-            {
-                selectedLineId = -1;
-            }
+            if(selectedLine == null) selectedLineId = -1;
         } else
         {
             selectedLine = null;
@@ -180,6 +191,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         le3.setParent(cvBackground.getTransform());
         PanelLine paLine3 = new PanelLine(ls3, le3, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
         cvBackground.addPanel(paLine3);
+        
+        // TODO: Make this a proper button thing
+        claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, -1), 4, "!");
+        cvFrame.addPanel(claimAll);
     }
     
     @Override
@@ -235,6 +250,51 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener
         {
             //mc.displayGuiScreen(new GuiQuestLineEditorA(this));
             mc.displayGuiScreen(new GuiQuestLinesEditor(this));
+        } else if(btn.getButtonID() == 4)
+        {
+            if(cvQuest.getQuestButtons().size() <= 0) return;
+            List<Integer> claimIdList = new ArrayList<>();
+            for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons())
+            {
+                IQuest q = pbQuest.getStoredValue().getValue();
+                if(q.getRewards().size() > 0 && q.canClaim(mc.player)) claimIdList.add(pbQuest.getStoredValue().getID());
+            }
+            
+            int[] cIDs = new int[claimIdList.size()];
+            for(int i = 0; i < cIDs.length; i++)
+            {
+                cIDs[i] = claimIdList.get(i);
+            }
+            
+            NBTTagCompound tags = new NBTTagCompound();
+            tags.setIntArray("questID", cIDs);
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
         }
+    }
+    
+    private void refreshContent()
+    {
+        if(selectedLineId >= 0)
+        {
+            selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);
+            if(selectedLine == null) selectedLineId = -1;
+        } else
+        {
+            selectedLine = null;
+        }
+        
+        cvQuest.setQuestLine(selectedLine);
+        
+        if(selectedLine != null)
+        {
+            paDesc.setText(QuestTranslation.translate(selectedLine.getUnlocalisedDescription()));
+        } else
+        {
+            paDesc.setText("");
+        }
+        
+        cvDesc.refreshScrollBounds();
+        
+        scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
     }
 }

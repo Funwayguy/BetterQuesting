@@ -6,6 +6,7 @@ import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -176,7 +177,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     {
         int cvWidth = invitePanel.getTransform().getWidth();
         List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
-        int elSize = mc.fontRenderer.getStringWidth("...");
+        int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
         
         for(int i = 0; i < invites.size(); i++)
         {
@@ -192,7 +193,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             invitePanel.addPanel(btnJoin);
             
             String pName = party.getName();
-            if(mc.fontRenderer.getStringWidth(pName) > cvWidth - 58)
+            if(RenderUtils.getStringWidth(pName, mc.fontRenderer) > cvWidth - 58)
             {
                 pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
             }

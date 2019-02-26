@@ -6,7 +6,6 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
@@ -41,14 +40,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ITask task = TaskRegistry.INSTANCE.createTask(loc);
@@ -69,33 +61,22 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 			if(task != null)
 			{
 				task.readFromNBT(jsonTask);
-				
-				if(index >= 0)
-				{
-					add(index, task);
-				} else
-				{
-					unassigned.add(task);
-				}
 			} else
 			{
-				TaskPlaceholder tph = new TaskPlaceholder();
-				tph.setTaskConfigData(jsonTask);
-				
-				if(index >= 0)
-				{
-					add(index, tph);
-				} else
-				{
-					unassigned.add(tph);
-				}
+				task = new TaskPlaceholder();
+                ((TaskPlaceholder)task).setTaskConfigData(jsonTask);
 			}
+				
+            if(index >= 0)
+            {
+                add(index, task);
+            } else
+            {
+                unassigned.add(task);
+            }
 		}
 		
-		for(ITask t : unassigned)
-		{
-			add(nextID(), t);
-		}
+		for(ITask t : unassigned) add(nextID(), t);
 	}
 	
 	@Override
@@ -118,14 +99,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	{
 		for(int i = 0; i < json.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			ITask task = getValue(index);

@@ -25,17 +25,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
@@ -109,9 +108,8 @@ public class BetterQuesting
 		
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
-        
-        ModContainer activeMod = Loader.instance().activeModContainer();
-		if(activeMod != null && "${version}".equalsIgnoreCase(activeMod.getVersion()))
+  
+		if(FMLLaunchHandler.isDeobfuscatedEnvironment())
 		{
 			manager.registerCommand(new BQ_CommandDebug());
 		}

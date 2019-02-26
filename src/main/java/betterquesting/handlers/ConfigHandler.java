@@ -1,10 +1,9 @@
 package betterquesting.handlers;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.config.Configuration;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.core.BetterQuesting;
+import net.minecraftforge.common.config.Configuration;
+import org.apache.logging.log4j.Level;
 
 public class ConfigHandler
 {
@@ -28,22 +27,5 @@ public class ConfigHandler
 		BQ_Settings.dirtyMode = config.getBoolean("Experimental Dirty Mode", Configuration.CATEGORY_GENERAL, true, "Use the experimental system that only saves the database in edit mode or when modified.)");
 		
 		config.save();
-		
-		BetterQuesting.logger.log(Level.INFO, "Loaded configs...");
-	}
-	
-	/**
-	 * Returns a compound tag representing the configuration settings that need to be synchronized between server and client
-	 * @return
-	 */
-	public static NBTTagCompound getServerConfigs()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		
-		return tags;
-	}
-	
-	public static void setServerConfigs(NBTTagCompound tags)
-	{
 	}
 }

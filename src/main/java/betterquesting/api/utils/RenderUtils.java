@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 // TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
@@ -96,7 +97,7 @@ public class RenderUtils
 			{
 				GlStateManager.pushMatrix();
 				
-				int w = font.getStringWidth(text);
+				int w = getStringWidth(text, font);
 				float tx;
 				float ty;
 				float s = 1F;
@@ -288,8 +289,8 @@ public class RenderUtils
 			if(!(i1 == i2 || i1 < 0 || i2 < 0 || i1 > lineSize || i2 > lineSize))
 			{
 				String lastFormat = FontRenderer.getFormatFromString(list.get(i));
-				int x1 = renderer.getStringWidth(lastFormat + noFormat.get(i).substring(0, i1));
-				int x2 = renderer.getStringWidth(lastFormat + noFormat.get(i).substring(0, i2));
+				int x1 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i1), renderer);
+				int x2 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i2), renderer);
 				
 				drawHighlightBox(x + x1, y + (renderer.FONT_HEIGHT * (i - start)), x + x2, y + (renderer.FONT_HEIGHT * (i - start)) + renderer.FONT_HEIGHT, highlightColor);
 			}
@@ -316,8 +317,8 @@ public class RenderUtils
 		
 		if(i1 != i2)
 		{
-			int x1 = renderer.getStringWidth(string.substring(0, i1));
-			int x2 = renderer.getStringWidth(string.substring(0, i2));
+			int x1 = getStringWidth(string.substring(0, i1), renderer);
+			int x2 = getStringWidth(string.substring(0, i2), renderer);
 			
 			drawHighlightBox(x + x1, y, x + x2, y + renderer.FONT_HEIGHT, highlightColor);
 		}
@@ -556,11 +557,6 @@ public class RenderUtils
         return list;
 	}
 	
-	/**
-	 * Similar to normally splitting a string with the fontRenderer however this variant does
-	 * not attempt to preserve the formatting between lines. This is particularly important when the
-	 * index positions in the text are required to match the original unwrapped text.
-	 */
 	public static List<String> splitString(String str, int wrapWidth, FontRenderer font)
 	{
 		List<String> list = new ArrayList<>();
@@ -607,7 +603,7 @@ public class RenderUtils
 		
 		for(; i < text.length(); i++)
 		{
-			if(font.getStringWidth(text.substring(0, i + 1)) > x)
+			if(getStringWidth(text.substring(0, i + 1), font) > x)
 			{
 				break;
 			}
@@ -782,7 +778,7 @@ public class RenderUtils
 
 		for (String textLine : textLines)
 		{
-			int textLineWidth = font.getStringWidth(textLine);
+			int textLineWidth = getStringWidth(textLine, font);
 
 			if (textLineWidth > tooltipTextWidth)
 			{
@@ -835,7 +831,7 @@ public class RenderUtils
 
 				for (String line : wrappedLine)
 				{
-					int lineWidth = font.getStringWidth(line);
+					int lineWidth = getStringWidth(line, font);
 					if (lineWidth > wrappedTooltipWidth)
 					{
 						wrappedTooltipWidth = lineWidth;
@@ -924,5 +920,53 @@ public class RenderUtils
 		RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.popMatrix();
+    }
+    
+    /**
+     *  A version of getStringWidth that actually behaves according to the format resetting rules of colour codes. Minecraft's built in one is busted!
+     */
+    public static int getStringWidth(String text, FontRenderer font)
+    {
+        if (text == null || text.length() == 0) return 0;
+        
+        int i = 0;
+        boolean flag = false;
+
+        for (int j = 0; j < text.length(); ++j)
+        {
+            char c0 = text.charAt(j);
+            int k = font.getCharWidth(c0);
+
+            if (k < 0 && j < text.length() - 1) // k should only be negative when the section sign has been used!
+            {
+                ++j;
+                c0 = text.charAt(j);
+
+                if (c0 != 'l' && c0 != 'L')
+                {
+                    int ci = "0123456789abcdefklmnor".indexOf(String.valueOf(c0).toLowerCase(Locale.ROOT).charAt(0));
+                    //if (c0 == 'r' || c0 == 'R') // Minecraft's original implemention. This is broken...
+                    if(ci < 16 || ci == 21) // Colour or reset code!
+                    {
+                        flag = false;
+                    }
+                }
+                else
+                {
+                    flag = true;
+                }
+
+                k = 0;
+            }
+
+            i += k;
+
+            if (flag && k > 0)
+            {
+                ++i;
+            }
+        }
+
+        return i;
     }
 }

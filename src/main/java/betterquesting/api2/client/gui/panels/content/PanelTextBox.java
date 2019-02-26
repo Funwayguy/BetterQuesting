@@ -117,7 +117,7 @@ public class PanelTextBox implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		
-		int w = fr.getStringWidth(text);
+		int w = RenderUtils.getStringWidth(text, fr);
 		int bw = bounds.getWidth();
 		
 		if(bw <= 0)

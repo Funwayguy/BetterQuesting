@@ -8,6 +8,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.BigItemStack;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -155,7 +156,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         cvUserList.setScrollDriverY(scUserList);
         
         List<UUID> partyMemList = party.getMembers();
-        int elSize = mc.fontRenderer.getStringWidth("...");
+        int elSize = RenderUtils.getStringWidth("...", fontRenderer);
         int cvWidth = cvUserList.getTransform().getWidth();
         boolean hardcore = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
         ItemTexture txHeart = new ItemTexture(new BigItemStack(BetterQuesting.extraLife));
@@ -165,7 +166,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             UUID mid = partyMemList.get(i);
             String mName = NameCache.INSTANCE.getName(mid);
             
-            if(mc.fontRenderer.getStringWidth(mName) > cvWidth - 58)
+            if(RenderUtils.getStringWidth(mName, fontRenderer) > cvWidth - 58)
             {
                 mName = mc.fontRenderer.trimStringToWidth(mName, cvWidth - 58 - elSize) + "...";
             }

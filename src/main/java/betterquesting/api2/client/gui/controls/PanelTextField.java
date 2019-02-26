@@ -669,7 +669,7 @@ public class PanelTextField<T> implements IGuiPanel
                     
                     if(selectEnd >= idx && selectEnd < idx + s.length() + (y == lines.size() - 1 ? 1 : 0))
                     {
-                        x = font.getStringWidth(lastFormat + s.substring(0, selectEnd - idx));
+                        x = RenderUtils.getStringWidth(lastFormat + s.substring(0, selectEnd - idx), font);
                         break;
                     }
                     
@@ -694,7 +694,7 @@ public class PanelTextField<T> implements IGuiPanel
                 cursorLine.h = font.FONT_HEIGHT;
             } else
             {
-                int x = font.getStringWidth(text.substring(0, selectEnd));
+                int x = RenderUtils.getStringWidth(text.substring(0, selectEnd), font);
                 int sx = getScrollX();
                 
                 if(x < sx)
@@ -723,7 +723,7 @@ public class PanelTextField<T> implements IGuiPanel
         if(!canWrap)
         {
             scrollHeight = 0;
-            scrollWidth = Math.max(0, font.getStringWidth(text) - (transform.getWidth() - 8));
+            scrollWidth = Math.max(0, RenderUtils.getStringWidth(text, font) - (transform.getWidth() - 8));
         } else
         {
             scrollWidth = 0;

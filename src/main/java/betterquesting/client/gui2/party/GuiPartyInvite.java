@@ -4,6 +4,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -91,7 +92,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         cvNameList.setScrollDriverY(scNameScroll);
         
         int listWidth = cvBackground.getTransform().getWidth() - 64;
-        int nameSize = mc.fontRenderer.getStringWidth("________________");
+        int nameSize = RenderUtils.getStringWidth("________________", fontRenderer);
         int columnNum = listWidth/nameSize;
         
         List<String> nameList = NameCache.INSTANCE.getAllNames();
