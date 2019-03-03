@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.controls;
 
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.controls.io.FloatSimpleIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -63,39 +64,8 @@ public class PanelTextField<T> implements IGuiPanel
         
 		// Dummy value drivers
 		
-		scrollX = new IValueIO<Float>()
-		{
-			private float v = 0F;
-			
-			@Override
-			public Float readValue()
-			{
-				return v;
-			}
-			
-			@Override
-			public void writeValue(Float value)
-			{
-				this.v = MathHelper.clamp(value, 0F, 1F);
-			}
-		};
-		
-		scrollY = new IValueIO<Float>()
-		{
-			private float v = 0F;
-			
-			@Override
-			public Float readValue()
-			{
-				return v;
-			}
-			
-			@Override
-			public void writeValue(Float value)
-			{
-				this.v = MathHelper.clamp(value, 0F, 1F);
-			}
-		};
+		scrollX = new FloatSimpleIO();
+		scrollY = new FloatSimpleIO();
 		
         this.setText(text);
     }

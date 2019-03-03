@@ -50,7 +50,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
 	{
 		super(parent);
 		this.callback = callback;
-		this.curDirectory = directory.getAbsoluteFile();
+		this.curDirectory = directory == null ? null : directory.getAbsoluteFile();
 		this.filter = filter;
 	}
 	
@@ -72,7 +72,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
     
-        txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), curDirectory.getPath()).setAlignment(1);
+        txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), curDirectory == null ? "*" : curDirectory.getAbsolutePath()).setAlignment(1);
         txtTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txtTitle);
     
@@ -124,20 +124,20 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
                     this.addPanel(btnAdd);
                 } else
                 {
-                    // Keeps the scrolling region from auto-cropping when no files are present.
+                    // Keeps the scrolling region's left side from auto-cropping when no files are present to select.
                     PanelGeneric pnDummy = new PanelGeneric(new GuiRectangle(0, index * 16, 16, 16, 0), null);
                     this.addPanel(pnDummy);
                 }
                 
-                PanelButtonStorage<File> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), -1, QuestTranslation.translate(entry.getName()), entry);
+                PanelButtonStorage<File> btnEdit = new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), -1, curDirectory == null ? entry.getAbsolutePath() : entry.getName(), entry);
                 btnEdit.setActive(entry.isDirectory());
                 btnEdit.setCallback(value -> {
                     curDirectory = value;
                     this.setCurDirectory(curDirectory);
-                    txtTitle.setText(curDirectory.getAbsolutePath());
+                    txtTitle.setText(curDirectory == null ? "*" : curDirectory.getAbsolutePath());
                 });
                 this.addPanel(btnEdit);
-    
+                
                 PanelGeneric pnIco = new PanelGeneric(new GuiRectangle(width - 16, index * 16, 16, 16, 0), entry.isDirectory() ? PresetIcon.ICON_FOLDER_OPEN.getTexture() : PresetIcon.ICON_FILE.getTexture());
                 this.addPanel(pnIco);
                 
@@ -152,18 +152,18 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         cvRight.addPanel(scDb);
         cvDirectory.setScrollDriverY(scDb);
         
-        PanelButtonStorage<File> btnNew = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -1, "", curDirectory);
-        btnNew.setIcon(PresetIcon.ICON_DIR_UP.getTexture());
-        btnNew.setCallback(value -> {
-            File tmp = curDirectory.getParentFile();
-            
-            if(tmp != null)
+        PanelButton btnNew = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -1, "")
+        {
+            @Override
+            public void onButtonClick()
             {
-                curDirectory = tmp;
+                if(curDirectory == null) return;
+                curDirectory = curDirectory.getParentFile();
                 cvDirectory.setCurDirectory(curDirectory);
-                txtTitle.setText(curDirectory.getAbsolutePath());
+                txtTitle.setText(curDirectory == null ? "*" : curDirectory.getAbsolutePath());
             }
-        });
+        };
+        btnNew.setIcon(PresetIcon.ICON_DIR_UP.getTexture());
         cvRight.addPanel(btnNew);
         
         // === DIVIDERS ===

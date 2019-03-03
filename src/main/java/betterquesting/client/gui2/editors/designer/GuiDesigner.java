@@ -2,7 +2,6 @@ package betterquesting.client.gui2.editors.designer;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -24,7 +23,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.client.toolbox.IToolTab;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
@@ -131,7 +130,20 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         tabTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 20, 16, -32), 0), "?").setAlignment(1).setColor(PresetColor.TEXT_HEADER.getColor());
         cvTray.addPanel(tabTitle);
         
-        IToolboxTool lastTool = toolController == null ? null : toolController.getActiveTool();
+        if(toolController != null)
+        {
+            cvQuest.addPanel(toolController);
+            cvQuest.setScrollDriverX(toolController.getScrollX());
+            cvQuest.setScrollDriverY(toolController.getScrollY());
+            toolController.changeCanvas(cvQuest);
+        } else
+        {
+            toolController = new PanelToolController(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), -1), cvQuest);
+            cvBackground.addPanel(toolController);
+            cvQuest.setScrollDriverX(toolController.getScrollX());
+            cvQuest.setScrollDriverY(toolController.getScrollY());
+        }
+        /*IToolboxTool lastTool = toolController == null ? null : toolController.getActiveTool();
         toolController = new PanelToolController(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), -1), cvQuest);
         cvBackground.addPanel(toolController);
         cvQuest.setScrollDriverX(toolController.getScrollX());
@@ -140,7 +152,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         {
             lastTool.disableTool();
             toolController.setActiveTool(lastTool);
-        }
+        }*/
         
         refreshToolTab();
     }

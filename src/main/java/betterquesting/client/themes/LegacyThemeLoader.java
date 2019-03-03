@@ -13,10 +13,7 @@ public class LegacyThemeLoader
     
 	protected IGuiTheme loadTheme(JsonObject json, String domain)
 	{
-		if(json == null)
-		{
-			return null;
-		}
+		if(json == null) return null;
 		
 		String name = JsonHelper.GetString(json, "name", "Unnamed Theme");
 		String texture = JsonHelper.GetString(json, "texture", "betterquesting:textures/gui/editor_gui.png");

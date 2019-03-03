@@ -73,8 +73,6 @@ public class BetterQuesting
     	
     	proxy.registerHandlers();
     	
-    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
-    	
     	PacketTypeRegistry.INSTANCE.init();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
@@ -96,7 +94,6 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-    	proxy.registerExpansions();
     }
 	
 	@EventHandler
@@ -109,10 +106,7 @@ public class BetterQuesting
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
   
-		if(FMLLaunchHandler.isDeobfuscatedEnvironment())
-		{
-			manager.registerCommand(new BQ_CommandDebug());
-		}
+		if(FMLLaunchHandler.isDeobfuscatedEnvironment()) manager.registerCommand(new BQ_CommandDebug());
 		
 		SaveLoadHandler.INSTANCE.loadDatabases(server);
 	}

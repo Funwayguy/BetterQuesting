@@ -9,10 +9,7 @@ import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.IPanelButton;
-import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.controls.PanelButtonQuest;
-import betterquesting.api2.client.gui.controls.PanelButtonStorage;
+import betterquesting.api2.client.gui.controls.*;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -22,8 +19,10 @@ import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
@@ -45,9 +44,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 {
     private IQuestLine selectedLine = null;
     private int selectedLineId = -1;
-    private int lastScrollX = 0;
-    private int lastScrollY = 0;
-    private float lastZoom = 1F;
     
     private PanelButtonStorage[] qlBtns;
     private CanvasQuestLine cvQuest;
@@ -143,7 +139,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
         CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
-    
+        
+        CanvasQuestLine oldCvQuest = cvQuest;
         cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
         cvFrame.addPanel(cvQuest);
         
@@ -161,13 +158,30 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         if(selectedLine != null)
         {
             cvQuest.setQuestLine(selectedLine);
-            cvQuest.setZoom(lastZoom);
-            cvQuest.setScrollX(lastScrollX);
-            cvQuest.setScrollY(lastScrollY);
+            
+            if(oldCvQuest != null)
+            {
+                cvQuest.setZoom(oldCvQuest.getZoom());
+                cvQuest.setScrollX(oldCvQuest.getScrollX());
+                cvQuest.setScrollY(oldCvQuest.getScrollY());
+                cvQuest.refreshScrollBounds();
+                cvQuest.updatePanelScroll();
+            }
             
             paDesc.setText(QuestTranslation.translate(selectedLine.getUnlocalisedDescription()));
+            cvDesc.refreshScrollBounds();
             scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
         }
+        
+        // === SHORTCUTS ===
+        
+        PanelButton fitView = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, -16, -16, 16, 16, -2), 5, "");
+        fitView.setIcon(PresetIcon.ICON_BOX_FIT.getTexture());
+        cvFrame.addPanel(fitView);
+        
+        claimAll = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, -32, -16, 16, 16, -2), 4, "");
+        claimAll.setIcon(PresetIcon.ICON_CHEST.getTexture());
+        cvFrame.addPanel(claimAll);
         
         // === DECORATIVE LINES ===
     
@@ -192,9 +206,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         PanelLine paLine3 = new PanelLine(ls3, le3, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
         cvBackground.addPanel(paLine3);
         
-        // TODO: Make this a proper button thing
-        claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, -1), 4, "!");
-        cvFrame.addPanel(claimAll);
+        refreshClaimAll();
     }
     
     @Override
@@ -232,6 +244,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             cvQuest.setQuestLine(ql);
             paDesc.setText(QuestTranslation.translate(ql.getUnlocalisedDescription()));
             cvDesc.refreshScrollBounds();
+            refreshClaimAll();
             
             scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
             
@@ -241,14 +254,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             @SuppressWarnings("unchecked")
             DBEntry<IQuest> quest = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
             GuiHome.bookmark = new GuiQuest(this, quest.getID());
-            this.lastScrollX = cvQuest.getScrollX();
-            this.lastScrollY = cvQuest.getScrollY();
-            this.lastZoom = cvQuest.getZoom();
             
             mc.displayGuiScreen(GuiHome.bookmark);
         } else if(btn.getButtonID() == 3)
         {
-            //mc.displayGuiScreen(new GuiQuestLineEditorA(this));
             mc.displayGuiScreen(new GuiQuestLinesEditor(this));
         } else if(btn.getButtonID() == 4)
         {
@@ -269,6 +278,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             NBTTagCompound tags = new NBTTagCompound();
             tags.setIntArray("questID", cIDs);
             PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
+        } else if(btn.getButtonID() == 5)
+        {
+            if(cvQuest.getQuestLine() == null) return;
+            cvQuest.fitToWindow();
+            
         }
     }
     
@@ -294,7 +308,28 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
         
         cvDesc.refreshScrollBounds();
+        refreshClaimAll();
         
         scDesc.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
+    }
+    
+    private void refreshClaimAll()
+    {
+        if(cvQuest.getQuestLine() == null || cvQuest.getQuestButtons().size() <= 0)
+        {
+            claimAll.setActive(false);
+            return;
+        }
+        
+        for(PanelButtonQuest btn : cvQuest.getQuestButtons())
+        {
+            if(btn.getStoredValue().getValue().canClaim(mc.player))
+            {
+                claimAll.setActive(true);
+                return;
+            }
+        }
+        
+        claimAll.setActive(false);
     }
 }

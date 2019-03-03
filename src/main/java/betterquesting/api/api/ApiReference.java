@@ -7,14 +7,17 @@ import betterquesting.api.network.IPacketSender;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.party.IPartyDatabase;
-import betterquesting.api.questing.rewards.IRewardRegistry;
-import betterquesting.api.questing.tasks.ITaskRegistry;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.api.storage.INameCache;
 import betterquesting.api.storage.IQuestSettings;
 import betterquesting.api2.client.gui.themes.IResourceReg;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
+import betterquesting.api2.registry.IFactoryData;
+import betterquesting.api2.registry.IRegistry;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class ApiReference // Note to self: Don't make these client side only. It'll just crash servers regardless of which are used
 {
@@ -23,8 +26,8 @@ public class ApiReference // Note to self: Don't make these client side only. It
 	public static final ApiKey<IPartyDatabase> PARTY_DB = new ApiKey<>();
 	public static final ApiKey<ILifeDatabase> LIFE_DB = new ApiKey<>();
 	
-	public static final ApiKey<ITaskRegistry> TASK_REG = new ApiKey<>();
-	public static final ApiKey<IRewardRegistry> REWARD_REG = new ApiKey<>();
+	public static final ApiKey<IRegistry<IFactoryData<ITask, NBTTagCompound>, ITask>> TASK_REG = new ApiKey<>();
+	public static final ApiKey<IRegistry<IFactoryData<IReward, NBTTagCompound>, IReward>> REWARD_REG = new ApiKey<>();
 	
 	public static final ApiKey<IPacketSender> PACKET_SENDER = new ApiKey<>();
 	public static final ApiKey<IPacketRegistry> PACKET_REG = new ApiKey<>();

@@ -8,7 +8,7 @@ import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.toolbox.IToolTab;
-import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 
 public class ToolboxTabMain implements IToolTab

@@ -97,19 +97,15 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         oreVariants.clear();
         
         BigItemStack stack = getStoredValue();
+        if(stack == null) return;
         
-        if(stack == null)
-        {
-            return;
-        }
-        
-        if(stack.oreDict == null || stack.oreDict.length() <= 0)
+        if(!stack.hasOreDict())
         {
             oreVariants.add(stack);
             return;
         }
         
-        for(ItemStack iStack : OreDictionary.getOres(stack.oreDict))
+        for(ItemStack iStack : stack.getOreIngredient().getMatchingStacks())
         {
             if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
             {

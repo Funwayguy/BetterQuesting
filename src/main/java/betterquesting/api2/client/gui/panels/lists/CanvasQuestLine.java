@@ -1,5 +1,6 @@
-package betterquesting.client.gui2;
+package betterquesting.api2.client.gui.panels.lists;
 
+import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
@@ -12,19 +13,16 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
-import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -102,84 +100,27 @@ public class CanvasQuestLine extends CanvasScrolling
             this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize, 1), new SimpleTexture(new ResourceLocation(bgString), new GuiRectangle(0, 0, 256, 256))));
         }
         
-        // Used later to center focus the quest line within the window
-        boolean flag = false;
-        int minX = 0;
-        int minY = 0;
-        int maxX = 0;
-        int maxY = 0;
-        
         HashMap<Integer, PanelButtonQuest> questBtns = new HashMap<>();
         
         for(DBEntry<IQuestLineEntry> qle : line.getEntries())
         {
-            IQuest quest = QuestDatabase.INSTANCE.getValue(qle.getID());
+            IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(qle.getID());
             
-            if(!QuestCache.isQuestShown(quest, pid, player))
-            {
-                continue;
-            }
-            
-            /*EnumQuestState qState = quest.getState(pid);
-            IGuiTexture txFrame = null;
-            IGuiColor txIconCol = null;
-            boolean main = quest.getProperty(NativeProps.MAIN);
-            boolean lock = false;
-            
-            switch(qState)
-            {
-                case LOCKED:
-                    txFrame = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
-                    txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
-                    lock = true;
-                    break;
-                case UNLOCKED:
-                    txFrame = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
-                    txIconCol = PresetColor.QUEST_ICON_UNLOCKED.getColor();
-                    break;
-                case UNCLAIMED:
-                    txFrame = main ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
-                    txIconCol = PresetColor.QUEST_ICON_PENDING.getColor();
-                    break;
-                case COMPLETED:
-                    txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
-                    txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
-                    break;
-            }*/
+            if(!QuestCache.isQuestShown(quest, pid, player)) continue;
             
             GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
             PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", new DBEntry<>(qle.getID(), quest));
-            /*IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
-            paBtn.setTextures(btnTx, btnTx, btnTx);
-            paBtn.setIcon(new OreDictTexture(1F, quest.getProperty(NativeProps.ICON), false, true), 4);
-            paBtn.setTooltip(quest.getTooltip(player));
-            paBtn.setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);*/
             
             this.addPanel(paBtn);
             this.btnList.add(paBtn);
             questBtns.put(qle.getID(), paBtn);
-            
-            if(!flag)
-            {
-                minX = rect.getX();
-                minY = rect.getY();
-                maxX = minX + rect.getWidth();
-                maxY = minY + rect.getHeight();
-                flag = true;
-            } else
-            {
-                minX = Math.min(minX, rect.getX());
-                minY = Math.min(minY, rect.getY());
-                maxX = Math.max(maxX, rect.getX() + rect.getWidth());
-                maxY = Math.max(maxY, rect.getY() + rect.getHeight());
-            }
         }
         
         for(Entry<Integer, PanelButtonQuest> entry : questBtns.entrySet())
         {
             DBEntry<IQuest> quest = entry.getValue().getStoredValue();
             
-            List<DBEntry<IQuest>> reqList = QuestDatabase.INSTANCE.bulkLookup(quest.getValue().getRequirements());
+            List<DBEntry<IQuest>> reqList = QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(quest.getValue().getRequirements());
             
             if(reqList.size() <= 0) continue;
             
@@ -220,12 +161,36 @@ public class CanvasQuestLine extends CanvasScrolling
             }
         }
         
-        float frameW = getTransform().getWidth();
-        float frameH = getTransform().getHeight();
+        fitToWindow();
+    }
+    
+    public void fitToWindow()
+    {
+        // Used later to center focus the quest line within the window
+        boolean flag = false;
+        int minX = 0;
+        int minY = 0;
+        int maxX = 0;
+        int maxY = 0;
         
-        if(frameW <= 0 || frameH <= 0)
+        for(PanelButtonQuest btn : btnList)
         {
-            return;
+            GuiRectangle rect = btn.rect;
+            
+            if(!flag)
+            {
+                minX = rect.getX();
+                minY = rect.getY();
+                maxX = minX + rect.getWidth();
+                maxY = minY + rect.getHeight();
+                flag = true;
+            } else
+            {
+                minX = Math.min(minX, rect.getX());
+                minY = Math.min(minY, rect.getY());
+                maxX = Math.max(maxX, rect.getX() + rect.getWidth());
+                maxY = Math.max(maxY, rect.getY() + rect.getHeight());
+            }
         }
         
         minX -= margin;
@@ -233,14 +198,12 @@ public class CanvasQuestLine extends CanvasScrolling
         maxX += margin;
         maxY += margin;
         
-        float scale = Math.min(frameW/(maxX - minX), frameH/(maxY - minY));
-        scale = MathHelper.clamp(scale, 0.25F, 2F);
+        this.setZoom(Math.min(getTransform().getWidth()/(float)(maxX - minX), getTransform().getHeight()/(float)(maxY - minY)));
+        this.refreshScrollBounds();
         
-        this.setZoom(scale);
-        int scrollX = Math.round((maxX - minX)/2F - (frameW/scale)/2F);
-        int scrollY = Math.round((maxY - minY)/2F - (frameH/scale)/2F);
-        
-        this.setScrollX(scrollX);
-        this.setScrollY(scrollY);
+        IGuiRect bounds = getScrollBounds();
+        this.setScrollX(bounds.getX() + bounds.getWidth()/2);
+        this.setScrollY(bounds.getY() + bounds.getHeight()/2);
+        this.updatePanelScroll();
     }
 }

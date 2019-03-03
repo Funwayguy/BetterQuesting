@@ -3,11 +3,11 @@ package betterquesting.core.proxies;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.GuiBuilder;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
@@ -27,7 +27,6 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
 
@@ -62,7 +61,8 @@ public class ClientProxy extends CommonProxy
 		
 		try
 		{
-			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
+		    //String tmp = "defaultResourcePacks";
+			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao");
 			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
 			QuestResourcesFile qRes2 = new QuestResourcesFile();
 			list.add(qRes1);
@@ -71,7 +71,7 @@ public class ClientProxy extends CommonProxy
 			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes2); // Make sure the pack(s) are visible to everything
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loaders", e);
+			BetterQuesting.logger.error("Unable to install questing resource loaders", e);
 		}
 		
 		ThemeRegistry.INSTANCE.setDefaultGuiHook(GuiBuilder.INSTANCE);
@@ -92,6 +92,8 @@ public class ClientProxy extends CommonProxy
 		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
 		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
 		registerItemModel(BetterQuesting.guideBook);
+		
+		ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -131,13 +133,5 @@ public class ClientProxy extends CommonProxy
 		}
 		
 		ModelLoader.setCustomModelResourceLocation(item, meta, model);
-	}
-	
-	@Override
-	public void registerExpansions()
-	{
-		super.registerExpansions();
-		
-		ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 }

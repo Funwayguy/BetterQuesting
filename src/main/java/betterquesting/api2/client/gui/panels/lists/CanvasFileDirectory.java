@@ -2,27 +2,27 @@ package betterquesting.api2.client.gui.panels.lists;
 
 import betterquesting.api2.client.gui.misc.IGuiRect;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class CanvasFileDirectory extends CanvasSearch<File, File>
 {
     private static final FileSort sorter = new FileSort();
     private final FileFilter filter;
     private File curDir;
     
-    public CanvasFileDirectory(IGuiRect rect, @Nonnull File dirStart, FileFilter filter)
+    public CanvasFileDirectory(IGuiRect rect, File dirStart, FileFilter filter)
     {
         super(rect);
         this.filter = filter;
         this.curDir = dirStart;
         
-        if(!curDir.isDirectory()) curDir = curDir.getParentFile();
+        if(curDir != null && !curDir.isDirectory()) curDir = curDir.getParentFile();
     }
     
-    public void setCurDirectory(@Nonnull File file)
+    public void setCurDirectory(File file)
     {
         curDir = file;
         this.refreshSearch();
@@ -32,7 +32,14 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File>
     @Override
     protected Iterator<File> getIterator()
     {
-        File[] files = !curDir.isDirectory() ? new File[0] : curDir.listFiles(filter);
+        File[] files;
+        if(curDir == null)
+        {
+            files = File.listRoots();
+        } else
+        {
+            files = !curDir.isDirectory() ? new File[0] : curDir.listFiles(filter);
+        }
         if(files == null) files = new File[0];
         List<File> fList = Arrays.asList(files);
         fList.sort(sorter);
@@ -55,7 +62,7 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File>
                 return 0;
             } else if(f1.isDirectory() == f2.isDirectory())
             {
-                return f1.getName().compareTo(f2.getName());
+                return f1.getName().toLowerCase().compareTo(f2.getName().toLowerCase());
             } else
             {
                 return f1.isDirectory() ? -1 : 1;

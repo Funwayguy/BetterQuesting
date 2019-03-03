@@ -260,6 +260,7 @@ public class JsonHelper
 		
 		try
 		{
+		    if(fileOut.getParentFile() != null) fileOut.getParentFile().mkdirs();
 		    Files.copy(fileIn.toPath(), fileOut.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} catch(Exception e)
 		{
@@ -355,12 +356,9 @@ public class JsonHelper
 		ResourceLocation iRes = Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem());
 		json.setString("id", iRes == null ? "" : iRes.toString());
 		json.setInteger("Count", stack.stackSize);
-		json.setString("OreDict", stack.oreDict);
+		json.setString("OreDict", stack.getOreDict());
 		json.setInteger("Damage", stack.getBaseStack().getItemDamage());
-		if(stack.HasTagCompound())
-		{
-			json.setTag("tag", stack.GetTagCompound());
-		}
+		if(stack.HasTagCompound()) json.setTag("tag", stack.GetTagCompound());
 		return json;
 	}
 	
@@ -368,13 +366,7 @@ public class JsonHelper
 	{
 		String name = json.hasKey("FluidName", 8) ? json.getString("FluidName") : "water";
 		int amount = json.getInteger("Amount");
-		NBTTagCompound tags = null;
-		
-		if(json.hasKey("Tag", 10))
-		{
-			tags = json.getCompoundTag("Tag");
-		}
-		
+		NBTTagCompound tags = !json.hasKey("Tag", 10) ? null : json.getCompoundTag("Tag");
 		Fluid fluid = FluidRegistry.getFluid(name);
 		
 		return PlaceholderConverter.convertFluid(fluid, name, amount, tags);

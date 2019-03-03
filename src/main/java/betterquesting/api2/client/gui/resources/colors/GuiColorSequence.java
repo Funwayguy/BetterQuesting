@@ -49,6 +49,7 @@ public class GuiColorSequence implements IGuiColor
     
     public IGuiColor getCurrentColor()
     {
+        if(colors.length <= 0) return null;
         return colors[(int)Math.floor((System.currentTimeMillis()/1000D)%(colors.length * interval) / interval)];
     }
     

@@ -376,14 +376,9 @@ public class EventHandler
 	@SideOnly(Side.CLIENT)
 	public void onDataUpdated(DatabaseEvent.Update event)
 	{
-		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
-		
 		// TODO: Change this to a proper panel event. Also explain WHAT updated
-        // TODO: This NEEDS to be thread safe. In rare cases the game WILL crash!
-		if(screen instanceof INeedsRefresh)
-		{
-			((INeedsRefresh)screen).refreshGui();
-		}
+		final GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+		if(screen instanceof INeedsRefresh) Minecraft.getMinecraft().addScheduledTask(((INeedsRefresh)screen)::refreshGui);
 	}
 	
 	@SubscribeEvent

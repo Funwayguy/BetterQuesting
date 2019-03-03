@@ -20,13 +20,13 @@ public class OreDictTexture extends SlideShowTexture
     {
         List<ItemTexture> list = new ArrayList<>();
         
-        if(stack.oreDict == null || stack.oreDict.length() <= 0)
+        if(!stack.hasOreDict())
         {
             list.add(new ItemTexture(stack));
             return list;
         }
         
-        for(ItemStack iStack : OreDictionary.getOres(stack.oreDict))
+        for(ItemStack iStack : stack.getOreIngredient().getMatchingStacks())
         {
             if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
             {

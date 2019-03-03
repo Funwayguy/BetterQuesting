@@ -20,7 +20,7 @@ public interface IGuiTheme
 	@Nullable
 	IGuiColor getColor(ResourceLocation key);
 	
-	/** Use this if you wish to start replacing the GUI layouts and not just textures*/
+	/** Use this if you wish to start replacing the GUI layouts and not just textures. May change this hook in the near future so don't bet on it staying around*/
 	@Nullable
     IGuiHook getGuiHook();
 }

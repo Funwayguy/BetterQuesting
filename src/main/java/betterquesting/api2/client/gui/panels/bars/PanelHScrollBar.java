@@ -1,12 +1,13 @@
 package betterquesting.api2.client.gui.panels.bars;
 
-import java.util.List;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
+import org.lwjgl.input.Mouse;
+
+import java.util.List;
 
 public class PanelHScrollBar implements IScrollBar
 {
@@ -192,4 +193,16 @@ public class PanelHScrollBar implements IScrollBar
 	{
 		this.scroll = MathHelper.clamp(value, 0F, 1F);
 	}
+	
+	@Override
+    public Float readValueRaw()
+    {
+        return readValue();
+    }
+    
+    @Override
+    public void writeValueRaw(Float value)
+    {
+        this.scroll = value;
+    }
 }

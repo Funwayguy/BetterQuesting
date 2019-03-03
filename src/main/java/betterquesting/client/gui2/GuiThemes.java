@@ -78,17 +78,15 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		List<IGuiTheme> themes = ThemeRegistry.INSTANCE.getAllThemes();
 		int width = canScroll.getTransform().getWidth();
 		
+		IGuiTheme curTheme = ThemeRegistry.INSTANCE.getCurrentTheme();
+		
 		for(int i = 0; i < themes.size(); i++)
 		{
 		    IGuiTheme theme = themes.get(i);
 			GuiRectangle trans = new GuiRectangle(0, i * 24, width, 24, 0);
 			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, 1, theme.getName(), theme.getID());
 			canScroll.addPanel(pbs);
-			
-			if(ThemeRegistry.INSTANCE.getCurrentTheme() == theme)
-			{
-				pbs.setActive(false);
-			}
+			pbs.setActive(curTheme == null || !curTheme.getID().equals(theme.getID()));
 		}
 		
 		PanelVScrollBar vsb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
@@ -181,10 +179,10 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		{
 			ResourceLocation res = ((PanelButtonStorage<ResourceLocation>)btn).getStoredValue();
 			
-			float scroll = scrollPanel.readValue();
+			float scroll = scrollPanel.readValueRaw();
 			ThemeRegistry.INSTANCE.setTheme(res);
 			this.initGui();
-			scrollPanel.writeValue(scroll);
+			scrollPanel.writeValueRaw(scroll);
 		}
 	}
 }

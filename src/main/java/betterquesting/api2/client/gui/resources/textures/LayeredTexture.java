@@ -34,12 +34,12 @@ public class LayeredTexture implements IGuiTexture
     @Override
     public ResourceLocation getTexture()
     {
-        return layers[0].getTexture();
+        return layers.length <= 0 ? null : layers[0].getTexture();
     }
     
     @Override
     public IGuiRect getBounds()
     {
-        return layers[0].getBounds();
+        return layers.length <= 0 ? null : layers[0].getBounds();
     }
 }

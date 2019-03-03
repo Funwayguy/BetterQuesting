@@ -227,16 +227,16 @@ public class ItemComparison
     public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
     {
         if(!nbtCheck) return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
-        return OreDictionaryMatch(new OreIngredient(name), tags, stack, partialNBT);
+        return OreDictionaryMatch(new OreIngredient(name), tags, stack, nbtCheck, partialNBT);
     }
     
     /**
      * Check if the item stack is part of the ore dictionary listing with the given ore ingredient while also comparing NBT tags
      */
-    public static boolean OreDictionaryMatch(OreIngredient ore, NBTTagCompound tags, ItemStack stack, boolean partialNBT)
+    public static boolean OreDictionaryMatch(OreIngredient ore, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
     {
         if(stack == null || ore == null) return false;
-        return ore.apply(stack) && CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT);
+        return ore.apply(stack) && (!nbtCheck || CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT));
     }
     
     /**

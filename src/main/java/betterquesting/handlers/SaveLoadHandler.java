@@ -135,10 +135,7 @@ public class SaveLoadHandler
 		{
 			String fsVer = JsonHelper.makeFileNameSafe(bVer);
 			
-			if(fsVer.length() <= 0)
-			{
-				fsVer = "pre-251";
-			}
+			if(fsVer.length() <= 0) fsVer = "pre-251";
 			
 			BetterQuesting.logger.warn("BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + cVer + "\"! Creating back ups...");
 			

@@ -38,6 +38,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
+@SuppressWarnings("WeakerAccess")
 public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
     private final ICallback<BigItemStack> callback;
@@ -202,13 +203,13 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             
             if(idx >= oreIds.length || idx < 0)
             {
-                itemStack.oreDict = "";
+                itemStack.setOreDict("");
                 ((PanelButtonStorage<Integer>)btn).setStoredValue(-1).setText("Ore: NONE");
                 itemPreview.setStoredValue(itemStack); // Refreshes OD
             } else
             {
-                itemStack.oreDict = OreDictionary.getOreName(oreIds[idx]);
-                ((PanelButtonStorage<Integer>)btn).setStoredValue(idx).setText("Ore: " + itemStack.oreDict);
+                itemStack.setOreDict(OreDictionary.getOreName(oreIds[idx]));
+                ((PanelButtonStorage<Integer>)btn).setStoredValue(idx).setText("Ore: " + itemStack.getOreDict());
                 itemPreview.setStoredValue(itemStack); // Refreshes OD
             }
         }

@@ -11,7 +11,7 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.BoxLine;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
-import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;

@@ -4,6 +4,7 @@ import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.controls.io.FloatSimpleIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -14,12 +15,13 @@ import betterquesting.api2.client.gui.resources.lines.BoxLine;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.List;
 // Kinda just a poxy panel where tools can be hotswapped out
 public class PanelToolController implements IGuiPanel
 {
-    private final CanvasQuestLine questLine;
+    private CanvasQuestLine questLine;
     private final IGuiRect transform;
     private boolean enabled = true;
     
@@ -49,51 +51,35 @@ public class PanelToolController implements IGuiPanel
         this.transform = rect;
         this.questLine = questLine;
         
-        scDriverX = new IValueIO<Float>()
+        scDriverX = new FloatSimpleIO()
         {
-            private float value = 0F;
-            
-            @Override
-            public Float readValue()
-            {
-                return value;
-            }
-    
             @Override
             public void writeValue(Float value)
             {
                 if(activeTool != null && !activeTool.clampScrolling())
                 {
-                    this.value = value;
+                    this.v = value;
                 } else
                 {
-                    this.value = MathHelper.clamp(value, 0F, 1F);
+                    this.v = MathHelper.clamp(value, 0F, 1F);
                 }
             }
-        };
+        }.setLerp(true, 0.02F);
         
-        scDriverY = new IValueIO<Float>()
+        scDriverY = new FloatSimpleIO()
         {
-            private float value = 0F;
-            
-            @Override
-            public Float readValue()
-            {
-                return value;
-            }
-    
             @Override
             public void writeValue(Float value)
             {
                 if(activeTool != null && !activeTool.clampScrolling())
                 {
-                    this.value = value;
+                    this.v = value;
                 } else
                 {
-                    this.value = MathHelper.clamp(value, 0F, 1F);
+                    this.v = MathHelper.clamp(value, 0F, 1F);
                 }
             }
-        };
+        }.setLerp(true, 0.02F);
     }
     
     public void setActiveTool(IToolboxTool tool)
@@ -108,6 +94,13 @@ public class PanelToolController implements IGuiPanel
     public IToolboxTool getActiveTool()
     {
         return this.activeTool;
+    }
+    
+    public void changeCanvas(@Nonnull CanvasQuestLine canvas)
+    {
+        this.questLine = canvas;
+        refreshCanvas();
+        setActiveTool(getActiveTool());
     }
     
     public void refreshCanvas()

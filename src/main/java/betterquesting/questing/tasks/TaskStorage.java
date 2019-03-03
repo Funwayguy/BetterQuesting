@@ -43,13 +43,13 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
-			ITask task = TaskRegistry.INSTANCE.createTask(loc);
+			ITask task = TaskRegistry.INSTANCE.createNew(loc);
 			
 			if(task instanceof TaskPlaceholder)
 			{
 				NBTTagCompound jt2 = jsonTask.getCompoundTag("orig_data");
 				ResourceLocation loc2 = new ResourceLocation(jt2.getString("taskID"));
-				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
+				ITask t2 = TaskRegistry.INSTANCE.createNew(loc2);
 				
 				if(t2 != null) // Restored original task
 				{

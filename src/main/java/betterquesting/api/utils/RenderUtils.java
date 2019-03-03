@@ -10,17 +10,14 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -57,20 +54,6 @@ public class RenderUtils
 			return;
 		}
 		
-		ItemStack rStack = stack;
-		
-		if(stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
-		{
-			NonNullList<ItemStack> tmp = NonNullList.create();
-			
-			stack.getItem().getSubItems(CreativeTabs.SEARCH, tmp);
-			
-			if(tmp.size() > 0)
-			{
-				rStack = tmp.get((int)((Minecraft.getSystemTime()/1000)%tmp.size()));
-			}
-		}
-		
 		GlStateManager.pushMatrix();
 		RenderItem itemRender = mc.getRenderItem();
 	    float preZ = itemRender.zLevel;
@@ -86,12 +69,12 @@ public class RenderUtils
 		GlStateManager.translate(0.0F, 0.0F, z);
 		itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
 		
-		FontRenderer font = rStack.getItem().getFontRenderer(rStack);
+		FontRenderer font = stack.getItem().getFontRenderer(stack);
 		if (font == null) font = mc.fontRenderer;
 		
 		try
 		{
-		    itemRender.renderItemAndEffectIntoGUI(rStack, x, y);
+		    itemRender.renderItemAndEffectIntoGUI(stack, x, y);
 		    
 		    if (stack.getCount() != 1 || text != null)
 			{
@@ -129,7 +112,7 @@ public class RenderUtils
 		    	GlStateManager.popMatrix();
 			}
 			
-			itemRender.renderItemOverlayIntoGUI(font, rStack, x, y, "");
+			itemRender.renderItemOverlayIntoGUI(font, stack, x, y, "");
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.warn("Unabled to render item " + stack, e);

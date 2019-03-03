@@ -29,4 +29,9 @@ public interface IThemeRegistry
     void setDefaultGuiHook(IGuiHook guiHook);
     
     List<IGuiTheme> getAllThemes();
+    
+    // === Future Editor Stuff ===
+    ResourceLocation[] getKnownTextures();
+    ResourceLocation[] getKnownColors();
+    ResourceLocation[] getKnownLines();
 }

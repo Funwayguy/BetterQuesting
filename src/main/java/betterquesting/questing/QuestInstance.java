@@ -344,6 +344,8 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
+    @Deprecated
+	@SideOnly(Side.CLIENT)
 	public List<String> getTooltip(EntityPlayer player)
 	{
 		List<String> tooltip = this.getStandardTooltip(player);

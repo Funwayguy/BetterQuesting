@@ -150,13 +150,13 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			JsonObject jsonTask = entry.getAsJsonObject();
 			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonTask, "taskID", ""));
 			int index = JsonHelper.GetNumber(jsonTask, "index", -1).intValue();
-			ITask task = TaskRegistry.INSTANCE.createTask(loc);
+			ITask task = TaskRegistry.INSTANCE.createNew(loc);
 			
 			if(task instanceof TaskPlaceholder)
 			{
 				JsonObject jt2 = JsonHelper.GetObject(jsonTask, "orig_data");
 				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jt2, "taskID", ""));
-				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
+				ITask t2 = TaskRegistry.INSTANCE.createNew(loc2);
 				
 				if(t2 != null) // Restored original task
 				{
@@ -211,13 +211,13 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			JsonObject jsonReward = entry.getAsJsonObject();
 			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
 			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
-			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
+			IReward reward = RewardRegistry.INSTANCE.createNew(loc);
 			
 			if(reward instanceof RewardPlaceholder)
 			{
 				JsonObject jr2 = JsonHelper.GetObject(jsonReward, "orig_data");
 				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jr2, "rewardID", ""));
-				IReward r2 = RewardRegistry.INSTANCE.createReward(loc2);
+				IReward r2 = RewardRegistry.INSTANCE.createNew(loc2);
 				
 				if(r2 != null)
 				{

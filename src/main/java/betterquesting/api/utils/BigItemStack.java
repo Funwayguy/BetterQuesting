@@ -1,11 +1,15 @@
 package betterquesting.api.utils;
 
-import java.util.ArrayList;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StringUtils;
+import net.minecraftforge.oredict.OreIngredient;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Purpose built container class for holding ItemStacks larger than 127. <br>
@@ -13,9 +17,11 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class BigItemStack
 {
-	public int stackSize = 0;
-	public String oreDict = "";
-	ItemStack baseStack = new ItemStack(Blocks.STONE); // Ensures that this base stack is never null
+    private static final OreIngredient NO_ORE = new OreIngredient("");
+	public int stackSize;
+	private String oreDict = "";
+	private OreIngredient oreIng = NO_ORE;
+	private ItemStack baseStack; // Ensures that this base stack is never null
 	
 	public BigItemStack(ItemStack stack)
 	{
@@ -63,6 +69,30 @@ public class BigItemStack
 		return baseStack;
 	}
 	
+	public boolean hasOreDict()
+    {
+        return !StringUtils.isNullOrEmpty(this.oreDict) && this.oreIng.getMatchingStacks().length > 0;
+    }
+	
+	@Nonnull
+	public String getOreDict()
+    {
+        return this.oreDict;
+    }
+    
+    @Nonnull
+    public OreIngredient getOreIngredient()
+    {
+        return this.oreIng;
+    }
+    
+    public BigItemStack setOreDict(@Nonnull String ore)
+    {
+        this.oreDict = ore;
+        this.oreIng = ore.length() <= 0 ? NO_ORE : new OreIngredient(ore);
+        return this;
+    }
+	
 	/**
 	 * Shortcut method to the NBTTagCompound in the base ItemStack
 	 */
@@ -90,9 +120,9 @@ public class BigItemStack
 	/**
 	 * Breaks down this big stack into smaller ItemStacks for Minecraft to use (Individual stack size is dependent on the item)
 	 */
-	public ArrayList<ItemStack> getCombinedStacks()
+	public List<ItemStack> getCombinedStacks()
 	{
-		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
+		List<ItemStack> list = new ArrayList<>();
 		int tmp1 = Math.max(1, stackSize); // Guarantees this method will return at least 1 item
 		
 		while(tmp1 > 0)
@@ -141,7 +171,7 @@ public class BigItemStack
 	public void readFromNBT(NBTTagCompound tags)
 	{
 		stackSize = tags.getInteger("Count");
-		oreDict = tags.getString("OreDict");
+		setOreDict(tags.getString("OreDict"));
 		baseStack = new ItemStack(tags);
 	}
 	

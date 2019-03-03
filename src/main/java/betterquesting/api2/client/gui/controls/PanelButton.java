@@ -195,10 +195,10 @@ public class PanelButton implements IPanelButton
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		IGuiRect bounds = this.getTransform();
-		pendingRelease = isActive() && click == 0 && bounds.contains(mx, my);
+		boolean contains = this.getTransform().contains(mx, my);
+		pendingRelease = isActive() && click == 0 && contains;
 
-		return false;
+		return (click == 0 || click == 1) && contains;
 	}
 	
 	@Override

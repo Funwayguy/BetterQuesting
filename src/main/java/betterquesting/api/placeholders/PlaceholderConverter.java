@@ -38,8 +38,7 @@ public class PlaceholderConverter
 	{
 		if(item == null)
 		{
-			BigItemStack stack = new BigItemStack(ItemPlaceholder.placeholder, count, damage);
-			stack.oreDict = oreDict;
+			BigItemStack stack = new BigItemStack(ItemPlaceholder.placeholder, count, damage).setOreDict(oreDict);
 			stack.SetTagCompound(new NBTTagCompound());
 			stack.GetTagCompound().setString("orig_id", name);
 			stack.GetTagCompound().setInteger("orig_meta", damage);
@@ -53,9 +52,8 @@ public class PlaceholderConverter
 				
 				if(restored != null)
 				{
-					BigItemStack stack = new BigItemStack(restored, count, nbt.hasKey("orig_meta")? nbt.getInteger("orig_meta") : damage);
+					BigItemStack stack = new BigItemStack(restored, count, nbt.hasKey("orig_meta")? nbt.getInteger("orig_meta") : damage).setOreDict(oreDict);
 					if(nbt.hasKey("orig_tag")) stack.SetTagCompound(nbt.getCompoundTag("orig_tag"));
-					stack.oreDict = oreDict;
 					
 					return stack;
 				} else if(damage > 0 && !nbt.hasKey("orig_meta"))
@@ -66,9 +64,8 @@ public class PlaceholderConverter
 			}
 		}
 		
-		BigItemStack stack = new BigItemStack(item, count, damage);
+		BigItemStack stack = new BigItemStack(item, count, damage).setOreDict(oreDict);
 		if(nbt != null) stack.SetTagCompound(nbt);
-		stack.oreDict = oreDict;
 		
 		return stack;
 	}

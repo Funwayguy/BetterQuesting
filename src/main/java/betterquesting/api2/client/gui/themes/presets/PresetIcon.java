@@ -67,7 +67,7 @@ public enum PresetIcon
     ICON_DIR_UP("icon_dir_up"),
     ICON_PG_NEXT("icon_pg_next"),
     ICON_PG_PREV("icon_pg_prev"),
-    ICON_UPLOAD("icon_upload");
+    ICON_UPLOAD("icon_upload"),
 	
 	// === PARTY ===
     
@@ -76,6 +76,15 @@ public enum PresetIcon
     // === OPTIONS ===
     
     // == MISC ===
+    
+    ICON_BOX_FIT("icon_box_fit"),
+    ICON_ZOOM("icon_zoom"),
+    ICON_ZOOM_IN("icon_zoom_in"),
+    ICON_ZOOM_OUT("icon_zoom_out"),
+    
+    ICON_CHEST("icon_chest"),
+    ICON_CHEST_ALL("icon_chest_all"),
+    ICON_BOOKMARK("icon_bookmark");
 	
 	public static final ResourceLocation TX_ICONS = new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_icons.png");
 	
@@ -150,5 +159,14 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_DIR_UP.key, new SimpleTexture(TX_ICONS, new GuiRectangle(48, 64, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_PG_PREV.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 48, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_PG_NEXT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(240, 48, 16, 16)).maintainAspect(true));
+		
+		// === MISC ===
+        reg.setDefaultTexture(ICON_BOX_FIT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_ZOOM.key, new SimpleTexture(TX_ICONS, new GuiRectangle(96, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_ZOOM_IN.key, new SimpleTexture(TX_ICONS, new GuiRectangle(112, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_ZOOM_OUT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(128, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_CHEST_ALL.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_CHEST.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_BOOKMARK.key, new SimpleTexture(TX_ICONS, new GuiRectangle(176, 64, 16, 16)).maintainAspect(true));
 	}
 }

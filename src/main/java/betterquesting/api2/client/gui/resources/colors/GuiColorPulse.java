@@ -3,20 +3,23 @@ package betterquesting.api2.client.gui.resources.colors;
 import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.renderer.GlStateManager;
 
-import java.awt.*;
-
 public class GuiColorPulse implements IGuiColor
 {
     // Saves me having to run the math function every frame
     private final static double RAD = Math.toRadians(360F);
     
-    private final int c1;
-    private final int c2;
+    private final IGuiColor c1;
+    private final IGuiColor c2;
     
     private final double period;
     private final float phase;
     
     public GuiColorPulse(int color1, int color2, double period, float phase)
+    {
+        this(new GuiColorStatic(color1), new GuiColorStatic(color2), period, phase);
+    }
+    
+    public GuiColorPulse(IGuiColor color1, IGuiColor color2, double period, float phase)
     {
         this.c1 = color1;
         this.c2 = color2;
@@ -37,7 +40,7 @@ public class GuiColorPulse implements IGuiColor
         // Convert time to sine wave between 0.0 and 1.0
         float blend = (float)(Math.cos(time * RAD) / 2D + 0.5D);
         // Return interpolated color
-        return RenderUtils.lerpRGB(c1, c2, blend);
+        return RenderUtils.lerpRGB(c1.getRGB(), c2.getRGB(), blend);
     }
     
     @Override

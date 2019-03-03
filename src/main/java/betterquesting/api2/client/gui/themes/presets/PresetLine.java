@@ -20,7 +20,7 @@ public enum PresetLine
 	
 	private final ResourceLocation key;
 	
-	private PresetLine(String key)
+	PresetLine(String key)
 	{
 		this.key = new ResourceLocation(BetterQuesting.MODID, key);
 	}

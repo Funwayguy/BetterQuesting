@@ -6,7 +6,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
-import betterquesting.client.gui2.CanvasQuestLine;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
@@ -101,7 +101,20 @@ public class ToolboxToolGrab implements IToolboxTool
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        return grabList.size() <= 0 ? null : Collections.emptyList();
+        if(grabList.size() <= 0) return null;
+        
+        for(GrabEntry grab : grabList)
+        {
+            if(grab.offX == 0 && grab.offY == 0)
+            {
+                List<String> list = new ArrayList<>();
+                list.add("X: " + grab.btn.rect.x);
+                list.add("Y: " + grab.btn.rect.y);
+                return list;
+            }
+        }
+        
+        return Collections.emptyList();
     }
     
     @Override

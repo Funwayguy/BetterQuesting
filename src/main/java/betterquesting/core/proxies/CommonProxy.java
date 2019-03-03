@@ -1,12 +1,11 @@
 package betterquesting.core.proxies;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import betterquesting.api.api.IQuestExpansion;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public class CommonProxy
 {
@@ -28,13 +27,5 @@ public class CommonProxy
 	
 	public void registerRenderers()
 	{
-	}
-	
-	public void registerExpansions()
-	{
-		for(IQuestExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
-		{
-			exp.loadExpansion();
-		}
 	}
 }

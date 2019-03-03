@@ -2,6 +2,7 @@ package betterquesting.api2.client.gui.panels.content;
 
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
+import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
@@ -49,40 +50,10 @@ public class PanelPlayerPortrait implements IGuiPanel
 			AbstractClientPlayer.getDownloadImageSkin(resource, player.getGameProfile().getName());
 		}
 		
-		this.basePitch = new IValueIO<Float>()
-		{
-			private float val = 15F;
-			
-			@Override
-			public Float readValue()
-			{
-				return val;
-			}
-
-			@Override
-			public void writeValue(Float value)
-			{
-				this.val = value;
-			}
-		};
+		this.basePitch = new ValueFuncIO<>(() -> 15F);
 		this.pitchDriver = basePitch;
 		
-		this.baseYaw = new IValueIO<Float>()
-		{
-			private float val = -30F;
-			
-			@Override
-			public Float readValue()
-			{
-				return val;
-			}
-
-			@Override
-			public void writeValue(Float value)
-			{
-				this.val = value;
-			}
-		};
+		this.baseYaw = new ValueFuncIO<>(() -> -30F);
 		this.yawDriver = baseYaw;
 	}
 	

@@ -6,6 +6,7 @@ import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.*;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
+import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -90,32 +91,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         pnPreview = new PanelEntityPreview(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 32), 0), selEntity);
         cvBackground.addPanel(pnPreview);
         
-        pnPreview.setRotationDriven(new IValueIO<Float>()
-        {
-    
-            @Override
-            public Float readValue()
-            {
-                return 15F;
-            }
-    
-            @Override
-            public void writeValue(Float value)
-            {
-            }
-        }, new IValueIO<Float>()
-        {
-            @Override
-            public Float readValue()
-            {
-                return (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D);
-            }
-    
-            @Override
-            public void writeValue(Float value)
-            {
-            }
-        });
+        pnPreview.setRotationDriven(new ValueFuncIO<>(() -> -15F), new ValueFuncIO<>(() -> (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D)));
         
         // === DIVIDERS ===
         
