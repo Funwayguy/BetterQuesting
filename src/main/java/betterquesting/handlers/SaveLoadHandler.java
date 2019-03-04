@@ -153,17 +153,13 @@ public class SaveLoadHandler
 			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
 			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), false);
 			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), false);
-			
-			if(useDef)
-			{
-				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
-			}
-			
-			hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
 		} else
 		{
 			loader.readFromJson(j1);
 		}
+		
+        if(useDef) QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
+        hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
   
 		// === PROGRESS ===
 		

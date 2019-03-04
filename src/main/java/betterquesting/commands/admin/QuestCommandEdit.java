@@ -38,11 +38,11 @@ public class QuestCommandEdit extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"true","false"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, "true","false");
 		}
 		
 		return list;
@@ -73,15 +73,12 @@ public class QuestCommandEdit extends QuestCommandBase
 			}
 		}
 		
-		if(flag)
-		{
-			NameCache.INSTANCE.updateNames(server);
-		}
-		
-        SaveLoadHandler.INSTANCE.markDirty();
-		
+		if(flag) NameCache.INSTANCE.updateNames(server);
 		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, flag);
+		
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.edit", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)? "options.on" : "options.off")));
+  
+		SaveLoadHandler.INSTANCE.markDirty();
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

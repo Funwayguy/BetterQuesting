@@ -32,25 +32,13 @@ public class PanelTabMain extends CanvasEmpty
     private final CanvasQuestLine cvQuestLine;
     private final PanelToolController toolController;
     
-    private final List<ToolEntry> toolEntries = new ArrayList<>();
+    private static final List<ToolEntry> toolEntries = new ArrayList<>();
     
     public PanelTabMain(IGuiRect rect, CanvasQuestLine cvQuestLine, PanelToolController toolController)
     {
         super(rect);
         this.cvQuestLine = cvQuestLine;
         this.toolController = toolController;
-        
-        toolEntries.add(new ToolEntry(new ToolboxToolOpen(), PresetIcon.ICON_CURSOR.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.open.name"), QuestTranslation.translate("betterquesting.toolbox.tool.open.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolNew(), PresetIcon.ICON_NEW.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.new.name"), QuestTranslation.translate("betterquesting.toolbox.tool.new.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolGrab(), PresetIcon.ICON_GRAB.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.grab.name"), QuestTranslation.translate("betterquesting.toolbox.tool.grab.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolLink(), PresetIcon.ICON_LINK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.link.name"), QuestTranslation.translate("betterquesting.toolbox.tool.link.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolCopy(), PresetIcon.ICON_COPY.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.copy.name"), QuestTranslation.translate("betterquesting.toolbox.tool.copy.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolScale(), PresetIcon.ICON_SCALE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.scale.name"), QuestTranslation.translate("betterquesting.toolbox.tool.scale.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolDelete(), PresetIcon.ICON_TRASH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.delete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.delete.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolRemove(), PresetIcon.ICON_NEGATIVE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.remove.name"), QuestTranslation.translate("betterquesting.toolbox.tool.remove.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolComplete(), PresetIcon.ICON_TICK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.complete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.complete.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolReset(), PresetIcon.ICON_REFRESH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.reset.name"), QuestTranslation.translate("betterquesting.toolbox.tool.reset.desc"))));
-        toolEntries.add(new ToolEntry(new ToolboxToolIcon(), PresetIcon.ICON_ITEM.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.icon.name"), QuestTranslation.translate("betterquesting.toolbox.tool.icon.desc"))));
     }
     
     @Override
@@ -106,10 +94,16 @@ public class PanelTabMain extends CanvasEmpty
             });
             toolBtns.add(btn);
             this.addPanel(btn);
+            
+            if(entry.tool instanceof ToolboxToolOpen && toolController.getActiveTool() == null)
+            {
+                toolController.setActiveTool(entry.tool);
+                btn.setActive(false);
+            }
         }
     }
 	
-	private List<String> makeToolTip(String title, String desc)
+	private static List<String> makeToolTip(String title, String desc)
 	{
 		List<String> list = new ArrayList<>();
 		list.add(title);
@@ -117,7 +111,7 @@ public class PanelTabMain extends CanvasEmpty
 		return list;
 	}
     
-    private class ToolEntry
+    private static class ToolEntry
     {
         private final IToolboxTool tool;
         private final IGuiTexture tex;
@@ -129,5 +123,20 @@ public class PanelTabMain extends CanvasEmpty
             this.tex = tex;
             this.tt = tt;
         }
+    }
+    
+    static
+    {
+        toolEntries.add(new ToolEntry(new ToolboxToolOpen(), PresetIcon.ICON_CURSOR.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.open.name"), QuestTranslation.translate("betterquesting.toolbox.tool.open.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolNew(), PresetIcon.ICON_NEW.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.new.name"), QuestTranslation.translate("betterquesting.toolbox.tool.new.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolGrab(), PresetIcon.ICON_GRAB.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.grab.name"), QuestTranslation.translate("betterquesting.toolbox.tool.grab.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolLink(), PresetIcon.ICON_LINK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.link.name"), QuestTranslation.translate("betterquesting.toolbox.tool.link.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolCopy(), PresetIcon.ICON_COPY.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.copy.name"), QuestTranslation.translate("betterquesting.toolbox.tool.copy.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolScale(), PresetIcon.ICON_SCALE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.scale.name"), QuestTranslation.translate("betterquesting.toolbox.tool.scale.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolDelete(), PresetIcon.ICON_TRASH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.delete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.delete.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolRemove(), PresetIcon.ICON_NEGATIVE.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.remove.name"), QuestTranslation.translate("betterquesting.toolbox.tool.remove.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolComplete(), PresetIcon.ICON_TICK.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.complete.name"), QuestTranslation.translate("betterquesting.toolbox.tool.complete.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolReset(), PresetIcon.ICON_REFRESH.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.reset.name"), QuestTranslation.translate("betterquesting.toolbox.tool.reset.desc"))));
+        toolEntries.add(new ToolEntry(new ToolboxToolIcon(), PresetIcon.ICON_ITEM.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.icon.name"), QuestTranslation.translate("betterquesting.toolbox.tool.icon.desc"))));
     }
 }

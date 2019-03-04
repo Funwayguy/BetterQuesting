@@ -66,7 +66,7 @@ public class FloatSimpleIO implements IValueIO<Float>
     @Override
     public void writeValue(Float value)
     {
-        if(s == v) t = System.currentTimeMillis(); // Required if read out more than once in 1ms
+        if(s == v) t = System.currentTimeMillis();
         this.v = clamp ? MathHelper.clamp(value, min, max) : value;
     }
     

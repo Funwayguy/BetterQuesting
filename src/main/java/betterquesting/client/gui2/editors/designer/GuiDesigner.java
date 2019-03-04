@@ -132,7 +132,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         
         if(toolController != null)
         {
-            cvQuest.addPanel(toolController);
+            cvBackground.addPanel(toolController);
             cvQuest.setScrollDriverX(toolController.getScrollX());
             cvQuest.setScrollDriverY(toolController.getScrollY());
             toolController.changeCanvas(cvQuest);
@@ -143,16 +143,6 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
             cvQuest.setScrollDriverX(toolController.getScrollX());
             cvQuest.setScrollDriverY(toolController.getScrollY());
         }
-        /*IToolboxTool lastTool = toolController == null ? null : toolController.getActiveTool();
-        toolController = new PanelToolController(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), -1), cvQuest);
-        cvBackground.addPanel(toolController);
-        cvQuest.setScrollDriverX(toolController.getScrollX());
-        cvQuest.setScrollDriverY(toolController.getScrollY());
-        if(lastTool != null)
-        {
-            lastTool.disableTool();
-            toolController.setActiveTool(lastTool);
-        }*/
         
         refreshToolTab();
     }

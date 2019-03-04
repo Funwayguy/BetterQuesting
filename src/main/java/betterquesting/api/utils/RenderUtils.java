@@ -700,6 +700,11 @@ public class RenderUtils
 	{
 		return (f2 * blend) + (f1 * (1F - blend));
 	}
+ 
+	public static double lerpDouble(double d1, double d2, double blend)
+	{
+		return (d2 * blend) + (d1 * (1D - blend));
+	}
 	
 	public static int lerpRGB(int c1, int c2, float blend)
 	{
