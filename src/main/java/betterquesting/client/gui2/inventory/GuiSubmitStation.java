@@ -259,7 +259,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
                 {
                     if(tmpTasks[i].getID() == tile.taskID)
                     {
-                        selQuest = i;
+                        selTask = i;
                         break;
                     }
                 }
@@ -315,8 +315,6 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
     
     private int lazyPosMod(int a, int b)
     {
-        if(b <= 0) return a;
-        while(a < 0) a += b;
-        return a % b;
+        return ((a % b) + b) % b;
     }
 }

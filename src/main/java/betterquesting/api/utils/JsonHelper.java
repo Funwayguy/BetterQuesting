@@ -167,9 +167,12 @@ public class JsonHelper
 				return new JsonObject();
 			}
 			
-			try(InputStreamReader fr = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))
+			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+			try(FileInputStream fis = new FileInputStream(file); InputStreamReader fr = new InputStreamReader(fis, StandardCharsets.UTF_8))
 			{
-				return GSON.fromJson(fr, JsonObject.class);
+				JsonObject json = GSON.fromJson(fr, JsonObject.class);
+				fr.close();
+				return json;
 			} catch(Exception e)
 			{
 				QuestingAPI.getLogger().log(Level.ERROR, "An error occured while loading JSON from file:", e);
@@ -219,11 +222,12 @@ public class JsonHelper
                 tmp.createNewFile();
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file:", e);
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
 				return;
 			}
 			
-			try(OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8))
+			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+			try(FileOutputStream fos = new FileOutputStream(tmp); OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8))
 			{
 			    // Attempt writing
 				GSON.toJson(jObj, fw);
@@ -234,7 +238,8 @@ public class JsonHelper
 				return;
 			}
 			
-			try(InputStreamReader fr = new InputStreamReader(new FileInputStream(tmp), StandardCharsets.UTF_8))
+			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+			try(FileInputStream fis = new FileInputStream(tmp); InputStreamReader fr = new InputStreamReader(fis, StandardCharsets.UTF_8))
             {
 				// Readback what we wrote to validate it
                 GSON.fromJson(fr, JsonObject.class);
@@ -254,7 +259,8 @@ public class JsonHelper
 		});
 	}
 	
-	public static void CopyPaste(File fileIn, File fileOut)
+	@SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void CopyPaste(File fileIn, File fileOut)
 	{
 		if(!fileIn.exists()) return;
 		

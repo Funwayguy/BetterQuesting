@@ -22,7 +22,7 @@ public class FactorySimpleLine implements IFactoryData<IGuiLine, JsonObject>
         try
         {
             // Needs to be done through int so that the signed bit isn't dropped
-            stippleMask = (short)Integer.parseInt(JsonHelper.GetString(data, "color", "1111111111111111"), 2);
+            stippleMask = (short)Integer.parseInt(JsonHelper.GetString(data, "stippleMask", "1111111111111111"), 2);
         } catch(NumberFormatException ignored)
         {
             stippleMask = (short)0xFFFF;

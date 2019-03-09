@@ -30,6 +30,7 @@ import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
 
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -195,9 +196,8 @@ public class ThemeRegistry implements IThemeRegistry
             
             for(IResource iresource : list)
             {
-                try
+                try(InputStreamReader isr = new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8))
                 {
-                    InputStreamReader isr = new InputStreamReader(iresource.getInputStream());
                     JsonArray jAry = GSON.fromJson(isr, JsonArray.class);
                     isr.close();
                     
@@ -222,11 +222,11 @@ public class ThemeRegistry implements IThemeRegistry
                         }
                         
                         ResourceLocation parentID = !jThm.has("themeParent") ? null : new ResourceLocation(JsonHelper.GetString(jThm, "themeParent", "minecraft:null"));
-                        IGuiTheme parentTheme = getTheme(parentID); // Note: Can be null if we're just doing a basic reskin
                         String themeName = JsonHelper.GetString(jThm, "themeName", "Unnamed Theme");
                         String idRaw = JsonHelper.GetString(jThm, "themeID", themeName);
                         idRaw = idRaw.toLowerCase().trim().replaceAll(" ", "_");
-                        ResourceLocation themeId = new ResourceLocation(domain, idRaw);
+                        if(!idRaw.contains(":")) idRaw = domain + ":" + idRaw;
+                        ResourceLocation themeId = new ResourceLocation(idRaw);
                         
                         int n = 0;
                         while(themes.containsKey(themeId)) themeId = new ResourceLocation(domain, idRaw + n++);
@@ -235,7 +235,7 @@ public class ThemeRegistry implements IThemeRegistry
                         
                         try
                         {
-                            resTheme = new ResourceTheme(parentTheme, themeId, themeName);
+                            resTheme = new ResourceTheme(parentID, themeId, themeName);
                         } catch(Exception e)
                         {
                             BetterQuesting.logger.error("Failed to load theme entry " + i + " in " + iresource.getResourceLocation(), e);

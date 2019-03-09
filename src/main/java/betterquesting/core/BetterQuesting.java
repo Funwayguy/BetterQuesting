@@ -21,6 +21,7 @@ import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -34,7 +35,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
@@ -106,7 +106,7 @@ public class BetterQuesting
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
   
-		if(FMLLaunchHandler.isDeobfuscatedEnvironment()) manager.registerCommand(new BQ_CommandDebug());
+		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) manager.registerCommand(new BQ_CommandDebug());
 		
 		SaveLoadHandler.INSTANCE.loadDatabases(server);
 	}

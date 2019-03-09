@@ -5,6 +5,7 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
@@ -12,21 +13,40 @@ import java.util.HashMap;
 public class ResourceTheme implements IGuiTheme
 {
     private final ResourceLocation ID;
-    private final IGuiTheme parentTheme;
     private final String dispName;
+    
+    private IGuiTheme parentTheme;
+    private ResourceLocation parentID;
+    private boolean cached = false;
     
 	private final HashMap<ResourceLocation, IGuiTexture> TEX_MAP = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiColor> COLOR_MAP = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiLine> LINE_MAP = new HashMap<>();
     
-    public ResourceTheme(IGuiTheme parent, ResourceLocation id, String dispName)
+    public ResourceTheme(ResourceLocation parentID, ResourceLocation id, String dispName)
     {
+        this.ID = id;
+        this.dispName = dispName;
+        this.parentID = parentID;
+    }
+    
+    private IGuiTheme getParent()
+    {
+        if(cached) return parentTheme;
+        
+        IGuiTheme parent = ThemeRegistry.INSTANCE.getTheme(parentID);
         IGuiTheme checking = parent;
         while(checking != null)
         {
             if(checking instanceof ResourceTheme)
             {
-                if(((ResourceTheme)checking).parentTheme == this) throw new IllegalArgumentException("Circular reference in resource theme " + id);
+                if(((ResourceTheme)checking).parentTheme == this)
+                {
+                    BetterQuesting.logger.error("Circular reference in resource theme " + ID);
+                    this.parentTheme = null;
+                    cached = true;
+                    return null;
+                }
                 checking = ((ResourceTheme)checking).parentTheme;
                 continue;
             }
@@ -34,8 +54,9 @@ public class ResourceTheme implements IGuiTheme
         }
         
         this.parentTheme = parent;
-        this.ID = id;
-        this.dispName = dispName;
+        cached = true;
+        
+        return this.parentTheme;
     }
     
     public void setTexture(ResourceLocation key, IGuiTexture texture)
@@ -73,7 +94,7 @@ public class ResourceTheme implements IGuiTheme
     {
         IGuiTexture value = TEX_MAP.get(key);
         if(value != null) return value;
-        if(parentTheme != null) return parentTheme.getTexture(key);
+        if(getParent() != null) return getParent().getTexture(key);
         return null;
     }
     
@@ -82,7 +103,7 @@ public class ResourceTheme implements IGuiTheme
     {
         IGuiLine value = LINE_MAP.get(key);
         if(value != null) return value;
-        if(parentTheme != null) return parentTheme.getLine(key);
+        if(getParent() != null) return getParent().getLine(key);
         return null;
     }
     
@@ -91,7 +112,7 @@ public class ResourceTheme implements IGuiTheme
     {
         IGuiColor value = COLOR_MAP.get(key);
         if(value != null) return value;
-        if(parentTheme != null) return parentTheme.getColor(key);
+        if(getParent() != null) return getParent().getColor(key);
         return null;
     }
     
@@ -99,6 +120,6 @@ public class ResourceTheme implements IGuiTheme
     public IGuiHook getGuiHook()
     {
         // Resource themes obviously can't define something as complex as GUI so we'll let the parent deal with that
-        return parentTheme == null ? null : parentTheme.getGuiHook();
+        return getParent() == null ? null : getParent().getGuiHook();
     }
 }
