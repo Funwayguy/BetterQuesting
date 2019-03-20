@@ -21,11 +21,15 @@ public interface IThemeRegistry
     IGuiTexture getTexture(ResourceLocation key);
     IGuiColor getColor(ResourceLocation key);
     IGuiLine getLine(ResourceLocation key);
+    
+    @Deprecated
     IGuiHook getGuiHook();
     
     void setDefaultTexture(ResourceLocation key, IGuiTexture tex);
     void setDefaultColor(ResourceLocation key, IGuiColor color);
     void setDefaultLine(ResourceLocation key, IGuiLine line);
+    
+    @Deprecated
     void setDefaultGuiHook(IGuiHook guiHook);
     
     List<IGuiTheme> getAllThemes();

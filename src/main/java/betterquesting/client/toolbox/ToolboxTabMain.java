@@ -50,23 +50,22 @@ public class ToolboxTabMain implements IToolTab
 		if(getSnapValue() <= 1) return;
 		
 		float zs = ui.getZoom();
+		int snap = getSnapValue();
 		
 		float offX = -ui.getScrollX();
-		while(offX < 0) offX += getSnapValue();
-		offX = (offX % getSnapValue()) * zs;
-		int midX = -ui.getScrollX() / getSnapValue();
+        offX = ((offX % snap + snap) % snap) * zs;
+		int midX = -ui.getScrollX() / snap;
 		
 		float offY = -ui.getScrollY();
-		while(offY < 0) offY += getSnapValue();
-		offY = (offY % getSnapValue()) * zs;
-		int midY = -ui.getScrollY() / getSnapValue();
+        offY = ((offY % snap + snap) % snap) * zs;
+		int midY = -ui.getScrollY() / snap;
 		
 		int x = ui.getTransform().getX();
 		int y = ui.getTransform().getY();
 		int width = ui.getTransform().getWidth();
 		int height = ui.getTransform().getHeight();
-		int divX = (int)Math.ceil((width - offX) / (zs * getSnapValue()));
-		int divY = (int)Math.ceil((height - offY) / (zs * getSnapValue()));
+		int divX = (int)Math.ceil((width - offX) / (zs * snap));
+		int divY = (int)Math.ceil((height - offY) / (zs * snap));
         
         IGuiColor gMinor = PresetColor.GRID_MINOR.getColor();
         IGuiColor gMajor = PresetColor.GRID_MAJOR.getColor();
@@ -81,7 +80,7 @@ public class ToolboxTabMain implements IToolTab
         
 		for(int i = 0; i < divX; i++)
 		{
-			int lx = x + (int)(i * getSnapValue() * zs + offX);
+			int lx = x + (int)(i * snap * zs + offX);
 			p1.x = lx;
 			p2.x = lx;
             if(i == midX)
@@ -98,7 +97,7 @@ public class ToolboxTabMain implements IToolTab
 		
 		for(int j = 0; j < divY; j++)
 		{
-			int ly = y + (int)(j * getSnapValue() * zs + offY);
+			int ly = y + (int)(j * snap * zs + offY);
 			p1.y = ly;
 			p2.y = ly;
             if(j == midY)

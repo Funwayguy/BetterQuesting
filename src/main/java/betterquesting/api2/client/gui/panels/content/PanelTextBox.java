@@ -7,6 +7,7 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class PanelTextBox implements IGuiPanel
 	private IGuiColor color = new GuiColorStatic(255, 255, 255, 255);
 	private final boolean autoFit;
 	private int align = 0;
+	private int fontScale = 12;
 	
 	private int lines = 1; // Cached number of lines
 	
@@ -69,6 +71,12 @@ public class PanelTextBox implements IGuiPanel
 		return this;
 	}
 	
+	public PanelTextBox setFontSize(int size)
+    {
+        this.fontScale = size;
+        return this;
+    }
+	
 	public PanelTextBox enableShadow(boolean enable)
 	{
 		this.shadow = enable;
@@ -86,17 +94,18 @@ public class PanelTextBox implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		float scale = fontScale / 12F;
 		
 		if(!autoFit)
 		{
-			lines = (bounds.getHeight() / fr.FONT_HEIGHT) - 1;
+			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
 			return;
 		}
 		
-		List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
+		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
 		lines = sl.size() - 1;
 		
-		this.transform.h = fr.FONT_HEIGHT * sl.size();
+		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
 	}
 	
 	@Override
@@ -117,24 +126,28 @@ public class PanelTextBox implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		
-		int w = RenderUtils.getStringWidth(text, fr);
-		int bw = bounds.getWidth();
+		float s = fontScale / 12F;
+		int w = (int)Math.ceil(RenderUtils.getStringWidth(text, fr) * s);
+		int bw = (int)Math.floor(bounds.getWidth() / s);
 		
-		if(bw <= 0)
-		{
-			return;
-		}
-		
+		if(bw <= 0) return;
+        
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(bounds.getX(), bounds.getY(), 1);
+        GlStateManager.scale(s, s, 1F);
+        
 		if(align == 2 && bw >= w)
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth() - w, bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bw - w, 0, bw, color.getRGB(), shadow, 0, lines);
 		} else if(align == 1 && bw >= w)
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX() + bounds.getWidth()/2 - w/2, bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, bw/2 - w/2, 0, bw, color.getRGB(), shadow, 0, lines);
 		} else
 		{
-			RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color.getRGB(), shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, 0, 0, bw, color.getRGB(), shadow, 0, lines);
 		}
+		
+		GlStateManager.popMatrix();
 	}
 	
 	@Override

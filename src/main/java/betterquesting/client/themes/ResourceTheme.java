@@ -6,9 +6,12 @@ import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.core.BetterQuesting;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class ResourceTheme implements IGuiTheme
 {
@@ -121,5 +124,12 @@ public class ResourceTheme implements IGuiTheme
     {
         // Resource themes obviously can't define something as complex as GUI so we'll let the parent deal with that
         return getParent() == null ? null : getParent().getGuiHook();
+    }
+    
+    @Nullable
+    @Override
+    public <T> Function<GuiScreen, T> getGui(ResourceLocation guiID, T args)
+    {
+        return null;
     }
 }

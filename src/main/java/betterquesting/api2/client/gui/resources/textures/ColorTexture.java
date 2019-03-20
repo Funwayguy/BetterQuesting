@@ -43,8 +43,8 @@ public class ColorTexture implements IGuiTexture
         // Just so we're not wasting heap memory making a new GuiRectangle every time
         rect.x = x + pad.l;
         rect.y = y + pad.t;
-        rect.w = width - pad.r;
-        rect.h = height - pad.b;
+        rect.w = width - (pad.r + pad.l);
+        rect.h = height - (pad.b + pad.r);
         
         RenderUtils.drawColoredRect(rect, color);
         

@@ -27,7 +27,7 @@ public class EntityPlayerPreview extends EntityOtherPlayerMP
 	{
 		super(worldIn, gameProfileIn);
 		this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName());
-        this.getDataManager().set(PLAYER_MODEL_FLAG, Byte.valueOf((byte)1));
+        this.getDataManager().set(PLAYER_MODEL_FLAG, (byte)1);
 	}
 	
 	@Override

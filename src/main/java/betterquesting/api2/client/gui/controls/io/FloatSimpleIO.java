@@ -15,7 +15,7 @@ public class FloatSimpleIO implements IValueIO<Float>
     
     protected float v; // Target value
     protected float s; // Start value
-    private long t = 0L; // Start time
+    private long t; // Start time
     
     public FloatSimpleIO()
     {
@@ -28,6 +28,7 @@ public class FloatSimpleIO implements IValueIO<Float>
         this.s = startVal;
         this.min = min;
         this.max = max;
+        this.t = System.currentTimeMillis(); // Added precaution for lerp math
     }
     
     public FloatSimpleIO setClamp(boolean enable)
@@ -54,8 +55,8 @@ public class FloatSimpleIO implements IValueIO<Float>
                 return v;
             }
             
-            int d = (int)(System.currentTimeMillis() - t);
-            s = RenderUtils.lerpFloat(s, v, Math.min(1F, d * lerpSpd));
+            long d = System.currentTimeMillis() - t;
+            s = RenderUtils.lerpFloat(s, v, (float)MathHelper.clamp(d * (double)lerpSpd, 0D, 1D));
             if(d > 0) t = System.currentTimeMillis(); // Required if read out more than once in 1ms
             return s;
         }

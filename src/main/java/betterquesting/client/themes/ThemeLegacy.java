@@ -13,9 +13,12 @@ import betterquesting.api2.client.gui.resources.textures.SlicedTexture.SliceMode
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.function.Function;
 
 // Doesn't support anything fancy and is merely here to cut up the old layout into something usable in BQ3
 public class ThemeLegacy implements IGuiTheme
@@ -98,8 +101,15 @@ public class ThemeLegacy implements IGuiTheme
     {
         return null;
     }
-	
-	public ThemeLegacy setTextColor(int c)
+    
+    @Nullable
+    @Override
+    public <T> Function<GuiScreen, T> getGui(ResourceLocation guiID, T args)
+    {
+        return null;
+    }
+    
+    public ThemeLegacy setTextColor(int c)
 	{
 	    IGuiColor col = new GuiColorStatic(c);
 	    COLOR_MAP.put(PresetColor.TEXT_HEADER.getKey(), col);
