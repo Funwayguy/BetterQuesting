@@ -14,10 +14,12 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
-import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
+import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -81,7 +83,7 @@ public class EventHandler
 					mc.displayGuiScreen(GuiHome.bookmark);
 				} else
 				{
-					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGuiHook().getHomeScreen(null));
+					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
 				}
 			}
 		}

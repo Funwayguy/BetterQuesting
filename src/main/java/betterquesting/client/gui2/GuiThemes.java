@@ -26,6 +26,8 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
+import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
+import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
@@ -174,7 +176,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		
 		if(btn.getButtonID() == 0) // Exit
 		{
-			mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGuiHook().getHomeScreen(null));
+			mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
 		} else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
 		{
 			ResourceLocation res = ((PanelButtonStorage<ResourceLocation>)btn).getStoredValue();

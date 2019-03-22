@@ -1,9 +1,9 @@
 package betterquesting.client.themes;
 
-import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.themes.GuiKey;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.core.BetterQuesting;
 import net.minecraft.client.gui.GuiScreen;
@@ -119,16 +119,9 @@ public class ResourceTheme implements IGuiTheme
         return null;
     }
     
-    @Override
-    public IGuiHook getGuiHook()
-    {
-        // Resource themes obviously can't define something as complex as GUI so we'll let the parent deal with that
-        return getParent() == null ? null : getParent().getGuiHook();
-    }
-    
     @Nullable
     @Override
-    public <T> Function<GuiScreen, T> getGui(ResourceLocation guiID, T args)
+    public <T> Function<T, GuiScreen> getGui(GuiKey<T> key)
     {
         return null;
     }

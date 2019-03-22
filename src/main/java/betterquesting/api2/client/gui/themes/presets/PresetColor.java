@@ -3,6 +3,7 @@ package betterquesting.api2.client.gui.themes.presets;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
@@ -57,7 +58,7 @@ public enum PresetColor
 		return this.key;
 	}
 	
-	public static void registerColors(ThemeRegistry reg)
+	public static void registerColors(IThemeRegistry reg)
 	{
 		reg.setDefaultColor(TEXT_HEADER.key, new GuiColorStatic(0, 0, 0, 255)); // Headers
 		reg.setDefaultColor(TEXT_MAIN.key, new GuiColorStatic(0, 0, 0, 255)); // Paragraphs

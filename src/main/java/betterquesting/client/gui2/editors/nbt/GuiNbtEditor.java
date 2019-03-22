@@ -106,7 +106,6 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
         }
     }
     
-    @SuppressWarnings("unchecked")
     private void onButtonPress(PEventButton event)
     {
         IPanelButton btn = event.getButton();

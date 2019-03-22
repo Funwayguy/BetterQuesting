@@ -1,5 +1,6 @@
  package betterquesting.api2.client.gui.themes.presets;
 
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
@@ -93,7 +94,7 @@ public enum PresetTexture
 		return this.key;
 	}
 	
-	public static void registerTextures(ThemeRegistry reg)
+	public static void registerTextures(IThemeRegistry reg)
 	{
 		reg.setDefaultTexture(PANEL_MAIN.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(0, 0, 12, 12), new GuiPadding(4, 4, 4, 4)));
 		reg.setDefaultTexture(PANEL_DARK.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(12, 0, 12, 12), new GuiPadding(4, 4, 4, 4)));

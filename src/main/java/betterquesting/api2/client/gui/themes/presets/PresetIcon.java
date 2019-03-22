@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.themes.presets;
 
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -105,7 +106,7 @@ public enum PresetIcon
 		return this.key;
 	}
 	
-	public static void registerIcons(ThemeRegistry reg)
+	public static void registerIcons(IThemeRegistry reg)
 	{
 		reg.setDefaultTexture(ICON_TICK.key, new SimpleTexture(TX_ICONS, new GuiRectangle(128, 0, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_CROSS.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 16, 16, 16)).maintainAspect(true));

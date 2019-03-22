@@ -1,6 +1,5 @@
 package betterquesting.client.themes;
 
-import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.misc.GuiPadding;
@@ -11,20 +10,27 @@ import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.lines.SimpleLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.resources.textures.SlicedTexture;
+import betterquesting.api2.client.gui.themes.GuiKey;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
-import betterquesting.api2.client.gui.themes.presets.PresetColor;
-import betterquesting.api2.client.gui.themes.presets.PresetIcon;
-import betterquesting.api2.client.gui.themes.presets.PresetLine;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.client.gui.themes.presets.*;
 import betterquesting.api2.registry.IFactoryData;
-import betterquesting.client.GuiBuilder;
+import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.gui2.editors.GuiFileBrowser;
+import betterquesting.client.gui2.editors.GuiTextEditor;
+import betterquesting.client.gui2.editors.nbt.GuiEntitySelection;
+import betterquesting.client.gui2.editors.nbt.GuiFluidSelection;
+import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
+import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
@@ -35,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 public class ThemeRegistry implements IThemeRegistry
 {
@@ -47,7 +54,7 @@ public class ThemeRegistry implements IThemeRegistry
 	private final HashMap<ResourceLocation, IGuiTexture> defTextures = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiLine> defLines = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiColor> defColors = new HashMap<>();
-	private IGuiHook defGuiHook;
+	private final HashMap<GuiKey<?>, Function<?, GuiScreen>> defGuis = new HashMap<>();
 	
 	private final HashMap<ResourceLocation, IGuiTheme> themes = new HashMap<>();
 	private final List<ResourceLocation> loadedThemes = new ArrayList<>();
@@ -63,7 +70,30 @@ public class ThemeRegistry implements IThemeRegistry
 		PresetIcon.registerIcons(this);
 		PresetLine.registerLines(this);
 		PresetColor.registerColors(this);
-		defGuiHook = GuiBuilder.INSTANCE;
+        
+        setDefaultGui(PresetGUIs.HOME, arg -> new GuiHome(arg.parent));
+        
+        setDefaultGui(PresetGUIs.EDIT_NBT, arg ->
+        {
+            if(arg.value instanceof NBTTagCompound)
+            {
+                //noinspection unchecked
+                return new GuiNbtEditor(arg.parent, (NBTTagCompound)arg.value, arg.callback);
+            } else if(arg.value instanceof NBTTagList)
+            {
+                //noinspection unchecked
+                return new GuiNbtEditor(arg.parent, (NBTTagList)arg.value, arg.callback);
+            } else
+            {
+                return null;
+            }
+        });
+        
+        setDefaultGui(PresetGUIs.EDIT_ITEM, arg -> new GuiItemSelection(arg.parent, arg.value, arg.callback));
+        setDefaultGui(PresetGUIs.EDIT_FLUID, arg -> new GuiFluidSelection(arg.parent, arg.value, arg.callback));
+        setDefaultGui(PresetGUIs.EDIT_ENTITY, arg -> new GuiEntitySelection(arg.parent, arg.value, arg.callback));
+        setDefaultGui(PresetGUIs.EDIT_TEXT, arg -> new GuiTextEditor(arg.parent, arg.value, arg.callback));
+        setDefaultGui(PresetGUIs.FILE_EXPLORE, arg -> new GuiFileBrowser(arg.parent, arg.callback, arg.root, arg.filter).allowMultiSelect(arg.multiSelect));
 	}
 	
 	@Override
@@ -125,14 +155,14 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public void setDefaultGuiHook(IGuiHook guiHook)
+	public <T> void setDefaultGui(GuiKey<T> key, Function<T, GuiScreen> func)
     {
-        if(guiHook == null)
+        if(key == null || func == null)
         {
-            throw new NullPointerException("Tried to register a default gui hook with one or more NULL arguments");
+            throw new NullPointerException("Tried to register a default gui with one or more NULL arguments");
         }
         
-        defGuiHook = guiHook;
+        defGuis.put(key, func);
     }
 	
 	@Override
@@ -386,13 +416,17 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public IGuiHook getGuiHook()
+    @SuppressWarnings("unchecked")
+	public <T> GuiScreen getGui(GuiKey<T> key, T args)
     {
-        IGuiHook screen = null;
+        if(key == null) return null;
         
-        if(getCurrentTheme() != null) screen = activeTheme.getGuiHook();
+        Function<T, GuiScreen> func = null;
         
-        return screen != null ? screen : defGuiHook;
+        if(getCurrentTheme() != null) func = activeTheme.getGui(key);
+        if(func == null) func = (Function<T, GuiScreen>)defGuis.get(key);
+        
+        return func == null ? null : func.apply(args);
     }
 	
 	@Override
@@ -417,5 +451,11 @@ public class ThemeRegistry implements IThemeRegistry
     public ResourceLocation[] getKnownLines()
     {
         return defLines.keySet().toArray(new ResourceLocation[0]);
+    }
+    
+    @Override
+    public GuiKey[] getKnownGuis()
+    {
+        return defGuis.keySet().toArray(new GuiKey[0]);
     }
 }

@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.themes.presets;
 
+import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.lines.SimpleLine;
@@ -35,7 +36,7 @@ public enum PresetLine
 		return this.key;
 	}
 	
-	public static void registerLines(ThemeRegistry reg)
+	public static void registerLines(IThemeRegistry reg)
 	{
 		reg.setDefaultLine(GUI_DIVIDER.key, new SimpleLine());
 		

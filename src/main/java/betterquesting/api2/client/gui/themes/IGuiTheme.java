@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui.themes;
 
-import betterquesting.api.client.gui.misc.IGuiHook;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -22,11 +21,6 @@ public interface IGuiTheme
 	@Nullable
 	IGuiColor getColor(ResourceLocation key);
 	
-	/** Use this if you wish to start replacing the GUI layouts and not just textures. May change this hook in the near future so don't bet on it staying around*/
 	@Nullable
-    @Deprecated
-    IGuiHook getGuiHook();
-	
-	@Nullable
-    <T> Function<GuiScreen, T> getGui(ResourceLocation guiID, T args);
+    <T> Function<T, GuiScreen> getGui(GuiKey<T> key);
 }
