@@ -1,181 +1,55 @@
 package betterquesting.questing.tasks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.INBTSaveLoad;
 import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
 import betterquesting.api.placeholders.tasks.TaskPlaceholder;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.IRegStorageBase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.storage.SimpleDatabase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 
-public class TaskStorage implements IRegStorageBase<Integer,ITask>, INBTSaveLoad<NBTTagList>
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<ITask, NBTTagList, NBTTagList>
 {
-	private final HashMap<Integer,ITask> database = new HashMap<Integer,ITask>();
-	
 	@Override
-	public Integer nextKey()
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		int id = 0;
-		
-		while(database.containsKey(id))
-		{
-			id++;
-		}
-		
-		return id;
-	}
-
-	@Override
-	public boolean add(ITask obj, Integer id)
-	{
-		if(obj == null || database.containsKey(id) || database.containsKey(id))
-		{
-			return false;
-		}
-		
-		database.put(id, obj);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		return database.remove(id) != null;
-	}
-	
-	@Override
-	public boolean removeValue(ITask task)
-	{
-		return removeKey(getKey(task));
-	}
-	
-	@Override
-	public ITask getValue(Integer id)
-	{
-		return database.get(id);
-	}
-
-	@Override
-	public Integer getKey(ITask obj)
-	{
-		int id = -1;
-		
-		for(Entry<Integer,ITask> entry : database.entrySet())
-		{
-			if(entry.getValue() == obj)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return id;
-	}
-
-	@Override
-	public List<ITask> getAllValues()
-	{
-		return new ArrayList<ITask>(database.values());
-	}
-
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(database.keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return database.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		database.clear();
-	}
-
-	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
-	{
-		switch(saveType)
-		{
-			case CONFIG:
-				writeToJson_Config(json);
-				break;
-			case PROGRESS:
-				writeToJson_Progress(json);
-				break;
-			default:
-				break;
-		}
-		
-		return json;
-	}
-
-	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
-	{
-		switch(saveType)
-		{
-			case CONFIG:
-				readFromJson_Config(json);
-				break;
-			case PROGRESS:
-				readFromJson_Progress(json);
-				break;
-			default:
-				break;
-			
-		}
-	}
-	
-	private NBTTagList writeToJson_Config(NBTTagList json)
-	{
-		for(Entry<Integer,ITask> entry : database.entrySet())
+		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG);
+			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
 			qJson.setString("taskID", taskID.toString());
-			qJson.setInteger("index", entry.getKey());
+			qJson.setInteger("index", entry.getID());
 			json.appendTag(qJson);
 		}
 		return json;
 	}
 	
-	private void readFromJson_Config(NBTTagList json)
+	@Override
+	public void readFromNBT(NBTTagList json)
 	{
-		database.clear();
+		reset();
 		
-		ArrayList<ITask> unassigned = new ArrayList<ITask>();
+		List<ITask> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry == null || entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
-			ITask task = TaskRegistry.INSTANCE.createTask(loc);
+			ITask task = TaskRegistry.INSTANCE.createNew(loc);
 			
 			if(task instanceof TaskPlaceholder)
 			{
 				NBTTagCompound jt2 = jsonTask.getCompoundTag("orig_data");
 				ResourceLocation loc2 = new ResourceLocation(jt2.getString("taskID"));
-				ITask t2 = TaskRegistry.INSTANCE.createTask(loc2);
+				ITask t2 = TaskRegistry.INSTANCE.createNew(loc2);
 				
 				if(t2 != null) // Restored original task
 				{
@@ -186,62 +60,46 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, INBTSaveLoad
 			
 			if(task != null)
 			{
-				task.readFromNBT(jsonTask, EnumSaveType.CONFIG);
-				
-				if(index >= 0)
-				{
-					add(task, index);
-				} else
-				{
-					unassigned.add(task);
-				}
+				task.readFromNBT(jsonTask);
 			} else
 			{
-				TaskPlaceholder tph = new TaskPlaceholder();
-				tph.setTaskData(jsonTask, EnumSaveType.CONFIG);
-				
-				if(index >= 0)
-				{
-					add(tph, index);
-				} else
-				{
-					unassigned.add(tph);
-				}
+				task = new TaskPlaceholder();
+                ((TaskPlaceholder)task).setTaskConfigData(jsonTask);
 			}
+				
+            if(index >= 0)
+            {
+                add(index, task);
+            } else
+            {
+                unassigned.add(task);
+            }
 		}
 		
-		for(ITask t : unassigned)
-		{
-			add(t, nextKey());
-		}
+		for(ITask t : unassigned) add(nextID(), t);
 	}
 	
-	private NBTTagList writeToJson_Progress(NBTTagList json)
+	@Override
+	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
-		for(Entry<Integer,ITask> entry : database.entrySet())
+		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS);
+			NBTTagCompound qJson = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
 			qJson.setString("taskID", taskID.toString());
-			qJson.setInteger("index", entry.getKey());
+			qJson.setInteger("index", entry.getID());
 			json.appendTag(qJson);
 		}
 		return json;
 	}
 	
-	private void readFromJson_Progress(NBTTagList json)
+	@Override
+	public void readProgressFromNBT(NBTTagList json, boolean merge)
 	{
 		for(int i = 0; i < json.tagCount(); i++)
 		{
-			NBTBase entry = json.get(i);
-			
-			if(entry == null || entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jsonTask = (NBTTagCompound)entry;
+			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			ITask task = getValue(index);
@@ -250,19 +108,19 @@ public class TaskStorage implements IRegStorageBase<Integer,ITask>, INBTSaveLoad
 			{
 				if(!task.getFactoryID().equals(loc))
 				{
-					((TaskPlaceholder)task).setTaskData(jsonTask, EnumSaveType.PROGRESS);
+					((TaskPlaceholder)task).setTaskProgressData(jsonTask);
 				} else
 				{
-					task.readFromNBT(jsonTask, EnumSaveType.PROGRESS);
+					task.readProgressFromNBT(jsonTask, false);
 				}
 			} else if(task != null)
 			{
 				if(task.getFactoryID().equals(loc))
 				{
-					task.readFromNBT(jsonTask, EnumSaveType.PROGRESS);
+					task.readProgressFromNBT(jsonTask, false);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
-					task.readFromNBT(jsonTask.getCompoundTag("orig_prog"), EnumSaveType.PROGRESS);
+					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), false);
 				}
 			}
 		}

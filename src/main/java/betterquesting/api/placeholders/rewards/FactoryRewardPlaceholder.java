@@ -1,11 +1,10 @@
 package betterquesting.api.placeholders.rewards;
 
+import betterquesting.api2.registry.IFactoryData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IFactory;
 
-public class FactoryRewardPlaceholder implements IFactory<RewardPlaceholder>
+public class FactoryRewardPlaceholder implements IFactoryData<RewardPlaceholder, NBTTagCompound>
 {
 	public static final FactoryRewardPlaceholder INSTANCE = new FactoryRewardPlaceholder();
 	
@@ -28,10 +27,10 @@ public class FactoryRewardPlaceholder implements IFactory<RewardPlaceholder>
 	}
 	
 	@Override
-	public RewardPlaceholder loadFromNBT(NBTTagCompound nbt)
+	public RewardPlaceholder loadFromData(NBTTagCompound nbt)
 	{
 		RewardPlaceholder reward = createNew();
-		reward.readFromNBT(nbt, EnumSaveType.CONFIG);
+		reward.readFromNBT(nbt);
 		return reward;
 	}
 }

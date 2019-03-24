@@ -9,12 +9,12 @@ public class FileExtensionFilter implements FileFilter
 	
 	public FileExtensionFilter(String extension)
 	{
-		ext = extension.startsWith(".")? extension : "." + extension;
+		ext = (extension.startsWith(".")? extension : "." + extension).toLowerCase();
 	}
 	
 	@Override
 	public boolean accept(File pathname)
 	{
-		return pathname != null && (pathname.isDirectory() || pathname.getAbsolutePath().endsWith(ext));
+		return pathname != null && (pathname.isDirectory() || pathname.getAbsolutePath().toLowerCase().endsWith(ext));
 	}
 }

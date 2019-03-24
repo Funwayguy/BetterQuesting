@@ -1,11 +1,10 @@
 package betterquesting.api.placeholders.tasks;
 
+import betterquesting.api2.registry.IFactoryData;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IFactory;
 
-public class FactoryTaskPlaceholder implements IFactory<TaskPlaceholder>
+public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBTTagCompound>
 {
 	public static final FactoryTaskPlaceholder INSTANCE = new FactoryTaskPlaceholder();
 	
@@ -28,10 +27,10 @@ public class FactoryTaskPlaceholder implements IFactory<TaskPlaceholder>
 	}
 	
 	@Override
-	public TaskPlaceholder loadFromNBT(NBTTagCompound nbt)
+	public TaskPlaceholder loadFromData(NBTTagCompound nbt)
 	{
 		TaskPlaceholder task = createNew();
-		task.readFromNBT(nbt, EnumSaveType.CONFIG);
+		task.readFromNBT(nbt);
 		return task;
 	}
 }

@@ -1,14 +1,5 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
@@ -16,6 +7,16 @@ import betterquesting.network.PacketSender;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandLives extends QuestCommandBase
 {
@@ -144,7 +145,8 @@ public class QuestCommandLives extends QuestCommandBase
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
-			sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
+            //noinspection NoTranslation
+            sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
 			return;
 		} else

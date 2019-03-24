@@ -1,41 +1,39 @@
 package betterquesting.questing.party;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.questing.party.IPartyDatabase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.questing.party.IParty;
-import betterquesting.api.questing.party.IPartyDatabase;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.storage.NameCache;
 
-public final class PartyManager implements IPartyDatabase
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase
 {
 	public static final PartyManager INSTANCE = new PartyManager();
-	
-	private final ConcurrentHashMap<Integer, IParty> partyList = new ConcurrentHashMap<Integer, IParty>();
-	
-	private PartyManager()
-	{
-	}
 	
 	@Override
 	public IParty getUserParty(UUID uuid)
 	{
-		for(IParty p : getAllValues())
+	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null;
+	    
+		for(DBEntry<IParty> entry : getEntries())
 		{
-			EnumPartyStatus status = p.getStatus(uuid);
+			EnumPartyStatus status = entry.getValue().getStatus(uuid);
 			
 			if(status != null && status != EnumPartyStatus.INVITE)
 			{
-				return p;
+				return entry.getValue();
 			}
 		}
 		
@@ -45,15 +43,15 @@ public final class PartyManager implements IPartyDatabase
 	@Override
 	public List<Integer> getPartyInvites(UUID uuid)
 	{
-		ArrayList<Integer> invites = new ArrayList<Integer>();
+		List<Integer> invites = new ArrayList<>();
 		
 		boolean isOp = NameCache.INSTANCE.isOP(uuid);
 		
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
+		for(DBEntry<IParty> entry : getEntries())
 		{
 			if(isOp || entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
 			{
-				invites.add(entry.getKey());
+				invites.add(entry.getID());
 			}
 		}
 		
@@ -61,112 +59,26 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public Integer nextKey()
-	{
-		int i = 0;
-		
-		while(partyList.containsKey(i))
-		{
-			i++;
-		}
-		
-		return i;
-	}
-	
-	@Override
-	public boolean add(IParty party, Integer id)
-	{
-		if(party == null || id < 0 || partyList.containsKey(id) || partyList.containsValue(party))
-		{
-			return false;
-		}
-		
-		partyList.put(id, party);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		return partyList.remove(id) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IParty party)
-	{
-		return removeKey(getKey(party));
-	}
-	
-	@Override
-	public IParty getValue(Integer id)
-	{
-		return partyList.get(id);
-	}
-	
-	@Override
-	public Integer getKey(IParty party)
-	{
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
-		{
-			if(entry.getValue() == party)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public int size()
-	{
-		return partyList.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		partyList.clear();
-	}
-	
-	@Override
-	public List<IParty> getAllValues()
-	{
-		return new ArrayList<IParty>(partyList.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(partyList.keySet());
-	}
-	
-	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), EnumSaveType.CONFIG));
+		tags.setTag("data", writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		readFromNBT(payload.getTagList("data", 10), EnumSaveType.CONFIG);
+		readFromNBT(payload.getTagList("data", 10), false);
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
-		if(saveType != EnumSaveType.CONFIG)
+		for(DBEntry<IParty> entry : getEntries())
 		{
-			return json;
-		}
-		
-		for(Entry<Integer,IParty> entry : partyList.entrySet())
-		{
-			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound(), saveType);
-			jp.setInteger("partyID", entry.getKey());
+			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound());
+			jp.setInteger("partyID", entry.getID());
 			json.appendTag(jp);
 		}
 		
@@ -174,19 +86,15 @@ public final class PartyManager implements IPartyDatabase
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
+		reset();
 		
-		partyList.clear();
 		for(int i = 0; i < json.tagCount(); i++)
 		{
 			NBTBase element = json.get(i);
 			
-			if(element == null || element.getId() != 10)
+			if(element.getId() != 10)
 			{
 				continue;
 			}
@@ -201,11 +109,11 @@ public final class PartyManager implements IPartyDatabase
 			}
 			
 			IParty party = new PartyInstance();
-			party.readFromNBT(jp, EnumSaveType.CONFIG);
+			party.readFromNBT(jp);
 			
 			if(party.getMembers().size() > 0)
 			{
-				partyList.put(partyID, party);
+				add(partyID, party);
 			}
 		}
 	}

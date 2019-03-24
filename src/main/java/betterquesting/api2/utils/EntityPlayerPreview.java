@@ -15,11 +15,19 @@ public class EntityPlayerPreview extends EntityOtherPlayerMP
 {
 	private final ResourceLocation resource;
 	
+	/**
+	 * Backup constructor. DO NOT USE
+	 */
+	public EntityPlayerPreview(World worldIn)
+	{
+		this(worldIn, new GameProfile(null, "Notch"));
+	}
+	
 	public EntityPlayerPreview(World worldIn, GameProfile gameProfileIn)
 	{
 		super(worldIn, gameProfileIn);
 		this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName());
-        this.getDataManager().set(PLAYER_MODEL_FLAG, Byte.valueOf((byte)1));
+        this.getDataManager().set(PLAYER_MODEL_FLAG, (byte)1);
 	}
 	
 	@Override

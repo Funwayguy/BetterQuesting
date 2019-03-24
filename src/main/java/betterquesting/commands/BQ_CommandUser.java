@@ -1,20 +1,23 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.commands.user.QuestCommandHelp;
+import betterquesting.commands.user.QuestCommandRefresh;
+import betterquesting.commands.user.QuestCommandSPHardcore;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import betterquesting.commands.user.QuestCommandHelp;
-import betterquesting.commands.user.QuestCommandRefresh;
-import betterquesting.commands.user.QuestCommandSPHardcore;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BQ_CommandUser extends CommandBase
 {
-	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
+	private final List<QuestCommandBase> coms = new ArrayList<>();
 	
 	public BQ_CommandUser()
 	{
@@ -23,34 +26,36 @@ public class BQ_CommandUser extends CommandBase
 		coms.add(new QuestCommandSPHardcore());
 	}
 	
+    @Nonnull
 	@Override
 	public String getCommandName()
 	{
 		return "bq_user";
 	}
 	
+    @Nonnull
 	@Override
-	public String getCommandUsage(ICommandSender sender)
+	public String getCommandUsage(@Nonnull ICommandSender sender)
 	{
-		String txt = "";
+		StringBuilder txt = new StringBuilder();
 		
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_user " + c.getCommand();
+			txt.append("/bq_user " + c.getCommand());
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
-				txt += " " + c.getUsageSuffix();
+				txt.append(" " + c.getUsageSuffix());
 			}
 			
 			if(i < coms.size() -1)
 			{
-				txt += ", ";
+				txt.append(", ");
 			}
 		}
 		
-		return txt;
+		return txt.toString();
 	}
 
     /**
@@ -61,7 +66,7 @@ public class BQ_CommandUser extends CommandBase
     {
 		if(strings.length == 1)
 		{
-			ArrayList<String> base = new ArrayList<String>();
+			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
 				base.add(c.getCommand());
@@ -78,7 +83,7 @@ public class BQ_CommandUser extends CommandBase
 			}
 		}
 		
-		return new ArrayList<String>();
+		return Collections.emptyList();
     }
 
     /**

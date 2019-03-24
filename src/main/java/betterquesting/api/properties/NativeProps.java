@@ -12,6 +12,7 @@ import betterquesting.api.properties.basic.PropertyTypeItemStack;
 import betterquesting.api.properties.basic.PropertyTypeString;
 import betterquesting.api.utils.BigItemStack;
 
+// TODO: SPLIT THIS DAMN FILE UP. It's already too big and it needs to be divided up per-purpose
 /**
  * List of native properties used in BetterQuesting
  */
@@ -28,11 +29,13 @@ public class NativeProps
 	public static final IPropertyType<Boolean> LOCKED_PROGRESS =			new PropertyTypeBoolean(new ResourceLocation("betterquesting:lockedProgress"), false);
 	public static final IPropertyType<Boolean> SIMULTANEOUS =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:simultaneous"), false);
 	
-	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<EnumQuestVisibility>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
-	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
-	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<EnumLogic>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
+	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
+	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
+	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
 	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
+	
+	@Deprecated
 	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
 	
 	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
@@ -46,6 +49,7 @@ public class NativeProps
 	
 	public static final IPropertyType<Boolean> PARTY_LOOT =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:partySingleReward"), false);
 	public static final IPropertyType<Boolean> PARTY_LIVES =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLives"), false);
+	public static final IPropertyType<Boolean> PARTY_ENABLE =               new PropertyTypeBoolean(new ResourceLocation("betterquesting:party_enable"), true);
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);
 	public static final IPropertyType<Boolean> EDIT_MODE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:editMode"), true);
@@ -58,4 +62,7 @@ public class NativeProps
 	public static final IPropertyType<Float> HOME_ANC_Y =					new PropertyTypeFloat(new ResourceLocation("betterquesting:home_anchor_y"), 0F);
 	public static final IPropertyType<Integer> HOME_OFF_X =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_x"), -128);
 	public static final IPropertyType<Integer> HOME_OFF_Y =					new PropertyTypeInteger(new ResourceLocation("betterquesting:home_offset_y"), 0);
+	
+	public static final IPropertyType<Integer> PACK_VER =					new PropertyTypeInteger(new ResourceLocation("betterquesting:pack_version"), 0);
+	public static final IPropertyType<String> PACK_NAME =					new PropertyTypeString(new ResourceLocation("betterquesting:pack_name"), "");
 }

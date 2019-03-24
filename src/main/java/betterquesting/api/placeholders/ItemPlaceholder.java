@@ -1,6 +1,5 @@
 package betterquesting.api.placeholders;
 
-import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -10,6 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class ItemPlaceholder extends Item
 {
@@ -26,16 +27,15 @@ public class ItemPlaceholder extends Item
      */
 	@Override
     @SideOnly(Side.CLIENT)
-	@SuppressWarnings({"unchecked", "rawtypes"})
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
 	{
 		if(!stack.hasTagCompound())
 		{
-			list.add("ERROR: Original information missing!");
+			tooltip.add("ERROR: Original information missing!");
 			return;
 		}
 		
-		list.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
+		tooltip.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
 	}
 
     /**
@@ -45,7 +45,7 @@ public class ItemPlaceholder extends Item
 	@Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held)
     {
-    	if(!stack.hasTagCompound() || !(entity instanceof EntityPlayer) || world.getTotalWorldTime()%20 != 0) // Process this only once a second
+    	if(!stack.hasTagCompound() || !(entity instanceof EntityPlayer) || world.getTotalWorldTime()%100 != 0) // Process this only once a second
     	{
     		return;
     	}
@@ -53,7 +53,7 @@ public class ItemPlaceholder extends Item
     	EntityPlayer player = (EntityPlayer)entity;
     	
     	NBTTagCompound tags = stack.getTagCompound();
-    	Item i = (Item)Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
+    	Item i = Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
     	int m = stack.getItemDamage() > 0? stack.getItemDamage() : tags.getInteger("orig_meta");
     	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
     	

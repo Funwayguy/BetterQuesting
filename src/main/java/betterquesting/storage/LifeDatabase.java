@@ -1,30 +1,27 @@
 package betterquesting.storage;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.UUID;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.math.MathHelper;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.ILifeDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.MathHelper;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.UUID;
+
+// TODO: Make this thread safe
 public final class LifeDatabase implements ILifeDatabase
 {
 	public static final LifeDatabase INSTANCE = new LifeDatabase();
 	
-	private final HashMap<UUID,Integer> playerLives = new HashMap<UUID,Integer>();
-	private final HashMap<Integer,Integer> partyLives = new HashMap<Integer,Integer>();
-	
-	private LifeDatabase()
-	{
-	}
+	private final HashMap<UUID,Integer> playerLives = new HashMap<>();
+	private final HashMap<Integer,Integer> partyLives = new HashMap<>();
 	
 	@Override
 	public int getLives(UUID uuid)
@@ -39,7 +36,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return playerLives.get(uuid);
 		} else
 		{
-			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
+			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF);
 			playerLives.put(uuid, def);
 			return def;
 		}
@@ -53,13 +50,13 @@ public final class LifeDatabase implements ILifeDatabase
 			return;
 		}
 		
-		playerLives.put(uuid, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
+		playerLives.put(uuid, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX)));
 	}
 	
 	@Override
 	public int getLives(IParty party)
 	{
-		int id = party == null? -1 : PartyManager.INSTANCE.getKey(party);
+		int id = party == null? -1 : PartyManager.INSTANCE.getID(party);
 		
 		if(id < 0)
 		{
@@ -71,7 +68,7 @@ public final class LifeDatabase implements ILifeDatabase
 			return partyLives.get(id);
 		} else
 		{
-			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF).intValue();
+			int def = QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF);
 			partyLives.put(id, def);
 			return def;
 		}
@@ -80,14 +77,14 @@ public final class LifeDatabase implements ILifeDatabase
 	@Override
 	public void setLives(IParty party, int value)
 	{
-		int id = party == null? -1 : PartyManager.INSTANCE.getKey(party);
+		int id = party == null? -1 : PartyManager.INSTANCE.getID(party);
 		
 		if(id < 0)
 		{
 			return;
 		}
 		
-		partyLives.put(id, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue()));
+		partyLives.put(id, MathHelper.clamp_int(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX)));
 	}
 	
 	@Override
@@ -95,8 +92,7 @@ public final class LifeDatabase implements ILifeDatabase
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagCompound(), EnumSaveType.CONFIG));
-		base.setTag("lives", writeToNBT(new NBTTagCompound(), EnumSaveType.PROGRESS));
+		base.setTag("lives", writeProgressToNBT(new NBTTagCompound(), null));
 		tags.setTag("data", base);
 		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
 	}
@@ -106,33 +102,11 @@ public final class LifeDatabase implements ILifeDatabase
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromNBT(base.getCompoundTag("config"), EnumSaveType.CONFIG);
-		readFromNBT(base.getCompoundTag("lives"), EnumSaveType.PROGRESS);
+		readProgressFromNBT(base.getCompoundTag("lives"), false);
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, EnumSaveType saveType)
-	{
-		if(saveType != EnumSaveType.PROGRESS)
-		{
-			return json;
-		}
-		
-		return writeToJson_Progress(json);
-	}
-	
-	@Override
-	public void readFromNBT(NBTTagCompound json, EnumSaveType saveType)
-	{
-		if(saveType != EnumSaveType.PROGRESS)
-		{
-			return;
-		}
-		
-		readFromJson_Progress(json);
-	}
-	
-	private NBTTagCompound writeToJson_Progress(NBTTagCompound json)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
 	{
 		NBTTagList jul = new NBTTagList();
 		for(Entry<UUID,Integer> entry : playerLives.entrySet())
@@ -157,44 +131,30 @@ public final class LifeDatabase implements ILifeDatabase
 		return json;
 	}
 	
-	private void readFromJson_Progress(NBTTagCompound json)
+	@Override
+	public void readProgressFromNBT(NBTTagCompound json, boolean merge)
 	{
 		playerLives.clear();
 		NBTTagList tagList = json.getTagList("playerLives", 10);
 		for(int i = 0; i < tagList.tagCount(); i++)
 		{
-			NBTBase entry = tagList.get(i);
-			
-			if(entry == null || entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound j = (NBTTagCompound)entry;
+			NBTTagCompound j = tagList.getCompoundTagAt(i);
 			
 			try
 			{
 				UUID uuid = UUID.fromString(j.getString("uuid"));
 				int lives = j.getInteger("lives");
 				playerLives.put(uuid, lives);
-			} catch(Exception e)
+			} catch(Exception ignored)
 			{
-				continue;
-			}
+            }
 		}
 		
 		partyLives.clear();
 		tagList = json.getTagList("partyLives", 10);
 		for(int i = 0; i < tagList.tagCount(); i++)
 		{
-			NBTBase entry = tagList.get(i);
-			
-			if(entry == null || entry.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound j = (NBTTagCompound)entry;
+			NBTTagCompound j = tagList.getCompoundTagAt(i);
 			
 			int partyID = j.hasKey("partyID", 99) ? j.getInteger("partyID") : -1;
 			int lives = j.getInteger("lives");
@@ -205,7 +165,8 @@ public final class LifeDatabase implements ILifeDatabase
 			}
 		}
 	}
-
+	
+	@Override
 	public void reset()
 	{
 		playerLives.clear();

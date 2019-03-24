@@ -1,7 +1,7 @@
 package betterquesting.client;
 
-import java.awt.Color;
-import java.util.ArrayList;
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.ScaledResolution;
@@ -18,23 +18,37 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.utils.RenderUtils;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class QuestNotification
 {
 	public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 	{
-		notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
+	    if(BQ_Settings.questNotices) notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
 	}
 	
-	static ArrayList<QuestNotice> notices = new ArrayList<QuestNotice>();
+	private static final List<QuestNotice> notices = new ArrayList<>();
+	
+	public static void resetNotices()
+	{
+		notices.clear();
+	}
 	
 	@SubscribeEvent
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)
 	{
 		if(event.getType() != RenderGameOverlayEvent.ElementType.HELMET || notices.size() <= 0)
 		{
+			return;
+		}
+		
+		if(notices.size() >= 20 || !BQ_Settings.questNotices)
+		{
+			notices.clear();
 			return;
 		}
 		
@@ -85,11 +99,11 @@ public class QuestNotification
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
      	
 		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + I18n.format(notice.mainTxt);
-		int txtW = mc.fontRendererObj.getStringWidth(tmp);
+		int txtW = RenderUtils.getStringWidth(tmp, mc.fontRendererObj);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4, color, false);
 		
 		tmp = I18n.format(notice.subTxt);
-		txtW = mc.fontRendererObj.getStringWidth(tmp);
+		txtW = RenderUtils.getStringWidth(tmp, mc.fontRendererObj);
 		mc.fontRendererObj.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
 		
 		//GlStateManager.disableBlend();
@@ -98,12 +112,12 @@ public class QuestNotification
 	
 	public static class QuestNotice
 	{
-		long startTime = 0;
+		public long startTime;
 		public boolean init = false;
-		public String mainTxt = "";
-		public String subTxt = "";
-		public ItemStack icon = null;
-		public String sound = "random.levelup";
+		private final String mainTxt;
+		private final String subTxt;
+		private final ItemStack icon;
+		private final String sound;
 		
 		public QuestNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 		{

@@ -1,6 +1,12 @@
 package betterquesting.items;
 
-import java.util.List;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.core.BetterQuesting;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -16,13 +22,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.party.IParty;
-import betterquesting.core.BetterQuesting;
-import betterquesting.questing.party.PartyManager;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.QuestSettings;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ItemExtraLife extends Item
 {
@@ -34,23 +36,15 @@ public class ItemExtraLife extends Item
 	}
 
     /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
-     */
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-    {
-        return true;
-    }
-
-    /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(@Nonnull ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
     	if(stack.getItemDamage() != 0 || hand != EnumHand.MAIN_HAND)
     	{
-    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+    		return new ActionResult<>(EnumActionResult.PASS, stack);
     	} else if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
     	{
     		if(!player.capabilities.isCreativeMode)
@@ -58,7 +52,7 @@ public class ItemExtraLife extends Item
     			stack.stackSize--;
     		}
     		
-    		int lives = 0;
+    		int lives;
     		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
     		
     		if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
@@ -76,10 +70,10 @@ public class ItemExtraLife extends Item
     	    		player.addChatComponentMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")));
     			}
 	    		
-	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+	    		return new ActionResult<>(EnumActionResult.PASS, stack);
     		}
 
-            player.worldObj.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
+            player.worldObj.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
     		
     		if(!world.isRemote)
     		{
@@ -98,13 +92,15 @@ public class ItemExtraLife extends Item
     		player.addChatComponentMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"));
     	}
     	
-		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+		return new ActionResult<>(EnumActionResult.PASS, stack);
     }
 
     /**
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
+    @Nonnull
+    @Override
     public String getUnlocalizedName(ItemStack stack)
     {
         switch(stack.getItemDamage()%3)
@@ -114,7 +110,7 @@ public class ItemExtraLife extends Item
         	case 1:
         		return this.getUnlocalizedName() + ".half";
         	default:
-        		return this.getUnlocalizedName() + ".full";	
+        		return this.getUnlocalizedName() + ".full";
         }
     }
 	
@@ -128,12 +124,15 @@ public class ItemExtraLife extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item item, CreativeTabs tab, List list)
+    public void getSubItems(@Nonnull Item item, CreativeTabs tab, List<ItemStack> list)
     {
-    	list.add(new ItemStack(item, 1, 0));
-    	list.add(new ItemStack(item, 1, 1));
-    	list.add(new ItemStack(item, 1, 2));
+    	if(this.getCreativeTab() == tab || tab == CreativeTabs.SEARCH)
+    	{
+	    	list.add(new ItemStack(this, 1, 0));
+	    	list.add(new ItemStack(this, 1, 1));
+	    	list.add(new ItemStack(this, 1, 2));
+    	}
     }
 }

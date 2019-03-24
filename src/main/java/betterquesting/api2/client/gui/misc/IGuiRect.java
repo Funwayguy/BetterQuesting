@@ -2,15 +2,17 @@ package betterquesting.api2.client.gui.misc;
 
 public interface IGuiRect extends Comparable<IGuiRect>
 {
-	public int getX();
-	public int getY();
-	public int getWidth();
-	public int getHeight();
-	public int getDepth();
+	int getX();
+	int getY();
+	int getWidth();
+	int getHeight();
+	int getDepth();
 	
-	public IGuiRect getParent();
-	public void setParent(IGuiRect rect);
+	IGuiRect getParent();
+	void setParent(IGuiRect rect);
 	
-	public boolean contains(int x, int y);
-	public void translate(int x, int y);
+	boolean contains(int x, int y);
+	
+	// I'll probably re-implement this at a later date when it serves more of a purpose
+	//void translate(int x, int y);
 }

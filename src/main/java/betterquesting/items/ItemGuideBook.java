@@ -1,5 +1,6 @@
 package betterquesting.items;
 
+import betterquesting.core.BetterQuesting;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -9,7 +10,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.core.BetterQuesting;
+
+import javax.annotation.Nonnull;
 
 public class ItemGuideBook extends Item
 {
@@ -22,15 +24,16 @@ public class ItemGuideBook extends Item
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(@Nonnull ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
     	if(world.isRemote && hand == EnumHand.MAIN_HAND)
     	{
     		player.openGui(BetterQuesting.instance, 1, world, 0, 0, 0);
     	}
     	
-        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+        return new ActionResult<>(EnumActionResult.PASS, stack);
     }
 	
 	@Override

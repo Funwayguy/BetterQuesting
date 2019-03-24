@@ -1,58 +1,39 @@
 package betterquesting.api.placeholders.rewards;
 
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.rewards.IReward;
 
 public class RewardPlaceholder implements IReward
 {
 	private NBTTagCompound nbtSaved = new NBTTagCompound();
 	
-	public void setRewardData(NBTTagCompound nbt, EnumSaveType saveType)
+	public void setRewardConfigData(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			nbtSaved = nbt;
-		}
+        nbtSaved = nbt;
 	}
 	
-	public NBTTagCompound getRewardData(EnumSaveType saveType)
+	public NBTTagCompound getRewardConfigData()
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			return nbtSaved;
-		}
-		
-		return new NBTTagCompound();
+        return nbtSaved;
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return nbt;
-		}
-		
 		nbt.setTag("orig_data", nbtSaved);
 		
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
 		nbtSaved = nbt.getCompoundTag("orig_data");
 	}
 	
@@ -80,13 +61,7 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
-	}
-	
-	@Override
-	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuest quest)
+	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
 		return null;
 	}

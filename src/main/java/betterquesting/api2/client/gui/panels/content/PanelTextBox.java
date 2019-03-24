@@ -1,52 +1,85 @@
 package betterquesting.api2.client.gui.panels.content;
 
-import java.awt.Color;
-import java.util.List;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
+
+import java.util.List;
 
 public class PanelTextBox implements IGuiPanel
 {
-	private IGuiRect transform;
+	private final GuiRectText transform;
+	private boolean enabled = true;
 	
 	private String text = "";
 	private boolean shadow = false;
-	private int color = Color.BLACK.getRGB();
-	private boolean autoFit = true;
+	private IGuiColor color = new GuiColorStatic(255, 255, 255, 255);
+	private final boolean autoFit;
+	private int align = 0;
+	private int fontScale = 12;
 	
 	private int lines = 1; // Cached number of lines
 	
 	public PanelTextBox(IGuiRect rect, String text)
 	{
-		this.transform = rect;
+		this(rect, text, false);
+	}
+	
+	public PanelTextBox(IGuiRect rect, String text, boolean autoFit)
+	{
+		this.transform = new GuiRectText(rect, autoFit);
 		this.setText(text);
+		this.autoFit = autoFit;
 	}
 	
 	public PanelTextBox setText(String text)
 	{
 		this.text = text;
+		
+		IGuiRect bounds = this.getTransform();
+		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+		
+		if(autoFit)
+		{
+			List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
+			lines = sl.size() - 1;
+			
+			this.transform.h = fr.FONT_HEIGHT * sl.size();
+		} else
+		{
+			lines = (bounds.getHeight() / fr.FONT_HEIGHT) - 1;
+		}
+		
 		return this;
 	}
 	
-	public PanelTextBox setColor(int color)
+	public PanelTextBox setColor(IGuiColor color)
 	{
 		this.color = color;
 		return this;
 	}
 	
-	public PanelTextBox enableShadow(boolean enable)
+	public PanelTextBox setAlignment(int align)
 	{
-		this.shadow = enable;
+		this.align = MathHelper.clamp_int(align, 0, 2);
 		return this;
 	}
 	
-	public PanelTextBox enableAutoFit(boolean enable)
+	public PanelTextBox setFontSize(int size)
+    {
+        this.fontScale = size;
+        return this;
+    }
+	
+	public PanelTextBox enableShadow(boolean enable)
 	{
-		this.autoFit = enable;
+		this.shadow = enable;
 		return this;
 	}
 	
@@ -61,17 +94,30 @@ public class PanelTextBox implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+		float scale = fontScale / 12F;
 		
 		if(!autoFit)
 		{
-			lines = (bounds.getHeight() / fr.FONT_HEIGHT) - 1;
+			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
 			return;
 		}
 		
-		List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
+		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
 		lines = sl.size() - 1;
 		
-		this.transform = new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), fr.FONT_HEIGHT * sl.size());
+		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
 	}
 	
 	@Override
@@ -79,11 +125,39 @@ public class PanelTextBox implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
-		RenderUtils.drawSplitString(fr, text, bounds.getX(), bounds.getY(), bounds.getWidth(), color, shadow, 0, lines);
+		
+		float s = fontScale / 12F;
+		int w = (int)Math.ceil(RenderUtils.getStringWidth(text, fr) * s);
+		int bw = (int)Math.floor(bounds.getWidth() / s);
+		
+		if(bw <= 0) return;
+        
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(bounds.getX(), bounds.getY(), 1);
+        GlStateManager.scale(s, s, 1F);
+        
+		if(align == 2 && bw >= w)
+		{
+			RenderUtils.drawSplitString(fr, text, bw - w, 0, bw, color.getRGB(), shadow, 0, lines);
+		} else if(align == 1 && bw >= w)
+		{
+			RenderUtils.drawSplitString(fr, text, bw/2 - w/2, 0, bw, color.getRGB(), shadow, 0, lines);
+		} else
+		{
+			RenderUtils.drawSplitString(fr, text, 0, 0, bw, color.getRGB(), shadow, 0, lines);
+		}
+		
+		GlStateManager.popMatrix();
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
 	{
 		return false;
 	}
@@ -95,13 +169,91 @@ public class PanelTextBox implements IGuiPanel
 	}
 	
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
+		return false;
 	}
 	
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
 		return null;
+	}
+	
+	private static class GuiRectText implements IGuiRect
+	{
+		private final IGuiRect proxy;
+		private final boolean useH;
+		private int h;
+		
+		public GuiRectText(IGuiRect proxy, boolean useH)
+		{
+			this.proxy = proxy;
+			this.useH = useH;
+		}
+		
+		@Override
+		public int getX()
+		{
+			return proxy.getX();
+		}
+		
+		@Override
+		public int getY()
+		{
+			return proxy.getY();
+		}
+		
+		@Override
+		public int getWidth()
+		{
+			return proxy.getWidth();
+		}
+		
+		@Override
+		public int getHeight()
+		{
+			return useH ? h : proxy.getHeight();
+		}
+		
+		@Override
+		public int getDepth()
+		{
+			return proxy.getDepth();
+		}
+		
+		@Override
+		public IGuiRect getParent()
+		{
+			return proxy.getParent();
+		}
+		
+		@Override
+		public void setParent(IGuiRect rect)
+		{
+			proxy.setParent(rect);
+		}
+		
+		@Override
+		public boolean contains(int x, int y)
+		{
+			int x1 = this.getX();
+			int x2 = x1 + this.getWidth();
+			int y1 = this.getY();
+			int y2 = y1 + this.getHeight();
+			return x >= x1 && x < x2 && y >= y1 && y < y2;
+		}
+		
+		/*@Override
+		public void translate(int x, int y)
+		{
+			proxy.translate(x, y);
+		}*/
+		
+		@Override
+		public int compareTo(IGuiRect o)
+		{
+			return proxy.compareTo(o);
+		}
 	}
 }

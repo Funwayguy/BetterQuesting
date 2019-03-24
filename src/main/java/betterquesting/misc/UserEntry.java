@@ -1,18 +1,23 @@
 package betterquesting.misc;
 
-import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 
+import javax.annotation.Nonnull;
+import java.util.UUID;
+
+// Just use an NBT instance in a HashMap >_>
+@Deprecated
 public class UserEntry
 {
-	private UUID uuid;
-	private long timestamp = 0;
-	private boolean claimed = false;
+	private final UUID uuid;
 	
+	private NBTTagCompound tags = new NBTTagCompound();
+	
+    @Deprecated
 	public UserEntry(UUID uuid, long timestamp)
 	{
 		this(uuid);
-		this.timestamp = timestamp;
+		this.tags.setLong("timestamp", timestamp);
 	}
 	
 	public UserEntry(UUID uuid)
@@ -20,39 +25,66 @@ public class UserEntry
 		this.uuid = uuid;
 	}
 	
-	public void setClaimed(boolean state, long time)
-	{
-		this.claimed = state;
-		this.timestamp = time;
-	}
+	public UserEntry(NBTTagCompound nbt)
+    {
+        uuid = UUID.fromString(nbt.getString("uuid"));
+        this.readFromJson(nbt);
+    }
 	
 	public UUID getUUID()
 	{
 		return uuid;
 	}
 	
+	@Nonnull
+	public NBTTagCompound getNbtData()
+    {
+        return tags;
+    }
+    
+    /**
+     * Deprecated: Retrieve the data directly from getNbtData()
+     * @param state
+     * @param time
+     */
+    @Deprecated
+	public void setClaimed(boolean state, long time)
+	{
+	    tags.setBoolean("claimed", state);
+	    tags.setLong("timestamp", time);
+	}
+    
+    /**
+     * Deprecated: Retrieve the data directly from getNbtData()
+     * @return Timestamp of the last time the user claimed their reward(s)
+     */
+	@Deprecated
 	public long getTimestamp()
 	{
-		return timestamp;
+		return tags.getLong("timestamp");
 	}
-	
+    
+    /**
+     * Deprecated: Retrieve the data directly from getNbtData()
+     * @return Whether or not the player has claimed their quest reward(s)
+     */
+	@Deprecated
 	public boolean hasClaimed()
 	{
-		return claimed;
+		return tags.getBoolean("claimed");
 	}
 	
-	public NBTTagCompound writeToJson(NBTTagCompound json)
+	public NBTTagCompound writeToJson(NBTTagCompound nbt)
 	{
-		json.setString("uuid", uuid.toString());
-		json.setLong("timestamp", timestamp);
-		json.setBoolean("claimed", claimed);
-		return json;
+	    nbt.merge(tags);
+	    nbt.setString("uuid", uuid.toString()); // More of a legacy thing but also to enforce the original UUID
+		return nbt;
 	}
 	
-	public void readFromJson(NBTTagCompound json)
+	public void readFromJson(NBTTagCompound nbt)
 	{
-		uuid = UUID.fromString(json.getString("uuid"));
-		timestamp = json.getLong("timestamp");
-		claimed = json.getBoolean("claimed");
+	    tags = new NBTTagCompound();
+	    tags.merge(nbt);
+	    tags.removeTag("uuid"); // Remove unsafe UUID reference
 	}
 }

@@ -1,33 +1,27 @@
 package betterquesting.api.utils;
 
-import java.util.ArrayList;
+import betterquesting.api2.utils.OreIngredient;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.*;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for comparing ItemStacks in quests
  */
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ItemComparison
 {
     /**
      * Check whether two stacks match with optional NBT and Ore Dictionary checks
-     * @param stack1
-     * @param stack2
-     * @return
      */
     public static boolean StackMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
     {
-    	// Some quick null checks
-    	if(stack1 == null && stack2 == null)
+    	// Some quick checks
+    	if(stack1 == stack2)
     	{
     		return true;
     	} else if(stack1 == null || stack2 == null)
@@ -40,18 +34,10 @@ public class ItemComparison
     		if(!partialNBT && !stack1.areCapsCompatible(stack2))
     		{
     			return false;
-    		} else if(stack1.getTagCompound() != null && stack2.getTagCompound() != null)
+    		} else if(!CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT))
     		{
-    			if(!CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT))
-    			{
-    				return false;
-    			}
-    		} else if(stack1.getTagCompound() != null)
-			{
-				return false; // One of these stacks is missing tags that the other has!
-			}
-			
-			// Well either the tags match or neither stack has any tags at this point
+    			return false;
+    		}
     	}
     	
     	return stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItem().isDamageable() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE);
@@ -59,13 +45,13 @@ public class ItemComparison
     
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial)
     {
-    	if((tag1 == null && tag2 != null) || (tag1 != null && tag2 == null))
+    	if(isEmptyNBT(tag1) != isEmptyNBT(tag2)) // One is null, the other is not
     	{
     		return false;
-    	} else if(tag1 == null && tag2 == null)
+    	} else if(isEmptyNBT(tag1)) // The opposing tag will always be null at this point if the other already is
     	{
     		return true;
-    	}
+    	} else if(!(tag1 instanceof NBTPrimitive && tag2 instanceof NBTPrimitive) && tag1.getId() != tag2.getId()) return false; // Incompatible tag types (and not a numbers we can cast)
     	
     	if(tag1 instanceof NBTTagCompound && tag2 instanceof NBTTagCompound)
     	{
@@ -105,42 +91,14 @@ public class ItemComparison
     			return false; // Sample is missing requested tags or is not exact
     		}
     		
+    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		
     		topLoop:
     		for(int i = 0; i < list1.getIntArray().length; i++)
     		{
     			for(int j = 0; j < list2.getIntArray().length; j++)
     			{
-    				if(list1.getIntArray()[i] == list2.getIntArray()[j])
-    				{
-    					continue topLoop;
-    				}
-    			}
-    			
-    			return false; // Couldn't find requested integer in list
-    		}
-    		
-    		return false;
-    	} else if(tag1 instanceof NBTTagByteArray && tag2 instanceof NBTTagByteArray)
-    	{
-    		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
-    		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
-    		
-    		if(list1.getByteArray().length > list2.getByteArray().length || (!partial && list1.getByteArray().length != list2.getByteArray().length))
-    		{
-    			return false; // Sample is missing requested tags or is not exact
-    		}
-    		
-    		ArrayList<Integer> usedIdxs = new ArrayList<Integer>(); // Duplicate control
-    		
-    		topLoop:
-    		for(int i = 0; i < list1.getByteArray().length; i++)
-    		{
-    			for(int j = 0; j < list2.getByteArray().length; j++)
-    			{
-    				if(usedIdxs.contains(j))
-    				{
-    					continue;
-    				} else if(list1.getByteArray()[i] == list2.getByteArray()[j])
+    				if(!usedIdxs.contains(j) && list1.getIntArray()[i] == list2.getIntArray()[j])
     				{
     					usedIdxs.add(j);
     					continue topLoop;
@@ -150,7 +108,33 @@ public class ItemComparison
     			return false; // Couldn't find requested integer in list
     		}
     		
-    		return false;
+    		return true;
+    	} else if(tag1 instanceof NBTTagByteArray && tag2 instanceof NBTTagByteArray)
+    	{
+    		NBTTagByteArray list1 = (NBTTagByteArray)tag1;
+    		NBTTagByteArray list2 = (NBTTagByteArray)tag2;
+    		
+    		if(list1.getByteArray().length > list2.getByteArray().length || (!partial && list1.getByteArray().length != list2.getByteArray().length))
+    		{
+    			return false; // Sample is missing requested tags or is not exact for non-partial match
+    		}
+    		
+    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		
+    		topLoop:
+    		for(int i = 0; i < list1.getByteArray().length; i++)
+    		{
+    			for(int j = 0; j < list2.getByteArray().length; j++)
+    			{
+    				if(!usedIdxs.contains(j) && list1.getByteArray()[i] == list2.getByteArray()[j])
+    				{
+    					usedIdxs.add(j);
+    					continue topLoop;
+    				}
+    			}
+    			
+    			return false; // Couldn't find requested integer in list
+    		}
     	} else if(tag1 instanceof NBTTagString && tag2 instanceof NBTTagString)
     	{
     		return tag1.equals(tag2);
@@ -159,8 +143,8 @@ public class ItemComparison
     		Number num1 = NBTConverter.getNumber(tag1);
     		Number num2 = NBTConverter.getNumber(tag2);
     		
-    		// Second number will be cast to the requested number format
-    		if(tag1 instanceof NBTTagFloat || tag1 instanceof NBTTagDouble)
+    		// Check if floating point precesion needs to be preserved in comparison
+    		if(tag1 instanceof NBTTagFloat || tag1 instanceof NBTTagDouble || tag2 instanceof NBTTagFloat || tag2 instanceof NBTTagDouble)
     		{
     			return num1.doubleValue() == num2.doubleValue();
     		} else
@@ -177,6 +161,14 @@ public class ItemComparison
     
     private static boolean CompareNBTTagCompound(NBTTagCompound reqTags, NBTTagCompound sample, boolean partial)
     {
+        if(isEmptyNBT(reqTags) != isEmptyNBT(sample)) // One is null, the other is not
+    	{
+    		return false;
+    	} else if(isEmptyNBT(reqTags)) // The opposing tag will always be null at this point if the other already is
+    	{
+    		return true;
+    	}
+    	
     	for(String key : reqTags.getKeySet())
     	{
     		if(!sample.hasKey(key))
@@ -191,54 +183,65 @@ public class ItemComparison
     	return true;
     }
     
+    private static boolean isEmptyNBT(NBTBase tag)
+    {
+        return tag == null || tag.hasNoTags();
+    }
+    
+    @Deprecated
     public static boolean OreDictionaryMatch(String name, ItemStack stack)
     {
-    	return OreDictionaryMatch(name, new NBTTagCompound(), stack, false, false);
+    	return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
     }
     
-    /**
-     * Check if the item stack is part of the ore dictionary listing with the given name (NBT ignored)
-     * @param stack
-     * @param name
-     * @return
-     */
+    @Deprecated
     public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
     {
-    	for(ItemStack oreStack : OreDictionary.getOres(name))
-    	{
-    		ItemStack tmp = oreStack.copy();
-    		tmp.setTagCompound(tags);
-    		
-    		if(StackMatch(tmp, stack, nbtCheck, partialNBT))
-    		{
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+        if(!nbtCheck) return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
+        return OreDictionaryMatch(new OreIngredient(name), tags, stack, nbtCheck, partialNBT);
     }
     
     /**
-     * Check if the two stacks match directly or through ore dictionary listings (NBT ignored)
-     * @param stack1
-     * @param stack2
-     * @return
+     * Check if the item stack is part of the ore dictionary listing with the given ore ingredient while also comparing NBT tags
      */
+    public static boolean OreDictionaryMatch(OreIngredient ore, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
+    {
+        if(stack == null || ore == null) return false;
+        return ore.apply(stack) && (!nbtCheck || CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT));
+    }
+    
+    /**
+     * Check if the two stacks match directly or through ore dictionary listings
+     */
+    @Deprecated
     public static boolean AllMatch(ItemStack stack1, ItemStack stack2)
     {
-    	if(StackMatch(stack1, stack2, false, false))
+        return AllMatch(stack1, stack2, false, false);
+    }
+    
+    /**
+     * Check if the two stacks match directly or through ore dictionary listings
+     */
+    public static boolean AllMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
+    {
+        if(stack1 == stack2) return true; // Both null or same instance
+        if(stack1 == null) return false; // One is null the other is not
+        if(nbtCheck && !CompareNBTTagCompound(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT)) return false; // NBT check failed
+    	if(StackMatch(stack1, stack2, false, false)) return true; // Stacks are compatible (NBT was already checked at this point)
+    	
+        // Final Ore Dictionary test...
+    	int[] oreIDs1 = OreDictionary.getOreIDs(stack1);
+    	int[] oreIDs2 = OreDictionary.getOreIDs(stack2);
+    	
+    	// Search all ore dictionary listings for matches
+    	for(int i1 : oreIDs1)
     	{
-    		return true;
+    	    for(int i2 : oreIDs2)
+            {
+                if(i1 == i2) return true; // Shared ore dictionary entries found
+            }
     	}
     	
-    	for(int id : OreDictionary.getOreIDs(stack1)) // Search all ore dictionary listings for matches
-    	{
-    		if(OreDictionaryMatch(OreDictionary.getOreName(id), stack2))
-    		{
-    			return true;
-    		}
-    	}
-    	
-    	return false;
+    	return false; // No shared ore dictionary types
     }
 }

@@ -5,6 +5,6 @@ import betterquesting.api.network.QuestingPacket;
 
 public interface IDataSync
 {
-	public QuestingPacket getSyncPacket();
-	public void readPacket(NBTTagCompound payload);
+	QuestingPacket getSyncPacket();
+	void readPacket(NBTTagCompound payload);
 }

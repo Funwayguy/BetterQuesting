@@ -1,32 +1,40 @@
 package betterquesting.api2.client.gui.controls;
 
-import java.awt.Color;
-import java.util.List;
+import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
+import betterquesting.api2.client.gui.events.types.PEventButton;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.events.types.PEventButton;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.themes.TexturePreset;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+import org.lwjgl.input.Mouse;
 
-public class PanelButton implements IGuiPanel
+import java.util.List;
+
+public class PanelButton implements IPanelButton
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
 	
 	private final IGuiTexture[] texStates = new IGuiTexture[3];
-	private int[] colStates = new int[]{Color.GRAY.getRGB(), Color.WHITE.getRGB(), 16777120};
+	private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
 	private IGuiTexture texIcon = null;
+	private IGuiColor colIcon = null;
+	private int icoPadding = 0;
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
-	private String btnText = "";
-	private int btnState = 1;
-	private int btnID = -1;
+	private String btnText;
+	private boolean isActive = true;
+	private final int btnID;
+	
+	private boolean pendingRelease = false;
 	
 	public PanelButton(IGuiRect rect, int id, String txt)
 	{
@@ -34,10 +42,11 @@ public class PanelButton implements IGuiPanel
 		this.btnText = txt;
 		this.btnID = id;
 		
-		this.setTextures(ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_0), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_1), ThemeRegistry.INSTANCE.getTexture(TexturePreset.BTN_NORMAL_2));
+		this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(), PresetTexture.BTN_NORMAL_2.getTexture());
+		this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(), PresetColor.BTN_HOVER.getColor());
 	}
 	
-	public PanelButton setTextHighlight(int disabled, int idle, int hover)
+	public PanelButton setTextHighlight(IGuiColor disabled, IGuiColor idle, IGuiColor hover)
 	{
 		this.colStates[0] = disabled;
 		this.colStates[1] = idle;
@@ -61,7 +70,19 @@ public class PanelButton implements IGuiPanel
 	
 	public PanelButton setIcon(IGuiTexture icon)
 	{
+		return this.setIcon(icon, 0);
+	}
+	
+	public PanelButton setIcon(IGuiTexture icon, int padding)
+	{
+		return setIcon(icon, null, padding);
+	}
+	
+	public PanelButton setIcon(IGuiTexture icon, IGuiColor color, int padding)
+	{
 		this.texIcon = icon;
+		this.colIcon = color;
+		this.icoPadding = padding * 2;
 		return this;
 	}
 	
@@ -71,14 +92,9 @@ public class PanelButton implements IGuiPanel
 		return this;
 	}
 	
-	public int getButtonID()
+	public void setText(String text)
 	{
-		return this.btnID;
-	}
-	
-	public int getButtonState()
-	{
-		return this.btnState;
+		this.btnText = text;
 	}
 	
 	public String getText()
@@ -86,15 +102,34 @@ public class PanelButton implements IGuiPanel
 		return this.btnText;
 	}
 	
-	public boolean isEnabled()
+	@Override
+	public int getButtonID()
 	{
-		return this.btnState > 0;
+		return this.btnID;
 	}
 	
-	public PanelButton setEnabled(boolean state)
+	@Override
+	public boolean isActive()
 	{
-		this.btnState = state? 1 : 0;
-		return this;
+		return this.isActive;
+	}
+	
+	@Override
+	public void setActive(boolean state)
+	{
+		this.isActive = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
+	}
+	
+	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
 	}
 	
 	@Override
@@ -114,24 +149,39 @@ public class PanelButton implements IGuiPanel
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
-		this.btnState = !isEnabled()? 0 : (bounds.contains(mx, my)? 2 : 1);
+		int curState = !isActive()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
-		IGuiTexture t = texStates[btnState];
+		if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
+		{
+			curState = 0;
+		}
+		
+		IGuiTexture t = texStates[curState];
 		
 		if(t != null) // Support for text or icon only buttons in one or more states.
 		{
-			t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+			t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
 		}
 		
 		if(texIcon != null)
 		{
-			int isz = Math.min(bounds.getHeight(), bounds.getWidth());
-			texIcon.drawTexture(bounds.getX() + (bounds.getWidth()/2) - (isz/2), bounds.getY() + (bounds.getHeight()/2) - (isz/2), isz, isz, 0F);
+			int isz = Math.min(bounds.getHeight() - icoPadding, bounds.getWidth()- icoPadding);
+			
+			if(isz > 0)
+			{
+				if(colIcon != null)
+				{
+					texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick, colIcon);
+				} else
+				{
+					texIcon.drawTexture(bounds.getX() + (bounds.getWidth() / 2) - (isz / 2), bounds.getY() + (bounds.getHeight() / 2) - (isz / 2), isz, isz, 0F, partialTick);
+				}
+			}
 		}
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRendererObj, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[btnState], txtShadow);
+			drawCenteredString(Minecraft.getMinecraft().fontRendererObj, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[curState].getRGB(), txtShadow);
 		}
 		
 		GlStateManager.popMatrix();
@@ -139,23 +189,35 @@ public class PanelButton implements IGuiPanel
 	
     private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
     {
-        font.drawString(text, x - font.getStringWidth(text) / 2, y, color, shadow);
+        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2, y, color, shadow);
     }
-    
-    /*private static void drawString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
-    {
-        font.drawString(text, x, y, color, shadow);
-    }*/
     
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
+		boolean contains = this.getTransform().contains(mx, my);
+		pendingRelease = isActive() && click == 0 && contains;
+
+		return (click == 0 || click == 1) && contains;
+	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		if(!pendingRelease)
+		{
+			return false;
+		}
+
+		pendingRelease = false;
+
 		IGuiRect bounds = this.getTransform();
-		boolean clicked = click == 0 && bounds.contains(mx, my) && PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+		boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 		
 		if(clicked)
 		{
 	        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+	        onButtonClick();
 		}
 		
 		return clicked;
@@ -168,13 +230,24 @@ public class PanelButton implements IGuiPanel
 	}
 	
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
+		return false;
 	}
 	
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		return tooltip;
+		if(this.getTransform().contains(mx, my))
+		{
+			return tooltip;
+		}
+		
+		return null;
 	}
+	
+	@Override
+    public void onButtonClick()
+    {
+    }
 }

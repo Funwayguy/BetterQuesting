@@ -1,43 +1,44 @@
 package betterquesting.network;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.GZIPInputStream;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.zip.GZIPInputStream;
 
 public final class PacketAssembly
 {
 	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
+	// TODO: Allow for simultaneous packet assembly
+    // TODO: Implement PROPER thread safety that doesn't cause dirty read/writes
+    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick
 	// Player assigned packet buffers
-	private final ConcurrentHashMap<UUID,byte[]> buffer = new ConcurrentHashMap<UUID,byte[]>();
+	private final HashMap<UUID,byte[]> buffer = new HashMap<>();
+	
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
 	private int id = 0;
 	
-	private PacketAssembly()
-	{
-	}
-	
 	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		ArrayList<NBTTagCompound> pkts = new ArrayList<NBTTagCompound>();
+		ArrayList<NBTTagCompound> pkts = new ArrayList<>();
 		
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			CompressedStreamTools.writeCompressed(tags, baos);
+			baos.flush();
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceiling_float_int(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
@@ -49,10 +50,7 @@ public final class PacketAssembly
 				NBTTagCompound container = new NBTTagCompound();
 				byte[] part = new byte[s];
 				
-				for(int n = 0; n < s; n++)
-				{
-					part[n] = data[idx + n];
-				}
+				System.arraycopy(data, idx, part, 0, s);
 				
 				container.setInteger("size", data.length); // If the buffer isn't yet created, how big is it
 				container.setInteger("index", idx); // Where should this piece start writing too
@@ -64,11 +62,13 @@ public final class PacketAssembly
 			}
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.INFO, "Unable to build packet", e);
+			BetterQuesting.logger.error("Unable to split build packet!", e);
+			return pkts;
 		}
 		
 		id = (id + 1)%100; // Cycle the index
 		
+        //System.out.println("Split " + dTotal + "B among " + pCount + " packet(s)...");
 		return pkts;
 	}
 	
@@ -84,10 +84,15 @@ public final class PacketAssembly
 		
 		byte[] tmp = getBuffer(owner);
 		
-		if(tmp == null || tmp.length != size)
+		if(tmp == null)
 		{
 			tmp = new byte[size];
 			setBuffer(owner, tmp);
+		} else if(tmp.length != size)
+		{
+			BetterQuesting.logger.error("Unexpected change in BQ packet byte length: " + size + " > " + tmp.length);
+			clearBuffer(owner);
+			return null;
 		}
 		
 		for(int i = 0; i < data.length && index + i < size; i++)
@@ -107,7 +112,7 @@ public final class PacketAssembly
 				return tag;
 			} catch(Exception e)
 			{
-				BetterQuesting.logger.log(Level.INFO, "Unable to assemble packet", e);
+				throw new RuntimeException("Unable to assemble BQ packet", e);
 			}
 		}
 		
@@ -121,7 +126,10 @@ public final class PacketAssembly
 			return serverBuf;
 		} else
 		{
-			return buffer.get(owner);
+		    synchronized(buffer)
+            {
+                return buffer.get(owner);
+            }
 		}
 	}
 	
@@ -132,7 +140,15 @@ public final class PacketAssembly
 			serverBuf = value;
 		} else
 		{
-			buffer.put(owner, value);
+		    synchronized(buffer)
+            {
+                if(buffer.containsKey(owner))
+                {
+                    throw new IllegalStateException("Attepted to start more than one BQ packet assembly for UUID " + owner.toString());
+                }
+    
+                buffer.put(owner, value);
+            }
 		}
 	}
 	
@@ -143,7 +159,10 @@ public final class PacketAssembly
 			serverBuf = null;
 		} else
 		{
-			buffer.remove(owner);
+		    synchronized(buffer)
+            {
+                buffer.remove(owner);
+            }
 		}
 	}
 }

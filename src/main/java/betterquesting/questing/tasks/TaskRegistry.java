@@ -1,31 +1,29 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
+import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api2.registry.IFactoryData;
+import betterquesting.api2.registry.IRegistry;
+import betterquesting.core.BetterQuesting;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
-import betterquesting.api.misc.IFactory;
-import betterquesting.api.placeholders.tasks.FactoryTaskPlaceholder;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.questing.tasks.ITaskRegistry;
-import betterquesting.core.BetterQuesting;
 
 /**
  * Registry for all known task types. Questing packs should register their custom types here for proper saving/loading
  */
-public class TaskRegistry implements ITaskRegistry
+public class TaskRegistry implements IRegistry<IFactoryData<ITask, NBTTagCompound>, ITask>
 {
 	public static final TaskRegistry INSTANCE = new TaskRegistry();
 	
-	private HashMap<ResourceLocation, IFactory<? extends ITask>> taskRegistry = new HashMap<ResourceLocation, IFactory<? extends ITask>>();
-	
-	private TaskRegistry()
-	{
-	}
+	private final HashMap<ResourceLocation, IFactoryData<ITask, NBTTagCompound>> taskRegistry = new HashMap<>();
 	
 	@Override
-	public void registerTask(IFactory<? extends ITask> factory)
+	public void register(IFactoryData<ITask, NBTTagCompound> factory)
 	{
 		if(factory == null)
 		{
@@ -44,22 +42,23 @@ public class TaskRegistry implements ITaskRegistry
 	}
 	
 	@Override
-	public IFactory<? extends ITask> getFactory(ResourceLocation registryName)
+	public IFactoryData<ITask, NBTTagCompound> getFactory(ResourceLocation registryName)
 	{
 		return taskRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IFactory<? extends ITask>> getAll()
+	public List<IFactoryData<ITask, NBTTagCompound>> getAll()
 	{
-		return new ArrayList<IFactory<? extends ITask>>(taskRegistry.values());
+		return new ArrayList<>(taskRegistry.values());
 	}
 	
-	public ITask createTask(ResourceLocation registryName)
+	@Override
+	public ITask createNew(ResourceLocation registryName)
 	{
 		try
 		{
-			IFactory<? extends ITask> factory = null;
+			IFactoryData<? extends ITask, NBTTagCompound> factory;
 			
 			if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(registryName))
 			{

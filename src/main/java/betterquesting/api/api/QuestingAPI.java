@@ -1,17 +1,18 @@
 package betterquesting.api.api;
 
-import java.util.HashMap;
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Storage for all the questing API hooks. Includes built-in and custom APIs
  */
 public class QuestingAPI
 {
-	private static final HashMap<ApiKey<?>, Object> apis = new HashMap<ApiKey<?>, Object>();
+	private static final HashMap<ApiKey<?>, Object> apis = new HashMap<>();
 	
 	public static <T> void registerAPI(ApiKey<T> key, T api)
 	{
@@ -33,14 +34,7 @@ public class QuestingAPI
 	public static <T> T getAPI(ApiKey<T> key)
 	{
 		Object obj = apis.get(key);
-		
-		if(obj == null)
-		{
-			return null;
-		} else
-		{
-			return (T)obj;
-		}
+		return obj == null ? null : (T)obj;
 	}
 	
 	/**

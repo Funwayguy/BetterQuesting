@@ -70,24 +70,18 @@ public class GuiRectangle implements IGuiRect
 	@Override
 	public boolean contains(int x, int y)
 	{
-		int x1 = this.x;
-		int x2 = this.x + this.w;
-		int y1 = this.y;
-		int y2 = this.y + this.h;
+		int x1 = this.getX();
+		int x2 = x1 + this.w;
+		int y1 = this.getY();
+		int y2 = y1 + this.h;
 		return x >= x1 && x < x2 && y >= y1 && y < y2;
 	}
 	
-	@Override
+	/*@Override
 	public void translate(int dx, int dy)
 	{
 		this.x += dx;
 		this.y += dy;
-	}
-	
-	/*@Override
-	public IGuiRect relative(IGuiRect frame)
-	{
-		return new GuiRectangle(x + frame.getX(), y + frame.getY(), frame.getWidth(), frame.getHeight());
 	}*/
 	
 	@Override

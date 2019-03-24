@@ -1,5 +1,22 @@
 package betterquesting.core;
 
+import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api.placeholders.ItemPlaceholder;
+import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.blocks.BlockSubmitStation;
+import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.CreativeTabQuesting;
+import betterquesting.commands.BQ_CommandAdmin;
+import betterquesting.commands.BQ_CommandDebug;
+import betterquesting.commands.BQ_CommandUser;
+import betterquesting.core.proxies.CommonProxy;
+import betterquesting.handlers.ConfigHandler;
+import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.items.ItemExtraLife;
+import betterquesting.items.ItemGuideBook;
+import betterquesting.network.PacketQuesting;
+import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -9,6 +26,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -17,40 +35,18 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import betterquesting.api.placeholders.EntityPlaceholder;
-import betterquesting.api.placeholders.FluidPlaceholder;
-import betterquesting.api.placeholders.ItemPlaceholder;
-import betterquesting.blocks.BlockSubmitStation;
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.CreativeTabQuesting;
-import betterquesting.commands.BQ_CommandAdmin;
-import betterquesting.commands.BQ_CommandDebug;
-import betterquesting.commands.BQ_CommandUser;
-import betterquesting.core.proxies.CommonProxy;
-import betterquesting.handlers.ConfigHandler;
-import betterquesting.items.ItemExtraLife;
-import betterquesting.items.ItemGuideBook;
-import betterquesting.network.PacketQuesting;
-import betterquesting.network.PacketTypeRegistry;
 
-@Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
+@Mod(modid = BetterQuesting.MODID, version = "@VERSION@", name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
 {
     public static final String MODID = "betterquesting";
-    public static final String VERSION = "CI_MOD_VERSION";
-    public static final String BRANCH = "CI_MOD_BRANCH";
-    public static final String HASH = "CI_MOD_HASH";
     public static final String NAME = "BetterQuesting";
     public static final String PROXY = "betterquesting.core.proxies";
     public static final String CHANNEL = "BQ_NET_CHAN";
@@ -82,16 +78,12 @@ public class BetterQuesting
     	
     	proxy.registerHandlers();
     	
-    	ExpansionLoader.INSTANCE.loadExpansions(event.getAsmData());
-    	
-    	if(PacketTypeRegistry.INSTANCE == null)
-    	{
-    		// Not actually required but for the sake of instantiating first...
-    		BetterQuesting.logger.log(Level.ERROR, "Unabled to instatiate packet registry");
-    	}
+    	PacketTypeRegistry.INSTANCE.init();
     	
     	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
     	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
+    
+        CapabilityProviderQuestCache.register();
     }
     
     @EventHandler
@@ -125,14 +117,14 @@ public class BetterQuesting
     	proxy.registerRenderers();
     }
     
-    public void registerBlock(Block b, String name)
+    private void registerBlock(Block b, String name)
     {
     	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
     	GameRegistry.register(b, res);
         GameRegistry.register(new ItemBlock(b).setRegistryName(res));
     }
     
-    public void registerItem(Item i, String name)
+    private void registerItem(Item i, String name)
     {
     	ResourceLocation res = new ResourceLocation(MODID + ":" + name);
         GameRegistry.register(i.setRegistryName(res));
@@ -141,7 +133,6 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-    	proxy.registerExpansions();
     }
 	
 	@EventHandler
@@ -153,10 +144,15 @@ public class BetterQuesting
 		
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
+  
+		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) manager.registerCommand(new BQ_CommandDebug());
 		
-		if(BetterQuesting.VERSION == "CI_" + "MOD_VERSION")
-		{
-			manager.registerCommand(new BQ_CommandDebug());
-		}
+		SaveLoadHandler.INSTANCE.loadDatabases(server);
+	}
+	
+	@EventHandler
+	public void serverStop(FMLServerStoppedEvent event)
+	{
+		SaveLoadHandler.INSTANCE.unloadDatabases();
 	}
 }

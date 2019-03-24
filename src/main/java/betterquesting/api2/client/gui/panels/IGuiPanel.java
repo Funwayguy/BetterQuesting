@@ -5,15 +5,17 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 
 public interface IGuiPanel
 {
-	public IGuiRect getTransform();
+	IGuiRect getTransform();
 	
-	// Don't initialise anything with fixed positions or size in here. It's all relative
-	public void initPanel();
-	public void drawPanel(int mx, int my, float partialTick);
+	void initPanel();
+	void setEnabled(boolean state);
+	boolean isEnabled();
+	void drawPanel(int mx, int my, float partialTick);
 	
-	public boolean onMouseClick(int mx, int my, int click);
-	public boolean onMouseScroll(int mx, int my, int scroll);
-	public void onKeyTyped(char c, int keycode);
+	boolean onMouseClick(int mx, int my, int button);
+	boolean onMouseRelease(int mx, int my, int button);
+	boolean onMouseScroll(int mx, int my, int scroll);
+	boolean onKeyTyped(char c, int keycode);
 	
-	public List<String> getTooltip(int mx, int my);
+	List<String> getTooltip(int mx, int my);
 }

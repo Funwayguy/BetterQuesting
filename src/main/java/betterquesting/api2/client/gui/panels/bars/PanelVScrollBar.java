@@ -1,22 +1,22 @@
 package betterquesting.api2.client.gui.panels.bars;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.resources.IGuiTexture;
-import betterquesting.api2.client.gui.themes.TexturePreset;
-import betterquesting.api2.client.gui.themes.ThemeRegistry;
+
+import java.util.List;
 
 public class PanelVScrollBar implements IScrollBar
 {
 	private final IGuiRect transform;
+	private boolean enabled = true;
+	private boolean active = true;
 	
 	private IGuiTexture texBack;
-	private IGuiTexture texHndlIdle;
-	private IGuiTexture texHndlHover;
+	private IGuiTexture[] texHandleState = new IGuiTexture[3];
 	
 	private float scroll = 0F;
 	private float speed = 0.1F;
@@ -27,9 +27,7 @@ public class PanelVScrollBar implements IScrollBar
 	public PanelVScrollBar(IGuiRect rect)
 	{
 		this.transform = rect;
-		this.texBack = ThemeRegistry.INSTANCE.getTexture(TexturePreset.SCROLL_V_0);
-		this.texHndlIdle = ThemeRegistry.INSTANCE.getTexture(TexturePreset.SCROLL_V_1);
-		this.texHndlHover = ThemeRegistry.INSTANCE.getTexture(TexturePreset.SCROLL_V_2);
+		this.setBarTexture(PresetTexture.SCROLL_V_BG.getTexture(), PresetTexture.SCROLL_V_0.getTexture(), PresetTexture.SCROLL_V_1.getTexture(), PresetTexture.SCROLL_V_2.getTexture());
 	}
 	
 	@Override
@@ -41,11 +39,12 @@ public class PanelVScrollBar implements IScrollBar
 	}
 	
 	@Override
-	public PanelVScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleIdle, IGuiTexture handleHover)
+	public PanelVScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleDisabled, IGuiTexture handleIdle, IGuiTexture handleHover)
 	{
 		this.texBack = back;
-		this.texHndlIdle = handleIdle;
-		this.texHndlHover = handleHover;
+		this.texHandleState[0] = handleDisabled;
+		this.texHandleState[1] = handleIdle;
+		this.texHandleState[2] = handleHover;
 		return this;
 	}
 	
@@ -61,6 +60,30 @@ public class PanelVScrollBar implements IScrollBar
 	}
 	
 	@Override
+	public void setEnabled(boolean state)
+	{
+		this.enabled = state;
+	}
+	
+	@Override
+	public boolean isEnabled()
+	{
+		return this.enabled;
+	}
+	
+	@Override
+	public void setActive(boolean state)
+	{
+		this.active = state;
+	}
+	
+	@Override
+	public boolean isActive()
+	{
+		return this.active;
+	}
+	
+	@Override
 	public IGuiRect getTransform()
 	{
 		return transform;
@@ -70,7 +93,8 @@ public class PanelVScrollBar implements IScrollBar
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
+		
+		if(active && isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
 		{
 			float cy = (float)(my - (bounds.getY() + hSize/2)) / (float)(bounds.getHeight() - hSize);
 			this.writeValue(cy);
@@ -84,27 +108,26 @@ public class PanelVScrollBar implements IScrollBar
 		
 		if(texBack != null)
 		{
-			texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F);
+			texBack.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
 		}
 
 		int sy = MathHelper.floor_float((bounds.getHeight() - hSize - (inset*2)) * scroll);
+		int state = !active ? 0 : (isDragging || bounds.contains(mx, my) ? 2 : 1);
+		IGuiTexture tex = texHandleState[state];
 		
-		if(texHndlHover != null && (isDragging || bounds.contains(mx, my)))
+		if(tex != null)
 		{
-			texHndlHover.drawTexture(bounds.getX() + inset, bounds.getY() + sy + inset, bounds.getWidth() - (inset*2), hSize, 0F);
-		} else if(texHndlIdle != null)
-		{
-			texHndlIdle.drawTexture(bounds.getX() + inset, bounds.getY() + sy + inset, bounds.getWidth() - (inset*2), hSize, 0F);
+			tex.drawTexture(bounds.getX() + inset, bounds.getY() + sy + inset, bounds.getWidth() - (inset * 2), hSize, 0F, partialTick);
 		}
 		
 		GlStateManager.popMatrix();
 	}
-
+	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(!bounds.contains(mx, my))
+		if(!active || !bounds.contains(mx, my))
 		{
 			return false;
 		}
@@ -117,12 +140,18 @@ public class PanelVScrollBar implements IScrollBar
 		
 		return false;
 	}
+	
+	@Override
+	public boolean onMouseRelease(int mx, int my, int click)
+	{
+		return false;
+	}
 
 	@Override
 	public boolean onMouseScroll(int mx, int my, int sdx)
 	{
 		IGuiRect bounds = this.getTransform();
-		if(sdx == 0 || !bounds.contains(mx, my))
+		if(!active || sdx == 0 || !bounds.contains(mx, my))
 		{
 			return false;
 		}
@@ -140,14 +169,15 @@ public class PanelVScrollBar implements IScrollBar
 	}
 
 	@Override
-	public void onKeyTyped(char c, int keycode)
+	public boolean onKeyTyped(char c, int keycode)
 	{
+		return false;
 	}
 
 	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
-		return new ArrayList<String>();
+		return null;
 	}
 	
 	@Override
@@ -161,4 +191,16 @@ public class PanelVScrollBar implements IScrollBar
 	{
 		this.scroll = MathHelper.clamp_float(value, 0F, 1F);
 	}
+	
+	@Override
+    public Float readValueRaw()
+    {
+        return readValue();
+    }
+    
+    @Override
+    public void writeValueRaw(Float value)
+    {
+        this.scroll = value;
+    }
 }

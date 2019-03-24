@@ -13,16 +13,19 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "CI_MOD_VERSION"
-group= "betterquesting" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "BetterQuesting"
+version = modVersion
+group= modGroup
+archivesBaseName = modBaseName
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.10.2-12.18.3.2185"
-    mappings = "snapshot_20161111"
+    version = project.forgeVersion
+    mappings = project.mcpVersion
+
+    replace "@VERSION@", project.version
+    replaceIn project.modBaseClass
 }
 
 dependencies {

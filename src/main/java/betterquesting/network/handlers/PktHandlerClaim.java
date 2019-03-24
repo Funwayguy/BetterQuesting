@@ -1,13 +1,16 @@
 package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuest;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.util.ResourceLocation;
 
 public class PktHandlerClaim implements IPacketHandler
 {
@@ -25,12 +28,28 @@ public class PktHandlerClaim implements IPacketHandler
 			return;
 		}
 		
-		IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
+		NBTBase tag = data.getTag("questID");
 		
-		if(quest != null && !quest.hasClaimed(QuestingAPI.getQuestingUUID(sender)) && quest.canClaim(sender))
-		{
-			quest.claimReward(sender);
-		}
+		if(tag instanceof NBTTagIntArray)
+        {
+            for(int id : ((NBTTagIntArray)tag).getIntArray())
+            {
+                IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+        
+                if(quest != null && !quest.hasClaimed(QuestingAPI.getQuestingUUID(sender)) && quest.canClaim(sender))
+                {
+                    quest.claimReward(sender);
+                }
+            }
+        } else if(tag instanceof NBTTagInt)
+        {
+            IQuest quest = QuestDatabase.INSTANCE.getValue(data.getInteger("questID"));
+    
+            if(quest != null && !quest.hasClaimed(QuestingAPI.getQuestingUUID(sender)) && quest.canClaim(sender))
+            {
+                quest.claimReward(sender);
+            }
+        }
 	}
 	
 	@Override

@@ -1,18 +1,21 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.network.PacketSender;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
-import betterquesting.api.questing.IQuest;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.NameCache;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandReset extends QuestCommandBase
 {
@@ -31,15 +34,15 @@ public class QuestCommandReset extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		} else if(args.length == 3)
 		{
@@ -76,14 +79,14 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
+			for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
 			{
 				if(uuid != null)
 				{
-					quest.resetUser(uuid, true); // Clear progress and state
+					entry.getValue().resetUser(uuid, true); // Clear progress and state
 				} else
 				{
-					quest.resetAll(true);
+					entry.getValue().resetAll(true);
 				}
 			}
 			
@@ -104,11 +107,11 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getUnlocalisedName()), pName));
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
 				} else
 				{
 					quest.resetAll(true);
-					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getUnlocalisedName())));
+					sender.addChatMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
 				}
 			} catch(Exception e)
 			{

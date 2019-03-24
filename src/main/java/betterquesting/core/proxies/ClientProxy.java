@@ -1,30 +1,33 @@
 package betterquesting.core.proxies;
 
-import java.util.ArrayList;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.resources.SimpleReloadableResourceManager;
-import net.minecraft.item.Item;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.PlaceholderRenderFactory;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.misc.QuestResourcesFile;
 import betterquesting.misc.QuestResourcesFolder;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
 
 public class ClientProxy extends CommonProxy
 {
@@ -40,7 +43,13 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
-		//MinecraftForge.EVENT_BUS.register(new UpdateNotification());
+		if(!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
+		{
+			if(!Minecraft.getMinecraft().getFramebuffer().enableStencil())
+			{
+				BetterQuesting.logger.error("[!] FAILED TO ENABLE STENCIL BUFFER. GUIS WILL BREAK! [!]");
+			}
+		}
 		
 		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
 		
@@ -51,7 +60,8 @@ public class ClientProxy extends CommonProxy
 		
 		try
 		{
-			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
+		    //String tmp = "defaultResourcePacks";
+			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao");
 			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
 			QuestResourcesFile qRes2 = new QuestResourcesFile();
 			list.add(qRes1);
@@ -60,12 +70,12 @@ public class ClientProxy extends CommonProxy
 			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes2); // Make sure the pack(s) are visible to everything
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loaders", e);
+			BetterQuesting.logger.error("Unable to install questing resource loaders", e);
 		}
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new PlaceholderRenderFactory());
 		
-		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
+		ToolboxRegistry.INSTANCE.registerToolTab(new ResourceLocation(BetterQuesting.MODID, "main"), ToolboxTabMain.INSTANCE);
 	}
 	
 	@Override
@@ -79,6 +89,8 @@ public class ClientProxy extends CommonProxy
 		registerItemModel(BetterQuesting.extraLife, 1, BetterQuesting.MODID + ":heart_half");
 		registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
 		registerItemModel(BetterQuesting.guideBook);
+		
+		ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -93,12 +105,12 @@ public class ClientProxy extends CommonProxy
 		Item item = Item.getItemFromBlock(block);
 		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
 		
-		if(!name.equals(item.getRegistryName()))
+		if(!name.equals(item.getRegistryName().toString()))
 		{
 		    ModelBakery.registerItemVariants(item, model);
 		}
-		
-	    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
+
+		ModelLoader.setCustomModelResourceLocation(item, meta, model);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -112,11 +124,11 @@ public class ClientProxy extends CommonProxy
 	{
 		ModelResourceLocation model = new ModelResourceLocation(name, "inventory");
 		
-		if(!name.equals(item.getRegistryName()))
+		if(!name.equals(item.getRegistryName().toString()))
 		{
 		    ModelBakery.registerItemVariants(item, model);
 		}
 		
-	    Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
+		ModelLoader.setCustomModelResourceLocation(item, meta, model);
 	}
 }

@@ -1,24 +1,20 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.commands.admin.*;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import betterquesting.commands.admin.QuestCommandComplete;
-import betterquesting.commands.admin.QuestCommandDefaults;
-import betterquesting.commands.admin.QuestCommandDelete;
-import betterquesting.commands.admin.QuestCommandEdit;
-import betterquesting.commands.admin.QuestCommandHardcore;
-import betterquesting.commands.admin.QuestCommandLives;
-import betterquesting.commands.admin.QuestCommandReset;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BQ_CommandAdmin extends CommandBase
 {
-	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
+	private final List<QuestCommandBase> coms = new ArrayList<>();
 	
 	public BQ_CommandAdmin()
 	{
@@ -40,25 +36,25 @@ public class BQ_CommandAdmin extends CommandBase
 	@Override
 	public String getCommandUsage(ICommandSender sender)
 	{
-		String txt = "";
+		StringBuilder txt = new StringBuilder();
 		
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_admin " + c.getCommand();
+			txt.append("/bq_admin " + c.getCommand());
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
-				txt += " " + c.getUsageSuffix();
+				txt.append(" " + c.getUsageSuffix());
 			}
 			
 			if(i < coms.size() -1)
 			{
-				txt += ", ";
+				txt.append(", ");
 			}
 		}
 		
-		return txt;
+		return txt.toString();
 	}
 
     /**
@@ -69,7 +65,7 @@ public class BQ_CommandAdmin extends CommandBase
     {
 		if(strings.length == 1)
 		{
-			ArrayList<String> base = new ArrayList<String>();
+			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
 				base.add(c.getCommand());
@@ -86,7 +82,7 @@ public class BQ_CommandAdmin extends CommandBase
 			}
 		}
 		
-		return new ArrayList<String>();
+		return Collections.emptyList();
     }
 	
 	@Override

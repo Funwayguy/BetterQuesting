@@ -1,5 +1,16 @@
 package betterquesting.misc;
 
+import betterquesting.core.BetterQuesting;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.ResourcePackFileNotFoundException;
+import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.client.resources.data.MetadataSerializer;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
 import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.File;
@@ -11,16 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.ResourcePackFileNotFoundException;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.MetadataSerializer;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class QuestResourcesFile implements IResourcePack, Closeable
 {

@@ -1,23 +1,18 @@
 package betterquesting.storage;
 
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 
 public class PropertyContainer implements IPropertyContainer
 {
-	private NBTTagCompound nbtInfo = new NBTTagCompound();
+	private final NBTTagCompound nbtInfo = new NBTTagCompound();
 	
 	@Override
 	public <T> T getProperty(IPropertyType<T> prop)
 	{
-		if(prop == null)
-		{
-			return null;
-		}
+		if(prop == null) return null;
 		
 		return getProperty(prop, prop.getDefault());
 	}
@@ -25,60 +20,63 @@ public class PropertyContainer implements IPropertyContainer
 	@Override
 	public <T> T getProperty(IPropertyType<T> prop, T def)
 	{
-		if(prop == null)
-		{
-			return null;
-		}
+		if(prop == null) return def;
 		
-		NBTBase jProp = getJsonDomain(prop.getKey()).getTag(prop.getKey().getResourcePath());
-		
-		if(jProp == null)
-		{
-			return def;
-		}
-		
-		return prop.readValue(jProp);
+		synchronized(nbtInfo)
+        {
+            NBTTagCompound jProp = getDomain(prop.getKey());
+    
+            if(!jProp.hasKey(prop.getKey().getResourcePath())) return def;
+    
+            return prop.readValue(jProp.getTag(prop.getKey().getResourcePath()));
+        }
 	}
 	
 	@Override
 	public boolean hasProperty(IPropertyType<?> prop)
 	{
-		if(prop == null)
-		{
-			return false;
-		}
+		if(prop == null) return false;
 		
-		return getJsonDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
+		synchronized(nbtInfo)
+        {
+            return getDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
+        }
 	}
 	
 	@Override
 	public <T> void setProperty(IPropertyType<T> prop, T value)
 	{
-		if(prop == null || value == null)
-		{
-			return;
-		}
+		if(prop == null || value == null) return;
 		
-		NBTTagCompound dom = getJsonDomain(prop.getKey());
-		dom.setTag(prop.getKey().getResourcePath(), prop.writeValue(value));
-		nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
+		synchronized(nbtInfo)
+        {
+            NBTTagCompound dom = getDomain(prop.getKey());
+            dom.setTag(prop.getKey().getResourcePath(), prop.writeValue(value));
+            nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
+        }
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		nbt.merge(nbtInfo);
-		return nbt;
+	    synchronized(nbtInfo)
+        {
+            nbt.merge(nbtInfo);
+            return nbt;
+        }
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		nbtInfo = new NBTTagCompound();
-		nbtInfo.merge(nbt);
+	    synchronized(nbtInfo)
+        {
+            for(String key : nbtInfo.getKeySet()) nbtInfo.removeTag(key);
+            nbtInfo.merge(nbt);
+        }
 	}
 	
-	private NBTTagCompound getJsonDomain(ResourceLocation res)
+	private NBTTagCompound getDomain(ResourceLocation res)
 	{
 		return nbtInfo.getCompoundTag(res.getResourceDomain());
 	}

@@ -16,7 +16,7 @@ public class EntityPlaceholderRenderer extends Render<EntityPlaceholder>
 	@Override
 	public void doRender(EntityPlaceholder entity, double x, double y, double z, float yaw, float partialTick)
 	{
-		EntityItem item = ((EntityPlaceholder)entity).GetItemEntity();
+		EntityItem item = entity.GetItemEntity();
 		this.renderManager.doRenderEntity(item, x, y + 1D, z, yaw, partialTick, false);
 	}
 
