@@ -54,6 +54,7 @@ task deobfJar(type: Jar) {
 task apiJar(type: Jar) {
         from(sourceSets.main.output) {
             include 'betterquesting/api/**'
+            include 'betterquesting/api2/**'
         }
         appendix = 'api'
 }

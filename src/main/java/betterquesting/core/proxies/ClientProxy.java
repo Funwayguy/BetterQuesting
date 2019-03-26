@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -110,7 +109,7 @@ public class ClientProxy extends CommonProxy
 		    ModelBakery.registerItemVariants(item, model);
 		}
 
-		ModelLoader.setCustomModelResourceLocation(item, meta, model);
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -129,6 +128,6 @@ public class ClientProxy extends CommonProxy
 		    ModelBakery.registerItemVariants(item, model);
 		}
 		
-		ModelLoader.setCustomModelResourceLocation(item, meta, model);
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, model);
 	}
 }

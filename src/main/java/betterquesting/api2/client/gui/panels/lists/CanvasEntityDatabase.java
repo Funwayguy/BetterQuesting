@@ -6,8 +6,7 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import net.minecraft.entity.EntityList;
 import net.minecraft.util.StringUtils;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
+import java.util.*;
 
 public class CanvasEntityDatabase extends CanvasSearch<String, String>
 {
@@ -22,7 +21,9 @@ public class CanvasEntityDatabase extends CanvasSearch<String, String>
     @Override
     protected Iterator<String> getIterator()
     {
-        return EntityList.NAME_TO_CLASS.keySet().iterator();
+        List<String> list = new ArrayList<>(EntityList.NAME_TO_CLASS.keySet());
+        Collections.sort(list);
+        return list.iterator();
     }
     
     @Override

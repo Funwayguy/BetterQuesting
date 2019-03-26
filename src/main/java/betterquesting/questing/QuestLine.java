@@ -203,4 +203,16 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
     {
         info.setProperty(prop, value);
     }
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        info.removeProperty(prop);
+    }
+    
+    @Override
+    public void removeAllProps()
+    {
+        info.removeAllProps();
+    }
 }

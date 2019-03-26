@@ -126,7 +126,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-	public void setInventorySlotContents(int idx, @Nonnull ItemStack stack)
+	public void setInventorySlotContents(int idx, ItemStack stack)
 	{
 		if(idx < 0 || idx >= itemStack.length)
 		{
@@ -414,7 +414,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		super.readFromNBT(tags);
 		
 		itemStack[0] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("input"));
-		itemStack[1] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("ouput"));
+		itemStack[1] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("output"));
 		
 		try
 		{
@@ -469,7 +469,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	}
 
 	@Override
-    @Nonnull
 	public ItemStack removeStackFromSlot(int index)
 	{
 		return ItemStackHelper.getAndRemove(itemStack, index);

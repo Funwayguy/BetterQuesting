@@ -1,9 +1,12 @@
 package betterquesting.storage;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PropertyContainer implements IPropertyContainer
 {
@@ -42,6 +45,23 @@ public class PropertyContainer implements IPropertyContainer
             return getDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
         }
 	}
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        if(prop == null) return;
+        
+        synchronized(nbtInfo)
+        {
+            NBTTagCompound jProp = getDomain(prop.getKey());
+            
+            if(!jProp.hasKey(prop.getKey().getResourcePath())) return;
+            
+            jProp.removeTag(prop.getKey().getResourcePath());
+            
+            if(jProp.hasNoTags()) nbtInfo.removeTag(prop.getKey().getResourceDomain());
+        }
+    }
 	
 	@Override
 	public <T> void setProperty(IPropertyType<T> prop, T value)
@@ -55,6 +75,16 @@ public class PropertyContainer implements IPropertyContainer
             nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
         }
 	}
+    
+    @Override
+    public void removeAllProps()
+    {
+        synchronized(nbtInfo)
+        {
+            List<String> keys = new ArrayList<>(nbtInfo.getKeySet());
+            for(String key : keys) nbtInfo.removeTag(key);
+        }
+    }
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)

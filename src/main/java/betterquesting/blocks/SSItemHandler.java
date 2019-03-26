@@ -29,19 +29,25 @@ public class SSItemHandler implements IItemHandlerModifiable
 		// Existing stack
 		ItemStack ts1 = getStackInSlot(slot);
 		
-		if(!stack.isItemEqual(ts1))
+		if(ts1 != null && !stack.isItemEqual(ts1))
 		{
 			return stack;
 		}
 		
-		int inMax = Math.min(stack.stackSize, stack.getMaxStackSize() - ts1.stackSize);
+		int inMax = Math.min(stack.stackSize, stack.getMaxStackSize() - (ts1 == null ? 0 : ts1.stackSize));
 		// Input stack
 		ItemStack ts2 = stack.copy();
 		ts2.stackSize = inMax;
 		
 		if(!simulate)
 		{
-            ts1.stackSize += ts2.stackSize;
+		    if(ts1 == null)
+            {
+                ts1 = ts2;
+            } else
+            {
+                ts1.stackSize += ts2.stackSize;
+            }
 			tile.setInventorySlotContents(slot, ts1);
 		}
 		

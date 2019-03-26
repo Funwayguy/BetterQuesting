@@ -11,7 +11,6 @@ import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -287,9 +286,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 			}
 		}
 		
-		Minecraft mc = Minecraft.getMinecraft();
-		
-		if(!used && (BQ_Keybindings.openQuests.isPressed() || mc.gameSettings.keyBindInventory.isPressed()))
+		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
 		{
 			mc.displayGuiScreen(this.parent);
 		}
