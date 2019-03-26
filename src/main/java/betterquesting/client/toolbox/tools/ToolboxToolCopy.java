@@ -151,7 +151,7 @@ public class ToolboxToolCopy implements IToolboxTool
             IQuest quest = grab.btn.getStoredValue().getValue();
             int qID = nextIDs[i];
             
-            if(qLine.getValue(qID) == null) qLine.add(qID, new QuestLineEntry(grab.btn.rect.x, grab.btn.rect.y, grab.btn.rect.w));
+            if(qLine.getValue(qID) == null) qLine.add(qID, new QuestLineEntry(grab.btn.rect.x, grab.btn.rect.y, grab.btn.rect.w, grab.btn.rect.h));
             
             NBTTagCompound questTags = quest.writeToNBT(new NBTTagCompound());
             

@@ -11,6 +11,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Iterator;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, DBEntry<IQuest>>
 {
     public CanvasQuestDatabase(IGuiRect rect)
@@ -19,7 +20,6 @@ public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, 
     }
     
     @Override
-    @SuppressWarnings("unchecked")
     protected Iterator<DBEntry<IQuest>> getIterator()
     {
         return Arrays.asList(QuestDatabase.INSTANCE.getEntries()).iterator();

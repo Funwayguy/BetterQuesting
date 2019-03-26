@@ -6,8 +6,7 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
+import java.util.*;
 
 public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
 {
@@ -22,7 +21,9 @@ public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
     @Override
     protected Iterator<EntityEntry> getIterator()
     {
-        return ForgeRegistries.ENTITIES.iterator();
+        List<EntityEntry> list = new ArrayList<>(ForgeRegistries.ENTITIES.getValuesCollection());
+        list.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        return list.iterator();
     }
     
     @Override
