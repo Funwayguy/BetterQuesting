@@ -1,2 +1,0 @@
-echo "Downloading dependencies..."
-curl -k -o make_logs https://gist.githubusercontent.com/Funwayguy/e0b1b0c8800f47414a6f/raw/betterquesting_make_logs

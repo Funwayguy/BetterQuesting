@@ -62,7 +62,7 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		if(args.length >= 3)
 		{
-			uuid = this.findPlayerID(MinecraftServer.getServer(), args[2]);
+			uuid = this.findPlayerID(MinecraftServer.getServer(), sender, args[2]);
 			
 			if(uuid == null)
 			{
@@ -70,7 +70,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = this.findPlayerID(MinecraftServer.getServer(), sender.getCommandSenderName());
+			uuid = this.findPlayerID(MinecraftServer.getServer(), sender, sender.getCommandSenderName());
 		}
 		
 		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);

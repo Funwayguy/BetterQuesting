@@ -92,6 +92,11 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
+			if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+			{
+				return;
+			}
+			
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
 			
@@ -262,7 +267,11 @@ public class EventHandler
 		QuestLineDatabase.INSTANCE.reset();
 		LifeDatabase.INSTANCE.reset();
 		NameCache.INSTANCE.reset();
-		GuiQuestLinesMain.bookmarked = null;
+		
+		if(BetterQuesting.proxy.isClient())
+		{
+			GuiQuestLinesMain.bookmarked = null;
+		}
 		
 		MinecraftServer server = MinecraftServer.getServer();
 		
