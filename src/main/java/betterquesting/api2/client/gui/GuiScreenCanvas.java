@@ -288,7 +288,18 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 		
 		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
 		{
-			mc.displayGuiScreen(this.parent);
+        	if(this instanceof IVolatileScreen)
+        	{
+        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	} else
+			{
+				this.mc.displayGuiScreen(null);
+				
+				if(this.mc.currentScreen == null)
+				{
+					this.mc.setIngameFocus();
+				}
+			}
 		}
 		
 		return used;

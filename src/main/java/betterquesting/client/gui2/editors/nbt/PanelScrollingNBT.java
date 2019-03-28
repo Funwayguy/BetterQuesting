@@ -459,7 +459,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         if(JsonHelper.isItem(tag))
         {
 			BigItemStack stack = JsonHelper.JsonToItemStack(tag);
-			return QuestTranslation.translate("betterquesting.btn.item") + ": " + stack.getBaseStack().getDisplayName();
+			return QuestTranslation.translate("betterquesting.btn.item") + ": " + (stack == null ? "NULL" : stack.getBaseStack().getDisplayName());
         } else if(JsonHelper.isFluid(tag))
         {
 			FluidStack fluid = JsonHelper.JsonToFluidStack(tag);

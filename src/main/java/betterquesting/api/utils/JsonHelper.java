@@ -6,7 +6,6 @@ import betterquesting.api2.utils.BQThreadedIO;
 import com.google.gson.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatAllowedCharacters;
@@ -18,6 +17,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -314,12 +314,10 @@ public class JsonHelper
 	 * Converts a JsonObject to an ItemStack. May return a placeholder if the correct mods are not installed</br>
 	 * This should be the standard way to load items into quests in order to retain all potential data
 	 */
+	@Nullable
 	public static BigItemStack JsonToItemStack(NBTTagCompound nbt)
 	{
-		if(nbt == null || !nbt.hasKey("id"))
-		{
-			return new BigItemStack(Blocks.STONE);
-		}
+		if(nbt == null || !nbt.hasKey("id")) return null;
 		
 		String jID;
 		int count = nbt.getInteger("Count");
@@ -354,10 +352,7 @@ public class JsonHelper
 	 */
 	public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound json)
 	{
-		if(stack == null)
-		{
-			return json;
-		}
+		if(stack == null) return json;
 		
 		ResourceLocation iRes = Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem());
 		json.setString("id", iRes == null ? "" : iRes.toString());

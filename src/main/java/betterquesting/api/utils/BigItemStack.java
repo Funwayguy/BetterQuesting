@@ -21,41 +21,43 @@ public class BigItemStack
 	public int stackSize;
 	private String oreDict = "";
 	private OreIngredient oreIng = NO_ORE;
-	private ItemStack baseStack; // Ensures that this base stack is never null
+	@Nonnull
+	private ItemStack baseStack;
 	
 	public BigItemStack(ItemStack stack)
 	{
-		baseStack = stack.copy();
-		this.stackSize = baseStack.stackSize;
-		baseStack.stackSize = 1;
+        this.baseStack = stack.copy();
+        this.stackSize = baseStack.stackSize;
+        baseStack.stackSize = 1;
 	}
 	
-	public BigItemStack(Block block)
+	public BigItemStack(@Nonnull Block block)
 	{
-		this(block, 1);
+		this(block, 1, 0);
 	}
 	
-	public BigItemStack(Block block, int amount)
+	public BigItemStack(@Nonnull Block block, int amount)
 	{
 		this(block, amount, 0);
 	}
 	
-	public BigItemStack(Block block, int amount, int damage)
+	public BigItemStack(@Nonnull Block block, int amount, int damage)
 	{
-		this(Item.getItemFromBlock(block), amount, damage);
+		baseStack = new ItemStack(block, 1, damage);
+		this.stackSize = amount;
 	}
 	
-	public BigItemStack(Item item)
+	public BigItemStack(@Nonnull Item item)
 	{
-		this(item, 1);
+		this(item, 1, 0);
 	}
 	
-	public BigItemStack(Item item, int amount)
+	public BigItemStack(@Nonnull Item item, int amount)
 	{
 		this(item, amount, 0);
 	}
 	
-	public BigItemStack(Item item, int amount, int damage)
+	public BigItemStack(@Nonnull Item item, int amount, int damage)
 	{
 		baseStack = new ItemStack(item, 1, damage);
 		this.stackSize = amount;
@@ -64,12 +66,14 @@ public class BigItemStack
 	/**
 	 * @return ItemStack this BigItemStack is based on. Changing the base stack size does NOT affect the BigItemStack's size
 	 */
+	@Nonnull
 	public ItemStack getBaseStack()
 	{
 		return baseStack;
 	}
 	
-	public boolean hasOreDict()
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean hasOreDict()
     {
         return !StringUtils.isNullOrEmpty(this.oreDict) && this.oreIng.getMatchingStacks().length > 0;
     }
@@ -112,7 +116,8 @@ public class BigItemStack
 	/**
 	 * Shortcut method to the NBTTagCompound in the base ItemStack
 	 */
-	public boolean HasTagCompound()
+	@SuppressWarnings("WeakerAccess")
+    public boolean HasTagCompound()
 	{
 		return baseStack.hasTagCompound();
 	}
@@ -120,7 +125,8 @@ public class BigItemStack
 	/**
 	 * Breaks down this big stack into smaller ItemStacks for Minecraft to use (Individual stack size is dependent on the item)
 	 */
-	public List<ItemStack> getCombinedStacks()
+	@SuppressWarnings("unused")
+    public List<ItemStack> getCombinedStacks()
 	{
 		List<ItemStack> list = new ArrayList<>();
 		int tmp1 = Math.max(1, stackSize); // Guarantees this method will return at least 1 item
@@ -148,20 +154,24 @@ public class BigItemStack
 	@Override
 	public boolean equals(Object stack)
 	{
+	    if(stack == baseStack) return true;
+	    
 		if(stack instanceof ItemStack)
 		{
 			return baseStack.isItemEqual((ItemStack)stack) && ItemStack.areItemStackTagsEqual(baseStack, (ItemStack)stack);
-		} else
-		{
-			return super.equals(stack);
 		}
+		
+		return super.equals(stack);
 	}
 	
-	public static BigItemStack loadItemStackFromNBT(NBTTagCompound tags)
+	@SuppressWarnings("unused")
+    public static BigItemStack loadItemStackFromNBT(NBTTagCompound tags)
 	{
 		int count = tags.getInteger("Count");
 		String dict = tags.getString("OreDict");
 		ItemStack miniStack = ItemStack.loadItemStackFromNBT(tags);
+        //noinspection ConstantConditions
+        if(miniStack == null || miniStack.getItem() == null) return null;
 		BigItemStack bigStack = new BigItemStack(miniStack);
 		bigStack.stackSize = count;
 		bigStack.oreDict = dict;
@@ -173,6 +183,8 @@ public class BigItemStack
 		stackSize = tags.getInteger("Count");
 		setOreDict(tags.getString("OreDict"));
 		baseStack = ItemStack.loadItemStackFromNBT(tags);
+        //noinspection ConstantConditions
+        if(baseStack != null && baseStack.getItem() == null) baseStack = null;
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound tags)

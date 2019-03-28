@@ -29,7 +29,7 @@ public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack>
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		
-		if(value == null || value.getBaseStack() == null)
+		if(value == null)
 		{
 			getDefault().writeToNBT(nbt);
 		} else

@@ -8,13 +8,10 @@ import com.google.gson.JsonPrimitive;
 import net.minecraft.nbt.*;
 import org.apache.logging.log4j.Level;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Map.Entry;
 
 public class NBTConverter
 {
-    private static Field f_tagList;
 	/**
 	 * Convert NBT tags to a JSON object
 	 */
@@ -40,9 +37,9 @@ public class NBTConverter
 			{
 				JsonObject jAry = new JsonObject();
 				
-				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				NBTTagList tagList = (NBTTagList)tag;
 				
-				for(int i = 0; i < tagList.size(); i++)
+				for(int i = 0; i < tagList.tagCount(); i++)
 				{
 					jAry.add(i + ":" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), true));
 				}
@@ -52,11 +49,11 @@ public class NBTConverter
 			{
 				JsonArray jAry = new JsonArray();
 				
-				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				NBTTagList tagList = (NBTTagList)tag;
 				
-				for(NBTBase t : tagList)
+				for(int i = 0; i < tagList.tagCount(); i++)
 				{
-					jAry.add(NBTtoJSON_Base(t, false));
+					jAry.add(NBTtoJSON_Base(tagList.get(i), false));
 				}
 				
 				return jAry;
@@ -256,21 +253,7 @@ public class NBTConverter
 		return new NBTTagString();
 	}
 	
-	/**
-	 * Pulls the raw list out of the NBTTagList
-	 */
-	@SuppressWarnings("unchecked")
-	public static ArrayList<NBTBase> getTagList(NBTTagList tag)
-	{
-        try
-        {
-            return (ArrayList<NBTBase>)f_tagList.get(tag);
-        } catch(IllegalAccessException e)
-        {
-            return null;
-        }
-    }
-	
+	@SuppressWarnings("WeakerAccess")
 	public static Number getNumber(NBTBase tag)
 	{
 		if(tag instanceof NBTTagByte)
@@ -297,6 +280,7 @@ public class NBTConverter
 		}
 	}
 	
+	@SuppressWarnings("WeakerAccess")
 	public static NBTBase instanceNumber(Number num, byte type)
 	{
 		switch (type)
@@ -391,23 +375,4 @@ public class NBTConverter
 		
 		return tagID;
 	}
-	
-	static
-    {
-        try
-        {
-            f_tagList = NBTTagList.class.getDeclaredField("field_74747_a");
-            f_tagList.setAccessible(true);
-        } catch(Exception e1)
-        {
-            try
-            {
-                f_tagList = NBTTagList.class.getDeclaredField("tagList");
-                f_tagList.setAccessible(true);
-            } catch(Exception e2)
-            {
-                QuestingAPI.getLogger().log(Level.ERROR, "Unable to hook into NBTTagList!", e2);
-            }
-        }
-    }
 }

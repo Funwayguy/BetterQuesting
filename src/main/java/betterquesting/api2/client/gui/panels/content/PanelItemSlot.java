@@ -69,15 +69,16 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
     @Override
     public List<String> getTooltip(int mx, int my)
     {
-        if(getStoredValue() != null && getTransform().contains(mx, my))
+        BigItemStack ttStack = getStoredValue();
+        if(ttStack == null || !getTransform().contains(mx, my)) return null;
+        
+        if(oreDict && oreVariants.size() > 0)
         {
-            BigItemStack ttStack = getStoredValue();
-            
-            if(oreDict && oreVariants.size() > 0)
-            {
-                ttStack = oreVariants.get((int)(System.currentTimeMillis()/1000D)%oreVariants.size());
-            }
-            
+            ttStack = oreVariants.get((int)(System.currentTimeMillis()/1000D)%oreVariants.size());
+        }
+        
+        if(ttStack != null)
+        {
             Minecraft mc = Minecraft.getMinecraft();
             return ttStack.getBaseStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
         }

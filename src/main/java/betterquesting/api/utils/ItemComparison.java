@@ -3,7 +3,6 @@ package betterquesting.api.utils;
 import betterquesting.api2.utils.OreIngredient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
-import net.minecraft.util.StringUtils;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.ArrayList;
@@ -188,19 +187,6 @@ public class ItemComparison
         return tag == null || tag.hasNoTags();
     }
     
-    @Deprecated
-    public static boolean OreDictionaryMatch(String name, ItemStack stack)
-    {
-    	return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
-    }
-    
-    @Deprecated
-    public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck, boolean partialNBT)
-    {
-        if(!nbtCheck) return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
-        return OreDictionaryMatch(new OreIngredient(name), tags, stack, nbtCheck, partialNBT);
-    }
-    
     /**
      * Check if the item stack is part of the ore dictionary listing with the given ore ingredient while also comparing NBT tags
      */
@@ -208,15 +194,6 @@ public class ItemComparison
     {
         if(stack == null || ore == null) return false;
         return ore.apply(stack) && (!nbtCheck || CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT));
-    }
-    
-    /**
-     * Check if the two stacks match directly or through ore dictionary listings
-     */
-    @Deprecated
-    public static boolean AllMatch(ItemStack stack1, ItemStack stack2)
-    {
-        return AllMatch(stack1, stack2, false, false);
     }
     
     /**
