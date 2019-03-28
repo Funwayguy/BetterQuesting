@@ -7,5 +7,5 @@ import betterquesting.api.properties.IPropertyContainer;
 
 public interface IQuestSettings extends IPropertyContainer, IDataSync
 {
-	public boolean canUserEdit(EntityPlayer player);
+	boolean canUserEdit(EntityPlayer player);
 }

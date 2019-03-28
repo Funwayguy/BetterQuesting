@@ -1,9 +1,5 @@
 package betterquesting.commands.user;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
@@ -11,6 +7,11 @@ import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
 
 public class QuestCommandRefresh extends QuestCommandBase
 {
@@ -21,7 +22,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		if(sender instanceof EntityPlayerMP)
 		{

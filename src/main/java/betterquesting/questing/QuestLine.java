@@ -1,13 +1,7 @@
 package betterquesting.questing;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -15,18 +9,19 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
-public class QuestLine implements IQuestLine
+import java.util.List;
+import java.util.UUID;
+
+public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine
 {
 	private IPropertyContainer info = new PropertyContainer();
-	private final HashMap<Integer,IQuestLineEntry> questList = new HashMap<Integer,IQuestLineEntry>();
 	
 	private IQuestLineDatabase parentDB;
 	
@@ -54,6 +49,14 @@ public class QuestLine implements IQuestLine
 	{
 		info.setProperty(prop, info.getProperty(prop, def));
 	}
+	
+	@Override
+    public IQuestLineEntry createNew(int id)
+    {
+        IQuestLineEntry qle = new QuestLineEntry(0, 0, 24, 24);
+        this.add(id, qle);
+        return qle;
+    }
 	
 	@Override
 	public void setParentDatabase(IQuestLineDatabase lineDB)
@@ -90,122 +93,32 @@ public class QuestLine implements IQuestLine
 	}
 	
 	@Override
-	public IQuestLineEntry createNewEntry()
+	public DBEntry<IQuestLineEntry> getEntryAt(int x, int y)
 	{
-		return new QuestLineEntry(0, 0, 24);
-	}
-	
-	@Override
-	public IPropertyContainer getProperties()
-	{
-		return info;
-	}
-	
-	@Override
-	public int getQuestAt(int x, int y)
-	{
-		for(Entry<Integer,IQuestLineEntry> entry : questList.entrySet())
+		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
 			int i1 = entry.getValue().getPosX();
 			int j1 = entry.getValue().getPosY();
-			int i2 = i1 + entry.getValue().getSize();
-			int j2 = j1 + entry.getValue().getSize();
+			int i2 = i1 + entry.getValue().getSizeX();
+			int j2 = j1 + entry.getValue().getSizeY();
 			
 			if(x >= i1 && x < i2 && y >= j1 && y < j2)
 			{
-				return entry.getKey();
+				return entry;
 			}
 		}
 		
-		return -1;
-	}
-	
-	/**
-	 * Use <i>QuestDatabase.INSTANCE.nextID()</i>
-	 */
-	@Override
-	@Deprecated
-	public Integer nextKey()
-	{
-		return -1;
-	}
-	
-	@Override
-	public boolean add(IQuestLineEntry entry, Integer questID)
-	{
-		if(questID < 0 || entry == null || questList.containsKey(questID) || questList.containsValue(entry))
-		{
-			return false;
-		}
-		
-		questList.put(questID, entry);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer questID)
-	{
-		return questList.remove(questID) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IQuestLineEntry entry)
-	{
-		return removeKey(getKey(entry));
-	}
-	
-	@Override
-	public IQuestLineEntry getValue(Integer questID)
-	{
-		return questList.get(questID);
-	}
-	
-	@Override
-	public Integer getKey(IQuestLineEntry entry)
-	{
-		for(Entry<Integer,IQuestLineEntry> list : questList.entrySet())
-		{
-			if(list.getValue() == entry)
-			{
-				return list.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public List<IQuestLineEntry> getAllValues()
-	{
-		return new ArrayList<IQuestLineEntry>(questList.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(questList.keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return questList.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		questList.clear();
+		return null;
 	}
 	
 	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("line", writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
-		tags.setInteger("lineID", parentDB.getKey(this));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("line", writeToNBT(new NBTTagCompound(), null));
+		tags.setTag("data", base);
+		tags.setInteger("lineID", parentDB.getID(this));
 		
 		return new QuestingPacket(PacketTypeNative.LINE_SYNC.GetLocation(), tags);
 	}
@@ -213,67 +126,93 @@ public class QuestLine implements IQuestLine
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		readFromJson(JsonHelper.GetObject(base, "line"), EnumSaveType.CONFIG);
+		readFromNBT(payload.getCompoundTag("data").getCompoundTag("line"), false);
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        return writeToNBT(nbt, null);
+    }
+    
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        readFromNBT(nbt, false);
+    }
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound json, List<UUID> users)
 	{
-		if(saveType != EnumSaveType.CONFIG)
+		json.setTag("properties", info.writeToNBT(new NBTTagCompound()));
+		
+		NBTTagList jArr = new NBTTagList();
+		
+		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
-			return json;
+			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound());
+			qle.setInteger("id", entry.getID());
+			jArr.appendTag(qle);
 		}
 		
-		json.add("properties", info.writeToJson(new JsonObject(), saveType));
-		
-		JsonArray jArr = new JsonArray();
-		
-		for(Entry<Integer,IQuestLineEntry> entry : questList.entrySet())
-		{
-			JsonObject qle = entry.getValue().writeToJson(new JsonObject(), saveType);
-			qle.addProperty("id", entry.getKey());
-			jArr.add(qle);
-		}
-		
-		json.add("quests", jArr);
+		json.setTag("quests", jArr);
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound json, boolean merge)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
+		info.readFromNBT(json.getCompoundTag("properties"));
 		
-		info.readFromJson(JsonHelper.GetObject(json, "properties"), saveType);
+		reset();
 		
-		questList.clear();
-		for(JsonElement entry : JsonHelper.GetArray(json, "quests"))
+		NBTTagList qList = json.getTagList("quests", 10);
+		for(int i = 0; i < qList.tagCount(); i++)
 		{
-			if(entry == null)
-			{
-				continue;
-			}
+			NBTTagCompound qTag = qList.getCompoundTagAt(i);
 			
-			if(entry.isJsonPrimitive() && entry.getAsJsonPrimitive().isNumber()) // Backwards compatibility
-			{
-				questList.put(entry.getAsInt(), new QuestLineEntry(0, 0));
-			} else if(entry.isJsonObject())
-			{
-				JsonObject jl = entry.getAsJsonObject();
-				int id = JsonHelper.GetNumber(jl, "id", -1).intValue();
-				
-				if(id >= 0)
-				{
-					questList.put(id, new QuestLineEntry(jl));
-				}
-			}
+			int id = qTag.hasKey("id", 99) ? qTag.getInteger("id") : -1;
+			if(id< 0) continue;
+			
+			add(id, new QuestLineEntry(qTag));
 		}
 		
 		this.setupProps();
 	}
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop)
+    {
+        return info.getProperty(prop);
+    }
+    
+    @Override
+    public <T> T getProperty(IPropertyType<T> prop, T def)
+    {
+        return info.getProperty(prop, def);
+    }
+    
+    @Override
+    public boolean hasProperty(IPropertyType<?> prop)
+    {
+        return info.hasProperty(prop);
+    }
+    
+    @Override
+    public <T> void setProperty(IPropertyType<T> prop, T value)
+    {
+        info.setProperty(prop, value);
+    }
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        info.removeProperty(prop);
+    }
+    
+    @Override
+    public void removeAllProps()
+    {
+        info.removeAllProps();
+    }
 }

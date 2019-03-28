@@ -1,19 +1,21 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandComplete extends QuestCommandBase
 {
@@ -29,17 +31,17 @@ public class QuestCommandComplete extends QuestCommandBase
 		return args.length == 2 || args.length == 3;
 	}
 	
-	@Override
+    @Override
 	@SuppressWarnings("unchecked")
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		} else if(args.length == 3)
 		{
@@ -56,13 +58,13 @@ public class QuestCommandComplete extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
-		UUID uuid = null;
+		UUID uuid;
 		
 		if(args.length >= 3)
 		{
-			uuid = this.findPlayerID(MinecraftServer.getServer(), sender, args[2]);
+			uuid = this.findPlayerID(server, sender, args[2]);
 			
 			if(uuid == null)
 			{
@@ -70,7 +72,7 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 		} else
 		{
-			uuid = this.findPlayerID(MinecraftServer.getServer(), sender, sender.getCommandSenderName());
+			uuid = this.findPlayerID(server, sender, sender.getCommandSenderName());
 		}
 		
 		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
@@ -83,21 +85,21 @@ public class QuestCommandComplete extends QuestCommandBase
 			
 			int done = 0;
 			
-			if(!quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
+			if(!quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
 			{
-				for(ITask task : quest.getTasks().getAllValues())
+				for(DBEntry<ITask> task : quest.getTasks().getEntries())
 				{
-					task.setComplete(uuid);
+					task.getValue().setComplete(uuid);
 					done += 1;
 					
-					if(quest.getProperties().getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
+					if(quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
 					{
 						break; // Only complete enough quests to claim the reward
 					}
 				}
 			}
 			
-			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.getUnlocalisedName()), pName));
+			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.complete", new ChatComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
 		} catch(Exception e)
 		{
 			throw getException(command);

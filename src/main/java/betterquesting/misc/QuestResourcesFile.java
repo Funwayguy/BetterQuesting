@@ -1,30 +1,28 @@
 package betterquesting.misc;
 
-import java.awt.image.BufferedImage;
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import betterquesting.core.BetterQuesting;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.ResourcePackFileNotFoundException;
 import net.minecraft.client.resources.data.IMetadataSection;
 import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
-import betterquesting.core.BetterQuesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+
+import java.awt.image.BufferedImage;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class QuestResourcesFile implements IResourcePack, Closeable
 {
-	static final File rootFolder = new File("config/betterquesting/resources/");
+	private static final File rootFolder = new File("config/betterquesting/resources/");
     public static final Splitter entryNameSplitter = Splitter.on('/').omitEmptyStrings().limit(3);
     ArrayList<ZipFile> zipList = null;
     
@@ -62,7 +60,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 		        	return true;
 		        }
 			}
-		} catch(Exception e){}
+		} catch(Exception ignored){}
 		
 		return false;
 	}
@@ -90,7 +88,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
         while (enumeration.hasMoreElements())
         {
-            ZipEntry zipentry = (ZipEntry)enumeration.nextElement();
+            ZipEntry zipentry = enumeration.nextElement();
             String s = zipentry.getName();
 
             if (s.startsWith("assets/"))
@@ -99,7 +97,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
                 if (arraylist.size() > 1)
                 {
-                    String s1 = (String)arraylist.get(1);
+                    String s1 = arraylist.get(1);
 
                     if (!s1.equals(s1.toLowerCase()))
                     {
@@ -134,7 +132,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 		return BetterQuesting.NAME + "_files";
 	}
 
-    private ArrayList<ZipFile> getZipFiles() throws IOException
+    private List<ZipFile> getZipFiles() throws IOException
     {
     	if(zipList != null)
     	{
@@ -147,7 +145,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 		}
 		
 		File[] files = rootFolder.listFiles();
-		zipList = new ArrayList<ZipFile>();
+		zipList = new ArrayList<>();
     	
 		for(File f : files)
 		{
@@ -156,7 +154,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	        	try
 	        	{
 	        		zipList.add(new ZipFile(f));
-	        	} catch(Exception e){}
+	        	} catch(Exception ignored){}
 	        }
 		}
 
@@ -165,12 +163,12 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
     private static String locationToName(ResourceLocation loc)
     {
-        return String.format("%s/%s/%s", new Object[] {"assets", loc.getResourceDomain(), loc.getResourcePath()});
+        return String.format("%s/%s/%s", "assets", loc.getResourceDomain(), loc.getResourcePath());
     }
 
     protected void logNameNotLowercase(String name, String file)
     {
-        BetterQuesting.logger.log(Level.WARN, "ResourcePack: ignored non-lowercase namespace: {} in {}", new Object[] {name, file});
+        BetterQuesting.logger.log(Level.WARN, "ResourcePack: ignored non-lowercase namespace: {} in {}", name, file);
     }
     
     @Override

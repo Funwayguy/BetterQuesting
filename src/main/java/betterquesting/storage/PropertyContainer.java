@@ -1,25 +1,23 @@
 package betterquesting.storage;
 
-import java.util.Map.Entry;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class PropertyContainer implements IPropertyContainer
 {
-	private JsonObject jInfo = new JsonObject();
+	private final NBTTagCompound nbtInfo = new NBTTagCompound();
 	
 	@Override
 	public <T> T getProperty(IPropertyType<T> prop)
 	{
-		if(prop == null)
-		{
-			return null;
-		}
+		if(prop == null) return null;
 		
 		return getProperty(prop, prop.getDefault());
 	}
@@ -27,69 +25,119 @@ public class PropertyContainer implements IPropertyContainer
 	@Override
 	public <T> T getProperty(IPropertyType<T> prop, T def)
 	{
-		if(prop == null)
-		{
-			return null;
-		}
+		if(prop == null) return def;
 		
-		JsonElement jProp = getJsonDomain(prop.getKey()).get(prop.getKey().getResourcePath());
-		
-		if(jProp == null)
-		{
-			return def;
-		}
-		
-		return prop.readValue(jProp);
+		synchronized(nbtInfo)
+        {
+            NBTTagCompound jProp = getDomain(prop.getKey());
+    
+            if(!jProp.hasKey(prop.getKey().getResourcePath())) return def;
+    
+            return prop.readValue(jProp.getTag(prop.getKey().getResourcePath()));
+        }
 	}
 	
 	@Override
 	public boolean hasProperty(IPropertyType<?> prop)
 	{
-		if(prop == null)
-		{
-			return false;
-		}
+		if(prop == null) return false;
 		
-		return getJsonDomain(prop.getKey()).has(prop.getKey().getResourcePath());
+		synchronized(nbtInfo)
+        {
+            return getDomain(prop.getKey()).hasKey(prop.getKey().getResourcePath());
+        }
 	}
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        if(prop == null) return;
+        
+        synchronized(nbtInfo)
+        {
+            NBTTagCompound jProp = getDomain(prop.getKey());
+            
+            if(!jProp.hasKey(prop.getKey().getResourcePath())) return;
+            
+            jProp.removeTag(prop.getKey().getResourcePath());
+            
+            if(jProp.hasNoTags()) nbtInfo.removeTag(prop.getKey().getResourceDomain());
+        }
+    }
 	
 	@Override
 	public <T> void setProperty(IPropertyType<T> prop, T value)
 	{
-		if(prop == null || value == null)
-		{
-			return;
-		}
+		if(prop == null || value == null) return;
 		
-		JsonObject dom = getJsonDomain(prop.getKey());
-		dom.add(prop.getKey().getResourcePath(), prop.writeValue(value));
-		jInfo.add(prop.getKey().getResourceDomain(), dom);
+		synchronized(nbtInfo)
+        {
+            NBTTagCompound dom = getDomain(prop.getKey());
+            dom.setTag(prop.getKey().getResourcePath(), prop.writeValue(value));
+            nbtInfo.setTag(prop.getKey().getResourceDomain(), dom);
+        }
+	}
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public void removeAllProps()
+    {
+        synchronized(nbtInfo)
+        {
+            List<String> keys = new ArrayList<>((Set<String>)nbtInfo.func_150296_c());
+            for(String key : keys) nbtInfo.removeTag(key);
+        }
+    }
+	
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	{
+	    synchronized(nbtInfo)
+        {
+            merge(nbt, nbtInfo);
+            return nbt;
+        }
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+    @SuppressWarnings("unchecked")
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		for(Entry<String,JsonElement> entry : jInfo.entrySet())
-		{
-			json.add(entry.getKey(), entry.getValue());
-		}
-		
-		return json;
+	    synchronized(nbtInfo)
+        {
+            for(String key : (Set<String>)nbtInfo.func_150296_c()) nbtInfo.removeTag(key);
+            merge(nbtInfo, nbt);
+        }
 	}
 	
-	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	private NBTTagCompound getDomain(ResourceLocation res)
 	{
-		jInfo = new JsonObject();
-		
-		for(Entry<String,JsonElement> entry : json.entrySet())
-		{
-			jInfo.add(entry.getKey(), entry.getValue());
-		}
+		return nbtInfo.getCompoundTag(res.getResourceDomain());
 	}
 	
-	private JsonObject getJsonDomain(ResourceLocation res)
-	{
-		return JsonHelper.GetObject(jInfo, res.getResourceDomain());
-	}
+	@SuppressWarnings("unchecked")
+    private void merge(NBTTagCompound parent, NBTTagCompound other)
+    {
+        for (String s : (Set<String>)other.func_150296_c())
+        {
+            NBTBase nbtbase = other.getTag(s);
+
+            if (nbtbase.getId() == 10)
+            {
+                if (parent.hasKey(s, 10))
+                {
+                    NBTTagCompound nbttagcompound = parent.getCompoundTag(s);
+                    merge(nbttagcompound, (NBTTagCompound)nbtbase);
+                }
+                else
+                {
+                    parent.setTag(s, nbtbase.copy());
+                }
+            }
+            else
+            {
+                parent.setTag(s, nbtbase.copy());
+            }
+        }
+    }
 }

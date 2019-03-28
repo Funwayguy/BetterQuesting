@@ -1,11 +1,10 @@
 package betterquesting.api.placeholders.tasks;
 
+import betterquesting.api2.registry.IFactoryData;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IFactory;
-import com.google.gson.JsonObject;
 
-public class FactoryTaskPlaceholder implements IFactory<TaskPlaceholder>
+public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBTTagCompound>
 {
 	public static final FactoryTaskPlaceholder INSTANCE = new FactoryTaskPlaceholder();
 	
@@ -28,10 +27,10 @@ public class FactoryTaskPlaceholder implements IFactory<TaskPlaceholder>
 	}
 	
 	@Override
-	public TaskPlaceholder loadFromJson(JsonObject json)
+	public TaskPlaceholder loadFromData(NBTTagCompound nbt)
 	{
 		TaskPlaceholder task = createNew();
-		task.readFromJson(json, EnumSaveType.CONFIG);
+		task.readFromNBT(nbt);
 		return task;
 	}
 }

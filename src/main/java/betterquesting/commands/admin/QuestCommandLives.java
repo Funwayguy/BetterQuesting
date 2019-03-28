@@ -1,13 +1,5 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
@@ -15,6 +7,15 @@ import betterquesting.network.PacketSender;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandLives extends QuestCommandBase
 {
@@ -36,28 +37,29 @@ public class QuestCommandLives extends QuestCommandBase
 		return args.length == 4 || args.length == 3;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	@Override
+    @SuppressWarnings("unchecked")
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(args.length == 4 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set")))
 		{
 			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames().toArray(new String[0]));
 		} else if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"add","set","max","default"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, "add","set","max","default");
 		}
 		
 		return list;
 	}
 	
-	@Override
+    @Override
 	@SuppressWarnings("unchecked")
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		String action = args[1];
-		int value = 0;
+		int value;
 		UUID playerID = null;
 		
 		try
@@ -70,7 +72,7 @@ public class QuestCommandLives extends QuestCommandBase
 		
 		if(args.length >= 4)
 		{
-			playerID = this.findPlayerID(MinecraftServer.getServer(), sender, args[3]);
+			playerID = this.findPlayerID(server, sender, args[3]);
 			
 			if(playerID == null)
 			{
@@ -90,7 +92,7 @@ public class QuestCommandLives extends QuestCommandBase
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
 			} else if(args.length == 3)
 			{
-				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
+				for(EntityPlayer p : (List<EntityPlayer>)server.getConfigurationManager().playerEntityList)
 				{
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
 				}
@@ -98,7 +100,6 @@ public class QuestCommandLives extends QuestCommandBase
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
-			return;
 		} else if(action.equalsIgnoreCase("add"))
 		{
 			if(playerID != null)
@@ -116,7 +117,7 @@ public class QuestCommandLives extends QuestCommandBase
 				}
 			} else
 			{
-				for(EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
+				for(EntityPlayer p : (List<EntityPlayer>)server.getConfigurationManager().playerEntityList)
 				{
 					int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(p));
 					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
@@ -132,21 +133,18 @@ public class QuestCommandLives extends QuestCommandBase
 			}
 			
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
-			return;
 		} else if(action.equalsIgnoreCase("max"))
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, value);
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.max", value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
-			return;
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
-			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.default" + value));
+            sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.lives.default" + value));
 			PacketSender.INSTANCE.sendToAll(LifeDatabase.INSTANCE.getSyncPacket());
-			return;
 		} else
 		{
 			throw getException(command);

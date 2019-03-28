@@ -1,38 +1,22 @@
 package betterquesting.client.toolbox;
 
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
-import betterquesting.api.client.toolbox.IToolboxTab;
-import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.client.toolbox.tools.ToolboxToolComplete;
-import betterquesting.client.toolbox.tools.ToolboxToolCopy;
-import betterquesting.client.toolbox.tools.ToolboxToolDelete;
-import betterquesting.client.toolbox.tools.ToolboxToolGrab;
-import betterquesting.client.toolbox.tools.ToolboxToolIcon;
-import betterquesting.client.toolbox.tools.ToolboxToolLink;
-import betterquesting.client.toolbox.tools.ToolboxToolNew;
-import betterquesting.client.toolbox.tools.ToolboxToolOpen;
-import betterquesting.client.toolbox.tools.ToolboxToolScale;
-import betterquesting.client.toolbox.tools.ToolboxToolRemove;
-import betterquesting.client.toolbox.tools.ToolboxToolReset;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
+import betterquesting.api2.client.toolbox.IToolTab;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 
-public class ToolboxTabMain implements IToolboxTab
+public class ToolboxTabMain implements IToolTab
 {
-	public static final ToolboxTabMain instance = new ToolboxTabMain();
+	public static final ToolboxTabMain INSTANCE = new ToolboxTabMain();
 	
-	private IGuiQuestLine gui;
-	
-	public IToolboxTool toolOpen;
-	public IToolboxTool toolNew;
-	public IToolboxTool toolGrab;
-	public IToolboxTool toolLink;
-	public IToolboxTool toolCopy;
-	public IToolboxTool toolRem;
-	public IToolboxTool toolDel;
-	public IToolboxTool toolCom;
-	public IToolboxTool toolRes;
-	public IToolboxTool toolIco;
-	public IToolboxTool toolSca;
+	private int dragSnap = 4;
+	private int[] snaps = new int[]{1,4,6,8,12,16,24,32};
 	
 	@Override
 	public String getUnlocalisedName()
@@ -41,31 +25,88 @@ public class ToolboxTabMain implements IToolboxTab
 	}
 	
 	@Override
-	public void initTools(IGuiQuestLine designer)
+	public IGuiPanel getTabGui(IGuiRect rect, CanvasQuestLine cvQuestLine, PanelToolController toolController)
 	{
-		this.gui = designer;
-		
-		toolOpen = new ToolboxToolOpen();
-		toolNew = new ToolboxToolNew();
-		toolGrab = new ToolboxToolGrab();
-		toolLink = new ToolboxToolLink();
-		toolCopy = new ToolboxToolCopy();
-		toolRem = new ToolboxToolRemove();
-		toolDel = new ToolboxToolDelete();
-		toolCom = new ToolboxToolComplete();
-		toolRes = new ToolboxToolReset();
-		toolIco = new ToolboxToolIcon();
-		toolSca = new ToolboxToolScale();
+		return new PanelTabMain(rect, cvQuestLine, toolController);
 	}
 	
-	@Override
-	public IGuiEmbedded getTabGui(int posX, int posY, int sizeX, int sizeZ)
+	public void toggleSnap()
 	{
-		if(gui == null)
+		dragSnap = (dragSnap + 1)%snaps.length;
+	}
+	
+	public int getSnapValue()
+	{
+		return snaps[dragSnap%snaps.length];
+	}
+	
+	public int getSnapIndex()
+	{
+		return dragSnap;
+	}
+	
+	public void drawGrid(CanvasQuestLine ui)
+	{
+		if(getSnapValue() <= 1) return;
+		
+		float zs = ui.getZoom();
+		int snap = getSnapValue();
+		
+		float offX = -ui.getScrollX();
+        offX = ((offX % snap + snap) % snap) * zs;
+		int midX = -ui.getScrollX() / snap;
+		
+		float offY = -ui.getScrollY();
+        offY = ((offY % snap + snap) % snap) * zs;
+		int midY = -ui.getScrollY() / snap;
+		
+		int x = ui.getTransform().getX();
+		int y = ui.getTransform().getY();
+		int width = ui.getTransform().getWidth();
+		int height = ui.getTransform().getHeight();
+		int divX = (int)Math.ceil((width - offX) / (zs * snap));
+		int divY = (int)Math.ceil((height - offY) / (zs * snap));
+        
+        IGuiColor gMinor = PresetColor.GRID_MINOR.getColor();
+        IGuiColor gMajor = PresetColor.GRID_MAJOR.getColor();
+        IGuiLine lMinor = PresetLine.GRID_MINOR.getLine();
+        IGuiLine lMajor = PresetLine.GRID_MAJOR.getLine();
+        
+        GuiRectangle p1 = new GuiRectangle(0, 0, 0, 0);
+        GuiRectangle p2 = new GuiRectangle(0, 0, 0, 0);
+		
+        p1.y = y;
+        p2.y = y + height;
+        
+		for(int i = 0; i < divX; i++)
 		{
-			return null;
+			int lx = x + (int)(i * snap * zs + offX);
+			p1.x = lx;
+			p2.x = lx;
+            if(i == midX)
+            {
+                lMajor.drawLine(p1, p2, 2, gMajor, 1F);
+            } else
+            {
+                lMinor.drawLine(p1, p2, 1, gMinor, 1F);
+            }
 		}
 		
-		return new ToolboxGuiMain(gui, posX, posY, sizeX, sizeZ);
+		p1.x = x;
+		p2.x = x + width;
+		
+		for(int j = 0; j < divY; j++)
+		{
+			int ly = y + (int)(j * snap * zs + offY);
+			p1.y = ly;
+			p2.y = ly;
+            if(j == midY)
+            {
+                lMajor.drawLine(p1, p2, 2, gMajor, 1F);
+            } else
+            {
+                lMinor.drawLine(p1, p2, 1, gMinor, 1F);
+            }
+		}
 	}
 }

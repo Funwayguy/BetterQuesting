@@ -1,17 +1,21 @@
 package betterquesting.network;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.EventHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
+import java.util.concurrent.Executors;
 
 public class PacketQuesting implements IMessage
 {
@@ -49,8 +53,8 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
+			final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
+			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
 			
 			if(message == null)
 			{
@@ -61,15 +65,15 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
-			} else
+			} else if(sender != null)
 			{
-				handler.handleServer(message, sender);
+				EventHandler.scheduleServerTask(Executors.callable(() -> handler.handleServer(message, sender)));
 			}
 			
 			return null;
@@ -87,7 +91,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
+			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
 			
 			if(message == null)
 			{
@@ -98,7 +102,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(handler == null)
 			{
@@ -106,7 +110,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else
 			{
-				handler.handleClient(message);
+				Minecraft.getMinecraft().func_152343_a(Executors.callable(() -> handler.handleClient(message)));
 			}
 			
 			return null;

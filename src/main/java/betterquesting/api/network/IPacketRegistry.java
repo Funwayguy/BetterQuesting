@@ -4,6 +4,6 @@ import net.minecraft.util.ResourceLocation;
 
 public interface IPacketRegistry
 {
-	public void registerHandler(IPacketHandler handler);
-	public IPacketHandler getPacketHandler(ResourceLocation name);
+	void registerHandler(IPacketHandler handler);
+	IPacketHandler getPacketHandler(ResourceLocation name);
 }

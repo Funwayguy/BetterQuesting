@@ -1,15 +1,20 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandDelete extends QuestCommandBase
 {
@@ -26,17 +31,17 @@ public class QuestCommandDelete extends QuestCommandBase
 	}
 	
 	@Override
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		}
 		
@@ -50,7 +55,7 @@ public class QuestCommandDelete extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		if(args[1].equalsIgnoreCase("all"))
 		{
@@ -60,16 +65,18 @@ public class QuestCommandDelete extends QuestCommandBase
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 		    
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.all"));
+            SaveLoadHandler.INSTANCE.markDirty();
 		} else
 		{
 			try
 			{
 				int id = Integer.parseInt(args[1].trim());
 				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-				QuestDatabase.INSTANCE.removeKey(id);
+				QuestDatabase.INSTANCE.removeID(id);
 				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 				
-				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.getUnlocalisedName())));
+				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.delete.single", new ChatComponentTranslation(quest.getProperty(NativeProps.NAME))));
+                SaveLoadHandler.INSTANCE.markDirty();
 			} catch(Exception e)
 			{
 				throw getException(command);

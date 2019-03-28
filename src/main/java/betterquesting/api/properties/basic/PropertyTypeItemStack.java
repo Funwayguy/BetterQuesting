@@ -1,7 +1,7 @@
 package betterquesting.api.properties.basic;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
@@ -14,29 +14,29 @@ public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack>
 	}
 	
 	@Override
-	public BigItemStack readValue(JsonElement json)
+	public BigItemStack readValue(NBTBase nbt)
 	{
-		if(json == null || !json.isJsonObject())
+		if(nbt == null || nbt.getId() != 10)
 		{
 			return this.getDefault();
 		}
 		
-		return JsonHelper.JsonToItemStack(json.getAsJsonObject());
+		return JsonHelper.JsonToItemStack((NBTTagCompound)nbt);
 	}
 	
 	@Override
-	public JsonElement writeValue(BigItemStack value)
+	public NBTBase writeValue(BigItemStack value)
 	{
-		JsonObject json = new JsonObject();
+		NBTTagCompound nbt = new NBTTagCompound();
 		
 		if(value == null)
 		{
-			JsonHelper.ItemStackToJson(getDefault(), json);
+			getDefault().writeToNBT(nbt);
 		} else
 		{
-			JsonHelper.ItemStackToJson(value, json);
+			value.writeToNBT(nbt);
 		}
 		
-		return json;
+		return nbt;
 	}
 }

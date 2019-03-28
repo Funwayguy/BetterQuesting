@@ -1,14 +1,16 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentTranslation;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandHardcore extends QuestCommandBase
 {
@@ -31,21 +33,21 @@ public class QuestCommandHardcore extends QuestCommandBase
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+    @SuppressWarnings("unchecked")
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"true","false"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, "true","false");
 		}
 		
 		return list;
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		boolean flag = !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 		
@@ -70,7 +72,7 @@ public class QuestCommandHardcore extends QuestCommandBase
 		}
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, flag);
-		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) ? "options.on" : "options.off")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

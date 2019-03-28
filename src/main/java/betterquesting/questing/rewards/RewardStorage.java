@@ -1,157 +1,55 @@
 package betterquesting.questing.rewards;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.placeholders.rewards.RewardPlaceholder;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.storage.IRegStorageBase;
-import betterquesting.api.utils.JsonHelper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.storage.SimpleDatabase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 
-public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSaveLoad<JsonArray>
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, NBTTagList, NBTTagList>
 {
-	private final HashMap<Integer,IReward> database = new HashMap<Integer,IReward>();
-	
 	@Override
-	public Integer nextKey()
+	public NBTTagList writeToNBT(NBTTagList json)
 	{
-		int id = 0;
-		
-		while(database.containsKey(id))
-		{
-			id++;
-		}
-		
-		return id;
-	}
-	
-	@Override
-	public boolean add(IReward obj, Integer id)
-	{
-		if(obj == null || database.containsKey(id) || database.containsKey(id))
-		{
-			return false;
-		}
-		
-		database.put(id, obj);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		return database.remove(id) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IReward reward)
-	{
-		return removeKey(getKey(reward));
-	}
-	
-	@Override
-	public IReward getValue(Integer id)
-	{
-		return database.get(id);
-	}
-	
-	@Override
-	public Integer getKey(IReward obj)
-	{
-		int id = -1;
-		
-		for(Entry<Integer,IReward> entry : database.entrySet())
-		{
-			if(entry.getValue() == obj)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return id;
-	}
-	
-	@Override
-	public List<IReward> getAllValues()
-	{
-		return new ArrayList<IReward>(database.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(database.keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return database.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		database.clear();
-	}
-	
-	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
-	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
-		
-		for(Entry<Integer,IReward> rew : database.entrySet())
+		for(DBEntry<IReward> rew : getEntries())
 		{
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
 			
-			JsonObject rJson = rew.getValue().writeToJson(new JsonObject(), EnumSaveType.CONFIG);
-			rJson.addProperty("rewardID", rewardID.toString());
-			rJson.addProperty("index", rew.getKey());
-			json.add(rJson);
+			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound());
+			rJson.setString("rewardID", rewardID.toString());
+			rJson.setInteger("index", rew.getID());
+			json.appendTag(rJson);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json)
 	{
-		if(saveType != EnumSaveType.CONFIG)
+		reset();
+		
+		List<IReward> unassigned = new ArrayList<>();
+		
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			return;
-		}
-		
-		database.clear();
-		
-		ArrayList<IReward> unassigned = new ArrayList<IReward>();
-		
-		for(JsonElement entry : json)
-		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
-			
-			JsonObject jsonReward = entry.getAsJsonObject();
-			ResourceLocation loc = new ResourceLocation(JsonHelper.GetString(jsonReward, "rewardID", ""));
-			int index = JsonHelper.GetNumber(jsonReward, "index", -1).intValue();
-			IReward reward = RewardRegistry.INSTANCE.createReward(loc);
+			NBTTagCompound jsonReward = json.getCompoundTagAt(i);
+			ResourceLocation loc = new ResourceLocation(jsonReward.getString("rewardID"));
+			int index = jsonReward.hasKey("index", 99) ? jsonReward.getInteger("index") : -1;
+			IReward reward = RewardRegistry.INSTANCE.createNew(loc);
 			
 			if(reward instanceof RewardPlaceholder)
 			{
-				JsonObject jr2 = JsonHelper.GetObject(jsonReward, "orig_data");
-				ResourceLocation loc2 = new ResourceLocation(JsonHelper.GetString(jr2, "rewardID", ""));
-				IReward r2 = RewardRegistry.INSTANCE.createReward(loc2);
+				NBTTagCompound jr2 = jsonReward.getCompoundTag("orig_data");
+				ResourceLocation loc2 = new ResourceLocation(jr2.getString("rewardID"));
+				IReward r2 = RewardRegistry.INSTANCE.createNew(loc2);
 				
 				if(r2 != null)
 				{
@@ -162,11 +60,11 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 			
 			if(reward != null)
 			{
-				reward.readFromJson(jsonReward, EnumSaveType.CONFIG);
+				reward.readFromNBT(jsonReward);
 				
 				if(index >= 0)
 				{
-					add(reward, index);
+					add(index, reward);
 				} else
 				{
 					unassigned.add(reward);
@@ -174,11 +72,11 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 			} else
 			{
 				RewardPlaceholder rph = new RewardPlaceholder();
-				rph.setRewardData(jsonReward, EnumSaveType.CONFIG);
+				rph.setRewardConfigData(jsonReward);
 				
 				if(index >= 0)
 				{
-					add(rph, index);
+					add(index, rph);
 				} else
 				{
 					unassigned.add(rph);
@@ -188,7 +86,20 @@ public class RewardStorage implements IRegStorageBase<Integer,IReward>, IJsonSav
 		
 		for(IReward r : unassigned)
 		{
-			add(r, nextKey());
+			add(nextID(), r);
 		}
 	}
+	
+	// === Future support ===
+	
+	@Override
+    public NBTTagList writeProgressToNBT(NBTTagList nbt, List<UUID> users)
+    {
+        return nbt;
+    }
+    
+    @Override
+    public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+    {
+    }
 }

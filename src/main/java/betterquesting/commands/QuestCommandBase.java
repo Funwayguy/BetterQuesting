@@ -1,8 +1,5 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
@@ -10,6 +7,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public abstract class QuestCommandBase
 {
@@ -29,12 +30,12 @@ public abstract class QuestCommandBase
 		return args.length == 1;
 	}
 	
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 	
-	public abstract void runCommand(CommandBase command, ICommandSender sender, String[] args);
+	public abstract void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args);
 	
 	public final WrongUsageException getException(CommandBase command)
 	{
@@ -53,17 +54,14 @@ public abstract class QuestCommandBase
 	 */
 	public UUID findPlayerID(MinecraftServer server, ICommandSender sender, String name)
 	{
-		UUID playerID = null;
+		UUID playerID;
 		
 		EntityPlayerMP player = null;
 		
 		try
 		{
 			player = CommandBase.getPlayer(sender, name);
-		} catch(Exception e)
-		{
-			player = null;
-		}
+		} catch(Exception ignored){}
 		
 		if(player == null)
 		{

@@ -1,31 +1,30 @@
 package betterquesting.api.questing.rewards;
 
-import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.questing.IQuest;
-import com.google.gson.JsonObject;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.INBTSaveLoad;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
-public interface IReward extends IJsonSaveLoad<JsonObject>
+import javax.annotation.Nullable;
+
+public interface IReward extends INBTSaveLoad<NBTTagCompound>
 {
-	public String getUnlocalisedName();
-	public ResourceLocation getFactoryID();
+	String getUnlocalisedName();
+	ResourceLocation getFactoryID();
 	
-	public boolean canClaim(EntityPlayer player, IQuest quest);
-	public void claimReward(EntityPlayer player, IQuest quest);
-	
-	public IJsonDoc getDocumentation();
+	boolean canClaim(EntityPlayer player, IQuest quest);
+	void claimReward(EntityPlayer player, IQuest quest);
 	
 	@SideOnly(Side.CLIENT)
-	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuest quest);
+    IGuiPanel getRewardGui(IGuiRect rect, IQuest quest);
 	
 	@Nullable
 	@SideOnly(Side.CLIENT)
-	public GuiScreen getRewardEditor(GuiScreen parent, IQuest quest);
+	GuiScreen getRewardEditor(GuiScreen parent, IQuest quest);
 }

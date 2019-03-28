@@ -1,43 +1,37 @@
 package betterquesting.api.questing.tasks;
 
-import java.util.UUID;
-import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.jdoc.IJsonDoc;
-import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.questing.IQuest;
-import com.google.gson.JsonObject;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.INBTProgress;
+import betterquesting.api2.storage.INBTSaveLoad;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
-public interface ITask extends IJsonSaveLoad<JsonObject>
+import javax.annotation.Nullable;
+import java.util.UUID;
+
+public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
 {
-	public String getUnlocalisedName();
-	public ResourceLocation getFactoryID();
+	String getUnlocalisedName();
+	ResourceLocation getFactoryID();
 	
-	public void detect(EntityPlayer player, IQuest quest);
+	void detect(EntityPlayer player, IQuest quest);
 	
-	public boolean isComplete(UUID uuid);
-	public void setComplete(UUID uuid);
+	boolean isComplete(UUID uuid);
+	void setComplete(UUID uuid);
 	
-	public void resetUser(UUID uuid);
-	public void resetAll();
-	
-	public IJsonDoc getDocumentation();
+	void resetUser(UUID uuid);
+	void resetAll();
 	
 	@SideOnly(Side.CLIENT)
-	public IGuiEmbedded getTaskGui(int x, int y, int w, int h, IQuest quest);
+    IGuiPanel getTaskGui(IGuiRect rect, IQuest quest);
 	
 	@Nullable
 	@SideOnly(Side.CLIENT)
-	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest);
-	
-	/**
-	 * Use ITickableTask instead
-	 */
-	@Deprecated
-	public void update(EntityPlayer player, IQuest quest);
+	GuiScreen getTaskEditor(GuiScreen parent, IQuest quest);
 }

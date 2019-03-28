@@ -1,11 +1,11 @@
 package betterquesting.network;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.network.IPacketSender;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class PacketSender implements IPacketSender
 {

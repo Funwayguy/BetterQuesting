@@ -1,30 +1,23 @@
 package betterquesting.api.utils;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-import java.util.Set;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagByte;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagDouble;
-import net.minecraft.nbt.NBTTagFloat;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLong;
-import net.minecraft.nbt.NBTTagShort;
-import net.minecraft.nbt.NBTTagString;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.nbt.*;
+import org.apache.logging.log4j.Level;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class NBTConverter
 {
+    private static Field f_tagList;
 	/**
 	 * Convert NBT tags to a JSON object
 	 */
@@ -38,7 +31,7 @@ public class NBTConverter
 		if(tag.getId() >= 1 && tag.getId() <= 6)
 		{
 			return new JsonPrimitive(getNumber(tag));
-		} else if(tag instanceof NBTTagString)
+		} if(tag instanceof NBTTagString)
 		{
 			return new JsonPrimitive(((NBTTagString)tag).func_150285_a_());
 		} else if(tag instanceof NBTTagCompound)
@@ -50,11 +43,11 @@ public class NBTConverter
 			{
 				JsonObject jAry = new JsonObject();
 				
-				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				List<NBTBase> tagList = getTagList((NBTTagList)tag);
 				
 				for(int i = 0; i < tagList.size(); i++)
 				{
-					jAry.add("" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), format));
+					jAry.add(i + ":" + tagList.get(i).getId(), NBTtoJSON_Base(tagList.get(i), true));
 				}
 				
 				return jAry;
@@ -62,11 +55,11 @@ public class NBTConverter
 			{
 				JsonArray jAry = new JsonArray();
 				
-				ArrayList<NBTBase> tagList = getTagList((NBTTagList)tag);
+				List<NBTBase> tagList = getTagList((NBTTagList)tag);
 				
-				for(int i = 0; i < tagList.size(); i++)
+				for(NBTBase t : tagList)
 				{
-					jAry.add(NBTtoJSON_Base(tagList.get(i), format));
+					jAry.add(NBTtoJSON_Base(t, false));
 				}
 				
 				return jAry;
@@ -97,6 +90,7 @@ public class NBTConverter
 		}
 	}
 	
+	@Deprecated
 	public static JsonObject NBTtoJSON_Compound(NBTTagCompound parent, JsonObject jObj)
 	{
 		return NBTtoJSON_Compound(parent, jObj, false);
@@ -114,17 +108,12 @@ public class NBTConverter
 		{
 			NBTBase tag = parent.getTag(key);
 			
-			if(tag == null)
-			{
-				continue;
-			}
-			
 			if(format)
 			{
-				jObj.add(key + ":" + tag.getId(), NBTtoJSON_Base(tag, format));
+				jObj.add(key + ":" + tag.getId(), NBTtoJSON_Base(tag, true));
 			} else
 			{
-				jObj.add(key, NBTtoJSON_Base(tag, format));
+				jObj.add(key, NBTtoJSON_Base(tag, false));
 			}
 		}
 		
@@ -152,7 +141,7 @@ public class NBTConverter
 			
 			if(!format)
 			{
-				tags.setTag(key, JSONtoNBT_Element(entry.getValue(), (byte)0, format));
+				tags.setTag(key, JSONtoNBT_Element(entry.getValue(), (byte)0, false));
 			} else
 			{
 				String[] s = key.split(":");
@@ -171,7 +160,7 @@ public class NBTConverter
 					}
 				}
 				
-				tags.setTag(key, JSONtoNBT_Element(entry.getValue(), id, format));
+				tags.setTag(key, JSONtoNBT_Element(entry.getValue(), id, true));
 			}
 		}
 		
@@ -192,7 +181,10 @@ public class NBTConverter
 		
 		try
 		{
-			if(tagID >= 1 && tagID <= 6)
+			if(tagID == 1 && (id <= 0 || jObj.getAsJsonPrimitive().isBoolean())) // Edge case for BQ2 legacy files
+			{
+				return new NBTTagByte(jObj.getAsBoolean() ? (byte)1 : (byte)0);
+			} else if(tagID >= 1 && tagID <= 6)
 			{
 				return instanceNumber(jObj.getAsNumber(), tagID);
 			} else if(tagID == 8)
@@ -246,11 +238,13 @@ public class NBTConverter
 					{
 						try
 						{
-							tList.appendTag(JSONtoNBT_Element(entry.getValue(), Byte.parseByte(entry.getKey()), format));
+							String[] s = entry.getKey().split(":");
+							byte id2 = Byte.parseByte(s[s.length - 1]);
+							//String key = entry.getKey().substring(0, entry.getKey().lastIndexOf(":" + id));
+							tList.appendTag(JSONtoNBT_Element(entry.getValue(), id2, format));
 						} catch(Exception e)
 						{
 							tList.appendTag(JSONtoNBT_Element(entry.getValue(), (byte)0, format));
-							continue;
 						}
 					}
 				}
@@ -269,11 +263,19 @@ public class NBTConverter
 	/**
 	 * Pulls the raw list out of the NBTTagList
 	 */
-	public static ArrayList<NBTBase> getTagList(NBTTagList tag)
+	@SuppressWarnings("unchecked")
+	public static List<NBTBase> getTagList(NBTTagList tag)
 	{
-		return ObfuscationReflectionHelper.getPrivateValue(NBTTagList.class, tag, new String[]{"tagList", "field_74747_a"});
-	}
+        try
+        {
+            return (ArrayList<NBTBase>)f_tagList.get(tag);
+        } catch(IllegalAccessException e)
+        {
+            return Collections.emptyList();
+        }
+    }
 	
+    @SuppressWarnings("WeakerAccess")
 	public static Number getNumber(NBTBase tag)
 	{
 		if(tag instanceof NBTTagByte)
@@ -300,6 +302,7 @@ public class NBTConverter
 		}
 	}
 	
+	@SuppressWarnings("WeakerAccess")
 	public static NBTBase instanceNumber(Number num, byte type)
 	{
 		switch (type)
@@ -336,6 +339,9 @@ public class NBTConverter
 				{
 					tagID = 4;
 				}
+			} else if(prim.isBoolean())
+			{
+				tagID = 1;
 			} else
 			{
 				tagID = 8; // Non-number primitive. Assume string
@@ -379,7 +385,6 @@ public class NBTConverter
 					}
 				} else if(!entry.isJsonPrimitive())
 				{
-					tagID = 9; // Non primitive, NBT compound list
 					break;
 				}
 			}
@@ -392,4 +397,24 @@ public class NBTConverter
 		
 		return tagID;
 	}
+	
+	static
+    {
+        try
+        {
+            //noinspection JavaReflectionMemberAccess
+            f_tagList = NBTTagList.class.getDeclaredField("field_74747_a");
+            f_tagList.setAccessible(true);
+        } catch(Exception e1)
+        {
+            try
+            {
+                f_tagList = NBTTagList.class.getDeclaredField("tagList");
+                f_tagList.setAccessible(true);
+            } catch(Exception e2)
+            {
+                QuestingAPI.getLogger().log(Level.ERROR, "Unable to hook into NBTTagList!", e2);
+            }
+        }
+    }
 }

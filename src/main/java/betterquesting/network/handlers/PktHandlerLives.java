@@ -1,15 +1,15 @@
 package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.LifeDatabase;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 
 public class PktHandlerLives implements IPacketHandler
 {

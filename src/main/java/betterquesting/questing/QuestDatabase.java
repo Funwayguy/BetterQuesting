@@ -1,252 +1,144 @@
 package betterquesting.questing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
+import betterquesting.api2.storage.BigDatabase;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.network.PacketTypeNative;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
-public final class QuestDatabase implements IQuestDatabase
+import java.util.List;
+import java.util.UUID;
+
+public final class QuestDatabase extends BigDatabase<IQuest> implements IQuestDatabase
 {
 	public static final QuestDatabase INSTANCE = new QuestDatabase();
 	
-	private final ConcurrentHashMap<Integer, IQuest> database = new ConcurrentHashMap<Integer, IQuest>();
+	public QuestDatabase()
+    {
+        super(20);
+    }
 	
-	private QuestDatabase()
+	@Override
+	public IQuest createNew(int id)
 	{
+		return this.add(id, new QuestInstance()).getValue();
 	}
 	
 	@Override
-	public IQuest createNew()
-	{
-		IQuest q = new QuestInstance();
-		q.setParentDatabase(this);
-		return q;
-	}
-	
-	@Override
-	public Integer nextKey()
-	{
-		int id = 0;
-		
-		while(database.containsKey(id))
-		{
-			id++;
-		}
-		
-		return id;
-	}
-	
-	@Override
-	public boolean add(IQuest obj, Integer id)
-	{
-		if(id < 0 || obj == null || database.containsKey(id) || database.containsValue(obj))
-		{
-			return false;
-		}
-		
-		obj.setParentDatabase(this);
-		database.put(id, obj);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer id)
-	{
-		IQuest remQ = database.remove(id);
-		
-		if(remQ == null)
-		{
-			return false;
-		}
-		
-		for(IQuest quest : this.getAllValues())
-		{
-			// Remove from all pre-requisites
-			quest.getPrerequisites().remove(remQ);
-		}
-		
-		// Clear quest from quest lines
-		QuestLineDatabase.INSTANCE.removeQuest(id);
-		
-		return true;
-	}
-	
-	@Override
-	public boolean removeValue(IQuest quest)
-	{
-		return removeKey(getKey(quest));
-	}
-	
-	@Override
-	public IQuest getValue(Integer id)
-	{
-		return database.get(id);
-	}
-	
-	@Override
-	public Integer getKey(IQuest quest)
-	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
-		{
-			if(entry.getValue() == quest)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public List<IQuest> getAllValues()
-	{
-		return new ArrayList<IQuest>(database.values());
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		return new ArrayList<Integer>(((Map<Integer,IQuest>)database).keySet());
-	}
-	
-	@Override
-	public int size()
-	{
-		return database.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		database.clear();
-	}
+    public boolean removeID(int id)
+    {
+        boolean success = super.removeID(id);
+        if(success) for(DBEntry<IQuest> entry : getEntries()) removeReq(entry.getValue(), id);
+        return success;
+    }
+    
+    @Override
+    public boolean removeValue(IQuest value)
+    {
+        int id = this.getID(value);
+        if(id < 0) return false;
+        boolean success = this.removeValue(value);
+        if(success) for(DBEntry<IQuest> entry : getEntries()) removeReq(entry.getValue(), id);
+        return success;
+    }
+    
+    private void removeReq(IQuest quest, int id)
+    {
+        int[] orig = quest.getRequirements();
+        if(orig.length <= 0) return;
+        boolean hasRemoved = false;
+        int[] rem = new int[orig.length - 1];
+        for(int i = 0; i < orig.length; i++)
+        {
+            if(!hasRemoved && orig[i] == id)
+            {
+                hasRemoved = true;
+                continue;
+            } else if(!hasRemoved && i >= rem.length) break;
+            
+            rem[!hasRemoved ? i : (i - 1)] = orig[i];
+        }
+        
+        if(hasRemoved) quest.setRequirements(rem);
+    }
 	
 	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("config", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-		base.add("progress", writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("config", writeToNBT(new NBTTagList(), null));
+		base.setTag("progress", writeProgressToNBT(new NBTTagList(), null));
+		tags.setTag("data", base);
 		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
+		NBTTagCompound base = payload.getCompoundTag("data");
 		
-		readFromJson(JsonHelper.GetArray(base, "config"), EnumSaveType.CONFIG);
-		readFromJson(JsonHelper.GetArray(base, "progress"), EnumSaveType.PROGRESS);
+		readFromNBT(base.getTagList("config", 10), false);
+		readProgressFromNBT(base.getTagList("progress", 10), false);
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
-		switch(saveType)
+		for(DBEntry<IQuest> entry : this.getEntries())
 		{
-			case CONFIG:
-				writeToJson_Config(json);
-				break;
-			case PROGRESS:
-				writeToJson_Progress(json);
-				break;
-			default:
-				break;
+			NBTTagCompound jq = new NBTTagCompound();
+			entry.getValue().writeToNBT(jq);
+			jq.setInteger("questID", entry.getID());
+			json.appendTag(jq);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
-		switch(saveType)
-		{
-			case CONFIG:
-				readFromJson_Config(json);
-				break;
-			case PROGRESS:
-				readFromJson_Progress(json);
-				break;
-			default:
-				break;
-		}
-	}
-	
-	private JsonArray writeToJson_Config(JsonArray json)
-	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
-		{
-			JsonObject jq = new JsonObject();
-			entry.getValue().writeToJson(jq, EnumSaveType.CONFIG);
-			jq.addProperty("questID", entry.getKey());
-			json.add(jq);
-		}
+		this.reset();
 		
-		return json;
-	}
-	
-	private void readFromJson_Config(JsonArray json)
-	{
-		database.clear();
-		for(JsonElement entry : json)
+		for(int i = 0; i < nbt.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
+			NBTTagCompound qTag = nbt.getCompoundTagAt(i);
 			
-			int qID = JsonHelper.GetNumber(entry.getAsJsonObject(), "questID", -1).intValue();
-			
-			if(qID < 0)
-			{
-				continue;
-			}
+			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
+			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
-			quest = quest != null? quest : this.createNew();
-			quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.CONFIG);
-			database.put(qID, quest);
+			quest = quest != null? quest : this.createNew(qID);
+			quest.readFromNBT(qTag);
 		}
 	}
 	
-	private JsonArray writeToJson_Progress(JsonArray json)
+	@Override
+	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
-		for(Entry<Integer,IQuest> entry : database.entrySet())
+		for(DBEntry<IQuest> entry : this.getEntries())
 		{
-			JsonObject jq = new JsonObject();
-			entry.getValue().writeToJson(jq, EnumSaveType.PROGRESS);
-			jq.addProperty("questID", entry.getKey());
-			json.add(jq);
+			NBTTagCompound jq = new NBTTagCompound();
+			entry.getValue().writeProgressToNBT(jq, users);
+			jq.setInteger("questID", entry.getID());
+			json.appendTag(jq);
 		}
 		
 		return json;
 	}
 	
-	private void readFromJson_Progress(JsonArray json)
+	@Override
+	public void readProgressFromNBT(NBTTagList json, boolean merge)
 	{
-		for(JsonElement entry : json)
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
+			NBTTagCompound qTag = json.getCompoundTagAt(i);
 			
-			int qID = JsonHelper.GetNumber(entry.getAsJsonObject(), "questID", -1).intValue();
+			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
 			
 			if(qID < 0)
 			{
@@ -257,7 +149,7 @@ public final class QuestDatabase implements IQuestDatabase
 			
 			if(quest != null)
 			{
-				quest.readFromJson(entry.getAsJsonObject(), EnumSaveType.PROGRESS);
+				quest.readProgressFromNBT(qTag, merge);
 			}
 		}
 	}

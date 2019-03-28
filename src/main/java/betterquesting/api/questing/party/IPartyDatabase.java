@@ -1,15 +1,16 @@
 package betterquesting.api.questing.party;
 
+import betterquesting.api.misc.IDataSync;
+import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTPartial;
+import net.minecraft.nbt.NBTTagList;
+
 import java.util.List;
 import java.util.UUID;
-import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
-import betterquesting.api.storage.IRegStorageBase;
-import com.google.gson.JsonArray;
 
-public interface IPartyDatabase extends IRegStorageBase<Integer,IParty>, IJsonSaveLoad<JsonArray>, IDataSync
+public interface IPartyDatabase extends IDatabase<IParty>, INBTPartial<NBTTagList>, IDataSync
 {
-	public IParty getUserParty(UUID uuid);
+	IParty getUserParty(UUID uuid);
 	
-	public List<Integer> getPartyInvites(UUID uuid);
+	List<Integer> getPartyInvites(UUID uuid);
 }

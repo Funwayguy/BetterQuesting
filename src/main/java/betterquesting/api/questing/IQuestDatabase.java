@@ -1,11 +1,16 @@
 package betterquesting.api.questing;
 
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
-import betterquesting.api.storage.IRegStorageBase;
-import com.google.gson.JsonArray;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTPartial;
+import betterquesting.api2.storage.INBTProgress;
+import net.minecraft.nbt.NBTTagList;
 
-public interface IQuestDatabase extends IRegStorageBase<Integer,IQuest>, IJsonSaveLoad<JsonArray>, IDataSync
+import java.util.List;
+
+public interface IQuestDatabase extends IDatabase<IQuest>, INBTPartial<NBTTagList>, INBTProgress<NBTTagList>, IDataSync
 {
-	public IQuest createNew();
+	IQuest createNew(int id);
+	List<DBEntry<IQuest>> bulkLookup(int... ids);
 }

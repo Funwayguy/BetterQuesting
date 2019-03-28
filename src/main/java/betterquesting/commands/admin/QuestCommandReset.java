@@ -1,17 +1,20 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentTranslation;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class QuestCommandReset extends QuestCommandBase
 {
@@ -28,18 +31,18 @@ public class QuestCommandReset extends QuestCommandBase
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+    @SuppressWarnings("unchecked")
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
 			list.add("all");
 			
-			for(int i : QuestDatabase.INSTANCE.getAllKeys())
+			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
-				list.add("" + i);
+				list.add("" + i.getID());
 			}
 		} else if(args.length == 3)
 		{
@@ -56,7 +59,7 @@ public class QuestCommandReset extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		String action = args[1];
 		
@@ -64,7 +67,7 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(args.length == 3)
 		{
-			uuid = this.findPlayerID(MinecraftServer.getServer(), sender, args[2]);
+			uuid = this.findPlayerID(server, sender, args[2]);
 			
 			if(uuid == null)
 			{
@@ -76,14 +79,14 @@ public class QuestCommandReset extends QuestCommandBase
 		
 		if(action.equalsIgnoreCase("all"))
 		{
-			for(IQuest quest : QuestDatabase.INSTANCE.getAllValues())
+			for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
 			{
 				if(uuid != null)
 				{
-					quest.resetUser(uuid, true); // Clear progress and state
+					entry.getValue().resetUser(uuid, true); // Clear progress and state
 				} else
 				{
-					quest.resetAll(true);
+					entry.getValue().resetAll(true);
 				}
 			}
 			
@@ -104,11 +107,11 @@ public class QuestCommandReset extends QuestCommandBase
 				if(uuid != null)
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
-					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.getUnlocalisedName()), pName));
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
 				} else
 				{
 					quest.resetAll(true);
-					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_single", new ChatComponentTranslation(quest.getUnlocalisedName())));
+					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_single", new ChatComponentTranslation(quest.getProperty(NativeProps.NAME))));
 				}
 			} catch(Exception e)
 			{

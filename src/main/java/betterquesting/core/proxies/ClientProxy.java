@@ -1,14 +1,11 @@
 package betterquesting.core.proxies;
 
-import java.util.ArrayList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.SimpleReloadableResourceManager;
-import net.minecraftforge.common.MinecraftForge;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.renderer.EntityPlaceholderRenderer;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.core.BetterQuesting;
@@ -17,6 +14,12 @@ import betterquesting.misc.QuestResourcesFile;
 import betterquesting.misc.QuestResourcesFolder;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+
+import java.util.ArrayList;
 
 public class ClientProxy extends CommonProxy
 {
@@ -32,7 +35,16 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
-		//FMLCommonHandler.instance().bus().register(new UpdateNotification());
+		// TODO: Figure out how 1.7.10 uses the stencil buffer
+		/*if(!Minecraft.getMinecraft().getFramebuffer().useDepth)
+		{
+			if(!Minecraft.getMinecraft().getFramebuffer().enableStencil())
+			{
+				BetterQuesting.logger.error("[!] FAILED TO ENABLE STENCIL BUFFER. GUIS WILL BREAK! [!]");
+			}
+		}*/
+		
+		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
 		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		
@@ -41,7 +53,8 @@ public class ClientProxy extends CommonProxy
 		
 		try
 		{
-			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
+		    //String tmp = "defaultResourcePacks";
+			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao");
 			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
 			QuestResourcesFile qRes2 = new QuestResourcesFile();
 			list.add(qRes1);
@@ -50,11 +63,19 @@ public class ClientProxy extends CommonProxy
 			((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).reloadResourcePack(qRes2); // Make sure the pack(s) are visible to everything
 		} catch(Exception e)
 		{
-			BetterQuesting.logger.log(Level.ERROR, "Unable to install questing resource loaders", e);
+			BetterQuesting.logger.error("Unable to install questing resource loaders", e);
 		}
+		
+		ToolboxRegistry.INSTANCE.registerToolTab(new ResourceLocation(BetterQuesting.MODID, "main"), ToolboxTabMain.INSTANCE);
+	}
+	
+	@Override
+	public void registerRenderers()
+	{
+		super.registerRenderers();
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityPlaceholder.class, new EntityPlaceholderRenderer());
 		
-		ToolboxRegistry.INSTANCE.registerToolbox(ToolboxTabMain.instance);
+		ThemeRegistry.INSTANCE.loadResourceThemes();
 	}
 }

@@ -1,12 +1,12 @@
 package betterquesting.network.handlers;
 
+import betterquesting.api.network.IPacketHandler;
+import betterquesting.blocks.TileSubmitStation;
+import betterquesting.network.PacketTypeNative;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api.network.IPacketHandler;
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.network.PacketTypeNative;
 
 public class PktHandlerTileEdit implements IPacketHandler
 {
@@ -22,10 +22,7 @@ public class PktHandlerTileEdit implements IPacketHandler
 		NBTTagCompound tileData = data.getCompoundTag("tile");
 		TileEntity tile = sender.worldObj.getTileEntity(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z"));
 		
-		if(tile != null && tile instanceof TileSubmitStation)
-		{
-			((TileSubmitStation)tile).SyncTile(tileData);
-		}
+		if(tile instanceof TileSubmitStation) ((TileSubmitStation)tile).SyncTile(tileData);
 	}
 	
 	@Override
