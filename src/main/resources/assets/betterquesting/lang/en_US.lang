@@ -170,6 +170,7 @@ betterquesting.cmd.delete.single=Deleted quest %s
 betterquesting.cmd.delete.all=Deleted all quests
 betterquesting.cmd.edit=Edit mode %s
 betterquesting.cmd.hardcore=Hardcore mode %s
+betterquesting.cmd.purge_hidden=Deleted %s hidden quest(s)
 
 betterquesting.cmd.lives.add_player=Added %s lives to %s (Total: %s)
 betterquesting.cmd.lives.add_all=Added %s lives to all players

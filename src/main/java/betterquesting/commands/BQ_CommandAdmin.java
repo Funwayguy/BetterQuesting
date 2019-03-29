@@ -9,11 +9,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BQ_CommandAdmin extends CommandBase
 {
-	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
+	private final List<QuestCommandBase> coms = new ArrayList<>();
 	
 	public BQ_CommandAdmin()
 	{
@@ -24,6 +25,7 @@ public class BQ_CommandAdmin extends CommandBase
 		coms.add(new QuestCommandDelete());
 		coms.add(new QuestCommandDefaults());
 		coms.add(new QuestCommandLives());
+		coms.add(new QuestCommandPurge());
 	}
 	
 	@Override
@@ -35,25 +37,25 @@ public class BQ_CommandAdmin extends CommandBase
 	@Override
 	public String getUsage(ICommandSender sender)
 	{
-		String txt = "";
+		StringBuilder txt = new StringBuilder();
 		
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_admin " + c.getCommand();
+			txt.append("/bq_admin ").append(c.getCommand());
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
-				txt += " " + c.getUsageSuffix();
+				txt.append(" ").append(c.getUsageSuffix());
 			}
 			
 			if(i < coms.size() -1)
 			{
-				txt += ", ";
+				txt.append(", ");
 			}
 		}
 		
-		return txt;
+		return txt.toString();
 	}
 
     /**
@@ -64,7 +66,7 @@ public class BQ_CommandAdmin extends CommandBase
     {
 		if(strings.length == 1)
 		{
-			ArrayList<String> base = new ArrayList<String>();
+			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
 				base.add(c.getCommand());
@@ -81,7 +83,7 @@ public class BQ_CommandAdmin extends CommandBase
 			}
 		}
 		
-		return new ArrayList<String>();
+		return Collections.emptyList();
     }
 	
 	@Override

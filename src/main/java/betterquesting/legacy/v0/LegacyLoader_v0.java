@@ -136,6 +136,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
                 req[i] = je.getAsInt();
             }
 		}
+		quest.setRequirements(req);
 		
 		IDatabaseNBT<ITask, NBTTagList, NBTTagList> taskDB = quest.getTasks();
 		List<ITask> uaTasks = new ArrayList<>();
