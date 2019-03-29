@@ -33,12 +33,12 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text)
 	{
-		RenderItemStack(mc, stack, x, y, text, Color.WHITE.getRGB());
+		RenderItemStack(mc, stack, x, y, 16F, text, 0xFFFFFFFF);
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
-		RenderItemStack(mc, stack, x, y, text, color.getRGB());
+		RenderItemStack(mc, stack, x, y, 16F, text, color.getRGB());
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
