@@ -377,13 +377,14 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         } else if(nbt.getId() == 9)
         {
             List<NBTBase> tagList = NBTConverter.getTagList((NBTTagList)nbt);
-            entry = tagList.get(((PanelButtonStorage<Integer>)btn).getStoredValue());
+            int idx = ((PanelButtonStorage<Integer>)btn).getStoredValue();
+            entry = (idx < 0 || idx >= tagList.size()) ? null : tagList.get(idx);
         } else
         {
             throw new RuntimeException("Invalid NBT tag type!");
         }
         
-        if(btn.getButtonID() == btnEdit) // Context dependent action/toggle
+        if(btn.getButtonID() == btnEdit && entry != null) // Context dependent action/toggle
         {
             if(entry.getId() == 10) // Object editor
             {
@@ -419,7 +420,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 // TODO: Add supportted editors for Byte, Integer and Long Arrays
                 throw new UnsupportedOperationException("NBTTagByteArray, NBTTagIntArray and NBTTagLongArray are not currently supported yet");
             }
-        } else if(btn.getButtonID() == btnAdv) // Open advanced editor (on supported types)
+        } else if(btn.getButtonID() == btnAdv && entry != null) // Open advanced editor (on supported types)
         {
             if(entry.getId() == 10)
             {
@@ -439,7 +440,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
             {
                 mc.displayGuiScreen(new GuiNbtAdd(mc.currentScreen, (NBTTagList)nbt, ((PanelButtonStorage<Integer>)btn).getStoredValue()));
             }
-        } else if(btn.getButtonID() == btnDelete)
+        } else if(btn.getButtonID() == btnDelete && entry != null)
         {
             if(nbt.getId() == 10)
             {

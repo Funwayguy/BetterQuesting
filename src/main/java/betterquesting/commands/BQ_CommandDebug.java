@@ -20,7 +20,6 @@ public class BQ_CommandDebug extends CommandBase
 	@Override
 	public void processCommand(ICommandSender sender, String[] args)
 	{
-	   
     }
 	
     // FTBQ Stress test

@@ -35,7 +35,7 @@ public class ClientProxy extends CommonProxy
 	{
 		super.registerHandlers();
 		
-		// TODO: Figure out how 1.7.10 uses the stencil buffer
+		// TODO: Stencil bits are disabled by default in 1.7.10 and therefore cannot be used reliably for the GUIs
 		/*if(!Minecraft.getMinecraft().getFramebuffer().useDepth)
 		{
 			if(!Minecraft.getMinecraft().getFramebuffer().enableStencil())
@@ -53,8 +53,7 @@ public class ClientProxy extends CommonProxy
 		
 		try
 		{
-		    //String tmp = "defaultResourcePacks";
-			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao");
+			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao");
 			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
 			QuestResourcesFile qRes2 = new QuestResourcesFile();
 			list.add(qRes1);

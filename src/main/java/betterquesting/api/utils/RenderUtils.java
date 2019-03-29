@@ -2,13 +2,13 @@ package betterquesting.api.utils;
 
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.core.BetterQuesting;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -17,13 +17,17 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.util.vector.Matrix4f;
 
 import java.awt.*;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 
 // TODO: Move text related stuff to its own utility class
 @SideOnly(Side.CLIENT)
@@ -34,12 +38,12 @@ public class RenderUtils
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text)
 	{
-		RenderItemStack(mc, stack, x, y, text, Color.WHITE.getRGB());
+		RenderItemStack(mc, stack, x, y, 16F, text, 0xFFFFFFFF);
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, Color color)
 	{
-		RenderItemStack(mc, stack, x, y, text, color.getRGB());
+		RenderItemStack(mc, stack, x, y, 16F, text, color.getRGB());
 	}
 	
 	public static void RenderItemStack(Minecraft mc, ItemStack stack, int x, int y, String text, int color)
@@ -63,8 +67,8 @@ public class RenderUtils
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		
 		GL11.glTranslatef(0.0F, 0.0F, z);
-		itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
-		
+		itemRender.zLevel = -50F; // Counters internal Z depth change so that GL translation makes sense // NOTE: Slightly different depth in 1.7.10
+  
 		FontRenderer font = stack.getItem().getFontRenderer(stack);
 		if (font == null) font = mc.fontRenderer;
 		
@@ -369,23 +373,7 @@ public class RenderUtils
         GL11.glDisable(GL11.GL_BLEND);
     }
 	
-	/**
-	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution
-	 */
-	@Deprecated
-	public static void guiScissor(Minecraft mc, int x, int y, int w, int h)
-	{
-		startScissor(new GuiRectangle(x, y, w, h));
-	}
-	
-	@Deprecated
-	public static void startScissor(Minecraft mc, IGuiRect rect)
-	{
-		startScissor(rect);
-	}
-	
-	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
-	private static int scissorDepth = 0;
+	private static final Stack<IGuiRect> scissorStack = new Stack<>();
 	
 	/**
 	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
@@ -393,103 +381,57 @@ public class RenderUtils
 	 */
 	public static void startScissor(IGuiRect rect)
 	{
-		if(scissorDepth >= 255)
+		if(scissorStack.size() >= 255)
 		{
-			throw new IndexOutOfBoundsException("Exceeded the maximum number of nested stencils (255)");
+			throw new IndexOutOfBoundsException("Exceeded the maximum number of nested scissor (255)");
 		}
 		
-		if(scissorDepth == 0)
+		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+		Minecraft mc = Minecraft.getMinecraft();
+		ScaledResolution r = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+		int f = r.getScaleFactor();
+		
+		// Have to do all this fancy stuff because glScissor() isn't affected by glScale() or glTranslate() and rather than try and convince devs to use some custom hack
+		// we'll just deal with it by reading from the current MODELVIEW MATRIX to convert between screen spaces at their relative scales and translations.
+		FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, fb);
+		fb.rewind();
+		Matrix4f fm = new Matrix4f();
+		fm.load(fb);
+		
+		// GL screenspace rectangle
+		GuiRectangle sRect = new GuiRectangle((int)(rect.getX() * f  * fm.m00 + (fm.m30 * f)), (r.getScaledHeight() - (int)((rect.getY() + rect.getHeight()) * fm.m11 + fm.m31)) * f, (int)(rect.getWidth() * f * fm.m00), (int)(rect.getHeight() * f * fm.m11));
+		
+		if(!scissorStack.empty())
 		{
-			GL11.glEnable(GL11.GL_STENCIL_TEST);
-			GL11.glStencilMask(0xFF);
-			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+			IGuiRect parentRect = scissorStack.peek();
+			int x = Math.max(parentRect.getX(), sRect.getX());
+			int y = Math.max(parentRect.getY(), sRect.getY());
+			int w = Math.min(parentRect.getX() + parentRect.getWidth(), sRect.getX() + sRect.getWidth());
+			int h = Math.min(parentRect.getY() + parentRect.getHeight(), sRect.getY() + sRect.getHeight());
+			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
+			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
+			sRect = new GuiRectangle(x, y, w, h, 0);
 		}
 		
-		// Note: This is faster with inverted logic (skips depth tests when writing)
-		GL11.glStencilFunc(GL11.GL_LESS, scissorDepth, 0xFF);
-		GL11.glStencilOp(GL11.GL_INCR, GL11.GL_KEEP, GL11.GL_KEEP);
-		GL11.glStencilMask(0xFF);
-		
-		GL11.glColorMask(false, false, false, false);
-		GL11.glDepthMask(false);
-		
-		drawColoredRect(rect, STENCIL_COLOR);
-		
-		GL11.glStencilMask(0x00);
-		GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth + 1, 0xFF);
-		
-		GL11.glColorMask(true, true, true, true);
-		GL11.glDepthMask(true);
-		
-		scissorDepth++;
+		GL11.glScissor(sRect.getX(),sRect.getY(), sRect.getWidth(), sRect.getHeight());
+		scissorStack.add(sRect);
 	}
-	
-	private static void fillScreen()
-    {
-    	int w = Minecraft.getMinecraft().displayWidth;
-    	int h = Minecraft.getMinecraft().displayHeight;
-    	
-        GL11.glPushAttrib(GL11.GL_TEXTURE_BIT | GL11.GL_DEPTH_TEST | GL11.GL_LIGHTING);
-    	
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        GL11.glOrtho(0, w, h, 0, -1, 1);  //or whatever size you want
-    	
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-    	
-        drawColoredRect(new GuiRectangle(0, 0, w, h), STENCIL_COLOR);
-    	
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPopMatrix();
-    
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-    
-        GL11.glPopAttrib();
-    }
 	
 	/**
 	 * Pops the last scissor off the stack and returns to the last parent scissor or disables it if there are none
 	 */
 	public static void endScissor()
 	{
-		scissorDepth--;
+		scissorStack.pop();
 		
-		if(scissorDepth < 0)
+		if(scissorStack.empty())
 		{
-			throw new IndexOutOfBoundsException("No stencil to end");
-		} else if(scissorDepth == 0)
-		{
-			GL11.glStencilMask(0xFF);
-			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Note: Clearing actually requires the mask to be enabled
-			
-			GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-			GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
-			GL11.glStencilMask(0x00);
-			
-			GL11.glDisable(GL11.GL_STENCIL_TEST);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		} else
 		{
-			GL11.glStencilFunc(GL11.GL_LEQUAL, scissorDepth, 0xFF);
-			GL11.glStencilOp(GL11.GL_DECR, GL11.GL_KEEP, GL11.GL_KEEP);
-			GL11.glStencilMask(0xFF);
-			
-			GL11.glColorMask(false, false, false, false);
-			GL11.glDepthMask(false);
-			
-			fillScreen();
-			
-			GL11.glColorMask(true, true, true, true);
-			GL11.glDepthMask(true);
-			
-			GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth, 0xFF);
-			GL11.glStencilMask(0x00);
+			IGuiRect rect = scissorStack.peek();
+			GL11.glScissor(rect.getX(),rect.getY(), rect.getWidth(), rect.getHeight());
 		}
 	}
 	
