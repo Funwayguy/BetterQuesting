@@ -35,6 +35,13 @@ public class BQ_CommandUser extends CommandBase
 	}
 	
 	@Override
+	public int getRequiredPermissionLevel() 
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	@Override
 	public String getUsage(ICommandSender sender)
 	{
 		String txt = "";
