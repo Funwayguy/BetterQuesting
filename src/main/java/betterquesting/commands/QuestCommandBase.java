@@ -9,6 +9,8 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.PermissionAPI;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.storage.NameCache;
 
@@ -19,6 +21,23 @@ public abstract class QuestCommandBase
 	public String getUsageSuffix()
 	{
 		return "";
+	}
+	
+	public QuestCommandBase() {
+		this.registerPermission();
+	}
+	
+	public abstract String getPermissionNode();
+	
+	public abstract DefaultPermissionLevel getPermissionLevel();
+	
+	public abstract String getPermissionDescription();
+	
+	private void registerPermission() {
+		
+		System.out.println(this.getClass().getName() + " permission registered");
+		PermissionAPI.registerNode(this.getPermissionNode(), this.getPermissionLevel(), this.getPermissionDescription());
+		
 	}
 	
 	/**
