@@ -53,7 +53,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	@Override
     public IQuestLineEntry createNew(int id)
     {
-        IQuestLineEntry qle = new QuestLineEntry(0, 0, 24);
+        IQuestLineEntry qle = new QuestLineEntry(0, 0, 24, 24);
         this.add(id, qle);
         return qle;
     }
@@ -99,8 +99,8 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		{
 			int i1 = entry.getValue().getPosX();
 			int j1 = entry.getValue().getPosY();
-			int i2 = i1 + entry.getValue().getSize();
-			int j2 = j1 + entry.getValue().getSize();
+			int i2 = i1 + entry.getValue().getSizeX();
+			int j2 = j1 + entry.getValue().getSizeY();
 			
 			if(x >= i1 && x < i2 && y >= j1 && y < j2)
 			{
@@ -202,5 +202,17 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
     public <T> void setProperty(IPropertyType<T> prop, T value)
     {
         info.setProperty(prop, value);
+    }
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        info.removeProperty(prop);
+    }
+    
+    @Override
+    public void removeAllProps()
+    {
+        info.removeAllProps();
     }
 }

@@ -92,12 +92,12 @@ public class ToolboxToolNew implements IToolboxTool
 		
 		if(qe == null)
 		{
-			qe = new QuestLineEntry(nQuest.rect.x, nQuest.rect.y, 24);
+			qe = new QuestLineEntry(nQuest.rect.x, nQuest.rect.y, 24, 24);
 			qLine.add(qID, qe);
 		} else
 		{
 			qe.setPosition(nQuest.rect.x, nQuest.rect.y);
-			qe.setSize(24);
+			qe.setSize(24, 24);
 		}
 		
 		// Sync Quest

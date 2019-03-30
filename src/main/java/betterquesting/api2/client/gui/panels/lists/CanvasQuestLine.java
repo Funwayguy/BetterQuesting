@@ -108,7 +108,7 @@ public class CanvasQuestLine extends CanvasScrolling
             
             if(!QuestCache.isQuestShown(quest, pid, player)) continue;
             
-            GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSize(), qle.getValue().getSize());
+            GuiRectangle rect = new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSizeX(), qle.getValue().getSizeY());
             PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", new DBEntry<>(qle.getID(), quest));
             
             this.addPanel(paBtn);

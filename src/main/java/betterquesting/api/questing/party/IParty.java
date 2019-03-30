@@ -6,6 +6,8 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.nbt.NBTTagCompound;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +33,8 @@ public interface IParty extends INBTSaveLoad<NBTTagCompound>, IDataSync
 	 * Sets the privilege level of an existing party member.
 	 * Can be used to confirm an invite, promote to administrator or migrate hosts
 	 */
-	void setStatus(UUID uuid, EnumPartyStatus priv);
+	void setStatus(UUID uuid, @Nonnull EnumPartyStatus priv);
+	@Nullable
 	EnumPartyStatus getStatus(UUID uuid);
 	
 	List<UUID> getMembers();

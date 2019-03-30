@@ -4,6 +4,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
+import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
@@ -80,6 +81,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.PARTY_LOOT, false);
 		setupValue(NativeProps.GLOBAL_SHARE, false);
 		setupValue(NativeProps.SIMULTANEOUS, false);
+		setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
 	}
 	
 	private <T> void setupValue(IPropertyType<T> prop)
@@ -828,5 +830,17 @@ public class QuestInstance implements IQuest
     public <T> void setProperty(IPropertyType<T> prop, T value)
     {
         qInfo.setProperty(prop, value);
+    }
+    
+    @Override
+    public void removeProperty(IPropertyType<?> prop)
+    {
+        qInfo.removeProperty(prop);
+    }
+    
+    @Override
+    public void removeAllProps()
+    {
+        qInfo.removeAllProps();
     }
 }

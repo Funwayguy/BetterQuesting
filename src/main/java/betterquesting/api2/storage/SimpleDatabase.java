@@ -1,54 +1,47 @@
 package betterquesting.api2.storage;
 
 import java.util.*;
+import java.util.Map.Entry;
 
-// It's up to child classes to define how T is parsed as K
 public abstract class SimpleDatabase<T> implements IDatabase<T>
 {
-    private final SortedSet<DBEntry<T>> listDB = Collections.synchronizedSortedSet(new TreeSet<>((Comparator<DBEntry>)(o1, o2) -> o1.getValue() == o2.getValue() ? 0 : Integer.compare(o1.getID(), o2.getID())));
+    private final SortedMap<Integer, T> mapDB = Collections.synchronizedSortedMap(new TreeMap<>());
+    
+    private final BitSet idMap = new BitSet();
+    private DBEntry<T>[] refCache = null; // TODO: Change out to an unmodifiable list
     
     @Override
     public int nextID()
     {
-        if(listDB.size() <= 0 || listDB.last().getID() == listDB.size() - 1)
+        synchronized(mapDB)
         {
-            return listDB.size();
-        }
-        
-        synchronized(listDB)
-        {
-            int i = 0;
-            
-            Iterator<DBEntry<T>> iterator = listDB.iterator();
-            
-            while(iterator.hasNext() && iterator.next().getID() == i)
-            {
-                i++;
-            }
-            
-            return i;
+            return idMap.nextClearBit(0);
         }
     }
     
     @Override
     public DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
     {
-        if(value == null)
+        synchronized(mapDB)
         {
-            throw new NullPointerException("Value cannot be null");
-        } else if(id < 0)
-        {
-            throw new IllegalArgumentException("ID cannot be negative");
-        } else
-        {
-            DBEntry<T> entry = new DBEntry<>(id, value);
-            
-            if(listDB.add(entry))
+            if(value == null)
             {
-                return entry;
+                throw new NullPointerException("Value cannot be null");
+            } else if(id < 0)
+            {
+                throw new IllegalArgumentException("ID cannot be negative");
             } else
             {
-                throw new IllegalArgumentException("ID or value is already contained within database");
+                if(!idMap.get(id) && !mapDB.containsValue(value))
+                {
+                    mapDB.put(id, value);
+                    idMap.set(id);
+                    refCache = null;
+                    return new DBEntry<>(id, value);
+                } else
+                {
+                    throw new IllegalArgumentException("ID or value is already contained within database");
+                }
             }
         }
     }
@@ -56,27 +49,15 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     @Override
     public boolean removeID(int key)
     {
-        if(key < 0)
-        {
-            return false;
-        }
+        if(key < 0) return false;
         
-        synchronized(listDB)
+        synchronized(mapDB)
         {
-            Iterator<DBEntry<T>> iter = listDB.iterator();
-    
-            while(iter.hasNext())
+            if(mapDB.remove(key) != null)
             {
-                DBEntry<T> entry = iter.next();
-                
-                if(entry.getID() == key)
-                {
-                    iter.remove();
-                    return true;
-                } else if(entry.getID() > key)
-                {
-                    break;
-                }
+                idMap.clear(key);
+                refCache = null;
+                return true;
             }
         }
         
@@ -86,20 +67,20 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     @Override
     public boolean removeValue(T value)
     {
-        if(value == null)
-        {
-            return false;
-        }
+        if(value == null) return false;
         
-        synchronized(listDB)
+        synchronized(mapDB)
         {
-            Iterator<DBEntry<T>> iter = listDB.iterator();
-    
+            Iterator<Entry<Integer,T>> iter = mapDB.entrySet().iterator();
+            
             while(iter.hasNext())
             {
-                if(iter.next().getValue() == value)
+                Entry<Integer,T> entry = iter.next();
+                if(entry.getValue() == value)
                 {
                     iter.remove();
+                    idMap.clear(entry.getKey());
+                    refCache = null;
                     return true;
                 }
             }
@@ -111,20 +92,11 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     @Override
     public int getID(T value)
     {
-        if(value == null)
-        {
-            return -1;
-        }
+        if(value == null) return -1;
         
-        synchronized(listDB)
+        for(DBEntry<T> entry : getEntries())
         {
-            for(DBEntry<T> entry : listDB)
-            {
-                if(entry.getValue() == value)
-                {
-                    return entry.getID();
-                }
-            }
+            if(entry.getValue() == value) return entry.getID();
         }
         
         return -1;
@@ -133,44 +105,47 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     @Override
     public T getValue(int id)
     {
-        if(id < 0 || listDB.size() <= 0 || id > listDB.last().getID())
+        synchronized(mapDB)
         {
-            return null;
+            if(id < 0 || mapDB.size() <= 0 || !idMap.get(id)) return null;
+            return mapDB.get(id);
         }
-        
-        synchronized(listDB)
-        {
-            for(DBEntry<T> entry : listDB)
-            {
-                if(entry.getID() > id)
-                {
-                    return null;
-                } else if(entry.getID() == id)
-                {
-                    return entry.getValue();
-                }
-            }
-        }
-        
-        return null;
     }
     
     @Override
     public int size()
     {
-        return listDB.size();
-    }
-    
-    @Override
-    public void reset()
-    {
-        listDB.clear();
+        return mapDB.size();
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public DBEntry<T>[] getEntries()
+    public void reset()
     {
-        return listDB.toArray(new DBEntry[0]);
+        synchronized(mapDB)
+        {
+            mapDB.clear();
+            idMap.clear();
+            refCache = new DBEntry[0];
+        }
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public DBEntry<T>[] getEntries() // TODO: Change out to an unmodifiable list
+    {
+        synchronized(mapDB)
+        {
+            if(refCache == null)
+            {
+                refCache = new DBEntry[mapDB.size()];
+                int i = 0;
+                for(Entry<Integer,T> entry : mapDB.entrySet())
+                {
+                    refCache[i++] = new DBEntry<>(entry.getKey(), entry.getValue());
+                }
+            }
+            return refCache;
+        }
     }
 }

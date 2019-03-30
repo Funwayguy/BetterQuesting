@@ -136,6 +136,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
                 req[i] = je.getAsInt();
             }
 		}
+		quest.setRequirements(req);
 		
 		IDatabaseNBT<ITask, NBTTagList, NBTTagList> taskDB = quest.getTasks();
 		List<ITask> uaTasks = new ArrayList<>();
@@ -274,7 +275,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			
 			JsonObject json2 = je.getAsJsonObject();
 			
-			IQuestLineEntry entry = new QuestLineEntry(JsonHelper.GetNumber(json2, "x", 0).intValue(), JsonHelper.GetNumber(json2, "y", 0).intValue(), 24);
+			IQuestLineEntry entry = new QuestLineEntry(JsonHelper.GetNumber(json2, "x", 0).intValue(), JsonHelper.GetNumber(json2, "y", 0).intValue(), 24, 24);
 			int qID = JsonHelper.GetNumber(json2, "id", -1).intValue();
 			
 			if(qID >= 0)

@@ -91,7 +91,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         pnPreview = new PanelEntityPreview(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 32), 0), selEntity);
         cvBackground.addPanel(pnPreview);
         
-        pnPreview.setRotationDriven(new ValueFuncIO<>(() -> -15F), new ValueFuncIO<>(() -> (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D)));
+        pnPreview.setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D)));
         
         // === DIVIDERS ===
         

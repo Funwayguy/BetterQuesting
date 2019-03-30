@@ -55,8 +55,8 @@ public class ToolboxToolScale implements IToolboxTool
                 {
                     grab.btn.rect.x = qle.getPosX();
                     grab.btn.rect.y = qle.getPosY();
-                    grab.btn.rect.w = qle.getSize();
-                    grab.btn.rect.h = qle.getSize();
+                    grab.btn.rect.w = qle.getSizeX();
+                    grab.btn.rect.h = qle.getSizeY();
                 }
             }
             
@@ -98,9 +98,8 @@ public class ToolboxToolScale implements IToolboxTool
             dx = (mx + snap/2) - dx;
             dy = (my + snap/2) - dy;
 			
-            int size = Math.max(1, Math.max(dx - scaleBounds.x, dy - scaleBounds.y));
-            scaleBounds.w = size;
-            scaleBounds.h = size;
+            scaleBounds.w = dx - scaleBounds.x;
+            scaleBounds.h = dy - scaleBounds.y;
             
             boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
             for(GrabEntry grab : grabList)
@@ -146,13 +145,13 @@ public class ToolboxToolScale implements IToolboxTool
 		    for(GrabEntry grab : grabList)
             {
                 IQuestLineEntry qle = gui.getQuestLine().getValue(grab.btn.getStoredValue().getID());
-    
+                
                 if(qle != null)
                 {
                     grab.btn.rect.x = qle.getPosX();
                     grab.btn.rect.y = qle.getPosY();
-                    grab.btn.rect.w = qle.getSize();
-                    grab.btn.rect.h = qle.getSize();
+                    grab.btn.rect.w = qle.getSizeX();
+                    grab.btn.rect.h = qle.getSizeY();
                 }
             }
             
@@ -173,7 +172,7 @@ public class ToolboxToolScale implements IToolboxTool
 			    if(qle != null)
                 {
                     qle.setPosition(grab.btn.rect.x, grab.btn.rect.y);
-                    qle.setSize(Math.max(grab.btn.rect.w, grab.btn.rect.h));
+                    qle.setSize(grab.btn.rect.w, grab.btn.rect.h);
                 }
             }
             
@@ -216,9 +215,6 @@ public class ToolboxToolScale implements IToolboxTool
                         scaleBounds.h = Math.max(scaleBounds.y + scaleBounds.h, btn.rect.y + btn.rect.h) - scaleBounds.y;
                     }
                 }
-                
-                scaleBounds.w = Math.max(scaleBounds.w, scaleBounds.h);
-                scaleBounds.h = scaleBounds.w;
                 
                 for(PanelButtonQuest btn : PanelToolController.selected)
                 {

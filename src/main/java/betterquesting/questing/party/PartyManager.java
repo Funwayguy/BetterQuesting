@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,17 +23,37 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 {
 	public static final PartyManager INSTANCE = new PartyManager();
 	
+	private final HashMap<UUID,Integer> partyCache = new HashMap<>();
+	
 	@Override
 	public IParty getUserParty(UUID uuid)
 	{
 	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null;
 	    
+	    synchronized(partyCache)
+        {
+            Integer cachedID = partyCache.get(uuid);
+            IParty cachedParty = cachedID == null ? null : getValue(cachedID);
+    
+            if(cachedID != null && cachedParty == null) // Disbanded party
+            {
+                partyCache.remove(uuid);
+            } else if(cachedParty != null) // Active party. Check validity...
+            {
+                EnumPartyStatus status = cachedParty.getStatus(uuid);
+                if(status != null && status != EnumPartyStatus.INVITE) return cachedParty;
+                partyCache.remove(uuid); // User isn't a party member anymore
+            }
+        }
+	    
+	    // NOTE: A server with a lot of solo players may still hammer this loop. Optimise further?
 		for(DBEntry<IParty> entry : getEntries())
 		{
 			EnumPartyStatus status = entry.getValue().getStatus(uuid);
 			
 			if(status != null && status != EnumPartyStatus.INVITE)
 			{
+			    partyCache.put(uuid, entry.getID());
 				return entry.getValue();
 			}
 		}
@@ -117,4 +138,15 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 			}
 		}
 	}
+	
+	@Override
+    public void reset()
+    {
+        super.reset();
+        
+        synchronized(partyCache)
+        {
+            partyCache.clear();
+        }
+    }
 }
