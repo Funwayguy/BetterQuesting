@@ -6,6 +6,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 
@@ -29,4 +30,23 @@ public class QuestCommandHelp extends QuestCommandBase
 			}
 		}
 	}
+	
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.user.help";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.ALL;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to execute command which gives the player a copy of the in game starter guide.";
+	}
+	
 }
