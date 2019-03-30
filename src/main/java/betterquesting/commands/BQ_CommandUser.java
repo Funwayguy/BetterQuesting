@@ -6,8 +6,13 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.server.permission.PermissionAPI;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
 import betterquesting.commands.user.QuestCommandSPHardcore;
@@ -64,14 +69,17 @@ public class BQ_CommandUser extends CommandBase
 			ArrayList<String> base = new ArrayList<String>();
 			for(QuestCommandBase c : coms)
 			{
-				base.add(c.getCommand());
+				if(PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
+				{
+					base.add(c.getCommand());
+				}				
 			}
         	return getListOfStringsMatchingLastWord(strings, base.toArray(new String[0]));
 		} else if(strings.length > 1)
 		{
 			for(QuestCommandBase c : coms)
 			{
-				if(c.getCommand().equalsIgnoreCase(strings[0]))
+				if(c.getCommand().equalsIgnoreCase(strings[0]) && PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode()))
 				{
 					return c.autoComplete(server, sender, strings);
 				}
@@ -91,12 +99,6 @@ public class BQ_CommandUser extends CommandBase
     }
 	
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-	{
-		return true;
-	}
-	
-	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
@@ -108,13 +110,19 @@ public class BQ_CommandUser extends CommandBase
 		{
 			if(c.getCommand().equalsIgnoreCase(args[0]))
 			{
-				if(c.validArgs(args))
+				if(PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
 				{
-					c.runCommand(server, this, sender, args);
-					return;
+					if(c.validArgs(args))
+					{
+						c.runCommand(server, this, sender, args);
+						return;
+					} else
+					{
+						throw c.getException(this);
+					}
 				} else
 				{
-					throw c.getException(this);
+					sender.sendMessage(new TextComponentString("Not enough permission to do that !").setStyle(new Style().setColor(TextFormatting.RED)));
 				}
 			}
 		}

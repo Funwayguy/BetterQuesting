@@ -5,8 +5,13 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,13 +110,19 @@ public class BQ_CommandAdmin extends CommandBase
 		{
 			if(c.getCommand().equalsIgnoreCase(args[0]))
 			{
-				if(c.validArgs(args))
+				if(PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
 				{
-					c.runCommand(server, this, sender, args);
-					return;
+					if(c.validArgs(args))
+					{
+						c.runCommand(server, this, sender, args);
+						return;
+					} else
+					{
+						throw c.getException(this);
+					}
 				} else
 				{
-					throw c.getException(this);
+					sender.sendMessage(new TextComponentString("Not enough permission to do that !").setStyle(new Style().setColor(TextFormatting.RED)));
 				}
 			}
 		}
