@@ -67,14 +67,17 @@ public class BQ_CommandAdmin extends CommandBase
 			ArrayList<String> base = new ArrayList<String>();
 			for(QuestCommandBase c : coms)
 			{
-				base.add(c.getCommand());
+				if(PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
+				{
+					base.add(c.getCommand());
+				}
 			}
         	return getListOfStringsMatchingLastWord(strings, base.toArray(new String[0]));
 		} else if(strings.length > 1)
 		{
 			for(QuestCommandBase c : coms)
 			{
-				if(c.getCommand().equalsIgnoreCase(strings[0]))
+				if(c.getCommand().equalsIgnoreCase(strings[0]) && PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode()))
 				{
 					return c.autoComplete(server, sender, strings);
 				}
