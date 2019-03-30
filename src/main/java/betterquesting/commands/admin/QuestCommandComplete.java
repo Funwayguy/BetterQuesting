@@ -113,4 +113,19 @@ public class QuestCommandComplete extends QuestCommandBase
 	{
 		return index == 2;
 	}
+
+	@Override
+	public String getPermissionNode() {
+		return "betterquesting.command.admin.complete";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() {
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() {
+		return "Permission to force completes a quest for the given user";
+	}
 }
