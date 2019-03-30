@@ -88,15 +88,6 @@ public class BQ_CommandUser extends CommandBase
 		
 		return new ArrayList<String>();
     }
-
-    /**
-     * Return the required permission level for this command.
-     */
-	@Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
