@@ -3,24 +3,45 @@ package betterquesting.client.importers;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
-import betterquesting.api2.storage.BigDatabase;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.questing.QuestInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class ImportedQuests extends BigDatabase<IQuest> implements IQuestDatabase
+public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestDatabase
 {
 	@Override
 	public IQuest createNew(int id)
 	{
 		return this.add(id, new QuestInstance()).getValue();
 	}
-	
-	@Override
+    
+    @Override
+    public List<DBEntry<IQuest>> bulkLookup(int... ids)
+    {
+        if(ids == null || ids.length <= 0) return Collections.emptyList();
+        
+        List<DBEntry<IQuest>> values = new ArrayList<>();
+        
+        synchronized(this)
+        {
+            for(int i : ids)
+            {
+                IQuest v = getValue(i);
+                if(v != null) values.add(new DBEntry<>(i, v));
+            }
+        }
+        
+        return values;
+    }
+    
+    @Override
 	public QuestingPacket getSyncPacket()
 	{
 		return null;

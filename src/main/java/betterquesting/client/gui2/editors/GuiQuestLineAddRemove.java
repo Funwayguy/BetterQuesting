@@ -195,7 +195,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
                 {
                     int x2 = qe2.getValue().getPosX();
                     int y2 = qe2.getValue().getPosY();
-                    int s2 = qe2.getValue().getSize();
+                    int s2 = Math.max(qe2.getValue().getSizeX(), qe2.getValue().getSizeY());
                     
                     if(x1 >= x2 && x1 < x2 + s2 && y1 >= y2 && y1 < y2 + s2)
                     {

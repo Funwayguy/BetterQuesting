@@ -5,92 +5,63 @@ import java.util.Map.Entry;
 
 public abstract class SimpleDatabase<T> implements IDatabase<T>
 {
-    private final SortedMap<Integer, T> mapDB = Collections.synchronizedSortedMap(new TreeMap<>());
+    private final TreeMap<Integer, T> mapDB = new TreeMap<>();
     
     private final BitSet idMap = new BitSet();
     private DBEntry<T>[] refCache = null; // TODO: Change out to an unmodifiable list
     
     @Override
-    public int nextID()
+    public synchronized int nextID()
     {
-        synchronized(mapDB)
-        {
-            return idMap.nextClearBit(0);
-        }
+        return idMap.nextClearBit(0);
     }
     
     @Override
-    public DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
+    public synchronized DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
     {
-        synchronized(mapDB)
+        if(value == null)
         {
-            if(value == null)
+            throw new NullPointerException("Value cannot be null");
+        } else if(id < 0)
+        {
+            throw new IllegalArgumentException("ID cannot be negative");
+        } else
+        {
+            if(mapDB.putIfAbsent(id, value) == null)
             {
-                throw new NullPointerException("Value cannot be null");
-            } else if(id < 0)
-            {
-                throw new IllegalArgumentException("ID cannot be negative");
+                idMap.set(id);
+                refCache = null;
+                return new DBEntry<>(id, value);
             } else
             {
-                if(!idMap.get(id) && !mapDB.containsValue(value))
-                {
-                    mapDB.put(id, value);
-                    idMap.set(id);
-                    refCache = null;
-                    return new DBEntry<>(id, value);
-                } else
-                {
-                    throw new IllegalArgumentException("ID or value is already contained within database");
-                }
+                throw new IllegalArgumentException("ID or value is already contained within database");
             }
         }
     }
     
     @Override
-    public boolean removeID(int key)
+    public synchronized boolean removeID(int key)
     {
         if(key < 0) return false;
         
-        synchronized(mapDB)
+        if(mapDB.remove(key) != null)
         {
-            if(mapDB.remove(key) != null)
-            {
-                idMap.clear(key);
-                refCache = null;
-                return true;
-            }
+            idMap.clear(key);
+            refCache = null;
+            return true;
         }
         
         return false;
     }
     
     @Override
-    public boolean removeValue(T value)
+    public synchronized boolean removeValue(T value)
     {
-        if(value == null) return false;
-        
-        synchronized(mapDB)
-        {
-            Iterator<Entry<Integer,T>> iter = mapDB.entrySet().iterator();
-            
-            while(iter.hasNext())
-            {
-                Entry<Integer,T> entry = iter.next();
-                if(entry.getValue() == value)
-                {
-                    iter.remove();
-                    idMap.clear(entry.getKey());
-                    refCache = null;
-                    return true;
-                }
-            }
-        }
-        
-        return false;
+        return value != null && removeID(getID(value));
     }
     
     @Override
-    public int getID(T value)
+    public synchronized int getID(T value)
     {
         if(value == null) return -1;
         
@@ -103,49 +74,41 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    public T getValue(int id)
+    public synchronized T getValue(int id)
     {
-        synchronized(mapDB)
-        {
-            if(id < 0 || mapDB.size() <= 0 || !idMap.get(id)) return null;
-            return mapDB.get(id);
-        }
+        if(id < 0 || mapDB.size() <= 0 || !idMap.get(id)) return null;
+        return mapDB.get(id);
     }
     
     @Override
-    public int size()
+    public synchronized int size()
     {
         return mapDB.size();
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public void reset()
+    public synchronized void reset()
     {
-        synchronized(mapDB)
-        {
-            mapDB.clear();
-            idMap.clear();
-            refCache = new DBEntry[0];
-        }
+        mapDB.clear();
+        idMap.clear();
+        refCache = new DBEntry[0];
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public DBEntry<T>[] getEntries() // TODO: Change out to an unmodifiable list
+    public synchronized DBEntry<T>[] getEntries() // TODO: Change out to an unmodifiable list
     {
-        synchronized(mapDB)
+        if(refCache == null)
         {
-            if(refCache == null)
+            refCache = new DBEntry[mapDB.size()];
+            int i = 0;
+            for(Entry<Integer,T> entry : mapDB.entrySet())
             {
-                refCache = new DBEntry[mapDB.size()];
-                int i = 0;
-                for(Entry<Integer,T> entry : mapDB.entrySet())
-                {
-                    refCache[i++] = new DBEntry<>(entry.getKey(), entry.getValue());
-                }
+                refCache[i++] = new DBEntry<>(entry.getKey(), entry.getValue());
             }
-            return refCache;
         }
+        
+        return refCache;
     }
 }
