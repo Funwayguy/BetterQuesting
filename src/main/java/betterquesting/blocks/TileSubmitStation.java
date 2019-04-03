@@ -34,8 +34,6 @@ import java.util.UUID;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
 {
-	private final SSItemHandler itemHandler;
-	private final IFluidHandler fluidHandler;
 	private ItemStack[] itemStack = new ItemStack[2];
 	private boolean needsUpdate = false;
 	public UUID owner;
@@ -48,9 +46,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     public TileSubmitStation()
 	{
 		super();
-		
-		this.itemHandler = new SSItemHandler(this);
-		this.fluidHandler = this;
 	}
 	
 	public IQuest getQuest()

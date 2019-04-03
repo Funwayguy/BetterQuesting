@@ -1,37 +1,23 @@
 package betterquesting.api2.storage;
 
 import java.util.*;
+import java.util.Map.Entry;
 
-// It's up to child classes to define how T is parsed as K
 public abstract class SimpleDatabase<T> implements IDatabase<T>
 {
-    private final SortedSet<DBEntry<T>> listDB = Collections.synchronizedSortedSet(new TreeSet<>((Comparator<DBEntry>)(o1, o2) -> o1.getValue() == o2.getValue() ? 0 : Integer.compare(o1.getID(), o2.getID())));
+    private final TreeMap<Integer, T> mapDB = new TreeMap<>();
+    
+    private final BitSet idMap = new BitSet();
+    private DBEntry<T>[] refCache = null; // TODO: Change out to an unmodifiable list
     
     @Override
-    public int nextID()
+    public synchronized int nextID()
     {
-        if(listDB.size() <= 0 || listDB.last().getID() == listDB.size() - 1)
-        {
-            return listDB.size();
-        }
-        
-        synchronized(listDB)
-        {
-            int i = 0;
-            
-            Iterator<DBEntry<T>> iterator = listDB.iterator();
-            
-            while(iterator.hasNext() && iterator.next().getID() == i)
-            {
-                i++;
-            }
-            
-            return i;
-        }
+        return idMap.nextClearBit(0);
     }
     
     @Override
-    public DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
+    public synchronized DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
     {
         if(value == null)
         {
@@ -41,11 +27,11 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             throw new IllegalArgumentException("ID cannot be negative");
         } else
         {
-            DBEntry<T> entry = new DBEntry<>(id, value);
-            
-            if(listDB.add(entry))
+            if(mapDB.putIfAbsent(id, value) == null)
             {
-                return entry;
+                idMap.set(id);
+                refCache = null;
+                return new DBEntry<>(id, value);
             } else
             {
                 throw new IllegalArgumentException("ID or value is already contained within database");
@@ -54,123 +40,75 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    public boolean removeID(int key)
+    public synchronized boolean removeID(int key)
     {
-        if(key < 0)
-        {
-            return false;
-        }
+        if(key < 0) return false;
         
-        synchronized(listDB)
+        if(mapDB.remove(key) != null)
         {
-            Iterator<DBEntry<T>> iter = listDB.iterator();
-    
-            while(iter.hasNext())
-            {
-                DBEntry<T> entry = iter.next();
-                
-                if(entry.getID() == key)
-                {
-                    iter.remove();
-                    return true;
-                } else if(entry.getID() > key)
-                {
-                    break;
-                }
-            }
+            idMap.clear(key);
+            refCache = null;
+            return true;
         }
         
         return false;
     }
     
     @Override
-    public boolean removeValue(T value)
+    public synchronized boolean removeValue(T value)
     {
-        if(value == null)
-        {
-            return false;
-        }
-        
-        synchronized(listDB)
-        {
-            Iterator<DBEntry<T>> iter = listDB.iterator();
-    
-            while(iter.hasNext())
-            {
-                if(iter.next().getValue() == value)
-                {
-                    iter.remove();
-                    return true;
-                }
-            }
-        }
-        
-        return false;
+        return value != null && removeID(getID(value));
     }
     
     @Override
-    public int getID(T value)
+    public synchronized int getID(T value)
     {
-        if(value == null)
-        {
-            return -1;
-        }
+        if(value == null) return -1;
         
-        synchronized(listDB)
+        for(DBEntry<T> entry : getEntries())
         {
-            for(DBEntry<T> entry : listDB)
-            {
-                if(entry.getValue() == value)
-                {
-                    return entry.getID();
-                }
-            }
+            if(entry.getValue() == value) return entry.getID();
         }
         
         return -1;
     }
     
     @Override
-    public T getValue(int id)
+    public synchronized T getValue(int id)
     {
-        if(id < 0 || listDB.size() <= 0 || id > listDB.last().getID())
-        {
-            return null;
-        }
-        
-        synchronized(listDB)
-        {
-            for(DBEntry<T> entry : listDB)
-            {
-                if(entry.getID() > id)
-                {
-                    return null;
-                } else if(entry.getID() == id)
-                {
-                    return entry.getValue();
-                }
-            }
-        }
-        
-        return null;
+        if(id < 0 || mapDB.size() <= 0) return null;
+        return mapDB.get(id);
     }
     
     @Override
-    public int size()
+    public synchronized int size()
     {
-        return listDB.size();
-    }
-    
-    @Override
-    public void reset()
-    {
-        listDB.clear();
+        return mapDB.size();
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public DBEntry<T>[] getEntries()
+    public synchronized void reset()
     {
-        return listDB.toArray(new DBEntry[0]);
+        mapDB.clear();
+        idMap.clear();
+        refCache = new DBEntry[0];
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public synchronized DBEntry<T>[] getEntries() // TODO: Change out to an unmodifiable list
+    {
+        if(refCache == null)
+        {
+            refCache = new DBEntry[mapDB.size()];
+            int i = 0;
+            for(Entry<Integer,T> entry : mapDB.entrySet())
+            {
+                refCache[i++] = new DBEntry<>(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        return refCache;
     }
 }
