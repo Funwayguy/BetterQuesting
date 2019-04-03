@@ -43,7 +43,7 @@ public class BlockSubmitStation extends BlockContainer
      * Called upon block activation (right click on the block.)
      */
 	@Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack stack, EnumFacing heldItem, float side, float hitX, float hitY)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack stack, EnumFacing heldItem, float hitX, float hitY, float hitZ)
     {
     	if(!world.isRemote)
     	{
@@ -51,7 +51,8 @@ public class BlockSubmitStation extends BlockContainer
     	}
         return true;
     }
-
+    
+    @Override
     public void breakBlock(World world, BlockPos pos, IBlockState state)
     {
         TileSubmitStation tileStation = (TileSubmitStation)world.getTileEntity(pos);
