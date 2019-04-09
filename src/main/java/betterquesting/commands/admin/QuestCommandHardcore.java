@@ -7,6 +7,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
@@ -73,5 +74,23 @@ public class QuestCommandHardcore extends QuestCommandBase
 		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, flag);
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE)? "options.on" : "options.off")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
+	}
+	
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.admin.hardcore";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to activate or not the use of hardcore lives";
 	}
 }

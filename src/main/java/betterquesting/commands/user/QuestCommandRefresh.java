@@ -6,6 +6,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
@@ -36,4 +37,23 @@ public class QuestCommandRefresh extends QuestCommandBase
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}
+	
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.user.refresh";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.ALL;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to manually resyncs the local questing database with the server in case of potential desync issues";
+	}
+	
 }

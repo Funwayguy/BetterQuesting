@@ -11,6 +11,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,5 +81,23 @@ public class QuestCommandEdit extends QuestCommandBase
   
 		SaveLoadHandler.INSTANCE.markDirty();
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
+	}
+	
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.admin.edit";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to activate quest editing mode on and off";
 	}
 }

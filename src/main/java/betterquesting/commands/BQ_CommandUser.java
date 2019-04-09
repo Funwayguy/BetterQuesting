@@ -7,11 +7,14 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.PermissionAPI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BQ_CommandUser extends CommandBase
@@ -20,6 +23,8 @@ public class BQ_CommandUser extends CommandBase
 	
 	public BQ_CommandUser()
 	{
+		PermissionAPI.registerNode("betterquesting.command.user", DefaultPermissionLevel.ALL, "user commmand permission");
+		
 		coms.add(new QuestCommandHelp());
 		coms.add(new QuestCommandRefresh());
 		coms.add(new QuestCommandSPHardcore());
@@ -29,6 +34,26 @@ public class BQ_CommandUser extends CommandBase
 	public String getName()
 	{
 		return "bq_user";
+	}
+	
+	@Override
+	public int getRequiredPermissionLevel() 
+	{
+		return 0;
+	}
+	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) 
+	{
+		
+		if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, "betterquesting.command.user")) 
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
+		
 	}
 	
 	@Override
@@ -66,7 +91,10 @@ public class BQ_CommandUser extends CommandBase
 			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
-				base.add(c.getCommand());
+				if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
+				{
+					base.add(c.getCommand());
+				}				
 			}
         	return getListOfStringsMatchingLastWord(strings, base.toArray(new String[0]));
 		} else if(strings.length > 1)
@@ -75,28 +103,16 @@ public class BQ_CommandUser extends CommandBase
 			{
 				if(c.getCommand().equalsIgnoreCase(strings[0]))
 				{
-					return c.autoComplete(server, sender, strings);
+					if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode()))
+					{
+						return c.autoComplete(server, sender, strings);
+					}
 				}
 			}
 		}
 		
 		return Collections.emptyList();
     }
-
-    /**
-     * Return the required permission level for this command.
-     */
-	@Override
-    public int getRequiredPermissionLevel()
-    {
-        return 0;
-    }
-	
-	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
-	{
-		return true;
-	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
@@ -110,13 +126,22 @@ public class BQ_CommandUser extends CommandBase
 		{
 			if(c.getCommand().equalsIgnoreCase(args[0]))
 			{
-				if(c.validArgs(args))
+				if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
 				{
-					c.runCommand(server, this, sender, args);
-					return;
+					if(c.validArgs(args))
+					{
+						c.runCommand(server, this, sender, args);
+						return;
+					} else
+					{
+						throw c.getException(this);
+					}
 				} else
 				{
-					throw c.getException(this);
+					TextComponentTranslation cc = new TextComponentTranslation("commands.generic.permission");
+					cc.getStyle().setColor(TextFormatting.RED);
+					sender.sendMessage(cc);
+					return;
 				}
 			}
 		}

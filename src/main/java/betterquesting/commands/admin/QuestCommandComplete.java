@@ -13,6 +13,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,5 +113,23 @@ public class QuestCommandComplete extends QuestCommandBase
 	public boolean isArgUsername(String[] args, int index)
 	{
 		return index == 2;
+	}
+
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.admin.complete";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to force completes a quest for the given user";
 	}
 }

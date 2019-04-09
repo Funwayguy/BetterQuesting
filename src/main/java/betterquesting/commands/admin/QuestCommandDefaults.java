@@ -19,6 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -144,5 +145,23 @@ public class QuestCommandDefaults extends QuestCommandBase
 		{
 			throw getException(command);
 		}
+	}
+
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.admin.default";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to saves/loads the current quest database to/from the global default directory";
 	}
 }

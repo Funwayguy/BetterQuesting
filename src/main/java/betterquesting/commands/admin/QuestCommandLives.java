@@ -9,6 +9,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
@@ -157,5 +158,23 @@ public class QuestCommandLives extends QuestCommandBase
 	public boolean isArgUsername(String[] args, int index)
 	{
 		return index == 3;
+	}
+	
+	@Override
+	public String getPermissionNode() 
+	{
+		return "betterquesting.command.admin.lives";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel() 
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription() 
+	{
+		return "Permission to set lives to the given user";
 	}
 }

@@ -5,8 +5,13 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +23,9 @@ public class BQ_CommandAdmin extends CommandBase
 	
 	public BQ_CommandAdmin()
 	{
+		
+		PermissionAPI.registerNode("betterquesting.command.admin", DefaultPermissionLevel.OP, "admin commmand permission");
+		
 		coms.add(new QuestCommandEdit());
 		coms.add(new QuestCommandHardcore());
 		coms.add(new QuestCommandReset());
@@ -32,6 +40,18 @@ public class BQ_CommandAdmin extends CommandBase
 	public String getName()
 	{
 		return "bq_admin";
+	}
+	
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+	{
+		if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, "betterquesting.command.admin")) 
+		{
+			return true;
+		} else
+		{
+			return false;
+		}
 	}
 	
 	@Override
@@ -69,7 +89,10 @@ public class BQ_CommandAdmin extends CommandBase
 			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
-				base.add(c.getCommand());
+				if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
+				{
+					base.add(c.getCommand());
+				}				
 			}
         	return getListOfStringsMatchingLastWord(strings, base.toArray(new String[0]));
 		} else if(strings.length > 1)
@@ -78,7 +101,10 @@ public class BQ_CommandAdmin extends CommandBase
 			{
 				if(c.getCommand().equalsIgnoreCase(strings[0]))
 				{
-					return c.autoComplete(server, sender, strings);
+					if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode()))
+					{
+						return c.autoComplete(server, sender, strings);
+					}
 				}
 			}
 		}
@@ -104,13 +130,22 @@ public class BQ_CommandAdmin extends CommandBase
 		{
 			if(c.getCommand().equalsIgnoreCase(args[0]))
 			{
-				if(c.validArgs(args))
+				if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, c.getPermissionNode())) 
 				{
-					c.runCommand(server, this, sender, args);
-					return;
+					if(c.validArgs(args))
+					{
+						c.runCommand(server, this, sender, args);
+						return;
+					} else
+					{
+						throw c.getException(this);
+					}
 				} else
 				{
-					throw c.getException(this);
+					TextComponentTranslation cc = new TextComponentTranslation("commands.generic.permission");
+					cc.getStyle().setColor(TextFormatting.RED);
+					sender.sendMessage(cc);
+					return;
 				}
 			}
 		}
