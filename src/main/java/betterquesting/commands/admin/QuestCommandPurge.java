@@ -13,6 +13,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -54,7 +55,25 @@ public class QuestCommandPurge extends QuestCommandBase
         while(removeQueue.size() > 0) QuestDatabase.INSTANCE.removeID(removeQueue.pop());
         
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));
-			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+        PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
         SaveLoadHandler.INSTANCE.markDirty();
     }
+	
+	@Override
+	public String getPermissionNode()
+	{
+		return "betterquesting.command.admin.purge";
+	}
+
+	@Override
+	public DefaultPermissionLevel getPermissionLevel()
+	{
+		return DefaultPermissionLevel.OP;
+	}
+
+	@Override
+	public String getPermissionDescription()
+	{
+		return "Permission to purge all hidden quests and progression data however it does not delete any in new world defaults";
+	}
 }

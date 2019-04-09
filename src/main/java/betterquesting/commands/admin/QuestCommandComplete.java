@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,20 +37,20 @@ public class QuestCommandComplete extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<>();
-		
 		if(args.length == 2)
 		{
+		    List<String> list = new ArrayList<>();
 			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
 				list.add("" + i.getID());
 			}
+			return list;
 		} else if(args.length == 3)
 		{
 			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
 		}
 		
-		return list;
+		return Collections.emptyList();
 	}
 	
 	@Override

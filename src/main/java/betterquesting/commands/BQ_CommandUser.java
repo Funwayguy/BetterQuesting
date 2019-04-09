@@ -14,7 +14,9 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BQ_CommandUser extends CommandBase
@@ -45,15 +47,7 @@ public class BQ_CommandUser extends CommandBase
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) 
 	{
-		
-		if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, "betterquesting.command.user")) 
-		{
-			return true;
-		} else
-		{
-			return false;
-		}
-		
+        return !(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer)sender, "betterquesting.command.user");
 	}
 	
 	@Override

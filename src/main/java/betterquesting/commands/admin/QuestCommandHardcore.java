@@ -1,17 +1,18 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.storage.QuestSettings;
+
+import java.util.Collections;
+import java.util.List;
 
 public class QuestCommandHardcore extends QuestCommandBase
 {
@@ -36,14 +37,7 @@ public class QuestCommandHardcore extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
-		
-		if(args.length == 2)
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"true","false"});
-		}
-		
-		return list;
+		return args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args, "true","false") : Collections.emptyList();
 	}
 	
 	@Override

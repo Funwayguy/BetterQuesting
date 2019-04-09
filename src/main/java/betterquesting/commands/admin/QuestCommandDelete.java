@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class QuestCommandDelete extends QuestCommandBase
@@ -35,19 +36,19 @@ public class QuestCommandDelete extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<>();
-		
 		if(args.length == 2)
 		{
+		    List<String> list = new ArrayList<>();
 			list.add("all");
 			
 			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
 			{
 				list.add("" + i.getID());
 			}
+			return list;
 		}
 		
-		return list;
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -102,5 +103,5 @@ public class QuestCommandDelete extends QuestCommandBase
 	public String getPermissionDescription() 
 	{
 		return "Permission to delete given quest(s) and progression data however it does not delete new world defaults";
-	}	
+	}
 }

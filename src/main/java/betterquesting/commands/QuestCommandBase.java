@@ -1,8 +1,7 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -11,8 +10,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.storage.NameCache;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public abstract class QuestCommandBase
 {
@@ -72,17 +73,14 @@ public abstract class QuestCommandBase
 	 */
 	public UUID findPlayerID(MinecraftServer server, ICommandSender sender, String name)
 	{
-		UUID playerID = null;
+		UUID playerID;
 		
 		EntityPlayerMP player = null;
 		
 		try
 		{
 			player = CommandBase.getEntity(server, sender, name, EntityPlayerMP.class);
-		} catch(Exception e)
-		{
-			player = null;
-		}
+		} catch(Exception ignored){}
 		
 		if(player == null)
 		{

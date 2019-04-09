@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class QuestCommandEdit extends QuestCommandBase
@@ -39,14 +39,7 @@ public class QuestCommandEdit extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		List<String> list = new ArrayList<>();
-		
-		if(args.length == 2)
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, "true","false");
-		}
-		
-		return list;
+		return args.length == 2 ? CommandBase.getListOfStringsMatchingLastWord(args, "true","false") : Collections.emptyList();
 	}
 	
 	@Override

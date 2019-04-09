@@ -23,7 +23,6 @@ public class BQ_CommandAdmin extends CommandBase
 	
 	public BQ_CommandAdmin()
 	{
-		
 		PermissionAPI.registerNode("betterquesting.command.admin", DefaultPermissionLevel.OP, "admin commmand permission");
 		
 		coms.add(new QuestCommandEdit());
@@ -45,13 +44,7 @@ public class BQ_CommandAdmin extends CommandBase
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
 	{
-		if(!(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer) sender, "betterquesting.command.admin")) 
-		{
-			return true;
-		} else
-		{
-			return false;
-		}
+        return !(sender instanceof EntityPlayer) || PermissionAPI.hasPermission((EntityPlayer)sender, "betterquesting.command.admin");
 	}
 	
 	@Override

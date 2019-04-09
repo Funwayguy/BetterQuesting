@@ -22,7 +22,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class QuestCommandDefaults extends QuestCommandBase
@@ -42,17 +42,15 @@ public class QuestCommandDefaults extends QuestCommandBase
 	@Override
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		List<String> list = new ArrayList<>();
-		
 		if(args.length == 2)
 		{
 			return CommandBase.getListOfStringsMatchingLastWord(args, "save", "load", "set");
 		} else if(args.length == 3)
 		{
-			list.add("DefaultQuests");
+			return Collections.singletonList("DefaultQuests");
 		}
 		
-		return list;
+		return Collections.emptyList();
 	}
 	
 	@Override
