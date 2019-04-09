@@ -76,7 +76,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     @Override
     public synchronized T getValue(int id)
     {
-        if(id < 0 || mapDB.size() <= 0 || !idMap.get(id)) return null;
+        if(id < 0 || mapDB.size() <= 0) return null;
         return mapDB.get(id);
     }
     

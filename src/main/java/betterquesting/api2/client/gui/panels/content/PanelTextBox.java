@@ -25,6 +25,7 @@ public class PanelTextBox implements IGuiPanel
 	private int fontScale = 12;
 	
 	private int lines = 1; // Cached number of lines
+    private final float relScale = 12F;
 	
 	public PanelTextBox(IGuiRect rect, String text)
 	{
@@ -44,17 +45,18 @@ public class PanelTextBox implements IGuiPanel
 		
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		float scale = fontScale / relScale;
 		
-		if(autoFit)
+		if(!autoFit)
 		{
-			List<String> sl = fr.listFormattedStringToWidth(text, bounds.getWidth());
-			lines = sl.size() - 1;
-			
-			this.transform.h = fr.FONT_HEIGHT * sl.size();
-		} else
-		{
-			lines = (bounds.getHeight() / fr.FONT_HEIGHT) - 1;
+			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
+			return this;
 		}
+		
+		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
+		lines = sl.size() - 1;
+		
+		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
 		
 		return this;
 	}
@@ -94,7 +96,7 @@ public class PanelTextBox implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-		float scale = fontScale / 12F;
+		float scale = fontScale / relScale;
 		
 		if(!autoFit)
 		{
@@ -125,23 +127,27 @@ public class PanelTextBox implements IGuiPanel
 	{
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		//FontRenderer fr = BqFontRenderer.FONT_UNICODE;
+        //FontRenderer fr = BqFontRenderer.FONT_STANDARD;
 		
-		float s = fontScale / 12F;
-		int w = (int)Math.ceil(RenderUtils.getStringWidth(text, fr) * s);
-		int bw = (int)Math.floor(bounds.getWidth() / s);
+		double s = fontScale / relScale;
+		double w = RenderUtils.getStringWidth(text, fr) * s;
+		int bw = (int)Math.ceil(bounds.getWidth() / s);
 		
 		if(bw <= 0) return;
         
         GlStateManager.pushMatrix();
         GlStateManager.translate(bounds.getX(), bounds.getY(), 1);
-        GlStateManager.scale(s, s, 1F);
+        if(align == 1) GlStateManager.translate(bounds.getWidth() / 2D - w / 2D, 0D, 0D);
+        if(align == 2) GlStateManager.translate(bounds.getWidth() - w, 0D, 0D);
+        GlStateManager.scale(s, s, 1D);
         
-		if(align == 2 && bw >= w)
+		if(align == 2)
 		{
-			RenderUtils.drawSplitString(fr, text, bw - w, 0, bw, color.getRGB(), shadow, 0, lines);
-		} else if(align == 1 && bw >= w)
+			RenderUtils.drawSplitString(fr, text, 0, 0, bw, color.getRGB(), shadow, 0, lines);
+		} else if(align == 1)
 		{
-			RenderUtils.drawSplitString(fr, text, bw/2 - w/2, 0, bw, color.getRGB(), shadow, 0, lines);
+			RenderUtils.drawSplitString(fr, text, 0, 0, bw, color.getRGB(), shadow, 0, lines);
 		} else
 		{
 			RenderUtils.drawSplitString(fr, text, 0, 0, bw, color.getRGB(), shadow, 0, lines);

@@ -430,7 +430,6 @@ public class QuestInstance implements IQuest
 	{
 		List<String> list = new ArrayList<>();
 		
-		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
 		if(qInfo.getProperty(NativeProps.GLOBAL))
 		{

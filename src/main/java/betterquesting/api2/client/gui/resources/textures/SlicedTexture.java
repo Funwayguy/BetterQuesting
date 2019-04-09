@@ -38,12 +38,27 @@ public class SlicedTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
 	{
+	    if(width <= 0 || height <= 0) return;
+	    
+	    int w = Math.max(width, texBorder.getLeft() + texBorder.getRight());
+	    int h = Math.max(height, texBorder.getTop() + texBorder.getBottom());
+	    int dx = x;
+	    int dy = y;
+	    
 		GlStateManager.pushMatrix();
 		color.applyGlColor();
 		
+		if(w != width || h != height)
+        {
+            dx = 0;
+            dy = 0;
+            GlStateManager.translate(x, y, 0);
+            GlStateManager.scale(width / (double)w, height / (double)h, 1D);
+        }
+		
 		if(sliceMode == SliceMode.SLICED_TILE)
 		{
-			drawContinuousTexturedBox(texture, x, y, texBounds.getX(), texBounds.getY(), width, height, texBounds.getWidth(), texBounds.getHeight(), texBorder.getTop(), texBorder.getBottom(), texBorder.getLeft(), texBorder.getRight(), zLevel);
+			drawContinuousTexturedBox(texture, dx, dy, texBounds.getX(), texBounds.getY(), w, h, texBounds.getWidth(), texBounds.getHeight(), texBorder.getTop(), texBorder.getBottom(), texBorder.getLeft(), texBorder.getRight(), zLevel);
 		} else if(sliceMode == SliceMode.SLICED_STRETCH)
 		{
 			int iu = texBounds.getX() + texBorder.getLeft();
@@ -51,74 +66,74 @@ public class SlicedTexture implements IGuiTexture
 			int iw = texBounds.getWidth() - texBorder.getLeft() - texBorder.getRight();
 			int ih = texBounds.getHeight() - texBorder.getTop() - texBorder.getBottom();
 			
-			float sx = (float)(width - (texBounds.getWidth() - iw)) / (float)iw;
-			float sy = (float)(height - (texBounds.getHeight() - ih)) / (float)ih;
+			float sx = (float)(w - (texBounds.getWidth() - iw)) / (float)iw;
+			float sy = (float)(h - (texBounds.getHeight() - ih)) / (float)ih;
 			
 			Minecraft.getMinecraft().renderEngine.bindTexture(texture);
 			
 			// TOP LEFT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x, y, 0F);
+			GlStateManager.translate(dx, dy, 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY(), texBorder.getLeft(), texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// TOP SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + texBorder.getLeft(), y, 0F);
+			GlStateManager.translate(dx + texBorder.getLeft(), dy, 0F);
 			GlStateManager.scale(sx, 1F, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY(), iw, texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// TOP RIGHT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + width - texBorder.getRight(), y, 0F);
+			GlStateManager.translate(dx + w - texBorder.getRight(), dy, 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY(), texBorder.getRight(), texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// LEFT SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x, y + texBorder.getTop(), 0F);
+			GlStateManager.translate(dx, dy + texBorder.getTop(), 0F);
 			GlStateManager.scale(1F, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop(), texBorder.getLeft(), ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// MIDDLE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + texBorder.getLeft(), y + texBorder.getTop(), 0F);
+			GlStateManager.translate(dx + texBorder.getLeft(), dy + texBorder.getTop(), 0F);
 			GlStateManager.scale(sx, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, iu, iv, iw, ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// RIGHT SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + width - texBorder.getRight(), y + texBorder.getTop(), 0F);
+			GlStateManager.translate(dx + w - texBorder.getRight(), dy + texBorder.getTop(), 0F);
 			GlStateManager.scale(1F, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop(), texBorder.getRight(), ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM LEFT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x, y + height - texBorder.getBottom(), 0F);
+			GlStateManager.translate(dx, dy + h - texBorder.getBottom(), 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop() + ih, texBorder.getLeft(), texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + texBorder.getLeft(), y + height - texBorder.getBottom(), 0F);
+			GlStateManager.translate(dx + texBorder.getLeft(), dy + h - texBorder.getBottom(), 0F);
 			GlStateManager.scale(sx, 1F, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY() + texBorder.getTop() + ih, iw, texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM RIGHT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + width - texBorder.getRight(), y + height - texBorder.getBottom(), 0F);
+			GlStateManager.translate(dx + w - texBorder.getRight(), dy + h - texBorder.getBottom(), 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop() + ih, texBorder.getRight(), texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 		} else
 		{
-			float sx = (float)width / (float)texBounds.getWidth();
-			float sy = (float)height / (float)texBounds.getHeight();
-			GlStateManager.translate(x, y, 0F);
+			float sx = (float)w / (float)texBounds.getWidth();
+			float sy = (float)h / (float)texBounds.getHeight();
+			GlStateManager.translate(dx, dy, 0F);
 			GlStateManager.scale(sx, sy, 1F);
 			
 	        GlStateManager.enableBlend();

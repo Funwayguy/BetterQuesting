@@ -4,8 +4,6 @@ public interface IDatabase<T>
 {
     int nextID();
     
-    //DBEntry<T> createNew(int id);
-    
     DBEntry<T> add(int id, T value);
     boolean removeID(int key);
     boolean removeValue(T value);

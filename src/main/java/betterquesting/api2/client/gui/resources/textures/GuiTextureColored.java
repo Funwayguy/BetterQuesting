@@ -21,6 +21,8 @@ public class GuiTextureColored implements IGuiTexture
     @Override
     public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick)
     {
+	    if(width <= 0 || height <= 0) return;
+	    
         texture.drawTexture(x, y, width, height, zDepth, partialTick, color);
     }
     
@@ -28,6 +30,8 @@ public class GuiTextureColored implements IGuiTexture
     @Deprecated
     public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor c)
     {
+	    if(width <= 0 || height <= 0) return;
+	    
         texture.drawTexture(x, y, width, height, zDepth, partialTick, c);
     }
     

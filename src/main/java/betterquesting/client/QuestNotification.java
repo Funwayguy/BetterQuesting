@@ -15,6 +15,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -41,7 +42,7 @@ public class QuestNotification
 	@SubscribeEvent
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)
 	{
-		if(event.getType() != RenderGameOverlayEvent.ElementType.HELMET || notices.size() <= 0)
+		if(event.getType() != ElementType.ALL || notices.size() <= 0)
 		{
 			return;
 		}

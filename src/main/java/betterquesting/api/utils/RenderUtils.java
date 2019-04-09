@@ -375,36 +375,17 @@ public class RenderUtils
         GlStateManager.disableBlend();
     }
 	
-	/**
-	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution
-	 */
-	@Deprecated
-	public static void guiScissor(Minecraft mc, int x, int y, int w, int h)
-	{
-		startScissor(new GuiRectangle(x, y, w, h));
-	}
-	
-	@Deprecated
-	public static void startScissor(Minecraft mc, IGuiRect rect)
-	{
-		startScissor(rect);
-	}
-	
 	private static final IGuiColor STENCIL_COLOR = new GuiColorStatic(0, 0, 0, 255);
-	private static int scissorDepth = 0;
+	private static int stencilDepth = 0;
 	
-	/**
-	 * Performs a OpenGL scissor based on Minecraft's resolution instead of display resolution and adds it to the stack of ongoing scissors.
-	 * Not using this method will result in incorrect scissoring and scaling of parent/child GUIs
-	 */
 	public static void startScissor(IGuiRect rect)
 	{
-		if(scissorDepth >= 255)
+		if(stencilDepth >= 255)
 		{
 			throw new IndexOutOfBoundsException("Exceeded the maximum number of nested stencils (255)");
 		}
 		
-		if(scissorDepth == 0)
+		if(stencilDepth == 0)
 		{
 			GL11.glEnable(GL11.GL_STENCIL_TEST);
 			GL11.glStencilMask(0xFF);
@@ -412,7 +393,7 @@ public class RenderUtils
 		}
 		
 		// Note: This is faster with inverted logic (skips depth tests when writing)
-		GL11.glStencilFunc(GL11.GL_LESS, scissorDepth, 0xFF);
+		GL11.glStencilFunc(GL11.GL_LESS, stencilDepth, 0xFF);
 		GL11.glStencilOp(GL11.GL_INCR, GL11.GL_KEEP, GL11.GL_KEEP);
 		GL11.glStencilMask(0xFF);
 		
@@ -422,12 +403,12 @@ public class RenderUtils
 		drawColoredRect(rect, STENCIL_COLOR);
 		
 		GL11.glStencilMask(0x00);
-		GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth + 1, 0xFF);
+		GL11.glStencilFunc(GL11.GL_EQUAL, stencilDepth + 1, 0xFF);
 		
 		GL11.glColorMask(true, true, true, true);
 		GL11.glDepthMask(true);
 		
-		scissorDepth++;
+		stencilDepth++;
 	}
 	
 	private static void fillScreen()
@@ -465,12 +446,12 @@ public class RenderUtils
 	 */
 	public static void endScissor()
 	{
-		scissorDepth--;
+		stencilDepth--;
 		
-		if(scissorDepth < 0)
+		if(stencilDepth < 0)
 		{
 			throw new IndexOutOfBoundsException("No stencil to end");
-		} else if(scissorDepth == 0)
+		} else if(stencilDepth == 0)
 		{
 			GL11.glStencilMask(0xFF);
 			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT); // Note: Clearing actually requires the mask to be enabled
@@ -482,7 +463,7 @@ public class RenderUtils
 			GL11.glDisable(GL11.GL_STENCIL_TEST);
 		} else
 		{
-			GL11.glStencilFunc(GL11.GL_LEQUAL, scissorDepth, 0xFF);
+			GL11.glStencilFunc(GL11.GL_LEQUAL, stencilDepth, 0xFF);
 			GL11.glStencilOp(GL11.GL_DECR, GL11.GL_KEEP, GL11.GL_KEEP);
 			GL11.glStencilMask(0xFF);
 			
@@ -494,7 +475,7 @@ public class RenderUtils
 			GL11.glColorMask(true, true, true, true);
 			GL11.glDepthMask(true);
 			
-			GL11.glStencilFunc(GL11.GL_EQUAL, scissorDepth, 0xFF);
+			GL11.glStencilFunc(GL11.GL_EQUAL, stencilDepth, 0xFF);
 			GL11.glStencilMask(0x00);
 		}
 	}

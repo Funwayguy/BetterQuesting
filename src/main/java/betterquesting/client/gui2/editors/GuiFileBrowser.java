@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
@@ -84,6 +85,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         cvBackground.addPanel(cvLeft);
         
         PanelTextBox txtQuest = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.selection")).setAlignment(1);
+        txtQuest.setColor(PresetColor.TEXT_HEADER.getColor());
         cvLeft.addPanel(txtQuest);
         
         cvSelected = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 8, 0), 0));
@@ -99,9 +101,10 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         cvBackground.addPanel(cvRight);
         
         PanelTextBox txtDb = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.folder")).setAlignment(1);
+        txtDb.setColor(PresetColor.TEXT_HEADER.getColor());
         cvRight.addPanel(txtDb);
         
-        PanelTextField<String> searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 16, 8, -32), 0), "", FieldFilterString.INSTANCE);
+        PanelTextField<String> searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(16, 16, 24, -32), 0), "", FieldFilterString.INSTANCE);
         searchBox.setWatermark("Search...");
         cvRight.addPanel(searchBox);
         
@@ -145,6 +148,35 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
             }
         };
         cvRight.addPanel(cvDirectory);
+        
+        PanelButton selAll = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -24, 16, 16, 16, 0), -1, "")
+        {
+            @Override
+            public void onButtonClick()
+            {
+                if(!multiSelect) return;
+                boolean changed = false;
+                
+                for(File file : cvDirectory.getResults())
+                {
+                    if(!file.isDirectory() && !selList.contains(file))
+                    {
+                        selList.add(file);
+                        changed = true;
+                    }
+                }
+                
+                if(changed)
+                {
+                    cvDirectory.refreshSearch();
+                    refreshSelected();
+                }
+            }
+        };
+        selAll.setActive(multiSelect);
+        selAll.setTooltip(Collections.singletonList("Select All"));
+        selAll.setIcon(PresetIcon.ICON_SELECTION.getTexture());
+        cvRight.addPanel(selAll);
         
         searchBox.setCallback(cvDirectory::setSearchFilter);
     

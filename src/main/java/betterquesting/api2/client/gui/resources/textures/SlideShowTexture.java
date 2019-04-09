@@ -27,6 +27,8 @@ public class SlideShowTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color)
 	{
+	    if(width <= 0 || height <= 0) return;
+	    
 	    IGuiTexture tex = getCurrentFrame();
 		if(tex != null) tex.drawTexture(x, y, width, height, zDepth, partialTick, color);
 	}

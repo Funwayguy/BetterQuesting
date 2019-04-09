@@ -55,9 +55,11 @@ public class ToolboxToolIcon implements IToolboxTool
                 for(PanelButtonQuest b : list)
                 {
                     b.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
+                    
                     NBTTagCompound base = new NBTTagCompound();
                     base.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
                     base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
+                    
                     NBTTagCompound tags = new NBTTagCompound();
                     tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
                     tags.setInteger("questID", b.getStoredValue().getID());

@@ -3,8 +3,7 @@ package betterquesting.api2.client.gui.panels.lists;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import com.google.common.base.Stopwatch;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public abstract class CanvasSearch<T, E> extends CanvasScrolling
@@ -15,6 +14,7 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
     private int resultWidth = 256; // Used for organising ongoing search results even if the size changes midway
     private int searchIdx = 0; // Where are we in the ongoing search?
     private final ArrayDeque<T> pendingResults = new ArrayDeque<>();
+    private final List<T> savedResults = new ArrayList<>();
     
     public CanvasSearch(IGuiRect rect)
     {
@@ -50,6 +50,7 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
         this.searching = getIterator();
         this.resultWidth = this.getTransform().getWidth();
         this.pendingResults.clear();
+        this.savedResults.clear();
     }
     
     private void updateSearch()
@@ -64,16 +65,20 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
         }
     
         searchTime.reset().start();
-    
+        
+        ArrayDeque<T> tmp = new ArrayDeque<>();
         while(searching.hasNext() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 10)
         {
             E entry = searching.next();
             
             if(entry != null)
             {
-                queryMatches(entry, searchTerm, pendingResults);
+                queryMatches(entry, searchTerm, tmp);
             }
         }
+        
+        pendingResults.addAll(tmp);
+        savedResults.addAll(tmp);
         
         searchTime.stop();
     }
@@ -93,6 +98,11 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
         }
         
         searchTime.stop();
+    }
+    
+    public List<T> getResults()
+    {
+        return Collections.unmodifiableList(savedResults);
     }
     
     protected abstract Iterator<E> getIterator();

@@ -66,14 +66,14 @@ public class ToolboxToolDelete implements IToolboxTool
                 for(PanelButtonQuest b : PanelToolController.selected)
                 {
                     NBTTagCompound tags = new NBTTagCompound();
-                    tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                    tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Remove quest
                     tags.setInteger("questID", b.getStoredValue().getID());
 			        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
                 }
             } else
             {
                 NBTTagCompound tags = new NBTTagCompound();
-                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Remove quest
                 tags.setInteger("questID", btn.getStoredValue().getID());
                 PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
             }

@@ -6,8 +6,6 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -22,7 +20,6 @@ import java.util.Iterator;
 public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
 {
     private final int btnId;
-    private final Minecraft mc = Minecraft.getMinecraft();
     
     public CanvasItemDatabase(IGuiRect rect, int buttonId)
     {
@@ -40,8 +37,12 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
     @Override
     protected void queryMatches(Item item, String query, final ArrayDeque<ItemStack> results)
     {
-        if(item == null || item == Items.AIR || item.getRegistryName() == null)
+        if(item == null || item.getRegistryName() == null)
         {
+            return;
+        } else if(item == Items.AIR)
+        {
+            results.add(ItemStack.EMPTY);
             return;
         }
         
@@ -70,23 +71,11 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
                             results.add(subItem);
                             continue;
                         }
-
-                        boolean match = false;
-
-                        for(String s : subItem.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL))
-                        {
-                            if(s.toLowerCase().contains(query))
-                            {
-                                results.add(subItem);
-                                match = true;
-                                break;
-                            }
-                        }
-
+                        
                         int[] oids = OreDictionary.getOreIDs(subItem);
-                        for(int i = 0; i < oids.length && !match; i++)
+                        for(int oid : oids)
                         {
-                            if(OreDictionary.getOreName(oids[i]).toLowerCase().contains(query))
+                            if(OreDictionary.getOreName(oid).toLowerCase().contains(query))
                             {
                                 results.add(subItem);
                                 break;
@@ -107,10 +96,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
     @Override
     public boolean addResult(ItemStack stack, int index, int cachedWidth)
     {
-        if(stack == null || stack.isEmpty())
-        {
-            return false;
-        }
+        if(stack == null) return false;
         
         int x = (index % (cachedWidth / 18)) * 18;
         int y = (index / (cachedWidth / 18)) * 18;

@@ -130,13 +130,14 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         float iScale = Math.min(cvBottomLeft.getTransform().getWidth() / 162F, (cvBottomLeft.getTransform().getHeight() - 20) / 72F);
         int slotSize = (int)Math.floor(18 * iScale);
         
+        BigItemStack bigEmpty = new BigItemStack(ItemStack.EMPTY);
         for(int i = 0; i < 27; i++) // Main inventory
         {
             int x = (i % 9) * slotSize;
             int y = (i / 9) * slotSize + 16;
             
             ItemStack tmp = inventory.getStackInSlot(i + 9);
-            BigItemStack invoStack = tmp.isEmpty() ? null : new BigItemStack(tmp);
+            BigItemStack invoStack = tmp.isEmpty() ? bigEmpty : new BigItemStack(tmp);
             
             cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, y, slotSize, slotSize, 0), 1, invoStack, true));
             
@@ -147,7 +148,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             int x = (i % 9) * slotSize;
             
             ItemStack tmp = inventory.getStackInSlot(i);
-            BigItemStack invoStack = tmp.isEmpty() ? null : new BigItemStack(tmp);
+            BigItemStack invoStack = tmp.isEmpty() ? bigEmpty : new BigItemStack(tmp);
             
             cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, 20 + (3 * slotSize), slotSize, slotSize, 0), 1, invoStack, true));
         }
@@ -195,7 +196,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
                 btnOre.setStoredValue(-1).setText("Ore: NONE");
                 fieldSize.setText("" + itemStack.stackSize);
             }
-        } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage && itemStack != null)
+        } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage && itemStack != null && !itemStack.getBaseStack().isEmpty())
         {
             int[] oreIds = OreDictionary.getOreIDs(itemStack.getBaseStack());
             int idx = ((PanelButtonStorage<Integer>)btn).getStoredValue();

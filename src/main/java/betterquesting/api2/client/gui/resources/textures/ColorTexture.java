@@ -38,6 +38,8 @@ public class ColorTexture implements IGuiTexture
     @Override
     public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color)
     {
+	    if(width <= 0 || height <= 0) return;
+	    
         GlStateManager.pushMatrix();
         
         // Just so we're not wasting heap memory making a new GuiRectangle every time

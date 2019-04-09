@@ -38,6 +38,8 @@ public class SimpleTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
 	{
+	    if(width <= 0 || height <= 0) return;
+	    
 		GlStateManager.pushMatrix();
 		
 		float sx = (float)width / (float)texBounds.getWidth();
