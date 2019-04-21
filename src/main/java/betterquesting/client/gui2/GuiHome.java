@@ -37,6 +37,7 @@ import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.Collections;
 
 @SideOnly(Side.CLIENT)
 public class GuiHome extends GuiScreenCanvas implements IPEventListener
@@ -107,12 +108,15 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		{
 			PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "");
 			tstBtn.setIcon(PresetIcon.ICON_NOTICE.getTexture(), PresetColor.UPDATE_NOTICE.getColor(), 0);
-			tstBtn.setTooltip(Arrays.asList(QuestTranslation.translateTrimmed("betterquesting.tooltip.update_quests", true)));
+			tstBtn.setTooltip(Collections.singletonList(QuestTranslation.translateTrimmed("betterquesting.tooltip.update_quests", true)));
 			inCan.addPanel(tstBtn);
 		}
 		
-		/*PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -32, 0, 16, 16, 0), 5, "?"); // Test screen
-		inCan.addPanel(tstBtn);*/
+		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+        {
+		    PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), 6, "?"); // Test screen
+		    inCan.addPanel(tstBtn);
+        }
 	}
 	
 	@Override
@@ -181,14 +185,15 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
 					
 					SaveLoadHandler.INSTANCE.resetUpdate();
+					SaveLoadHandler.INSTANCE.markDirty();
 				});
 				
 				//this.initGui(); // Reset the whole thing
 				mc.displayGuiScreen(null);
 			}
-		}/* else if(btn.getButtonID() == 6) // Test screen
+		} else if(btn.getButtonID() == 6) // Test screen
 		{
-			mc.displayGuiScreen(new GuiPartyInvite(this));
-		}*/
+			mc.displayGuiScreen(new GuiDebugTest(this));
+		}
 	}
 }

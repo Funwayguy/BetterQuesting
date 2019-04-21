@@ -3,6 +3,7 @@ package betterquesting.client.gui2.editors;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
@@ -30,6 +31,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
+import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLineDatabase;
@@ -45,6 +47,8 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     private PanelTextField<String> tfDesc;
     
     private PanelButton btnDesign;
+    private PanelButton btnVis;
+    private PanelButton btnIcon;
     
     private IQuestLine selected;
     private int selID = -1;
@@ -65,10 +69,16 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             {
                 selID = -1;
                 btnDesign.setActive(false);
+                btnIcon.setActive(false);
+                btnVis.setActive(false);
                 tfName.setText("");
                 tfDesc.setText("");
             } else
             {
+                btnDesign.setActive(true);
+                btnIcon.setActive(true);
+                btnVis.setActive(true);
+                btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + selected.getProperty(NativeProps.VISIBILITY));
                 if(!tfName.isFocused()) tfName.setText(selected.getUnlocalisedName());
                 if(!tfDesc.isFocused()) tfDesc.setText(selected.getUnlocalisedDescription());
             }
@@ -128,15 +138,43 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     
         tfDesc = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 48, 16, -64), 0), "", FieldFilterString.INSTANCE);
         tfDesc.setMaxLength(Integer.MAX_VALUE);
-        tfDesc.setCallback(value -> {
-        
-        });
         cvRight.addPanel(tfDesc);
         
-        PanelButton btnManage = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 80, 0, -96), 0), 3, QuestTranslation.translate("betterquesting.btn.add_remove_quests"));
+        btnIcon = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 80, 0, -96), 0), -1, QuestTranslation.translate("betterquesting.btn.icon"))
+        {
+            @Override
+            public void onButtonClick()
+            {
+                if(selected == null) return;
+                mc.displayGuiScreen(new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
+                    selected.setProperty(NativeProps.ICON, value);
+                    SendChanges(EnumPacketAction.EDIT, new DBEntry<>(selID, selected));
+                }));
+            }
+        };
+        btnIcon.setActive(selected != null);
+        cvRight.addPanel(btnIcon);
+        
+        btnVis = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 96, 0, -112), 0), -1, QuestTranslation.translate("betterquesting.btn.show") + ": " + (selected == null ? EnumQuestVisibility.NORMAL : selected.getProperty(NativeProps.VISIBILITY)))
+        {
+            @Override
+            public void onButtonClick()
+            {
+                if(selected == null) return;
+                EnumQuestVisibility[] visList = EnumQuestVisibility.values();
+                EnumQuestVisibility vis = selected.getProperty(NativeProps.VISIBILITY);
+                vis = visList[(vis.ordinal() + 1)%visList.length];
+                selected.setProperty(NativeProps.VISIBILITY, vis);
+                this.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
+            }
+        };
+        btnVis.setActive(selected != null);
+        cvRight.addPanel(btnVis);
+        
+        PanelButton btnManage = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 112, 0, -128), 0), 3, QuestTranslation.translate("betterquesting.btn.add_remove_quests"));
         cvRight.addPanel(btnManage);
         
-        btnDesign = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 96, 0, -112), 0), 4, QuestTranslation.translate("betterquesting.btn.designer"));
+        btnDesign = new PanelButton(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 128, 0, -144), 0), 4, QuestTranslation.translate("betterquesting.btn.designer"));
         btnDesign.setActive(selected != null);
         cvRight.addPanel(btnDesign);
         
@@ -160,10 +198,16 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             {
                 selID = -1;
                 btnDesign.setActive(false);
+                btnIcon.setActive(false);
+                btnVis.setActive(false);
                 tfName.setText("");
                 tfDesc.setText("");
             } else
             {
+                btnDesign.setActive(true);
+                btnIcon.setActive(true);
+                btnVis.setActive(true);
+                btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + selected.getProperty(NativeProps.VISIBILITY));
                 if(!tfName.isFocused()) tfName.setText(selected.getUnlocalisedName());
                 if(!tfDesc.isFocused()) tfDesc.setText(selected.getUnlocalisedDescription());
             }
@@ -238,6 +282,9 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             tfName.setText(selected.getUnlocalisedName());
             tfDesc.setText(selected.getUnlocalisedDescription());
             btnDesign.setActive(true);
+            btnIcon.setActive(true);
+            btnVis.setActive(true);
+            btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + selected.getProperty(NativeProps.VISIBILITY));
             
             reloadList();
         } else if(btn.getButtonID() == 6 && btn instanceof PanelButtonStorage) // Delete Quest

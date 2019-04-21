@@ -33,6 +33,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	private boolean enabled = true;
 	
 	public final GuiScreen parent;
+	private boolean useDefaultBG = true;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
@@ -44,6 +45,12 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	{
 		return transform;
 	}
+	
+	public GuiScreenCanvas useDefaultBG(boolean enable)
+    {
+        this.useDefaultBG = enable;
+        return this;
+    }
 	
 	/**
 	 * Use initPanel() for embed support
@@ -109,6 +116,8 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	public final void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
+		
+		if(useDefaultBG) this.drawDefaultBackground();
 		
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);

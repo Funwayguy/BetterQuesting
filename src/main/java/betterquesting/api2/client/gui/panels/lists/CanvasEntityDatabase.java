@@ -29,12 +29,11 @@ public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
     @Override
     protected void queryMatches(EntityEntry ee, String query, final ArrayDeque<EntityEntry> results)
     {
-        if(ee == null || ee.getRegistryName() == null)
-        {
-            return;
-        }
+        if(ee == null || ee.getRegistryName() == null) return;
         
-        if(ee.getRegistryName().toString().toLowerCase().contains(query) || ee.getName().toLowerCase().contains(query) || ee.getEntityClass().toString().toLowerCase().contains(query))
+        String qlc = query.toLowerCase();
+        
+        if(ee.getRegistryName().toString().toLowerCase().contains(qlc) || ee.getName().toLowerCase().contains(qlc))
         {
             results.add(ee);
         }

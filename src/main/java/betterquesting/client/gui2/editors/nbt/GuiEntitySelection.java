@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
@@ -119,9 +120,12 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         
         if(btn.getButtonID() == 0) // Exit
         {
-            if(callback != null)
+            try
             {
-                callback.setValue(selEntity);
+                if(callback != null) callback.setValue(selEntity);
+            } catch(Exception e)
+            {
+                QuestingAPI.getLogger().error("Unable to return entity selection!", e);
             }
             
             mc.displayGuiScreen(this.parent);

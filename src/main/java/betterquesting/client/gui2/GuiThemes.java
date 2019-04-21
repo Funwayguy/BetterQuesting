@@ -160,14 +160,6 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		}
 	}
 	
-	@Override
-	public void drawPanel(int mx, int my, float partialTick)
-	{
-		this.drawDefaultBackground();
-		
-		super.drawPanel(mx, my, partialTick);
-	}
-	
 	@SuppressWarnings("unchecked")
 	private void onButtonPress(PEventButton event)
 	{

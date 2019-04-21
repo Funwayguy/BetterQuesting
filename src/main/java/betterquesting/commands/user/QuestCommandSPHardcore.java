@@ -1,5 +1,10 @@
 package betterquesting.commands.user;
 
+import betterquesting.api.properties.NativeProps;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -7,10 +12,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.storage.QuestSettings;
 
 public class QuestCommandSPHardcore extends QuestCommandBase
 {
@@ -32,6 +33,8 @@ public class QuestCommandSPHardcore extends QuestCommandBase
 		}
 		
 		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, true);
+        SaveLoadHandler.INSTANCE.markDirty();
+        
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation("options.on")));
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
