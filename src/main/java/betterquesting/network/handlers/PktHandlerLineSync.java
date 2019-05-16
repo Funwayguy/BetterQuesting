@@ -1,5 +1,6 @@
 package betterquesting.network.handlers;
 
+import betterquesting.api.api.QuestingAPI;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -11,6 +12,8 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLine;
 import betterquesting.questing.QuestLineDatabase;
+
+import java.util.Collections;
 
 public class PktHandlerLineSync implements IPacketHandler
 {
@@ -33,7 +36,7 @@ public class PktHandlerLineSync implements IPacketHandler
 		
 		if(questLine != null)
 		{
-			PacketSender.INSTANCE.sendToPlayer(questLine.getSyncPacket(), sender);
+			PacketSender.INSTANCE.sendToPlayer(questLine.getSyncPacket(Collections.singletonList(QuestingAPI.getQuestingUUID(sender))), sender);
 		}
 	}
 

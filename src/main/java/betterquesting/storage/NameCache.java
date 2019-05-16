@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,6 +22,8 @@ public final class NameCache implements INameCache
 {
 	public static final NameCache INSTANCE = new NameCache();
 	
+	// TODO: Proper thread safety
+    // TODO: Label known names as offline/online and convert accordingly
 	private final ConcurrentHashMap<UUID,NBTTagCompound> cache = new ConcurrentHashMap<>();
 	
 	@Override
@@ -98,7 +101,6 @@ public final class NameCache implements INameCache
 	@Override
 	public void updateNames(MinecraftServer server)
 	{
-	 
 		String[] names = server.getPlayerProfileCache().getUsernames();
 		
 		for(String name : names)
@@ -127,7 +129,7 @@ public final class NameCache implements INameCache
 			}
 		}
 		
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
 	}
 	
 	@Override
@@ -140,10 +142,17 @@ public final class NameCache implements INameCache
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
 	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
+	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", this.writeToNBT(new NBTTagList(), null));
+		tags.setTag("data", this.writeToNBT(new NBTTagList(), users));
 		return new QuestingPacket(PacketTypeNative.NAME_CACHE.GetLocation(), tags);
 	}
 	

@@ -5,10 +5,15 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 public interface IPacketSender
 {
-	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player);
-	public void sendToAll(QuestingPacket payload);
-	public void sendToServer(QuestingPacket payload);
+    // Server to Client
+	void sendToPlayer(QuestingPacket payload, EntityPlayerMP player);
+	void sendToAll(QuestingPacket payload);
+	//void sendToUsers(QuestingPacket payload, List<UUID> users);
 	
-	public void sendToAround(QuestingPacket payload, TargetPoint point);
-	public void sendToDimension(QuestingPacket payload, int dimension);
+	// Client to Server
+	void sendToServer(QuestingPacket payload);
+	
+	// Misc.
+	void sendToAround(QuestingPacket payload, TargetPoint point);
+	void sendToDimension(QuestingPacket payload, int dimension);
 }

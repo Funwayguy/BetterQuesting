@@ -9,6 +9,10 @@ import betterquesting.network.PacketTypeNative;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.UUID;
+
 public class QuestSettings extends PropertyContainer implements IQuestSettings
 {
 	public static final QuestSettings INSTANCE = new QuestSettings();
@@ -19,7 +23,14 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setTag("data", writeToNBT(new NBTTagCompound()));

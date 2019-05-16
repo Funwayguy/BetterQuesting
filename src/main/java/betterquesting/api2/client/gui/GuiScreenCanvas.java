@@ -33,7 +33,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	private boolean enabled = true;
 	
 	public final GuiScreen parent;
-	private boolean useDefaultBG = true;
+	private boolean useDefaultBG = false;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{

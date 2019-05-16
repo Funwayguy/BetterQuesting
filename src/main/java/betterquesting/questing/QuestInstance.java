@@ -479,12 +479,19 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(List<UUID> users)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
 		base.setTag("config", writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", writeProgressToNBT(new NBTTagCompound(), null));
+		base.setTag("progress", writeProgressToNBT(new NBTTagCompound(), users));
 		tags.setTag("data", base);
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(this));
 		

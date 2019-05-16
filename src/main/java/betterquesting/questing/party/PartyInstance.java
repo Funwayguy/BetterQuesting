@@ -13,6 +13,7 @@ import betterquesting.storage.PropertyContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,18 +91,16 @@ public class PartyInstance implements IParty
 		}
 		
 		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
 	}
 	
 	@Override
 	public void kickUser(UUID uuid)
 	{
-		if(!members.containsKey(uuid))
-		{
-			return;
-		}
+		if(!members.containsKey(uuid)) return;
 		
 		EnumPartyStatus old = members.get(uuid);
+		List<UUID> notifyMems = new ArrayList<>(members.keySet());
 		
 		if(members.remove(uuid) == null)
         {
@@ -112,12 +111,12 @@ public class PartyInstance implements IParty
 		if(members.size() <= 0)
 		{
 			PartyManager.INSTANCE.removeValue(this);
-			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
+			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket(notifyMems));
 		} else if(old == EnumPartyStatus.OWNER)
 		{
 			hostMigrate();
             refreshCache();
-		    PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		    PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
 		}
 	}
 	
@@ -130,6 +129,7 @@ public class PartyInstance implements IParty
 		}
 		
 		EnumPartyStatus old = members.get(uuid);
+		List<UUID> notifyMems = new ArrayList<>(members.keySet());
 		
 		if(old == priv)
 		{
@@ -180,7 +180,7 @@ public class PartyInstance implements IParty
 		}
 		
 		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
+		PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
 	}
 	
 	@Override
@@ -233,7 +233,14 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setTag("data", writeToNBT(new NBTTagCompound()));
@@ -243,6 +250,7 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
+    @Deprecated
 	public void readPacket(NBTTagCompound payload)
 	{
 		readFromNBT(payload.getCompoundTag("data"));

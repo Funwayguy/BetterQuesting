@@ -1,5 +1,6 @@
 package betterquesting.network;
 
+import betterquesting.api2.utils.BQThreadedIO;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
@@ -11,19 +12,18 @@ public class PacketSender implements IPacketSender
 {
 	public static final PacketSender INSTANCE = new PacketSender();
 	
-	private PacketSender()
-	{
-	}
-	
 	@Override
 	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
+        
+        BQThreadedIO.INSTANCE.enqueue(() -> {
+            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            {
+              BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
+            }
+        });
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
-		{
-			BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
-		}
 	}
 	
 	@Override
@@ -31,10 +31,12 @@ public class PacketSender implements IPacketSender
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
-		{
-			BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
-		}
+		BQThreadedIO.INSTANCE.enqueue(() -> {
+            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            {
+                BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
+            }
+        });
 	}
 	
 	@Override
@@ -42,10 +44,12 @@ public class PacketSender implements IPacketSender
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
-		{
-			BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
-		}
+		BQThreadedIO.INSTANCE.enqueue(() -> {
+            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            {
+                BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
+            }
+        });
 	}
 	
 	@Override
@@ -53,10 +57,12 @@ public class PacketSender implements IPacketSender
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
-		{
-			BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
-		}
+		BQThreadedIO.INSTANCE.enqueue(() -> {
+            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            {
+                BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
+            }
+        });
 	}
 	
 	@Override
@@ -64,9 +70,11 @@ public class PacketSender implements IPacketSender
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
 		
-		for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
-		{
-			BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dimension);
-		}
+		BQThreadedIO.INSTANCE.enqueue(() -> {
+            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            {
+                BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dimension);
+            }
+        });
 	}
 }

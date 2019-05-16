@@ -111,7 +111,14 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return null;
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(List<UUID> users)
 	{
 		return null;
 	}

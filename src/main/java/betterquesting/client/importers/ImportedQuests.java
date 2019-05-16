@@ -40,9 +40,16 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
         
         return values;
     }
-    
-    @Override
+	
+	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return null;
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(List<UUID> users)
 	{
 		return null;
 	}

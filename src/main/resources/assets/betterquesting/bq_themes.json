@@ -1,0 +1,110 @@
+[
+  {
+    "themeID": "betterquesting:new_test",
+    "themeName": "New Test",
+    "themeParent": "none",
+    "textures":
+    {
+      "betterquesting:panel_main":
+      {
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [96, 0, 8, 8],
+        "padding": [2, 2, 2, 2],
+        "sliceMode": 1,
+        "textureType": "betterquesting:texture_sliced"
+      },
+      "betterquesting:aux_frame_0":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [24, 0, 24, 24],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 2
+      },
+      "betterquesting:scroll_v_bg":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [96, 0, 8, 8],
+        "padding": [2, 2, 2, 2],
+        "sliceMode": 2
+      },
+      "betterquesting:scroll_v_0":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [104, 0, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 2
+      },
+      "betterquesting:scroll_v_1":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [112, 0, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 2
+      },
+      "betterquesting:scroll_v_2":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [120, 0, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 2
+      },
+      "betterquesting:btn_normal_0":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [48, 0, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 1
+      },
+      "betterquesting:btn_normal_1":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [48, 8, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 1
+      },
+      "betterquesting:btn_normal_2":
+      {
+        "textureType": "betterquesting:texture_sliced",
+        "atlas": "betterquesting:textures/gui/new_gui.png",
+        "bounds": [48, 16, 8, 8],
+        "padding": [3, 3, 3, 3],
+        "sliceMode": 1
+      }
+    },
+    "colors":
+    {
+      "betterquesting:text_header":
+      {
+        "colorType": "betterquesting:color_static",
+        "color": "FFFFFFFF"
+      },
+      "betterquesting:text_main":
+      {
+        "colorType": "betterquesting:color_static",
+        "color": "FFFFFFFF"
+      },
+      "betterquesting:gui_divider":
+      {
+        "colorType": "betterquesting:color_static",
+        "color": "FFFFFFFF"
+      },
+      "betterquesting:grid_major":
+      {
+        "colorType": "betterquesting:color_static",
+        "color": "FFFFFFFF"
+      },
+      "betterquesting:grid_minor":
+      {
+        "colorType": "betterquesting:color_static",
+        "color": "FFFFFFFF"
+      }
+    }
+  }
+]

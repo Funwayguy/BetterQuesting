@@ -55,7 +55,7 @@ public class QuestCommandPurge extends QuestCommandBase
         while(removeQueue.size() > 0) QuestDatabase.INSTANCE.removeID(removeQueue.pop());
         
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));
-        PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+        PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket(null));
         SaveLoadHandler.INSTANCE.markDirty();
     }
 	

@@ -55,6 +55,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -298,11 +299,15 @@ public class EventHandler
 		
 		NameCache.INSTANCE.updateNames(event.player.getServer());
 		
-		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
+        UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
+        IParty party = PartyManager.INSTANCE.getUserParty(playerID);
+        List<UUID> members = party != null ? party.getMembers() : Collections.singletonList(playerID);
+		
+		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(members), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(members), mpPlayer);
 	}
 	
 	@SubscribeEvent

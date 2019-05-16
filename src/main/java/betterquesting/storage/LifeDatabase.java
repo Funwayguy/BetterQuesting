@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -88,6 +89,7 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
@@ -98,10 +100,19 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
+	{
+		NBTTagCompound tags = new NBTTagCompound();
+		NBTTagCompound base = new NBTTagCompound();
+		base.setTag("lives", writeProgressToNBT(new NBTTagCompound(), users));
+		tags.setTag("data", base);
+		return new QuestingPacket(PacketTypeNative.LIFE_DATABASE.GetLocation(), tags);
+	}
+	
+	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
 		NBTTagCompound base = payload.getCompoundTag("data");
-		
 		readProgressFromNBT(base.getCompoundTag("lives"), false);
 	}
 	

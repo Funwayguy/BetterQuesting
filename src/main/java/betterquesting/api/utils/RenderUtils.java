@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderTooltipEvent;
@@ -145,12 +146,37 @@ public class RenderUtils
 	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
+	        float f5 = entity.prevRotationYaw;
+	        float f6 = entity.prevRotationPitch;
+	        entity.rotationYaw = 0;
+	        entity.rotationPitch = 0;
+	        entity.prevRotationYaw = 0;
+	        entity.prevRotationPitch = 0;
+	        EntityLivingBase livingBase = (entity instanceof EntityLivingBase) ? (EntityLivingBase)entity : null;
+	        float f7 = livingBase == null ? 0 : livingBase.renderYawOffset;
+	        float f8 = livingBase == null ? 0 : livingBase.rotationYawHead;
+	        float f9 = livingBase == null ? 0 : livingBase.prevRotationYawHead;
+	        if(livingBase != null)
+            {
+                livingBase.renderYawOffset = 0;
+                livingBase.rotationYawHead = 0;
+                livingBase.prevRotationYawHead = 0;
+            }
+	        
 	        RenderHelper.enableStandardItemLighting();
 	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
 	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
+	        entity.prevRotationYaw = f5;
+	        entity.prevRotationPitch = f6;
+	        if(livingBase != null)
+            {
+                livingBase.renderYawOffset = f7;
+                livingBase.rotationYawHead = f8;
+                livingBase.prevRotationYawHead = f9;
+            }
 	        GlStateManager.disableDepth();
 	        GlStateManager.popMatrix();
 	        RenderHelper.disableStandardItemLighting();

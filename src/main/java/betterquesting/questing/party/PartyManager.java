@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,14 +81,22 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
 	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
+	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), null));
+		tags.setTag("data", writeToNBT(new NBTTagList(), users));
 		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
+    @Deprecated
 	public void readPacket(NBTTagCompound payload)
 	{
 		readFromNBT(payload.getTagList("data", 10), false);

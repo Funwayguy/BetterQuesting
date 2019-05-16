@@ -11,7 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,7 +51,7 @@ public abstract class QuestCommandBase
 	
 	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		return new ArrayList<String>();
+		return Collections.emptyList();
 	}
 	
 	public abstract void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException;

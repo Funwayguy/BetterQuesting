@@ -10,6 +10,7 @@ import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
@@ -73,10 +74,17 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
 	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(List<UUID> users)
+	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), null));
+		tags.setTag("data", writeToNBT(new NBTTagList(), users));
 		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
@@ -87,11 +95,12 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<UUID> users)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
 			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
+			if(users != null && jObj.isEmpty()) continue;
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);
@@ -103,7 +112,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
+		if(!merge) reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
 		HashMap<Integer,Integer> orderMap = new HashMap<>();

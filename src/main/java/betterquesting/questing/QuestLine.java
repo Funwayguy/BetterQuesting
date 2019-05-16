@@ -19,6 +19,7 @@ import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,11 +118,18 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	}
 	
 	@Override
+    @Deprecated
 	public QuestingPacket getSyncPacket()
+	{
+		return getSyncPacket(null);
+	}
+	
+	@Override
+	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("line", writeToNBT(new NBTTagCompound(), null));
+		base.setTag("line", writeToNBT(new NBTTagCompound(), users));
 		tags.setTag("data", base);
 		tags.setInteger("lineID", parentDB.getID(this));
 		

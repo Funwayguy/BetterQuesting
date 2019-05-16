@@ -11,18 +11,16 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 public final class PacketAssembly
 {
 	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
-	// TODO: Allow for simultaneous packet assembly
+	// TODO: Allow for simultaneous packet assembly (may not be necessary)
     // TODO: Implement PROPER thread safety that doesn't cause dirty read/writes
-    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick
+    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick (also may be unnecessary)
 	// Player assigned packet buffers
 	private final HashMap<UUID,byte[]> buffer = new HashMap<>();
 	
@@ -30,11 +28,9 @@ public final class PacketAssembly
 	private byte[] serverBuf = null;
 	private int id = 0;
 	
-	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
+	public List<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		ArrayList<NBTTagCompound> pkts = new ArrayList<>();
-		int dTotal = 0;
-		int pCount = 0;
+		List<NBTTagCompound> pkts = new ArrayList<>();
 		
 		try
 		{
@@ -44,8 +40,6 @@ public final class PacketAssembly
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
-			dTotal = data.length;
-            pCount = req;
 			
 			for(int p = 0; p < req; p++)
 			{
@@ -169,4 +163,35 @@ public final class PacketAssembly
             }
 		}
 	}
+	
+	// TODO: May be unnecessary once optimisations have been completed
+	/*private static class BQPacketBuffer
+    {
+        private final TreeSet[] buffers;
+        private int pktID = 0;
+        
+        public BQPacketBuffer(int bufferCount)
+        {
+            this.buffers = new TreeSet[bufferCount];
+            for(int i = 0; i < buffers.length; i++) buffers[i] = new TreeSet();
+        }
+        
+        public int getNextID()
+        {
+            pktID = (pktID + 1)%buffers.length;
+            clearBuffer(pktID);
+            return pktID;
+        }
+        
+        public int getCurID()
+        {
+            return this.pktID;
+        }
+        
+        public void clearBuffer(int id)
+        {
+            if(id < 0 || id >= buffers.length) return;
+            buffers[id].clear();
+        }
+    }*/
 }

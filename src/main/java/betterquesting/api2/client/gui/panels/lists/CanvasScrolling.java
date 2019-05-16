@@ -363,7 +363,7 @@ public class CanvasScrolling implements IGuiCanvas
 				float cs = zoomScale.readValueRaw();
 				
 				zoomScale.writeValue(cs + dy);
-			} else if(scrollBounds.getHeight() > 0)
+			} else if(scrollBounds.getHeight() > 0) // V scroll
 			{
 				float dy = (scroll * scrollSpeed) / (float)scrollBounds.getHeight();
 				float cs = scrollY.readValue();
@@ -373,7 +373,17 @@ public class CanvasScrolling implements IGuiCanvas
 					scrollY.writeValue(cs + dy);
 					this.updatePanelScroll();
 				}
-			}
+			} else if(scrollBounds.getWidth() > 0) // H scroll
+            {
+				float dy = (scroll * scrollSpeed) / (float)scrollBounds.getWidth();
+				float cs = scrollX.readValue();
+				
+				if(!((dy < 0F && cs <= 0F) || (dy > 0F && cs >= 1F)))
+				{
+					scrollX.writeValue(cs + dy);
+					this.updatePanelScroll();
+				}
+            }
 		}
 		
 		return used;
