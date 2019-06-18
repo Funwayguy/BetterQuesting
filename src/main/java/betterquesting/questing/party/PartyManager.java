@@ -1,20 +1,17 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
-import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,24 +24,21 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	private final HashMap<UUID,Integer> partyCache = new HashMap<>();
 	
 	@Override
-	public IParty getUserParty(UUID uuid)
+	public synchronized IParty getUserParty(UUID uuid)
 	{
 	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null;
 	    
-	    synchronized(partyCache)
+        Integer cachedID = partyCache.get(uuid);
+        IParty cachedParty = cachedID == null ? null : getValue(cachedID);
+
+        if(cachedID != null && cachedParty == null) // Disbanded party
         {
-            Integer cachedID = partyCache.get(uuid);
-            IParty cachedParty = cachedID == null ? null : getValue(cachedID);
-    
-            if(cachedID != null && cachedParty == null) // Disbanded party
-            {
-                partyCache.remove(uuid);
-            } else if(cachedParty != null) // Active party. Check validity...
-            {
-                EnumPartyStatus status = cachedParty.getStatus(uuid);
-                if(status != null && status != EnumPartyStatus.INVITE) return cachedParty;
-                partyCache.remove(uuid); // User isn't a party member anymore
-            }
+            partyCache.remove(uuid);
+        } else if(cachedParty != null) // Active party. Check validity...
+        {
+            EnumPartyStatus status = cachedParty.getStatus(uuid);
+            if(status != null && status != EnumPartyStatus.INVITE) return cachedParty;
+            partyCache.remove(uuid); // User isn't a party member anymore
         }
 	    
 	    // NOTE: A server with a lot of solo players may still hammer this loop. Optimise further?
@@ -63,7 +57,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public List<Integer> getPartyInvites(UUID uuid)
+	public synchronized List<Integer> getPartyInvites(UUID uuid)
 	{
 		List<Integer> invites = new ArrayList<>();
 		
@@ -81,32 +75,11 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-    @Deprecated
-	public QuestingPacket getSyncPacket()
-	{
-		return getSyncPacket(null);
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), users));
-		return new QuestingPacket(PacketTypeNative.PARTY_DATABASE.GetLocation(), tags);
-	}
-	
-	@Override
-    @Deprecated
-	public void readPacket(NBTTagCompound payload)
-	{
-		readFromNBT(payload.getTagList("data", 10), false);
-	}
-	
-	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
+	public synchronized NBTTagList writeToNBT(NBTTagList json, List<Integer> subset)
 	{
 		for(DBEntry<IParty> entry : getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound());
 			jp.setInteger("partyID", entry.getID());
 			json.appendTag(jp);
@@ -116,9 +89,9 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public synchronized void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
+		if(!merge) reset();
 		
 		for(int i = 0; i < json.tagCount(); i++)
 		{
@@ -149,13 +122,9 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-    public void reset()
+    public synchronized void reset()
     {
         super.reset();
-        
-        synchronized(partyCache)
-        {
-            partyCache.clear();
-        }
+        partyCache.clear();
     }
 }

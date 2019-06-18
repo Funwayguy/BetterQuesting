@@ -253,7 +253,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
 	{
 		NBTTagCompound base = new NBTTagCompound();
 		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
+		//base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", questID);

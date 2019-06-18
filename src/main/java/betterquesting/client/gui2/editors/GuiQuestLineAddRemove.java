@@ -43,6 +43,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
@@ -248,10 +249,10 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         
         int width = canvasQL.getTransform().getWidth();
     
-        DBEntry<IQuestLineEntry>[] qles = questLine.getEntries();
-        for(int i = 0; i < qles.length; i++)
+        List<DBEntry<IQuestLineEntry>> qles = questLine.getEntries();
+        for(int i = 0; i < qles.size(); i++)
         {
-            DBEntry<IQuestLineEntry> entry = qles[i];
+            DBEntry<IQuestLineEntry> entry = qles.get(i);
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(entry.getID());
             

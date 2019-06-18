@@ -31,6 +31,9 @@ import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.PktHandlerLineDB;
+import betterquesting.network.handlers.PktHandlerQuestDB;
+import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
@@ -158,7 +161,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
-				PacketSender.INSTANCE.sendToServer(QuestSettings.INSTANCE.getSyncPacket());
+				PacketSender.INSTANCE.sendToServer(PktHandlerSettings.INSTANCE.getSyncPacket());
 			}));
 		} else if(btn.getButtonID() == 5) // Update me
 		{
@@ -170,7 +173,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 					
-					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
+					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null, null);
 					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
 					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
@@ -180,9 +183,9 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
 					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 					
-					PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
-					PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-					PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+					PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
+                    PktHandlerQuestDB.INSTANCE.resyncAll(true);
+					PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
 					
 					SaveLoadHandler.INSTANCE.resetUpdate();
 					SaveLoadHandler.INSTANCE.markDirty();

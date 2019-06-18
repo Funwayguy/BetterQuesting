@@ -6,6 +6,7 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.PktHandlerQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
@@ -77,7 +78,9 @@ public class QuestCommandComplete extends QuestCommandBase
 			uuid = this.findPlayerID(server, sender, sender.getName());
 		}
 		
-		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
+		if(uuid == null) return;
+		
+		String pName = NameCache.INSTANCE.getName(uuid);
 		
 		try
 		{
@@ -102,12 +105,11 @@ public class QuestCommandComplete extends QuestCommandBase
 			}
 			
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
+			PacketSender.INSTANCE.sendToAll(PktHandlerQuestSync.INSTANCE.getSyncPacket(uuid, new DBEntry<>(id, quest)));
 		} catch(Exception e)
 		{
 			throw getException(command);
 		}
-		
-		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 	
 	@Override

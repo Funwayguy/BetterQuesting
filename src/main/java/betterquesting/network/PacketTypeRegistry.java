@@ -11,25 +11,21 @@ import java.util.HashMap;
 public class PacketTypeRegistry implements IPacketRegistry {
 	public static final PacketTypeRegistry INSTANCE = new PacketTypeRegistry();
 
-	private final HashMap<ResourceLocation, IPacketHandler> pktHandlers = new HashMap<ResourceLocation, IPacketHandler>();
-
-	private PacketTypeRegistry()
-	{
-	}
+	private final HashMap<ResourceLocation, IPacketHandler> pktHandlers = new HashMap<>();
 
 	public void init()
 	{
-		registerHandler(new PktHandlerQuestDB());
-		registerHandler(new PktHandlerQuestSync());
-		registerHandler(new PktHandlerQuestEdit());
+		registerHandler(PktHandlerQuestDB.INSTANCE);
+		registerHandler(PktHandlerQuestSync.INSTANCE);
+		registerHandler(PktHandlerQuestEdit.INSTANCE);
 
-		registerHandler(new PktHandlerLineDB());
+		registerHandler(PktHandlerLineDB.INSTANCE);
 		registerHandler(new PktHandlerLineEdit());
 		registerHandler(new PktHandlerLineSync());
 
-		registerHandler(new PktHandlerPartyDB());
+		registerHandler(PktHandlerPartyDB.INSTANCE);
 		registerHandler(new PktHandlerPartyAction());
-		registerHandler(new PktHandlerPartySync());
+		registerHandler(PktHandlerPartySync.INSTANCE);
 
 		registerHandler(new PktHandlerDetect());
 		registerHandler(new PktHandlerClaim());
@@ -39,7 +35,7 @@ public class PacketTypeRegistry implements IPacketRegistry {
 		registerHandler(new PktHandlerTileEdit());
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
-		registerHandler(new PktHandlerSettings());
+		registerHandler(PktHandlerSettings.INSTANCE);
 		registerHandler(new PktHandlerBulk());
 		
 		if(BetterQuesting.proxy.isClient())

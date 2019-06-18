@@ -58,7 +58,7 @@ public class ToolboxToolIcon implements IToolboxTool
                     
                     NBTTagCompound base = new NBTTagCompound();
                     base.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
+                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null, null));
                     
                     NBTTagCompound tags = new NBTTagCompound();
                     tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
@@ -99,7 +99,7 @@ public class ToolboxToolIcon implements IToolboxTool
                     b.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
                     NBTTagCompound base = new NBTTagCompound();
                     base.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null));
+                    base.setTag("progress", b.getStoredValue().getValue().writeProgressToNBT(new NBTTagCompound(), null, null));
                     NBTTagCompound tags = new NBTTagCompound();
                     tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
                     tags.setInteger("questID", b.getStoredValue().getID());

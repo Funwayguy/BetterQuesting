@@ -139,7 +139,7 @@ public class ToolboxToolLink implements IToolboxTool
                         NBTTagCompound tag1 = new NBTTagCompound();
                         NBTTagCompound base1 = new NBTTagCompound();
                         base1.setTag("config", q1.writeToNBT(new NBTTagCompound()));
-                        base1.setTag("progress", q1.writeProgressToNBT(new NBTTagCompound(), null));
+                        base1.setTag("progress", q1.writeProgressToNBT(new NBTTagCompound(), null, null));
                         tag1.setTag("data", base1);
                         tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
                         tag1.setInteger("questID", b1.getStoredValue().getID());
@@ -153,7 +153,7 @@ public class ToolboxToolLink implements IToolboxTool
                     NBTTagCompound tag2 = new NBTTagCompound();
                     NBTTagCompound base2 = new NBTTagCompound();
                     base2.setTag("config", q2.writeToNBT(new NBTTagCompound()));
-                    base2.setTag("progress", q2.writeProgressToNBT(new NBTTagCompound(), null));
+                    base2.setTag("progress", q2.writeProgressToNBT(new NBTTagCompound(), null, null));
                     tag2.setTag("data", base2);
                     tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
                     tag2.setInteger("questID", b2.getStoredValue().getID());

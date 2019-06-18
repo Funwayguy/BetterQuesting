@@ -1,17 +1,18 @@
 package betterquesting.questing;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
-import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
@@ -48,11 +49,11 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public DBEntry<IQuestLine>[] getSortedEntries()
+	public List<DBEntry<IQuestLine>> getSortedEntries()
 	{
-		DBEntry<IQuestLine>[] array = this.getEntries();
-		Arrays.sort(array, SORTER);
-		return array;
+	    List<DBEntry<IQuestLine>> list = new ArrayList<>(this.getEntries());
+	    list.sort(SORTER);
+	    return list;
 	}
 	
 	@Override
@@ -73,7 +74,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 		}
 	}
 	
-	@Override
+	/*@Override
     @Deprecated
 	public QuestingPacket getSyncPacket()
 	{
@@ -84,7 +85,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	public QuestingPacket getSyncPacket(List<UUID> users)
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), users));
+		tags.setTag("data", writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
@@ -92,15 +93,15 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	public void readPacket(NBTTagCompound payload)
 	{
 		this.readFromNBT(payload.getTagList("data", 10), false);
-	}
+	}*/
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
-			if(users != null && jObj.isEmpty()) continue;
+		    if(subset != null && !subset.contains(entry.getID())) continue;
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), subset);
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);

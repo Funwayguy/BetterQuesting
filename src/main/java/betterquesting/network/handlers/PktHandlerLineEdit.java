@@ -4,6 +4,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuestLine;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
@@ -67,23 +68,23 @@ public class PktHandlerLineEdit implements IPacketHandler
 			}
 			
 			QuestLineDatabase.INSTANCE.add(nID, nq);
-			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket(null));
+			PacketSender.INSTANCE.sendToAll(PktHandlerLineSync.INSTANCE.getSyncPacket(new DBEntry<>(nID, nq))); // TODO: This might not need to be sent to everyone
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{
-			questLine.readPacket(data);
+			questLine.readFromNBT(data.getCompoundTag("data").getCompoundTag("line"), false);
 			
 			if(idx >= 0 && QuestLineDatabase.INSTANCE.getOrderIndex(lID) != idx)
 			{
 				QuestLineDatabase.INSTANCE.setOrderIndex(lID, idx);
-				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket(null));
+				PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
 			} else
 			{
-				PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket(null));
+				PacketSender.INSTANCE.sendToAll(PktHandlerLineSync.INSTANCE.getSyncPacket(new DBEntry<>(lID, questLine)));
 			}
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
 			QuestLineDatabase.INSTANCE.removeID(lID);
-			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket(null));
+			PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
 		}
 	}
 	

@@ -6,7 +6,6 @@ import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
-import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyInstance;
 import betterquesting.questing.party.PartyManager;
@@ -108,32 +107,28 @@ public class PktHandlerPartyAction implements IPacketHandler
 			nParty.getProperties().setProperty(NativeProps.NAME, name);
 			nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(PartyManager.INSTANCE.nextID(), nParty);
-			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
+			PktHandlerPartyDB.INSTANCE.resyncPlayer(sender, true);
 		} else if(action == EnumPacketAction.REMOVE && tarParty != null && status == EnumPartyStatus.OWNER) // Operator force deletes party or owner disbands it
 		{
 			PartyManager.INSTANCE.removeID(partyID);
-			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
+			PktHandlerPartyDB.INSTANCE.resyncAll(false);
 		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser.equals(senderID))) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
-			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
+			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.EDIT && tarParty != null && status == EnumPartyStatus.OWNER) // Edit party
 		{
-			tarParty.readPacket(data);
-			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
+			tarParty.readFromNBT(data.getCompoundTag("data"));
+			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.JOIN && tarParty != null && (isOp || status == EnumPartyStatus.INVITE)) // Join party
 		{
-			if(isOp)
-			{
-				tarParty.inviteUser(senderID);
-			}
-			
+			if(isOp) tarParty.inviteUser(senderID);
 			tarParty.setStatus(senderID, EnumPartyStatus.MEMBER);
-			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
+			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status != null && status.ordinal() >= 2) // Invite to party
 		{
 			tarParty.inviteUser(tarUser);
-			PacketSender.INSTANCE.sendToAll(tarParty.getSyncPacket());
+			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		}
 	}
 	

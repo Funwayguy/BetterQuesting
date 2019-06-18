@@ -1,19 +1,18 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.PktHandlerPartyDB;
+import betterquesting.network.handlers.PktHandlerPartySync;
 import betterquesting.storage.PropertyContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +90,7 @@ public class PartyInstance implements IParty
 		}
 		
 		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
+		PktHandlerPartySync.INSTANCE.syncParty(this);
 	}
 	
 	@Override
@@ -111,17 +110,17 @@ public class PartyInstance implements IParty
 		if(members.size() <= 0)
 		{
 			PartyManager.INSTANCE.removeValue(this);
-			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket(notifyMems));
+            PktHandlerPartyDB.INSTANCE.resyncAll(false);
 		} else if(old == EnumPartyStatus.OWNER)
 		{
 			hostMigrate();
             refreshCache();
-		    PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
+		    PktHandlerPartySync.INSTANCE.syncParty(this);
 		}
 	}
 	
 	@Override
-	public void setStatus(UUID uuid, EnumPartyStatus priv)
+	public void setStatus(UUID uuid, @Nonnull EnumPartyStatus priv)
 	{
 		if(!members.containsKey(uuid))
 		{
@@ -129,12 +128,7 @@ public class PartyInstance implements IParty
 		}
 		
 		EnumPartyStatus old = members.get(uuid);
-		List<UUID> notifyMems = new ArrayList<>(members.keySet());
-		
-		if(old == priv)
-		{
-			return;
-		}
+		if(old == priv) return;
 		
 		members.put(uuid, priv);
 		
@@ -180,7 +174,7 @@ public class PartyInstance implements IParty
 		}
 		
 		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket(null));
+		PktHandlerPartySync.INSTANCE.syncParty(this);
 	}
 	
 	@Override
@@ -195,13 +189,23 @@ public class PartyInstance implements IParty
 		return memCache;
 	}
 	
+	@Override
+    public List<UUID> getInvites()
+    {
+        List<UUID> inv = new ArrayList<>();
+        for(Entry<UUID,EnumPartyStatus> entry : members.entrySet())
+        {
+            if(entry.getValue() == EnumPartyStatus.INVITE) inv.add(entry.getKey());
+        }
+        return inv;
+    }
+	
 	private void hostMigrate()
 	{
-	    System.out.println("Migrating host...");
 		// Pre check for existing owners
-		for(UUID uuid : members.keySet())
+		for(Entry<UUID,EnumPartyStatus> entry : members.entrySet())
 		{
-			if(members.get(uuid) == EnumPartyStatus.OWNER)
+			if(entry.getValue() == EnumPartyStatus.OWNER)
 			{
 				return;
 			}
@@ -209,17 +213,17 @@ public class PartyInstance implements IParty
 		
 		UUID migrate = null;
 		
-		for(UUID mem : members.keySet())
+		for(Entry<UUID,EnumPartyStatus> entry : members.entrySet())
 		{
-		    EnumPartyStatus status = members.get(mem);
+		    EnumPartyStatus status = entry.getValue();
 		    
 			if(status == EnumPartyStatus.ADMIN || status == EnumPartyStatus.OWNER)
 			{
-				migrate = mem;
+				migrate = entry.getKey();
 				break;
 			} else if(migrate == null)
 			{
-				migrate = mem;
+				migrate = entry.getKey();
 			}
 		}
 		
@@ -230,30 +234,6 @@ public class PartyInstance implements IParty
         {
             BetterQuesting.logger.error("Failed to find suitable host to migrate party " + this.getName() + ". This should not happen and may now requires an admin to disband this party.");
         }
-	}
-	
-	@Override
-    @Deprecated
-	public QuestingPacket getSyncPacket()
-	{
-		return getSyncPacket(null);
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket(@Nullable List<UUID> users)
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound()));
-		tags.setInteger("partyID", PartyManager.INSTANCE.getID(this));
-		
-		return new QuestingPacket(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
-	}
-	
-	@Override
-    @Deprecated
-	public void readPacket(NBTTagCompound payload)
-	{
-		readFromNBT(payload.getCompoundTag("data"));
 	}
 	
 	@Override

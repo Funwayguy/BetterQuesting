@@ -195,7 +195,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
                     
                     NBTTagCompound base = new NBTTagCompound();
                     base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-                    base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
+                    //base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
                     NBTTagCompound tags = new NBTTagCompound();
                     tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
                     tags.setInteger("questID", qID);
@@ -208,14 +208,14 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     
     private void refreshRewards()
     {
-        DBEntry<IReward>[] dbRew = quest.getRewards().getEntries();
+        List<DBEntry<IReward>> dbRew = quest.getRewards().getEntries();
         
         qrList.resetCanvas();
         int w = qrList.getTransform().getWidth();
         
-        for(int i = 0; i < dbRew.length; i++)
+        for(int i = 0; i < dbRew.size(); i++)
         {
-            IReward reward = dbRew[i].getValue();
+            IReward reward = dbRew.get(i).getValue();
             qrList.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 16, 16, 0), 3, QuestTranslation.translate(reward.getUnlocalisedName()), reward));
             qrList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 2, "" + TextFormatting.RED + TextFormatting.BOLD + "x", reward));
         }
@@ -225,7 +225,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
 	{
 		NBTTagCompound base = new NBTTagCompound();
 		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
+		//base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
 		NBTTagCompound tags = new NBTTagCompound();
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
 		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));

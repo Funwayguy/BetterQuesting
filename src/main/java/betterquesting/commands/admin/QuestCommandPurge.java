@@ -1,5 +1,7 @@
 package betterquesting.commands.admin;
 
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
@@ -7,10 +9,12 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -51,11 +55,24 @@ public class QuestCommandPurge extends QuestCommandBase
         }
         
         int removed = removeQueue.size();
+        int[] bulkIDs = new int[removed];
+        n = 0;
         
-        while(removeQueue.size() > 0) QuestDatabase.INSTANCE.removeID(removeQueue.pop());
+        while(removeQueue.size() > 0)
+        {
+            int id = removeQueue.pop();
+            QuestDatabase.INSTANCE.removeID(id);
+            QuestLineDatabase.INSTANCE.removeQuest(id);
+            bulkIDs[n++] = id;
+        }
         
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));
-        PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket(null));
+        
+        NBTTagCompound response = new NBTTagCompound();
+        response.setIntArray("removeIDs", bulkIDs);
+        response.setInteger("action", EnumPacketAction.REMOVE.ordinal());
+        PacketSender.INSTANCE.sendToAll(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), response)); // Much better than sending the entire database
+        
         SaveLoadHandler.INSTANCE.markDirty();
     }
 	

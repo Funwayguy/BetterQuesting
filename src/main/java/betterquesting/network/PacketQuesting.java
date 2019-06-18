@@ -18,6 +18,7 @@ public class PacketQuesting implements IMessage
 {
 	protected NBTTagCompound tags = new NBTTagCompound();
 	
+	@SuppressWarnings("unused")
 	public PacketQuesting() // For use only by forge
 	{
 	}

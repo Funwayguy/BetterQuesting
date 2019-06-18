@@ -271,7 +271,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
         
         boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
-        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
+        List<DBEntry<IQuestLine>> lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
         this.qlBtns.clear();
         UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
         

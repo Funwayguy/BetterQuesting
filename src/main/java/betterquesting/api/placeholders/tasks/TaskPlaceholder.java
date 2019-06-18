@@ -50,7 +50,7 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, List<UUID> users)
+    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, UUID users, List<Integer> subset)
     {
         nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
         return nbt;

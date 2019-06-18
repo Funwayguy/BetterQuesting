@@ -8,7 +8,6 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.questing.QuestDatabase;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Iterator;
 
 @SuppressWarnings("WeakerAccess")
@@ -22,7 +21,7 @@ public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, 
     @Override
     protected Iterator<DBEntry<IQuest>> getIterator()
     {
-        return Arrays.asList(QuestDatabase.INSTANCE.getEntries()).iterator();
+        return QuestDatabase.INSTANCE.getEntries().iterator();
     }
     
     @Override

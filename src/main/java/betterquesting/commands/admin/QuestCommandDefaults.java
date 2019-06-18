@@ -8,6 +8,9 @@ import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.PktHandlerLineDB;
+import betterquesting.network.handlers.PktHandlerQuestDB;
+import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
@@ -95,7 +98,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 				
-				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
+				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null, null);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
 				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
@@ -113,9 +116,9 @@ public class QuestCommandDefaults extends QuestCommandBase
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
 				}
 				
-				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+				PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
+                PktHandlerQuestDB.INSTANCE.resyncAll(false);
+				PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
                 SaveLoadHandler.INSTANCE.markDirty();
 			} else
 			{

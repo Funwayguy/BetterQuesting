@@ -15,7 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
+public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound, Integer>
 {
 	String getUnlocalisedName();
 	ResourceLocation getFactoryID();

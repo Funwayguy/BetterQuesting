@@ -3,6 +3,7 @@ package betterquesting.network.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.IPacketHandler;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
@@ -24,6 +25,8 @@ import java.util.UUID;
 
 public class PktHandlerQuestEdit implements IPacketHandler
 {
+    public static final PktHandlerQuestEdit INSTANCE = new PktHandlerQuestEdit();
+    
 	@Override
 	public ResourceLocation getRegistryName()
 	{
@@ -33,10 +36,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
-		if(sender == null || sender.getServer() == null)
-		{
-			return;
-		}
+		if(sender == null || sender.getServer() == null) return;
 		
 		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
@@ -49,21 +49,17 @@ public class PktHandlerQuestEdit implements IPacketHandler
 		
 		int aID = !data.hasKey("action")? -1 : data.getInteger("action");
 		int qID = !data.hasKey("questID")? -1 : data.getInteger("questID");
+		
+		if(aID < 0 || aID >= EnumPacketAction.values().length) return;
+		
 		IQuest quest = QuestDatabase.INSTANCE.getValue(qID);
-		
-		EnumPacketAction action;
-		
-		if(aID < 0 || aID >= EnumPacketAction.values().length)
-		{
-			return;
-		}
-		
-		action = EnumPacketAction.values()[aID];
+		EnumPacketAction action = EnumPacketAction.values()[aID];
 		
 		if(action == EnumPacketAction.EDIT && quest != null)
 		{
-			quest.readPacket(data);
-			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+		    NBTTagCompound qData = data.getCompoundTag("data");
+		    if(qData.hasKey("config", 10)) quest.readFromNBT(qData.getCompoundTag("config"));
+		    PktHandlerQuestSync.INSTANCE.resyncAll(new DBEntry<>(aID, quest));
 		} else if(action == EnumPacketAction.REMOVE)
 		{
 		    int[] bulkIDs;
@@ -81,7 +77,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
                 if(bid < 0)
                 {
                     BetterQuesting.logger.log(Level.ERROR, sender.getName() + " tried to delete non-existent quest with ID:" + bid);
-                    return;
+                    continue;
                 }
     
                 BetterQuesting.logger.log(Level.INFO, "Player " + sender.getName() + " deleted quest (#" + bid + ")");
@@ -89,8 +85,10 @@ public class PktHandlerQuestEdit implements IPacketHandler
                 QuestLineDatabase.INSTANCE.removeQuest(bid);
             }
             
-			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+            NBTTagCompound response = new NBTTagCompound();
+            response.setIntArray("removeIDs", bulkIDs);
+            response.setInteger("action", EnumPacketAction.REMOVE.ordinal());
+			PacketSender.INSTANCE.sendToAll(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), response)); // Much better than sending the entire database
 		} else if(action == EnumPacketAction.SET && quest != null) // Force Complete/Reset
 		{
 			if(data.getBoolean("state"))
@@ -126,7 +124,7 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				quest.resetAll(true);
 			}
 			
-			PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
+			PktHandlerQuestSync.INSTANCE.resyncAll(new DBEntry<>(qID, quest));
 		} else if(action == EnumPacketAction.ADD)
 		{
 			IQuest nq;
@@ -136,7 +134,6 @@ public class PktHandlerQuestEdit implements IPacketHandler
             {
                 nID = QuestDatabase.INSTANCE.nextID();
                 nq = QuestDatabase.INSTANCE.createNew(nID);
-                System.out.println("Added with new ID " + nID);
             } else
             {
                 nID = data.getInteger("questID");
@@ -149,12 +146,25 @@ public class PktHandlerQuestEdit implements IPacketHandler
 				nq.readFromNBT(data.getCompoundTag("data").getCompoundTag("config"));
 			}
 			
-			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
+			PktHandlerQuestSync.INSTANCE.resyncAll(new DBEntry<>(nID, nq));
 		}
 	}
 
 	@Override
 	public void handleClient(NBTTagCompound data)
 	{
+	    int aID = !data.hasKey("action")? -1 : data.getInteger("action");
+		
+		if(aID < 0 || aID >= EnumPacketAction.values().length) return;
+		EnumPacketAction action = EnumPacketAction.values()[aID];
+		
+		if(action == EnumPacketAction.REMOVE)
+        {
+            for(int id : data.getIntArray("removeIDs"))
+            {
+                QuestDatabase.INSTANCE.removeID(id);
+                QuestLineDatabase.INSTANCE.removeQuest(id);
+            }
+        }
 	}
 }

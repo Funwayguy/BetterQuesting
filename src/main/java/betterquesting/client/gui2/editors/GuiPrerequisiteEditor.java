@@ -262,7 +262,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 		NBTTagCompound tags = new NBTTagCompound();
 		NBTTagCompound base = new NBTTagCompound();
 		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
+		//base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
 		tags.setTag("data", base);
 		tags.setInteger("questID", questID);
 		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());

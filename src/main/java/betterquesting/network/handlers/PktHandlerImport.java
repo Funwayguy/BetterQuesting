@@ -104,8 +104,8 @@ public class PktHandlerImport implements IPacketHandler
 			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), questLine.getValue());
 		}
 		
-		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-		PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+		PktHandlerQuestDB.INSTANCE.resyncAll(true);
+		PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
 	}
 	
 	@Override
@@ -116,14 +116,14 @@ public class PktHandlerImport implements IPacketHandler
 	/**
 	 * Takes a list of imported IDs and returns a remapping to unused IDs
 	 */
-	private HashMap<Integer,Integer> getRemappedIDs(DBEntry<IQuest>[] idList)
+	private HashMap<Integer,Integer> getRemappedIDs(List<DBEntry<IQuest>> idList)
 	{
-	    int[] nextIDs = getNextIDs(idList.length);
+	    int[] nextIDs = getNextIDs(idList.size());
 		HashMap<Integer,Integer> remapped = new HashMap<>();
 	    
 	    for(int i = 0; i < nextIDs.length; i++)
         {
-            remapped.put(idList[i].getID(), nextIDs[i]);
+            remapped.put(idList.get(i).getID(), nextIDs[i]);
         }
 		
 		return remapped;
@@ -131,12 +131,12 @@ public class PktHandlerImport implements IPacketHandler
 	
 	private int[] getNextIDs(int num)
     {
-        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        List<DBEntry<IQuest>> listDB = QuestDatabase.INSTANCE.getEntries();
         int[] nxtIDs = new int[num];
         
-        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        if(listDB.size() <= 0 || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1)
         {
-            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.size() + i;
             return nxtIDs;
         }
         
@@ -144,7 +144,7 @@ public class PktHandlerImport implements IPacketHandler
         int n2 = 0;
         for(int i = 0; i < num; i++)
         {
-            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            while(n2 < listDB.size() && listDB.get(n2).getID() == n1)
             {
                 n1++;
                 n2++;

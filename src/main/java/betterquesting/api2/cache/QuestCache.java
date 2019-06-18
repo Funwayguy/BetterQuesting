@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -129,7 +130,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         if(player == null) return;
         
         UUID uuid = QuestingAPI.getQuestingUUID(player);
-        DBEntry<IQuest>[] questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB).getEntries();
+        List<DBEntry<IQuest>> questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB).getEntries();
         
         NonNullList<Integer> tmpVisible = NonNullList.create();
         NonNullList<Integer> tmpActive = NonNullList.create();

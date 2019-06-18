@@ -1,15 +1,9 @@
 package betterquesting.commands.user;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.questing.party.IParty;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.questing.party.PartyManager;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.NameCache;
-import betterquesting.storage.QuestSettings;
+import betterquesting.network.handlers.*;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -19,7 +13,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 public class QuestCommandRefresh extends QuestCommandBase
@@ -37,13 +30,11 @@ public class QuestCommandRefresh extends QuestCommandBase
 		{
 			EntityPlayerMP player = (EntityPlayerMP)sender;
 			UUID playerID = QuestingAPI.getQuestingUUID(player);
-            IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-            List<UUID> members = party != null ? party.getMembers() : Collections.singletonList(playerID);
-			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(members), player);
-			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(members), player);
-			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(members), player);
-			PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(members), player);
-			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(members), player);
+			PacketSender.INSTANCE.sendToPlayers(PktHandlerQuestDB.INSTANCE.getSyncPacketForPlayer(player), player);
+			PacketSender.INSTANCE.sendToPlayers(PktHandlerLineDB.INSTANCE.getSyncPacket(null), player);
+			PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(playerID)), player);
+			PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
+			PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), player);
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}

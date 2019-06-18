@@ -1,11 +1,9 @@
 package betterquesting.questing;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
-import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -80,39 +78,13 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
     }
 	
 	@Override
-    @Deprecated
-	public QuestingPacket getSyncPacket()
-	{
-		return getSyncPacket(null);
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket(@Nullable List<UUID> list)
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagList(), null));
-		base.setTag("progress", writeProgressToNBT(new NBTTagList(), null));
-		tags.setTag("data", base);
-		return new QuestingPacket(PacketTypeNative.QUEST_DATABASE.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		NBTTagCompound base = payload.getCompoundTag("data");
-		
-		readFromNBT(base.getTagList("config", 10), false);
-		readProgressFromNBT(base.getTagList("progress", 10), false);
-	}
-	
-	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<UUID> users)
+	public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			NBTTagCompound jq = entry.getValue().writeToNBT(new NBTTagCompound());
-			if(users != null && jq.isEmpty()) continue;
+			if(subset != null && jq.isEmpty()) continue;
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}
@@ -139,12 +111,13 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	}
 	
 	@Override
-	public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> users)
+	public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable UUID user, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
-			NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
-			if(users != null && jq.isEmpty()) continue;
+		    if(subset != null && !subset.contains(entry.getID())) continue;
+			NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), user, null);
+			if(user != null && jq.isEmpty()) continue;
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}

@@ -38,7 +38,7 @@ import net.minecraft.util.NonNullList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
-import java.util.Collections;
+import java.util.List;
 
 public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListener, INeedsRefresh
 {
@@ -222,7 +222,6 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void onButtonPress(PEventButton event)
     {
         IPanelButton btn = event.getButton();
@@ -254,10 +253,10 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
             
             if(qdbe != null)
             {
-                DBEntry<ITask>[] tmpTasks = qdbe.getValue().getTasks().getEntries();
-                for(int i = 0; i < tmpTasks.length; i++)
+                List<DBEntry<ITask>> tmpTasks = qdbe.getValue().getTasks().getEntries();
+                for(int i = 0; i < tmpTasks.size(); i++)
                 {
-                    if(tmpTasks[i].getID() == tile.taskID)
+                    if(tmpTasks.get(i).getID() == tile.taskID)
                     {
                         selTask = i;
                         break;
@@ -296,7 +295,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         txtQstTitle.setText(QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)));
         
         tasks.clear();
-        Collections.addAll(tasks, entry.getValue().getTasks().getEntries());
+        tasks.addAll(entry.getValue().getTasks().getEntries());
         
         if(tasks.size() <= 0)
         {

@@ -8,7 +8,6 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
@@ -23,9 +22,8 @@ import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
@@ -197,28 +195,14 @@ public class EventHandler
             
             List<DBEntry<IQuest>> syncMe = QuestDatabase.INSTANCE.bulkLookup(qc.getDirtyQuests());
             
-            // TODO: Check partial data writes from here when fully implemented
             for(DBEntry<IQuest> entry : syncMe)
             {
-                if(entry.getValue().getProperty(NativeProps.GLOBAL))
+                if(entry.getValue().getProperty(NativeProps.GLOBAL)) // TODO: Move global events to a separate system(?)
                 {
-                    PacketSender.INSTANCE.sendToAll(entry.getValue().getSyncPacket());
+                    PacketSender.INSTANCE.sendToAll(PktHandlerQuestSync.INSTANCE.getSyncPacket(null, entry));
                 } else if(player instanceof EntityPlayerMP)
                 {
-                    IParty party = PartyManager.INSTANCE.getUserParty(uuid);
-                    
-                    if(party != null && player.getServer() != null)
-                    {
-                        for(UUID memID : party.getMembers()) // Send to party only
-                        {
-                            EntityPlayerMP memPlayer = player.getServer().getPlayerList().getPlayerByUUID(memID);
-                            //noinspection ConstantConditions // No idea why IntelliJ is being silly with this null check
-                            if(memPlayer != null) PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), memPlayer);
-                        }
-                    } else
-                    {
-                        PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), (EntityPlayerMP)player);
-                    }
+                    PacketSender.INSTANCE.sendToPlayer(PktHandlerQuestSync.INSTANCE.getSyncPacket(uuid, entry), (EntityPlayerMP)player);
                 }
             }
             
@@ -226,6 +210,7 @@ public class EventHandler
 		}
 	}
 	
+	// TODO: Create a new message inbox system for these things. On screen popups aren't ideal in combat
 	private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset)
 	{
 		switch(preset)
@@ -299,15 +284,11 @@ public class EventHandler
 		
 		NameCache.INSTANCE.updateNames(event.player.getServer());
 		
-        UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
-        IParty party = PartyManager.INSTANCE.getUserParty(playerID);
-        List<UUID> members = party != null ? party.getMembers() : Collections.singletonList(playerID);
-		
-		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(members), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(members), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(members), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayers(PktHandlerQuestDB.INSTANCE.getSyncPacketForPlayer(mpPlayer), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayers(PktHandlerLineDB.INSTANCE.getSyncPacket(null), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(QuestingAPI.getQuestingUUID(mpPlayer))), mpPlayer);
+		PktHandlerPartyDB.INSTANCE.resyncPlayer(mpPlayer, false);
 	}
 	
 	@SubscribeEvent
@@ -317,8 +298,7 @@ public class EventHandler
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
-			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
-			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES)) ? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer));
 			
 			if(lives <= 0)
 			{
@@ -355,17 +335,9 @@ public class EventHandler
 		if(event.getEntityLiving() instanceof EntityPlayer)
 		{
 			UUID uuid = QuestingAPI.getQuestingUUID(((EntityPlayer)event.getEntityLiving()));
-			IParty party = PartyManager.INSTANCE.getUserParty(uuid);
 			
-			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
-			{
-				int lives = LifeDatabase.INSTANCE.getLives(uuid);
-				LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
-			} else
-			{
-				int lives = LifeDatabase.INSTANCE.getLives(party);
-				LifeDatabase.INSTANCE.setLives(party, lives - 1);
-			}
+            int lives = LifeDatabase.INSTANCE.getLives(uuid);
+            LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
 		}
 	}
 	

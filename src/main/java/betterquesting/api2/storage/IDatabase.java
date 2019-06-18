@@ -1,5 +1,7 @@
 package betterquesting.api2.storage;
 
+import java.util.List;
+
 public interface IDatabase<T>
 {
     int nextID();
@@ -14,5 +16,5 @@ public interface IDatabase<T>
     int size();
     void reset();
     
-    DBEntry<T>[] getEntries();
+    List<DBEntry<T>> getEntries();
 }

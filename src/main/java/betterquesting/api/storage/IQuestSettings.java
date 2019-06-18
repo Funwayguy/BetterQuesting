@@ -1,11 +1,11 @@
 package betterquesting.api.storage;
 
-import net.minecraft.entity.player.EntityPlayer;
-import betterquesting.api.misc.IDataSync;
 import betterquesting.api.properties.IPropertyContainer;
+import net.minecraft.entity.player.EntityPlayer;
 
 
-public interface IQuestSettings extends IPropertyContainer, IDataSync
+public interface IQuestSettings extends IPropertyContainer
 {
-	boolean canUserEdit(EntityPlayer player);
+	boolean canUserEdit(EntityPlayer player); // TODO: Is it necessary to even have this interface just for this one method?
+    void reset();
 }

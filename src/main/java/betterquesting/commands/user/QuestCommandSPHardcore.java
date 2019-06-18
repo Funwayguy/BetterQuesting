@@ -4,6 +4,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -36,7 +37,7 @@ public class QuestCommandSPHardcore extends QuestCommandBase
         SaveLoadHandler.INSTANCE.markDirty();
         
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation("options.on")));
-		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
+		PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
 	}
 	
 	@Override

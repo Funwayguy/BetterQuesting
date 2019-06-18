@@ -26,11 +26,10 @@ public final class PacketAssembly
 	
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
-	private int id = 0;
+	//private int id = 0;
 	
 	public List<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		List<NBTTagCompound> pkts = new ArrayList<>();
 		
 		try
 		{
@@ -40,7 +39,8 @@ public final class PacketAssembly
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
-			
+		    List<NBTTagCompound> pkts = new ArrayList<>(req);
+      
 			for(int p = 0; p < req; p++)
 			{
 				int idx = p*30000;
@@ -56,18 +56,14 @@ public final class PacketAssembly
 				container.setTag("data", new NBTTagByteArray(part)); // The raw byte data to write
 				
 				pkts.add(container);
-				
 			}
+			
+            return pkts;
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.error("Unable to split build packet!", e);
-			return pkts;
+			return Collections.emptyList();
 		}
-		
-		id = (id + 1)%100; // Cycle the index
-		
-        //System.out.println("Split " + dTotal + "B among " + pCount + " packet(s)...");
-		return pkts;
 	}
 	
 	/**

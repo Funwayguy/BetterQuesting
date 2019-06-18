@@ -4,7 +4,8 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.PktHandlerQuestDB;
+import betterquesting.network.handlers.PktHandlerQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
@@ -100,6 +101,8 @@ public class QuestCommandReset extends QuestCommandBase
 			{
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
 			}
+      
+		    PktHandlerQuestDB.INSTANCE.resyncAll(true);
 		} else
 		{
 			try
@@ -116,13 +119,13 @@ public class QuestCommandReset extends QuestCommandBase
 					quest.resetAll(true);
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
 				}
+				
+                PktHandlerQuestSync.INSTANCE.resyncAll(new DBEntry<>(id, quest));
 			} catch(Exception e)
 			{
 				throw getException(command);
 			}
 		}
-		
-		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
 	}
 	
 	@Override

@@ -1,29 +1,41 @@
 package betterquesting.network;
 
+import betterquesting.api.network.IPacketSender;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.utils.BQThreadedIO;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
-import betterquesting.api.network.IPacketSender;
-import betterquesting.api.network.QuestingPacket;
-import betterquesting.core.BetterQuesting;
+
+import java.util.List;
 
 public class PacketSender implements IPacketSender
 {
 	public static final PacketSender INSTANCE = new PacketSender();
 	
 	@Override
-	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player)
+    @Deprecated
+    public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player)
+    {
+        sendToPlayers(payload, player);
+    }
+	
+	@Override
+	public void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
         
         BQThreadedIO.INSTANCE.enqueue(() -> {
-            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            List<NBTTagCompound> fragments = PacketAssembly.INSTANCE.splitPacket(payload.getPayload());
+            for(EntityPlayerMP p : players)
             {
-              BetterQuesting.instance.network.sendTo(new PacketQuesting(p), player);
+                for(NBTTagCompound tag : fragments)
+                {
+                    BetterQuesting.instance.network.sendTo(new PacketQuesting(tag), p);
+                }
             }
         });
-		
 	}
 	
 	@Override

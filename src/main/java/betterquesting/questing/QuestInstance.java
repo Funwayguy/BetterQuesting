@@ -5,7 +5,6 @@ import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -20,7 +19,6 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
@@ -37,6 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -479,35 +478,6 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-    @Deprecated
-	public QuestingPacket getSyncPacket()
-	{
-		return getSyncPacket(null);
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket(List<UUID> users)
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", writeProgressToNBT(new NBTTagCompound(), users));
-		tags.setTag("data", base);
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(this));
-		
-		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		NBTTagCompound base = payload.getCompoundTag("data");
-		
-		readFromNBT(base.getCompoundTag("config"));
-		readProgressFromNBT(base.getCompoundTag("progress"), false);
-	}
-	
-	@Override
 	public boolean isUnlocked(UUID uuid)
 	{
 		if(preRequisites.length <= 0) return true;
@@ -691,8 +661,8 @@ public class QuestInstance implements IQuest
 	public NBTTagCompound writeToNBT(NBTTagCompound jObj)
 	{
 		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound()));
-		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList()));
-		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList()));
+		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), null));
+		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("preRequisites", new NBTTagIntArray(getRequirements()));
 		
 		return jObj;
@@ -702,8 +672,8 @@ public class QuestInstance implements IQuest
 	public void readFromNBT(NBTTagCompound jObj)
 	{
 		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"));
-		this.tasks.readFromNBT(jObj.getTagList("tasks", 10));
-		this.rewards.readFromNBT(jObj.getTagList("rewards", 10));
+		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), false);
+		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), false);
 		
 		if(jObj.getTagId("preRequisites") == 11) // Native NBT
 		{
@@ -724,7 +694,7 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, @Nullable UUID users, @Nullable List<Integer> subset)
 	{
 	    synchronized(completeUsers)
         {
@@ -738,7 +708,7 @@ public class QuestInstance implements IQuest
             }
             json.setTag("completed", comJson);
     
-            NBTTagList tskJson = tasks.writeProgressToNBT(new NBTTagList(), users);
+            NBTTagList tskJson = tasks.writeProgressToNBT(new NBTTagList(), users, null);
             json.setTag("tasks", tskJson);
     
             return json;

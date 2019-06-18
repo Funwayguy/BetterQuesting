@@ -193,7 +193,7 @@ public class SaveLoadHandler
 	    JsonObject j5 = JsonHelper.ReadFromFile(fileLives);
 	    
 		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
-	    LifeDatabase.INSTANCE.readProgressFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
+	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
 	    
 	    BetterQuesting.logger.info("Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.info("Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
@@ -225,7 +225,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonProg = new NBTTagCompound();
         
-        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
+        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null, null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
         
@@ -249,7 +249,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonL = new NBTTagCompound();
         
-        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeProgressToNBT(new NBTTagCompound(), null));
+        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         

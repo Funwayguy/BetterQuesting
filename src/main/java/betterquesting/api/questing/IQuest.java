@@ -1,7 +1,6 @@
 package betterquesting.api.questing;
 
 import betterquesting.api.enums.EnumQuestState;
-import betterquesting.api.misc.IDataSync;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
@@ -19,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer, IDataSync
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound, Integer>, IPropertyContainer
 {
 	/** Deprecated: GUIs can build the tooltips themselves based on theme and purpose */
 	@Deprecated

@@ -1,16 +1,22 @@
 package betterquesting.commands.admin;
 
+import betterquesting.api.enums.EnumPacketAction;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.PktHandlerLineDB;
+import betterquesting.network.handlers.PktHandlerQuestDB;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -64,8 +70,8 @@ public class QuestCommandDelete extends QuestCommandBase
 		{
 			QuestDatabase.INSTANCE.reset();
 			QuestLineDatabase.INSTANCE.reset();
-			PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+            PktHandlerQuestDB.INSTANCE.resyncAll(false);
+			PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
 		    
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.all"));
             SaveLoadHandler.INSTANCE.markDirty();
@@ -76,7 +82,12 @@ public class QuestCommandDelete extends QuestCommandBase
 				int id = Integer.parseInt(args[1].trim());
 				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
 				QuestDatabase.INSTANCE.removeID(id);
-				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
+				QuestLineDatabase.INSTANCE.removeQuest(id);
+				
+				NBTTagCompound response = new NBTTagCompound();
+                response.setIntArray("removeIDs", new int[]{id});
+                response.setInteger("action", EnumPacketAction.REMOVE.ordinal());
+                PacketSender.INSTANCE.sendToAll(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), response));
 				
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.delete.single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
                 SaveLoadHandler.INSTANCE.markDirty();

@@ -1,28 +1,24 @@
 package betterquesting.items;
 
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.core.BetterQuesting;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.party.IParty;
-import betterquesting.core.BetterQuesting;
-import betterquesting.questing.party.PartyManager;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.QuestSettings;
+
+import javax.annotation.Nonnull;
 
 public class ItemExtraLife extends Item
 {
@@ -36,14 +32,15 @@ public class ItemExtraLife extends Item
     /**
      * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
      */
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand hand)
     {
     	ItemStack stack = player.getHeldItem(hand);
     	
     	if(stack.getItemDamage() != 0 || hand != EnumHand.MAIN_HAND)
     	{
-    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+    		return new ActionResult<>(EnumActionResult.PASS, stack);
     	} else if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE))
     	{
     		if(!player.capabilities.isCreativeMode)
@@ -51,38 +48,23 @@ public class ItemExtraLife extends Item
     			stack.grow(-1);
     		}
     		
-    		int lives = 0;
-    		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
+            int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
     		
-    		if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
-    		{
-    			lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
-    		} else
-    		{
-    			lives = LifeDatabase.INSTANCE.getLives(party);
-    		}
-    		
-    		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue())
+    		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX))
     		{
     			if(!world.isRemote)
     			{
     	    		player.sendStatusMessage(new TextComponentString(TextFormatting.RED.toString()).appendSibling(new TextComponentTranslation("betterquesting.gui.full_lives")), true);
     			}
 	    		
-	    		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+	    		return new ActionResult<>(EnumActionResult.PASS, stack);
     		}
 
-            player.world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
+            player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1F, 1F);
     		
     		if(!world.isRemote)
     		{
-    			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
-    			{
-    				LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
-    			} else
-    			{
-    				LifeDatabase.INSTANCE.setLives(party, lives + 1);
-    			}
+                LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
     			
     			player.sendStatusMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)), true);
     		}
@@ -91,7 +73,7 @@ public class ItemExtraLife extends Item
     		player.sendStatusMessage(new TextComponentTranslation("betterquesting.msg.heart_disabled"), true);
     	}
     	
-		return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+		return new ActionResult<>(EnumActionResult.PASS, stack);
     }
 
     /**
@@ -99,6 +81,7 @@ public class ItemExtraLife extends Item
      * different names based on their damage or NBT.
      */
     @Override
+    @Nonnull
     public String getTranslationKey(ItemStack stack)
     {
         switch(stack.getItemDamage()%3)
@@ -124,7 +107,7 @@ public class ItemExtraLife extends Item
      */
     @Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
     {
     	if(this.isInCreativeTab(tab))
     	{
