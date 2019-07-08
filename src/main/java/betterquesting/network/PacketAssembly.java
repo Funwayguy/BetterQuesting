@@ -27,10 +27,11 @@ public final class PacketAssembly
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
 	//private int id = 0;
+    
+    private static final int bufSize = 20480; // 20KB
 	
 	public List<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -38,13 +39,13 @@ public final class PacketAssembly
 			baos.flush();
 			byte[] data = baos.toByteArray();
 			baos.close();
-			int req = MathHelper.ceil(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
+			int req = MathHelper.ceil(data.length/(float)bufSize);
 		    List<NBTTagCompound> pkts = new ArrayList<>(req);
       
 			for(int p = 0; p < req; p++)
 			{
-				int idx = p*30000;
-				int s = Math.min(data.length - idx, 30000);
+				int idx = p*bufSize;
+				int s = Math.min(data.length - idx, bufSize);
 				NBTTagCompound container = new NBTTagCompound();
 				byte[] part = new byte[s];
 				
@@ -160,7 +161,7 @@ public final class PacketAssembly
 		}
 	}
 	
-	// TODO: May be unnecessary once optimisations have been completed
+	// TODO: May be unnecessary once optimisations have been completed... or I could make this like a download manager :thinking:
 	/*private static class BQPacketBuffer
     {
         private final TreeSet[] buffers;

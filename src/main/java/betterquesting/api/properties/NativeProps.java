@@ -21,6 +21,7 @@ public class NativeProps
 	public static final IPropertyType<String> NAME =						new PropertyTypeString(new ResourceLocation("betterquesting:name"), "untitled.name");
 	public static final IPropertyType<String> DESC =						new PropertyTypeString(new ResourceLocation("betterquesting:desc"), "untitled.desc");
 	
+	@Deprecated
 	public static final IPropertyType<Boolean> MAIN =						new PropertyTypeBoolean(new ResourceLocation("betterquesting:isMain"), false);
 	public static final IPropertyType<Boolean> GLOBAL =						new PropertyTypeBoolean(new ResourceLocation("betterquesting:isGlobal"), false);
 	public static final IPropertyType<Boolean> GLOBAL_SHARE =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:globalShare"), false);
@@ -35,20 +36,16 @@ public class NativeProps
 	
 	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
 	
-	@Deprecated
-	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
-	
 	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
 	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "minecraft:entity.player.levelup");
 	public static final IPropertyType<String> SOUND_COMPLETE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_complete"), "minecraft:entity.player.levelup");
 	
 	public static final IPropertyType<BigItemStack> ICON =					new PropertyTypeItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.NETHER_STAR));
+	//public static final IPropertyType<String> FRAME =                       new PropertyTypeString(new ResourceLocation("betterquesting:frame"), "minecraft:entity.player.levelup");
 	
 	public static final IPropertyType<String> BG_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:bg_image"), "");
 	public static final IPropertyType<Integer> BG_SIZE =					new PropertyTypeInteger(new ResourceLocation("betterquesting:bg_size"), 256);
 	
-	public static final IPropertyType<Boolean> PARTY_LOOT =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:partySingleReward"), false);
-	public static final IPropertyType<Boolean> PARTY_LIVES =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:partyShareLives"), false);
 	public static final IPropertyType<Boolean> PARTY_ENABLE =               new PropertyTypeBoolean(new ResourceLocation("betterquesting:party_enable"), true);
 	
 	public static final IPropertyType<Boolean> HARDCORE =					new PropertyTypeBoolean(new ResourceLocation("betterquesting:hardcore"), false);

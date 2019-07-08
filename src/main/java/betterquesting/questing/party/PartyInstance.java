@@ -34,8 +34,6 @@ public class PartyInstance implements IParty
 	private void setupProps()
 	{
 		setupValue(NativeProps.NAME, "New Party");
-		setupValue(NativeProps.PARTY_LIVES);
-		setupValue(NativeProps.PARTY_LOOT);
 	}
 	
 	private <T> void setupValue(IPropertyType<T> prop)
@@ -264,8 +262,6 @@ public class PartyInstance implements IParty
 		{
 			pInfo.readFromNBT(new NBTTagCompound());
 			pInfo.setProperty(NativeProps.NAME, jObj.getString("name"));
-			pInfo.setProperty(NativeProps.PARTY_LIVES, jObj.getBoolean("lifeShare"));
-			pInfo.setProperty(NativeProps.PARTY_LOOT, jObj.getBoolean("lootShare"));
 			pInfo.setProperty(NativeProps.LIVES, jObj.getInteger("lives"));
 		}
 		

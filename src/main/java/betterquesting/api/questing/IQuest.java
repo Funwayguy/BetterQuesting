@@ -10,21 +10,13 @@ import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound, Integer>, IPropertyContainer
 {
-	/** Deprecated: GUIs can build the tooltips themselves based on theme and purpose */
-	@Deprecated
-	@SideOnly(Side.CLIENT)
-	List<String> getTooltip(EntityPlayer player);
-	
 	EnumQuestState getState(UUID uuid);
 	
 	@Nullable

@@ -7,6 +7,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+
+import java.util.function.Consumer;
 
 public class PktHandlerBulk implements IPacketHandler
 {
@@ -25,8 +28,8 @@ public class PktHandlerBulk implements IPacketHandler
         {
             NBTTagCompound bTag = list.getCompoundTagAt(i);
             if(!bTag.hasKey("ID", 8)) continue;
-            IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(bTag.getString("ID")));
-            if(handler != null) handler.handleServer(bTag, sender);
+            Consumer<Tuple<NBTTagCompound,EntityPlayerMP>> handler = PacketTypeRegistry.INSTANCE.getServerHandler(new ResourceLocation(bTag.getString("ID")));
+            if(handler != null) handler.accept(new Tuple<>(bTag, sender));
         }
     }
     
@@ -39,8 +42,8 @@ public class PktHandlerBulk implements IPacketHandler
         {
             NBTTagCompound bTag = list.getCompoundTagAt(i);
             if(!bTag.hasKey("ID", 8)) continue;
-            IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(bTag.getString("ID")));
-            if(handler != null) handler.handleClient(bTag);
+            Consumer<NBTTagCompound> handler = PacketTypeRegistry.INSTANCE.getClientHandler(new ResourceLocation(bTag.getString("ID")));
+            if(handler != null) handler.accept(bTag);
         }
     }
 }

@@ -17,4 +17,5 @@ public interface IDatabase<T>
     void reset();
     
     List<DBEntry<T>> getEntries();
+    List<DBEntry<T>> bulkLookup(int... keys);
 }

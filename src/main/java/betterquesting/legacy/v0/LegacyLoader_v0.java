@@ -87,6 +87,8 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 	@Override
     public void readProgressFromJson(JsonElement json)
     {
+        if(!json.isJsonObject()) return;
+        QuestDatabase.INSTANCE.readProgressFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true).getTagList("questProgress", 10), false);
     }
 	
 	public void readLineDatabase(JsonArray jAry)
@@ -121,7 +123,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		quest.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000).intValue());
 		quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
 		quest.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
-		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound())));
+		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound(), true)));
 		
 		JsonArray reqAry = JsonHelper.GetArray(json, "preRequisites");
 		int[] req = new int[reqAry.size()];
@@ -166,7 +168,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
-			NBTTagCompound nbtTask = NBTConverter.JSONtoNBT_Object(jsonTask, new NBTTagCompound());
+			NBTTagCompound nbtTask = NBTConverter.JSONtoNBT_Object(jsonTask, new NBTTagCompound(), true);
 			
 			if(task != null)
 			{
@@ -227,7 +229,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
-			NBTTagCompound nbtReward = NBTConverter.JSONtoNBT_Object(jsonReward, new NBTTagCompound());
+			NBTTagCompound nbtReward = NBTConverter.JSONtoNBT_Object(jsonReward, new NBTTagCompound(), true);
 			
 			if(reward != null)
 			{

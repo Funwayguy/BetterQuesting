@@ -113,10 +113,6 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 64, 8, 64), 0));
         cvBackground.addPanel(cvLeftHalf);
         
-        PanelButton btnLifeShare = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -75, 0, 150, 16, 0), 1,QuestTranslation.translate("betterquesting.btn.party_share_lives") + ": " + party.getProperties().getProperty(NativeProps.PARTY_LIVES));
-        cvLeftHalf.addPanel(btnLifeShare);
-        btnLifeShare.setActive(status.ordinal() >= 3);
-        
         PanelButtonStorage<UUID> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), playerID);
         cvLeftHalf.addPanel(btnLeave);
         
@@ -228,10 +224,6 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         if(btn.getButtonID() == 0) // Exit
         {
             mc.displayGuiScreen(this.parent);
-        } else if(btn.getButtonID() == 1) // Toggle Life Share
-        {
-			party.getProperties().setProperty(NativeProps.PARTY_LIVES, !party.getProperties().getProperty(NativeProps.PARTY_LIVES));
-			SendChanges();
         } else if(btn.getButtonID() == 2) // Invite
         {
 			mc.displayGuiScreen(new GuiPartyInvite(this));

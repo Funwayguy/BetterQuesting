@@ -23,6 +23,7 @@ public enum PacketTypeNative
 	SETTINGS,
 	IMPORT,
     CACHE_SYNC,
+    @Deprecated
     BULK;
 	
 	private final ResourceLocation ID;

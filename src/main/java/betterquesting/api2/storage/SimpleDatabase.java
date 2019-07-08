@@ -109,4 +109,26 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
         
         return refCache;
     }
+    
+    @Override
+    public synchronized List<DBEntry<T>> bulkLookup(int... keys)
+    {
+        if(keys.length <= 0) return Collections.emptyList();
+        
+        int[] sortedKeys = new int[keys.length];
+        System.arraycopy(keys, 0, sortedKeys, 0, keys.length);
+        Arrays.sort(sortedKeys);
+        
+        List<DBEntry<T>> subList = new ArrayList<>();
+        int n = 0;
+        
+        for(DBEntry<T> entry : getEntries())
+        {
+            while(n < sortedKeys.length && sortedKeys[n] < entry.getID()) n++;
+            if(n >= sortedKeys.length) break;
+            if(sortedKeys[n] == entry.getID()) subList.add(entry);
+        }
+        
+        return subList;
+    }
 }

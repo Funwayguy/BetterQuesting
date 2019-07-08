@@ -4,6 +4,8 @@ import betterquesting.core.BetterQuesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.ResourcePackFileNotFoundException;
 import net.minecraft.client.resources.data.IMetadataSection;
@@ -11,26 +13,29 @@ import net.minecraft.client.resources.data.MetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class QuestResourcesFile implements IResourcePack, Closeable
 {
-	static final File rootFolder = new File("config/betterquesting/resources/");
-    public static final Splitter entryNameSplitter = Splitter.on('/').omitEmptyStrings().limit(3);
-    ArrayList<ZipFile> zipList = null;
     
+    private static final ResourceLocation UNKNOWN_PACK_TEXTURE = new ResourceLocation("textures/misc/unknown_pack.png");
+    
+	private static final File rootFolder = new File("config/betterquesting/resources/");
+    private static final Splitter entryNameSplitter = Splitter.on('/').omitEmptyStrings().limit(3);
+    private List<ZipFile> zipList = null;
+    private BufferedImage bufferedImage = null;
+    
+    @Nonnull
 	@Override
-	public InputStream getInputStream(ResourceLocation loc) throws IOException
+	public InputStream getInputStream(@Nonnull ResourceLocation loc) throws IOException
 	{
 		String locName = locationToName(loc);
 		
@@ -48,7 +53,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	}
 	
 	@Override
-	public boolean resourceExists(ResourceLocation loc)
+	public boolean resourceExists(@Nonnull ResourceLocation loc)
 	{
 		String locName = locationToName(loc);
 		
@@ -63,12 +68,13 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 		        	return true;
 		        }
 			}
-		} catch(Exception e){}
+		} catch(Exception ignored){}
 		
 		return false;
 	}
 	
 	@Override
+    @Nonnull
 	public Set<String> getResourceDomains()
 	{
         HashSet<String> hashset = Sets.newHashSet();
@@ -79,19 +85,19 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	        {
 	        	hashset.addAll(GetZipDomains(f));
 	        }
-        } catch(Exception e){}
+        } catch(Exception ignored){}
         
 		return hashset;
 	}
 	
-	public Set<String> GetZipDomains(ZipFile zipfile)
+	private Set<String> GetZipDomains(ZipFile zipfile)
 	{
         Enumeration<? extends ZipEntry> enumeration = zipfile.entries();
         HashSet<String> hashset = Sets.newHashSet();
 
         while (enumeration.hasMoreElements())
         {
-            ZipEntry zipentry = (ZipEntry)enumeration.nextElement();
+            ZipEntry zipentry = enumeration.nextElement();
             String s = zipentry.getName();
 
             if (s.startsWith("assets/"))
@@ -100,7 +106,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
                 if (arraylist.size() > 1)
                 {
-                    String s1 = (String)arraylist.get(1);
+                    String s1 = arraylist.get(1);
 
                     if (!s1.equals(s1.toLowerCase()))
                     {
@@ -118,37 +124,49 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	}
 	
 	@Override
-	public <T extends IMetadataSection> T getPackMetadata(MetadataSerializer meta, String s) throws IOException
+	public <T extends IMetadataSection> T getPackMetadata(@Nonnull MetadataSerializer meta, @Nonnull String s)
 	{
 		return null;
 	}
 	
+	@Nonnull
 	@Override
-	public BufferedImage getPackImage() throws IOException
+	public BufferedImage getPackImage()
 	{
-		return null;
+	    if(bufferedImage != null) return bufferedImage;
+	    
+        try
+        {
+            bufferedImage = TextureUtil.readBufferedImage(Minecraft.getMinecraft().getResourceManager().getResource(UNKNOWN_PACK_TEXTURE).getInputStream());
+        }
+        catch (IOException ioexception)
+        {
+            throw new Error("Couldn't bind resource pack icon", ioexception);
+        }
+        
+        return bufferedImage;
 	}
 	
+	@Nonnull
 	@Override
 	public String getPackName()
 	{
 		return BetterQuesting.NAME + "_files";
 	}
 
-    private ArrayList<ZipFile> getZipFiles() throws IOException
+    private List<ZipFile> getZipFiles()
     {
-    	if(zipList != null)
-    	{
-    		return zipList;
-    	}
+    	if(zipList != null) return zipList;
     	
-		if(!rootFolder.exists())
+		if(!rootFolder.exists() && !rootFolder.mkdirs())
 		{
-			rootFolder.mkdirs();
+			return Collections.emptyList();
 		}
 		
 		File[] files = rootFolder.listFiles();
-		zipList = new ArrayList<ZipFile>();
+		if(files == null || files.length <= 0) return Collections.emptyList();
+		
+		zipList = new ArrayList<>();
     	
 		for(File f : files)
 		{
@@ -157,7 +175,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	        	try
 	        	{
 	        		zipList.add(new ZipFile(f));
-	        	} catch(Exception e){}
+	        	} catch(Exception ignored){}
 	        }
 		}
 
@@ -166,10 +184,10 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
     private static String locationToName(ResourceLocation loc)
     {
-        return String.format("%s/%s/%s", new Object[] {"assets", loc.getNamespace(), loc.getPath()});
+        return String.format("%s/%s/%s", "assets", loc.getNamespace(), loc.getPath());
     }
 
-    protected void logNameNotLowercase(String name, String file)
+    private void logNameNotLowercase(String name, String file)
     {
         BetterQuesting.logger.log(Level.WARN, "ResourcePack: ignored non-lowercase namespace: {} in {}", new Object[] {name, file});
     }

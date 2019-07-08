@@ -54,11 +54,11 @@ public class ToolboxTabMain implements IToolTab
 		
 		float offX = -ui.getScrollX();
         offX = ((offX % snap + snap) % snap) * zs;
-		int midX = -ui.getScrollX() / snap;
+		int midX = Math.floorDiv(-ui.getScrollX(), snap);
 		
 		float offY = -ui.getScrollY();
         offY = ((offY % snap + snap) % snap) * zs;
-		int midY = -ui.getScrollY() / snap;
+		int midY = Math.floorDiv(-ui.getScrollY(), snap);
 		
 		int x = ui.getTransform().getX();
 		int y = ui.getTransform().getY();

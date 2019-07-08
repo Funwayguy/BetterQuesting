@@ -12,7 +12,6 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -94,9 +93,8 @@ public class PktHandlerQuestEdit implements IPacketHandler
 			if(data.getBoolean("state"))
 			{
 				UUID senderID = QuestingAPI.getQuestingUUID(sender);
-				boolean com = quest.isComplete(senderID);
 				
-				if(com && quest instanceof QuestInstance)
+				if(quest.isComplete(senderID))
 				{
 					quest.setClaimed(senderID, 0);
 				} else

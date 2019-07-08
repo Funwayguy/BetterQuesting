@@ -8,36 +8,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQuestDatabase
 {
-	public static final QuestDatabase INSTANCE = new QuestDatabase();
+	public static final QuestDatabase INSTANCE = new QuestDatabase(); // TODO: Redirect all server side operations here.
+	//public static final QuestDatabase CLIENT = new QuestDatabase(); // TODO: Redirect all client side operations here.
 	
 	@Override
 	public IQuest createNew(int id)
 	{
 		return this.add(id, new QuestInstance()).getValue();
 	}
-    
-    @Override
-    public synchronized List<DBEntry<IQuest>> bulkLookup(int... ids)
-    {
-        if(ids == null || ids.length <= 0) return Collections.emptyList();
-        
-        List<DBEntry<IQuest>> values = new ArrayList<>();
-        
-        for(int i : ids)
-        {
-            IQuest v = getValue(i);
-            if(v != null) values.add(new DBEntry<>(i, v));
-        }
-        
-        return values;
-    }
     
     @Override
     public synchronized boolean removeID(int id)
@@ -105,7 +88,7 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
-			quest = quest != null? quest : this.createNew(qID);
+			if(quest == null) quest = this.createNew(qID);
 			quest.readFromNBT(qTag);
 		}
 	}

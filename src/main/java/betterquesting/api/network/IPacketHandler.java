@@ -6,12 +6,13 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@Deprecated // Replaced by method references
 public interface IPacketHandler
 {
-	public ResourceLocation getRegistryName();
+	ResourceLocation getRegistryName();
 	
-	public void handleServer(NBTTagCompound tag, EntityPlayerMP sender);
+	void handleServer(NBTTagCompound tag, EntityPlayerMP sender);
 	
 	@SideOnly(Side.CLIENT)
-	public void handleClient(NBTTagCompound tag);
+	void handleClient(NBTTagCompound tag);
 }

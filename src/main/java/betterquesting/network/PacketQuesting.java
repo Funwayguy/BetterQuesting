@@ -1,18 +1,20 @@
 package betterquesting.network;
 
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.core.BetterQuesting;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import org.apache.logging.log4j.Level;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.network.IPacketHandler;
-import betterquesting.core.BetterQuesting;
+
+import java.util.function.Consumer;
 
 public class PacketQuesting implements IMessage
 {
@@ -23,7 +25,8 @@ public class PacketQuesting implements IMessage
 	{
 	}
 	
-	protected PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
+	@SuppressWarnings("WeakerAccess")
+    protected PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
 	{
 		this.tags = tags;
 	}
@@ -45,7 +48,7 @@ public class PacketQuesting implements IMessage
 		@Override
 		public IMessage onMessage(PacketQuesting packet, MessageContext ctx)
 		{
-			if(packet == null || packet.tags == null)
+			if(packet == null || packet.tags == null || ctx.getServerHandler().player.getServer() == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting packet server side", new NullPointerException());
 				return null;
@@ -63,15 +66,15 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+            final Consumer<Tuple<NBTTagCompound, EntityPlayerMP>> method = PacketTypeRegistry.INSTANCE.getServerHandler(new ResourceLocation(message.getString("ID")));
 			
-			if(handler == null)
+			if(method == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
 			} else if(sender != null)
 			{
-				sender.getServer().addScheduledTask(() -> handler.handleServer(message, sender));
+				sender.getServer().addScheduledTask(() -> method.accept(new Tuple<>(message, sender)));
 			}
 			
 			return null;
@@ -100,15 +103,15 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+			final Consumer<NBTTagCompound> method = PacketTypeRegistry.INSTANCE.getClientHandler(new ResourceLocation(message.getString("ID")));
 			
-			if(handler == null)
+			if(method == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
 			} else
 			{
-				Minecraft.getMinecraft().addScheduledTask(() -> handler.handleClient(message));
+				Minecraft.getMinecraft().addScheduledTask(() -> method.accept(message));
 			}
 			
 			return null;
