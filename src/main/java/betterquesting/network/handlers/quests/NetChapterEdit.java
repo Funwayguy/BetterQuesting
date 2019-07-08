@@ -1,9 +1,11 @@
 package betterquesting.network.handlers.quests;
 
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestLineDatabase;
@@ -15,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
@@ -71,7 +74,6 @@ public class NetChapterEdit
             }
             case 2:
             {
-                // TODO: Allow the editor to send a target player name/UUID
                 reorderChapters(tag.getIntArray("chapterIDs"));
                 break;
             }
@@ -93,13 +95,14 @@ public class NetChapterEdit
         for(int i = 0; i < data.tagCount(); i++)
         {
             NBTTagCompound entry = data.getCompoundTagAt(i);
-            int questID = entry.getInteger("chapterID");
-            ids[i] = questID;
+            int chapterID = entry.getInteger("chapterID");
+            ids[i] = chapterID;
             
-            IQuestLine quest = QuestLineDatabase.INSTANCE.getValue(questID);
-            if(quest != null) quest.readFromNBT(entry.getCompoundTag("config"));
+            IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
+            if(chapter != null) chapter.readFromNBT(entry.getCompoundTag("config"));
         }
-        
+    
+        SaveLoadHandler.INSTANCE.markDirty();
         NetChapterSync.sendSync(null, ids);
     }
     
@@ -109,6 +112,8 @@ public class NetChapterEdit
         {
             QuestLineDatabase.INSTANCE.removeID(id);
         }
+        
+        SaveLoadHandler.INSTANCE.markDirty();
         
         NBTTagCompound payload = new NBTTagCompound();
         payload.setIntArray("chapterIDs", chapterIDs);
@@ -123,6 +128,8 @@ public class NetChapterEdit
             QuestLineDatabase.INSTANCE.setOrderIndex(chapterIDs[n], n);
         }
         
+        SaveLoadHandler.INSTANCE.markDirty();
+        
         NBTTagCompound payload = new NBTTagCompound();
         payload.setIntArray("chapterIDs", chapterIDs);
         payload.setInteger("action", 2);
@@ -136,14 +143,15 @@ public class NetChapterEdit
         {
             NBTTagCompound entry = data.getCompoundTagAt(i);
             int chapterID = entry.hasKey("chapterID", 99) ? entry.getInteger("chapterID") : -1;
-            if(chapterID < 0) QuestLineDatabase.INSTANCE.nextID();
+            if(chapterID < 0) chapterID = QuestLineDatabase.INSTANCE.nextID();
             ids[i] = chapterID;
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
-            if(chapter == null) chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
+            if(chapter == null) chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
             if(entry.hasKey("config", 10)) chapter.readFromNBT(entry.getCompoundTag("config"));
         }
         
+        SaveLoadHandler.INSTANCE.markDirty();
         NetChapterSync.sendSync(null, ids);
     }
     
@@ -160,6 +168,8 @@ public class NetChapterEdit
                 {
                     QuestLineDatabase.INSTANCE.removeID(id);
                 }
+        
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
                 break;
             }
             case 2: // Reorder
@@ -169,6 +179,8 @@ public class NetChapterEdit
                 {
                     QuestLineDatabase.INSTANCE.setOrderIndex(chapterIDs[n], n);
                 }
+                
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
                 break;
             }
         }

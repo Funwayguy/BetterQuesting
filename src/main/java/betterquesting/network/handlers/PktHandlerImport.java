@@ -10,8 +10,10 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -103,9 +105,10 @@ public class PktHandlerImport implements IPacketHandler
 			
 			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), questLine.getValue());
 		}
-		
-		PktHandlerQuestDB.INSTANCE.resyncAll(true);
-		PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
+        
+        SaveLoadHandler.INSTANCE.markDirty();
+        NetQuestSync.quickSync(-1, true, true);
+        NetChapterSync.sendSync(null, null);
 	}
 	
 	@Override

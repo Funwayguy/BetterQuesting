@@ -247,7 +247,6 @@ public class ThemeRegistry implements IThemeRegistry
                         {
                             BetterQuesting.logger.warn("Deprecated legacy theme entry " + i + " in " + iresource.getResourceLocation());
                             BetterQuesting.logger.warn("Please convert this to the new format");
-                            loadLegacy(jThm, domain);
                             continue;
                         }
                         
@@ -359,24 +358,6 @@ public class ThemeRegistry implements IThemeRegistry
                 }
             }
         }
-    }
-    
-    @Deprecated
-    private void loadLegacy(JsonObject json, String domain)
-    {
-        IGuiTheme theme = LegacyThemeLoader.INSTANCE.loadTheme(json, domain);
-        
-        if(theme == null)
-        {
-            BetterQuesting.logger.error("Failed to load legacy theme from " + domain);
-            return;
-        } else if(themes.containsKey(theme.getID()))
-        {
-            BetterQuesting.logger.error("Unable to register legacy resource theme with duplicate ID: " + theme.getID());
-        }
-        
-        themes.put(theme.getID(), theme);
-        loadedThemes.add(theme.getID());
     }
 	
 	@Override

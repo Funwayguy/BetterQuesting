@@ -19,7 +19,9 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	@Override
 	public IQuest createNew(int id)
 	{
-		return this.add(id, new QuestInstance()).getValue();
+	    IQuest quest = new QuestInstance();
+	    if(id >= 0) this.add(id, quest);
+		return quest;
 	}
     
     @Override

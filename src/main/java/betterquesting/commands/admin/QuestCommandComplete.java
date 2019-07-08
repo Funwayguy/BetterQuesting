@@ -2,11 +2,9 @@ package betterquesting.commands.admin;
 
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerQuestSync;
+import betterquesting.network.handlers.quests.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
@@ -82,34 +80,11 @@ public class QuestCommandComplete extends QuestCommandBase
 		
 		String pName = NameCache.INSTANCE.getName(uuid);
 		
-		try
-		{
-			int id = Integer.parseInt(args[1].trim());
-			IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-			quest.setComplete(uuid, 0);
-			
-			int done = 0;
-			
-			if(!quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size())) // Preliminary check
-			{
-				for(DBEntry<ITask> task : quest.getTasks().getEntries())
-				{
-					task.getValue().setComplete(uuid);
-					done += 1;
-					
-					if(quest.getProperty(NativeProps.LOGIC_TASK).getResult(done, quest.getTasks().size()))
-					{
-						break; // Only complete enough quests to claim the reward
-					}
-				}
-			}
-			
-			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
-			PacketSender.INSTANCE.sendToAll(PktHandlerQuestSync.INSTANCE.getSyncPacket(uuid, new DBEntry<>(id, quest)));
-		} catch(Exception e)
-		{
-			throw getException(command);
-		}
+        int id = Integer.parseInt(args[1].trim());
+        IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+        if(quest == null) throw getException(command);
+        NetQuestEdit.setQuestStates(new int[]{id}, true, uuid);
+        sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
 	}
 	
 	@Override

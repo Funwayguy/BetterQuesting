@@ -13,8 +13,5 @@ public interface IQuestLine extends IDatabase<IQuestLineEntry>, INBTPartial<NBTT
 	String getUnlocalisedName();
 	String getUnlocalisedDescription();
 	
-	// Defaults to the API if not used
-	void setParentDatabase(IQuestLineDatabase questDB);
-	
 	DBEntry<IQuestLineEntry> getEntryAt(int x, int y);
 }

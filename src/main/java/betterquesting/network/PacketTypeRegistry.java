@@ -4,6 +4,10 @@ import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.*;
+import betterquesting.network.handlers.quests.NetChapterEdit;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestEdit;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -25,13 +29,11 @@ public class PacketTypeRegistry implements IPacketRegistry
  
 	public void init()
 	{
-		registerHandler(PktHandlerQuestDB.INSTANCE);
-		registerHandler(PktHandlerQuestSync.INSTANCE);
-		registerHandler(PktHandlerQuestEdit.INSTANCE);
-  
-		registerHandler(PktHandlerLineDB.INSTANCE);
-		registerHandler(new PktHandlerLineEdit());
-		registerHandler(new PktHandlerLineSync());
+        NetQuestSync.registerHandler();
+        NetQuestEdit.registerHandler();
+        
+        NetChapterSync.registerHandler();
+        NetChapterEdit.registerHandler();
   
 		registerHandler(PktHandlerPartyDB.INSTANCE);
 		registerHandler(new PktHandlerPartyAction());
@@ -46,7 +48,6 @@ public class PacketTypeRegistry implements IPacketRegistry
 		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
 		registerHandler(PktHandlerSettings.INSTANCE);
-		registerHandler(new PktHandlerBulk());
 		
 		if(BetterQuesting.proxy.isClient())
         {

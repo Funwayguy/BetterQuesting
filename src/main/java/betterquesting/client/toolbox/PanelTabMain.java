@@ -1,27 +1,25 @@
 package betterquesting.client.toolbox;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.toolbox.tools.*;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.quests.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
@@ -66,13 +64,15 @@ public class PanelTabMain extends CanvasEmpty
             {
                 Minecraft mc = Minecraft.getMinecraft();
                 mc.displayGuiScreen(new GuiNbtEditor(mc.currentScreen, cvQuestLine.getQuestLine().writeToNBT(new NBTTagCompound(), null), value -> {
-                    NBTTagCompound tag2 = new NBTTagCompound();
-                    NBTTagCompound base2 = new NBTTagCompound();
-                    base2.setTag("line", value);
-                    tag2.setTag("data", base2);
-                    tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-                    tag2.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(cvQuestLine.getQuestLine()));
-                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+                    NBTTagCompound payload = new NBTTagCompound();
+                    NBTTagList dataList = new NBTTagList();
+                    NBTTagCompound entry = new NBTTagCompound();
+                    entry.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(cvQuestLine.getQuestLine()));
+                    entry.setTag("config", value);
+                    dataList.appendTag(entry);
+                    payload.setTag("data", dataList);
+                    payload.setInteger("action", 0);
+                    NetChapterEdit.sendEdit(payload);
                 }));
             }
         }.setIcon(PresetIcon.ICON_PROPS.getTexture()).setTooltip(makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.raw.name"), QuestTranslation.translate("betterquesting.toolbox.tool.raw.desc"))));

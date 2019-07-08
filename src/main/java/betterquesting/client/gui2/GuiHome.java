@@ -31,9 +31,9 @@ import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerLineDB;
-import betterquesting.network.handlers.PktHandlerQuestDB;
 import betterquesting.network.handlers.PktHandlerSettings;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
@@ -184,8 +184,8 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 					
 					PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
-                    PktHandlerQuestDB.INSTANCE.resyncAll(true);
-					PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
+                    NetQuestSync.quickSync(-1, true, true);
+                    NetChapterSync.sendSync(null, null);
 					
 					SaveLoadHandler.INSTANCE.resetUpdate();
 					SaveLoadHandler.INSTANCE.markDirty();

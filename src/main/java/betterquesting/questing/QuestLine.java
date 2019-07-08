@@ -1,13 +1,10 @@
 package betterquesting.questing;
 
-import betterquesting.api.api.ApiReference;
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.DBEntry;
@@ -24,12 +21,8 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 {
 	private IPropertyContainer info = new PropertyContainer();
 	
-	private IQuestLineDatabase parentDB;
-	
 	public QuestLine()
 	{
-		parentDB = QuestingAPI.getAPI(ApiReference.LINE_DB);
-		
 		setupProps();
 	}
 	
@@ -60,12 +53,6 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
         this.add(id, qle);
         return qle;
     }
-	
-	@Override
-	public void setParentDatabase(IQuestLineDatabase lineDB)
-	{
-		this.parentDB = lineDB;
-	}
 	
 	@Override
 	public String getUnlocalisedName()

@@ -23,6 +23,8 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.network.handlers.*;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
@@ -107,16 +109,13 @@ public class EventHandler
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
-		if(event.getEntityLiving().world.isRemote)
-		{
-			return;
-		}
+		if(event.getEntityLiving().world.isRemote) return;
 		
-		if(event.getEntityLiving() instanceof EntityPlayer)
+		if(event.getEntityLiving() instanceof EntityPlayerMP)
 		{
 			if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
 			
-			EntityPlayer player = (EntityPlayer)event.getEntityLiving();
+			EntityPlayerMP player = (EntityPlayerMP)event.getEntityLiving();
             betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
             boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
             
@@ -193,19 +192,7 @@ public class EventHandler
                 qc.updateCache(player);
             }
             
-            List<DBEntry<IQuest>> syncMe = QuestDatabase.INSTANCE.bulkLookup(qc.getDirtyQuests());
-            
-            for(DBEntry<IQuest> entry : syncMe)
-            {
-                if(entry.getValue().getProperty(NativeProps.GLOBAL)) // TODO: Move global events to a separate system(?)
-                {
-                    PacketSender.INSTANCE.sendToAll(PktHandlerQuestSync.INSTANCE.getSyncPacket(null, entry));
-                } else if(player instanceof EntityPlayerMP)
-                {
-                    PacketSender.INSTANCE.sendToPlayer(PktHandlerQuestSync.INSTANCE.getSyncPacket(uuid, entry), (EntityPlayerMP)player);
-                }
-            }
-            
+            if(qc.getDirtyQuests().length > 0) NetQuestSync.sendSync(player, qc.getDirtyQuests(), false, true);
             qc.cleanAllQuests();
 		}
 	}
@@ -246,7 +233,7 @@ public class EventHandler
 			PacketSender.INSTANCE.sendToAll(payload);
 		} else if(player instanceof EntityPlayerMP)
 		{
-		    PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
+		    PacketSender.INSTANCE.sendToPlayers(payload, (EntityPlayerMP)player);
 		}
 	}
 	
@@ -285,8 +272,8 @@ public class EventHandler
 		NameCache.INSTANCE.updateNames(event.player.getServer());
 		
 		PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayers(PktHandlerQuestDB.INSTANCE.getSyncPacketForPlayer(mpPlayer), mpPlayer);
-		PacketSender.INSTANCE.sendToPlayers(PktHandlerLineDB.INSTANCE.getSyncPacket(null), mpPlayer);
+        NetQuestSync.sendSync(mpPlayer, null, true, true);
+        NetChapterSync.sendSync(mpPlayer, null);
 		PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(QuestingAPI.getQuestingUUID(mpPlayer))), mpPlayer);
 		PktHandlerPartyDB.INSTANCE.resyncPlayer(mpPlayer, false);
 	}

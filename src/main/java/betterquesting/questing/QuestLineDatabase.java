@@ -52,8 +52,7 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	public synchronized IQuestLine createNew(int id)
 	{
 		IQuestLine ql = new QuestLine();
-		ql.setParentDatabase(this);
-		this.add(id, ql);
+		if(id >= 0) this.add(id, ql);
 		return ql;
 	}
 	

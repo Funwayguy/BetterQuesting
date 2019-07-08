@@ -4,6 +4,8 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
 import betterquesting.network.handlers.*;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -30,8 +32,8 @@ public class QuestCommandRefresh extends QuestCommandBase
 		{
 			EntityPlayerMP player = (EntityPlayerMP)sender;
 			UUID playerID = QuestingAPI.getQuestingUUID(player);
-			PacketSender.INSTANCE.sendToPlayers(PktHandlerQuestDB.INSTANCE.getSyncPacketForPlayer(player), player);
-			PacketSender.INSTANCE.sendToPlayers(PktHandlerLineDB.INSTANCE.getSyncPacket(null), player);
+            NetQuestSync.sendSync(player, null, true, true);
+            NetChapterSync.sendSync(player, null);
 			PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(playerID)), player);
 			PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
 			PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), player);

@@ -126,7 +126,6 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	public IQuestLine createNew(int id)
 	{
 		QuestLine ql = new QuestLine();
-		ql.setParentDatabase(this);
 		add(id, ql);
 		return ql;
 	}

@@ -4,13 +4,13 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.handlers.PktHandlerQuestDB;
-import betterquesting.network.handlers.PktHandlerQuestSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.NameCache;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -80,6 +80,7 @@ public class QuestCommandReset extends QuestCommandBase
 		}
 		
 		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
+		EntityPlayerMP player = uuid == null ? null : server.getPlayerList().getPlayerByUUID(uuid);
 		
 		if(action.equalsIgnoreCase("all"))
 		{
@@ -97,12 +98,13 @@ public class QuestCommandReset extends QuestCommandBase
 			if(uuid != null)
 			{
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
+				if(player != null) NetQuestSync.sendSync(player, null, false, true);
 			} else
 			{
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
+                NetQuestSync.quickSync(-1, false, true);
 			}
-      
-		    PktHandlerQuestDB.INSTANCE.resyncAll(true);
+   
 		} else
 		{
 			try
@@ -114,13 +116,13 @@ public class QuestCommandReset extends QuestCommandBase
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
+					if(player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true);
 				} else
 				{
 					quest.resetAll(true);
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
+					NetQuestSync.quickSync(id, false, true);
 				}
-				
-                PktHandlerQuestSync.INSTANCE.resyncAll(new DBEntry<>(id, quest));
 			} catch(Exception e)
 			{
 				throw getException(command);

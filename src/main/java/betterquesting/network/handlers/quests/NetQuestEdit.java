@@ -1,12 +1,14 @@
 package betterquesting.network.handlers.quests;
 
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -19,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -96,7 +99,8 @@ public class NetQuestEdit
         }
     }
     
-    private static void editQuests(NBTTagList data)
+    // Serverside only
+    public static void editQuests(NBTTagList data)
     {
         int[] ids = new int[data.tagCount()];
         for(int i = 0; i < data.tagCount(); i++)
@@ -108,11 +112,13 @@ public class NetQuestEdit
             IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
             if(quest != null) quest.readFromNBT(entry.getCompoundTag("config"));
         }
-        
+    
+        SaveLoadHandler.INSTANCE.markDirty();
         NetQuestSync.sendSync(null, ids, true, false);
     }
     
-    private static void deleteQuests(int[] questIDs)
+    // Serverside only
+    public static void deleteQuests(int[] questIDs)
     {
         for(int id : questIDs)
         {
@@ -120,13 +126,16 @@ public class NetQuestEdit
             QuestLineDatabase.INSTANCE.removeQuest(id);
         }
         
+        SaveLoadHandler.INSTANCE.markDirty();
+        
         NBTTagCompound payload = new NBTTagCompound();
         payload.setIntArray("questIDs", questIDs);
         payload.setInteger("action", 1);
         PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void setQuestStates(int[] questIDs, boolean state, UUID targetID)
+    // Serverside only
+    public static void setQuestStates(int[] questIDs, boolean state, UUID targetID)
     {
         List<DBEntry<IQuest>> questList = QuestDatabase.INSTANCE.bulkLookup(questIDs);
         
@@ -163,6 +172,8 @@ public class NetQuestEdit
             }
         }
         
+        SaveLoadHandler.INSTANCE.markDirty();
+        
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if(server == null) return;
         EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(targetID);
@@ -171,21 +182,23 @@ public class NetQuestEdit
         NetQuestSync.sendSync(player, questIDs, false, true);
     }
     
-    private static void createQuests(NBTTagList data)
+    // Serverside only
+    public static void createQuests(NBTTagList data)
     {
         int[] ids = new int[data.tagCount()];
         for(int i = 0; i < data.tagCount(); i++)
         {
             NBTTagCompound entry = data.getCompoundTagAt(i);
             int questID = entry.hasKey("questID", 99) ? entry.getInteger("questID") : -1;
-            if(questID < 0) QuestDatabase.INSTANCE.nextID();
+            if(questID < 0) questID = QuestDatabase.INSTANCE.nextID();
             ids[i] = questID;
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
-            if(quest == null) quest = QuestDatabase.INSTANCE.getValue(questID);
+            if(quest == null) quest = QuestDatabase.INSTANCE.createNew(questID);
             if(entry.hasKey("config", 10)) quest.readFromNBT(entry.getCompoundTag("config"));
         }
         
+        SaveLoadHandler.INSTANCE.markDirty();
         NetQuestSync.sendSync(null, ids, true, false);
     }
     
@@ -201,6 +214,8 @@ public class NetQuestEdit
                 QuestDatabase.INSTANCE.removeID(id);
                 QuestLineDatabase.INSTANCE.removeQuest(id);
             }
+        
+		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
         }
     }
 }

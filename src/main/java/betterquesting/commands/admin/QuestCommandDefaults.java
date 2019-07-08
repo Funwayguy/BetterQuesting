@@ -8,9 +8,9 @@ import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerLineDB;
-import betterquesting.network.handlers.PktHandlerQuestDB;
 import betterquesting.network.handlers.PktHandlerSettings;
+import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
@@ -117,8 +117,8 @@ public class QuestCommandDefaults extends QuestCommandBase
 				}
 				
 				PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
-                PktHandlerQuestDB.INSTANCE.resyncAll(false);
-				PacketSender.INSTANCE.sendToAll(PktHandlerLineDB.INSTANCE.getSyncPacket(null));
+                NetQuestSync.quickSync(-1, true, true);
+                NetChapterSync.sendSync(null, null);
                 SaveLoadHandler.INSTANCE.markDirty();
 			} else
 			{

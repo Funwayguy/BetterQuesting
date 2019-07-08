@@ -1,26 +1,22 @@
 package betterquesting.commands.admin;
 
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.quests.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
-import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 public class QuestCommandPurge extends QuestCommandBase
@@ -45,7 +41,7 @@ public class QuestCommandPurge extends QuestCommandBase
         }
         
         Iterator<Integer> keyIterator = knownKeys.iterator();
-        ArrayDeque<Integer> removeQueue = new ArrayDeque<>();
+        List<Integer> removeQueue = new ArrayList<>();
         int n = -1;
         
         for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
@@ -55,25 +51,12 @@ public class QuestCommandPurge extends QuestCommandBase
         }
         
         int removed = removeQueue.size();
-        int[] bulkIDs = new int[removed];
-        n = 0;
-        
-        while(removeQueue.size() > 0)
-        {
-            int id = removeQueue.pop();
-            QuestDatabase.INSTANCE.removeID(id);
-            QuestLineDatabase.INSTANCE.removeQuest(id);
-            bulkIDs[n++] = id;
-        }
+        int[] bulkIDs = new int[removeQueue.size()];
+        for(n = 0; n < bulkIDs.length; n++) bulkIDs[n] = removeQueue.get(n);
+        NetQuestEdit.deleteQuests(bulkIDs);
         
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));
         
-        NBTTagCompound response = new NBTTagCompound();
-        response.setIntArray("removeIDs", bulkIDs);
-        response.setInteger("action", EnumPacketAction.REMOVE.ordinal());
-        PacketSender.INSTANCE.sendToAll(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), response)); // Much better than sending the entire database
-        
-        SaveLoadHandler.INSTANCE.markDirty();
     }
 	
 	@Override

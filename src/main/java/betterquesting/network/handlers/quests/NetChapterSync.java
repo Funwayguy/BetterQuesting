@@ -1,5 +1,6 @@
 package betterquesting.network.handlers.quests;
 
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.storage.DBEntry;
@@ -13,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -35,9 +37,11 @@ public class NetChapterSync
     
     public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] chapterIDs)
     {
+        if(chapterIDs != null && chapterIDs.length <= 0) return;
+        
         BQThreadedIO.INSTANCE.enqueue(() -> {
             NBTTagList data = new NBTTagList();
-            final List<DBEntry<IQuestLine>> chapterSubset = (chapterIDs == null || chapterIDs.length <= 0) ? QuestLineDatabase.INSTANCE.getEntries() : QuestLineDatabase.INSTANCE.bulkLookup(chapterIDs);
+            final List<DBEntry<IQuestLine>> chapterSubset = chapterIDs == null ? QuestLineDatabase.INSTANCE.getEntries() : QuestLineDatabase.INSTANCE.bulkLookup(chapterIDs);
             
             for(DBEntry<IQuestLine> chapter : chapterSubset)
             {
@@ -49,6 +53,7 @@ public class NetChapterSync
             }
             
             NBTTagCompound payload = new NBTTagCompound();
+            payload.setBoolean("merge", chapterIDs != null);
             payload.setTag("data", data);
             
             if(player == null)
@@ -80,6 +85,7 @@ public class NetChapterSync
     private static void onClient(NBTTagCompound message)
     {
         NBTTagList data = message.getTagList("data", 10);
+        if(!message.getBoolean("merge")) QuestLineDatabase.INSTANCE.reset();
         
         for(int i = 0; i < data.tagCount(); i++)
         {
@@ -94,5 +100,7 @@ public class NetChapterSync
             QuestLineDatabase.INSTANCE.setOrderIndex(chapterID, order);
             chapter.readFromNBT(tag.getCompoundTag("config"), false); // Merging isn't really a problem unless a chapter is excessively sized. Can be improved later if necessary
         }
+        
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
     }
 }
