@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
@@ -19,42 +20,40 @@ public final class LifeDatabase implements ILifeDatabase
 	private final HashMap<UUID,Integer> playerLives = new HashMap<>();
 	
 	@Override
-	public synchronized int getLives(UUID uuid)
+	public synchronized int getLives(@Nonnull UUID uuid)
 	{
-		if(uuid == null) return 0;
 		return playerLives.computeIfAbsent(uuid, (k) -> QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_DEF));
 	}
 	
 	@Override
-	public synchronized void setLives(UUID uuid, int value)
+	public synchronized void setLives(@Nonnull UUID uuid, int value)
 	{
-		if(uuid == null) return;
 		playerLives.put(uuid, MathHelper.clamp(value, 0, QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX)));
 	}
 	
 	@Override
-	public synchronized NBTTagCompound writeToNBT(NBTTagCompound json, @Nullable List<UUID> parties)
+	public synchronized NBTTagCompound writeToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
 	{
 		NBTTagList jul = new NBTTagList();
 		
         for(Entry<UUID,Integer> entry : playerLives.entrySet())
         {
-            if(parties != null && !parties.contains(entry.getKey())) continue;
+            if(users != null && !users.contains(entry.getKey())) continue;
             NBTTagCompound j = new NBTTagCompound();
             j.setString("uuid", entry.getKey().toString());
             j.setInteger("lives", entry.getValue());
             jul.appendTag(j);
         }
-		json.setTag("playerLives", jul);
+		nbt.setTag("playerLives", jul);
 		
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagCompound json, boolean merge)
+	public synchronized void readFromNBT(NBTTagCompound nbt, boolean merge)
 	{
 		if(!merge) playerLives.clear();
-		NBTTagList tagList = json.getTagList("playerLives", 10);
+		NBTTagList tagList = nbt.getTagList("playerLives", 10);
 		for(int i = 0; i < tagList.tagCount(); i++)
 		{
 			NBTTagCompound j = tagList.getCompoundTagAt(i);

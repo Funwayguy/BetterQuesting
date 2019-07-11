@@ -3,6 +3,7 @@ package betterquesting.client.gui2.party;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -71,7 +72,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
     
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
     
-        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_invite", party.getName())).setAlignment(1);
+        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_invite", party.getProperties().getProperty(NativeProps.NAME))).setAlignment(1);
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         

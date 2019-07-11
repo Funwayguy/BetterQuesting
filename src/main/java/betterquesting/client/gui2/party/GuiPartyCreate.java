@@ -4,6 +4,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
@@ -34,6 +35,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import net.minecraft.client.gui.GuiScreen;
@@ -41,6 +43,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
@@ -176,12 +179,12 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     private void refreshInvites()
     {
         int cvWidth = invitePanel.getTransform().getWidth();
-        List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
+        List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
         int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
         
         for(int i = 0; i < invites.size(); i++)
         {
-            Integer pid = invites.get(i);
+            Integer pid = invites.get(i).getKey(); // TODO: Fix me
             IParty party = PartyManager.INSTANCE.getValue(pid);
             
             if(party == null)
@@ -192,7 +195,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
             invitePanel.addPanel(btnJoin);
             
-            String pName = party.getName();
+            String pName = party.getProperties().getProperty(NativeProps.NAME);
             if(RenderUtils.getStringWidth(pName, mc.fontRenderer) > cvWidth - 58)
             {
                 pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";

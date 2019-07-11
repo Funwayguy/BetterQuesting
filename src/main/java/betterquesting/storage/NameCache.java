@@ -1,8 +1,6 @@
 package betterquesting.storage;
 
 import betterquesting.api.storage.INameCache;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerNameCache;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,18 +8,14 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 public final class NameCache implements INameCache
 {
 	public static final NameCache INSTANCE = new NameCache();
 	
-	// TODO: Proper thread safety
-    // TODO: Label known names as offline/online and convert accordingly
+    // TODO: Label known names as offline/online and convert accordingly?
 	private final HashMap<UUID,NBTTagCompound> cache = new HashMap<>();
 	
 	@Override
@@ -112,8 +106,6 @@ public final class NameCache implements INameCache
                 cache.put(prof.getId(), json);
 			}
 		}
-		
-		PacketSender.INSTANCE.sendToAll(PktHandlerNameCache.INSTANCE.getSyncPacket(null));
 	}
 	
 	@Override
@@ -175,14 +167,14 @@ public final class NameCache implements INameCache
 	    
 		nameCache = new ArrayList<>();
 		
-        for(NBTTagCompound json : cache.values())
+        for(NBTTagCompound tag : cache.values())
         {
-            if(json != null && json.hasKey("name", 8))
+            if(tag != null && tag.hasKey("name", 8))
             {
-                nameCache.add(json.getString("name"));
+                nameCache.add(tag.getString("name"));
             }
         }
 		
-		return nameCache;
+		return Collections.unmodifiableList(nameCache);
 	}
 }

@@ -90,10 +90,11 @@ public final class PacketAssembly
 			return null;
 		}
 		
-		for(int i = 0; i < data.length && index + i < size; i++)
+		System.arraycopy(data, 0, tmp, index, data.length);
+		/*for(int i = 0; i < data.length && index + i < size; i++)
 		{
 			tmp[index + i] = data[i];
-		}
+		}*/
 		
 		if(end)
 		{

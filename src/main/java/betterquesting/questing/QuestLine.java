@@ -1,7 +1,6 @@
 package betterquesting.questing;
 
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuestLine
 {
-	private IPropertyContainer info = new PropertyContainer();
+	private PropertyContainer info = new PropertyContainer();
 	
 	public QuestLine()
 	{
@@ -100,18 +99,6 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		
 		return null;
 	}
-	
-	@Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
-        return writeToNBT(nbt, null);
-    }
-    
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-        readFromNBT(nbt, false);
-    }
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound json, @Nullable List<Integer> subset)

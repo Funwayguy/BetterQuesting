@@ -3,14 +3,14 @@ package betterquesting.commands.admin;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.handlers.PktHandlerLives;
+import betterquesting.network.handlers.quests.NetLifeSync;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
@@ -87,25 +87,31 @@ public class QuestCommandLives extends QuestCommandBase
 			if(playerID != null)
 			{
 				LifeDatabase.INSTANCE.setLives(playerID, value);
+                EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
+                //noinspection ConstantConditions
+                if(target != null) NetLifeSync.sendSync(new EntityPlayerMP[]{target}, new UUID[]{playerID});
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
 			} else
 			{
-				for(EntityPlayer p : server.getPlayerList().getPlayers())
+				for(EntityPlayerMP p : server.getPlayerList().getPlayers()) // TODO: Make this work for offline players
 				{
-					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), value);
+				    UUID uuid = QuestingAPI.getQuestingUUID(p);
+					LifeDatabase.INSTANCE.setLives(uuid, value);
+					NetLifeSync.sendSync(new EntityPlayerMP[]{p}, new UUID[]{uuid});
 				}
 				
 				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
 			}
-            PktHandlerLives.INSTANCE.resyncAll();
 		} else if(action.equalsIgnoreCase("add"))
 		{
 			if(playerID != null)
 			{
-				int lives = LifeDatabase.INSTANCE.getLives(playerID);
-				LifeDatabase.INSTANCE.setLives(playerID, lives + value);
-				lives = LifeDatabase.INSTANCE.getLives(playerID);
-				
+				int lives = LifeDatabase.INSTANCE.getLives(playerID) + value;
+				LifeDatabase.INSTANCE.setLives(playerID, lives);
+                EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
+                //noinspection ConstantConditions
+                if(target != null) NetLifeSync.sendSync(new EntityPlayerMP[]{target}, new UUID[]{playerID});
+                
 				if(value >= 0)
 				{
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));
@@ -115,10 +121,12 @@ public class QuestCommandLives extends QuestCommandBase
 				}
 			} else
 			{
-				for(EntityPlayer p : server.getPlayerList().getPlayers())
+				for(EntityPlayerMP p : server.getPlayerList().getPlayers())
 				{
-					int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(p));
-					LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(p), lives + value);
+				    UUID uuid = QuestingAPI.getQuestingUUID(p);
+					int lives = LifeDatabase.INSTANCE.getLives(uuid);
+					LifeDatabase.INSTANCE.setLives(uuid, lives + value);
+					NetLifeSync.sendSync(new EntityPlayerMP[]{p}, new UUID[]{uuid});
 				}
 				
 				if(value >= 0)
@@ -129,17 +137,17 @@ public class QuestCommandLives extends QuestCommandBase
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
 				}
 			}
-			
-            PktHandlerLives.INSTANCE.resyncAll();
 		} else if(action.equalsIgnoreCase("max"))
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, value);
+			// TODO: Sync this for display purposes client side
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
 		} else if(action.equalsIgnoreCase("default"))
 		{
 			value = Math.max(1, value);
 			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
+			// TODO: Sync this for display purposes client side
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
 		} else
 		{

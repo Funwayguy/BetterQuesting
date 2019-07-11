@@ -4,10 +4,7 @@ import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.*;
-import betterquesting.network.handlers.quests.NetChapterEdit;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetQuestEdit;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.handlers.quests.*;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -31,30 +28,25 @@ public class PacketTypeRegistry implements IPacketRegistry
 	{
         NetQuestSync.registerHandler();
         NetQuestEdit.registerHandler();
+        NetQuestAction.registerHandler();
         
         NetChapterSync.registerHandler();
         NetChapterEdit.registerHandler();
-  
-		registerHandler(PktHandlerPartyDB.INSTANCE);
-		registerHandler(new PktHandlerPartyAction());
-		registerHandler(PktHandlerPartySync.INSTANCE);
-  
-		registerHandler(new PktHandlerDetect());
-		registerHandler(new PktHandlerClaim());
-  
-		registerHandler(new PktHandlerLives());
+        
+        NetPartySync.registerHandler();
+        NetPartyAction.registerHandler();
+		NetInviteSync.registerHandler();
+		
+		NetLifeSync.registerHandler();
 		registerHandler(new PktHandlerNotification());
 		registerHandler(new PktHandlerTileEdit());
-		registerHandler(new PktHandlerNameCache());
 		registerHandler(new PktHandlerImport());
 		registerHandler(PktHandlerSettings.INSTANCE);
 		
-		if(BetterQuesting.proxy.isClient())
-        {
-            registerHandler(new PktHandlerCacheSync());
-        }
+		if(BetterQuesting.proxy.isClient()) registerHandler(new PktHandlerCacheSync());
 	}
 	
+	@Deprecated
     private void registerHandler(@Nonnull IPacketHandler handler)
 	{
 		if(handler.getRegistryName() == null)

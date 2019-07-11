@@ -8,6 +8,7 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
@@ -22,10 +23,10 @@ import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.network.handlers.*;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.handlers.PktHandlerSettings;
+import betterquesting.network.handlers.quests.*;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
@@ -55,7 +56,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -268,14 +268,17 @@ public class EventHandler
 		}
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+		UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
 		
 		NameCache.INSTANCE.updateNames(event.player.getServer());
 		
 		PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), mpPlayer);
         NetQuestSync.sendSync(mpPlayer, null, true, true);
         NetChapterSync.sendSync(mpPlayer, null);
-		PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(QuestingAPI.getQuestingUUID(mpPlayer))), mpPlayer);
-		PktHandlerPartyDB.INSTANCE.resyncPlayer(mpPlayer, false);
+        NetLifeSync.sendSync(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID});
+        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
+        if(party != null) NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
+        NetInviteSync.sendSync(mpPlayer);
 	}
 	
 	@SubscribeEvent

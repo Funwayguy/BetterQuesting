@@ -99,7 +99,7 @@ public class NetChapterEdit
             ids[i] = chapterID;
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
-            if(chapter != null) chapter.readFromNBT(entry.getCompoundTag("config"));
+            if(chapter != null) chapter.readFromNBT(entry.getCompoundTag("config"), false);
         }
     
         SaveLoadHandler.INSTANCE.markDirty();
@@ -148,7 +148,7 @@ public class NetChapterEdit
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
             if(chapter == null) chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
-            if(entry.hasKey("config", 10)) chapter.readFromNBT(entry.getCompoundTag("config"));
+            if(entry.hasKey("config", 10)) chapter.readFromNBT(entry.getCompoundTag("config"), false);
         }
         
         SaveLoadHandler.INSTANCE.markDirty();

@@ -12,30 +12,13 @@ import java.util.UUID;
 
 public interface IParty extends INBTSaveLoad<NBTTagCompound>
 {
-	String getName();
-	
 	IPropertyContainer getProperties();
 	
-	/**
-	 * Invites a user to this party if they are not currently a member.
-	 * If this party has no members, the invited user will be promoted to owner.
-	 */
-	void inviteUser(UUID uuid);
+	void kickUser(@Nonnull UUID uuid);
+	void setStatus(@Nonnull UUID uuid, @Nonnull EnumPartyStatus priv);
 	
-	/**
-	 * Kicks an existing member from the party. If the owner is kicked than a host
-	 * migration will take place to the next administrator or member in line.
-	 */
-	void kickUser(UUID uuid);
-	
-	/**
-	 * Sets the privilege level of an existing party member.
-	 * Can be used to confirm an invite, promote to administrator or migrate hosts
-	 */
-	void setStatus(UUID uuid, @Nonnull EnumPartyStatus priv);
 	@Nullable
-	EnumPartyStatus getStatus(UUID uuid);
+	EnumPartyStatus getStatus(@Nonnull UUID uuid);
 	
 	List<UUID> getMembers();
-	List<UUID> getInvites();
 }

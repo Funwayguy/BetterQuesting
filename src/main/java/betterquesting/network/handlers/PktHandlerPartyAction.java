@@ -16,6 +16,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.UUID;
 
+@Deprecated
 public class PktHandlerPartyAction implements IPacketHandler
 {
 	@Override
@@ -105,30 +106,30 @@ public class PktHandlerPartyAction implements IPacketHandler
 			name = name.length() > 0? name : "New Party";
 			IParty nParty = new PartyInstance();
 			nParty.getProperties().setProperty(NativeProps.NAME, name);
-			nParty.inviteUser(senderID);
+			//nParty.inviteUser(senderID);
 			PartyManager.INSTANCE.add(PartyManager.INSTANCE.nextID(), nParty);
-			PktHandlerPartyDB.INSTANCE.resyncPlayer(sender, true);
+			//PktHandlerPartyDB.INSTANCE.resyncPlayer(sender, true);
 		} else if(action == EnumPacketAction.REMOVE && tarParty != null && status == EnumPartyStatus.OWNER) // Operator force deletes party or owner disbands it
 		{
 			PartyManager.INSTANCE.removeID(partyID);
-			PktHandlerPartyDB.INSTANCE.resyncAll(false);
+			//PktHandlerPartyDB.INSTANCE.resyncAll(false);
 		} else if(action == EnumPacketAction.KICK && tarUser != null && tarParty != null && status != null && (status.ordinal() >= 2 || tarUser.equals(senderID))) // Kick/leave party
 		{
 			tarParty.kickUser(tarUser);
-			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
+			//PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.EDIT && tarParty != null && status == EnumPartyStatus.OWNER) // Edit party
 		{
 			tarParty.readFromNBT(data.getCompoundTag("data"));
-			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
+			//PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.JOIN && tarParty != null && (isOp || status == EnumPartyStatus.INVITE)) // Join party
 		{
-			if(isOp) tarParty.inviteUser(senderID);
+			//if(isOp) tarParty.inviteUser(senderID);
 			tarParty.setStatus(senderID, EnumPartyStatus.MEMBER);
-			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
+			//PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		} else if(action == EnumPacketAction.INVITE && tarParty != null && tarUser != null && status != null && status.ordinal() >= 2) // Invite to party
 		{
-			tarParty.inviteUser(tarUser);
-			PktHandlerPartySync.INSTANCE.syncParty(tarParty);
+			//tarParty.inviteUser(tarUser);
+			//PktHandlerPartySync.INSTANCE.syncParty(tarParty);
 		}
 	}
 	

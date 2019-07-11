@@ -183,7 +183,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         }
         NBTTagCompound tags = new NBTTagCompound();
         tags.setTag("data", serializeNBT());
-        if(player instanceof EntityPlayerMP) QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayer(new QuestingPacket(PacketTypeNative.CACHE_SYNC.GetLocation(), tags), (EntityPlayerMP)player);
+        if(player instanceof EntityPlayerMP) QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayers(new QuestingPacket(PacketTypeNative.CACHE_SYNC.GetLocation(), tags), (EntityPlayerMP)player);
     }
     
     @Override

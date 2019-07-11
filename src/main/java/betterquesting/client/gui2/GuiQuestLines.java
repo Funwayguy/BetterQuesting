@@ -4,7 +4,6 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
@@ -37,13 +36,11 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.quests.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -251,10 +248,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             {
                 cIDs[i] = claimIdList.get(i);
             }
-            
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setIntArray("questID", cIDs);
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
+    
+            NetQuestAction.requestClaim(cIDs);
         } else if(btn.getButtonID() == 5)
         {
             if(cvQuest.getQuestLine() == null) return;

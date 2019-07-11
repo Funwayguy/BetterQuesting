@@ -73,7 +73,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             return;
         }
         
-        if(!flName.isFocused()) flName.setText(party.getName());
+        if(!flName.isFocused()) flName.setText(party.getProperties().getProperty(NativeProps.NAME));
         
         initPanel();
     }
@@ -104,7 +104,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
     
-        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party", party.getName())).setAlignment(1);
+        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party", party.getProperties().getProperty(NativeProps.NAME))).setAlignment(1);
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         
@@ -120,7 +120,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         cvLeftHalf.addPanel(btnInvite);
         btnInvite.setActive(status.ordinal() >= 2);
         
-        if(flName == null) flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getName(), FieldFilterString.INSTANCE);
+        if(flName == null) flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getProperties().getProperty(NativeProps.NAME), FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
         flName.setActive(status.ordinal() >= 3);
         

@@ -6,11 +6,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 public interface IPacketSender
 {
     // Server to Client
-    @Deprecated
-	void sendToPlayer(QuestingPacket payload, EntityPlayerMP player);
     void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players);
 	void sendToAll(QuestingPacket payload);
-	//void sendToUsers(QuestingPacket payload, List<UUID> users);
 	
 	// Client to Server
 	void sendToServer(QuestingPacket payload);

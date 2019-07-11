@@ -3,8 +3,9 @@ package betterquesting.commands.user;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.*;
+import betterquesting.network.handlers.PktHandlerSettings;
 import betterquesting.network.handlers.quests.NetChapterSync;
+import betterquesting.network.handlers.quests.NetLifeSync;
 import betterquesting.network.handlers.quests.NetQuestSync;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -14,7 +15,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 
-import java.util.Collections;
 import java.util.UUID;
 
 public class QuestCommandRefresh extends QuestCommandBase
@@ -34,8 +34,8 @@ public class QuestCommandRefresh extends QuestCommandBase
 			UUID playerID = QuestingAPI.getQuestingUUID(player);
             NetQuestSync.sendSync(player, null, true, true);
             NetChapterSync.sendSync(player, null);
-			PacketSender.INSTANCE.sendToPlayers(PktHandlerLives.INSTANCE.getSyncPacket(Collections.singletonList(playerID)), player);
-			PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
+            NetLifeSync.sendSync(new EntityPlayerMP[]{player}, new UUID[]{playerID});
+			//PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
 			PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), player);
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}

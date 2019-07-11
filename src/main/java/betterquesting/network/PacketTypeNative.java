@@ -4,12 +4,8 @@ import net.minecraft.util.ResourceLocation;
 
 public enum PacketTypeNative
 {
-	PARTY_DATABASE,
 	LIFE_DATABASE,
-	PARTY_SYNC,
 	PARTY_EDIT,
-	DETECT,
-	CLAIM,
 	EDIT_STATION,
 	NAME_CACHE,
 	NOTIFICATION,

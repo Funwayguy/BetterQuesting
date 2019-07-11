@@ -6,13 +6,13 @@ import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
-import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import java.util.ArrayList;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -24,9 +24,27 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	private final HashMap<UUID,Integer> partyCache = new HashMap<>();
 	
 	@Override
-	public synchronized IParty getUserParty(UUID uuid)
+    public synchronized IParty createNew(int id)
+    {
+        IParty party = new PartyInstance();
+        if(id >= 0) this.add(id, party);
+        return party;
+    }
+	
+    @Nullable
+	@Override
+    @Deprecated
+	public synchronized IParty getUserParty(@Nonnull UUID uuid)
 	{
-	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null;
+	    DBEntry<IParty> entry = getParty(uuid);
+	    return entry == null ? null : entry.getValue();
+    }
+	 
+    @Nullable
+	@Override
+	public synchronized DBEntry<IParty> getParty(@Nonnull UUID uuid)
+	{
+	    if(!QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE)) return null; // We're merely preventing access. Not erasing data
 	    
         Integer cachedID = partyCache.get(uuid);
         IParty cachedParty = cachedID == null ? null : getValue(cachedID);
@@ -37,7 +55,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
         } else if(cachedParty != null) // Active party. Check validity...
         {
             EnumPartyStatus status = cachedParty.getStatus(uuid);
-            if(status != null && status != EnumPartyStatus.INVITE) return cachedParty;
+            if(status != null && status != EnumPartyStatus.INVITE) return new DBEntry<>(cachedID, cachedParty);
             partyCache.remove(uuid); // User isn't a party member anymore
         }
 	    
@@ -49,29 +67,11 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 			if(status != null && status != EnumPartyStatus.INVITE)
 			{
 			    partyCache.put(uuid, entry.getID());
-				return entry.getValue();
+				return entry;
 			}
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public synchronized List<Integer> getPartyInvites(UUID uuid)
-	{
-		List<Integer> invites = new ArrayList<>();
-		
-		boolean isOp = NameCache.INSTANCE.isOP(uuid);
-		
-		for(DBEntry<IParty> entry : getEntries())
-		{
-			if(isOp || entry.getValue().getStatus(uuid) == EnumPartyStatus.INVITE)
-			{
-				invites.add(entry.getID());
-			}
-		}
-		
-		return invites;
 	}
 	
 	@Override

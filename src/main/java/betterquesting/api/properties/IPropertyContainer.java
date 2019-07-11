@@ -1,9 +1,6 @@
 package betterquesting.api.properties;
 
-import betterquesting.api2.storage.INBTSaveLoad;
-import net.minecraft.nbt.NBTTagCompound;
-
-public interface IPropertyContainer extends INBTSaveLoad<NBTTagCompound>
+public interface IPropertyContainer
 {
 	<T> T getProperty(IPropertyType<T> prop);
 	<T> T getProperty(IPropertyType<T> prop, T def);

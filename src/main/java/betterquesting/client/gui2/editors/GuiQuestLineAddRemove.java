@@ -285,7 +285,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         NBTTagList dataList = new NBTTagList();
         NBTTagCompound entry = new NBTTagCompound();
         entry.setInteger("chapterID", lineID);
-        entry.setTag("config", questLine.writeToNBT(new NBTTagCompound()));
+        entry.setTag("config", questLine.writeToNBT(new NBTTagCompound(), null));
         dataList.appendTag(entry);
         payload.setTag("data", dataList);
         payload.setInteger("action", 0);
