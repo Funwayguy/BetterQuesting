@@ -70,6 +70,12 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
         list.sort(Comparator.comparing(Entry::getValue));
         return list;
 	}
+	
+	// Primarily used when deleting parties to ensure that pending invites don't link to newly created parties under the same ID
+	public synchronized void purgeInvites(int partyID)
+    {
+        invites.values().forEach((value) -> value.remove(partyID));
+    }
     
     @Override
     public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> subset) // Don't bother saving this to disk. We do need to send packets though

@@ -132,8 +132,8 @@ public class PartyInstance implements IParty
 	    if(memCache == null) refreshCache();
 		return memCache;
 	}
-	
-	private void hostMigrate()
+    
+    private void hostMigrate()
 	{
 		// Pre check for existing owners
 		for(Entry<UUID,EnumPartyStatus> entry : members.entrySet())
@@ -217,4 +217,16 @@ public class PartyInstance implements IParty
 		refreshCache();
 		this.setupProps();
 	}
+    
+    @Override
+    public NBTTagCompound writeProperties(NBTTagCompound nbt)
+    {
+        return pInfo.writeToNBT(nbt);
+    }
+    
+    @Override
+    public void readProperties(NBTTagCompound nbt)
+    {
+        pInfo.readFromNBT(nbt);
+    }
 }

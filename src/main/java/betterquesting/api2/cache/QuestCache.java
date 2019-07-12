@@ -3,11 +3,10 @@ package betterquesting.api2.cache;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetCacheSync;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -183,7 +182,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         }
         NBTTagCompound tags = new NBTTagCompound();
         tags.setTag("data", serializeNBT());
-        if(player instanceof EntityPlayerMP) QuestingAPI.getAPI(ApiReference.PACKET_SENDER).sendToPlayers(new QuestingPacket(PacketTypeNative.CACHE_SYNC.GetLocation(), tags), (EntityPlayerMP)player);
+        if(player instanceof EntityPlayerMP) NetCacheSync.sendSync((EntityPlayerMP)player);
     }
     
     @Override

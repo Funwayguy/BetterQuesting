@@ -15,7 +15,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.toolbox.tools.*;
-import betterquesting.network.handlers.quests.NetChapterEdit;
+import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;

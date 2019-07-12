@@ -1,4 +1,4 @@
-package betterquesting.network.handlers.quests;
+package betterquesting.network.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;

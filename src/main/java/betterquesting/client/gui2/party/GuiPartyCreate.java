@@ -2,8 +2,6 @@ package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.BigItemStack;
@@ -33,8 +31,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -163,16 +160,16 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Create
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.ADD.ordinal());
-            tags.setString("name", flName.getRawText());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 0);
+            payload.setString("name", flName.getRawText());
+            NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Join
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.JOIN.ordinal());
-            tags.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 4);
+            payload.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
+            NetPartyAction.sendAction(payload);
         }
     }
     

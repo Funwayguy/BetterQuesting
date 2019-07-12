@@ -1,8 +1,6 @@
 package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.RenderUtils;
@@ -26,9 +24,9 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
 import net.minecraft.client.gui.GuiScreen;
@@ -36,12 +34,15 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// TODO: Make this use a proper scrolling search for big servers
 public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
 {
     private IParty party;
+    private int partyID;
     private PanelTextField<String> flName;
     
     public GuiPartyInvite(GuiScreen parent)
@@ -55,13 +56,16 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         super.initPanel();
         
         UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
-        this.party = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
-        if(party == null)
+        if(tmp == null)
         {
             mc.displayGuiScreen(parent);
             return;
         }
+        
+        party = tmp.getValue();
+        partyID = tmp.getID();
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
@@ -96,7 +100,8 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         int nameSize = RenderUtils.getStringWidth("________________", fontRenderer);
         int columnNum = listWidth/nameSize;
         
-        List<String> nameList = NameCache.INSTANCE.getAllNames();
+        List<String> nameList = new ArrayList<>();
+        mc.player.connection.getPlayerInfoMap().forEach((info) -> nameList.add(info.getGameProfile().getName()));
         for(NetworkPlayerInfo info : mc.player.connection.getPlayerInfoMap())
         {
             if(!nameList.contains(info.getGameProfile().getName()))
@@ -105,13 +110,10 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             }
         }
         
-        boolean[] invited = new boolean[nameList.size()];
-        
-        for(int i = 0; i < nameList.size(); i++)
-        {
-            UUID memID = NameCache.INSTANCE.getUUID(nameList.get(i));
-            invited[i] = memID != null && party.getStatus(memID) != null;
-        }
+        nameList.removeIf((entry) -> {
+           UUID memID = NameCache.INSTANCE.getUUID(entry);
+           return party.getStatus(memID) != null;
+        });
         
         for(int i = 0; i < nameList.size(); i++)
         {
@@ -120,7 +122,6 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             String name = nameList.get(i);
             PanelButtonStorage<String> btnName = new PanelButtonStorage<>(new GuiRectangle(x1 * nameSize, y1 * 16, nameSize, 16), 2, name, name);
             cvNameList.addPanel(btnName);
-            btnName.setActive(!invited[i]);
         }
         
         scNameScroll.setActive(cvNameList.getScrollBounds().getHeight() > 0);
@@ -145,19 +146,18 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
         {
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-			tags.setString("target", flName.getRawText());
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+			NBTTagCompound payload = new NBTTagCompound();
+			payload.setInteger("action", 3);
+			payload.setInteger("partyID", partyID);
+			payload.setString("username", flName.getRawText());
+            NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-            tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-            tags.setString("target", ((PanelButtonStorage<String>)btn).getStoredValue());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
-            btn.setActive(false);
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 3);
+            payload.setInteger("partyID", partyID);
+            payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
+            NetPartyAction.sendAction(payload);
         }
     }
 }

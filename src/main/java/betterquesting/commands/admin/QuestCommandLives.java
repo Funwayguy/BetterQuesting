@@ -3,7 +3,7 @@ package betterquesting.commands.admin;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.handlers.quests.NetLifeSync;
+import betterquesting.network.handlers.NetLifeSync;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;

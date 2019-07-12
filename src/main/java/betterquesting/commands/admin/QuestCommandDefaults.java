@@ -7,10 +7,9 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.handlers.NetChapterSync;
+import betterquesting.network.handlers.NetQuestSync;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
@@ -116,7 +115,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.default.load"));
 				}
 				
-				PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
+                NetSettingSync.sendSync(null);
                 NetQuestSync.quickSync(-1, true, true);
                 NetChapterSync.sendSync(null, null);
                 SaveLoadHandler.INSTANCE.markDirty();

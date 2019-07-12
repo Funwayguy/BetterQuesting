@@ -3,9 +3,7 @@ package betterquesting.commands.admin;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.storage.NameCache;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -68,13 +66,12 @@ public class QuestCommandEdit extends QuestCommandBase
 			}
 		}
 		
-		if(flag) NameCache.INSTANCE.updateNames(server);
 		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, flag);
 		
 		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.edit", new TextComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)? "options.on" : "options.off")));
   
 		SaveLoadHandler.INSTANCE.markDirty();
-		PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
+        NetSettingSync.sendSync(null);
 	}
 	
 	@Override

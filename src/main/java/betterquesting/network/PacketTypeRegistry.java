@@ -1,10 +1,7 @@
 package betterquesting.network;
 
-import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.network.IPacketRegistry;
-import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.*;
-import betterquesting.network.handlers.quests.*;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -38,28 +35,13 @@ public class PacketTypeRegistry implements IPacketRegistry
 		NetInviteSync.registerHandler();
 		
 		NetLifeSync.registerHandler();
-		registerHandler(new PktHandlerNotification());
-		registerHandler(new PktHandlerTileEdit());
-		registerHandler(new PktHandlerImport());
-		registerHandler(PktHandlerSettings.INSTANCE);
+		NetNameSync.registerHandler();
+		NetNotices.registerHandler();
+		NetStationEdit.registerHandler();
+		NetImport.registerHandler();
+		NetSettingSync.registerHandler();
 		
-		if(BetterQuesting.proxy.isClient()) registerHandler(new PktHandlerCacheSync());
-	}
-	
-	@Deprecated
-    private void registerHandler(@Nonnull IPacketHandler handler)
-	{
-		if(handler.getRegistryName() == null)
-		{
-			throw new IllegalArgumentException("Tried to register a packet handler with a null name: " + handler.getClass());
-		}
-        
-        if(BetterQuesting.proxy.isClient())
-        {
-            registerClientHandler(handler.getRegistryName(), handler::handleClient);
-        }
-        
-        registerServerHandler(handler.getRegistryName(), (message) -> handler.handleServer(message.getFirst(), message.getSecond()));
+		NetCacheSync.registerHandler();
 	}
 	
 	@Override

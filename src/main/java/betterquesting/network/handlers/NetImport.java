@@ -1,48 +1,53 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.questing.IQuestLineDatabase;
-import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.*;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class PktHandlerImport implements IPacketHandler
+public class NetImport
 {
-	@Override
-	public ResourceLocation getRegistryName()
+    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:import");
+    
+    public static void registerHandler()
+    {
+        PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetImport::onServer);
+    }
+    
+    public static void sendImport(@Nonnull IQuestDatabase questDB, @Nonnull IQuestLineDatabase chapterDB)
+    {
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setTag("quests", questDB.writeToNBT(new NBTTagList(), null));
+        payload.setTag("chapters", chapterDB.writeToNBT(new NBTTagList(), null));
+        PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
+    }
+    
+	private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
 	{
-		return PacketTypeNative.IMPORT.GetLocation();
-	}
-	
-	@Override
-	public void handleServer(NBTTagCompound tag, EntityPlayerMP sender)
-	{
-		if(sender == null || sender.getServer() == null)
-		{
-			return;
-		}
+	    EntityPlayerMP sender = message.getSecond();
+		if(sender.getServer() == null) return;
 		
 		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 		
@@ -53,13 +58,11 @@ public class PktHandlerImport implements IPacketHandler
 			return; // Player is not operator. Do nothing
 		}
 		
-		NBTTagCompound jsonBase = tag.getCompoundTag("data");
-		
 		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), false);
-		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), false);
+		impQuestDB.readFromNBT(message.getFirst().getTagList("quests", 10), false);
+		impQuestLineDB.readFromNBT(message.getFirst().getTagList("chapters", 10), false);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		
@@ -111,15 +114,10 @@ public class PktHandlerImport implements IPacketHandler
         NetChapterSync.sendSync(null, null);
 	}
 	
-	@Override
-	public void handleClient(NBTTagCompound tag)
-	{
-	}
-	
 	/**
 	 * Takes a list of imported IDs and returns a remapping to unused IDs
 	 */
-	private HashMap<Integer,Integer> getRemappedIDs(List<DBEntry<IQuest>> idList)
+	private static HashMap<Integer,Integer> getRemappedIDs(List<DBEntry<IQuest>> idList)
 	{
 	    int[] nextIDs = getNextIDs(idList.size());
 		HashMap<Integer,Integer> remapped = new HashMap<>();
@@ -132,7 +130,7 @@ public class PktHandlerImport implements IPacketHandler
 		return remapped;
 	}
 	
-	private int[] getNextIDs(int num)
+	private static int[] getNextIDs(int num)
     {
         List<DBEntry<IQuest>> listDB = QuestDatabase.INSTANCE.getEntries();
         int[] nxtIDs = new int[num];

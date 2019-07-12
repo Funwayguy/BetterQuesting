@@ -21,4 +21,8 @@ public interface IParty extends INBTSaveLoad<NBTTagCompound>
 	EnumPartyStatus getStatus(@Nonnull UUID uuid);
 	
 	List<UUID> getMembers();
+	
+	// === Temporary(?) ===
+	NBTTagCompound writeProperties(NBTTagCompound nbt);
+	void readProperties(NBTTagCompound nbt);
 }

@@ -2,11 +2,10 @@ package betterquesting.commands.user;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetLifeSync;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.handlers.NetChapterSync;
+import betterquesting.network.handlers.NetLifeSync;
+import betterquesting.network.handlers.NetQuestSync;
+import betterquesting.network.handlers.NetSettingSync;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -36,7 +35,7 @@ public class QuestCommandRefresh extends QuestCommandBase
             NetChapterSync.sendSync(player, null);
             NetLifeSync.sendSync(new EntityPlayerMP[]{player}, new UUID[]{playerID});
 			//PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
-			PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), player);
+            NetSettingSync.sendSync(player);
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}

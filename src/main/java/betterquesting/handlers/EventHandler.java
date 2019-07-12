@@ -4,13 +4,11 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.events.QuestEvent.QuestComplete;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
-import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
@@ -21,10 +19,7 @@ import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.network.handlers.quests.*;
+import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -35,7 +30,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
@@ -200,41 +195,35 @@ public class EventHandler
 	// TODO: Create a new message inbox system for these things. On screen popups aren't ideal in combat
 	private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset)
 	{
+	    if(!(player instanceof EntityPlayerMP)) return;
+        ItemStack icon = quest.getProperty(NativeProps.ICON).getBaseStack();
+        String mainText = "";
+        String subText = quest.getProperty(NativeProps.NAME);
+        String sound = "";
+	    
 		switch(preset)
 		{
 			case 0:
-				postNotice(quest, player, "betterquesting.notice.unlock", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UNLOCK), quest.getProperty(NativeProps.ICON));
-				break;
+            {
+                mainText = "betterquesting.notice.unlock";
+                sound = quest.getProperty(NativeProps.SOUND_UNLOCK);
+                break;
+            }
 			case 1:
-				postNotice(quest, player, "betterquesting.notice.update", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UPDATE), quest.getProperty(NativeProps.ICON));
-				break;
+            {
+                mainText = "betterquesting.notice.update";
+                sound = quest.getProperty(NativeProps.SOUND_UPDATE);
+                break;
+            }
 			case 2:
-				postNotice(quest, player, "betterquesting.notice.complete", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_COMPLETE), quest.getProperty(NativeProps.ICON));
-				break;
-		}
-	}
-	
-	private static void postNotice(IQuest quest, EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
-	{
-		if(QuestDatabase.INSTANCE.getID(quest) < 0)
-		{
-			BetterQuesting.logger.error("Non-existant quest is posting notifications!", new Exception());
+            {
+                mainText = "betterquesting.notice.complete";
+                sound = quest.getProperty(NativeProps.SOUND_COMPLETE);
+                break;
+            }
 		}
 		
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setString("Main", mainTxt);
-		tags.setString("Sub", subTxt);
-		tags.setString("Sound", sound);
-		tags.setTag("Icon", icon.writeToNBT(new NBTTagCompound()));
-		QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
-		
-		if(quest.getProperty(NativeProps.GLOBAL))
-		{
-			PacketSender.INSTANCE.sendToAll(payload);
-		} else if(player instanceof EntityPlayerMP)
-		{
-		    PacketSender.INSTANCE.sendToPlayers(payload, (EntityPlayerMP)player);
-		}
+		NetNotices.sendNotice(quest.getProperty(NativeProps.GLOBAL) ? null : new EntityPlayerMP[]{(EntityPlayerMP)player}, icon, mainText, subText, sound);
 	}
 	
 	@SubscribeEvent
@@ -270,15 +259,22 @@ public class EventHandler
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 		UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
 		
-		NameCache.INSTANCE.updateNames(event.player.getServer());
+        if(NameCache.INSTANCE.updateName(mpPlayer))
+        {
+        
+        } else
+        {
+        
+        }
 		
-		PacketSender.INSTANCE.sendToPlayers(PktHandlerSettings.INSTANCE.getSyncPacket(), mpPlayer);
+		NetSettingSync.sendSync(mpPlayer);
         NetQuestSync.sendSync(mpPlayer, null, true, true);
         NetChapterSync.sendSync(mpPlayer, null);
         NetLifeSync.sendSync(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID});
         DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
         if(party != null) NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
         NetInviteSync.sendSync(mpPlayer);
+        NetCacheSync.sendSync(mpPlayer);
 	}
 	
 	@SubscribeEvent
@@ -293,14 +289,10 @@ public class EventHandler
 			if(lives <= 0)
 			{
 				MinecraftServer server = mpPlayer.getServer();
-				
-				if(server == null)
-				{
-					return;
-				}
+				if(server == null) return;
 	            
 	            mpPlayer.setGameType(GameType.SPECTATOR);
-	            mpPlayer.getServerWorld().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
+				if(!server.isDedicatedServer()) mpPlayer.getServerWorld().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
 			} else
 			{
 				if(lives == 1)
@@ -357,7 +349,11 @@ public class EventHandler
 		
 		if(server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")))
 		{
-			NameCache.INSTANCE.updateNames(server);
+		    EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
+			if(playerMP != null && NameCache.INSTANCE.updateName(playerMP))
+            {
+                // TODO: Do name sync things(?)
+            }
 		}
 	}
 }

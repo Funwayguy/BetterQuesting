@@ -2,7 +2,6 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.importers.IImporter;
 import betterquesting.api.misc.ICallback;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -26,11 +25,8 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.client.importers.ImporterRegistry;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetImport;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 import java.io.File;
@@ -168,14 +164,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         
         if(questDB.size() > 0 || lineDB.size() > 0)
         {
-            NBTTagCompound jsonBase = new NBTTagCompound();
-            jsonBase.setTag("quests", questDB.writeToNBT(new NBTTagList(), null));
-            jsonBase.setTag("lines", lineDB.writeToNBT(new NBTTagList(), null));
-            
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setTag("data", jsonBase);
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.IMPORT.GetLocation(), tag));
-            
+            NetImport.sendImport(questDB, lineDB);
             mc.displayGuiScreen(parent);
         }
     }

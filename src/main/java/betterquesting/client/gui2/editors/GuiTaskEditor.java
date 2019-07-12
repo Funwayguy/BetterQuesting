@@ -28,7 +28,7 @@ import betterquesting.api2.registry.IFactoryData;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
-import betterquesting.network.handlers.quests.NetQuestEdit;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRegistry;
 import net.minecraft.client.gui.GuiScreen;

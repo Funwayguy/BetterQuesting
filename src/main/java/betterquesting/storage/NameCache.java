@@ -1,12 +1,11 @@
 package betterquesting.storage;
 
 import betterquesting.api.storage.INameCache;
-import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
@@ -19,40 +18,33 @@ public final class NameCache implements INameCache
 	private final HashMap<UUID,NBTTagCompound> cache = new HashMap<>();
 	
 	@Override
-    public synchronized void setName(UUID uuid, String name)
+    public synchronized boolean updateName(@Nonnull EntityPlayerMP player)
     {
-        if(uuid == null || name == null) return;
+        if(player.getServer() == null) return false;
+        NBTTagCompound tag = cache.computeIfAbsent(player.getGameProfile().getId(), (key) -> new NBTTagCompound());
         
-        NBTTagCompound tag = cache.get(uuid);
-        
-        if(tag == null)
+        String name = player.getGameProfile().getName();
+        boolean isOP = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
+        if(tag.getString("name").equals(name) || tag.getBoolean("isOP") != isOP)
         {
-            tag = new NBTTagCompound();
-            tag.setBoolean("isOP", false);
+            tag.setString("name", name);
+            tag.setBoolean("isOP", isOP);
+            return true;
         }
         
-        tag.setString("name", name);
+        return false;
     }
 	
 	@Override
-	public synchronized String getName(UUID uuid)
+	public synchronized String getName(@Nonnull UUID uuid)
 	{
-	    if(uuid == null) return null;
-	    
-        if(!cache.containsKey(uuid))
-        {
-            return uuid.toString();
-        } else
-        {
-            return cache.get(uuid).getString("name");
-        }
+	    NBTTagCompound tag = cache.get(uuid);
+	    return tag == null ? uuid.toString() : tag.getString("name");
 	}
 	
 	@Override
-	public synchronized UUID getUUID(String name)
+	public synchronized UUID getUUID(@Nonnull String name)
 	{
-	    if(name == null) return null;
-	    
         for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
         {
             if(entry.getValue().getString("name").equalsIgnoreCase(name))
@@ -65,47 +57,10 @@ public final class NameCache implements INameCache
 	}
 	
 	@Override
-	public synchronized boolean isOP(UUID uuid)
+	public synchronized boolean isOP(@Nonnull UUID uuid)
 	{
-	    if(uuid == null) return false;
-	    
-        if(!cache.containsKey(uuid))
-        {
-            return false;
-        } else
-        {
-            return cache.get(uuid).getBoolean("isOP");
-        }
-	}
-	
-	@Override
-	public synchronized void updateNames(MinecraftServer server)
-	{
-	    nameCache = null;
-		String[] names = server.getPlayerProfileCache().getUsernames();
-		
-		for(String name : names)
-		{
-			EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(name);
-			GameProfile prof = player == null? null : player.getGameProfile();
-			
-			if(prof != null)
-			{
-                UUID oldID = getUUID(prof.getName());
-
-                while(oldID != null)
-                {
-                    // Cleans out all name duplicates
-                    cache.remove(oldID);
-                    oldID = getUUID(prof.getName());
-                }
-
-                NBTTagCompound json = new NBTTagCompound();
-                json.setString("name", prof.getName());
-                json.setBoolean("isOP", server.getPlayerList().canSendCommands(prof));
-                cache.put(prof.getId(), json);
-			}
-		}
+	    NBTTagCompound tag = cache.get(uuid);
+	    return tag != null && tag.getBoolean("isOP");
 	}
 	
 	@Override
@@ -156,6 +111,7 @@ public final class NameCache implements INameCache
 	public synchronized void reset()
 	{
         cache.clear();
+        nameCache = null;
 	}
 	
 	private List<String> nameCache = null;

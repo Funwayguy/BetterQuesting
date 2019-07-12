@@ -1,0 +1,230 @@
+package betterquesting.network.handlers;
+
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeRegistry;
+import betterquesting.questing.party.PartyInvitations;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.NameCache;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class NetPartyAction
+{
+    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:party_action");
+    
+    public static void registerHandler()
+    {
+        PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartyAction::onServer);
+        
+        if(BetterQuesting.proxy.isClient())
+        {
+            PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetPartyAction::onClient);
+        }
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public static void sendAction(NBTTagCompound payload)
+    {
+        PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
+    }
+    
+    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    {
+        EntityPlayerMP sender = message.getSecond();
+        
+		int action = !message.getFirst().hasKey("action", 99) ? -1 : message.getFirst().getInteger("action");
+		int partyID = !message.getFirst().hasKey("partyID", 99) ? -1 : message.getFirst().getInteger("partyID");
+        IParty party = PartyManager.INSTANCE.getValue(partyID);
+        int permission = party == null ? 0 : checkPermission(QuestingAPI.getQuestingUUID(sender), party);
+		
+		switch(action)
+        {
+            case 0:
+            {
+                createParty(sender, message.getFirst().getString("name"));
+                break;
+            }
+            case 1:
+            {
+                if(permission < 3) break;
+                deleteParty(partyID, party);
+                break;
+            }
+            case 2:
+            {
+                if(permission < 2) break;
+                editParty(partyID, party, message.getFirst().getCompoundTag("data"));
+                break;
+            }
+            case 3:
+            {
+                if(permission < 2) break;
+                inviteUser(partyID, message.getFirst().getString("username"), message.getFirst().getLong("expiry"));
+                break;
+            }
+            case 4:
+            {
+                acceptInvite(partyID, sender); // Probably the only thing an OP can't force
+                break;
+            }
+            case 5:
+            {
+                kickUser(partyID, sender, party, message.getFirst().getString("username"), permission);
+                break;
+            }
+            default:
+            {
+                BetterQuesting.logger.log(Level.ERROR, "Invalid party action '" + action + "'. Full payload:\n" + message.getFirst().toString());
+            }
+        }
+    }
+    
+    private static void createParty(EntityPlayerMP sender, String name)
+    {
+        UUID playerID = QuestingAPI.getQuestingUUID(sender);
+        if(PartyManager.INSTANCE.getParty(playerID) != null) return;
+        
+        int partyID = PartyManager.INSTANCE.nextID();
+        IParty party = PartyManager.INSTANCE.createNew(partyID);
+        party.getProperties().setProperty(NativeProps.NAME, name);
+        party.setStatus(playerID, EnumPartyStatus.OWNER);
+        NetPartySync.sendSync(new EntityPlayerMP[]{sender}, new int[]{partyID});
+    }
+    
+    private static void deleteParty(int partyID, IParty party)
+    {
+        List<UUID> members = party.getMembers();
+        PartyManager.INSTANCE.removeID(partyID);
+        PartyInvitations.INSTANCE.purgeInvites(partyID);
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        List<EntityPlayerMP> players = new ArrayList<>();
+        for(UUID uuid : members)
+        {
+            EntityPlayerMP p = server.getPlayerList().getPlayerByUUID(uuid);
+            //noinspection ConstantConditions
+            if(p != null) players.add(p);
+        }
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setInteger("action", 1);
+        payload.setInteger("partyID", partyID);
+        PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), players.toArray(new EntityPlayerMP[0]));
+    }
+    
+    private static void editParty(int partyID, IParty party, NBTTagCompound settings)
+    {
+        party.readProperties(settings);
+        NetPartySync.quickSync(partyID);
+    }
+    
+    private static void inviteUser(int partyID, String username, long expiry)
+    {
+        UUID uuid = null;
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
+        if(player != null) uuid = QuestingAPI.getQuestingUUID(player);
+        if(uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
+        if(uuid != null)
+        {
+            PartyInvitations.INSTANCE.postInvite(uuid, partyID, expiry);
+            if(player != null) NetInviteSync.sendSync(player);
+        }
+    }
+    
+    private static void acceptInvite(int partyID, EntityPlayerMP sender)
+    {
+        UUID playerID = QuestingAPI.getQuestingUUID(sender);
+        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
+        if(party != null) return;
+        if(PartyInvitations.INSTANCE.acceptInvite(playerID, partyID)) NetPartySync.quickSync(partyID);
+    }
+    
+    private static void kickUser(int partyID, EntityPlayerMP sender, IParty party, String username, int permission) // Is also the leave action (self kick if you will)
+    {
+        if(party == null) return;
+        
+        UUID uuid = null;
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
+        if(player != null) uuid = QuestingAPI.getQuestingUUID(player);
+        if(uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
+        if(uuid == null) return; // No idea who this is
+        if(party.getStatus(uuid) == null) return; // You're not even over here
+        
+        if(uuid.equals(QuestingAPI.getQuestingUUID(sender)) || checkPermission(uuid, party) < permission)
+        {
+            party.kickUser(uuid);
+            NetPartySync.quickSync(partyID);
+            if(player != null)
+            {
+                NBTTagCompound payload = new NBTTagCompound();
+                payload.setInteger("action", 1);
+                payload.setInteger("partyID", partyID);
+                PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), player);
+            }
+        }
+        
+    }
+    
+    private static int checkPermission(UUID playerID, IParty party)
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        EntityPlayerMP player = server == null ? null : server.getPlayerList().getPlayerByUUID(playerID);
+        if(player != null && server.getPlayerList().canSendCommands(player.getGameProfile())) return 4; // Can kick owners or force invites without needing to be a member of the party
+        EnumPartyStatus status = party.getStatus(playerID);
+        if(status == null) return 0; // Only OPs can edit parties they aren't a member of
+        
+        switch(status)
+        {
+            case MEMBER:
+                return 1;
+            case ADMIN:
+                return 2;
+            case OWNER:
+                return 3;
+            default:
+                return 0;
+        }
+    }
+    
+    // TODO: Include client side handling when leaving a party (sync wouldn't pickup on it after a user has left)
+    @SideOnly(Side.CLIENT)
+    private static void onClient(NBTTagCompound message)
+    {
+		int action = !message.hasKey("action", 99) ? -1 : message.getInteger("action");
+		int partyID = !message.hasKey("partyID", 99) ? -1 : message.getInteger("partyID");
+		
+		switch(action)
+        {
+            case 1:
+            {
+                PartyManager.INSTANCE.removeID(partyID);
+                PartyInvitations.INSTANCE.purgeInvites(partyID);
+                break;
+            }
+            case 5:
+            {
+                IParty party = PartyManager.INSTANCE.getValue(partyID);
+                if(party != null) party.kickUser(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player));
+            }
+        }
+    }
+}

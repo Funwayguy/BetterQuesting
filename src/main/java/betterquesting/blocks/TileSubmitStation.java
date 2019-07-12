@@ -1,6 +1,5 @@
 package betterquesting.blocks;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
@@ -9,8 +8,7 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetStationEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.entity.player.EntityPlayer;
@@ -404,9 +402,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     		if(world.getMinecraftServer() != null) world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
     	} else
     	{
-    		NBTTagCompound payload = new NBTTagCompound();
-    		payload.setTag("tile", this.writeToNBT(new NBTTagCompound()));
-    		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
+            NetStationEdit.sendEdit(this.writeToNBT(new NBTTagCompound()));
     	}
     }
 	

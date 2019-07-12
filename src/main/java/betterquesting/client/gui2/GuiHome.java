@@ -25,15 +25,15 @@ import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketSender;
-import betterquesting.network.handlers.PktHandlerSettings;
-import betterquesting.network.handlers.quests.NetChapterSync;
-import betterquesting.network.handlers.quests.NetQuestSync;
+import betterquesting.network.handlers.NetChapterSync;
+import betterquesting.network.handlers.NetQuestSync;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
@@ -144,7 +144,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiQuestLines(this));
 		} else if(btn.getButtonID() == 2) // Party
 		{
-			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mc.player));
+			DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(mc.player));
 			
 			if(party != null)
 			{
@@ -161,7 +161,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
-				PacketSender.INSTANCE.sendToServer(PktHandlerSettings.INSTANCE.getSyncPacket());
+                NetSettingSync.requestEdit();
 			}));
 		} else if(btn.getButtonID() == 5) // Update me
 		{
@@ -183,7 +183,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
 					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
 					
-					PacketSender.INSTANCE.sendToAll(PktHandlerSettings.INSTANCE.getSyncPacket());
+					NetSettingSync.sendSync(null);
                     NetQuestSync.quickSync(-1, true, true);
                     NetChapterSync.sendSync(null, null);
 					
