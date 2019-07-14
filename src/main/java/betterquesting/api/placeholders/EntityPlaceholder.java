@@ -8,8 +8,8 @@ import net.minecraft.world.World;
 
 public class EntityPlaceholder extends Entity
 {
-	EntityItem eItem;
-	NBTTagCompound original = new NBTTagCompound();
+	private final EntityItem eItem;
+	private NBTTagCompound original = new NBTTagCompound();
 	
 	public EntityPlaceholder(World world)
 	{

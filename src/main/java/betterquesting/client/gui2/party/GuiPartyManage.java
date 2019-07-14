@@ -237,11 +237,11 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Kick/Leave
         {
             UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
-            UUID id = ((PanelButtonStorage<UUID>)btn).getStoredValue();
+            String id = ((PanelButtonStorage<String>)btn).getStoredValue();
 			NBTTagCompound payload = new NBTTagCompound();
 			payload.setInteger("action", EnumPacketAction.KICK.ordinal());
 			payload.setInteger("partyID", partyID);
-			payload.setString("username", id.toString());
+			payload.setString("username", id);
             NetPartyAction.sendAction(payload);
 			
 			if(id.equals(playerID))

@@ -1,15 +1,14 @@
 package betterquesting.api.placeholders;
 
+import betterquesting.api.utils.BigItemStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import betterquesting.api.utils.BigItemStack;
 
 /**
  * In charge of safely converting to or from placeholder objects
@@ -48,7 +47,7 @@ public class PlaceholderConverter
 		{
 			if(nbt != null)
 			{
-				Item restored = Item.REGISTRY.getObject(new ResourceLocation(nbt.getString("orig_id")));
+				Item restored = Item.getByNameOrId(nbt.getString("orig_id"));
 				
 				if(restored != null)
 				{

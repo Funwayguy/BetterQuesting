@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
 
 import javax.annotation.Nonnull;
@@ -18,10 +19,10 @@ import java.util.List;
 public class BigItemStack
 {
     private static final OreIngredient NO_ORE = new OreIngredient("");
+	private final ItemStack baseStack;
 	public int stackSize;
 	private String oreDict = "";
 	private OreIngredient oreIng = NO_ORE;
-	private ItemStack baseStack; // Ensures that this base stack is never null
 	
 	public BigItemStack(ItemStack stack)
 	{
@@ -30,32 +31,32 @@ public class BigItemStack
 		baseStack.setCount(1);
 	}
 	
-	public BigItemStack(Block block)
+	public BigItemStack(@Nonnull Block block)
 	{
 		this(block, 1);
 	}
 	
-	public BigItemStack(Block block, int amount)
+	public BigItemStack(@Nonnull Block block, int amount)
 	{
 		this(block, amount, 0);
 	}
 	
-	public BigItemStack(Block block, int amount, int damage)
+	public BigItemStack(@Nonnull Block block, int amount, int damage)
 	{
 		this(Item.getItemFromBlock(block), amount, damage);
 	}
 	
-	public BigItemStack(Item item)
+	public BigItemStack(@Nonnull Item item)
 	{
 		this(item, 1);
 	}
 	
-	public BigItemStack(Item item, int amount)
+	public BigItemStack(@Nonnull Item item, int amount)
 	{
 		this(item, amount, 0);
 	}
 	
-	public BigItemStack(Item item, int amount, int damage)
+	public BigItemStack(@Nonnull Item item, int amount, int damage)
 	{
 		baseStack = new ItemStack(item, 1, damage);
 		this.stackSize = amount;
@@ -142,6 +143,7 @@ public class BigItemStack
 		BigItemStack stack = new BigItemStack(baseStack.copy());
 		stack.stackSize = this.stackSize;
 		stack.oreDict = this.oreDict;
+		stack.oreIng = this.oreIng;
 		return stack;
 	}
 	
@@ -157,22 +159,18 @@ public class BigItemStack
 		}
 	}
 	
-	public static BigItemStack loadItemStackFromNBT(NBTTagCompound tags)
+	public BigItemStack(@Nonnull NBTTagCompound tags) // Can load normal ItemStack NBTs. Does NOT deal with placeholders
 	{
-		int count = tags.getInteger("Count");
-		String dict = tags.getString("OreDict");
-		ItemStack miniStack = new ItemStack(tags);
-		BigItemStack bigStack = new BigItemStack(miniStack);
-		bigStack.stackSize = count;
-		bigStack.oreDict = dict;
-		return bigStack;
-	}
-	
-	public void readFromNBT(NBTTagCompound tags)
-	{
-		stackSize = tags.getInteger("Count");
-		setOreDict(tags.getString("OreDict"));
-		baseStack = new ItemStack(tags);
+		NBTTagCompound itemNBT = tags;
+		if(tags.hasKey("id", 99))
+        {
+            itemNBT = tags.copy();
+            itemNBT.setString("id", "" + tags.getShort("id"));
+        }
+		this.stackSize = tags.getInteger("Count");
+		this.setOreDict(tags.getString("OreDict"));
+        this.baseStack = new ItemStack(itemNBT); // Minecraft does the ID conversions for me
+        if(tags.getShort("Damage") < 0) this.baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound tags)

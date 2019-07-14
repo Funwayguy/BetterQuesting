@@ -259,20 +259,18 @@ public class EventHandler
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 		UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
 		
-        if(NameCache.INSTANCE.updateName(mpPlayer))
-        {
-        
-        } else
-        {
-        
-        }
+        boolean nameChanged = NameCache.INSTANCE.updateName(mpPlayer);
 		
 		NetSettingSync.sendSync(mpPlayer);
         NetQuestSync.sendSync(mpPlayer, null, true, true);
         NetChapterSync.sendSync(mpPlayer, null);
         NetLifeSync.sendSync(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID});
         DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
-        if(party != null) NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
+        if(party != null)
+        {
+            NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
+            NetNameSync.quickSync(nameChanged ? null : mpPlayer, party.getID());
+        }
         NetInviteSync.sendSync(mpPlayer);
         NetCacheSync.sendSync(mpPlayer);
 	}
@@ -352,7 +350,14 @@ public class EventHandler
 		    EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
 			if(playerMP != null && NameCache.INSTANCE.updateName(playerMP))
             {
-                // TODO: Do name sync things(?)
+                DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(playerMP));
+                if(party != null)
+                {
+                    NetNameSync.quickSync(null, party.getID());
+                } else
+                {
+                    NetNameSync.sendNames(new EntityPlayerMP[]{playerMP}, new UUID[]{QuestingAPI.getQuestingUUID(playerMP)}, null);
+                }
             }
 		}
 	}

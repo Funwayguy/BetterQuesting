@@ -1,12 +1,12 @@
 package betterquesting.api.utils;
 
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api.placeholders.PlaceholderConverter;
 import betterquesting.api2.utils.BQThreadedIO;
 import com.google.gson.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatAllowedCharacters;
@@ -15,7 +15,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 
 import java.io.*;
@@ -316,56 +315,18 @@ public class JsonHelper
 	 */
 	public static BigItemStack JsonToItemStack(NBTTagCompound nbt)
 	{
-		if(nbt == null || !nbt.hasKey("id"))
-		{
-			return new BigItemStack(Blocks.STONE);
-		}
-		
-		String jID;
-		int count = nbt.getInteger("Count");
-		String oreDict = nbt.getString("OreDict");
-		int damage = nbt.hasKey("Damage", 99) ? nbt.getInteger("Damage") : -1;
-		damage = damage >= 0? damage : OreDictionary.WILDCARD_VALUE;
-		
-		Item item;
-		
-		if(nbt.hasKey("id", 99))
-		{
-			int id = nbt.getInteger("id");
-			item = Item.REGISTRY.getObjectById(id); // Old format (numbers)
-			jID = "" + id;
-		} else
-		{
-			jID = nbt.getString("id");
-			item = Item.REGISTRY.getObject(new ResourceLocation(jID)); // New format (names)
-		}
-		
-		NBTTagCompound tags = null;
-		if(nbt.hasKey("tag", 10))
-		{
-			tags = nbt.getCompoundTag("tag");
-		}
-		
-		return PlaceholderConverter.convertItem(item, jID, count, damage, oreDict, tags);
+	    Item preCheck = Item.getByNameOrId(nbt.hasKey("id", 99) ? "" + nbt.getShort("id") : nbt.getString("id"));
+	    if(preCheck != null && preCheck != ItemPlaceholder.placeholder) return new BigItemStack(nbt);
+		return PlaceholderConverter.convertItem(preCheck, nbt.getString("id"), nbt.getInteger("Count"), nbt.getShort("Damage"), nbt.getString("OreDict"), !nbt.hasKey("tag", 10) ? null : nbt.getCompoundTag("tag"));
 	}
 	
 	/**
 	 * Use this for quests instead of converter NBT because this doesn't use ID numbers
 	 */
-	public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound json)
+	public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound nbt)
 	{
-		if(stack == null)
-		{
-			return json;
-		}
-		
-		ResourceLocation iRes = Item.REGISTRY.getNameForObject(stack.getBaseStack().getItem());
-		json.setString("id", iRes == null ? "" : iRes.toString());
-		json.setInteger("Count", stack.stackSize);
-		json.setString("OreDict", stack.getOreDict());
-		json.setInteger("Damage", stack.getBaseStack().getItemDamage());
-		if(stack.HasTagCompound()) json.setTag("tag", stack.GetTagCompound());
-		return json;
+		if(stack != null) stack.writeToNBT(nbt);
+		return nbt;
 	}
 	
 	public static FluidStack JsonToFluidStack(NBTTagCompound json)
