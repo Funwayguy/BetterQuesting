@@ -5,7 +5,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 public interface IPacketSender
 {
+    //@Deprecated
 	void sendToPlayer(QuestingPacket payload, EntityPlayerMP player);
+	
+	//void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players);
 	void sendToAll(QuestingPacket payload);
 	void sendToServer(QuestingPacket payload);
 	

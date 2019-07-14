@@ -6,8 +6,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StringUtils;
+import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,34 +166,52 @@ public class BigItemStack
 		return super.equals(stack);
 	}
 	
-	@SuppressWarnings("unused")
-    public static BigItemStack loadItemStackFromNBT(NBTTagCompound tags)
+	@Nullable
+    public static BigItemStack loadItemStackFromNBT(@Nonnull NBTTagCompound nbt) // Can load normal ItemStack NBTs. Does NOT deal with placeholders
 	{
-		int count = tags.getInteger("Count");
-		String dict = tags.getString("OreDict");
-		ItemStack miniStack = ItemStack.loadItemStackFromNBT(tags);
-        //noinspection ConstantConditions
+		NBTTagCompound itemNBT = nbt;
+		if(!nbt.hasKey("id", 99))
+        {
+            itemNBT = (NBTTagCompound)nbt.copy(); // Could be slow en-mass but ID names matter more
+            String idName = nbt.getString("id");
+            Item item = (Item)Item.itemRegistry.getObject(idName);
+            if(item == null) // Might still be an ID number but stored as a string
+            {
+                try
+                {
+                    item = Item.getItemById(Short.parseShort(idName));
+                } catch(Exception ignored){}
+            }
+            if(item == null) return null;
+            itemNBT.setInteger("id", Item.itemRegistry.getIDForObject(item));
+        }
+        ItemStack miniStack = ItemStack.loadItemStackFromNBT(itemNBT);
         if(miniStack == null || miniStack.getItem() == null) return null;
 		BigItemStack bigStack = new BigItemStack(miniStack);
-		bigStack.stackSize = count;
-		bigStack.oreDict = dict;
+		bigStack.stackSize = nbt.getInteger("Count");
+		bigStack.setOreDict(nbt.getString("OreDict"));
+        if(nbt.getShort("Damage") < 0) bigStack.baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE);
 		return bigStack;
 	}
 	
+	@Deprecated // Should really just create a new stack
 	public void readFromNBT(NBTTagCompound tags)
 	{
-		stackSize = tags.getInteger("Count");
-		setOreDict(tags.getString("OreDict"));
-		baseStack = ItemStack.loadItemStackFromNBT(tags);
-        //noinspection ConstantConditions
-        if(baseStack != null && baseStack.getItem() == null) baseStack = null;
+		BigItemStack stack = loadItemStackFromNBT(tags);
+		if(stack == null) return;
+		this.baseStack = stack.baseStack;
+		this.oreDict = stack.oreDict;
+		this.stackSize = stack.stackSize;
+		this.oreIng = stack.oreIng;
 	}
 	
-	public NBTTagCompound writeToNBT(NBTTagCompound tags)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		baseStack.writeToNBT(tags);
-		tags.setInteger("Count", stackSize);
-		tags.setString("OreDict", oreDict);
-		return tags;
+		baseStack.writeToNBT(nbt);
+		String iRes = Item.itemRegistry.getNameForObject(baseStack.getItem());
+		nbt.setString("id", iRes == null ? "minecraft:air" : iRes);
+		nbt.setInteger("Count", this.stackSize);
+		nbt.setString("OreDict", this.getOreDict());
+		return nbt;
 	}
 }

@@ -47,7 +47,16 @@ public class PlaceholderConverter
 		{
 			if(nbt != null)
 			{
-				Item restored = (Item)Item.itemRegistry.getObject(nbt.getString("orig_id"));
+			    String idName = nbt.getString("orig_id"); // This is always a string (or should be)
+				Item restored = (Item)Item.itemRegistry.getObject(idName);
+				
+				if(restored == null)
+                {
+                    try
+                    {
+                        restored = Item.getItemById(Short.parseShort(idName));
+                    } catch(Exception ignored){}
+                }
 				
 				if(restored != null)
 				{

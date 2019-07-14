@@ -90,12 +90,6 @@ public class NBTConverter
 		}
 	}
 	
-	@Deprecated
-	public static JsonObject NBTtoJSON_Compound(NBTTagCompound parent, JsonObject jObj)
-	{
-		return NBTtoJSON_Compound(parent, jObj, false);
-	}
-	
 	@SuppressWarnings("unchecked")
 	public static JsonObject NBTtoJSON_Compound(NBTTagCompound parent, JsonObject jObj, boolean format)
 	{
@@ -118,11 +112,6 @@ public class NBTConverter
 		}
 		
 		return jObj;
-	}
-	
-	public static NBTTagCompound JSONtoNBT_Object(JsonObject jObj, NBTTagCompound tags)
-	{
-		return JSONtoNBT_Object(jObj, tags, false);
 	}
 	
 	/**

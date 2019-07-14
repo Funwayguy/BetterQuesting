@@ -1,11 +1,12 @@
 package betterquesting.legacy;
 
-import java.util.HashMap;
 import betterquesting.legacy.v0.LegacyLoader_v0;
+
+import java.util.HashMap;
 
 public class LegacyLoaderRegistry
 {
-	private static HashMap<String,ILegacyLoader> legReg = new HashMap<String,ILegacyLoader>();
+	private static HashMap<String,ILegacyLoader> legReg = new HashMap<>();
 	
 	public static ILegacyLoader getLoader(String version)
 	{

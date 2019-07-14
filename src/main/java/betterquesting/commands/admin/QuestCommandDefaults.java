@@ -7,6 +7,8 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.legacy.ILegacyLoader;
+import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.network.PacketSender;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
@@ -97,10 +99,22 @@ public class QuestCommandDefaults extends QuestCommandBase
 				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 				
 				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
-				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
-				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
-				QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
+				
+				JsonObject j1 = JsonHelper.ReadFromFile(qFile);
+				NBTTagCompound nbt1 = NBTConverter.JSONtoNBT_Object(j1, new NBTTagCompound(), true);
+                
+                ILegacyLoader loader = LegacyLoaderRegistry.getLoader(nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0");
+                
+				if(loader == null)
+                {
+                    QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
+                    QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), false);
+                    QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), false);
+                } else
+                {
+                    loader.readFromJson(j1);
+                }
+				
 				QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 				
 				QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
