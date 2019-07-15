@@ -97,7 +97,7 @@ public class QuestCommandDefaults extends QuestCommandBase
 				boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 				boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 				
-				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null, null);
+				NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
 				NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
 				QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
 				QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);

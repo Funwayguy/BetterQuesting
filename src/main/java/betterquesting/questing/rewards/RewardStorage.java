@@ -95,7 +95,7 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	// === Future support ===
 	
 	@Override
-    public NBTTagList writeProgressToNBT(NBTTagList nbt, UUID user, List<Integer> subset)
+    public NBTTagList writeProgressToNBT(NBTTagList nbt, @Nullable List<UUID> user)
     {
         return nbt;
     }

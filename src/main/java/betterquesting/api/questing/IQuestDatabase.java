@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagList;
 
 import java.util.List;
 
-public interface IQuestDatabase extends IDatabase<IQuest>, INBTPartial<NBTTagList, Integer>, INBTProgress<NBTTagList, Integer>
+public interface IQuestDatabase extends IDatabase<IQuest>, INBTPartial<NBTTagList, Integer>, INBTProgress<NBTTagList>
 {
 	IQuest createNew(int id);
 	List<DBEntry<IQuest>> bulkLookup(int... ids);

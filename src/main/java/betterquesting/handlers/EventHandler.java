@@ -155,7 +155,7 @@ public class EventHandler
                     {
                         if(entry.getProperty(NativeProps.GLOBAL))
                         {
-                            entry.resetAll(false);
+                            entry.resetUser(null, false);
                         } else
                         {
                             entry.resetUser(uuid, false);
@@ -270,6 +270,9 @@ public class EventHandler
         {
             NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
             NetNameSync.quickSync(nameChanged ? null : mpPlayer, party.getID());
+        } else
+        {
+            NetNameSync.sendNames(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID}, null);
         }
         NetInviteSync.sendSync(mpPlayer);
         NetCacheSync.sendSync(mpPlayer);

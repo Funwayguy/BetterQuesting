@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +51,7 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, UUID users, List<Integer> subset)
+    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
     {
         nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
         return nbt;
@@ -92,11 +93,6 @@ public class TaskPlaceholder implements ITask
 	
 	@Override
 	public void resetUser(UUID uuid)
-	{
-	}
-	
-	@Override
-	public void resetAll()
 	{
 	}
 	

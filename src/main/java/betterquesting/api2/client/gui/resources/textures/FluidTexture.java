@@ -31,7 +31,6 @@ public class FluidTexture implements IGuiTexture
         this(fluid, false, true);
     }
     
-    // TODO: Add tiling option
     public FluidTexture(FluidStack fluid, boolean showCount, boolean keepAspect)
     {
         this.fluid = fluid;
@@ -71,14 +70,21 @@ public class FluidTexture implements IGuiTexture
         
         GlStateManager.translate(x + dx, y + dy, 0);
         GlStateManager.scale(sx, sy, 1F);
-        color.applyGlColor();
+        //color.applyGlColor();
+        
+        int fCol = fluid.getFluid().getColor(fluid);
+        float a = (fCol >> 24 & 255) / 255F;
+        float r = (fCol >> 16 & 255) / 255F;
+        float g = (fCol >> 8 & 255) / 255F;
+        float b = (fCol & 255) / 255F;
+        GlStateManager.color(r, g, b, a);
+        
+        // TODO: Add tiling option
         
         Minecraft mc = Minecraft.getMinecraft();
         mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(fluid.getFluid().getStill().toString());
         this.drawTexturedModalRect(0, 0, 0, fluidTx, 16, 16);
-        
-        // TODO: Draw amount
         
         GlStateManager.popMatrix();
     }

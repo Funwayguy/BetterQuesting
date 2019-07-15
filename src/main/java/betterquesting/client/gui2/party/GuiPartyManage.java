@@ -2,7 +2,6 @@ package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
@@ -120,7 +119,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 64, 8, 64), 0));
         cvBackground.addPanel(cvLeftHalf);
         
-        PanelButtonStorage<UUID> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), playerID);
+        PanelButtonStorage<String> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), mc.player.getGameProfile().getName());
         cvLeftHalf.addPanel(btnLeave);
         
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
@@ -236,17 +235,16 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 			mc.displayGuiScreen(new GuiPartyInvite(this));
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Kick/Leave
         {
-            UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
             String id = ((PanelButtonStorage<String>)btn).getStoredValue();
 			NBTTagCompound payload = new NBTTagCompound();
-			payload.setInteger("action", EnumPacketAction.KICK.ordinal());
+			payload.setInteger("action", 5);
 			payload.setInteger("partyID", partyID);
 			payload.setString("username", id);
             NetPartyAction.sendAction(payload);
 			
-			if(id.equals(playerID))
+			if(id.equals(mc.player.getGameProfile().getName()))
             {
-                mc.displayGuiScreen(new GuiPartyCreate(parent));
+                //mc.displayGuiScreen(new GuiPartyCreate(parent));
             }
         } else if(btn.getButtonID() == 4) // Change name
         {

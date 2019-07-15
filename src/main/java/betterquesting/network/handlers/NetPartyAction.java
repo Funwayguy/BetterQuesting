@@ -2,6 +2,7 @@ package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
@@ -18,6 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -154,7 +156,11 @@ public class NetPartyAction
         UUID playerID = QuestingAPI.getQuestingUUID(sender);
         DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
         if(party != null) return;
-        if(PartyInvitations.INSTANCE.acceptInvite(playerID, partyID)) NetPartySync.quickSync(partyID);
+        if(PartyInvitations.INSTANCE.acceptInvite(playerID, partyID))
+        {
+            NetPartySync.quickSync(partyID);
+            NetNameSync.quickSync(sender, partyID);
+        }
     }
     
     private static void kickUser(int partyID, EntityPlayerMP sender, IParty party, String username, int permission) // Is also the leave action (self kick if you will)
@@ -218,12 +224,17 @@ public class NetPartyAction
             {
                 PartyManager.INSTANCE.removeID(partyID);
                 PartyInvitations.INSTANCE.purgeInvites(partyID);
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
                 break;
             }
             case 5:
             {
                 IParty party = PartyManager.INSTANCE.getValue(partyID);
-                if(party != null) party.kickUser(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player));
+                if(party != null)
+                {
+                    party.kickUser(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player));
+		            MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+                }
             }
         }
     }

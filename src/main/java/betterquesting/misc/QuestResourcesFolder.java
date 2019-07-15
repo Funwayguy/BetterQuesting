@@ -37,13 +37,13 @@ public class QuestResourcesFolder implements IResourcePack
 		}
 		
 		// TODO: Figure out if we can fix UTF8 encoding from here
-		return new FileInputStream(new File(rootFolder.getPath() + File.pathSeparator + location.getNamespace(), location.getPath()));
+		return new FileInputStream(new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath()));
 	}
 	
 	@Override
 	public boolean resourceExists(@Nonnull ResourceLocation location)
 	{
-		File res = new File(rootFolder.getPath() + File.pathSeparator + location.getNamespace(), location.getPath());
+		File res = new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath());
 		return res.exists();
 	}
 	

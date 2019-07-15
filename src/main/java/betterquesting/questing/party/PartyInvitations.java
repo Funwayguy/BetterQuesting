@@ -3,7 +3,6 @@ package betterquesting.questing.party;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.INBTPartial;
-import com.sun.istack.internal.NotNull;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -47,7 +46,7 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
         return valid;
     }
 	
-	public synchronized List<Entry<Integer,Long>> getPartyInvites(@NotNull UUID uuid)
+	public synchronized List<Entry<Integer,Long>> getPartyInvites(@Nonnull UUID uuid)
 	{
 	    HashMap<Integer,Long> userInvites = invites.get(uuid);
 	    if(userInvites == null || userInvites.size() <= 0) return Collections.emptyList();

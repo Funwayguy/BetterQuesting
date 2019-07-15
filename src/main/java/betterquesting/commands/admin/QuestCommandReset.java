@@ -91,7 +91,7 @@ public class QuestCommandReset extends QuestCommandBase
 					entry.getValue().resetUser(uuid, true); // Clear progress and state
 				} else
 				{
-					entry.getValue().resetAll(true);
+					entry.getValue().resetUser(null, true);
 				}
 			}
 			
@@ -119,7 +119,7 @@ public class QuestCommandReset extends QuestCommandBase
 					if(player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true);
 				} else
 				{
-					quest.resetAll(true);
+					quest.resetUser(null, true);
 					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
 					NetQuestSync.quickSync(id, false, true);
 				}

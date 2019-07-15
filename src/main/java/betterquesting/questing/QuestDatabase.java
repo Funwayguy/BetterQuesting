@@ -17,7 +17,7 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	//public static final QuestDatabase CLIENT = new QuestDatabase(); // TODO: Redirect all client side operations here.
 	
 	@Override
-	public IQuest createNew(int id)
+	public synchronized IQuest createNew(int id)
 	{
 	    IQuest quest = new QuestInstance();
 	    if(id >= 0) this.add(id, quest);
@@ -96,13 +96,11 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	}
 	
 	@Override
-	public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable UUID user, @Nullable List<Integer> subset)
+	public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
-		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), user, null);
-			if(user != null && jq.isEmpty()) continue;
+			NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
 			jq.setInteger("questID", entry.getID());
 			json.appendTag(jq);
 		}

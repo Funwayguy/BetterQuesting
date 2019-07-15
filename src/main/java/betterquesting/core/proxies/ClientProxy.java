@@ -61,7 +61,7 @@ public class ClientProxy extends CommonProxy
 		try
 		{
 		    //String tmp = "defaultResourcePacks";
-			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao");
+			ArrayList list = ObfuscationReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "field_110449_ao", "defaultResourcePacks");
 			QuestResourcesFolder qRes1 = new QuestResourcesFolder();
 			QuestResourcesFile qRes2 = new QuestResourcesFile();
 			list.add(qRes1);

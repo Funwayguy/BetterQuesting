@@ -7,9 +7,7 @@ import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
@@ -17,7 +15,6 @@ import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.core.BetterQuesting;
-import betterquesting.questing.party.PartyManager;
 import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
@@ -174,10 +171,8 @@ public class QuestInstance implements IQuest
         {
             if(qInfo.getProperty(NativeProps.GLOBAL))
             {
-                if(GetParticipation(uuid) <= 0)
-                {
-                    return true;
-                } else if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE))
+                // TODO: Figure out some replacement to track participation
+                if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE)) // TODO: Remove this too?
                 {
                     for(NBTTagCompound entry : completeUsers.values())
                     {
@@ -186,7 +181,7 @@ public class QuestInstance implements IQuest
                             return true;
                         }
                     }
-            
+                    
                     return false;
                 }
             }
@@ -287,26 +282,6 @@ public class QuestInstance implements IQuest
                 return false;
             }
         }
-	}
-	
-	private float GetParticipation(UUID uuid)
-	{
-		if(tasks.size() <= 0)
-		{
-			return 0F;
-		}
-		
-		float total = 0F;
-		
-		for(DBEntry<ITask> t : tasks.getEntries())
-		{
-			if(t.getValue() instanceof IProgression)
-			{
-				total += ((IProgression)t.getValue()).getParticipation(uuid);
-			}
-		}
-		
-		return total / tasks.size();
 	}
 	
 	@Override
@@ -413,55 +388,39 @@ public class QuestInstance implements IQuest
 	 * Resets task progress and claim status. If performing a full reset, completion status will also be erased
 	 */
 	@Override
-	public void resetUser(UUID uuid, boolean fullReset)
+	public void resetUser(@Nullable UUID uuid, boolean fullReset)
 	{
 	    synchronized(completeUsers)
         {
             if(fullReset)
             {
-                completeUsers.remove(uuid);
-            } else
-            {
-                NBTTagCompound entry = getCompletionInfo(uuid);
-        
-                if(entry != null)
+                if(uuid == null)
                 {
-                    entry.setBoolean("claimed", false);
-                    entry.setLong("timestamp", 0);
+                    completeUsers.clear();
+                } else
+                {
+                    completeUsers.remove(uuid);
                 }
-            }
-            
-            for(DBEntry<ITask> t : tasks.getEntries())
-            {
-                t.getValue().resetUser(uuid);
-            }
-        }
-	}
-	
-	/**
-	 * Resets task progress and claim status for all users
-	 */
-	@Override
-	public void resetAll(boolean fullReset)
-	{
-	    synchronized(completeUsers)
-        {
-            if(fullReset)
-            {
-                completeUsers.clear();
             } else
             {
-                for(NBTTagCompound entry : completeUsers.values())
+                if(uuid == null)
                 {
-                    entry.setBoolean("claimed", false);
-                    entry.setLong("timestamp", 0);
+                    completeUsers.forEach((key, value) -> {
+                        value.setBoolean("claimed", false);
+                        value.setLong("timestamp", 0);
+                    });
+                } else
+                {
+                    NBTTagCompound entry = getCompletionInfo(uuid);
+                    if(entry != null)
+                    {
+                        entry.setBoolean("claimed", false);
+                        entry.setLong("timestamp", 0);
+                    }
                 }
             }
     
-            for(DBEntry<ITask> t : tasks.getEntries())
-            {
-                t.getValue().resetAll();
-            }
+            tasks.getEntries().forEach((value) -> value.getValue().resetUser(uuid));
         }
 	}
 	
@@ -526,21 +485,21 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, @Nullable UUID users, @Nullable List<Integer> subset)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, @Nullable List<UUID> users)
 	{
 	    synchronized(completeUsers)
         {
             NBTTagList comJson = new NBTTagList();
             for(Entry<UUID, NBTTagCompound> entry : completeUsers.entrySet())
             {
-                if(entry.getValue() == null || entry.getKey() == null) continue;
+                if(users != null && !users.contains(entry.getKey())) continue;
                 NBTTagCompound tags = entry.getValue().copy();
                 tags.setString("uuid", entry.getKey().toString());
                 comJson.appendTag(tags);
             }
             json.setTag("completed", comJson);
     
-            NBTTagList tskJson = tasks.writeProgressToNBT(new NBTTagList(), users, null);
+            NBTTagList tskJson = tasks.writeProgressToNBT(new NBTTagList(), users);
             json.setTag("tasks", tskJson);
     
             return json;
@@ -575,8 +534,6 @@ public class QuestInstance implements IQuest
     @Override
 	public void setClaimed(UUID uuid, long timestamp)
 	{
-		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
-		
 		synchronized(completeUsers)
         {
             NBTTagCompound entry = this.getCompletionInfo(uuid);

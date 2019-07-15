@@ -225,7 +225,7 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonProg = new NBTTagCompound();
         
-        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null, null));
+        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
         

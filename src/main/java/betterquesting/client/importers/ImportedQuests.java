@@ -8,6 +8,7 @@ import betterquesting.questing.QuestInstance;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +75,7 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 	}
 	
 	@Override
-    public NBTTagList writeProgressToNBT(NBTTagList nbt, UUID users, List<Integer> subset)
+    public NBTTagList writeProgressToNBT(NBTTagList nbt, @Nullable List<UUID> users)
     {
         return nbt;
     }

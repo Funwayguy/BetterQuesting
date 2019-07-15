@@ -15,7 +15,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound, Integer>
+// TODO: Make functionally independent of IQuest. Make `detect` return boolean representing dirty state
+public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
 {
 	String getUnlocalisedName();
 	ResourceLocation getFactoryID();
@@ -25,8 +26,7 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 	boolean isComplete(UUID uuid);
 	void setComplete(UUID uuid);
 	
-	void resetUser(UUID uuid);
-	void resetAll();
+	void resetUser(@Nullable UUID uuid);
 	
 	@SideOnly(Side.CLIENT)
     IGuiPanel getTaskGui(IGuiRect rect, IQuest quest);

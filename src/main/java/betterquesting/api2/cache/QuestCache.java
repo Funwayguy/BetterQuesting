@@ -21,8 +21,6 @@ import java.util.UUID;
 
 public class QuestCache implements INBTSerializable<NBTTagCompound>
 {
-    private final Boolean syncLock = false;
-    
     // Quests that are visible to the player
     private final TreeSet<Integer> visibleQuests = new TreeSet<>();
     
@@ -30,7 +28,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     private final TreeSet<Integer> activeQuests = new TreeSet<>();
     
     // Quests and their scheduled time of being reset
-    private final TreeSet<QResetTime> resetSchedule = new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o2.time, o1.time));
+    private final TreeSet<QResetTime> resetSchedule = new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o1.time, o2.time));
     
     // Quests with pending auto claims (usually should be empty unless a condition needs to be met)
     private final TreeSet<Integer> autoClaims = new TreeSet<>();
@@ -38,93 +36,67 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     // Quests that need to be sent to the client to update progression (NOT for edits. Handle that elsewhere)
     private final TreeSet<Integer> markedDirty = new TreeSet<>();
     
-    public int[] getActiveQuests()
+    public synchronized int[] getActiveQuests()
     {
-        synchronized(syncLock)
-        {
-            // Probably a better way of doing this but this will do for now
-            int i = 0;
-            int[] aryAct = new int[activeQuests.size()];
-            for(Integer q : activeQuests) aryAct[i++] = q;
-            return aryAct;
-        }
+        // Probably a better way of doing this but this will do for now
+        int i = 0;
+        int[] aryAct = new int[activeQuests.size()];
+        for(Integer q : activeQuests) aryAct[i++] = q;
+        return aryAct;
     }
     
-    public int[] getVisibleQuests()
+    public synchronized int[] getVisibleQuests()
     {
-        synchronized(syncLock)
-        {
-            // Probably a better way of doing this but this will do for now
-            int i = 0;
-            int[] aryVis = new int[visibleQuests.size()];
-            for(Integer q : visibleQuests) aryVis[i++] = q;
-            return aryVis;
-        }
+        // Probably a better way of doing this but this will do for now
+        int i = 0;
+        int[] aryVis = new int[visibleQuests.size()];
+        for(Integer q : visibleQuests) aryVis[i++] = q;
+        return aryVis;
     }
     
-    public int[] getPendingAutoClaims()
+    public synchronized int[] getPendingAutoClaims()
     {
-        synchronized(syncLock)
-        {
-            // Probably a better way of doing this but this will do for now
-            int i = 0;
-            int[] aryAC = new int[autoClaims.size()];
-            for(Integer q : autoClaims) aryAC[i++] = q;
-            return aryAC;
-        }
+        // Probably a better way of doing this but this will do for now
+        int i = 0;
+        int[] aryAC = new int[autoClaims.size()];
+        for(Integer q : autoClaims) aryAC[i++] = q;
+        return aryAC;
     }
     
-    public QResetTime[] getScheduledResets() // Already sorted by time
+    public synchronized QResetTime[] getScheduledResets() // Already sorted by time
     {
-        synchronized(syncLock)
-        {
-            return resetSchedule.toArray(new QResetTime[0]);
-        }
+        return resetSchedule.toArray(new QResetTime[0]);
     }
     
-    public void markQuestDirty(int questID)
+    public synchronized void markQuestDirty(int questID)
     {
         if(questID < 0) return;
-        
-        synchronized(syncLock)
-        {
-            markedDirty.add(questID);
-        }
+        markedDirty.add(questID);
     }
     
-    public void markQuestClean(int questID)
+    public synchronized void markQuestClean(int questID)
     {
         if(questID < 0) return;
-        
-        synchronized(syncLock)
-        {
-            markedDirty.remove(questID);
-        }
+        markedDirty.remove(questID);
     }
     
-    public void cleanAllQuests()
+    public synchronized void cleanAllQuests()
     {
-        synchronized(syncLock)
-        {
-            markedDirty.clear();
-        }
+        markedDirty.clear();
     }
     
     public int[] getDirtyQuests()
     {
-        synchronized(syncLock)
-        {
-            // Probably a better way of doing this but this will do for now
-            int i = 0;
-            int[] aryMD = new int[markedDirty.size()];
-            for(Integer q : markedDirty) aryMD[i++] = q;
-            return aryMD;
-        }
+        // Probably a better way of doing this but this will do for now
+        int i = 0;
+        int[] aryMD = new int[markedDirty.size()];
+        for(Integer q : markedDirty) aryMD[i++] = q;
+        return aryMD;
     }
     
     // TODO: Ensure this is thread safe because we're likely going to run this in the background
     // NOTE: Only run this when the quests completion and claim states change. Use markQuestDirty() for progression changes that need syncing
-    public void updateCache(EntityPlayer player)
+    public synchronized void updateCache(EntityPlayer player)
     {
         if(player == null) return;
         
@@ -166,27 +138,25 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             }
         }
         
-        synchronized(syncLock)
-        {
-            visibleQuests.clear();
-            visibleQuests.addAll(tmpVisible);
-            
-            activeQuests.clear();
-            activeQuests.addAll(tmpActive);
-            
-            resetSchedule.clear();
-            resetSchedule.addAll(tmpReset);
-            
-            autoClaims.clear();
-            autoClaims.addAll(tmpAutoClaim);
-        }
+        visibleQuests.clear();
+        visibleQuests.addAll(tmpVisible);
+        
+        activeQuests.clear();
+        activeQuests.addAll(tmpActive);
+        
+        resetSchedule.clear();
+        resetSchedule.addAll(tmpReset);
+        
+        autoClaims.clear();
+        autoClaims.addAll(tmpAutoClaim);
+        
         NBTTagCompound tags = new NBTTagCompound();
         tags.setTag("data", serializeNBT());
         if(player instanceof EntityPlayerMP) NetCacheSync.sendSync((EntityPlayerMP)player);
     }
     
     @Override
-    public NBTTagCompound serializeNBT()
+    public synchronized NBTTagCompound serializeNBT()
     {
         NBTTagCompound tags = new NBTTagCompound();
         
@@ -209,29 +179,26 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     }
     
     @Override
-    public void deserializeNBT(NBTTagCompound nbt)
+    public synchronized void deserializeNBT(NBTTagCompound nbt)
     {
-        synchronized(syncLock)
+        visibleQuests.clear();
+        activeQuests.clear();
+        resetSchedule.clear();
+        autoClaims.clear();
+        markedDirty.clear();
+        
+        for(int i : nbt.getIntArray("visibleQuests")) visibleQuests.add(i);
+        for(int i : nbt.getIntArray("activeQuests")) activeQuests.add(i);
+        for(int i : nbt.getIntArray("autoClaims")) autoClaims.add(i);
+        for(int i : nbt.getIntArray("markedDirty")) markedDirty.add(i);
+        
+        NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
+        for(int i = 0; i < tagList.tagCount(); i++)
         {
-            visibleQuests.clear();
-            activeQuests.clear();
-            resetSchedule.clear();
-            autoClaims.clear();
-            markedDirty.clear();
-            
-            for(int i : nbt.getIntArray("visibleQuests")) visibleQuests.add(i);
-            for(int i : nbt.getIntArray("activeQuests")) activeQuests.add(i);
-            for(int i : nbt.getIntArray("autoClaims")) autoClaims.add(i);
-            for(int i : nbt.getIntArray("markedDirty")) markedDirty.add(i);
-            
-            NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
-            for(int i = 0; i < tagList.tagCount(); i++)
+            NBTTagCompound tagEntry = tagList.getCompoundTagAt(i);
+            if(tagEntry.hasKey("quest", 99))
             {
-                NBTTagCompound tagEntry = tagList.getCompoundTagAt(i);
-                if(tagEntry.hasKey("quest", 99))
-                {
-                    resetSchedule.add(new QResetTime(tagEntry.getInteger("quest"), tagEntry.getLong("time")));
-                }
+                resetSchedule.add(new QResetTime(tagEntry.getInteger("quest"), tagEntry.getLong("time")));
             }
         }
     }
@@ -241,7 +208,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         public final int questID;
         public final long time;
         
-        public QResetTime(int questID, long time)
+        private QResetTime(int questID, long time)
         {
             this.questID = questID;
             this.time = time;

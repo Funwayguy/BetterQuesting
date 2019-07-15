@@ -82,13 +82,13 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	}
 	
 	@Override
-	public NBTTagList writeProgressToNBT(NBTTagList json, UUID user, @Nullable List<Integer> subset)
+	public NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> user)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeProgressToNBT(new NBTTagCompound(), user, null);
+			NBTTagCompound qJson = entry.getValue().writeProgressToNBT(new NBTTagCompound(), user);
 			qJson.setString("taskID", taskID.toString());
 			qJson.setInteger("index", entry.getID());
 			json.appendTag(qJson);

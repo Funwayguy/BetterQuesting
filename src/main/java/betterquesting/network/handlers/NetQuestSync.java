@@ -22,6 +22,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public class NetQuestSync
                 NBTTagCompound tag = new NBTTagCompound();
                 
                 if(config) tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound()));
-                if(progress) tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), playerID, null));
+                if(progress) tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), Collections.singletonList(playerID)));
                 tag.setInteger("questID", entry.getID());
                 dataList.appendTag(tag);
             }
