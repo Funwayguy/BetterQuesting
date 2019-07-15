@@ -248,18 +248,13 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(event.player.world.isRemote || event.player.getServer() == null || !(event.player instanceof EntityPlayerMP))
-		{
-			return;
-		} else if(BetterQuesting.proxy.isClient() && !event.player.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(event.player.getGameProfile().getName()))
-		{
-			return;
-		}
+		if(event.player.world.isRemote || event.player.getServer() == null || !(event.player instanceof EntityPlayerMP)) return;
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 		UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
-		
         boolean nameChanged = NameCache.INSTANCE.updateName(mpPlayer);
+        
+		if(BetterQuesting.proxy.isClient() && !event.player.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(event.player.getGameProfile().getName())) return;
 		
 		NetSettingSync.sendSync(mpPlayer);
         NetQuestSync.sendSync(mpPlayer, null, true, true);

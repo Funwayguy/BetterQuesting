@@ -4,6 +4,8 @@ import betterquesting.api.storage.INameCache;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,12 +22,13 @@ public final class NameCache implements INameCache
 	@Override
     public synchronized boolean updateName(@Nonnull EntityPlayerMP player)
     {
-        if(player.getServer() == null) return false;
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         NBTTagCompound tag = cache.computeIfAbsent(player.getGameProfile().getId(), (key) -> new NBTTagCompound());
         
         String name = player.getGameProfile().getName();
-        boolean isOP = player.getServer().getPlayerList().canSendCommands(player.getGameProfile());
-        if(tag.getString("name").equals(name) || tag.getBoolean("isOP") != isOP)
+        boolean isOP = server.getPlayerList().canSendCommands(player.getGameProfile());
+        
+        if(!tag.getString("name").equals(name) || tag.getBoolean("isOP") != isOP)
         {
             tag.setString("name", name);
             tag.setBoolean("isOP", isOP);
@@ -70,7 +73,7 @@ public final class NameCache implements INameCache
 	}
 
 	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<UUID> users)
+	public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> users)
 	{
         for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
         {
@@ -79,10 +82,10 @@ public final class NameCache implements INameCache
             jn.setString("uuid", entry.getKey().toString());
             jn.setString("name", entry.getValue().getString("name"));
             jn.setBoolean("isOP", entry.getValue().getBoolean("isOP"));
-            json.appendTag(jn);
+            nbt.appendTag(jn);
         }
 		
-		return json;
+		return nbt;
 	}
 
 	@Override
