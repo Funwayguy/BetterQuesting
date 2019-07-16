@@ -25,8 +25,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class NetPartyAction
@@ -68,7 +66,7 @@ public class NetPartyAction
             case 1:
             {
                 if(permission < 3) break;
-                deleteParty(partyID, party);
+                deleteParty(partyID);
                 break;
             }
             case 2:
@@ -112,23 +110,15 @@ public class NetPartyAction
         NetPartySync.sendSync(new EntityPlayerMP[]{sender}, new int[]{partyID});
     }
     
-    private static void deleteParty(int partyID, IParty party)
+    private static void deleteParty(int partyID)
     {
-        List<UUID> members = party.getMembers();
         PartyManager.INSTANCE.removeID(partyID);
         PartyInvitations.INSTANCE.purgeInvites(partyID);
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        List<EntityPlayerMP> players = new ArrayList<>();
-        for(UUID uuid : members)
-        {
-            EntityPlayerMP p = server.getPlayerList().getPlayerByUUID(uuid);
-            //noinspection ConstantConditions
-            if(p != null) players.add(p);
-        }
+        
         NBTTagCompound payload = new NBTTagCompound();
         payload.setInteger("action", 1);
         payload.setInteger("partyID", partyID);
-        PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), players.toArray(new EntityPlayerMP[0]));
+        PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload)); // Invites need to be purged from everyone
     }
     
     private static void editParty(int partyID, IParty party, NBTTagCompound settings)
@@ -178,13 +168,25 @@ public class NetPartyAction
         if(uuid.equals(QuestingAPI.getQuestingUUID(sender)) || checkPermission(uuid, party) < permission)
         {
             party.kickUser(uuid);
-            NetPartySync.quickSync(partyID);
-            if(player != null)
+            if(party.getMembers().size() > 0)
             {
+                NetPartySync.quickSync(partyID);
+                if(player != null)
+                {
+                    NBTTagCompound payload = new NBTTagCompound();
+                    payload.setInteger("action", 5);
+                    payload.setInteger("partyID", partyID);
+                    PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), player);
+                }
+            } else // No more members. Delete the party
+            {
+                PartyManager.INSTANCE.removeID(partyID);
+                PartyInvitations.INSTANCE.purgeInvites(partyID);
+                
                 NBTTagCompound payload = new NBTTagCompound();
                 payload.setInteger("action", 1);
                 payload.setInteger("partyID", partyID);
-                PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), player);
+                PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload)); // Invites need to be purged from everyone
             }
         }
         

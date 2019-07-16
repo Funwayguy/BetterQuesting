@@ -1,20 +1,13 @@
 package betterquesting.commands.user;
 
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.handlers.NetChapterSync;
-import betterquesting.network.handlers.NetLifeSync;
-import betterquesting.network.handlers.NetQuestSync;
-import betterquesting.network.handlers.NetSettingSync;
+import betterquesting.network.handlers.NetBulkSync;
 import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
-
-import java.util.UUID;
 
 public class QuestCommandRefresh extends QuestCommandBase
 {
@@ -25,17 +18,14 @@ public class QuestCommandRefresh extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
-		if(sender instanceof EntityPlayerMP)
+	    if(!(sender instanceof EntityPlayerMP)) return;
+        EntityPlayerMP player = (EntityPlayerMP)sender;
+	    
+		if(server.isDedicatedServer() || !server.getServerOwner().equals(player.getGameProfile().getName()))
 		{
-			EntityPlayerMP player = (EntityPlayerMP)sender;
-			UUID playerID = QuestingAPI.getQuestingUUID(player);
-            NetQuestSync.sendSync(player, null, true, true);
-            NetChapterSync.sendSync(player, null);
-            NetLifeSync.sendSync(new EntityPlayerMP[]{player}, new UUID[]{playerID});
-			//PacketSender.INSTANCE.sendToPlayers(PktHandlerNameCache.INSTANCE.getSyncPacket(null), player); // TODO: Determine if this is really necessary client side. There could be hundreds of names
-            NetSettingSync.sendSync(player);
+            NetBulkSync.sendReset(player, true, true);
 			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
 		}
 	}
@@ -55,7 +45,7 @@ public class QuestCommandRefresh extends QuestCommandBase
 	@Override
 	public String getPermissionDescription() 
 	{
-		return "Permission to manually resyncs the local questing database with the server in case of potential desync issues";
+		return "Permission to manually resync the local questing database with the server in case of potential desync issues";
 	}
 	
 }

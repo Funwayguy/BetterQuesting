@@ -42,6 +42,7 @@ public class PacketTypeRegistry implements IPacketRegistry
 		NetSettingSync.registerHandler();
 		
 		NetCacheSync.registerHandler();
+		NetBulkSync.registerHandler();
 	}
 	
 	@Override

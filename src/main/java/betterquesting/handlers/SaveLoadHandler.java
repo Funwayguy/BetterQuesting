@@ -270,8 +270,6 @@ public class SaveLoadHandler
         LifeDatabase.INSTANCE.reset();
         NameCache.INSTANCE.reset();
         
-        //QuestCache.INSTANCE.reset();
-        
         if(BetterQuesting.proxy.isClient())
 		{
 			GuiHome.bookmark = null;

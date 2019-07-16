@@ -251,26 +251,14 @@ public class EventHandler
 		if(event.player.world.isRemote || event.player.getServer() == null || !(event.player instanceof EntityPlayerMP)) return;
 		
 		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
-		UUID playerID = QuestingAPI.getQuestingUUID(mpPlayer);
-        boolean nameChanged = NameCache.INSTANCE.updateName(mpPlayer);
-        
-		if(BetterQuesting.proxy.isClient() && !event.player.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(event.player.getGameProfile().getName())) return;
 		
-		NetSettingSync.sendSync(mpPlayer);
-        NetQuestSync.sendSync(mpPlayer, null, true, true);
-        NetChapterSync.sendSync(mpPlayer, null);
-        NetLifeSync.sendSync(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID});
-        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
-        if(party != null)
+		if(BetterQuesting.proxy.isClient() && !mpPlayer.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(mpPlayer.getGameProfile().getName()))
         {
-            NetPartySync.sendSync(new EntityPlayerMP[]{mpPlayer}, new int[]{party.getID()});
-            NetNameSync.quickSync(nameChanged ? null : mpPlayer, party.getID());
-        } else
-        {
-            NetNameSync.sendNames(new EntityPlayerMP[]{mpPlayer}, new UUID[]{playerID}, null);
+            NameCache.INSTANCE.updateName(mpPlayer);
+            return;
         }
-        NetInviteSync.sendSync(mpPlayer);
-        NetCacheSync.sendSync(mpPlayer);
+		
+		NetBulkSync.sendReset(mpPlayer, true, true);
 	}
 	
 	@SubscribeEvent

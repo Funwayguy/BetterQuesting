@@ -43,14 +43,12 @@ public class BetterQuesting
 {
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
-    public static final String PROXY = "betterquesting.core.proxies";
-    public static final String CHANNEL = "BQ_NET_CHAN";
     public static final String FORMAT = "2.0.0";
 	
 	@Instance(MODID)
 	public static BetterQuesting instance;
 	
-	@SidedProxy(clientSide = PROXY + ".ClientProxy", serverSide = PROXY + ".CommonProxy")
+	@SidedProxy(clientSide = "betterquesting.core.proxies.ClientProxy", serverSide = "betterquesting.core.proxies.CommonProxy")
 	public static CommonProxy proxy;
 	public SimpleNetworkWrapper network;
 	public static Logger logger;
@@ -66,7 +64,7 @@ public class BetterQuesting
     public void preInit(FMLPreInitializationEvent event)
     {
     	logger = event.getModLog();
-    	network = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
+    	network = NetworkRegistry.INSTANCE.newSimpleChannel("BQ_NET_CHAN");
     	
     	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
     	ConfigHandler.initConfigs();
