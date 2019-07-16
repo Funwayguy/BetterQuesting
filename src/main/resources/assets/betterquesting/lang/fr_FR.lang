@@ -73,7 +73,7 @@ betterquesting.gui.no_key=Pas de variable
 betterquesting.gui.duplicate_key=Variable dupliqué
 
 betterquesting.tooltip.tasks_complete=%s/%s Tâche(s) complétée(s)
-betterquesting.tooltip.complete=COMPLETEE
+betterquesting.tooltip.complete=COMPLET
 betterquesting.tooltip.incomplete=INCOMPLET
 betterquesting.tooltip.rewards_pending=Récompenses non réclamés
 betterquesting.tooltip.requires=Requis:
