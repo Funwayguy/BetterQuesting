@@ -1,0 +1,203 @@
+betterquesting.title.quest_lines=Suivi de quêtes
+betterquesting.title.edit_line1=Modifier la suite de quêtes
+betterquesting.title.edit_line2=Modifier la suite de quête - %s
+betterquesting.title.edit_quest=Modifier la quête
+betterquesting.title.edit_tasks=Modifier les tâches
+betterquesting.title.edit_rewards=Modifier les récompenses
+betterquesting.title.edit_text=Editeur de texte
+betterquesting.title.pre_requisites=Editer les pré-requis
+betterquesting.title.json_object=Objet
+betterquesting.title.json_array=Liste
+betterquesting.title.json_add=Nouveau type
+betterquesting.title.select_item=Sélectioner un objet
+betterquesting.title.select_fluid=Sélectioner un liquide
+betterquesting.title.select_entity=Sélectioner une entitée
+betterquesting.title.party_none=Quêtes en partie
+betterquesting.title.party=Gérer la partie - %s
+betterquesting.title.party_invite=Inviter des joueurs
+betterquesting.title.select_theme=Sélectioner un thème
+betterquesting.title.importers=Importer
+betterquesting.title.submit_station=Soumettre à la station
+
+betterquesting.btn.rewards=Récompenses
+betterquesting.btn.tasks=Tâches
+betterquesting.btn.advanced=Avancée
+betterquesting.btn.is_main=Principal
+betterquesting.btn.requirements=Requis
+betterquesting.btn.edit=Editer
+betterquesting.btn.new=Ajouter un nouveau
+betterquesting.btn.import=Importer
+betterquesting.btn.logic=Logique
+betterquesting.btn.show=Montrer
+betterquesting.btn.claim=Réclamer
+betterquesting.btn.detect_submit=Détecter/Soumettre
+betterquesting.btn.add_remove_quests=Ajouter/Enlever des quêtes
+betterquesting.btn.designer=Désigner
+betterquesting.btn.item=Objet
+betterquesting.btn.list=Liste
+betterquesting.btn.fluid=Liquide
+betterquesting.btn.entity=Entitée
+betterquesting.btn.text=Texte
+betterquesting.btn.number=Nombre
+betterquesting.btn.object=Objet
+betterquesting.btn.raw_nbt=NBT brut
+betterquesting.btn.party_new=Créer une party
+betterquesting.btn.party_leave=Quiter
+betterquesting.btn.party_invite=Inviter
+betterquesting.btn.party_kick=Ejecter
+betterquesting.btn.party_join=Joindre
+betterquesting.btn.party_share_lives=Partager les vies
+betterquesting.btn.party_share_loot=Récompense unique
+betterquesting.btn.icon=Icone
+
+betterquesting.home.exit=Sortir
+betterquesting.home.quests=Quêtes
+betterquesting.home.party=Partie
+betterquesting.home.theme=Thème
+
+betterquesting.gui.name=Nom
+betterquesting.gui.description=Description
+betterquesting.gui.quest_line=Ligne de quête
+betterquesting.gui.database=Base de donnés
+betterquesting.gui.selection=Sélection
+betterquesting.gui.search=Rechercher
+betterquesting.gui.folder=Dossier
+betterquesting.gui.party_invites=Invitations
+betterquesting.gui.party_members=Membres
+betterquesting.gui.remaining_lives=Vies restantes: %s
+betterquesting.gui.full_lives=Vies au maximum
+betterquesting.gui.closing_warning=Etes vous sur de fermer l'éditeur?
+betterquesting.gui.closing_confirm=Les changements risques d'êtres perdues!
+betterquesting.gui.key=Nom de la variable
+betterquesting.gui.no_key=Pas de variable
+betterquesting.gui.duplicate_key=Variable dupliqué
+
+betterquesting.tooltip.tasks_complete=%s/%s Tâches complétées
+betterquesting.tooltip.complete=COMPLETEE
+betterquesting.tooltip.incomplete=INCOMPLET
+betterquesting.tooltip.rewards_pending=Récompenses non réclamés
+betterquesting.tooltip.requires=Requière:
+betterquesting.tooltip.shift_advanced=Maintenir SHIFT pour des informations avancées
+betterquesting.tooltip.reset_time=Temps de recharge: %s
+betterquesting.tooltip.main_quest=Quêtes principales: %s
+betterquesting.tooltip.global_quest=Quêtes global: %s
+betterquesting.tooltip.global_share=Partage global: %s
+betterquesting.tooltip.task_logic=Quêtes logiques: %s
+betterquesting.tooltip.simultaneous=Quêtes simultanées: %s
+betterquesting.tooltip.auto_claim=Récupération automatique: %s
+betterquesting.tooltip.repeat=Temps de recharge: %s
+betterquesting.tooltip.update_quests=Mise à jour disponible!%n§7AUne nouvelle version est disponible.%nClique pour installer et migrer la progression.
+
+betterquesting.notice.complete=Quête complété
+betterquesting.notice.update=Quête mis à jour
+betterquesting.notice.unlock=Quête débloqué
+
+betterquesting.msg.heart_disabled=Les vies hardcore ne sont pas activée. Utilise "/bq_admin" pour l'activer
+
+key.betterquesting.quests=Ouvrir les quêtes
+key.betterquesting.party=Gérer la partie
+key.betterquesting.themes=Changer le thème
+
+itemGroup.betterquesting=Better Questing
+
+fluid.betterquesting.placeholder=Espace réservé
+
+item.betterquesting.placeholder.name=Espace réservé pour un objet
+item.betterquesting.extra_life.full.name=Cœur supplémentaire
+item.betterquesting.extra_life.half.name=Demi cœur
+item.betterquesting.extra_life.quarter.name=Quart de cœur
+item.betterquesting.guide.name=Guide de démarrage pour Better Questing
+
+tile.betterquesting.submit_station.name=Station de soumission d'objet (SSO)
+
+betterquesting.btn.help1=Navigation
+betterquesting.btn.help2=Bloc SSO
+betterquesting.btn.help3=Créer des quêtes
+betterquesting.btn.help4=Commandes
+betterquesting.btn.help5=Importer
+betterquesting.btn.help6=Thèmes
+betterquesting.btn.help7=Localisation
+betterquesting.btn.help8=Ressources
+
+betterquesting.help.page1=§l§nNavigation géneral%n§r%nL'interface de Better Questing ne repose pas sur un objet ou un bloc qui peut être facilement perdu mais plutôt sur une touche pouvant être trouvée et modifiée via le menu des touches.%n%nDans le menu de suite des quêtes, vous pouvez selectionner n'importe quelle suite disponible depuis la liste et naviguer dans la zone de votre choix vers celle que vous souhaitez accomplir.%n%nLes quêtes en partie peuvent être crée ou modifié dans l'écran de gestion de parties. Vous pouvez aussi activer ici les options pour partager les vies hardcores ou les récompenses de quêtes.%n%nSi vous souhaitez modifier l'apparence de l'interface de quêtes, vous pouvez choisir parmi les thèmes actuellement installés dans l'écran de sélection des thèmes.
+betterquesting.help.page2=§l§nStation de soumission d'objet%n§r%nBien que de nombreuses quêtes puissent être soumises directement depuis votre inventaire (y compris les liquides), vous avez parfois besoin d'une solution plus automatisée.C’est là que la station de soumission d’objets (SSO) est très utile.Les tâches prenant en charge la station peuvent être sélectionnées via l'interface pour permettre son utilisation. Une fois la configuration effectuée, les liquides et les objets peuvent être introduits dans l'entrée de l’interface. Toutefois, les objets et les liquides ne seront pas supprimée si aucune quête n’est sélectionnée ou terminée, ce qui empêche la suppression accidentelle d'objets ou de liquides.Les SSO sont également capables d'assurer simultanément plusieurs sous-tâches distinctes dans la même quête!
+betterquesting.help.page3=§l§nCréer des quêtes%n§r%nPour commencer à créer des quêtes et des suites de quêtes, vous devez d'abord activer le mode édition en exécutant la commande d'édition (voir les commandes pour plus d'informations). Vous pourrez ensuite ajouter ou supprimer des suites de quêtes, mais vous n'en avez pas besoin pour commencer à faire des quêtes. Ceci est particulièrement utile si vous souhaitez faire des quêtes secrètes qui déverrouillent d'autres quêtes ou suites de quêtes.%n%nVous devrez vous familiariser avec plusieurs menus lors de la modification. Celles-ci seront un peu dur comparées à la plupart des autres mods mais avec le temps cela deviendra plus facile. Certaines modfication avancés éditeront le fichier de quêtes. Vous devez donc faire très attention à ce que vous modifiez, car cela pourrait avoir des effets secondaires indésirables, mais cela ne devrait en aucun cas entraîner une corruption ou un crash. Si cela se produit, vous devez immédiatement le signaler à un développeur.
+betterquesting.help.page4=§l§nCommandes%n§r%nIl y a que quelques commandes que vous devez savoir lorsque vous utilisez Better Questing. Elles sont séparées avec des commandes utilisateur pouvant être exécutées par n'importe qui et avec des commandes admin limitées aux opérateurs du serveur.%n%n§o/bq_user refresh%n§r%nResynchronise manuellement la base de données local des quêtes avec le serveur en cas de problèmes potentiels de désynchronisation.%n%n§o/bq_user help%n§r%nDonne au joueur une copie de ce guide.%n%n§o/bq_admin edit%n§r%nActive ou désactive le mode d’édition de quête. Lorsque cette option est activée, les opérateurs pourront accéder aux menus d'édition des quêtes et des suites de quêtes. N'oubliez pas de désactiver ceci avant de publier des packs ou des quêtes.%n%n§o/bq_admin hardcore%n§r%nActive ou désactive l'utilisation des vie hardcore. Quand toutes les vies sont épuisées, les joueurs seront bannis du serveur ou verront leur monde effacé conformément à la norme standard vanilla hardcore.%n%n§o/bq_admin reset [all|<quest_id>] [username|uuid]%n§r%nEfface les données de complétion de quête pour l'utilisateur ciblé. Pratique à utiliser avant de publier des packs.%n%n§o/bq_admin default [save|load]%n§r%nEnregistre/charge la base de données de quêtes actuelle à partir du répertoire global par défaut. Si les paramètres sont laissé par défaut, cela signifie que tous les nouveaux mondes créés commenceront par cet ensemble de quêtes particulier. L'enregistrement préservera également les données de progression, le stauts hardcore et le mode d'édition. Assurez-vous donc d'utiliser les autres commandes selon vos besoins avant d'exécuter celle-ci.%n%n§o/bq_admin complete <quest_id> [username|uuid]%n§r%nForce la réussite de la quête pour l'utilisateur ciblé%n%n§o/bq_admin delete [all|<quest_id>]%n§r%nSupprime les quêtes et les données de progression, mais ne supprime pas les nouvelles valeurs par défaut%n%n§o/bq_admin lives [add|set|max|default] <value> [username]%n§r%nCes commandes changent le nombre de vies des joueurs ou les valeurs de départ et maximales.
+betterquesting.help.page5=§l§nImporter%n§r%nCertains packs d'extension peuvent inclure des importateurs pour d'autres mods de quêtes ou permet au créateurs de packs de télécharger des suites de quetes. Pour accéder à ces importateurs, vous pouvez cliquer sur le bouton "Importer" dans l'éditeur de suite de quête principal. Par défaut, Better Questing ne compte aucun importateur. Par conséquent, si vous avez besoin d'un importateur spécifique, vous devez rechercher une extension avec un importateur ou le créer vous-même.
+betterquesting.help.page6=§l§nThèmes%n§r%nSi vous êtes une personne qui préfère une certaine palette de couleurs dans son interface ou qui est juste un créateur de packs qui souhaite lui donner une apparence plus authentique, les thèmes sont votre meilleur ami. Les thèmes peuvent changer l’apparence de l'interface de quête. Elle convient à tous vos besoins, qu’il soit futuriste, magique ou tout simplement classique.Ils peuvent être installés via des packs de ressources, un répertoire de ressources ou via des packs d'expansion.
+betterquesting.help.page7=§l§nLocalisation%n§r%nBetter Questing prend en charge la traduction complète des noms et des descriptions des quêtes, de sorte à diffuser votre pack à des utilisateurs de toutes les nationalités! Pour commencer à traduire vos quêtes, vous devez utiliser des variables uniques telles que "§omypack.quest1.name§r" au lieu d'utiliser du texte brut. Vous pouvez ensuite créer un pack de ressources contenant uniquement des fichiers .lang pour toutes les traductions spécifiques à une langue. Ces fichiers peuvent également être stockés dans le répertoire de ressources de Better Questing pour un meilleur regroupement de packs.
+betterquesting.help.page8=§l§nRessources%n§r%nSi vous souhaitez personnaliser l'écran d'accueil, regrouper des thèmes ou ajouter des fichiers de localisation, vous pouvez le faire via: %n%n"§o/config/betterquesting/resources/<pack_name>/§r"%n%nTous les dossiers ici peuvent être traités comme des packs de ressources non répertoriés contenant tout le nécessaire pour personnaliser votre pack.
+
+betterquesting.design.tree=Design d'arbres
+
+betterquesting.toolbox.tab.main=Principal
+
+betterquesting.toolbox.tool.open.name=Ouvrir
+betterquesting.toolbox.tool.open.desc=Ouvrir une quête pour une édition ultérieure
+betterquesting.toolbox.tool.grab.name=Saisir
+betterquesting.toolbox.tool.grab.desc=Saisir et déplace les quêtes ailleurs dans la suite de quêtes
+betterquesting.toolbox.tool.link.name=Lien
+betterquesting.toolbox.tool.link.desc=Définit une quête comme une condition préalable pour les autres. Si un lien est déjà présent, il sera supprimé.
+betterquesting.toolbox.tool.snap.name=Accrochage de la grille
+betterquesting.toolbox.tool.snap.desc=Change la résolution d'accrochage de la grille pour divers autres outils
+betterquesting.toolbox.tool.copy.name=Copier
+betterquesting.toolbox.tool.copy.desc=Copie la quête donnée, y compris les conditions préalables, les tâches et les récompenses, mais pas les données de progression.
+betterquesting.toolbox.tool.new.name=Nouvelle quête
+betterquesting.toolbox.tool.new.desc=Crée une nouvelle quête vide
+betterquesting.toolbox.tool.delete.name=Supprimer la quête
+betterquesting.toolbox.tool.delete.desc=Supprime la quête sélectioné de la suite de quête et de la base de données
+betterquesting.toolbox.tool.remove.name=Retirer la quête
+betterquesting.toolbox.tool.remove.desc=Enlève la quête sélectionné uniquement dans suite de quête. La quête sera toujours accessible via la base de données
+betterquesting.toolbox.tool.complete.name=Complétion manuel
+betterquesting.toolbox.tool.complete.desc=Force la complétation de la quête sélectionée
+betterquesting.toolbox.tool.reset.name=Réinitialiser la quête
+betterquesting.toolbox.tool.reset.desc=Réinitialise le statut et la progression de la tâche
+betterquesting.toolbox.tool.icon.name=Sélectioner l'icone
+betterquesting.toolbox.tool.icon.desc=Changer l'icone de la quête
+betterquesting.toolbox.tool.scale.name=Echelle de l'icone
+betterquesting.toolbox.tool.scale.desc=Agrandit ou réduit l'icone de quête
+betterquesting.toolbox.tool.raw.name=Modification brut
+betterquesting.toolbox.tool.raw.desc=Ouvre la suite de quête brute (format JSON) pour l'édition. Inclut des paramètres cachés supplémentaires tels que la modification de l'arrière-plan
+betterquesting.toolbox.tool.frame.name=Modifier le cadre de l'icône
+betterquesting.toolbox.tool.frame.desc=Change le style de cadre des icônes de quête
+
+betterquesting.cmd.complete=Quêtes complétées à %s pour %s
+betterquesting.cmd.default.save=La base de donnée à été sauvegardé
+betterquesting.cmd.default.save2=La base de donnée à été sauvegardé à %s
+betterquesting.cmd.default.load=Base de données de quêtes par défaut rechargée
+betterquesting.cmd.default.load2=Base de données de quêtes chargée depuis %s
+betterquesting.cmd.default.set=Définir %s comme base de données de quête par défaut
+betterquesting.cmd.default.none=Base de données de quêtes introuvable
+betterquesting.cmd.delete.single=Quête supprimée %s
+betterquesting.cmd.delete.all=Supprimer toutes les quêtes
+betterquesting.cmd.edit=Mode édition %s
+betterquesting.cmd.hardcore=Mode hardcore %s
+betterquesting.cmd.purge_hidden=Suppression de %s quete(s) cachée
+
+betterquesting.cmd.lives.add_player=Ajout de %s vies à %s (Total: %s)
+betterquesting.cmd.lives.add_all=Ajout de %s à tous les joueurs
+betterquesting.cmd.lives.remove_player=Suppression de %s vies à %s (Total: %s)
+betterquesting.cmd.lives.remove_all=Supression de %s vies à tous les joueurs
+betterquesting.cmd.lives.set_player=Définir le nombre de vies de %s à %s vies
+betterquesting.cmd.lives.set_all=Définir la vie de tous les joueurs à %s vies
+betterquesting.cmd.lives.max=Définir le nombre de vie maximum à %s vies
+betterquesting.cmd.lives.default=Définir le nombre de vie par défaut à %s vies
+
+betterquesting.cmd.reset.player_single=Réinitialiser la quête '%s' pour %s
+betterquesting.cmd.reset.player_all=Réinitialisation de toutes les quêtes pour %s
+betterquesting.cmd.reset.all_single=Réinitialisation des quêtes '%s' for everyone
+betterquesting.cmd.reset.all_all=Réinitialisation de toutes les quêtes pour tout le monde
+betterquesting.cmd.refresh=Actualisation de la base de données locale ...
+
+json.betterquesting.quest.name=Données de quête
+jdoc.betterquesting.quest.rewards.name=Récompense
+jdoc.betterquesting.quest.rewards.desc=Liste des types de récompenses configurables
+jdoc.betterquesting.quest.tasks.name=Tâches
+jdoc.betterquesting.quest.tasks.desc=Liste des types de tâches configurables
+jdoc.betterquesting.quest.preRequisites.name=Pré-requis
+jdoc.betterquesting.quest.preRequisites.desc=Liste des identifiants de quête utilisés pour déverrouiller cette quête
+jdoc.betterquesting.quest.properties.name=Propriétés
+jdoc.betterquesting.quest.properties.desc=Propriétés définissant l'apparence et la fonctionnalité de la quête
+
+jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
+jdoc.betterquesting.quest.properties.betterquesting.desc=Propriétés de BetterQuesting
