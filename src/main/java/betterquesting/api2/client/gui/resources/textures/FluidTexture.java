@@ -70,13 +70,16 @@ public class FluidTexture implements IGuiTexture
         
         GlStateManager.translate(x + dx, y + dy, 0);
         GlStateManager.scale(sx, sy, 1F);
-        //color.applyGlColor();
         
         int fCol = fluid.getFluid().getColor(fluid);
         float a = (fCol >> 24 & 255) / 255F;
         float r = (fCol >> 16 & 255) / 255F;
         float g = (fCol >> 8 & 255) / 255F;
         float b = (fCol & 255) / 255F;
+        a = a + color.getAlpha() / 2F;
+        r = r + color.getRed() / 2F;
+        g = g + color.getGreen() / 2F;
+        b = b + color.getBlue() / 2F;
         GlStateManager.color(r, g, b, a);
         
         // TODO: Add tiling option
