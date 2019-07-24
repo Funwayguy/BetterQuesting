@@ -36,7 +36,7 @@ public class QuestCache implements IExtendedEntityProperties
     private final TreeSet<Integer> activeQuests = new TreeSet<>();
     
     // Quests and their scheduled time of being reset
-    private final TreeSet<QResetTime> resetSchedule = new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o2.time, o1.time));
+    private final TreeSet<QResetTime> resetSchedule = new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o1.time, o2.time));
     
     // Quests with pending auto claims (usually should be empty unless a condition needs to be met)
     private final TreeSet<Integer> autoClaims = new TreeSet<>();

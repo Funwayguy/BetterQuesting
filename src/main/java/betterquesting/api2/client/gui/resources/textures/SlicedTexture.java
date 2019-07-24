@@ -187,6 +187,7 @@ public class SlicedTexture implements IGuiTexture
 		
 		int fillerWidth = textureWidth - leftBorder - rightBorder;
 		int fillerHeight = textureHeight - topBorder - bottomBorder;
+		if(fillerWidth <= 0 || fillerHeight <= 0) return;
 		int canvasWidth = width - leftBorder - rightBorder;
 		int canvasHeight = height - topBorder - bottomBorder;
 		int xPasses = canvasWidth / fillerWidth;
