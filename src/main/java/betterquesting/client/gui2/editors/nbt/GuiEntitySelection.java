@@ -1,10 +1,14 @@
 package betterquesting.client.gui2.editors.nbt;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.*;
+import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
+import betterquesting.api2.client.gui.controls.PanelTextField;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.events.IPEventListener;
@@ -118,9 +122,12 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         
         if(btn.getButtonID() == 0) // Exit
         {
-            if(callback != null)
+            try
             {
-                callback.setValue(selEntity);
+                if(callback != null) callback.setValue(selEntity);
+            } catch(Exception e)
+            {
+                QuestingAPI.getLogger().error("Unable to return entity selection!", e);
             }
             
             mc.displayGuiScreen(this.parent);

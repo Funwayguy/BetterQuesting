@@ -34,6 +34,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StringUtils;
 import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
@@ -113,7 +114,23 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         cvTopLeft.addPanel(fieldSize);
         fieldSize.setCallback(value -> { if(itemStack != null) itemStack.stackSize = value; });
         
-        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 0, -52), 0), 2, "OreDict: NONE", -1);
+        String oreName = "NONE";
+        int oreIdx = -1;
+        if(itemStack != null && !StringUtils.isNullOrEmpty(itemStack.getOreDict()))
+        {
+            oreName = itemStack.getOreDict();
+            int[] oreIds = OreDictionary.getOreIDs(itemStack.getBaseStack());
+            for(int i = 0; i < oreIds.length; i++)
+            {
+                if(OreDictionary.getOreName(oreIds[i]).equalsIgnoreCase(oreName))
+                {
+                    oreIdx = i;
+                    break;
+                }
+            }
+        }
+        
+        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 0, -52), 0), 2, "OreDict: " + oreName, oreIdx);
         cvTopLeft.addPanel(btnOre);
         
         // === BOTTOM LEFT PANEL ===

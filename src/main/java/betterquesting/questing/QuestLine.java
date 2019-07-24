@@ -2,6 +2,7 @@ package betterquesting.questing;
 
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
@@ -9,10 +10,12 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
+import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
@@ -36,6 +39,8 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	{
 		this.setupValue(NativeProps.NAME, "New Quest Line");
 		this.setupValue(NativeProps.DESC, "No Description");
+		this.setupValue(NativeProps.ICON, new BigItemStack(Items.book));
+		this.setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
 		this.setupValue(NativeProps.BG_IMAGE);
 		this.setupValue(NativeProps.BG_SIZE);
 	}

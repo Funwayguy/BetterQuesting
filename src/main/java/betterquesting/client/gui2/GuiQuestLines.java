@@ -3,13 +3,18 @@ package betterquesting.client.gui2;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.*;
+import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -17,10 +22,14 @@ import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
+import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
+import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
@@ -45,10 +54,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private IQuestLine selectedLine = null;
     private int selectedLineId = -1;
     
-    private PanelButtonStorage[] qlBtns;
+    private final List<PanelButtonStorage> qlBtns = new ArrayList<>();
     private CanvasQuestLine cvQuest;
     private CanvasScrolling cvDesc;
     private PanelVScrollBar scDesc;
+    private CanvasScrolling cvLines;
+    private PanelVScrollBar scLines;
     private PanelTextBox paDesc;
     private PanelButton claimAll;
     
@@ -93,49 +104,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         }
     
-        CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
-        cvBackground.addPanel(cvList);
-        PanelVScrollBar pnQScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
-        cvList.setScrollDriverY(pnQScroll);
-        cvBackground.addPanel(pnQScroll);
-        pnQScroll.getTransform().setParent(cvList.getTransform());
-    
-        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
-        this.qlBtns = new PanelButtonStorage[lineList.length];
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
-    
-        for(int i = 0; i < lineList.length; i++)
-        {
-            IQuestLine ql = lineList[i].getValue();
-    
-            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, 142, 16, 0), 1, QuestTranslation.translate(ql.getUnlocalisedName()), ql);
-            
-            boolean show = canEdit;
-            
-            if(!show)
-            {
-                for(DBEntry<IQuestLineEntry> qID : ql.getEntries())
-                {
-                    IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
-                    
-                    if(q != null && QuestCache.isQuestShown(q, playerID, mc.thePlayer))
-                    {
-                        show = true;
-                        break;
-                    }
-                }
-            }
-            
-            if(!show || ql == selectedLine)
-            {
-                btnLine.setActive(false);
-            }
-            
-            cvList.addPanel(btnLine);
-            qlBtns[i] = btnLine;
-        }
+        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
+        cvBackground.addPanel(cvLines);
+        scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
+        cvLines.setScrollDriverY(scLines);
+        cvBackground.addPanel(scLines);
+        scLines.getTransform().setParent(cvLines.getTransform());
         
-        pnQScroll.setEnabled(cvList.getScrollBounds().getHeight() > 0);
+        refreshList();
     
         CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
@@ -284,6 +260,82 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             cvQuest.fitToWindow();
             
         }
+    }
+    
+    private void refreshList()
+    {
+        for(PanelButtonStorage btn : qlBtns)
+        {
+            cvLines.removePanel(btn);
+        }
+        
+        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.thePlayer);
+        DBEntry<IQuestLine>[] lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
+        this.qlBtns.clear();
+        UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+        
+        int n = 0;
+        for(DBEntry<IQuestLine> iQuestLineDBEntry : lineList)
+        {
+            IQuestLine ql = iQuestLineDBEntry.getValue();
+            EnumQuestVisibility vis = ql.getProperty(NativeProps.VISIBILITY);
+            if(!canEdit && vis == EnumQuestVisibility.HIDDEN) continue;
+        
+            boolean show = false;
+            boolean unlocked = false;
+            boolean complete = false;
+            boolean allComplete = true;
+            boolean pendingClaim = false;
+        
+            if(canEdit)
+            {
+                show = true;
+                unlocked = true;
+                complete = true;
+            }
+            
+            for(DBEntry<IQuestLineEntry> qID : ql.getEntries())
+            {
+                IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
+                if(q == null) continue;
+                
+                if(allComplete && !q.isComplete(playerID)) allComplete = false;
+                if(!pendingClaim && q.isComplete(playerID) && !q.hasClaimed(playerID)) pendingClaim = true;
+                if(!unlocked && q.isUnlocked(playerID)) unlocked = true;
+                if(!complete && q.isComplete(playerID)) complete = true;
+                if(!show && QuestCache.isQuestShown(q, playerID, mc.thePlayer)) show = true;
+                if(unlocked && complete && show && pendingClaim && !allComplete) break;
+            }
+        
+            if(vis == EnumQuestVisibility.COMPLETED && !complete)
+            {
+                continue;
+            } else if(vis == EnumQuestVisibility.UNLOCKED && !unlocked)
+            {
+                continue;
+            }
+    
+            cvLines.addPanel(new PanelGeneric(new GuiRectangle(126, n * 16, 16, 16, 0), new OreDictTexture(1F, ql.getProperty(NativeProps.ICON), false, true)));
+            
+            if(pendingClaim)
+            {
+                cvLines.addPanel(new PanelGeneric(new GuiRectangle(134, n * 16 + 8, 8, 8, -1), new GuiTextureColored(PresetIcon.ICON_NOTICE.getTexture(), new GuiColorStatic(0xFFFFFF00))));
+            } else if(allComplete)
+            {
+                cvLines.addPanel(new PanelGeneric(new GuiRectangle(134, n * 16 + 8, 8, 8, -1), new GuiTextureColored(PresetIcon.ICON_TICK.getTexture(), new GuiColorStatic(0xFF00FF00))));
+            }
+            PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, n++ * 16, 126, 16, 0), 1, QuestTranslation.translate(ql.getUnlocalisedName()), ql);
+        
+            if(!show || ql == selectedLine)
+            {
+                btnLine.setActive(false);
+            }
+        
+            cvLines.addPanel(btnLine);
+            qlBtns.add(btnLine);
+        }
+        
+        scLines.setEnabled(cvLines.getScrollBounds().getHeight() > 0);
     }
     
     private void refreshContent()

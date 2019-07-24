@@ -33,6 +33,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	private boolean enabled = true;
 	
 	public final GuiScreen parent;
+	private boolean useDefaultBQ = false;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
@@ -44,6 +45,12 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	{
 		return transform;
 	}
+	
+	public GuiScreenCanvas useDefaultBG(boolean enable)
+    {
+        this.useDefaultBQ = enable;
+        return this;
+    }
 	
 	/**
 	 * Use initPanel() for embed support
