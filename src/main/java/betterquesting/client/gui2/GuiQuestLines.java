@@ -28,7 +28,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
-import betterquesting.api2.client.gui.resources.textures.ItemTexture;
+import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
@@ -311,7 +311,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 continue;
             }
     
-            cvLines.addPanel(new PanelGeneric(new GuiRectangle(126, n * 16, 16, 16, 0), new ItemTexture(ql.getProperty(NativeProps.ICON))));
+            cvLines.addPanel(new PanelGeneric(new GuiRectangle(126, n * 16, 16, 16, 0), new OreDictTexture(1F, ql.getProperty(NativeProps.ICON), false, true)));
             
             if(pendingClaim)
             {

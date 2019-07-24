@@ -179,20 +179,17 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
         int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
         
+        // TODO: Display expiry period
         for(int i = 0; i < invites.size(); i++)
         {
-            Integer pid = invites.get(i).getKey(); // TODO: Fix me
+            Integer pid = invites.get(i).getKey();
+            if(pid < 0) continue;
             IParty party = PartyManager.INSTANCE.getValue(pid);
-            
-            if(party == null)
-            {
-                continue;
-            }
     
             PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
             invitePanel.addPanel(btnJoin);
             
-            String pName = party.getProperties().getProperty(NativeProps.NAME);
+            String pName = party == null ? "Unknown (" + pid + ")" : party.getProperties().getProperty(NativeProps.NAME);
             if(RenderUtils.getStringWidth(pName, mc.fontRenderer) > cvWidth - 58)
             {
                 pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";

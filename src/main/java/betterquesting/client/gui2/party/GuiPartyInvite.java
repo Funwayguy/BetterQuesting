@@ -150,6 +150,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
 			payload.setInteger("action", 3);
 			payload.setInteger("partyID", partyID);
 			payload.setString("username", flName.getRawText());
+			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
             NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
@@ -157,6 +158,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             payload.setInteger("action", 3);
             payload.setInteger("partyID", partyID);
             payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
+			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
             NetPartyAction.sendAction(payload);
         }
     }

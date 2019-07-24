@@ -1,6 +1,7 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
@@ -10,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -42,5 +44,6 @@ public class NetInviteSync
     private static void onClient(NBTTagCompound message)
     {
         PartyInvitations.INSTANCE.readFromNBT(message.getTagList("data", 10), true);
+        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
     }
 }
