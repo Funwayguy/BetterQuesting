@@ -8,6 +8,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
+import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 public class NetBulkSync // Clears local data and negotiates a full resync with the server
@@ -61,9 +64,20 @@ public class NetBulkSync // Clears local data and negotiates a full resync with 
         NetChapterSync.sendSync(player, null);
         NetLifeSync.sendSync(new EntityPlayerMP[]{player}, new UUID[]{playerID});
         DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
+        List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
+        int partyCount = invites.size() + (party == null ? 0 : 1);
+        if(partyCount > 0)
+        {
+            int[] pids = new int[partyCount];
+            for(int i = 0; i < invites.size(); i++)
+            {
+                pids[i] = invites.get(i).getKey();
+            }
+            if(party != null) pids[partyCount - 1] = party.getID();
+            NetPartySync.sendSync(new EntityPlayerMP[]{player}, pids);
+        }
         if(party != null)
         {
-            NetPartySync.sendSync(new EntityPlayerMP[]{player}, new int[]{party.getID()});
             NetNameSync.quickSync(nameChanged ? null : player, party.getID());
         } else
         {

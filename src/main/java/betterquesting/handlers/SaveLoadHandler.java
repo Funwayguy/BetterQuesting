@@ -12,6 +12,7 @@ import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
@@ -269,11 +270,15 @@ public class SaveLoadHandler
         QuestLineDatabase.INSTANCE.reset();
         LifeDatabase.INSTANCE.reset();
         NameCache.INSTANCE.reset();
+        PartyInvitations.INSTANCE.reset();
+        PartyManager.INSTANCE.reset();
         
         if(BetterQuesting.proxy.isClient())
 		{
 			GuiHome.bookmark = null;
 			QuestNotification.resetNotices();
 		}
+        
+        // TODO: Fire an event to that expansions can use to reset their own databases if necessary
     }
 }

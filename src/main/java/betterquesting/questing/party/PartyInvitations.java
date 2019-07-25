@@ -76,6 +76,11 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
         invites.values().forEach((value) -> value.remove(partyID));
     }
     
+    public synchronized void reset()
+    {
+        invites.clear();
+    }
+    
     @Override
     public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> subset) // Don't bother saving this to disk. We do need to send packets though
     {

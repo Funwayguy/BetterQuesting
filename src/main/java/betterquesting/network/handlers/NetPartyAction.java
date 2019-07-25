@@ -137,7 +137,11 @@ public class NetPartyAction
         if(uuid != null)
         {
             PartyInvitations.INSTANCE.postInvite(uuid, partyID, expiry);
-            if(player != null) NetInviteSync.sendSync(player);
+            if(player != null)
+            {
+                NetPartySync.sendSync(new EntityPlayerMP[]{player},new int[]{partyID});
+                NetInviteSync.sendSync(player);
+            }
         }
     }
     
@@ -163,11 +167,12 @@ public class NetPartyAction
         if(player != null) uuid = QuestingAPI.getQuestingUUID(player);
         if(uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
         if(uuid == null) return; // No idea who this is
-        if(party.getStatus(uuid) == null) return; // You're not even over here
         
         if(uuid.equals(QuestingAPI.getQuestingUUID(sender)) || checkPermission(uuid, party) < permission)
         {
-            party.kickUser(uuid);
+            // Even if the kick isn't confirmed we still need to tell the clients incase of desync
+            if(party.getStatus(uuid) != null) party.kickUser(uuid);
+            
             if(party.getMembers().size() > 0)
             {
                 NetPartySync.quickSync(partyID);
@@ -222,14 +227,14 @@ public class NetPartyAction
 		
 		switch(action)
         {
-            case 1:
+            case 1: // Delete
             {
                 PartyManager.INSTANCE.removeID(partyID);
                 PartyInvitations.INSTANCE.purgeInvites(partyID);
 		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
                 break;
             }
-            case 5:
+            case 5: // Kicked
             {
                 IParty party = PartyManager.INSTANCE.getValue(partyID);
                 if(party != null)

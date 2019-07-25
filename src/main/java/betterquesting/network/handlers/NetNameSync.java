@@ -1,5 +1,6 @@
 package betterquesting.network.handlers;
 
+import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
@@ -15,6 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -152,5 +154,6 @@ public class NetNameSync
     private static void onClient(NBTTagCompound message)
     {
         NameCache.INSTANCE.readFromNBT(message.getTagList("data", 10), message.getBoolean("merge"));
+        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
     }
 }
