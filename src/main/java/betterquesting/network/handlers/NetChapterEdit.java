@@ -106,7 +106,7 @@ public class NetChapterEdit
         NetChapterSync.sendSync(null, ids);
     }
     
-    private static void reorderChapters(int[] chapterIDs)
+    private static void deleteChapters(int[] chapterIDs)
     {
         for(int id : chapterIDs)
         {
@@ -121,7 +121,7 @@ public class NetChapterEdit
         PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void deleteChapters(int[] chapterIDs)
+    private static void reorderChapters(int[] chapterIDs)
     {
         for(int n = 0; n < chapterIDs.length; n++)
         {

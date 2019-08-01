@@ -148,7 +148,7 @@ public class EventHandler
             
             if(!editMode && player.getServer() != null) // Repeatable quest resets
             {
-                long totalTime = player.getServer().getWorld(0).getTotalWorldTime();
+                long totalTime = System.currentTimeMillis();
                 
                 for(QResetTime rTime : pendingResets)
                 {

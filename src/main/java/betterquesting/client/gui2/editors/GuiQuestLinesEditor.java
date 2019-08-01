@@ -305,7 +305,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();
             int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
-            if(order > 0) SendReorder();
+            if(order > 0) SendReorder(order);
         } else if(btn.getButtonID() == 8) // Big Description Editor
         {
             mc.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
@@ -352,14 +352,20 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 	    NetChapterEdit.sendEdit(payload);
 	}
 	
-	private void SendReorder()
+	private void SendReorder(int indexToShift)
     {
+        if(indexToShift <= 0) return;
         List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
+        if(indexToShift >= entries.size()) return;
         int[] chapterIDs = new int[entries.size()];
         for(int i = 0; i < entries.size(); i++)
         {
             chapterIDs[i] = entries.get(i).getID();
         }
+        
+        int tmp = chapterIDs[indexToShift];
+        chapterIDs[indexToShift] = chapterIDs[indexToShift - 1];
+        chapterIDs[indexToShift - 1] = tmp;
         
         NBTTagCompound payload = new NBTTagCompound();
         payload.setIntArray("chapterIDs", chapterIDs);

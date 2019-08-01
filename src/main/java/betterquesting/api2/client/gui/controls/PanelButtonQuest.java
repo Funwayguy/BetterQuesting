@@ -33,13 +33,14 @@ import java.util.UUID;
 public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 {
     public final GuiRectangle rect;
+    public final EntityPlayer player;
     
     public PanelButtonQuest(GuiRectangle rect, int id, String txt, DBEntry<IQuest> value)
     {
         super(rect, id, txt, value);
         this.rect = rect;
         
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        player = Minecraft.getMinecraft().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(QuestingAPI.getQuestingUUID(player));
         IGuiTexture txFrame = null;
         IGuiColor txIconCol = null;
@@ -70,8 +71,17 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
         setTextures(btnTx, btnTx, btnTx);
         setIcon(new OreDictTexture(1F, value == null ? new BigItemStack(Items.NETHER_STAR) : value.getValue().getProperty(NativeProps.ICON), false, true), 4);
-        setTooltip(value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID()));
+        //setTooltip(value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID()));
         setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        if(!this.getTransform().contains(mx, my)) return null;
+        
+        DBEntry<IQuest> value = this.getStoredValue();
+        return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID());
     }
     
     private List<String> getQuestTooltip(IQuest quest, EntityPlayer player, int qID)
@@ -124,7 +134,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		{
 			list.add(TextFormatting.RED + "" + TextFormatting.UNDERLINE + QuestTranslation.translate("betterquesting.tooltip.requires") + " (" + quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
 			
-			// TODO: Make this lookup unnecessary or better yet, deprecate the tooltip and make the GUIs in charge of assembling its own information.
+			// TODO: Make this lookup unnecessary
 			for(DBEntry<IQuest> req : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements()))
 			{
 				if(!req.getValue().isComplete(playerID))
@@ -194,7 +204,6 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         NBTTagCompound ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
         if(ue == null) return 0;
         
-        // TODO: This isn't accurate outside of the overworld dimension. Adjust later
-        return (quest.getProperty(NativeProps.REPEAT_TIME) - (player.world.getTotalWorldTime() - ue.getLong("timestamp"))) / 20L;
+        return ((quest.getProperty(NativeProps.REPEAT_TIME) * 50L) - (System.currentTimeMillis() - ue.getLong("timestamp"))) / 1000L;
 	}
 }

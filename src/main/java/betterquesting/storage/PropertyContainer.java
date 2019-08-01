@@ -81,6 +81,13 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
 	{
         for(String key : nbtInfo.getKeySet()) nbtInfo.removeTag(key);
         nbtInfo.merge(nbt);
+        
+        // TODO: FIX CASING
+        /*List<String> keys = new ArrayList<>(nbtInfo.getKeySet());
+        for(nbt)
+        {
+        
+        }*/
 	}
 	
 	private NBTTagCompound getDomain(ResourceLocation res)

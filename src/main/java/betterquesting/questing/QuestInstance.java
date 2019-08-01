@@ -22,7 +22,6 @@ import betterquesting.storage.QuestSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.*;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
@@ -98,7 +97,7 @@ public class QuestInstance implements IQuest
         
         if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
         {
-            setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+            setComplete(playerID, System.currentTimeMillis());
         } else if(done > 0 && qInfo.getProperty(NativeProps.SIMULTANEOUS)) // TODO: There is actually an exploit here to do with locked progression bypassing simultaneous reset conditions. Fix?
         {
             resetUser(playerID, false);
@@ -149,7 +148,7 @@ public class QuestInstance implements IQuest
 			if(tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size()))
 			{
 			    // State won't be auto updated in edit mode so we force change it here and mark it for re-sync
-				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) setComplete(playerID, FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) setComplete(playerID, System.currentTimeMillis());
 				qc.markQuestDirty(questID);
 			} else if(update && qInfo.getProperty(NativeProps.SIMULTANEOUS))
 			{
@@ -244,7 +243,7 @@ public class QuestInstance implements IQuest
             }
 
             entry.setBoolean("claimed", true);
-            entry.setLong("timestamp", FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(0).getTotalWorldTime());
+            entry.setLong("timestamp", System.currentTimeMillis());
         }
 		
 		if(qc != null) qc.markQuestDirty(QuestDatabase.INSTANCE.getID(this));
