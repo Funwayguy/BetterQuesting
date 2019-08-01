@@ -122,7 +122,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
                 {
                     if(repeat >= 0 && entry.getValue().hasClaimed(uuid))
                     {
-                        tmpReset.add(new QResetTime(entry.getID(), ue.getLong("timestamp") + (repeat * 50)));
+                        long altTime = ue.getLong("timestamp");
+                        if(repeat > 1 && !entry.getValue().getProperty(NativeProps.REPEAT_REL)) altTime -= (altTime % repeat);
+                        tmpReset.add(new QResetTime(entry.getID(), altTime + (repeat * 50)));
                     }
                     
                     if(!entry.getValue().hasClaimed(uuid) && entry.getValue().getProperty(NativeProps.AUTO_CLAIM))

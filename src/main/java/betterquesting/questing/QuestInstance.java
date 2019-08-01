@@ -61,6 +61,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.LOGIC_TASK, EnumLogic.AND);
 		
 		setupValue(NativeProps.REPEAT_TIME, -1);
+		setupValue(NativeProps.REPEAT_REL, true);
 		setupValue(NativeProps.LOCKED_PROGRESS, false);
 		setupValue(NativeProps.AUTO_CLAIM, false);
 		setupValue(NativeProps.SILENT, false);
