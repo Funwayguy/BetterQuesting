@@ -31,6 +31,7 @@ public class ResourceRegistry implements IResourceReg
         TEX_REG.register(FactoryLayeredTexture.INSTANCE);
         TEX_REG.register(FactorySlideShowTexture.INSTANCE);
         TEX_REG.register(FactoryColorTexture.INSTANCE);
+        TEX_REG.register(FactoryEmptyTexture.INSTANCE);
         
         COL_REG.register(FactoryColorStatic.INSTANCE);
         COL_REG.register(FactoryColorSequence.INSTANCE);

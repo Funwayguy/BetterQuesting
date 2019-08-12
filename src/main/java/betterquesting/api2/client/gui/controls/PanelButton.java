@@ -189,7 +189,7 @@ public class PanelButton implements IPanelButton
 	
     private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
     {
-        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2, y, color, shadow);
+        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
     }
     
 	@Override

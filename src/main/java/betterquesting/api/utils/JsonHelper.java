@@ -17,6 +17,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -35,14 +36,9 @@ public class JsonHelper
 {
 	private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	
-	public static JsonArray GetArray(JsonObject json, String id)
+	public static JsonArray GetArray(@Nonnull JsonObject json, @Nonnull String id)
 	{
-		if(json == null)
-		{
-			return new JsonArray();
-		}
-		
-		if(json.has(id) && json.get(id).isJsonArray())
+		if(json.get(id) instanceof JsonArray)
 		{
 			return json.get(id).getAsJsonArray();
 		} else
@@ -51,14 +47,9 @@ public class JsonHelper
 		}
 	}
 	
-	public static JsonObject GetObject(JsonObject json, String id)
+	public static JsonObject GetObject(@Nonnull JsonObject json, @Nonnull String id)
 	{
-		if(json == null)
-		{
-			return new JsonObject();
-		}
-		
-		if(json.has(id) && json.get(id).isJsonObject())
+		if(json.get(id) instanceof JsonObject)
 		{
 			return json.get(id).getAsJsonObject();
 		} else
@@ -67,14 +58,9 @@ public class JsonHelper
 		}
 	}
 	
-	public static String GetString(JsonObject json, String id, String def)
+	public static String GetString(@Nonnull JsonObject json, @Nonnull String id, String def)
 	{
-		if(json == null)
-		{
-			return def;
-		}
-		
-		if(json.has(id) && json.get(id).isJsonPrimitive() && json.get(id).getAsJsonPrimitive().isString())
+		if(json.get(id) instanceof JsonPrimitive && json.get(id).getAsJsonPrimitive().isString())
 		{
 			return json.get(id).getAsString();
 		} else
@@ -83,14 +69,9 @@ public class JsonHelper
 		}
 	}
 	
-	public static Number GetNumber(JsonObject json, String id, Number def)
+	public static Number GetNumber(@Nonnull JsonObject json, @Nonnull String id, Number def)
 	{
-		if(json == null)
-		{
-			return def;
-		}
-		
-		if(json.has(id) && json.get(id).isJsonPrimitive())
+		if(json.get(id) instanceof JsonPrimitive)
 		{
 			try
 			{
@@ -105,14 +86,9 @@ public class JsonHelper
 		}
 	}
 	
-	public static boolean GetBoolean(JsonObject json, String id, boolean def)
+	public static boolean GetBoolean(@Nonnull JsonObject json, @Nonnull String id, boolean def)
 	{
-		if(json == null)
-		{
-			return def;
-		}
-		
-		if(json.has(id) && json.get(id).isJsonPrimitive())
+		if(json.get(id) instanceof JsonPrimitive)
 		{
 			try
 			{
@@ -144,28 +120,17 @@ public class JsonHelper
 		return null;
 	}
 	
-	public static void ClearCompoundTag(NBTTagCompound tag)
+	public static void ClearCompoundTag(@Nonnull NBTTagCompound tag)
 	{
-		if(tag == null)
-		{
-			return;
-		}
-		
 		ArrayList<String> list = new ArrayList<>(tag.getKeySet());
-		for(String key : list)
-		{
-			tag.removeTag(key);
-		}
+		list.forEach(tag::removeTag);
 	}
 	
 	public static JsonObject ReadFromFile(File file)
 	{
+        if(file == null || !file.exists()) return new JsonObject();
+        
 		Future<JsonObject> task = BQThreadedIO.INSTANCE.enqueue(() -> {
-			if(file == null || !file.exists())
-			{
-				return new JsonObject();
-			}
-			
 			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
 			try(FileInputStream fis = new FileInputStream(file); InputStreamReader fr = new InputStreamReader(fis, StandardCharsets.UTF_8))
 			{
@@ -181,8 +146,7 @@ public class JsonHelper
 				
 				while(bkup.exists())
 				{
-					i++;
-					bkup = new File(file.getParent(), "malformed_" + file.getName() + i + ".json");
+					bkup = new File(file.getParent(), "malformed_" + file.getName() + (++i) + ".json");
 				}
 				
 				QuestingAPI.getLogger().log(Level.ERROR, "Creating backup at: " + bkup.getAbsolutePath());
@@ -250,7 +214,8 @@ public class JsonHelper
 			
 			try
             {
-                Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                if(file.exists()) file.delete();
+                tmp.renameTo(file);
             } catch(Exception e)
             {
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);

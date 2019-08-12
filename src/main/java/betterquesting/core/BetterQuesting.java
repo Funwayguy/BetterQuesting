@@ -44,6 +44,9 @@ public class BetterQuesting
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
     public static final String FORMAT = "2.0.0";
+    
+    // TODO: Possibly make use of this in future
+    private static final String MCL_API = "Yo1nkbXn7uVptLoL3GpkAaT7HsU8QFGJ";
 	
 	@Instance(MODID)
 	public static BetterQuesting instance;

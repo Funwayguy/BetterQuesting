@@ -5,6 +5,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api.utils.NBTConverter;
+import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.client.QuestNotification;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.core.BetterQuesting;
@@ -261,24 +262,26 @@ public class SaveLoadHandler
     
     public void unloadDatabases()
     {
-        BQ_Settings.curWorldDir = null;
-        hasUpdate = false;
-        isDirty = false;
-        
-        QuestSettings.INSTANCE.reset();
-        QuestDatabase.INSTANCE.reset();
-        QuestLineDatabase.INSTANCE.reset();
-        LifeDatabase.INSTANCE.reset();
-        NameCache.INSTANCE.reset();
-        PartyInvitations.INSTANCE.reset();
-        PartyManager.INSTANCE.reset();
-        
-        if(BetterQuesting.proxy.isClient())
-		{
-			GuiHome.bookmark = null;
-			QuestNotification.resetNotices();
-		}
-        
-        // TODO: Fire an event to that expansions can use to reset their own databases if necessary
+        BQThreadedIO.INSTANCE.enqueue(() -> {
+            BQ_Settings.curWorldDir = null;
+            hasUpdate = false;
+            isDirty = false;
+            
+            QuestSettings.INSTANCE.reset();
+            QuestDatabase.INSTANCE.reset();
+            QuestLineDatabase.INSTANCE.reset();
+            LifeDatabase.INSTANCE.reset();
+            NameCache.INSTANCE.reset();
+            PartyInvitations.INSTANCE.reset();
+            PartyManager.INSTANCE.reset();
+            
+            if(BetterQuesting.proxy.isClient())
+            {
+                GuiHome.bookmark = null;
+                QuestNotification.resetNotices();
+            }
+            
+            // TODO: Fire an event to that expansions can use to reset their own databases if necessary
+        });
     }
 }
