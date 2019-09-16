@@ -7,6 +7,7 @@ import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetStationEdit;
 import betterquesting.questing.QuestDatabase;
@@ -48,7 +49,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	public int questID;
 	public int taskID;
 	
-	private IQuest qCached;
+	private DBEntry<IQuest> qCached;
 	
 	@SuppressWarnings("WeakerAccess")
     public TileSubmitStation()
@@ -59,14 +60,19 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		this.fluidHandler = this;
 	}
 	
-	public IQuest getQuest()
+	public DBEntry<IQuest> getQuest()
 	{
 		if(questID < 0)
 		{
 			return null;
 		} else
 		{
-		    if(qCached == null) qCached = QuestDatabase.INSTANCE.getValue(questID);
+		    if(qCached == null)
+            {
+                IQuest tmp = QuestDatabase.INSTANCE.getValue(questID);
+                if(tmp != null) qCached = new DBEntry<>(questID, QuestDatabase.INSTANCE.getValue(questID));
+            }
+		    
 			return qCached;
 		}
 	}
@@ -74,14 +80,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@SuppressWarnings("WeakerAccess")
     public ITask getRawTask()
 	{
-		IQuest q = getQuest();
+		DBEntry<IQuest> q = getQuest();
 		
 		if(q == null || taskID < 0)
 		{
 			return null;
 		} else
 		{
-			return q.getTasks().getValue(taskID);
+			return q.getValue().getTasks().getValue(taskID);
 		}
 	}
 	
@@ -280,7 +286,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		if(wtt%10 == 0 && owner != null)
 		{
 		    if(wtt%20 == 0) qCached = null; // Reset and lookup quest again once every second
-            IQuest q = getQuest();
+            DBEntry<IQuest> q = getQuest();
             IItemTask t = getItemTask();
             MinecraftServer server = world.getMinecraftServer();
             EntityPlayerMP player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
@@ -338,7 +344,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		}
 		
 		this.questID = QuestDatabase.INSTANCE.getID(quest);
-		this.qCached = quest;
+		this.qCached = new DBEntry<>(questID, quest);
 		this.taskID = quest.getTasks().getID(task);
 		
 		if(this.questID < 0 || this.taskID < 0)

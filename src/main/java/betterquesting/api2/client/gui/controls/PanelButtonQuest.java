@@ -169,7 +169,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		{
 			list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share", quest.getProperty(NativeProps.GLOBAL_SHARE)));
 		}
-		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.task_logic", quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
+		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.quest_logic", quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous", quest.getProperty(NativeProps.SIMULTANEOUS)));
 		list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", quest.getProperty(NativeProps.AUTO_CLAIM)));
 		if(quest.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)

@@ -181,7 +181,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
             ITask task = ((PanelButtonStorage<ITask>)btn).getStoredValue();
-            GuiScreen editor = task.getTaskEditor(this, quest);
+            GuiScreen editor = task.getTaskEditor(this, new DBEntry<>(qID, quest));
             
             if(editor != null)
             {

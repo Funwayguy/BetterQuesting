@@ -308,7 +308,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         txtTskTitle.setText(QuestTranslation.translate(curTask.getValue().getUnlocalisedName()));
         btnSet.setActive(!tile.isSetup() && (curTask.getValue() instanceof IItemTask || curTask.getValue() instanceof IFluidTask));
         
-        taskPanel = curTask.getValue().getTaskGui(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 88, 16, 24), 0), entry.getValue());
+        taskPanel = curTask.getValue().getTaskGui(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 88, 16, 24), 0), entry);
         if(taskPanel != null) cvBackground.addPanel(taskPanel);
     }
     

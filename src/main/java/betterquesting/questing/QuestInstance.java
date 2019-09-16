@@ -14,6 +14,7 @@ import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
@@ -128,12 +129,14 @@ public class QuestInstance implements IQuest
 		{
 			int done = 0;
 			boolean update = false;
+            
+            ParticipantInfo partInfo = new ParticipantInfo(player);
 			
 			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
 				if(!entry.getValue().isComplete(playerID))
 				{
-					entry.getValue().detect(player, this);
+					entry.getValue().detect(partInfo, new DBEntry<>(questID, this));
 					
 					if(entry.getValue().isComplete(playerID))
 					{
@@ -210,9 +213,10 @@ public class QuestInstance implements IQuest
 			return false;
 		} else
 		{
+		    int questID = QuestDatabase.INSTANCE.getID(this);
 			for(DBEntry<IReward> rew : rewards.getEntries())
 			{
-				if(!rew.getValue().canClaim(player, this))
+				if(!rew.getValue().canClaim(player, new DBEntry<>(questID, this)))
 				{
 					return false;
 				}
@@ -225,9 +229,10 @@ public class QuestInstance implements IQuest
 	@Override
 	public void claimReward(EntityPlayer player)
 	{
+        int questID = QuestDatabase.INSTANCE.getID(this);
 		for(DBEntry<IReward> rew : rewards.getEntries())
 		{
-			rew.getValue().claimReward(player, this);
+			rew.getValue().claimReward(player, new DBEntry<>(questID, this));
 		}
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);

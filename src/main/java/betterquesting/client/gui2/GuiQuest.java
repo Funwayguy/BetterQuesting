@@ -25,6 +25,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
@@ -295,7 +296,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         IReward rew = quest.getRewards().getEntries().get(rewardIndex).getValue();
         
-        pnReward = rew.getRewardGui(rectReward, quest);
+        pnReward = rew.getRewardGui(rectReward, new DBEntry<>(questID, quest));
         
         if(pnReward != null)
         {
@@ -329,7 +330,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         ITask tsk = quest.getTasks().getEntries().get(taskIndex).getValue();
         
-        pnTask = tsk.getTaskGui(rectTask, quest);
+        pnTask = tsk.getTaskGui(rectTask, new DBEntry<>(questID, quest));
         
         if(pnTask != null)
         {

@@ -51,9 +51,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.UUID;
 
@@ -337,7 +340,21 @@ public class EventHandler
 		if(server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")))
 		{
 		    EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
-			if(playerMP != null && NameCache.INSTANCE.updateName(playerMP))
+			if(playerMP != null) opQueue.add(playerMP); // Has to be delayed until after the event when the command has executed
+		}
+	}
+	
+	private final ArrayDeque<EntityPlayerMP> opQueue = new ArrayDeque<>();
+	
+	@SubscribeEvent
+    public void onServerTick(ServerTickEvent event)
+    {
+        if(event.phase != Phase.END) return;
+        
+        while(!opQueue.isEmpty())
+        {
+            EntityPlayerMP playerMP = opQueue.poll();
+            if(playerMP != null && NameCache.INSTANCE.updateName(playerMP))
             {
                 DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(playerMP));
                 if(party != null)
@@ -348,6 +365,6 @@ public class EventHandler
                     NetNameSync.sendNames(new EntityPlayerMP[]{playerMP}, new UUID[]{QuestingAPI.getQuestingUUID(playerMP)}, null);
                 }
             }
-		}
-	}
+        }
+    }
 }

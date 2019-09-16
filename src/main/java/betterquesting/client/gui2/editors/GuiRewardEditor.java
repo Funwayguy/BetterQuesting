@@ -181,7 +181,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
             IReward reward = ((PanelButtonStorage<IReward>)btn).getStoredValue();
-            GuiScreen editor = reward.getRewardEditor(this, quest);
+            GuiScreen editor = reward.getRewardEditor(this, new DBEntry<>(qID, quest));
             
             if(editor != null)
             {

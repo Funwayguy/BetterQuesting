@@ -131,7 +131,7 @@ public class SaveLoadHandler
 		
 		String fVer = nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0";
 		String bVer = nbt1.getString("build");
-		String cVer = Loader.instance().activeModContainer().getVersion();
+		String cVer = Loader.instance().getIndexedModList().get(BetterQuesting.MODID).getVersion();
 		
 		if(!cVer.equalsIgnoreCase(bVer) && !useDef) // RUN BACKUPS
 		{
