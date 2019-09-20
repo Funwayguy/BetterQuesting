@@ -30,6 +30,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
+import betterquesting.client.gui3.GuiStatus;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
 import betterquesting.network.handlers.NetQuestSync;
@@ -196,7 +197,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			}
 		} else if(btn.getButtonID() == 6) // Test screen
 		{
-			mc.displayGuiScreen(new GuiDebugTest(this));
+			mc.displayGuiScreen(new GuiStatus(this));
 		}
 	}
 }

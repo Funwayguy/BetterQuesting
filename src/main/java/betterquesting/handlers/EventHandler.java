@@ -35,6 +35,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -345,11 +346,25 @@ public class EventHandler
 	}
 	
 	private final ArrayDeque<EntityPlayerMP> opQueue = new ArrayDeque<>();
+	private boolean openToLAN = false;
 	
 	@SubscribeEvent
     public void onServerTick(ServerTickEvent event)
     {
         if(event.phase != Phase.END) return;
+        
+        if(!openToLAN)
+        {
+            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+            if(server.isDedicatedServer())
+            {
+                openToLAN = true;
+            } else if(((IntegratedServer)server).getPublic())
+            {
+                openToLAN = true;
+                opQueue.addAll(server.getPlayerList().getPlayers());
+            }
+        }
         
         while(!opQueue.isEmpty())
         {
