@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
+import org.lwjgl.opengl.GL11;
 
 public class FluidTexture implements IGuiTexture
 {
@@ -70,6 +71,9 @@ public class FluidTexture implements IGuiTexture
         
         GlStateManager.translate(x + dx, y + dy, 0);
         GlStateManager.scale(sx, sy, 1F);
+		
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         
         int fCol = fluid.getFluid().getColor(fluid);
         float a = (fCol >> 24 & 255) / 255F;

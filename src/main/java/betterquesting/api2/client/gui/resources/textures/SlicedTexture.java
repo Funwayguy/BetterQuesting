@@ -48,6 +48,9 @@ public class SlicedTexture implements IGuiTexture
 		GlStateManager.pushMatrix();
 		color.applyGlColor();
 		
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+		
 		if(w != width || h != height)
         {
             dx = 0;
