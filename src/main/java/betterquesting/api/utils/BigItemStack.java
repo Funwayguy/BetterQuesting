@@ -161,10 +161,10 @@ public class BigItemStack
 	
 	public BigItemStack(@Nonnull NBTTagCompound tags) // Can load normal ItemStack NBTs. Does NOT deal with placeholders
 	{
-		NBTTagCompound itemNBT = tags;
+		NBTTagCompound itemNBT = tags.copy();
+		itemNBT.setInteger("Count", 1);
 		if(tags.hasKey("id", 99))
         {
-            itemNBT = tags.copy();
             itemNBT.setString("id", "" + tags.getShort("id"));
         }
 		this.stackSize = tags.getInteger("Count");

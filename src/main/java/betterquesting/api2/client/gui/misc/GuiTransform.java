@@ -8,7 +8,7 @@ public final class GuiTransform implements IGuiRect
 	private IGuiRect parent;
 	private final Vector4f anchor;
 	private final GuiPadding padding;
-	private int drawOrder = 0;
+	private int drawOrder;
 	
 	public GuiTransform()
 	{
