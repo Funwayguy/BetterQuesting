@@ -30,7 +30,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
-import betterquesting.client.gui3.GuiStatus;
+import betterquesting.client.ui_builder.GuiBuilderMain;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
 import betterquesting.network.handlers.NetQuestSync;
@@ -118,7 +118,15 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
         {
-		    PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), 6, "?"); // Test screen
+		    PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -2, "?")
+            {
+                @Override
+                public void onButtonClick()
+                {
+                    //mc.displayGuiScreen(new GuiStatus(GuiHome.this));
+                    mc.displayGuiScreen(new GuiBuilderMain(GuiHome.this));
+                }
+            }; // Test screen
 		    inCan.addPanel(tstBtn);
         }
 	}
@@ -159,7 +167,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (NBTTagCompound value) ->
+			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
                 NetSettingSync.requestEdit();
@@ -195,9 +203,6 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 				//this.initGui(); // Reset the whole thing
 				mc.displayGuiScreen(null);
 			}
-		} else if(btn.getButtonID() == 6) // Test screen
-		{
-			mc.displayGuiScreen(new GuiStatus(this));
 		}
 	}
 }

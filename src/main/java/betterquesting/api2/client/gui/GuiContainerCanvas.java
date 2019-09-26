@@ -21,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
@@ -46,6 +47,13 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		return transform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
 	
 	/**
 	 * Use initPanel() for embed support

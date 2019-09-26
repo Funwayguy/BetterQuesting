@@ -3,7 +3,7 @@ package betterquesting.api2.storage;
 import java.util.*;
 import java.util.Map.Entry;
 
-public abstract class SimpleDatabase<T> implements IDatabase<T>
+public class SimpleDatabase<T> implements IDatabase<T>
 {
     private final TreeMap<Integer, T> mapDB = new TreeMap<>();
     

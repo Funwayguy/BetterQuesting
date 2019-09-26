@@ -18,8 +18,12 @@ import java.util.List;
 
 public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
 {
-    // Just for organisational use
+    // Purely for organisational purposes
     public String refName = "New Panel";
+    
+    // Usually these two are the same but not always
+    public int cvParentID = -1; // ID of the canvas we're contained within
+    public int tfParentID = -1; // ID of the transform we're positioned relative to
     
     private NBTTagCompound transTag = new NBTTagCompound();
     private NBTTagCompound panelData = new NBTTagCompound();
@@ -52,11 +56,12 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
         return panelData;
     }
     
-    public List<ComponentPanel> getChildren()
+    public List<ComponentPanel> getChildList()
     {
         return children;
     }
     
+    // TODO: Add a way to set parent transforms independently of canvases. This will likely need a database of unique ID references
     public IGuiPanel build(@Nullable IGuiCanvas parent) // Note: You should cleanup previous children before running things
     {
         Vector4f anchor = new Vector4f(transTag.getFloat("anchor_left"), transTag.getFloat("anchor_top"), transTag.getFloat("anchor_right"), transTag.getFloat("anchor_bottom"));
@@ -80,6 +85,9 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     {
         nbt.setString("ref_name", refName);
         
+        nbt.setInteger("cv_parent", cvParentID);
+        nbt.setInteger("tf_parent", tfParentID);
+        
         nbt.setTag("transform", transTag.copy());
         nbt.setTag("panel_data", panelData.copy());
         
@@ -98,6 +106,9 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     public void readFromNBT(NBTTagCompound nbt)
     {
         refName = nbt.getString("ref_name");
+        
+        cvParentID = nbt.getInteger("cv_parent");
+        tfParentID = nbt.getInteger("tf_parent");
         
         // Location of the panel
         transTag = nbt.getCompoundTag("transform").copy();

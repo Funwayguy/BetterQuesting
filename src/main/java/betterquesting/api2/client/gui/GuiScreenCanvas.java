@@ -29,8 +29,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
+	public final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
 	private boolean enabled = true;
+	private boolean useMargins = true;
 	
 	public final GuiScreen parent;
 	private boolean useDefaultBG = false;
@@ -43,8 +44,21 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public IGuiRect getTransform()
 	{
-		return transform;
+		return rootTransform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
+    
+	public GuiScreenCanvas useMargins(boolean enable)
+    {
+        this.useMargins = enable;
+        return this;
+    }
 	
 	public GuiScreenCanvas useDefaultBG(boolean enable)
     {
@@ -74,23 +88,22 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
-		int marginX = 16;
-		int marginY = 16;
-		
-		if(BQ_Settings.guiWidth > 0)
-		{
-			marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		}
-		
-		if(BQ_Settings.guiHeight > 0)
-		{
-			marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		}
-		
-		transform.x = marginX;
-		transform.y = marginY;
-		transform.w = this.width - marginX * 2;
-		transform.h = this.height - marginY * 2;
+	    if(useMargins)
+        {
+            int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+            int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+            
+            rootTransform.x = marginX;
+            rootTransform.y = marginY;
+            rootTransform.w = this.width - marginX * 2;
+            rootTransform.h = this.height - marginY * 2;
+		} else
+        {
+            rootTransform.x = 0;
+            rootTransform.y = 0;
+            rootTransform.w = this.width;
+            rootTransform.h = this.height;
+        }
 		
 		this.guiPanels.clear();
         Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
