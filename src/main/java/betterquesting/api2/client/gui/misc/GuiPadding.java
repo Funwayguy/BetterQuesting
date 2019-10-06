@@ -14,6 +14,11 @@ public class GuiPadding
 		this.setPadding(left, top, right, bottom);
 	}
 	
+	public GuiPadding copy()
+    {
+        return new GuiPadding(l, t, r, b);
+    }
+	
 	public GuiPadding setPadding(int left, int top, int right, int bottom)
 	{
 		this.l = left;

@@ -32,10 +32,7 @@ import net.minecraft.nbt.*;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 // Self contained editing panel
 // TODO: Add ability for expansions to register modules for identifying and providing custom editors to various NBT data sets (inventory, tinker tool, magic, etc.)
@@ -48,6 +45,12 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
 	private final int btnAdv;
 	private final int btnInsert;
 	private final int btnDelete;
+	
+	// TODO: Set a special tag that tells the editor about special serialised objects that should be handled in a special way.
+    // Considering taglists can't contain extra data there may need a way to pass a special manifest file (via NbtDocs?)
+	// This tag type should be hidden in by the editor but auto-changed when manually switch to a new type
+ 
+	private final Stack<NBTBase> nbtStack = new Stack<>();
  
 	public PanelScrollingNBT(IGuiRect rect, NBTTagCompound tag, int btnEdit, int btnAdv, int btnInsert, int btnDelete)
     {
@@ -76,6 +79,30 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 		Keyboard.enableRepeatEvents(true);
     }
+	
+    // TODO: Implement this with a proper way of displaying and choosing between options (and setting priority for default)
+	/*private final List<Pair<Predicate<NBTBase>, Consumer<NBTBase>>> filterMap = new ArrayList<>();
+    
+    public void registerHandler(Predicate<NBTBase> filter, Consumer<NBTBase> action)
+    {
+        filterMap.add(new Pair<>(filter, action));
+    }
+    
+    @Nullable
+    public List<Consumer<NBTBase>> getHandler(@Nonnull NBTBase tag)
+    {
+        List<Consumer<NBTBase>> list = new ArrayList<>();
+        
+        for(Pair<Predicate<NBTBase>, Consumer<NBTBase>> p : filterMap)
+        {
+            if(p.getKey().test(tag))
+            {
+                list.add(p.getValue());
+            }
+        }
+        
+        return list;
+    }*/
     
     public PanelScrollingNBT setNBT(NBTTagCompound tag)
     {
@@ -363,7 +390,6 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         }
         
         IPanelButton btn = event.getButton();
-        Minecraft mc = Minecraft.getMinecraft();
         NBTBase entry;
         
         if(!(btn.getButtonID() == btnEdit || btn.getButtonID() == btnAdv || btn.getButtonID() == btnInsert || btn.getButtonID() == btnDelete))
@@ -422,7 +448,6 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         {
             if(entry.getId() == 10)
             {
-                //mc.displayGuiScreen(new GuiJsonTypeMenu(mc.currentScreen, (NBTTagCompound)entry));
                 mc.displayGuiScreen(new GuiNbtType(mc.currentScreen, (NBTTagCompound)entry));
             } else if(entry.getId() == 9) // Not currently available but will be when context list editors (enchantments/inventories/etc) are available
             {

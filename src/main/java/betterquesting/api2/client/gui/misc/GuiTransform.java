@@ -42,6 +42,13 @@ public final class GuiTransform implements IGuiRect
 		this.anchor.w = b;
 	}
 	
+	public GuiTransform copy()
+    {
+        GuiTransform trans = new GuiTransform(new Vector4f(anchor), padding.copy(), drawOrder);
+        trans.setParent(this.parent);
+        return trans;
+    }
+	
 	public GuiPadding getPadding()
 	{
 		return this.padding;
@@ -104,7 +111,7 @@ public final class GuiTransform implements IGuiRect
 	}
 	
 	@Override
-	public boolean contains(int x3, int y3) // NOTE: This is using local coordinates
+	public boolean contains(int x3, int y3)
 	{
 		int x1 = getX();
 		int y1 = getY();

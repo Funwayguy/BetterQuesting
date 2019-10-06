@@ -25,6 +25,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import org.lwjgl.input.Keyboard;
 
 public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
@@ -55,6 +56,7 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
+		Keyboard.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());

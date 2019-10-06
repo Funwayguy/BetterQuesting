@@ -17,6 +17,7 @@ import net.minecraft.init.SoundEvents;
 import org.lwjgl.input.Mouse;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PanelButton implements IPanelButton
 {
@@ -36,6 +37,8 @@ public class PanelButton implements IPanelButton
 	
 	private boolean pendingRelease = false;
 	
+	private Consumer<PanelButton> clickAction = null;
+	
 	public PanelButton(IGuiRect rect, int id, String txt)
 	{
 		this.transform = rect;
@@ -45,6 +48,12 @@ public class PanelButton implements IPanelButton
 		this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(), PresetTexture.BTN_NORMAL_2.getTexture());
 		this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(), PresetColor.BTN_HOVER.getColor());
 	}
+	
+	public PanelButton setClickAction(Consumer<PanelButton> action)
+    {
+        this.clickAction = action;
+        return this;
+    }
 	
 	public PanelButton setTextHighlight(IGuiColor disabled, IGuiColor idle, IGuiColor hover)
 	{
@@ -249,5 +258,6 @@ public class PanelButton implements IPanelButton
 	@Override
     public void onButtonClick()
     {
+        if(clickAction != null) clickAction.accept(this);
     }
 }
