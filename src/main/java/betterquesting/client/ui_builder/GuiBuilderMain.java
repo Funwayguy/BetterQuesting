@@ -244,6 +244,11 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
     {
         super.drawPanel(mx, my, partialTick);
         
+        int cmx = MathHelper.clamp(mx, cvPreview.getTransform().getX(), cvPreview.getTransform().getX() + cvPreview.getTransform().getWidth());
+        int cmy = MathHelper.clamp(my, cvPreview.getTransform().getY(), cvPreview.getTransform().getY() + cvPreview.getTransform().getHeight());
+        
+        // === DRAG ACTIONS ===
+        
         if(dragID >= 0)
         {
             if(toolMode == 3 && selPn != null && dragType > 0)
@@ -253,8 +258,8 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                 if((dragType & 16) == 16 && selPn.getTransform() instanceof GuiTransform) // Editing anchor
                 {
                     GuiTransform trans = (GuiTransform)selPn.getTransform();
-                    int dx = mx - trans.getParent().getX();
-                    int dy = my - trans.getParent().getY();
+                    int dx = cmx - trans.getParent().getX();
+                    int dy = cmy - trans.getParent().getY();
                     int width = trans.getParent().getWidth();
                     int height = trans.getParent().getHeight();
                     boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
@@ -263,25 +268,41 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                     if((dragType & 1) == 1 && height > 0)
                     {
                         trans.getAnchor().y = dy / (float)height;
-                        if(shift) trans.getAnchor().y -= trans.getAnchor().y % 0.05F;
+                        if(shift)
+                        {
+                            trans.getAnchor().y += 0.025F;
+                            trans.getAnchor().y -= trans.getAnchor().y % 0.05F;
+                        }
                     }
                     
                     if((dragType & 2) == 2 && height > 0)
                     {
                         trans.getAnchor().w = dy / (float)height;
-                        if(shift) trans.getAnchor().w -= trans.getAnchor().w % 0.05F;
+                        if(shift)
+                        {
+                            trans.getAnchor().w += 0.025F;
+                            trans.getAnchor().w -= trans.getAnchor().w % 0.05F;
+                        }
                     }
                     
                     if((dragType & 4) == 4 && width > 0)
                     {
                         trans.getAnchor().x = dx / (float)width;
-                        if(shift) trans.getAnchor().x -= trans.getAnchor().x % 0.05F;
+                        if(shift)
+                        {
+                            trans.getAnchor().x += 0.025F;
+                            trans.getAnchor().x -= trans.getAnchor().x % 0.05F;
+                        }
                     }
                     
                     if((dragType & 8) == 8 && width > 0)
                     {
                         trans.getAnchor().z = dx / (float)width;
-                        if(shift) trans.getAnchor().z -= trans.getAnchor().z % 0.05F;
+                        if(shift)
+                        {
+                            trans.getAnchor().z += 0.025F;
+                            trans.getAnchor().z -= trans.getAnchor().z % 0.05F;
+                        }
                     }
                     
                     if(com != null) com.setTransform(trans);
@@ -291,33 +312,49 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                     GuiTransform trans = (GuiTransform)selPn.getTransform();
                     int width = MathHelper.ceil(trans.getParent().getWidth() * (trans.getAnchor().z - trans.getAnchor().x));
                     int height = MathHelper.ceil(trans.getParent().getHeight() * (trans.getAnchor().w - trans.getAnchor().y));
-                    int dx = mx - (trans.getParent().getX() + MathHelper.ceil(trans.getParent().getWidth() * trans.getAnchor().x));
-                    int dy = my - (trans.getParent().getY() + MathHelper.ceil(trans.getParent().getHeight() * trans.getAnchor().y));
+                    int dx = cmx - (trans.getParent().getX() + MathHelper.ceil(trans.getParent().getWidth() * trans.getAnchor().x));
+                    int dy = cmy - (trans.getParent().getY() + MathHelper.ceil(trans.getParent().getHeight() * trans.getAnchor().y));
                     boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                     
                     // Edge Bit Map = R L B T
                     if((dragType & 1) == 1)
                     {
                         trans.getPadding().t = dy;
-                        if(shift) trans.getPadding().t -= trans.getPadding().t % 8;
+                        if(shift)
+                        {
+                            trans.getPadding().t += 4;
+                            trans.getPadding().t -= trans.getPadding().t % 8;
+                        }
                     }
                     
                     if((dragType & 2) == 2)
                     {
                         trans.getPadding().b = height - dy;
-                        if(shift) trans.getPadding().b -= trans.getPadding().b % 8;
+                        if(shift)
+                        {
+                            trans.getPadding().b += 4;
+                            trans.getPadding().b -= trans.getPadding().b % 8;
+                        }
                     }
                     
                     if((dragType & 4) == 4)
                     {
                         trans.getPadding().l = dx;
-                        if(shift) trans.getPadding().l -= trans.getPadding().l % 8;
+                        if(shift)
+                        {
+                            trans.getPadding().l += 4;
+                            trans.getPadding().l -= trans.getPadding().l % 8;
+                        }
                     }
                     
                     if((dragType & 8) == 8)
                     {
                         trans.getPadding().r = width - dx;
-                        if(shift) trans.getPadding().r -= trans.getPadding().r % 8;
+                        if(shift)
+                        {
+                            trans.getPadding().r += 4;
+                            trans.getPadding().r -= trans.getPadding().r % 8;
+                        }
                     }
                     
                     if(com != null) com.setTransform(trans);
@@ -331,6 +368,8 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                 dragType = -1;
             }
         }
+        
+        // === HOVER ACTIONS ===
         
         if(toolMode == 2 && cvPreview.getTransform().contains(mx, my))
         {
