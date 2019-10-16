@@ -4,6 +4,7 @@ import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanelNBT;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -14,12 +15,13 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Mouse;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PanelButton implements IPanelButton
+public class PanelButton implements IPanelButton, IGuiPanelNBT
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;
@@ -259,5 +261,18 @@ public class PanelButton implements IPanelButton
     public void onButtonClick()
     {
         if(clickAction != null) clickAction.accept(this);
+    }
+    
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        // TODO: Fix me
+        return nbt;
+    }
+    
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+    
     }
 }

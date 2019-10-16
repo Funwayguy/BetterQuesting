@@ -1,12 +1,16 @@
 package betterquesting.api2.client.gui.panels;
 
-import net.minecraft.client.renderer.GlStateManager;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import betterquesting.client.themes.ThemeRegistry;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 
 public class CanvasTextured extends CanvasEmpty
 {
-	private final IGuiTexture bgTexture;
+	private IGuiTexture bgTexture;
 	
 	public CanvasTextured(IGuiRect rect, IGuiTexture texture)
 	{
@@ -18,6 +22,8 @@ public class CanvasTextured extends CanvasEmpty
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+	    if(bgTexture == null) return;
+	    
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
@@ -26,4 +32,18 @@ public class CanvasTextured extends CanvasEmpty
 		
 		super.drawPanel(mx, my, partialTick);
 	}
+	
+	@Override
+    public void readFromNBT(NBTTagCompound tag)
+    {
+        String texName = tag.getString("texture");
+        bgTexture = StringUtils.isNullOrEmpty(texName) ? ThemeRegistry.INSTANCE.getTexture(null) : ThemeRegistry.INSTANCE.getTexture(new ResourceLocation(texName));
+    }
+    
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound tag)
+    {
+        // TODO: FIX ME
+        return tag;
+    }
 }

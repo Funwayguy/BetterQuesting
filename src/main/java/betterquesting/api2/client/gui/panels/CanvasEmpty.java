@@ -2,13 +2,14 @@ package betterquesting.api2.client.gui.panels;
 
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CanvasEmpty implements IGuiCanvas
+public class CanvasEmpty implements IGuiCanvas, IGuiPanelNBT
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final IGuiRect transform;
@@ -197,4 +198,15 @@ public class CanvasEmpty implements IGuiCanvas
 	{
 		guiPanels.clear();
 	}
+    
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    {
+        return nbt;
+    }
+    
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+    }
 }

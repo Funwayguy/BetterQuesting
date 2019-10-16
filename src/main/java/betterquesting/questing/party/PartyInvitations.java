@@ -84,22 +84,45 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
     @Override
     public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> subset) // Don't bother saving this to disk. We do need to send packets though
     {
-        for(Entry<UUID,HashMap<Integer,Long>> userMap : invites.entrySet())
+        if(subset != null)
         {
-            if(subset != null && !subset.contains(userMap.getKey())) continue;
-            NBTTagCompound userTag = new NBTTagCompound();
-            userTag.setString("uuid", userMap.getKey().toString());
-            
-            NBTTagList invList = new NBTTagList();
-            for(Entry<Integer,Long> invEntry : userMap.getValue().entrySet())
+            subset.forEach((uuid) -> {
+                NBTTagCompound userTag = new NBTTagCompound();
+                userTag.setString("uuid", uuid.toString());
+                
+                Map<Integer,Long> userMap = invites.get(uuid);
+                if(userMap == null) userMap = Collections.emptyMap();
+                NBTTagList invList = new NBTTagList();
+                
+                for(Entry<Integer, Long> invEntry : userMap.entrySet())
+                {
+                    NBTTagCompound invTag = new NBTTagCompound();
+                    invTag.setInteger("partyID", invEntry.getKey());
+                    invTag.setLong("expiry", invEntry.getValue());
+                    invList.appendTag(invTag);
+                }
+                
+                userTag.setTag("invites", invList);
+                nbt.appendTag(userTag);
+            });
+        } else
+        {
+            for(Entry<UUID, HashMap<Integer, Long>> userMap : invites.entrySet())
             {
-                NBTTagCompound invTag = new NBTTagCompound();
-                invTag.setInteger("partyID", invEntry.getKey());
-                invTag.setLong("expiry", invEntry.getValue());
-                invList.appendTag(invTag);
+                NBTTagCompound userTag = new NBTTagCompound();
+                userTag.setString("uuid", userMap.getKey().toString());
+        
+                NBTTagList invList = new NBTTagList();
+                for(Entry<Integer, Long> invEntry : userMap.getValue().entrySet())
+                {
+                    NBTTagCompound invTag = new NBTTagCompound();
+                    invTag.setInteger("partyID", invEntry.getKey());
+                    invTag.setLong("expiry", invEntry.getValue());
+                    invList.appendTag(invTag);
+                }
+                userTag.setTag("invites", invList);
+                nbt.appendTag(userTag);
             }
-            userTag.setTag("invites",invList);
-            nbt.appendTag(userTag);
         }
         return nbt;
     }
@@ -122,6 +145,7 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
             
             NBTTagList invList = userEntry.getTagList("invites", 10);
             HashMap<Integer,Long> map = invites.computeIfAbsent(uuid, (key) -> new HashMap<>()); // Could start from scratch but this feels cleaner
+            map.clear();
             for(int n = 0; n < invList.tagCount(); n++)
             {
                 NBTTagCompound invEntry = invList.getCompoundTagAt(n);

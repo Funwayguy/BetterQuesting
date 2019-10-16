@@ -142,6 +142,9 @@ public class NetPartyAction
                 NetPartySync.sendSync(new EntityPlayerMP[]{player},new int[]{partyID});
                 NetInviteSync.sendSync(player);
             }
+        } else
+        {
+            BetterQuesting.logger.error("Unable to identify " + username + " to invite to party " + partyID); // No idea who this is
         }
     }
     
@@ -154,21 +157,33 @@ public class NetPartyAction
         {
             NetPartySync.quickSync(partyID);
             NetNameSync.quickSync(sender, partyID);
+        } else
+        {
+            BetterQuesting.logger.error("Invalid invite for " + sender.getName() + " to party " + partyID);
         }
+        NetInviteSync.sendSync(sender);
     }
     
     private static void kickUser(int partyID, EntityPlayerMP sender, IParty party, String username, int permission) // Is also the leave action (self kick if you will)
     {
-        if(party == null) return;
+        if(party == null)
+        {
+            BetterQuesting.logger.error("Tried to kick a player from a non-existant party (" + partyID + ")");
+            return;
+        }
         
         UUID uuid = null;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
         if(player != null) uuid = QuestingAPI.getQuestingUUID(player);
         if(uuid == null) uuid = NameCache.INSTANCE.getUUID(username);
-        if(uuid == null) return; // No idea who this is
+        if(uuid == null)
+        {
+            BetterQuesting.logger.error("Unable to identify " + username + " to remove them from party " + partyID);
+            return; // No idea who this is
+        }
         
-        if(uuid.equals(QuestingAPI.getQuestingUUID(sender)) || checkPermission(uuid, party) < permission)
+        if(uuid.equals(QuestingAPI.getQuestingUUID(sender)) || checkPermission(uuid, party) < permission) // For future reference, this is checking the target has a permission lower than the sender
         {
             // Even if the kick isn't confirmed we still need to tell the clients incase of desync
             if(party.getStatus(uuid) != null) party.kickUser(uuid);
@@ -193,8 +208,10 @@ public class NetPartyAction
                 payload.setInteger("partyID", partyID);
                 PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload)); // Invites need to be purged from everyone
             }
+        } else
+        {
+            BetterQuesting.logger.error("Insufficient permissions to kick " + username + " from party " + partyID);
         }
-        
     }
     
     private static int checkPermission(UUID playerID, IParty party)
@@ -218,7 +235,6 @@ public class NetPartyAction
         }
     }
     
-    // TODO: Include client side handling when leaving a party (sync wouldn't pickup on it after a user has left)
     @SideOnly(Side.CLIENT)
     private static void onClient(NBTTagCompound message)
     {

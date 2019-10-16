@@ -1,6 +1,5 @@
 package betterquesting.network.handlers;
 
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
@@ -18,7 +17,6 @@ import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.UUID;
 
 public class NetQuestAction
 {
@@ -74,12 +72,12 @@ public class NetQuestAction
     
     public static void claimQuest(int[] questIDs, EntityPlayerMP player)
     {
-        UUID playerID = QuestingAPI.getQuestingUUID(player);
+        //UUID playerID = QuestingAPI.getQuestingUUID(player);
         List<DBEntry<IQuest>> qLists = QuestDatabase.INSTANCE.bulkLookup(questIDs);
         
         for(DBEntry<IQuest> entry : qLists)
         {
-            if(entry.getValue().hasClaimed(playerID) || !entry.getValue().canClaim(player)) continue;
+            if(!entry.getValue().canClaim(player)) continue;
             entry.getValue().claimReward(player);
         }
     }

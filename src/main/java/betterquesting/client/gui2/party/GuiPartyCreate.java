@@ -29,6 +29,7 @@ import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetPartyAction;
@@ -58,7 +59,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> curParty = PartyManager.INSTANCE.getParty(playerID);
         
         if(curParty != null)
         {
@@ -76,7 +77,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         
         playerID = QuestingAPI.getQuestingUUID(mc.player);
         
-        IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> curParty = PartyManager.INSTANCE.getParty(playerID);
         
         if(curParty != null)
         {
@@ -175,6 +176,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     
     private void refreshInvites()
     {
+        invitePanel.resetCanvas();
         int cvWidth = invitePanel.getTransform().getWidth();
         List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
         int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);

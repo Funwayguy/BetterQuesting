@@ -8,6 +8,7 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.questing.party.PartyManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import javax.annotation.Nonnull;
@@ -30,7 +31,9 @@ public class ParticipantInfo
         this.UUID = QuestingAPI.getQuestingUUID(player);
         this.PARTY_INSTANCE = PartyManager.INSTANCE.getParty(this.UUID);
         
-        if(PARTY_INSTANCE == null || player.getServer() == null)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        
+        if(PARTY_INSTANCE == null || server == null || player instanceof FakePlayer)
         {
             ACTIVE_PLAYERS = Collections.singletonList(player);
             ACTIVE_UUIDS = Collections.singletonList(UUID);
@@ -38,7 +41,6 @@ public class ParticipantInfo
             return;
         }
         
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         List<EntityPlayer> actPl = new ArrayList<>();
         List<UUID> actID = new ArrayList<>();
         List<UUID> allID = new ArrayList<>();

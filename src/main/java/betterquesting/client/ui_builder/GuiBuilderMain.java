@@ -4,12 +4,11 @@ import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.*;
-import betterquesting.api2.client.gui.panels.CanvasEmpty;
-import betterquesting.api2.client.gui.panels.CanvasTextured;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.panels.*;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
+import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.BoxLine;
@@ -21,6 +20,7 @@ import betterquesting.client.gui2.editors.nbt.PanelScrollingNBT;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -41,6 +41,8 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
     private CanvasEmpty cvPreview;
     private IGuiCanvas cvPropTray; // Also doubles as the palette tray
     private PanelButton btnTrayToggle;
+    
+    private ResourceLocation paletteSel = null;
     
     private int toolMode = 0;
     // 0 = NONE (operate the preview panels as-is)
@@ -90,11 +92,14 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
             if(cvPropTray.isEnabled())
             {
                 closeTray();
-            } else if(selectedID >= 0)
+            } else if(selectedID >= 0 && !(toolMode == 0 || toolMode == 2))
             {
                 ComponentPanel com = COM_DB.getValue(selectedID);
                 // TODO: Add a callback here so the component can read in changes
                 if(com != null) openTrayNBT(com.writeToNBT(new NBTTagCompound()));
+            } else if(toolMode == 3)
+            {
+                openTrayPalette();
             }
         });
         this.addPanel(btnTrayToggle);
@@ -184,6 +189,8 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                 toolBtns.forEach((btn) -> btn.setActive(true));
                 this.setActive(false);
                 toolMode = 2;
+                
+                openTrayPalette();
             }
         }.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
         btnAdd.setActive(toolMode != 2);
@@ -500,7 +507,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                 selPn = null;
                 selectedID = -1;
             }
-        } else if(toolMode == 2 && click == 0) // Create
+        } else if(toolMode == 2 && click == 0 && paletteSel != null) // Create
         {
             IGuiPanel topPanel = getPanelUnderMouse(mx, my, 0);
             if(topPanel == null) topPanel = cvPreview;
@@ -531,6 +538,9 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
             
             ComponentPanel com = new ComponentPanel(drawBounds);
             COM_DB.add(COM_DB.nextID(), com);
+            
+            com.panelType = paletteSel.toString();
+            //com.setPanelData(ComponentRegistry.INSTANCE.getTemplateNbt(paletteSel));
             
             int id = PANEL_DB.getID(topPanel);
             selectedID = id; // Quick select this new panel
@@ -714,6 +724,31 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
         PanelVScrollBar scPropTray = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
         cvNbt.setScrollDriverY(scPropTray);
         cvPropTray.addPanel(scPropTray);
+    }
+    
+    private void openTrayPalette()
+    {
+        cvPropTray.setEnabled(true);
+        cvPropTray.resetCanvas();
+        
+        btnTrayToggle.setIcon(PresetIcon.ICON_DOWN.getTexture());
+    
+        CanvasScrolling cvScroll = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
+        cvPropTray.addPanel(cvScroll);
+        
+        PanelVScrollBar scPropTray = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+        cvScroll.setScrollDriverY(scPropTray);
+        cvPropTray.addPanel(scPropTray);
+        
+        final int cvWidth = cvScroll.getTransform().getWidth();
+        List<ResourceLocation> resList = ComponentRegistry.INSTANCE.getRegisteredIDs();
+        for(int i = 0; i < resList.size(); i++)
+        {
+            ResourceLocation res = resList.get(i);
+            PanelButtonStorage<ResourceLocation> btnID = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, cvWidth, 16, 0), -1, res.toString(), res);
+            btnID.setCallback((id) -> paletteSel = id);
+            cvScroll.addPanel(btnID);
+        }
     }
     
     private void closeTray()

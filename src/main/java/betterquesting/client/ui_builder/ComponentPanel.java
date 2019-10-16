@@ -3,15 +3,16 @@ package betterquesting.client.ui_builder;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
-import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StringUtils;
 import org.lwjgl.util.vector.Vector4f;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
 {
     // Purely for organisational purposes
     public String refName = "New Panel";
+    public String panelType = "betterquesting:canvas_empty";
     
     // Usually these two are the same but not always
     public int cvParentID = -1; // ID of the canvas we're contained within
@@ -64,41 +66,33 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
         return transTag;
     }
     
-    public NBTTagCompound getPanelProperties()
+    public NBTTagCompound getPanelData()
     {
         return panelData;
     }
     
-    /*public List<ComponentPanel> getChildList()
+    public void setPanelData(@Nonnull NBTTagCompound tag)
     {
-        return children;
-    }*/
+        this.panelData = tag;
+    }
     
-    // TODO: Add a way to set parent transforms independently of canvases. This will likely need a database of unique ID references
-    public IGuiPanel build(/*@Nullable IGuiCanvas parent*/) // Note: You should cleanup previous children before running things
+    public IGuiPanel build()
     {
         Vector4f anchor = new Vector4f(transTag.getFloat("anchor_left"), transTag.getFloat("anchor_top"), transTag.getFloat("anchor_right"), transTag.getFloat("anchor_bottom"));
         GuiPadding padding = new GuiPadding(transTag.getInteger("pad_left"), transTag.getInteger("pad_top"), transTag.getInteger("pad_right"), transTag.getInteger("pad_bottom"));
         GuiTransform transform = new GuiTransform(anchor, padding, transTag.getInteger("depth"));
         
-        // TODO: Look up registered factory and load in panel data
-        CanvasTextured canvas = new CanvasTextured(transform, PresetTexture.PANEL_MAIN.getTexture());
-        /*if(parent != null) parent.addPanel(canvas);
-        
-        //if(canvas instanceof IGuiCanvas)
-        {
-            children.forEach((child) -> child.build(canvas)); // build() does the parenting already so it's unnecessary to do it here
-        }*/
-        
-        return canvas;
+        ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation("betterquesting:canvas_empty") : new ResourceLocation(panelType);
+        return ComponentRegistry.INSTANCE.createNew(res, transform, panelData);
     }
     
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         nbt.setString("ref_name", refName);
+        nbt.setString("panel_type", panelType);
         
-        //nbt.setInteger("cv_parent", cvParentID);
+        nbt.setInteger("cv_parent", cvParentID);
         nbt.setInteger("tf_parent", tfParentID);
         
         nbt.setTag("transform", transTag.copy());
@@ -108,10 +102,6 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
         scripts.forEach((str) -> sList.appendTag(new NBTTagString(str)));
         nbt.setTag("script_hooks", sList);
         
-        /*NBTTagList cList = new NBTTagList();
-        children.forEach((child) -> sList.appendTag(child.writeToNBT(new NBTTagCompound())));
-        nbt.setTag("children", cList);*/
-        
         return nbt;
     }
     
@@ -119,6 +109,7 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     public void readFromNBT(NBTTagCompound nbt)
     {
         refName = nbt.getString("ref_name");
+        panelType = nbt.getString("panel_type");
         
         cvParentID = nbt.getInteger("cv_parent");
         tfParentID = nbt.getInteger("tf_parent");
@@ -133,14 +124,5 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
         {
             scripts.add(sList.getStringTagAt(i));
         }
-        
-        /*children.clear();
-        NBTTagList cList = nbt.getTagList("children", 10);
-        for(int i = 0; i < cList.tagCount(); i++)
-        {
-            ComponentPanel child = new ComponentPanel();
-            child.readFromNBT(cList.getCompoundTagAt(i));
-            children.add(child);
-        }*/
     }
 }

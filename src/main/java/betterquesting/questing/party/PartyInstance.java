@@ -60,14 +60,8 @@ public class PartyInstance implements IParty
 		EnumPartyStatus old = members.get(uuid);
 		members.remove(uuid);
         
-		if(members.size() <= 0)
-		{
-			PartyManager.INSTANCE.removeValue(this);
-		} else if(old == EnumPartyStatus.OWNER)
-		{
-			hostMigrate();
-            refreshCache();
-		}
+		if(old == EnumPartyStatus.OWNER && members.size() > 0) hostMigrate();
+        refreshCache();
 	}
 	
 	@Override

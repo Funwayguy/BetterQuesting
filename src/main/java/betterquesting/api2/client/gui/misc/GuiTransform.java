@@ -6,7 +6,7 @@ import org.lwjgl.util.vector.Vector4f;
 public final class GuiTransform implements IGuiRect
 {
 	private IGuiRect parent;
-	private final Vector4f anchor;
+	private final Vector4f anchor; // TODO: Change to one that accounts for min-max dimensions
 	private final GuiPadding padding;
 	private int drawOrder;
 	

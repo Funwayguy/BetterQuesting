@@ -172,43 +172,29 @@ public class QuestInstance implements IQuest
   
 		synchronized(completeUsers)
         {
-            if(qInfo.getProperty(NativeProps.GLOBAL))
+            if(qInfo.getProperty(NativeProps.GLOBAL) && !qInfo.getProperty(NativeProps.GLOBAL_SHARE))
             {
                 // TODO: Figure out some replacement to track participation
-                if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE)) // TODO: Remove this too?
+                for(NBTTagCompound entry : completeUsers.values())
                 {
-                    for(NBTTagCompound entry : completeUsers.values())
-                    {
-                        if(entry.getBoolean("claimed"))
-                        {
-                            return true;
-                        }
-                    }
-                    
-                    return false;
+                    if(entry.getBoolean("claimed")) return true;
                 }
-            }
-    
-            NBTTagCompound entry = getCompletionInfo(uuid);
-    
-            if(entry == null)
-            {
+                
                 return false;
             }
     
-            return entry.getBoolean("claimed");
+            NBTTagCompound entry = getCompletionInfo(uuid);
+            return entry != null && entry.getBoolean("claimed");
         }
 	}
 	
 	@Override
 	public boolean canClaim(EntityPlayer player)
 	{
-		NBTTagCompound entry = getCompletionInfo(QuestingAPI.getQuestingUUID(player));
+	    UUID pID = QuestingAPI.getQuestingUUID(player);
+		NBTTagCompound entry = getCompletionInfo(pID);
 		
-		if(entry == null || hasClaimed(QuestingAPI.getQuestingUUID(player)))
-		{
-			return false;
-		} else if(canSubmit(player))
+		if(entry == null || hasClaimed(pID) || canSubmit(player))
 		{
 			return false;
 		} else
@@ -247,19 +233,17 @@ public class QuestInstance implements IQuest
                 entry = new NBTTagCompound();
                 this.completeUsers.put(pID, entry);
             }
-
+            
             entry.setBoolean("claimed", true);
             entry.setLong("timestamp", System.currentTimeMillis());
         }
 		
-		if(qc != null) qc.markQuestDirty(QuestDatabase.INSTANCE.getID(this));
+		if(qc != null) qc.markQuestDirty(questID);
 	}
 	
 	@Override
-	public boolean canSubmit(EntityPlayer player)
+	public boolean canSubmit(@Nonnull EntityPlayer player)
 	{
-		if(player == null) return false;
-		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
 		synchronized(completeUsers)
@@ -516,7 +500,7 @@ public class QuestInstance implements IQuest
 	{
 	    synchronized(completeUsers)
         {
-            completeUsers.clear();
+            if(!merge) completeUsers.clear();
             NBTTagList comList = json.getTagList("completed", 10);
             for(int i = 0; i < comList.tagCount(); i++)
             {
