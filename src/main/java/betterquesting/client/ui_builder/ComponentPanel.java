@@ -32,7 +32,6 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     // When these are passed off to the GUI context, make sure it's stated whether it's in-editor or not
     // (only content and navigation need setting up otherwise the GUI might actually edit things before intended use)
     private final List<String> scripts = new ArrayList<>();
-    //private final List<ComponentPanel> children = new ArrayList<>();
     
     public ComponentPanel()
     {

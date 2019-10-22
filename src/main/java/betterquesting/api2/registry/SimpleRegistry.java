@@ -1,49 +1,45 @@
 package betterquesting.api2.registry;
 
+import betterquesting.core.BetterQuesting;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
 
-public class SimpleRegistry<T extends IFactory<E>, E> implements IRegistry<T, E>
+public class SimpleRegistry<T>
 {
-    private final HashMap<ResourceLocation, T> factories = new HashMap<>();
+    private final HashMap<ResourceLocation, Callable<T>> factories = new HashMap<>();
     
-    @Override
-    public void register(T factory)
+    public void register(@Nonnull ResourceLocation idname, @Nonnull Callable<T> factory)
     {
-        if(factory == null || factory.getRegistryName() == null)
-        {
-            throw new NullPointerException("Factory or registry name is null!");
-        } else if(factories.containsKey(factory.getRegistryName()) || factories.containsValue(factory))
+        if(factories.containsKey(idname))
         {
             throw new IllegalArgumentException("Cannot register duplicate factory or registry name");
         }
         
-        factories.put(factory.getRegistryName(), factory);
+        factories.put(idname, factory);
     }
     
     @Nullable
-    @Override
-    public T getFactory(ResourceLocation idName)
+    public T createNew(@Nonnull ResourceLocation idName)
     {
-        return factories.get(idName);
+        Callable<T> fact = factories.get(idName);
+        try
+        {
+            return fact == null ? null : fact.call();
+        } catch(Exception e)
+        {
+            BetterQuesting.logger.error("Registry failed to instantiate new object with ID: " + idName.toString(), e);
+            return null;
+        }
     }
     
-    @Nullable
-    @Override
-    public E createNew(ResourceLocation idName)
+    public Set<ResourceLocation> getAll()
     {
-        IFactory<E> fact = getFactory(idName);
-        
-        return fact == null ? null : fact.createNew();
-    }
-    
-    @Override
-    public List<T> getAll()
-    {
-        return new ArrayList<>(factories.values());
+        return Collections.unmodifiableSet(factories.keySet());
     }
 }

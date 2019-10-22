@@ -27,6 +27,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.gui2.editors.GuiQuestEditor;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
@@ -244,8 +245,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Edit
         {
-            //mc.displayGuiScreen(new GuiQuestEditor(this, quest));
-            mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiQuestEditor(this, questID));
+            mc.displayGuiScreen(new GuiQuestEditor(this, questID));
         } else if(btn.getButtonID() == 2) // Reward previous
         {
             rewardIndex = MathHelper.clamp(rewardIndex - 1, 0, quest.getRewards().size() - 1);

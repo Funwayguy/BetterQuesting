@@ -4,10 +4,7 @@ import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
@@ -26,25 +23,58 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
+public class GuiScreenCanvas extends GuiScreen implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	public final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
 	private boolean enabled = true;
 	private boolean useMargins = true;
+	private boolean useDefaultBG = false;
 	
 	public final GuiScreen parent;
-	private boolean useDefaultBG = false;
+	
+	private IGuiPanel popup = null;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
 		this.parent = parent;
 	}
 	
-	@Override
+	/*@Override
+    public IGuiRect getRootTransform()
+    {
+        return this.rootTransform;
+    }*/
+    
+    @Override
+    public void forceFocus(@Nonnull IGuiPanel panel)
+    {
+    
+    }
+    
+    @Override
+    public void resetFocus()
+    {
+    
+    }
+    
+    @Override
+    public void openPopup(@Nonnull IGuiPanel panel)
+    {
+        popup = panel;
+    }
+    
+    @Override
+    public void closePopup()
+    {
+    
+    }
+    
+    @Override
 	public IGuiRect getTransform()
 	{
-		return rootTransform;
+		return this.transform;
 	}
 	
 	@Nonnull
@@ -88,21 +118,18 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
+	    rootTransform.w = this.width;
+	    rootTransform.h = this.height;
+	    transform.setParent(rootTransform);
+	    
 	    if(useMargins)
         {
             int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
             int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-            
-            rootTransform.x = marginX;
-            rootTransform.y = marginY;
-            rootTransform.w = this.width - marginX * 2;
-            rootTransform.h = this.height - marginY * 2;
+            transform.getPadding().setPadding(marginX, marginY, marginX, marginY);
 		} else
         {
-            rootTransform.x = 0;
-            rootTransform.y = 0;
-            rootTransform.w = this.width;
-            rootTransform.h = this.height;
+            transform.getPadding().setPadding(0, 0, 0, 0);
         }
 		
 		this.guiPanels.clear();

@@ -37,8 +37,8 @@ public class FactoryColorSequence implements IFactoryData<IGuiColor, JsonObject>
             
             try
             {
-                IFactoryData<IGuiColor,JsonObject> tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().getFactory(new ResourceLocation(JsonHelper.GetString(jo, "colorType", "null")));
-                layers.add(tFact.loadFromData(jo));
+                IGuiColor tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().createNew(new ResourceLocation(JsonHelper.GetString(jo, "colorType", "null")), jo);
+                layers.add(tFact);
             } catch(Exception ignored)
             {
                 layers.add(NULL_COL);

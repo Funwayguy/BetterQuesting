@@ -4,10 +4,7 @@ import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
@@ -28,18 +25,53 @@ import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 // This will probably be rewritten at a later date once I reimplement Minecraft's inventory controls natively into their own isolated canvas elements
-public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
+public class GuiContainerCanvas extends GuiContainer implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
 	private boolean enabled = true;
+	private boolean useMargins = true;
+	private boolean useDefaultBG = false;
 	
 	public final GuiScreen parent;
+	
+	private IGuiPanel popup = null;
 	
     public GuiContainerCanvas(GuiScreen parent, Container container)
     {
         super(container);
         this.parent = parent;
+    }
+    
+    /*@Override
+    public IGuiRect getRootTransform()
+    {
+        return this.rootTransform;
+    }*/
+    
+    @Override
+    public void forceFocus(@Nonnull IGuiPanel panel)
+    {
+    
+    }
+    
+    @Override
+    public void resetFocus()
+    {
+    
+    }
+    
+    @Override
+    public void openPopup(@Nonnull IGuiPanel panel)
+    {
+    
+    }
+    
+    @Override
+    public void closePopup()
+    {
+    
     }
 	
 	@Override
@@ -54,6 +86,18 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
     {
         return this.guiPanels;
     }
+    
+	public GuiContainerCanvas useMargins(boolean enable)
+    {
+        this.useMargins = enable;
+        return this;
+    }
+	
+	public GuiContainerCanvas useDefaultBG(boolean enable)
+    {
+        this.useDefaultBG = enable;
+        return this;
+    }
 	
 	/**
 	 * Use initPanel() for embed support
@@ -63,17 +107,11 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		super.initGui();
 		
-		int marginX = 16;
-		int marginY = 16;
-		
-		if(BQ_Settings.guiWidth > 0) marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		if(BQ_Settings.guiHeight > 0) marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		
 		// Make the container somewhat behave using the root transform bounds
-		this.guiLeft = marginX;
-		this.guiTop = marginY;
-		this.xSize = width - marginX * 2;
-		this.ySize = height - marginY * 2;
+		this.guiLeft = 0;
+		this.guiTop = 0;
+		this.xSize = width;
+		this.ySize = height;
 		
 		initPanel();
 	}
@@ -89,16 +127,19 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	@Override
 	public void initPanel()
 	{
-		int marginX = 16;
-		int marginY = 16;
-		
-		if(BQ_Settings.guiWidth > 0) marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		if(BQ_Settings.guiHeight > 0) marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		
-		transform.x = marginX;
-		transform.y = marginY;
-		transform.w = this.width - marginX * 2;
-		transform.h = this.height - marginY * 2;
+	    rootTransform.w = this.width;
+	    rootTransform.h = this.height;
+	    transform.setParent(rootTransform);
+	    
+	    if(useMargins)
+        {
+            int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+            int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+            transform.getPadding().setPadding(marginX, marginY, marginX, marginY);
+		} else
+        {
+            transform.getPadding().setPadding(0, 0, 0, 0);
+        }
 		
 		this.guiPanels.clear();
 	}
@@ -119,6 +160,8 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
     {
+		if(useDefaultBG) this.drawDefaultBackground();
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		GlStateManager.disableDepth();
@@ -211,6 +254,11 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 				entry.drawPanel(mx, my, partialTick);
 			}
 		}
+		
+		if(popup != null)
+        {
+            popup.drawPanel(mx, my, partialTick);
+        }
 	}
 	
 	@Override
@@ -218,9 +266,15 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		boolean used = false;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseClick(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
-		while(pnIter.hasPrevious())
+		while(pnIter.hasPrevious()) // TODO: Allow click through even after used. Other panels need it to passively reset things
 		{
 			IGuiPanel entry = pnIter.previous();
 			
@@ -239,9 +293,15 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		boolean used = false;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseRelease(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
-		while(pnIter.hasPrevious())
+		while(pnIter.hasPrevious()) // TODO: Allow click through even after used. Other panels need it to passively reset things
 		{
 			IGuiPanel entry = pnIter.previous();
 			
@@ -259,6 +319,12 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseScroll(mx, my, scroll);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -280,6 +346,15 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	public boolean onKeyTyped(char c, int keycode)
 	{
 		boolean used = false;
+		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onKeyTyped(c, keycode);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -318,6 +393,11 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas
 	{
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		List<String> tt;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            return popup.getTooltip(mx, my);
+        }
 		
 		while(pnIter.hasPrevious())
 		{

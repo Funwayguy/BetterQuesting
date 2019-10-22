@@ -55,7 +55,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
         } else if(cachedParty != null) // Active party. Check validity...
         {
             EnumPartyStatus status = cachedParty.getStatus(uuid);
-            if(status != null && status != EnumPartyStatus.INVITE) return new DBEntry<>(cachedID, cachedParty);
+            if(status != null) return new DBEntry<>(cachedID, cachedParty);
             partyCache.remove(uuid); // User isn't a party member anymore
         }
 	    
@@ -64,7 +64,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 		{
 			EnumPartyStatus status = entry.getValue().getStatus(uuid);
 			
-			if(status != null && status != EnumPartyStatus.INVITE)
+			if(status != null)
 			{
 			    partyCache.put(uuid, entry.getID());
 				return entry;

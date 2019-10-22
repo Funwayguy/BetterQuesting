@@ -39,8 +39,8 @@ public class FactorySlideShowTexture implements IFactoryData<IGuiTexture, JsonOb
             
             try
             {
-                IFactoryData<IGuiTexture,JsonObject> tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getTexReg().getFactory(new ResourceLocation(JsonHelper.GetString(jo, "textureType", "null")));
-                layers.add(tFact.loadFromData(jo));
+                IGuiTexture tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getTexReg().createNew(new ResourceLocation(JsonHelper.GetString(jo, "textureType", "null")), jo);
+                layers.add(tFact);
             } catch(Exception ignored)
             {
                 layers.add(NULL_TX);

@@ -321,6 +321,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 cvLines.addPanel(new PanelGeneric(new GuiRectangle(134, n * 16 + 8, 8, 8, -1), new GuiTextureColored(PresetIcon.ICON_TICK.getTexture(), new GuiColorStatic(0xFF00FF00))));
             }
             PanelButtonStorage<IQuestLine> btnLine = new PanelButtonStorage<>(new GuiRectangle(0, n++ * 16, 126, 16, 0), 1, QuestTranslation.translate(ql.getUnlocalisedName()), ql);
+            btnLine.setTextAlignment(0);
         
             if(!show || ql == selectedLine)
             {

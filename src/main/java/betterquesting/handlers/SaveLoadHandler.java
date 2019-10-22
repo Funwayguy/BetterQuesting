@@ -1,6 +1,7 @@
 package betterquesting.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
@@ -202,7 +203,7 @@ public class SaveLoadHandler
 	    BetterQuesting.logger.info("Loaded " + PartyManager.INSTANCE.size() + " parties");
 	    BetterQuesting.logger.info("Loaded " + NameCache.INSTANCE.size() + " names");
 	    
-	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load());
+	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load(DBType.ALL));
     }
     
     public void saveDatabases()
@@ -255,7 +256,7 @@ public class SaveLoadHandler
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         
-        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
+        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save(DBType.ALL));
         
         isDirty = false;
     }

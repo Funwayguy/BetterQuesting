@@ -2,6 +2,7 @@ package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.core.BetterQuesting;
@@ -169,7 +170,7 @@ public class NetChapterEdit
                     QuestLineDatabase.INSTANCE.removeID(id);
                 }
         
-		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.CHAPTER));
                 break;
             }
             case 2: // Reorder
@@ -180,7 +181,7 @@ public class NetChapterEdit
                     QuestLineDatabase.INSTANCE.setOrderIndex(chapterIDs[n], n);
                 }
                 
-		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.CHAPTER));
                 break;
             }
         }

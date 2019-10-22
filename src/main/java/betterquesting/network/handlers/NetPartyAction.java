@@ -3,6 +3,7 @@ package betterquesting.network.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
@@ -247,7 +248,7 @@ public class NetPartyAction
             {
                 PartyManager.INSTANCE.removeID(partyID);
                 PartyInvitations.INSTANCE.purgeInvites(partyID);
-		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.PARTY));
                 break;
             }
             case 5: // Kicked
@@ -256,7 +257,7 @@ public class NetPartyAction
                 if(party != null)
                 {
                     party.kickUser(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player));
-		            MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		            MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.PARTY));
                 }
             }
         }

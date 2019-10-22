@@ -187,7 +187,8 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         txtTskTitle.setColor(PresetColor.TEXT_MAIN.getColor()).setAlignment(1);
         cvBackground.addPanel(txtTskTitle);
         
-        setInventoryPosition((xSize - 32)/4 + 16 - 81, (ySize - 32)/2 + 16 - 49);
+        //setInventoryPosition((xSize - 32)/4 + 16 - 81, (ySize - 32)/2 + 16 - 49);
+        setInventoryPosition((xSize - 64)/4 + 16 - 81, (ySize - 64)/2 + 16 - 49);
         refreshTaskPanel();
     }
     
@@ -195,9 +196,9 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
     {
         // OLD SCHOOL GUI MATH
         // Move the slots into place manually (coordinates are already relative to the parent transform)
-        ssContainer.moveInventorySlots(x + 1, y + 23);
-        ssContainer.moveSubmitSlot(x + 55, y + 1);
-        ssContainer.moveReturnSlot(x + 91, y + 1);
+        ssContainer.moveInventorySlots(x + 17, y + 39);
+        ssContainer.moveSubmitSlot(x + 71, y + 17);
+        ssContainer.moveReturnSlot(x + 107, y + 17);
         
         for(int i = 0; i < 36; i++)
         {

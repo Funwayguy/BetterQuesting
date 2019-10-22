@@ -1,8 +1,8 @@
 package betterquesting.api2.client.gui.resources.textures;
 
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api2.client.gui.misc.IGuiRect;
 
 public interface IGuiTexture
 {

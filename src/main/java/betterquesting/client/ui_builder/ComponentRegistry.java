@@ -21,6 +21,7 @@ public class ComponentRegistry
     public static final ComponentRegistry INSTANCE = new ComponentRegistry();
     
     private final HashMap<ResourceLocation, BiFunction<IGuiRect,NBTTagCompound,IGuiPanel>> REG_MAP = new HashMap<>();
+    private final HashMap<ResourceLocation, NBTTagCompound> TEMPLATE_TAGS = new HashMap<>();
     
     public ComponentRegistry()
     {
@@ -35,6 +36,7 @@ public class ComponentRegistry
         }
         
         REG_MAP.put(idname, factory);
+        TEMPLATE_TAGS.put(idname, template);
     }
     
     @Nonnull
@@ -45,6 +47,13 @@ public class ComponentRegistry
         IGuiPanel pan = factory.apply(rect, tag);
         //if(tag != null) pan.readFromNBT(tag);
         return pan;
+    }
+    
+    @Nonnull
+    public NBTTagCompound getTemplateTag(@Nonnull ResourceLocation idName)
+    {
+        NBTTagCompound tag = TEMPLATE_TAGS.get(idName);
+        return tag == null ? new NBTTagCompound() : tag.copy();
     }
     
     public List<ResourceLocation> getRegisteredIDs()

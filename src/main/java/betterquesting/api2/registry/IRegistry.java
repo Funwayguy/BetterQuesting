@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@Deprecated
 public interface IRegistry<T extends IFactory<E>, E>
 {
     void register(T factory);

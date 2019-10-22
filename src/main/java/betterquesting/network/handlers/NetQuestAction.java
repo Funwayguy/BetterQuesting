@@ -72,7 +72,6 @@ public class NetQuestAction
     
     public static void claimQuest(int[] questIDs, EntityPlayerMP player)
     {
-        //UUID playerID = QuestingAPI.getQuestingUUID(player);
         List<DBEntry<IQuest>> qLists = QuestDatabase.INSTANCE.bulkLookup(questIDs);
         
         for(DBEntry<IQuest> entry : qLists)

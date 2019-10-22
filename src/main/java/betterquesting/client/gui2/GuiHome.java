@@ -10,7 +10,6 @@ import betterquesting.api.utils.NBTConverter;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
 import betterquesting.api2.client.gui.events.types.PEventButton;
@@ -52,9 +51,10 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 @SideOnly(Side.CLIENT)
-public class GuiHome extends GuiScreenCanvas implements IPEventListener
+public class GuiHome extends GuiScreenCanvas
 {
 	public static GuiScreen bookmark;
 	
@@ -68,7 +68,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 	{
 		super.initPanel();
 		
-		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
+		PEventBroadcaster.INSTANCE.register((Consumer<PanelEvent>)this::onButtonPress, PEventButton.class);
 		
 		ResourceLocation homeGui = new ResourceLocation(QuestSettings.INSTANCE.getProperty(NativeProps.HOME_IMAGE));
 		IGuiTexture homeSplashBG = new SimpleTexture(homeGui, new GuiRectangle(0, 0, 256, 128));
@@ -131,19 +131,12 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
         }
 	}
 	
-	@Override
-	public void onPanelEvent(PanelEvent event)
+	private void onButtonPress(PanelEvent event)
 	{
-		if(event instanceof PEventButton)
-		{
-			onButtonPress((PEventButton)event);
-		}
-	}
-	
-	private void onButtonPress(PEventButton event)
-	{
+	    if(!(event instanceof PEventButton)) return;
+	    
 		Minecraft mc = Minecraft.getMinecraft();
-		IPanelButton btn = event.getButton();
+		IPanelButton btn = ((PEventButton)event).getButton();
 		
 		if(btn.getButtonID() == 0) // Exit
 		{

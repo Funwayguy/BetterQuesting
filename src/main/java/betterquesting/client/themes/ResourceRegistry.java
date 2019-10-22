@@ -10,51 +10,53 @@ import betterquesting.api2.client.gui.resources.factories.textures.*;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.IResourceReg;
-import betterquesting.api2.registry.IFactoryData;
-import betterquesting.api2.registry.IRegistry;
-import betterquesting.api2.registry.SimpleRegistry;
+import betterquesting.api2.registry.*;
 import com.google.gson.JsonObject;
 
 public class ResourceRegistry implements IResourceReg
 {
     public static final ResourceRegistry INSTANCE = new ResourceRegistry();
     
-    private final IRegistry<IFactoryData<IGuiTexture, JsonObject>, IGuiTexture> TEX_REG = new SimpleRegistry<>();
-    private final IRegistry<IFactoryData<IGuiColor, JsonObject>, IGuiColor> COL_REG = new SimpleRegistry<>();
-    private final IRegistry<IFactoryData<IGuiLine, JsonObject>, IGuiLine> LIN_REG = new SimpleRegistry<>();
+    private final FunctionRegistry<IGuiTexture, JsonObject> TEX_REG = new FunctionRegistry<>();
+    private final FunctionRegistry<IGuiColor, JsonObject> COL_REG = new FunctionRegistry<>();
+    private final FunctionRegistry<IGuiLine, JsonObject> LIN_REG = new FunctionRegistry<>();
     
     public ResourceRegistry()
     {
         // NOTE: Only going to cover the basics here. Advanced GUI elements would be better suited to code based themes
-        TEX_REG.register(FactorySimpleTexture.INSTANCE);
-        TEX_REG.register(FactorySlicedTexture.INSTANCE);
-        TEX_REG.register(FactoryLayeredTexture.INSTANCE);
-        TEX_REG.register(FactorySlideShowTexture.INSTANCE);
-        TEX_REG.register(FactoryColorTexture.INSTANCE);
-        TEX_REG.register(FactoryEmptyTexture.INSTANCE);
+        lazyRegister(TEX_REG, FactorySimpleTexture.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactorySlicedTexture.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactoryLayeredTexture.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactoryColorTexture.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactoryEmptyTexture.INSTANCE, new JsonObject());
         
-        COL_REG.register(FactoryColorStatic.INSTANCE);
-        COL_REG.register(FactoryColorSequence.INSTANCE);
-        COL_REG.register(FactoryColorPulse.INSTANCE);
+        lazyRegister(COL_REG, FactoryColorStatic.INSTANCE, new JsonObject());
+        lazyRegister(COL_REG, FactoryColorSequence.INSTANCE, new JsonObject());
+        lazyRegister(COL_REG, FactoryColorPulse.INSTANCE, new JsonObject());
         
-        LIN_REG.register(FactorySimpleLine.INSTANCE);
-        LIN_REG.register(FactoryLineTaxiCab.INSTANCE);
+        lazyRegister(LIN_REG, FactorySimpleLine.INSTANCE, new JsonObject());
+        lazyRegister(LIN_REG, FactoryLineTaxiCab.INSTANCE, new JsonObject());
+    }
+    
+    private <T, E> void lazyRegister(FunctionRegistry<T, E> reg, IFactoryData<T, E> factory, E template)
+    {
+        reg.register(factory.getRegistryName(), factory::loadFromData, template);
     }
     
     @Override
-    public IRegistry<IFactoryData<IGuiTexture, JsonObject>, IGuiTexture> getTexReg()
+    public FunctionRegistry<IGuiTexture, JsonObject> getTexReg()
     {
         return TEX_REG;
     }
     
     @Override
-    public IRegistry<IFactoryData<IGuiColor, JsonObject>, IGuiColor> getColorReg()
+    public FunctionRegistry<IGuiColor, JsonObject> getColorReg()
     {
         return COL_REG;
     }
     
     @Override
-    public IRegistry<IFactoryData<IGuiLine, JsonObject>, IGuiLine> getLineReg()
+    public FunctionRegistry<IGuiLine, JsonObject> getLineReg()
     {
         return LIN_REG;
     }

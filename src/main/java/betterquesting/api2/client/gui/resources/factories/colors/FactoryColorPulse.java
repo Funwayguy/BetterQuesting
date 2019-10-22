@@ -24,24 +24,13 @@ public class FactoryColorPulse implements IFactoryData<IGuiColor, JsonObject>
         IGuiColor color1;
         IGuiColor color2;
         
-        try
-        {
-            JsonObject jo = JsonHelper.GetObject(data, "color1");
-            IFactoryData<IGuiColor,JsonObject> tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().getFactory(new ResourceLocation(JsonHelper.GetString(jo, "colorType", "null")));
-            color1 = tFact.loadFromData(jo);
-        } catch(Exception ignored)
-        {
-            color1 = new GuiColorStatic(0xFFFFFFFF);
-        }
-        try
-        {
-            JsonObject jo = JsonHelper.GetObject(data, "color2");
-            IFactoryData<IGuiColor,JsonObject> tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().getFactory(new ResourceLocation(JsonHelper.GetString(jo, "colorType", "null")));
-            color2 = tFact.loadFromData(jo);
-        } catch(Exception ignored)
-        {
-            color2 = new GuiColorStatic(0xFFFFFFFF);
-        }
+        JsonObject jo1 = JsonHelper.GetObject(data, "color1");
+        color1 = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().createNew(new ResourceLocation(JsonHelper.GetString(jo1, "colorType", "null")), jo1);
+        if(color1 == null) color1 = new GuiColorStatic(0xFFFFFFFF);
+        
+        JsonObject jo2 = JsonHelper.GetObject(data, "color2");
+        color2 = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().createNew(new ResourceLocation(JsonHelper.GetString(jo2, "colorType", "null")), jo2);
+        if(color2 == null) color2 = new GuiColorStatic(0xFFFFFFFF);
         
         return new GuiColorPulse(color1, color2, period, phase);
     }

@@ -1,6 +1,7 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.storage.DBEntry;
@@ -115,6 +116,6 @@ public class NetChapterSync
             QuestLineDatabase.INSTANCE.setOrderIndex(aryOrder[i], i);
         }
         
-		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.CHAPTER));
     }
 }

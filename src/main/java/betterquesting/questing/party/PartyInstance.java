@@ -203,7 +203,6 @@ public class PartyInstance implements IParty
 			    if(!jMem.hasKey("uuid", 8) || !jMem.hasKey("status")) continue;
 				UUID uuid = UUID.fromString(jMem.getString("uuid"));
 				EnumPartyStatus priv = EnumPartyStatus.valueOf(jMem.getString("status"));
-				if(priv == EnumPartyStatus.INVITE) continue;
 				members.put(uuid, priv);
 			} catch(Exception ignored){}
 		}

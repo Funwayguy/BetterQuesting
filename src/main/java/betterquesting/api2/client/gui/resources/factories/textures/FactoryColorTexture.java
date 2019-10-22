@@ -37,8 +37,7 @@ public class FactoryColorTexture implements IFactoryData<IGuiTexture, JsonObject
         JsonObject jCol = JsonHelper.GetObject(data, "color");
         try
         {
-            IFactoryData<IGuiColor,JsonObject> tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().getFactory(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")));
-            color = tFact.loadFromData(jCol);
+            color = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg().createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
             if(color == null) color = new GuiColorStatic(0xFFFFFFFF);
         } catch(Exception ignored)
         {

@@ -1,6 +1,7 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.DBEntry;
@@ -118,6 +119,6 @@ public class NetPartySync
             party.readFromNBT(tag.getCompoundTag("config"));
         }
         
-		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.PARTY));
     }
 }

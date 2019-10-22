@@ -3,7 +3,8 @@ package betterquesting.handlers;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
-import betterquesting.api.events.QuestEvent.QuestComplete;
+import betterquesting.api.events.QuestEvent;
+import betterquesting.api.events.QuestEvent.Type;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -58,6 +59,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -132,6 +134,8 @@ public class EventHandler
 			
 			if(!editMode && player.ticksExisted%60 == 0) // Passive quest state check every 3 seconds
             {
+                List<Integer> com = new ArrayList<>();
+                
                 for(DBEntry<IQuest> quest : activeQuests)
                 {
                     if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
@@ -143,15 +147,17 @@ public class EventHandler
                         refreshCache = true;
                         qc.markQuestDirty(quest.getID());
                         
-                        MinecraftForge.EVENT_BUS.post(new QuestComplete(quest.getID(), uuid));
-                        
+                        com.add(quest.getID());
                         if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
                     }
                 }
+                
+                MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.COMPLETED, uuid, com));
             }
             
             if(!editMode && player.getServer() != null) // Repeatable quest resets
             {
+                List<Integer> res = new ArrayList<>();
                 long totalTime = System.currentTimeMillis();
                 
                 for(QResetTime rTime : pendingResets)
@@ -170,9 +176,12 @@ public class EventHandler
                         
                         refreshCache = true;
                         qc.markQuestDirty(rTime.questID);
+                        res.add(rTime.questID);
                         if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
                     } else break; // Entries are sorted by time so we fail fast and skip checking the others
                 }
+                
+                MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.RESET, uuid, res));
             }
             
             if(!editMode)

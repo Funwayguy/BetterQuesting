@@ -1,6 +1,7 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
@@ -154,6 +155,6 @@ public class NetNameSync
     private static void onClient(NBTTagCompound message)
     {
         NameCache.INSTANCE.readFromNBT(message.getTagList("data", 10), message.getBoolean("merge"));
-        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.NAMES));
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class PanelButton implements IPanelButton, IGuiPanelNBT
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText;
+	private int textAlign = 1;
 	private boolean isActive = true;
 	private final int btnID;
 	
@@ -70,6 +72,12 @@ public class PanelButton implements IPanelButton, IGuiPanelNBT
 		this.txtShadow = enabled;
 		return this;
 	}
+	
+	public PanelButton setTextAlignment(int align)
+    {
+        this.textAlign = MathHelper.clamp(align, 0, 2);
+        return this;
+    }
 	
 	public PanelButton setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover)
 	{
@@ -192,15 +200,31 @@ public class PanelButton implements IPanelButton, IGuiPanelNBT
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[curState].getRGB(), txtShadow);
+			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
 		}
 		
 		GlStateManager.popMatrix();
 	}
 	
-    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
+    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int width, int color, boolean shadow, int align)
     {
-        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
+        switch(align)
+        {
+            case 0:
+            {
+                font.drawString(text, x + 4, y, color, shadow);
+                break;
+            }
+            case 2:
+            {
+                font.drawString(text, x + width - RenderUtils.getStringWidth(text, font) / 2F - 4, y, color, shadow);
+                break;
+            }
+            default:
+            {
+                font.drawString(text, x + Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
+            }
+        }
     }
     
 	@Override

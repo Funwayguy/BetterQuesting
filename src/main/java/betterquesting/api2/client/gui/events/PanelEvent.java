@@ -15,7 +15,7 @@ public abstract class PanelEvent
 	{
 		if(!this.canCancel())
 		{
-            throw new IllegalArgumentException("Attempted to cancel a non cancellable panel event");
+            throw new IllegalStateException("Attempted to cancel a non cancellable panel event");
 		}
 		
 		this.cancelled = state;

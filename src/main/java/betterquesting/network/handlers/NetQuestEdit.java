@@ -2,6 +2,7 @@ package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -215,7 +216,7 @@ public class NetQuestEdit
                 QuestLineDatabase.INSTANCE.removeQuest(id);
             }
         
-		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update());
+		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.CHAPTER));
         }
     }
 }

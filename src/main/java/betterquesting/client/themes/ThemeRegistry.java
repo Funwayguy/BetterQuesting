@@ -14,7 +14,6 @@ import betterquesting.api2.client.gui.themes.GuiKey;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.IThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.*;
-import betterquesting.api2.registry.IFactoryData;
 import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.editors.GuiFileBrowser;
 import betterquesting.client.gui2.editors.GuiTextEditor;
@@ -278,15 +277,7 @@ public class ThemeRegistry implements IThemeRegistry
                             JsonObject joTex = entry.getValue().getAsJsonObject();
                             
                             ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joTex, "textureType", ""));
-                            IFactoryData<IGuiTexture, JsonObject> tFact = ResourceRegistry.INSTANCE.getTexReg().getFactory(typeID);
-                            
-                            if(tFact == null)
-                            {
-                                BetterQuesting.logger.error("Unknown texture type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            IGuiTexture gTex = tFact.loadFromData(joTex);
+                            IGuiTexture gTex = ResourceRegistry.INSTANCE.getTexReg().createNew(typeID, joTex);
                             
                             if(gTex == null)
                             {
@@ -304,15 +295,7 @@ public class ThemeRegistry implements IThemeRegistry
                             JsonObject joCol = entry.getValue().getAsJsonObject();
                             
                             ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joCol, "colorType", ""));
-                            IFactoryData<IGuiColor, JsonObject> cFact = ResourceRegistry.INSTANCE.getColorReg().getFactory(typeID);
-                            
-                            if(cFact == null)
-                            {
-                                BetterQuesting.logger.error("Unknown color type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            IGuiColor gCol = cFact.loadFromData(joCol);
+                            IGuiColor gCol = ResourceRegistry.INSTANCE.getColorReg().createNew(typeID, joCol);
                             
                             if(gCol == null)
                             {
@@ -330,15 +313,7 @@ public class ThemeRegistry implements IThemeRegistry
                             JsonObject joLine = entry.getValue().getAsJsonObject();
                             
                             ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joLine, "lineType", ""));
-                            IFactoryData<IGuiLine, JsonObject> lFact = ResourceRegistry.INSTANCE.getLineReg().getFactory(typeID);
-                            
-                            if(lFact == null)
-                            {
-                                BetterQuesting.logger.error("Unknown line type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            IGuiLine gLine = lFact.loadFromData(joLine);
+                            IGuiLine gLine = ResourceRegistry.INSTANCE.getLineReg().createNew(typeID, joLine);
                             
                             if(gLine == null)
                             {
