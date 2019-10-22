@@ -37,6 +37,7 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 	public final GuiScreen parent;
 	
 	private IGuiPanel popup = null;
+	private IGuiPanel focused = null;
 	
     public GuiContainerCanvas(GuiScreen parent, Container container)
     {
@@ -48,30 +49,32 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
     public IGuiRect getRootTransform()
     {
         return this.rootTransform;
-    }*/
+    }
     
     @Override
     public void forceFocus(@Nonnull IGuiPanel panel)
     {
-    
+        this.focused = panel;
     }
     
     @Override
     public void resetFocus()
     {
-    
-    }
+        this.focused = null;
+    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
     {
-    
+        this.popup = panel;
+        //forceFocus(panel);
     }
     
     @Override
     public void closePopup()
     {
-    
+        this.popup = null;
+        //resetFocus();
     }
 	
 	@Override

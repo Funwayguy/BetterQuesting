@@ -35,6 +35,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	public final GuiScreen parent;
 	
 	private IGuiPanel popup = null;
+	private IGuiPanel focused = null;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
@@ -45,7 +46,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
     public IGuiRect getRootTransform()
     {
         return this.rootTransform;
-    }*/
+    }
     
     @Override
     public void forceFocus(@Nonnull IGuiPanel panel)
@@ -57,18 +58,20 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
     public void resetFocus()
     {
     
-    }
+    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
     {
         popup = panel;
+        //forceFocus(panel);
     }
     
     @Override
     public void closePopup()
     {
-    
+        popup = null;
+        //resetFocus();
     }
     
     @Override
@@ -134,6 +137,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		
 		this.guiPanels.clear();
         Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
+        
+	    if(popup != null)
+        {
+            popup = null;
+            
+        }
 	}
 	
 	@Override

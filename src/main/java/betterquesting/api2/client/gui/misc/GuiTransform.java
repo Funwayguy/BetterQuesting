@@ -15,6 +15,11 @@ public final class GuiTransform implements IGuiRect
 		this(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0);
 	}
 	
+	public GuiTransform(ReadableVector4f anchor)
+	{
+		this(anchor, new GuiPadding(0, 0, 0, 0), 0);
+	}
+	
 	public GuiTransform(ReadableVector4f anchor, int xOff, int yOff, int width, int height, int order)
 	{
 		this(new Vector4f(anchor.getX(), anchor.getY(), anchor.getX(), anchor.getY()), new GuiPadding(xOff, yOff, -xOff - width, -yOff - height), order);

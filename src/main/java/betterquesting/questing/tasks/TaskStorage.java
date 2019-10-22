@@ -22,7 +22,6 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
-		    if(subset != null && !subset.contains(entry.getID())) continue;
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
 			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
@@ -36,8 +35,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		if(!merge) reset();
-		
+	    reset();
 		List<ITask> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
@@ -122,7 +120,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 					task.readProgressFromNBT(jsonTask, false);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
-					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), false);
+					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), merge);
 				}
 			}
 		}

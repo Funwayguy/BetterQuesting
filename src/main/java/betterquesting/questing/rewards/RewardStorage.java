@@ -21,9 +21,7 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	{
 		for(DBEntry<IReward> rew : getEntries())
 		{
-		    if(subset != null && !subset.contains(rew.getID())) continue;
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
-			
 			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound());
 			rJson.setString("rewardID", rewardID.toString());
 			rJson.setInteger("index", rew.getID());
@@ -36,8 +34,7 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		if(!merge) reset();
-		
+	    reset();
 		List<IReward> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)

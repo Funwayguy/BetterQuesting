@@ -12,9 +12,9 @@ public interface IScene extends IGuiCanvas
     // Unadjusted canvas representing the entire screen's bounds
     //IGuiCanvas getRootCanvas();
     
-    // Force isolate all UI interaction to this panel until manually unfocused. NOTE: Escape key will always unfocus to prevent softlocking
-    void forceFocus(@Nonnull IGuiPanel panel);
-    void resetFocus();
+    // TODO: Force isolate all UI interaction to this panel until manually unfocused. NOTE: Escape key will always unfocus to prevent softlocking
+    //void forceFocus(@Nonnull IGuiPanel panel);
+    //void resetFocus();
     
     // Opens a top level canvas off the root canvas
     void openPopup(@Nonnull IGuiPanel panel);
