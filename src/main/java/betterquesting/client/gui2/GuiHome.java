@@ -29,7 +29,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
-import betterquesting.client.ui_builder.GuiBuilderMain;
+import betterquesting.client.gui3.GuiStatus;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
 import betterquesting.network.handlers.NetQuestSync;
@@ -123,8 +123,8 @@ public class GuiHome extends GuiScreenCanvas
                 @Override
                 public void onButtonClick()
                 {
-                    //mc.displayGuiScreen(new GuiStatus(GuiHome.this));
-                    mc.displayGuiScreen(new GuiBuilderMain(GuiHome.this));
+                    mc.displayGuiScreen(new GuiStatus(GuiHome.this));
+                    //mc.displayGuiScreen(new GuiBuilderMain(GuiHome.this));
                 }
             }; // Test screen
 		    inCan.addPanel(tstBtn);

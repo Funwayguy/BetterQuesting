@@ -13,27 +13,31 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.api2.utils.QuestTranslation;
 import org.lwjgl.util.vector.Vector4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
-public class PopMessage extends CanvasEmpty
+public class PopChoice extends CanvasEmpty
 {
     private final String message;
     private final IGuiTexture icon;
+    private final Consumer<Integer> callback;
+    private final String[] options;
     
-    public PopMessage(@Nonnull String message)
+    public PopChoice(@Nonnull String message, @Nonnull Consumer<Integer> callback, @Nonnull String... options)
     {
-        this(message, null);
+        this(message, null, callback, options);
     }
     
-    public PopMessage(@Nonnull String message, @Nullable IGuiTexture icon)
+    public PopChoice(@Nonnull String message, @Nullable IGuiTexture icon, @Nonnull Consumer<Integer> callback, @Nonnull String... options)
     {
         super(new GuiTransform(GuiAlign.FULL_BOX));
         this.message = message;
         this.icon = icon;
+        this.callback = callback;
+        this.options = options;
     }
     
     @Override
@@ -55,11 +59,22 @@ public class PopMessage extends CanvasEmpty
         }
         
         cvBox.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), message).setAlignment(1));
-        PanelButton btn = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0.6F, 0.5F, 0.6F), -48, 8, 96, 16, 0), -1, QuestTranslation.translate("gui.back"));
-        btn.setClickAction((b) -> {
-            if(SceneController.getActiveScene() != null) SceneController.getActiveScene().closePopup();
-        });
-        this.addPanel(btn);
+        
+        final int maxW = 3;
+        for(int i = 0; i < options.length; i++)
+        {
+            final int index = i;
+            int rowY = i / maxW;
+            int rowX = i % maxW;
+            int rowW = Math.min(3, options.length - (rowY * maxW)) * 112 - 16;
+            
+            PanelButton btn = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0.6F, 0.5F, 0.6F), -rowW / 2 + rowX * 112, 8 + 24 * rowY, 96, 16, 0), -1, options[i]);
+            btn.setClickAction((b) -> {
+                callback.accept(index);
+                if(SceneController.getActiveScene() != null) SceneController.getActiveScene().closePopup();
+            });
+            this.addPanel(btn);
+        }
     }
     
     // == TRAP ALL UI USAGE UNTIL CLOSED ===

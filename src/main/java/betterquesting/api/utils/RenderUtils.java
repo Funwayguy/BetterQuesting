@@ -4,6 +4,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -743,17 +743,10 @@ public class RenderUtils
 	 */
     public static void drawHoveringText(@Nonnull final ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font)
     {
-    	if(textLines == null || textLines.isEmpty())
-		{
-			return;
-		}
+    	if(textLines == null || textLines.isEmpty()) return;
   
 		RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
-		
-		if (MinecraftForge.EVENT_BUS.post(event))
-		{
-			return;
-		}
+		if (MinecraftForge.EVENT_BUS.post(event)) return;
 		
 		mouseX = event.getX();
 		mouseY = event.getY();
@@ -869,7 +862,7 @@ public class RenderUtils
 			tooltipY = screenHeight - tooltipHeight - 4;
 		}
 		
-		int backgroundColor = 0xF0100010;
+		/*int backgroundColor = 0xF0100010;
 		int borderColorStart = 0x505000FF;
 		int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
 		
@@ -889,7 +882,8 @@ public class RenderUtils
 		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
 		GuiUtils.drawGradientRect(0, tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
 
-		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
+		MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, textLines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));*/
+        PresetTexture.TOOLTIP_BG.getTexture().drawTexture(tooltipX - 4, tooltipY - 4, tooltipTextWidth + 8, tooltipHeight + 8, 0F, 1F);
 		int tooltipTop = tooltipY;
 		
 		GlStateManager.translate(0F, 0F, 0.1F);
@@ -924,8 +918,9 @@ public class RenderUtils
     {
         if (text == null || text.length() == 0) return 0;
         
-        int i = 0;
-        boolean flag = false;
+        int maxWidth = 0;
+        int curLineWidth = 0;
+        boolean bold = false;
 
         for (int j = 0; j < text.length(); ++j)
         {
@@ -934,6 +929,7 @@ public class RenderUtils
 
             if (k < 0 && j < text.length() - 1) // k should only be negative when the section sign has been used!
             {
+                // Move the caret to the formatting character and read from there
                 ++j;
                 c0 = text.charAt(j);
 
@@ -941,27 +937,33 @@ public class RenderUtils
                 {
                     int ci = "0123456789abcdefklmnor".indexOf(String.valueOf(c0).toLowerCase(Locale.ROOT).charAt(0));
                     //if (c0 == 'r' || c0 == 'R') // Minecraft's original implemention. This is broken...
-                    if(ci < 16 || ci == 21) // Colour or reset code!
+                    if(ci < 16 || ci == 21) // Reset bolding. Now supporting colour AND reset codes!
                     {
-                        flag = false;
+                        bold = false;
                     }
                 }
-                else
+                else // This is the bold format on. Time to get T H I C C
                 {
-                    flag = true;
+                    bold = true;
                 }
 
-                k = 0;
+                k = 0; // Fix the negative value the section symbol previously set
             }
+            
+            curLineWidth += k;
 
-            i += k;
-
-            if (flag && k > 0)
+            if (bold && k > 0) // This is a bolded normal character which is 1px thicker
             {
-                ++i;
+                ++curLineWidth;
+            }
+            
+            if(c0 == '\n') // New line. Reset counting width
+            {
+                maxWidth = Math.max(maxWidth, curLineWidth);
+                curLineWidth = 0;
             }
         }
 
-        return i;
+        return Math.max(maxWidth, curLineWidth);
     }
 }

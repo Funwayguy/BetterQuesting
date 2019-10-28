@@ -1,11 +1,12 @@
 package betterquesting.api2.client.gui;
 
-import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.popups.PopChoice;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
 import net.minecraft.client.gui.FontRenderer;
@@ -31,11 +32,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	private boolean enabled = true;
 	private boolean useMargins = true;
 	private boolean useDefaultBG = false;
+	private boolean isVolatile = false;
 	
 	public final GuiScreen parent;
 	
 	private IGuiPanel popup = null;
-	private IGuiPanel focused = null;
+	//private IGuiPanel focused = null;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
@@ -63,7 +65,9 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
     {
+        panel.getTransform().setParent(rootTransform);
         popup = panel;
+        panel.initPanel();
         //forceFocus(panel);
     }
     
@@ -96,6 +100,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	public GuiScreenCanvas useDefaultBG(boolean enable)
     {
         this.useDefaultBG = enable;
+        return this;
+    }
+    
+    public GuiScreenCanvas setVolatile(boolean state)
+    {
+        this.isVolatile = state;
         return this;
     }
 	
@@ -141,7 +151,6 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	    if(popup != null)
         {
             popup = null;
-            
         }
 	}
 	
@@ -174,7 +183,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		
 		this.drawPanel(mx, my, partialTick);
 		
-		List<String> tt = this.getTooltip(mx, my);
+		List<String> tt = getTooltip(mx, my);
 		
 		if(tt != null && tt.size() > 0)
 		{
@@ -231,17 +240,13 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
     {
         if (keyCode == 1)
         {
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 			
 			return;
@@ -260,12 +265,23 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 				entry.drawPanel(mx, my, partialTick);
 			}
 		}
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.drawPanel(mx, my, partialTick);
+        }
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseClick(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -288,6 +304,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	{
 		boolean used = false;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseRelease(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -304,10 +326,16 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		return used;
 	}
 	
-	//@Override
+	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseScroll(mx, my, scroll);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -330,6 +358,15 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	{
 		boolean used = false;
 		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onKeyTyped(c, keycode);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -345,17 +382,13 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		
 		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
 		{
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 		}
 		
@@ -368,21 +401,19 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		List<String> tt;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            tt = popup.getTooltip(mx, my);
+            if(tt != null) return tt;
+        }
+		
 		while(pnIter.hasPrevious())
 		{
 			IGuiPanel entry = pnIter.previous();
-			
-			if(!entry.isEnabled())
-			{
-				continue;
-			}
+			if(!entry.isEnabled()) continue;
 			
 			tt = entry.getTooltip(mx, my);
-			
-			if(tt != null)
-			{
-				return tt;
-			}
+			if(tt != null) return tt;
 		}
 		
 		return null;
@@ -433,16 +464,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
-	@Override
-    public void confirmClicked(boolean confirmed, int id)
-	{
-		if(confirmed && id == 0)
-		{
+	public void confirmClose(int id)
+    {
+        if(id == 0)
+        {
             this.mc.displayGuiScreen(null);
-            this.mc.setIngameFocus();
-		} else
-		{
-			this.mc.displayGuiScreen(this);
-		}
-	}
+            if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+        }
+    }
 }

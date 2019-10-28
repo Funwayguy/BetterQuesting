@@ -1,7 +1,9 @@
 package betterquesting.network.handlers;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -34,6 +36,16 @@ public class NetStationEdit
     {
 		NBTTagCompound tileData = message.getFirst().getCompoundTag("data");
 		TileEntity tile = message.getSecond().world.getTileEntity(new BlockPos(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z")));
-		if(tile instanceof TileSubmitStation) ((TileSubmitStation)tile).SyncTile(tileData);
+		if(tile instanceof TileSubmitStation)
+        {
+            TileSubmitStation ss = (TileSubmitStation)tile;
+            if(ss.owner == null || ss.isUsableByPlayer(message.getSecond()))
+            {
+                ss.SyncTile(tileData);
+            } else
+            {
+                BetterQuesting.logger.warn("Player " + message.getSecond().getName() + " attempted to hijack an OSS they do not own!");
+            }
+        }
     }
 }

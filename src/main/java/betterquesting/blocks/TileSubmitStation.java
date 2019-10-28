@@ -181,10 +181,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isItemValidForSlot(int idx, @Nonnull ItemStack stack)
 	{
-		if(idx != 0)
-		{
-			return false;
-		}
+		if(idx != 0) return false;
 		
 		IItemTask t = getItemTask();
 		
@@ -283,7 +280,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		if(world.isRemote || !isSetup() || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) return;
 		
 		long wtt = world.getTotalWorldTime();
-		if(wtt%10 == 0 && owner != null)
+		if(wtt%5 == 0 && owner != null)
 		{
 		    if(wtt%20 == 0) qCached = null; // Reset and lookup quest again once every second
             DBEntry<IQuest> q = getQuest();
@@ -292,6 +289,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
             EntityPlayerMP player = server == null ? null : server.getPlayerList().getPlayerByUUID(owner);
             QuestCache qc = player == null ? null : player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
             
+            // Check quest & task is present. Check input is populated and output is clear.
 			if(q != null && t != null && !itemStack.get(0).isEmpty() && itemStack.get(1).isEmpty())
 			{
 				ItemStack inStack = itemStack.get(0).copy();
@@ -299,17 +297,11 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 				
 				if(t.canAcceptItem(owner, getQuest(), inStack))
 				{
-					itemStack.set(0, t.submitItem(owner, getQuest(), inStack)); // Even if this returns an invalid item for submission it will be moved next pass
+				    // Even if this returns an invalid item for submission it will be moved next pass. Done this way for container items
+					itemStack.set(0, t.submitItem(owner, getQuest(), inStack));
 					
-					if(t.isComplete(owner))
-					{
-						reset();
-						needsUpdate = true;
-						if(server != null) server.getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
-					} else
-					{
-						if(!itemStack.get(0).equals(beforeStack)) needsUpdate = true;
-					}
+					// If the task was completed or partial progress submitted. Sync the new progress with the client
+					if(t.isComplete(owner) || !itemStack.get(0).equals(beforeStack)) needsUpdate = true;
 				} else
 				{
 					itemStack.set(1, inStack);
@@ -317,20 +309,18 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 				}
 			}
 			
-			if(needsUpdate)
-			{
-				needsUpdate = false;
-				
-				if(q != null && qc != null)
-				{
-				    qc.markQuestDirty(questID); // Let the cache take care of syncing
-				}
-			}
-			
 			if(t != null && t.isComplete(owner))
 			{
 				reset();
 				world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
+				needsUpdate = true;
+			}
+			
+			if(needsUpdate)
+			{
+				if(q != null && qc != null) qc.markQuestDirty(q.getID()); // Let the cache take care of syncing
+				needsUpdate = false;
+				
 			}
 		}
 	}
@@ -397,9 +387,10 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     }
     
     /**
-     * Ignores parameter on client side (uses own data instead)
+     * Client: Ignores parameter on client side and sends own data to server for owner setup
+     * Server side: Sends reads any modification data (if specified) then syncs to all nearby clients
      */
-    public void SyncTile(NBTTagCompound data)
+    public void SyncTile(@Nullable NBTTagCompound data)
     {
     	if(!world.isRemote)
     	{

@@ -32,7 +32,7 @@ public class ItemGuideBook extends Item
     		player.openGui(BetterQuesting.instance, 1, world, 0, 0, 0);
     	}
     	
-        return new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+        return new ActionResult<>(EnumActionResult.PASS, stack);
     }
 	
 	@Override

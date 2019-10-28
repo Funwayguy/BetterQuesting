@@ -71,7 +71,9 @@ public enum PresetTexture
 	
 	TEXT_BOX_0("text_box_0"),
 	TEXT_BOX_1("text_box_1"),
-	TEXT_BOX_2("text_box_2");
+	TEXT_BOX_2("text_box_2"),
+	
+	TOOLTIP_BG("tooltip_bg");
 	
 	public static final ResourceLocation TX_SIMPLE = new ResourceLocation(BetterQuesting.MODID, "textures/gui/simple_frames.png");
 	public static final ResourceLocation TX_QUEST = new ResourceLocation(BetterQuesting.MODID, "textures/gui/quest_frames.png");
@@ -153,5 +155,7 @@ public enum PresetTexture
 		reg.setDefaultTexture(TEXT_BOX_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(0, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(TEXT_BOX_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(8, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(TEXT_BOX_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(16, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
+		
+		reg.setDefaultTexture(TOOLTIP_BG.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(204, 0, 12, 12), new GuiPadding(2, 2, 2, 2)).setSliceMode(SliceMode.SLICED_STRETCH));
 	}
 }

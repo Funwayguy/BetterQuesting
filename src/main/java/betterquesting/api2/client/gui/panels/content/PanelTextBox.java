@@ -131,8 +131,8 @@ public class PanelTextBox implements IGuiPanel
         //FontRenderer fr = BqFontRenderer.FONT_STANDARD;
 		
 		double s = fontScale / relScale;
-		double w = RenderUtils.getStringWidth(text, fr) * s;
 		int bw = (int)Math.ceil(bounds.getWidth() / s);
+		double w = Math.min(bw, RenderUtils.getStringWidth(text, fr) * s);
 		
 		if(bw <= 0) return;
         
