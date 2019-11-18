@@ -4,12 +4,13 @@ import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiPanelNBT;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
@@ -22,7 +23,7 @@ import org.lwjgl.input.Mouse;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PanelButton implements IPanelButton, IGuiPanelNBT
+public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTagCompound>
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;

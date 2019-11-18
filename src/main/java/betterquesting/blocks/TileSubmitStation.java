@@ -181,7 +181,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isItemValidForSlot(int idx, @Nonnull ItemStack stack)
 	{
-		if(idx != 0) return false;
+		if(idx != 0 || !isSetup()) return false;
 		
 		IItemTask t = getItemTask();
 		
@@ -197,7 +197,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		
 		FluidStack remainder;
 		int amount = fluid.amount;
-		int consumed = 0;
+		int consumed = !doFill ? amount : 0;
 		
 		if(doFill)
 		{

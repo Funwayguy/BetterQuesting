@@ -2,11 +2,7 @@ package betterquesting.api2.client.gui.panels;
 
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.client.themes.ThemeRegistry;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 
 public class CanvasTextured extends CanvasEmpty
 {
@@ -32,18 +28,4 @@ public class CanvasTextured extends CanvasEmpty
 		
 		super.drawPanel(mx, my, partialTick);
 	}
-	
-	@Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
-        String texName = tag.getString("texture");
-        bgTexture = StringUtils.isNullOrEmpty(texName) ? ThemeRegistry.INSTANCE.getTexture(null) : ThemeRegistry.INSTANCE.getTexture(new ResourceLocation(texName));
-    }
-    
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound tag)
-    {
-        // TODO: FIX ME
-        return tag;
-    }
 }

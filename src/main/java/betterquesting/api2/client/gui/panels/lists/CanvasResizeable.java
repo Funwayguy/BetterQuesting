@@ -1,20 +1,25 @@
-package betterquesting.api2.client.gui.panels;
+package betterquesting.api2.client.gui.panels.lists;
 
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class CanvasEmpty implements IGuiCanvas
+public class CanvasResizeable implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
+	// TODO: Change this to a map of states with passable dimensions and initialisation functions
+    // TODO: Create an IGuiRect that interpolates between a cached IGuiRect and the next IGuiRect it has been passed
+    // TODO: When mid interpolation, the child panels should be attached to where the bounds are GOING to be. Only the cropped cutout and backing texture should be animated to maintain compatibility
 	private final IGuiRect transform;
 	private boolean enabled = true;
 	
-	public CanvasEmpty(IGuiRect rect)
+	public CanvasResizeable(IGuiRect rect)
 	{
 		this.transform = rect;
 	}
