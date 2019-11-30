@@ -24,6 +24,7 @@ import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -101,17 +102,29 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         {
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
         }
-    
-        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
+        
+        CanvasHoverTray cvTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -32, 16), -1), new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -168, 16), 0), PresetTexture.PANEL_MAIN.getTexture());
+        cvBackground.addPanel(cvTray);
+        
+        cvTray.getCanvasClosed().addPanel(new PanelGeneric(new GuiTransform(GuiAlign.MID_CENTER, -8, -8, 16, 16, 0), PresetIcon.ICON_RIGHT.getTexture()));
+        
+        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
+        cvTray.getCanvasOpen().addPanel(cvLines);
+        
+        scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+        cvTray.getCanvasOpen().addPanel(scLines);
+        
+        /*cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(16, 16, -158, 16), 0));
         cvBackground.addPanel(cvLines);
         scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
         cvLines.setScrollDriverY(scLines);
         cvBackground.addPanel(scLines);
-        scLines.getTransform().setParent(cvLines.getTransform());
+        scLines.getTransform().setParent(cvLines.getTransform());*/
         
         refreshList();
     
-        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
+        //CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(174, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
+        CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(32, 16, 16, 66), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
         
         CanvasQuestLine oldCvQuest = cvQuest;
@@ -332,7 +345,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             qlBtns.add(btnLine);
         }
         
-        scLines.setEnabled(cvLines.getScrollBounds().getHeight() > 0);
+        cvLines.refreshScrollBounds();
+        //scLines.setEnabled(cvLines.getScrollBounds().getHeight() > 0);
     }
     
     private void refreshContent()

@@ -8,7 +8,8 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
-import betterquesting.api2.client.gui.panels.content.PanelEntityPreview;
+import betterquesting.api2.client.gui.panels.content.PanelGeneric;
+import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -30,6 +31,11 @@ public class GuiStatus extends GuiScreenCanvas
 		// === BACKGROUND PANEL ===
 		CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(bgCan);
+        
+        CanvasHoverTray cvHover = new CanvasHoverTray(new GuiTransform(GuiAlign.MID_CENTER, 16, 16, 16, 16, 0), new GuiTransform(GuiAlign.MID_CENTER, 16, 16, 64, 64, 5), PresetTexture.PANEL_DARK.getTexture());
+        bgCan.addPanel(cvHover);
+        cvHover.getCanvasClosed().addPanel(new PanelGeneric(new GuiTransform(), PresetIcon.ICON_CROSS.getTexture()));
+        cvHover.getCanvasOpen().addPanel(new PanelGeneric(new GuiTransform(), PresetIcon.ICON_TICK.getTexture()));
 		
 		// === SIDE BAR ===
         
@@ -84,14 +90,14 @@ public class GuiStatus extends GuiScreenCanvas
         
         // === OUTER CHARACTER PANEL ===
         
-        CanvasTextured bgChar = new CanvasTextured(new GuiTransform(new Vector4f(0.2F, 0F, 1F, 1F), new GuiPadding(4, 24, 8, 48), 0), PresetTexture.PANEL_INNER.getTexture());
-        bgCan.addPanel(bgChar);
+        //CanvasTextured bgChar = new CanvasTextured(new GuiTransform(new Vector4f(0.2F, 0F, 1F, 1F), new GuiPadding(4, 24, 8, 48), 0), PresetTexture.PANEL_INNER.getTexture());
+        //bgCan.addPanel(bgChar);
         
         // === CHARACTER PREVIEW ===
         
-        PanelEntityPreview pvChar = new PanelEntityPreview(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 4, 8), 0), mc.player);
-        bgChar.addPanel(pvChar);
-        pvChar.setRotationFixed(-15F, 0F);
+        //PanelEntityPreview pvChar = new PanelEntityPreview(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 4, 8), 0), mc.player);
+        //bgChar.addPanel(pvChar);
+        //pvChar.setRotationFixed(-15F, 0F);
         
         // === EQUIPMENT SLOTS ===
         

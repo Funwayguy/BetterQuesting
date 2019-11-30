@@ -12,10 +12,6 @@ import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiContainerCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.events.IPEventListener;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.events.PanelEvent;
-import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
@@ -38,9 +34,10 @@ import net.minecraft.util.NonNullList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
+import java.util.Iterator;
 import java.util.List;
 
-public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListener, INeedsRefresh
+public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefresh
 {
     private final ContainerSubmitStation ssContainer;
     private final TileSubmitStation tile;
@@ -78,6 +75,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         quests.clear();
         QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
         if(qc != null) quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        filterQuests();
         
         refreshTaskPanel();
     }
@@ -86,14 +84,14 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
     public void initPanel()
     {
         super.initPanel();
-    
-        PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
+        
         Keyboard.enableRepeatEvents(true);
     
         quests.clear();
         taskPanel = null;
         QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
         if(qc != null) quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        filterQuests();
         
         // Background panel
         cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -103,7 +101,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         txtTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txtTitle);
     
-        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.done")));
+        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), -1, QuestTranslation.translate("gui.done")).setClickAction((b) -> mc.displayGuiScreen(parent)));
         
         btnQstLeft = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0F, 0.5F, 0F), 8, 32, 16, 16, 0), -1, "")
         {
@@ -213,23 +211,27 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 72, y, 18, 18, -1), PresetIcon.ICON_RIGHT.getTexture()));
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 90, y, 18, 18, -1), PresetTexture.ITEM_FRAME.getTexture()));
     }
-	
-	@Override
-	public void onPanelEvent(PanelEvent event)
-	{
-		if(event instanceof PEventButton)
-		{
-			onButtonPress((PEventButton)event);
-		}
-	}
-	
-	private void onButtonPress(PEventButton event)
+    
+    private void filterQuests()
     {
-        IPanelButton btn = event.getButton();
+        Iterator<DBEntry<IQuest>> iter = quests.iterator();
         
-        if(btn.getButtonID() == 0) // Exit
+        while(iter.hasNext())
         {
-            mc.displayGuiScreen(this.parent);
+            DBEntry<IQuest> entry = iter.next();
+            
+            boolean valid = false;
+            
+            for(DBEntry<ITask> tsk : entry.getValue().getTasks().getEntries())
+            {
+                if(tsk.getValue() instanceof IItemTask || tsk.getValue() instanceof IFluidTask)
+                {
+                    valid = true;
+                    break;
+                }
+            }
+            
+            if(!valid) iter.remove();
         }
     }
     

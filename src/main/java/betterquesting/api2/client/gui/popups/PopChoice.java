@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.CanvasResizeable;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
@@ -47,8 +48,9 @@ public class PopChoice extends CanvasEmpty
         
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1), new ColorTexture(new GuiColorStatic(0x80000000))));
     
-        CanvasTextured cvBox = new CanvasTextured(new GuiTransform(new Vector4f(0.2F, 0.3F, 0.8F, 0.6F)), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasResizeable cvBox = new CanvasResizeable(new GuiTransform(new Vector4f(0.5F, 0.45F, 0.5F, 0.45F)), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBox);
+        cvBox.lerpToRect(new GuiTransform(new Vector4f(0.2F, 0.3F, 0.8F, 0.6F)), 200L, true);
         
         if(icon != null)
         {

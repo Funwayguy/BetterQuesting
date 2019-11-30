@@ -51,6 +51,7 @@ public class CanvasScrolling implements IGuiCanvas
 	// Enables the auto-disabling panels outside the cropped region. Useful for very large lists
 	private boolean useBlocking = true;
 	private final CanvasCullingManager cullingManager = new CanvasCullingManager();
+	private final GuiRectangle refRect = new GuiRectangle(0, 0, 0, 0);
 	
 	public CanvasScrolling(IGuiRect rect)
 	{
@@ -177,6 +178,8 @@ public class CanvasScrolling implements IGuiCanvas
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+	    if(!isRectEqual(refRect, transform)) refreshScrollBounds();
+	    
 		float zs = zoomScale.readValue();
 		
 		int tx = transform.getX();
@@ -544,6 +547,11 @@ public class CanvasScrolling implements IGuiCanvas
 		}
 		
 		updatePanelScroll();
+		
+        refRect.x = transform.getX();
+        refRect.y = transform.getY();
+        refRect.w = transform.getWidth();
+        refRect.h = transform.getHeight();
 	}
 	
 	public void updatePanelScroll()
@@ -573,4 +581,9 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		return useBlocking ? cullingManager.getVisiblePanels() : guiPanels;
 	}
+	
+	private boolean isRectEqual(IGuiRect r1, IGuiRect r2)
+    {
+        return r1.getX() == r2.getX() && r1.getY() == r2.getY() && r1.getWidth() == r2.getWidth() && r1.getHeight() == r2.getHeight();
+    }
 }

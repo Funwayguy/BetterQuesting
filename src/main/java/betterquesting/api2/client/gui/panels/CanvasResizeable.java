@@ -1,11 +1,14 @@
-package betterquesting.api2.client.gui.panels.lists;
+package betterquesting.api2.client.gui.panels;
 
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
+import betterquesting.api2.client.gui.misc.GuiRectLerp;
 import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
+import net.minecraft.client.renderer.GlStateManager;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -13,22 +16,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class CanvasResizeable implements IGuiCanvas
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	// TODO: Change this to a map of states with passable dimensions and initialisation functions
-    // TODO: Create an IGuiRect that interpolates between a cached IGuiRect and the next IGuiRect it has been passed
-    // TODO: When mid interpolation, the child panels should be attached to where the bounds are GOING to be. Only the cropped cutout and backing texture should be animated to maintain compatibility
-	private final IGuiRect transform;
+    
+	private IGuiTexture bgTexture;
+	private final GuiRectLerp rectLerp;
 	private boolean enabled = true;
+	private final boolean crop;
 	
-	public CanvasResizeable(IGuiRect rect)
+	public CanvasResizeable(IGuiRect rect, IGuiTexture texture)
 	{
-		this.transform = rect;
+		this(rect, texture, true);
 	}
+	
+	public CanvasResizeable(IGuiRect rect, IGuiTexture texture, boolean crop)
+	{
+		this.bgTexture = texture;
+		this.rectLerp = new GuiRectLerp(rect);
+		this.crop = crop;
+	}
+	
+	public void changeBG(@Nullable IGuiTexture texture)
+    {
+        this.bgTexture = texture;
+    }
 	
 	@Override
 	public IGuiRect getTransform()
 	{
-		return transform;
+        return crop ? rectLerp.getProxyRect() : rectLerp;
 	}
+	
+	public GuiRectLerp getRectLerp()
+    {
+        return this.rectLerp;
+    }
 	
 	@Nonnull
 	@Override
@@ -54,17 +74,39 @@ public class CanvasResizeable implements IGuiCanvas
 	{
 		return this.enabled;
 	}
+    
+    public void lerpToRect(@Nonnull IGuiRect rect, long time, boolean inheritParent)
+    {
+        if(inheritParent) rect.setParent(rectLerp.getParent());
+        rectLerp.lerpTo(rect, time);
+    }
+    
+    public void snapToRect(@Nonnull IGuiRect rect, boolean inheritParent)
+    {
+        if(inheritParent) rect.setParent(rectLerp.getParent());
+        rectLerp.snapTo(rect);
+    }
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+        if(crop) RenderUtils.startScissor(rectLerp);
+        
+	    if(bgTexture != null)
+        {
+            IGuiRect bounds = rectLerp;
+            GlStateManager.pushMatrix();
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            bgTexture.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
+            GlStateManager.popMatrix();
+        }
+	    
 		for(IGuiPanel entry : guiPanels)
 		{
-			if(entry.isEnabled())
-			{
-				entry.drawPanel(mx, my, partialTick);
-			}
+			if(entry.isEnabled()) entry.drawPanel(mx, my, partialTick);
 		}
+		
+        if(crop) RenderUtils.endScissor();
 	}
 	
 	@Override

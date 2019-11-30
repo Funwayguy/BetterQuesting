@@ -2,11 +2,14 @@ package betterquesting.api2.client.gui.popups;
 
 import betterquesting.api2.client.gui.SceneController;
 import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.misc.*;
+import betterquesting.api2.client.gui.misc.GuiAlign;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.GuiTransform;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
-import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
+import betterquesting.api2.client.gui.panels.CanvasResizeable;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -58,8 +61,9 @@ public class PopContextMenu extends CanvasEmpty
             rect.y += Math.min(0, (par.getY() + par.getHeight()) - (rect.getY() + listH));
         }
     
-        CanvasTextured cvBG = new CanvasTextured(new GuiRectangle(0, 0, rect.w - 8, listH, 0), PresetTexture.PANEL_INNER.getTexture());
+        CanvasResizeable cvBG = new CanvasResizeable(new GuiRectangle(0, 0, 0, 0, 0), PresetTexture.PANEL_INNER.getTexture());
         this.addPanel(cvBG);
+        cvBG.lerpToRect(new GuiRectangle(0, 0, rect.w - 8, listH, 0), 100, true);
         
         CanvasScrolling cvScroll = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX));
         cvBG.addPanel(cvScroll);

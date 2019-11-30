@@ -1,5 +1,7 @@
 package betterquesting.api2.client.gui.misc;
 
+import javax.annotation.Nonnull;
+
 public class GuiRectangle implements IGuiRect
 {
 	public int x, y, w, h, d;
@@ -71,9 +73,9 @@ public class GuiRectangle implements IGuiRect
 	public boolean contains(int x, int y)
 	{
 		int x1 = this.getX();
-		int x2 = x1 + this.w;
+		int x2 = x1 + this.getWidth();
 		int y1 = this.getY();
-		int y2 = y1 + this.h;
+		int y2 = y1 + this.getHeight();
 		return x >= x1 && x < x2 && y >= y1 && y < y2;
 	}
 	
@@ -85,7 +87,7 @@ public class GuiRectangle implements IGuiRect
 	}*/
 	
 	@Override
-	public int compareTo(IGuiRect o)
+	public int compareTo(@Nonnull IGuiRect o)
 	{
 		return (int)Math.signum(o.getDepth() - d);
 	}

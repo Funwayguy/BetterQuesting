@@ -1,6 +1,7 @@
 package betterquesting.api2.client.gui.panels.content;
 
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -10,11 +11,13 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class PanelTextBox implements IGuiPanel
 {
 	private final GuiRectText transform;
+	private final GuiRectangle refRect = new GuiRectangle(0, 0, 0, 0, 0);
 	private boolean enabled = true;
 	
 	private String text = "";
@@ -43,7 +46,9 @@ public class PanelTextBox implements IGuiPanel
 	{
 		this.text = text;
 		
-		IGuiRect bounds = this.getTransform();
+		refreshText();
+		
+		/*IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		float scale = fontScale / relScale;
 		
@@ -56,7 +61,7 @@ public class PanelTextBox implements IGuiPanel
 		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
 		lines = sl.size() - 1;
 		
-		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
+		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);*/
 		
 		return this;
 	}
@@ -85,16 +90,9 @@ public class PanelTextBox implements IGuiPanel
 		return this;
 	}
 	
-	@Override
-	public IGuiRect getTransform()
-	{
-		return transform;
-	}
-	
-	@Override
-	public void initPanel()
-	{
-		IGuiRect bounds = this.getTransform();
+	private void refreshText()
+    {
+        IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		float scale = fontScale / relScale;
 		
@@ -108,6 +106,38 @@ public class PanelTextBox implements IGuiPanel
 		lines = sl.size() - 1;
 		
 		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
+		
+        refRect.x = bounds.getX();
+        refRect.y = bounds.getY();
+        refRect.w = bounds.getWidth();
+        refRect.h = bounds.getHeight();
+    }
+	
+	@Override
+	public IGuiRect getTransform()
+	{
+		return transform;
+	}
+	
+	@Override
+	public void initPanel()
+	{
+	    refreshText();
+	    
+		/*IGuiRect bounds = this.getTransform();
+		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		float scale = fontScale / relScale;
+		
+		if(!autoFit)
+		{
+			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
+			return;
+		}
+		
+		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
+		lines = sl.size() - 1;
+		
+		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);*/
 	}
 	
 	@Override
@@ -125,6 +155,8 @@ public class PanelTextBox implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
+	    if(!isRectEqual(refRect, getTransform())) refreshText(); // Makes this panel work with resizable canvases without having to update every frame
+	    
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 		//FontRenderer fr = BqFontRenderer.FONT_UNICODE;
@@ -257,9 +289,14 @@ public class PanelTextBox implements IGuiPanel
 		}*/
 		
 		@Override
-		public int compareTo(IGuiRect o)
+		public int compareTo(@Nonnull IGuiRect o)
 		{
 			return proxy.compareTo(o);
 		}
 	}
+	
+	private boolean isRectEqual(IGuiRect r1, IGuiRect r2)
+    {
+        return r1.getX() == r2.getX() && r1.getY() == r2.getY() && r1.getWidth() == r2.getWidth() && r1.getHeight() == r2.getHeight();
+    }
 }
