@@ -374,6 +374,7 @@ public class CanvasScrolling implements IGuiCanvas
 				float cs = zoomScale.readValueRaw();
 				
 				zoomScale.writeValue(cs + dy);
+				used = true;
 			} else if(scrollBounds.getHeight() > 0) // V scroll
 			{
 				float dy = (scroll * scrollSpeed) / (float)scrollBounds.getHeight();
@@ -383,6 +384,7 @@ public class CanvasScrolling implements IGuiCanvas
 				{
 					scrollY.writeValue(cs + dy);
 					this.updatePanelScroll();
+					used = true;
 				}
 			} else if(scrollBounds.getWidth() > 0) // H scroll
             {
@@ -393,6 +395,7 @@ public class CanvasScrolling implements IGuiCanvas
 				{
 					scrollX.writeValue(cs + dy);
 					this.updatePanelScroll();
+					used = true;
 				}
             }
 		}
@@ -418,11 +421,11 @@ public class CanvasScrolling implements IGuiCanvas
 			}
 		}
 		
-		if(!used && c == 'c')
+		/*if(!used && c == 'c')
         {
             setScrollX(0);
             setScrollY(0);
-        }
+        }*/
 		
 		return used;
 	}

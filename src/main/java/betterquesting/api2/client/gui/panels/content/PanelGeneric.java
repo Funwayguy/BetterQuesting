@@ -2,7 +2,6 @@ package betterquesting.api2.client.gui.panels.content;
 
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,8 +16,8 @@ public class PanelGeneric implements IGuiPanel
     private final IGuiRect transform;
     private boolean enabled = true;
     
-    private final IGuiTexture texture;
-    private final IGuiColor color;
+    private IGuiTexture texture;
+    private IGuiColor color;
     
     private List<String> tooltip = null;
     
@@ -37,6 +36,12 @@ public class PanelGeneric implements IGuiPanel
     public void setTooltip(List<String> tooltip)
     {
         this.tooltip = tooltip;
+    }
+    
+    public void setTexture(IGuiTexture texture, IGuiColor color)
+    {
+        this.texture = texture;
+        this.color = color;
     }
     
     @Override

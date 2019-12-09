@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GlStateManager;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -127,7 +128,7 @@ public class CanvasResizeable implements IGuiCanvas
 			}
 		}
 		
-		return used;
+		return used || (bgTexture != null && rectLerp.contains(mx, my));
 	}
 	
 	@Override
@@ -148,7 +149,7 @@ public class CanvasResizeable implements IGuiCanvas
 			}
 		}
 		
-		return used;
+		return used || (bgTexture != null && rectLerp.contains(mx, my));
 	}
 	
 	@Override
@@ -169,7 +170,7 @@ public class CanvasResizeable implements IGuiCanvas
 			}
 		}
 		
-		return used;
+		return used || (bgTexture != null && rectLerp.contains(mx, my));
 	}
 	
 	@Override
@@ -216,7 +217,7 @@ public class CanvasResizeable implements IGuiCanvas
 			}
 		}
 		
-		return null;
+		return (bgTexture != null && rectLerp.contains(mx, my)) ? Collections.emptyList() : null;
 	}
 	
 	@Override

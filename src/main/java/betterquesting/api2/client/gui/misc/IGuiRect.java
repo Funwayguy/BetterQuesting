@@ -12,7 +12,4 @@ public interface IGuiRect extends Comparable<IGuiRect>
 	void setParent(IGuiRect rect);
 	
 	boolean contains(int x, int y);
-	
-	// I'll probably re-implement this at a later date when it serves more of a purpose
-	//void translate(int x, int y);
 }

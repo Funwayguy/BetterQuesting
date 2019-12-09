@@ -19,6 +19,9 @@ public class CanvasHoverTray extends CanvasResizeable
     private final IGuiCanvas cvOpen;
     private final IGuiCanvas cvClosed;
     
+    private Runnable actionOpen;
+    private Runnable actionClose;
+    
     public CanvasHoverTray(IGuiRect rectClosed, IGuiRect rectOpen, IGuiTexture texture)
     {
         super(rectClosed, texture);
@@ -53,6 +56,18 @@ public class CanvasHoverTray extends CanvasResizeable
         return this;
     }
     
+    public CanvasHoverTray setCloseAction(Runnable action)
+    {
+        this.actionClose = action;
+        return this;
+    }
+    
+    public CanvasHoverTray setOpenAction(Runnable action)
+    {
+        this.actionOpen = action;
+        return this;
+    }
+    
     public void setTrayState(boolean open, long time)
     {
         if(!open && isTrayOpen())
@@ -60,11 +75,13 @@ public class CanvasHoverTray extends CanvasResizeable
             this.lerpToRect(rectClosed, time, true);
             cvOpen.setEnabled(false);
             cvClosed.setEnabled(true);
+            if(actionClose != null) actionClose.run();
         } else if(open && !isTrayOpen())
         {
             this.lerpToRect(rectOpen, time, true);
             cvOpen.setEnabled(true);
             cvClosed.setEnabled(false);
+            if(actionOpen != null) actionOpen.run();
         }
     }
     
@@ -108,5 +125,8 @@ public class CanvasHoverTray extends CanvasResizeable
         this.addPanel(cvClosed);
         cvOpen.setEnabled(false);
         cvClosed.setEnabled(true);
+        
+        // May cause some issues elsewhere but for now this is fine
+        rectOpen.setParent(rectClosed.getParent());
     }
 }

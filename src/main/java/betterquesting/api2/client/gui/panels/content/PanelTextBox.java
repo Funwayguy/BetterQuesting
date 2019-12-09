@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.List;
 
 public class PanelTextBox implements IGuiPanel
@@ -47,21 +48,6 @@ public class PanelTextBox implements IGuiPanel
 		this.text = text;
 		
 		refreshText();
-		
-		/*IGuiRect bounds = this.getTransform();
-		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-		float scale = fontScale / relScale;
-		
-		if(!autoFit)
-		{
-			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
-			return this;
-		}
-		
-		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
-		lines = sl.size() - 1;
-		
-		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);*/
 		
 		return this;
 	}
@@ -102,7 +88,8 @@ public class PanelTextBox implements IGuiPanel
 			return;
 		}
 		
-		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
+		int w = (int)Math.floor(bounds.getWidth() / scale);
+		List<String> sl = w > 8 ? fr.listFormattedStringToWidth(text, w) : Collections.emptyList();
 		lines = sl.size() - 1;
 		
 		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
@@ -123,21 +110,6 @@ public class PanelTextBox implements IGuiPanel
 	public void initPanel()
 	{
 	    refreshText();
-	    
-		/*IGuiRect bounds = this.getTransform();
-		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-		float scale = fontScale / relScale;
-		
-		if(!autoFit)
-		{
-			lines = (int)Math.floor(bounds.getHeight() / (fr.FONT_HEIGHT * scale)) - 1;
-			return;
-		}
-		
-		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
-		lines = sl.size() - 1;
-		
-		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);*/
 	}
 	
 	@Override
@@ -156,6 +128,7 @@ public class PanelTextBox implements IGuiPanel
 	public void drawPanel(int mx, int my, float partialTick)
 	{
 	    if(!isRectEqual(refRect, getTransform())) refreshText(); // Makes this panel work with resizable canvases without having to update every frame
+	    if(lines < 0) return;
 	    
 		IGuiRect bounds = this.getTransform();
 		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
@@ -281,12 +254,6 @@ public class PanelTextBox implements IGuiPanel
 			int y2 = y1 + this.getHeight();
 			return x >= x1 && x < x2 && y >= y1 && y < y2;
 		}
-		
-		/*@Override
-		public void translate(int x, int y)
-		{
-			proxy.translate(x, y);
-		}*/
 		
 		@Override
 		public int compareTo(@Nonnull IGuiRect o)

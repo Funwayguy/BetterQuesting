@@ -46,7 +46,7 @@ public class GuiRectLerp implements IGuiRect
         return pxRect;
     }
     
-    private boolean updateLerp()
+    public boolean isIdle()
     {
         if(startRect == targetRect) return true;
         if(System.currentTimeMillis() - et >= duration)
@@ -60,25 +60,25 @@ public class GuiRectLerp implements IGuiRect
     @Override
     public int getX()
     {
-        return updateLerp() ? targetRect.getX() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getX(), (double)targetRect.getX(), (System.currentTimeMillis() - et) / (double)duration));
+        return isIdle() ? targetRect.getX() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getX(), (double)targetRect.getX(), (System.currentTimeMillis() - et) / (double)duration));
     }
     
     @Override
     public int getY()
     {
-        return updateLerp() ? targetRect.getY() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getY(), (double)targetRect.getY(), (System.currentTimeMillis() - et) / (double)duration));
+        return isIdle() ? targetRect.getY() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getY(), (double)targetRect.getY(), (System.currentTimeMillis() - et) / (double)duration));
     }
     
     @Override
     public int getWidth()
     {
-        return updateLerp() ? targetRect.getWidth() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getWidth(), (double)targetRect.getWidth(), (System.currentTimeMillis() - et) / (double)duration));
+        return isIdle() ? targetRect.getWidth() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getWidth(), (double)targetRect.getWidth(), (System.currentTimeMillis() - et) / (double)duration));
     }
     
     @Override
     public int getHeight()
     {
-        return updateLerp() ? targetRect.getHeight() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getHeight(), (double)targetRect.getHeight(), (System.currentTimeMillis() - et) / (double)duration));
+        return isIdle() ? targetRect.getHeight() : MathHelper.ceil(RenderUtils.lerpDouble((double)startRect.getHeight(), (double)targetRect.getHeight(), (System.currentTimeMillis() - et) / (double)duration));
     }
     
     @Override

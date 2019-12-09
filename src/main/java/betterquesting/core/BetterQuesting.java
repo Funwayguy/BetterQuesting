@@ -38,9 +38,10 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = BetterQuesting.MODID, version = "@VERSION@", name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
+@Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
 {
+    public static final String VERSION = "@VERSION@";
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
     public static final String FORMAT = "2.0.0";
