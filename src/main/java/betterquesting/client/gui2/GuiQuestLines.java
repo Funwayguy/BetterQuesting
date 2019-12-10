@@ -42,9 +42,9 @@ import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import javafx.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.Tuple;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private static int selectedLineId = -1;
     
     //private final List<PanelButtonStorage> qlBtns = new ArrayList<>();
-    private final List<Pair<DBEntry<IQuestLine>, Integer>> visChapters = new ArrayList<>();
+    private final List<Tuple<DBEntry<IQuestLine>, Integer>> visChapters = new ArrayList<>();
     
     private CanvasQuestLine cvQuest;
     
@@ -120,7 +120,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             cvBackground.addPanel(btnEdit);
         }
         
-        txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "---");
+        txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
         cvBackground.addPanel(txTitle);
         
         icoChapter = new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, 40, 8, 16, 16, 0), null);
@@ -317,7 +317,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             if(allComplete) val |= 2;
             if(!show) val |= 4;
             
-            visChapters.add(new Pair<>(dbEntry, val));
+            visChapters.add(new Tuple<>(dbEntry, val));
         }
         
         if(cvChapterTray.isTrayOpen()) buildChapterList();
@@ -331,8 +331,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         for(int n = 0; n < visChapters.size(); n++)
         {
-            DBEntry<IQuestLine> entry = visChapters.get(n).getKey();
-            int vis = visChapters.get(n).getValue();
+            DBEntry<IQuestLine> entry = visChapters.get(n).getFirst();
+            int vis = visChapters.get(n).getSecond();
             
             cvLines.addPanel(new PanelGeneric(new GuiRectangle(0, n * 16, 16, 16, 0), new OreDictTexture(1F, entry.getValue().getProperty(NativeProps.ICON), false, true)));
             

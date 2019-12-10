@@ -111,13 +111,13 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 					((TaskPlaceholder)task).setTaskProgressData(jsonTask);
 				} else
 				{
-					task.readProgressFromNBT(jsonTask, false);
+					task.readProgressFromNBT(jsonTask, merge);
 				}
 			} else if(task != null)
 			{
 				if(task.getFactoryID().equals(loc))
 				{
-					task.readProgressFromNBT(jsonTask, false);
+					task.readProgressFromNBT(jsonTask, merge);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
 					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), merge);

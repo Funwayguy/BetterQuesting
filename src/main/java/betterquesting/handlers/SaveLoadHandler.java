@@ -210,7 +210,7 @@ public class SaveLoadHandler
     {
         // === CONFIG ===
         
-        if(!BQ_Settings.dirtyMode || isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+        if(isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
         {
             NBTTagCompound jsonCon = new NBTTagCompound();
     
