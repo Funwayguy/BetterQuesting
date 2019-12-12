@@ -5,27 +5,27 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.INBTSaveLoad;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
-public interface IReward extends INBTSaveLoad<NBTTagCompound>
+public interface IReward extends INBTSaveLoad<CompoundNBT>
 {
 	String getUnlocalisedName();
 	ResourceLocation getFactoryID();
 	
-	boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest);
-	void claimReward(EntityPlayer player, DBEntry<IQuest> quest);
+	boolean canClaim(PlayerEntity player, DBEntry<IQuest> quest);
+	void claimReward(PlayerEntity player, DBEntry<IQuest> quest);
 	
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest);
 	
 	@Nullable
-	@SideOnly(Side.CLIENT)
-	GuiScreen getRewardEditor(GuiScreen parent, DBEntry<IQuest> quest);
+	@OnlyIn(Dist.CLIENT)
+    Screen getRewardEditor(Screen parent, DBEntry<IQuest> quest);
 }

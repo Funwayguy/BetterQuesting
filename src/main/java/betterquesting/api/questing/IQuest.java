@@ -7,40 +7,40 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
+public interface IQuest extends INBTSaveLoad<CompoundNBT>, INBTProgress<CompoundNBT>, IPropertyContainer
 {
 	EnumQuestState getState(UUID uuid);
 	
 	@Nullable
-	NBTTagCompound getCompletionInfo(UUID uuid);
-	void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
+	CompoundNBT getCompletionInfo(UUID uuid);
+	void setCompletionInfo(UUID uuid, @Nullable CompoundNBT nbt);
 	
-	void update(EntityPlayer player);
-	void detect(EntityPlayer player);
+	void update(PlayerEntity player);
+	void detect(PlayerEntity player);
 	
 	boolean isUnlocked(UUID uuid);
-	boolean canSubmit(EntityPlayer player);
+	boolean canSubmit(PlayerEntity player);
 	
 	boolean isComplete(UUID uuid);
 	void setComplete(UUID uuid, long timeStamp);
 	
-	boolean canClaim(EntityPlayer player);
+	boolean canClaim(PlayerEntity player);
 	boolean hasClaimed(UUID uuid);
-	void claimReward(EntityPlayer player);
+	void claimReward(PlayerEntity player);
 	void setClaimed(UUID uuid, long timestamp);
 	
 	void resetUser(@Nullable UUID uuid, boolean fullReset);
 	
-	IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
-	IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
+	IDatabaseNBT<ITask, ListNBT, ListNBT> getTasks();
+	IDatabaseNBT<IReward, ListNBT, ListNBT> getRewards();
 	
 	@Nonnull
 	int[] getRequirements();

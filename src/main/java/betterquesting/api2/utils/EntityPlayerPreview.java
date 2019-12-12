@@ -1,29 +1,29 @@
 package betterquesting.api2.utils;
 
-import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import betterquesting.core.BetterQuesting;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerModelPart;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class EntityPlayerPreview extends EntityOtherPlayerMP
+public class EntityPlayerPreview extends RemoteClientPlayerEntity
 {
 	private final ResourceLocation resource;
 	
 	/**
 	 * Backup constructor. DO NOT USE
 	 */
-	public EntityPlayerPreview(World worldIn)
+	public EntityPlayerPreview(ClientWorld worldIn)
 	{
 		this(worldIn, new GameProfile(null, "Notch"));
 	}
 	
-	public EntityPlayerPreview(World worldIn, GameProfile gameProfileIn)
+	public EntityPlayerPreview(ClientWorld worldIn, GameProfile gameProfileIn)
 	{
 		super(worldIn, gameProfileIn);
 		this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName());
@@ -51,12 +51,12 @@ public class EntityPlayerPreview extends EntityOtherPlayerMP
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return new TextComponentString("");
+		return new StringTextComponent("");
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-    public boolean isWearing(EnumPlayerModelParts part)
+	@OnlyIn(Dist.CLIENT)
+    public boolean isWearing(PlayerModelPart part)
     {
         return true;
     }

@@ -6,29 +6,34 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 // TODO: Move text related stuff to its own utility class
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class RenderUtils
 {
 	public static final String REGEX_NUMBER = "[^\\.0123456789-]"; // I keep screwing this up so now it's reusable
@@ -56,18 +61,18 @@ public class RenderUtils
 		}
 		
 		GlStateManager.pushMatrix();
-		RenderItem itemRender = mc.getRenderItem();
+		ItemRenderer itemRender = mc.getItemRenderer();
 	    float preZ = itemRender.zLevel;
 		
 		float r = (float)(color >> 16 & 255) / 255.0F;
 		float g = (float)(color >> 8 & 255) / 255.0F;
 		float b = (float)(color & 255) / 255.0F;
-		GlStateManager.color(r, g, b);
+		GlStateManager.color3f(r, g, b);
 		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
-		GlStateManager.enableDepth();
+		GlStateManager.enableDepthTest();
 		
-		GlStateManager.translate(0.0F, 0.0F, z);
+		GlStateManager.translatef(0.0F, 0.0F, z);
 		itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
 		
 		FontRenderer font = stack.getItem().getFontRenderer(stack);
@@ -97,17 +102,17 @@ public class RenderUtils
 					ty = 18 - font.FONT_HEIGHT;
 				}
 				
-				GlStateManager.translate(x + tx, y + ty, 0);
-				GlStateManager.scale(s, s, 1F);
+				GlStateManager.translatef(x + tx, y + ty, 0);
+				GlStateManager.scalef(s, s, 1F);
 				
 				GlStateManager.disableLighting();
-				GlStateManager.disableDepth();
+				GlStateManager.disableDepthTest();
 				GlStateManager.disableBlend();
 				
-				font.drawString(text, 0, 0, 16777215, true);
+				font.drawStringWithShadow(text, 0, 0, 16777215);
 				
 				GlStateManager.enableLighting();
-				GlStateManager.enableDepth();
+				GlStateManager.enableDepthTest();
 				GlStateManager.enableBlend();
 				
 		    	GlStateManager.popMatrix();
@@ -119,7 +124,7 @@ public class RenderUtils
 			BetterQuesting.logger.warn("Unabled to render item " + stack, e);
 		}
 		
-		GlStateManager.disableDepth();
+		GlStateManager.disableDepthTest();
 		RenderHelper.disableStandardItemLighting();
 		
 	    itemRender.zLevel = preZ; // Just in case
@@ -138,12 +143,12 @@ public class RenderUtils
     	{
 	        GlStateManager.enableColorMaterial();
 	        GlStateManager.pushMatrix();
-	        GlStateManager.enableDepth();
-	        GlStateManager.translate(posX, posY, posZ);
-	        GlStateManager.scale((float)-scale, (float)scale, (float)scale); // Not entirely sure why mobs are flipped but this is how vanilla GUIs fix it so...
-	        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-	        GlStateManager.rotate(pitch, 1F, 0F, 0F);
-	        GlStateManager.rotate(rotation, 0F, 1F, 0F);
+	        GlStateManager.enableDepthTest();
+	        GlStateManager.translatef(posX, posY, posZ);
+	        GlStateManager.scalef((float)-scale, (float)scale, (float)scale); // Not entirely sure why mobs are flipped but this is how vanilla GUIs fix it so...
+	        GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+	        GlStateManager.rotatef(pitch, 1F, 0F, 0F);
+	        GlStateManager.rotatef(rotation, 0F, 1F, 0F);
 	        float f3 = entity.rotationYaw;
 	        float f4 = entity.rotationPitch;
 	        float f5 = entity.prevRotationYaw;
@@ -152,7 +157,7 @@ public class RenderUtils
 	        entity.rotationPitch = 0;
 	        entity.prevRotationYaw = 0;
 	        entity.prevRotationPitch = 0;
-	        EntityLivingBase livingBase = (entity instanceof EntityLivingBase) ? (EntityLivingBase)entity : null;
+	        LivingEntity livingBase = (entity instanceof LivingEntity) ? (LivingEntity)entity : null;
 	        float f7 = livingBase == null ? 0 : livingBase.renderYawOffset;
 	        float f8 = livingBase == null ? 0 : livingBase.rotationYawHead;
 	        float f9 = livingBase == null ? 0 : livingBase.prevRotationYawHead;
@@ -164,7 +169,7 @@ public class RenderUtils
             }
 	        
 	        RenderHelper.enableStandardItemLighting();
-	        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+	        EntityRendererManager rendermanager = Minecraft.getInstance().getRenderManager();
 	        rendermanager.setPlayerViewY(180.0F);
 	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
@@ -177,14 +182,14 @@ public class RenderUtils
                 livingBase.rotationYawHead = f8;
                 livingBase.prevRotationYawHead = f9;
             }
-	        GlStateManager.disableDepth();
+	        GlStateManager.disableDepthTest();
 	        GlStateManager.popMatrix();
 	        RenderHelper.disableStandardItemLighting();
 	        GlStateManager.disableRescaleNormal();
-	        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-	        GlStateManager.disableTexture2D();
-	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
-	        GlStateManager.enableTexture2D(); // Breaks subsequent text rendering if not included
+            GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+	        GlStateManager.disableTexture();
+            GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+	        GlStateManager.enableTexture(); // Breaks subsequent text rendering if not included
     	} catch(Exception e)
     	{
     		// Hides rendering errors with entities which are common for invalid/technical entities
@@ -198,8 +203,8 @@ public class RenderUtils
         float b = (float)(color & 255) / 255.0F;
 		GlStateManager.pushMatrix();
 		
-		GlStateManager.disableTexture2D();
-		GlStateManager.color(r, g, b, 1F);
+		GlStateManager.disableTexture();
+		GlStateManager.color4f(r, g, b, 1F);
 		GL11.glLineWidth(width);
 		
 		GL11.glBegin(GL11.GL_LINES);
@@ -207,8 +212,8 @@ public class RenderUtils
 		GL11.glVertex2f(x2, y2);
 		GL11.glEnd();
 		
-		GlStateManager.enableTexture2D();
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.enableTexture();
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		
 		GlStateManager.popMatrix();
 	}
@@ -269,7 +274,14 @@ public class RenderUtils
 				continue;
 			}
 			
-			renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color, shadow);
+			if(shadow)
+            {
+                // Why Minecraft put this in its own method when it literally goes to the same location, I have no idea
+                renderer.drawStringWithShadow(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color);
+            } else
+            {
+                renderer.drawString(list.get(i), x, y + (renderer.FONT_HEIGHT * (i - start)), color);
+            }
 			
 			// DEBUG
 			/*boolean b = (System.currentTimeMillis()/1000)%2 == 0;
@@ -297,7 +309,7 @@ public class RenderUtils
 			
 			if(!(i1 == i2 || i1 < 0 || i2 < 0 || i1 > lineSize || i2 > lineSize))
 			{
-				String lastFormat = FontRenderer.getFormatFromString(list.get(i));
+				String lastFormat = TextFormatting.getFormatString(list.get(i));
 				int x1 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i1), renderer);
 				int x2 = getStringWidth(lastFormat + noFormat.get(i).substring(0, i2), renderer);
 				
@@ -315,7 +327,13 @@ public class RenderUtils
 			return;
 		}
 		
-		renderer.drawString(string, x, y, color, shadow);
+		if(shadow)
+        {
+            renderer.drawStringWithShadow(string, x, y, color);
+        } else
+        {
+            renderer.drawString(string, x, y, color);
+        }
 		
 		int hlStart = Math.min(highlightStart, highlightEnd);
 		int hlEnd = Math.max(highlightStart, highlightEnd);
@@ -365,18 +383,18 @@ public class RenderUtils
 		
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        GlStateManager.color(f, f1, f2, f3);
-        GlStateManager.disableTexture2D();
-       	GlStateManager.enableColorLogic();
-        GlStateManager.colorLogicOp(GlStateManager.LogicOp.OR_REVERSE);
+        GlStateManager.color4f(f, f1, f2, f3);
+        GlStateManager.disableTexture();
+       	GlStateManager.enableColorLogicOp();
+        GlStateManager.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
         bufferbuilder.pos((double)left, (double)bottom, 0.0D).endVertex();
         bufferbuilder.pos((double)right, (double)bottom, 0.0D).endVertex();
         bufferbuilder.pos((double)right, (double)top, 0.0D).endVertex();
         bufferbuilder.pos((double)left, (double)top, 0.0D).endVertex();
         tessellator.draw();
-        GlStateManager.disableColorLogic();
-        GlStateManager.enableTexture2D();
+        GlStateManager.disableColorLogicOp();
+        GlStateManager.enableTexture();
         
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
         
@@ -388,8 +406,8 @@ public class RenderUtils
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.disableTexture();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         color.applyGlColor();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION);
         vertexbuffer.pos((double)rect.getX(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
@@ -397,7 +415,7 @@ public class RenderUtils
         vertexbuffer.pos((double)rect.getX() + rect.getWidth(), (double)rect.getY(), 0.0D).endVertex();
         vertexbuffer.pos((double)rect.getX(), (double)rect.getY(), 0.0D).endVertex();
         tessellator.draw();
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.disableBlend();
     }
 	
@@ -439,8 +457,8 @@ public class RenderUtils
 	
 	private static void fillScreen()
     {
-    	int w = Minecraft.getMinecraft().displayWidth;
-    	int h = Minecraft.getMinecraft().displayHeight;
+    	int w = Minecraft.getInstance().mainWindow.getWidth();
+    	int h = Minecraft.getInstance().mainWindow.getHeight();
     	
         GL11.glPushAttrib(GL11.GL_TEXTURE_BIT | GL11.GL_DEPTH_TEST | GL11.GL_LIGHTING);
     	
@@ -532,7 +550,7 @@ public class RenderUtils
 				String s = temp.substring(0, i);
 				char c0 = temp.charAt(i);
 				boolean flag = c0 == ' ' || c0 == '\n';
-				lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
+				lastFormat = TextFormatting.getFormatString(lastFormat + s);
 				temp = temp.substring(i + (flag ? 1 : 0));
 				// NOTE: The index actually stops just before the space/nl so we don't need to remove it from THIS line. This is why the previous line moves forward by one for the NEXT line
 				list.add(s + (flag ? "\n" : "")); // Although we need to remove the spaces between each line we have to replace them with invisible new line characters to preserve the index count
@@ -566,7 +584,7 @@ public class RenderUtils
 				String s = temp.substring(0, i);
 				char c0 = temp.charAt(i);
 				boolean flag = c0 == ' ' || c0 == '\n';
-				temp = FontRenderer.getFormatFromString(s) + temp.substring(i + (flag ? 1 : 0));
+				temp = TextFormatting.getFormatString(s) + temp.substring(i + (flag ? 1 : 0));
 				list.add(s);
 				
 				if(temp.length() <= 0 && !flag)
@@ -628,7 +646,7 @@ public class RenderUtils
 		{
 			line = tLines.get(i);
 			idx += line.length();
-			lastFormat = FontRenderer.getFormatFromString(lastFormat + line);
+			lastFormat = TextFormatting.getFormatString(lastFormat + line);
 		}
 		
 		return idx + getCursorPos(lastFormat + tLines.get(row), x, font) - lastFormat.length();
@@ -756,12 +774,12 @@ public class RenderUtils
 		font = event.getFontRenderer();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(0F, 0F, 32F);
+		GlStateManager.translatef(0F, 0F, 32F);
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		//GlStateManager.enableDepth();
-		GlStateManager.disableDepth();
+		GlStateManager.disableDepthTest();
 		int tooltipTextWidth = 0;
 
 		for (String textLine : textLines)
@@ -886,7 +904,7 @@ public class RenderUtils
         PresetTexture.TOOLTIP_BG.getTexture().drawTexture(tooltipX - 4, tooltipY - 4, tooltipTextWidth + 8, tooltipHeight + 8, 0F, 1F);
 		int tooltipTop = tooltipY;
 		
-		GlStateManager.translate(0F, 0F, 0.1F);
+		GlStateManager.translatef(0F, 0F, 0.1F);
 
 		for (int lineNumber = 0; lineNumber < textLines.size(); ++lineNumber)
 		{
@@ -911,59 +929,14 @@ public class RenderUtils
 		GlStateManager.popMatrix();
     }
     
-    /**
-     *  A version of getStringWidth that actually behaves according to the format resetting rules of colour codes. Minecraft's built in one is busted!
-     */
+    // For multi-line usage
     public static int getStringWidth(String text, FontRenderer font)
     {
         if (text == null || text.length() == 0) return 0;
         
-        int maxWidth = 0;
-        int curLineWidth = 0;
-        boolean bold = false;
-
-        for (int j = 0; j < text.length(); ++j)
-        {
-            char c0 = text.charAt(j);
-            int k = font.getCharWidth(c0);
-
-            if (k < 0 && j < text.length() - 1) // k should only be negative when the section sign has been used!
-            {
-                // Move the caret to the formatting character and read from there
-                ++j;
-                c0 = text.charAt(j);
-
-                if (c0 != 'l' && c0 != 'L')
-                {
-                    int ci = "0123456789abcdefklmnor".indexOf(String.valueOf(c0).toLowerCase(Locale.ROOT).charAt(0));
-                    //if (c0 == 'r' || c0 == 'R') // Minecraft's original implemention. This is broken...
-                    if(ci < 16 || ci == 21) // Reset bolding. Now supporting colour AND reset codes!
-                    {
-                        bold = false;
-                    }
-                }
-                else // This is the bold format on. Time to get T H I C C
-                {
-                    bold = true;
-                }
-
-                k = 0; // Fix the negative value the section symbol previously set
-            }
-            
-            curLineWidth += k;
-
-            if (bold && k > 0) // This is a bolded normal character which is 1px thicker
-            {
-                ++curLineWidth;
-            }
-            
-            if(c0 == '\n') // New line. Reset counting width
-            {
-                maxWidth = Math.max(maxWidth, curLineWidth);
-                curLineWidth = 0;
-            }
-        }
-
-        return Math.max(maxWidth, curLineWidth);
+        String[] split = text.split("\n");
+        int n = 0;
+        for(String s : split) n = Math.max(n, font.getStringWidth(s));
+        return n;
     }
 }

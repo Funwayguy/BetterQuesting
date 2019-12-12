@@ -1,14 +1,14 @@
 package betterquesting.api.network;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 public final class QuestingPacket
 {
 	private final ResourceLocation handler;
-	private final NBTTagCompound payload;
+	private final CompoundNBT payload;
 	
-	public QuestingPacket(ResourceLocation handler, NBTTagCompound payload)
+	public QuestingPacket(ResourceLocation handler, CompoundNBT payload)
 	{
 		this.handler = handler;
 		this.payload = payload;
@@ -19,7 +19,7 @@ public final class QuestingPacket
 		return handler;
 	}
 	
-	public NBTTagCompound getPayload()
+	public CompoundNBT getPayload()
 	{
 		return payload;
 	}

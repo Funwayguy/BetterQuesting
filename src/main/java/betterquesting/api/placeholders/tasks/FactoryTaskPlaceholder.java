@@ -1,10 +1,10 @@
 package betterquesting.api.placeholders.tasks;
 
 import betterquesting.api2.registry.IFactoryData;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
-public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBTTagCompound>
+public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, CompoundNBT>
 {
 	public static final FactoryTaskPlaceholder INSTANCE = new FactoryTaskPlaceholder();
 	
@@ -27,7 +27,7 @@ public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBT
 	}
 	
 	@Override
-	public TaskPlaceholder loadFromData(NBTTagCompound nbt)
+	public TaskPlaceholder loadFromData(CompoundNBT nbt)
 	{
 		TaskPlaceholder task = createNew();
 		task.readFromNBT(nbt);

@@ -22,18 +22,22 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants.NBT;
 import org.lwjgl.input.Keyboard;
 
 public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
-    private final NBTBase nbt;
-    private final ICallback<NBTTagCompound> comCallback;
-    private final ICallback<NBTTagList> lstCallback;
+    private final INBT nbt;
+    private final ICallback<CompoundNBT> comCallback;
+    private final ICallback<ListNBT> lstCallback;
     
-    public GuiNbtEditor(GuiScreen parent, NBTTagCompound tag, ICallback<NBTTagCompound> callback)
+    public GuiNbtEditor(Screen parent, CompoundNBT tag, ICallback<CompoundNBT> callback)
     {
         super(parent);
         
@@ -42,7 +46,7 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
         this.lstCallback = null;
     }
     
-    public GuiNbtEditor(GuiScreen parent, NBTTagList tag, ICallback<NBTTagList> callback)
+    public GuiNbtEditor(Screen parent, ListNBT tag, ICallback<ListNBT> callback)
     {
         super(parent);
         
@@ -56,7 +60,7 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-		Keyboard.enableRepeatEvents(true);
+        this.minecraft.keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -71,10 +75,10 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
         PanelScrollingNBT pnEdit;
         if(nbt.getId() == 10)
         {
-            pnEdit = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 24, 32), 0), (NBTTagCompound)nbt, 1, 2, 3, 4);
+            pnEdit = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 24, 32), 0), (CompoundNBT)nbt, 1, 2, 3, 4);
         } else
         {
-            pnEdit = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 24, 32), 0), (NBTTagList)nbt, 1, 2, 3, 4);
+            pnEdit = new PanelScrollingNBT(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 32, 24, 32), 0), (ListNBT)nbt, 1, 2, 3, 4);
         }
         cvBackground.addPanel(pnEdit);
     
@@ -114,14 +118,14 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
             
             if(nbt.getId() == 10 && comCallback != null)
             {
-                comCallback.setValue((NBTTagCompound)nbt);
+                comCallback.setValue((CompoundNBT)nbt);
             } else if(nbt.getId() == 9 && lstCallback != null)
             {
-                lstCallback.setValue((NBTTagList)nbt);
+                lstCallback.setValue((ListNBT)nbt);
             }
         }
     }

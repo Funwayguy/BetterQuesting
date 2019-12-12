@@ -4,9 +4,9 @@ import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabase;
 import betterquesting.api2.storage.INBTPartial;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
-public interface IQuestLine extends IDatabase<IQuestLineEntry>, INBTPartial<NBTTagCompound, Integer>, IPropertyContainer
+public interface IQuestLine extends IDatabase<IQuestLineEntry>, INBTPartial<CompoundNBT, Integer>, IPropertyContainer
 {
     IQuestLineEntry createNew(int id);
     

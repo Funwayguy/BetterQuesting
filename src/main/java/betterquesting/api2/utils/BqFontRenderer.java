@@ -1,15 +1,8 @@
 package betterquesting.api2.utils;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
-
-public class BqFontRenderer extends FontRenderer
+public class BqFontRenderer// extends FontRenderer
 {
-    public static final BqFontRenderer FONT_UNICODE = new BqFontRenderer(true);
+    /*public static final BqFontRenderer FONT_UNICODE = new BqFontRenderer(true);
     public static final BqFontRenderer FONT_STANDARD = new BqFontRenderer(false);
     
     private static final ResourceLocation[] UNICODE_PAGE_LOCATIONS = new ResourceLocation[256];
@@ -280,5 +273,5 @@ public class BqFontRenderer extends FontRenderer
     public static boolean isFormatColor(char colorChar)
     {
         return colorChar >= '0' && colorChar <= '9' || colorChar >= 'a' && colorChar <= 'f' || colorChar >= 'A' && colorChar <= 'F';
-    }
+    }*/
 }

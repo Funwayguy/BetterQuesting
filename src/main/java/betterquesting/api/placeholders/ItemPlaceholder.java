@@ -2,14 +2,17 @@ package betterquesting.api.placeholders;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -21,23 +24,23 @@ public class ItemPlaceholder extends Item
 	// Used solely for retaining info to missing items
 	public ItemPlaceholder()
 	{
-		this.setTranslationKey("betterquesting.placeholder");
+	    super(new Item.Properties());
 	}
 	
     /**
      * allows items to add custom lines of information to the mouseover description
      */
 	@Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    @OnlyIn(Dist.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
 	{
-		if(!stack.hasTagCompound())
+		if(!stack.hasTag())
 		{
-			tooltip.add("ERROR: Original information missing!");
+			tooltip.add(new StringTextComponent("ERROR: Original information missing!"));
 			return;
 		}
 		
-		tooltip.add("Original ID: " + stack.getTagCompound().getString("orig_id") + "/" + stack.getTagCompound().getInteger("orig_meta"));
+		tooltip.add(new StringTextComponent("Original ID: " + stack.getTag().getString("orig_id")));
 	}
 
     /**
@@ -45,24 +48,23 @@ public class ItemPlaceholder extends Item
      * update it's contents.
      */
 	@Override
-    public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held)
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean held)
     {
-    	if(!stack.hasTagCompound() || !(entity instanceof EntityPlayer) || world.getTotalWorldTime()%100 != 0) // Process this only once a second
+    	if(!stack.hasTag() || !(entity instanceof PlayerEntity) || world.getGameTime()%100 != 0) // Process this only once a second
     	{
     		return;
     	}
     	
-    	EntityPlayer player = (EntityPlayer)entity;
+    	PlayerEntity player = (PlayerEntity)entity;
     	
-    	NBTTagCompound tags = stack.getTagCompound();
-    	Item i = Item.REGISTRY.getObject(new ResourceLocation(tags.getString("orig_id")));
-    	int m = stack.getItemDamage() > 0? stack.getItemDamage() : tags.getInteger("orig_meta");
-    	NBTTagCompound t = tags.hasKey("orig_tag")? tags.getCompoundTag("orig_tag") : null;
+    	CompoundNBT tags = stack.getTag();
+    	Item i = ForgeRegistries.ITEMS.getValue(new ResourceLocation(tags.getString("orig_id")));
+    	CompoundNBT t = tags.contains("orig_tag")? tags.getCompound("orig_tag") : null;
     	
     	if(i != null)
     	{
-    		ItemStack converted = new ItemStack(i, stack.getCount(), m);
-    		converted.setTagCompound(t);
+    		ItemStack converted = new ItemStack(i, stack.getCount());
+    		converted.setTag(t);
     		player.inventory.setInventorySlotContents(slot, converted);
     	}
     }

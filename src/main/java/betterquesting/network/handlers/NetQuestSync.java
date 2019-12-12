@@ -135,7 +135,7 @@ public class NetQuestSync
             
             if(tag.hasKey("progress", 10) && quest != null)
             {
-                quest.readProgressFromNBT(tag.getCompoundTag("progress"), true); // TODO: Once moved over to the client side database, always overwrite
+                quest.readProgressFromNBT(tag.getCompoundTag("progress"), true);
             }
         }
         

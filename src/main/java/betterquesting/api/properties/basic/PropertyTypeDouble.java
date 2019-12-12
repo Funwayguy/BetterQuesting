@@ -1,8 +1,8 @@
 package betterquesting.api.properties.basic;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.DoubleNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.NumberNBT;
 import net.minecraft.util.ResourceLocation;
 
 public class PropertyTypeDouble extends PropertyTypeBase<Double>
@@ -13,24 +13,24 @@ public class PropertyTypeDouble extends PropertyTypeBase<Double>
 	}
 
 	@Override
-	public Double readValue(NBTBase nbt)
+	public Double readValue(INBT nbt)
 	{
-		if(nbt == null || !(nbt instanceof NBTPrimitive))
+		if(!(nbt instanceof NumberNBT))
 		{
 			return this.getDefault();
 		}
 		
-		return ((NBTPrimitive)nbt).getDouble();
+		return ((NumberNBT)nbt).getDouble();
 	}
 
 	@Override
-	public NBTBase writeValue(Double value)
+	public DoubleNBT writeValue(Double value)
 	{
 		if(value == null)
 		{
-			return new NBTTagDouble(this.getDefault());
+			return new DoubleNBT(this.getDefault());
 		}
 		
-		return new NBTTagDouble(value);
+		return new DoubleNBT(value);
 	}
 }

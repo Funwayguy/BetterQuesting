@@ -1,10 +1,10 @@
 package betterquesting.api.properties.basic;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.ResourceLocation;
 
 public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack>
 {
@@ -14,20 +14,20 @@ public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack>
 	}
 	
 	@Override
-	public BigItemStack readValue(NBTBase nbt)
+	public BigItemStack readValue(INBT nbt)
 	{
 		if(nbt == null || nbt.getId() != 10)
 		{
 			return this.getDefault();
 		}
 		
-		return JsonHelper.JsonToItemStack((NBTTagCompound)nbt);
+		return JsonHelper.JsonToItemStack((CompoundNBT)nbt);
 	}
 	
 	@Override
-	public NBTBase writeValue(BigItemStack value)
+	public CompoundNBT writeValue(BigItemStack value)
 	{
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundNBT nbt = new CompoundNBT();
 		
 		if(value == null || value.getBaseStack() == null)
 		{

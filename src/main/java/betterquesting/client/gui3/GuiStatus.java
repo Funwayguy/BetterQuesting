@@ -1,5 +1,6 @@
 package betterquesting.client.gui3;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.misc.GuiAlign;
@@ -13,12 +14,11 @@ import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.util.vector.Vector4f;
+import net.minecraft.client.gui.screen.Screen;
 
 public class GuiStatus extends GuiScreenCanvas
 {
-	public GuiStatus(GuiScreen parent)
+	public GuiStatus(Screen parent)
 	{
 		super(parent);
 	}
@@ -39,7 +39,7 @@ public class GuiStatus extends GuiScreenCanvas
 		
 		// === SIDE BAR ===
         
-        CanvasTextured bgSideBar = new CanvasTextured(new GuiTransform(new Vector4f(0F, 0F, 0.2F, 1F), new GuiPadding(8, 24, 4, 24), 0), PresetTexture.PANEL_INNER.getTexture());
+        CanvasTextured bgSideBar = new CanvasTextured(new GuiTransform(new GuiAnchor(0F, 0F, 0.2F, 1F), new GuiPadding(8, 24, 4, 24), 0), PresetTexture.PANEL_INNER.getTexture());
         bgCan.addPanel(bgSideBar);
         
         CanvasScrolling cvBtnList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
@@ -69,22 +69,22 @@ public class GuiStatus extends GuiScreenCanvas
         
         // === QUICK BAR === (Settings, Party, Inbox, Theme)
         
-        CanvasTextured bgQuickBar = new CanvasTextured(new GuiTransform(new Vector4f(0F, 1F, 0.2F, 1F), new GuiPadding(8, -24, 4, 8), 0), PresetTexture.PANEL_INNER.getTexture());
+        CanvasTextured bgQuickBar = new CanvasTextured(new GuiTransform(new GuiAnchor(0F, 1F, 0.2F, 1F), new GuiPadding(8, -24, 4, 8), 0), PresetTexture.PANEL_INNER.getTexture());
         bgCan.addPanel(bgQuickBar);
         
-        PanelButton btnSettings = new PanelButton(new GuiTransform(new Vector4f(0F, 0F, 0.25F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
+        PanelButton btnSettings = new PanelButton(new GuiTransform(new GuiAnchor(0F, 0F, 0.25F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
         btnSettings.setIcon(PresetIcon.ICON_GEAR.getTexture());
         bgQuickBar.addPanel(btnSettings);
         
-        PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.25F, 0F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
+        PanelButton btnParty = new PanelButton(new GuiTransform(new GuiAnchor(0.25F, 0F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
         btnParty.setIcon(PresetIcon.ICON_PARTY.getTexture());
         bgQuickBar.addPanel(btnParty);
         
-        PanelButton btnInbox = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0F, 0.75F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
+        PanelButton btnInbox = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 0F, 0.75F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
         btnInbox.setIcon(PresetIcon.ICON_NOTICE.getTexture());
         bgQuickBar.addPanel(btnInbox);
         
-        PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
+        PanelButton btnTheme = new PanelButton(new GuiTransform(new GuiAnchor(0.75F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0), 0, "");
         btnTheme.setIcon(PresetIcon.ICON_THEME.getTexture());
         bgQuickBar.addPanel(btnTheme);
         

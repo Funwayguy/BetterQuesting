@@ -1,11 +1,11 @@
 package betterquesting.api.network;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,15 +13,15 @@ import java.util.function.Consumer;
 
 public interface IPacketRegistry
 {
-    void registerServerHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<Tuple<NBTTagCompound, EntityPlayerMP>> method);
+    void registerServerHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<Tuple<CompoundNBT, ServerPlayerEntity>> method);
     
-    @SideOnly(Side.CLIENT)
-    void registerClientHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<NBTTagCompound> method);
-    
-    @Nullable
-    Consumer<Tuple<NBTTagCompound,EntityPlayerMP>> getServerHandler(@Nonnull ResourceLocation idName);
+    @OnlyIn(Dist.CLIENT)
+    void registerClientHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<CompoundNBT> method);
     
     @Nullable
-    @SideOnly(Side.CLIENT)
-    Consumer<NBTTagCompound> getClientHandler(@Nonnull ResourceLocation idName);
+    Consumer<Tuple<CompoundNBT,ServerPlayerEntity>> getServerHandler(@Nonnull ResourceLocation idName);
+    
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    Consumer<CompoundNBT> getClientHandler(@Nonnull ResourceLocation idName);
 }

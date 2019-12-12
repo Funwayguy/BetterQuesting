@@ -39,7 +39,7 @@ import java.util.*;
 // TODO: This however should not be forced in the event of incorrect identification. Open as...
 public class PanelScrollingNBT extends CanvasScrolling implements IPEventListener
 {
-    private NBTBase nbt;
+    private INBT nbt;
     
 	private final int btnEdit;
 	private final int btnAdv;
@@ -50,16 +50,16 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
     // Considering taglists can't contain extra data there may need a way to pass a special manifest file (via NbtDocs?)
 	// This tag type should be hidden in by the editor but auto-changed when manually switch to a new type
  
-	private final Stack<NBTBase> nbtStack = new Stack<>();
+	private final Stack<INBT> nbtStack = new Stack<>();
  
-	public PanelScrollingNBT(IGuiRect rect, NBTTagCompound tag, int btnEdit, int btnAdv, int btnInsert, int btnDelete)
+	public PanelScrollingNBT(IGuiRect rect, CompoundNBT tag, int btnEdit, int btnAdv, int btnInsert, int btnDelete)
     {
         this(rect, btnEdit, btnAdv, btnInsert, btnDelete);
         
         this.setNBT(tag);
     }
     
-	public PanelScrollingNBT(IGuiRect rect, NBTTagList tag, int btnEdit, int btnAdv, int btnInsert, int btnDelete)
+	public PanelScrollingNBT(IGuiRect rect, ListNBT tag, int btnEdit, int btnAdv, int btnInsert, int btnDelete)
     {
         this(rect, btnEdit, btnAdv, btnInsert, btnDelete);
         
@@ -77,7 +77,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         
         // Listens to its own buttons to update NBT values. The parent screen defines what the IDs are and any furter actions
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-		Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     }
 	
     // TODO: Implement this with a proper way of displaying and choosing between options (and setting priority for default)
@@ -104,14 +104,14 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         return list;
     }*/
     
-    public PanelScrollingNBT setNBT(NBTTagCompound tag)
+    public PanelScrollingNBT setNBT(CompoundNBT tag)
     {
         this.nbt = tag;
         refreshList();
         return this;
     }
     
-    public PanelScrollingNBT setNBT(NBTTagList list)
+    public PanelScrollingNBT setNBT(ListNBT list)
     {
         this.nbt = list;
         refreshList();
@@ -144,8 +144,8 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         
         if(nbt.getId() == 10) // NBTTagCompound
         {
-            NBTTagCompound tag = (NBTTagCompound)nbt;
-            List<String> sortedKeys = new ArrayList<>(tag.getKeySet());
+            CompoundNBT tag = (CompoundNBT)nbt;
+            List<String> sortedKeys = new ArrayList<>(tag.keySet());
             Collections.sort(sortedKeys);
             Iterator<String> keys = sortedKeys.iterator();
             int i = 0;
@@ -153,7 +153,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
             while(keys.hasNext())
             {
                 String k = keys.next();
-                NBTBase entry = tag.getTag(k);
+                INBT entry = tag.get(k);
                 
                 PanelTextBox name = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, lw - 8, 12, 0), k).setAlignment(2);
                 name.setColor(PresetColor.TEXT_MAIN.getColor());
@@ -161,7 +161,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                 
                 if(entry.getId() == 10) // Object
                 {
-                    PanelButtonStorage<String> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw - 48, 16, 0), btnEdit, getButtonTitle((NBTTagCompound)entry), k);
+                    PanelButtonStorage<String> btn = new PanelButtonStorage<>(new GuiRectangle(lw, i * 16, rw - 48, 16, 0), btnEdit, getButtonTitle((CompoundNBT)entry), k);
                     this.addPanel(btn);
                     
                     btn = new PanelButtonStorage<>(new GuiRectangle(width - 48, i * 16, 16, 16, 0), btnAdv, "...", k);
@@ -172,7 +172,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                     this.addPanel(btn);
                 } else if(entry.getId() == 8) // Text
                 {
-                    PanelTextField<String> text = new PanelTextField<>(new GuiRectangle(lw, i * 16, rw - 48, 16, 0), "" + ((NBTTagString)entry).getString(), FieldFilterString.INSTANCE);
+                    PanelTextField<String> text = new PanelTextField<>(new GuiRectangle(lw, i * 16, rw - 48, 16, 0), "" + entry.getString(), FieldFilterString.INSTANCE);
                     text.setCallback(new CallbackNBTTagString(tag, k)).setMaxLength(Integer.MAX_VALUE);
                     this.addPanel(text);
                     
@@ -180,11 +180,11 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
                     this.addPanel(btn);
                 } else if(entry.getId() == 1) // Byte/Boolean
                 {
-                    PanelTextField<Byte> text = new PanelTextField<>(new GuiRectangle(lw, i * 16, rw / 2, 16, 0), "" + ((NBTPrimitive)entry).getByte(), FieldFilterNumber.BYTE);
+                    PanelTextField<Byte> text = new PanelTextField<>(new GuiRectangle(lw, i * 16, rw / 2, 16, 0), "" + ((ByteNBT)entry).getByte(), FieldFilterNumber.BYTE);
                     text.setMaxLength(Integer.MAX_VALUE); // Put callback here
                     this.addPanel(text);
                     
-                    PanelButtonStorage<String> btn = new PanelButtonStorage<>(new GuiRectangle(lw + rw / 2, i * 16, (int)Math.ceil(rw / 2F) - 32, 16, 0), btnEdit, ((NBTPrimitive)entry).getByte() > 0 ? "true" : "false", k);
+                    PanelButtonStorage<String> btn = new PanelButtonStorage<>(new GuiRectangle(lw + rw / 2, i * 16, (int)Math.ceil(rw / 2F) - 32, 16, 0), btnEdit, ((ByteNBT)entry).getByte() > 0 ? "true" : "false", k);
                     this.addPanel(btn);
                     
                     text.setMaxLength(Integer.MAX_VALUE).setCallback(new CallbackMulti<>(new CallbackNBTPrimitive<>(tag, k, Byte.class), value -> btn.setText(value > 0 ? "true" : "false")));
@@ -477,9 +477,9 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         }
     }
     
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
 	
-    private String getButtonTitle(NBTTagCompound tag)
+    private String getButtonTitle(CompoundNBT tag)
     {
         if(JsonHelper.isItem(tag))
         {
@@ -488,7 +488,7 @@ public class PanelScrollingNBT extends CanvasScrolling implements IPEventListene
         } else if(JsonHelper.isFluid(tag))
         {
 			FluidStack fluid = JsonHelper.JsonToFluidStack(tag);
-			return QuestTranslation.translate("betterquesting.btn.fluid") + ": " + fluid.getLocalizedName();
+			return QuestTranslation.translate("betterquesting.btn.fluid") + ": " + fluid.getDisplayName().getString();
         } else if(JsonHelper.isEntity(tag))
         {
 			Entity entity = JsonHelper.JsonToEntity(tag, this.mc.world);

@@ -6,15 +6,15 @@ import betterquesting.api.placeholders.PlaceholderConverter;
 import betterquesting.api2.utils.BQThreadedIO;
 import com.google.gson.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatAllowedCharacters;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SharedConstants;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
@@ -120,10 +120,10 @@ public class JsonHelper
 		return null;
 	}
 	
-	public static void ClearCompoundTag(@Nonnull NBTTagCompound tag)
+	public static void ClearCompoundTag(@Nonnull CompoundNBT tag)
 	{
-		ArrayList<String> list = new ArrayList<>(tag.getKeySet());
-		list.forEach(tag::removeTag);
+		ArrayList<String> list = new ArrayList<>(tag.keySet());
+		list.forEach(tag::remove);
 	}
 	
 	public static JsonObject ReadFromFile(File file)
@@ -240,7 +240,7 @@ public class JsonHelper
 	
 	public static String makeFileNameSafe(String s)
 	{
-		for(char c : ChatAllowedCharacters.ILLEGAL_FILE_CHARACTERS)
+		for(char c : SharedConstants.ILLEGAL_FILE_CHARACTERS)
 		{
 			s = s.replace(c, '_');
 		}
@@ -248,94 +248,88 @@ public class JsonHelper
 		return s;
 	}
 	
-	public static boolean isItem(NBTTagCompound json)
+	public static boolean isItem(CompoundNBT nbt)
 	{
-		if(json != null && json.hasKey("id") && json.hasKey("Count", 99) && json.hasKey("Damage", 99))
+		if(nbt != null && nbt.contains("id", 8) && nbt.contains("Count", 99))
 		{
-			if(json.hasKey("id", 8))
-			{
-				 return Item.REGISTRY.containsKey(new ResourceLocation(json.getString("id")));
-			} else
-			{
-				return Item.REGISTRY.getObjectById(json.getInteger("id")) != null;
-			}
+             return ForgeRegistries.ITEMS.containsKey(new ResourceLocation(nbt.getString("id")));
 		}
 		
 		return false;
 	}
 	
-	public static boolean isFluid(NBTTagCompound json)
+	public static boolean isFluid(CompoundNBT json)
 	{
-		return json != null && json.hasKey("FluidName", 8) && json.hasKey("Amount", 99) && FluidRegistry.getFluid(json.getString("FluidName")) != null;
+		return json != null && json.contains("FluidName", 8) && json.contains("Amount", 99) && ForgeRegistries.FLUIDS.containsKey(new ResourceLocation(json.getString("FluidName")));
 	}
 	
-	public static boolean isEntity(NBTTagCompound tags)
+	public static boolean isEntity(CompoundNBT tags)
 	{
-		return tags.hasKey("id") && EntityList.isRegistered(new ResourceLocation(tags.getString("id")));
+		return tags.contains("id") && ForgeRegistries.ENTITIES.containsKey(new ResourceLocation(tags.getString("id")));
 	}
 	
 	/**
 	 * Converts a JsonObject to an ItemStack. May return a placeholder if the correct mods are not installed</br>
 	 * This should be the standard way to load items into quests in order to retain all potential data
 	 */
-	public static BigItemStack JsonToItemStack(NBTTagCompound nbt)
+	public static BigItemStack JsonToItemStack(CompoundNBT nbt)
 	{
-	    Item preCheck = Item.getByNameOrId(nbt.hasKey("id", 99) ? "" + nbt.getShort("id") : nbt.getString("id"));
+	    Item preCheck = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("id")));
 	    if(preCheck != null && preCheck != ItemPlaceholder.placeholder) return new BigItemStack(nbt);
-		return PlaceholderConverter.convertItem(preCheck, nbt.getString("id"), nbt.getInteger("Count"), nbt.getShort("Damage"), nbt.getString("OreDict"), !nbt.hasKey("tag", 10) ? null : nbt.getCompoundTag("tag"));
+		return PlaceholderConverter.convertItem(preCheck, nbt.getString("id"), nbt.getInt("Count"), nbt.getString("OreDict"), !nbt.contains("tag", 10) ? null : nbt.getCompound("tag"));
 	}
 	
 	/**
 	 * Use this for quests instead of converter NBT because this doesn't use ID numbers
 	 */
-	public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound nbt)
+	public static CompoundNBT ItemStackToJson(BigItemStack stack, CompoundNBT nbt)
 	{
 		if(stack != null) stack.writeToNBT(nbt);
 		return nbt;
 	}
 	
-	public static FluidStack JsonToFluidStack(NBTTagCompound json)
+	public static FluidStack JsonToFluidStack(CompoundNBT json)
 	{
-		String name = json.hasKey("FluidName", 8) ? json.getString("FluidName") : "water";
-		int amount = json.getInteger("Amount");
-		NBTTagCompound tags = !json.hasKey("Tag", 10) ? null : json.getCompoundTag("Tag");
-		Fluid fluid = FluidRegistry.getFluid(name);
+		String name = json.contains("FluidName", 8) ? json.getString("FluidName") : "water";
+		int amount = json.getInt("Amount");
+		CompoundNBT tags = !json.contains("Tag", 10) ? null : json.getCompound("Tag");
+		Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(name));
 		
 		return PlaceholderConverter.convertFluid(fluid, name, amount, tags);
 	}
 	
-	public static NBTTagCompound FluidStackToJson(FluidStack stack, NBTTagCompound json)
+	public static CompoundNBT FluidStackToJson(FluidStack stack, CompoundNBT json)
 	{
 		if(stack == null) return json;
-		json.setString("FluidName", FluidRegistry.getFluidName(stack));
-		json.setInteger("Amount", stack.amount);
-		if(stack.tag != null) json.setTag("Tag", stack.tag);
+		json.putString("FluidName", stack.getFluid().getRegistryName().toString());
+		json.putInt("Amount", stack.getAmount());
+		if(stack.hasTag()) json.put("Tag", stack.getTag());
 		return json;
 	}
 	
-	public static Entity JsonToEntity(NBTTagCompound tags, World world)
+	public static Entity JsonToEntity(CompoundNBT tags, World world)
 	{
 		Entity entity = null;
 		
-		if(tags.hasKey("id") && EntityList.isRegistered(new ResourceLocation(tags.getString("id"))))
+		if(tags.contains("id") && ForgeRegistries.ENTITIES.containsKey(new ResourceLocation(tags.getString("id"))))
 		{
-			entity = EntityList.createEntityFromNBT(tags, world);
+			entity = EntityType.loadEntityUnchecked(tags, world).get();
 		}
 		
 		return PlaceholderConverter.convertEntity(entity, world, tags);
 	}
 	
-	public static NBTTagCompound EntityToJson(Entity entity, NBTTagCompound json)
+	public static CompoundNBT EntityToJson(Entity entity, CompoundNBT json)
 	{
 		if(entity == null)
 		{
 			return json;
 		}
 		
-		NBTTagCompound tags = new NBTTagCompound();
-		entity.writeToNBTOptional(tags);
-		String id = EntityList.getEntityString(entity);
-		tags.setString("id", id != null ? id : ""); // Some entities don't write this to file in certain cases
+		CompoundNBT tags = new CompoundNBT();
+		entity.writeWithoutTypeId(tags);
+		ResourceLocation id = entity.getType().getRegistryName();
+		tags.putString("id", id != null ? id.toString() : ""); // Some entities don't write this to file in certain cases
 		json.merge(tags);
 		return json;
 	}

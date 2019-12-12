@@ -1,8 +1,8 @@
 package betterquesting.api.properties.basic;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagLong;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.LongNBT;
+import net.minecraft.nbt.NumberNBT;
 import net.minecraft.util.ResourceLocation;
 
 public class PropertyTypeLong extends PropertyTypeBase<Long>
@@ -13,24 +13,24 @@ public class PropertyTypeLong extends PropertyTypeBase<Long>
 	}
 
 	@Override
-	public Long readValue(NBTBase nbt)
+	public Long readValue(INBT nbt)
 	{
-		if(nbt == null || !(nbt instanceof NBTPrimitive))
+		if(!(nbt instanceof NumberNBT))
 		{
 			return this.getDefault();
 		}
 		
-		return ((NBTPrimitive)nbt).getLong();
+		return ((NumberNBT)nbt).getLong();
 	}
 
 	@Override
-	public NBTBase writeValue(Long value)
+	public INBT writeValue(Long value)
 	{
 		if(value == null)
 		{
-			return new NBTTagLong(this.getDefault());
+			return new LongNBT(this.getDefault());
 		}
 		
-		return new NBTTagLong(value);
+		return new LongNBT(value);
 	}
 }

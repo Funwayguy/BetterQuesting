@@ -1,10 +1,14 @@
 package betterquesting.client;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
 import betterquesting.core.BetterQuesting;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CreativeTabQuesting extends CreativeTabs
+import javax.annotation.Nonnull;
+
+public class CreativeTabQuesting extends ItemGroup
 {
 	private ItemStack tabStack;
 	
@@ -13,14 +17,12 @@ public class CreativeTabQuesting extends CreativeTabs
 		super(BetterQuesting.MODID);
 	}
 	
+	@Nonnull
 	@Override
+    @OnlyIn(Dist.CLIENT)
 	public ItemStack createIcon()
 	{
-		if(tabStack == null)
-		{
-			this.tabStack = new ItemStack(BetterQuesting.extraLife);
-		}
-		
+		if(tabStack == null) this.tabStack = new ItemStack(BetterQuesting.extraLife);
 		return tabStack;
 	}
 }

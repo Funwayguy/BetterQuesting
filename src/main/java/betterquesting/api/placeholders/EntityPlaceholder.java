@@ -1,53 +1,65 @@
 package betterquesting.api.placeholders;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.play.server.SSpawnObjectPacket;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public class EntityPlaceholder extends Entity
 {
-	private final EntityItem eItem;
-	private NBTTagCompound original = new NBTTagCompound();
+	private final ItemEntity eItem;
+	private CompoundNBT original = new CompoundNBT();
 	
 	public EntityPlaceholder(World world)
 	{
-		super(world);
-		eItem = new EntityItem(world);
+		super(EntityType.ITEM, world);
+		eItem = new ItemEntity(EntityType.ITEM, world);
 		eItem.setItem(new ItemStack(ItemPlaceholder.placeholder));
 	}
 	
-	public EntityPlaceholder SetOriginalTags(NBTTagCompound tags)
+	public EntityPlaceholder SetOriginalTags(CompoundNBT tags)
 	{
 		this.original = tags;
 		return this;
 	}
 	
-	public NBTTagCompound GetOriginalTags()
+	public CompoundNBT GetOriginalTags()
 	{
 		return this.original;
 	}
 	
-	public EntityItem GetItemEntity()
+	public ItemEntity GetItemEntity()
 	{
 		return eItem;
 	}
 	
 	@Override
-	protected void entityInit()
+	protected void registerData()
 	{
 	}
 	
 	@Override
-	protected void readEntityFromNBT(NBTTagCompound tags)
+	protected void readAdditional(@Nonnull CompoundNBT tags)
 	{
-		original = tags.getCompoundTag("original");
+		original = tags.getCompound("original");
 	}
 	
 	@Override
-	protected void writeEntityToNBT(NBTTagCompound tags)
+	protected void writeAdditional(@Nonnull CompoundNBT tags)
 	{
-		tags.setTag("original", this.original);
+		tags.put("original", this.original);
 	}
+ 
+	@Nonnull
+    @Override
+    public IPacket<?> createSpawnPacket()
+    {
+        return new SSpawnObjectPacket(this);
+    }
 }

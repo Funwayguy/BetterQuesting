@@ -1,12 +1,11 @@
 package betterquesting.api2.client.gui.misc;
 
-import org.lwjgl.util.vector.ReadableVector4f;
-import org.lwjgl.util.vector.Vector4f;
+import betterquesting.abs.misc.GuiAnchor;
 
 public final class GuiTransform implements IGuiRect
 {
 	private IGuiRect parent;
-	private final Vector4f anchor; // TODO: Change to one that accounts for min-max dimensions
+	private final GuiAnchor anchor;
 	private final GuiPadding padding;
 	private int drawOrder;
 	
@@ -15,41 +14,33 @@ public final class GuiTransform implements IGuiRect
 		this(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0);
 	}
 	
-	public GuiTransform(ReadableVector4f anchor)
+	public GuiTransform(GuiAnchor anchor)
 	{
 		this(anchor, new GuiPadding(0, 0, 0, 0), 0);
 	}
 	
-	public GuiTransform(ReadableVector4f anchor, int xOff, int yOff, int width, int height, int order)
+	public GuiTransform(GuiAnchor anchor, int xOff, int yOff, int width, int height, int order)
 	{
-		this(new Vector4f(anchor.getX(), anchor.getY(), anchor.getX(), anchor.getY()), new GuiPadding(xOff, yOff, -xOff - width, -yOff - height), order);
+		this(anchor.copy(), new GuiPadding(xOff, yOff, -xOff - width, -yOff - height), order);
 	}
 	
-	public GuiTransform(ReadableVector4f anchor, GuiPadding padding, int depth)
+	public GuiTransform(GuiAnchor anchor, GuiPadding padding, int depth)
 	{
-		this(new Vector4f(anchor), padding, depth);
-	}
-	
-	public GuiTransform(Vector4f anchor, GuiPadding padding, int depth)
-	{
-		this.anchor = anchor;
+		//this.anchor = anchor;
 		this.padding = padding;
 		this.drawOrder = depth;
 		
-		float l = Math.min(anchor.x, anchor.z);
-		float r = Math.max(anchor.x, anchor.z);
-		float t = Math.min(anchor.y, anchor.w);
-		float b = Math.max(anchor.y, anchor.w);
+		float l = Math.min(anchor.getX(), anchor.getZ());
+		float r = Math.max(anchor.getX(), anchor.getZ());
+		float t = Math.min(anchor.getY(), anchor.getW());
+		float b = Math.max(anchor.getY(), anchor.getW());
 		
-		this.anchor.x = l;
-		this.anchor.y = t;
-		this.anchor.z = r;
-		this.anchor.w = b;
+		this.anchor = new GuiAnchor(l, t, r, b);
 	}
 	
 	public GuiTransform copy()
     {
-        GuiTransform trans = new GuiTransform(new Vector4f(anchor), padding.copy(), drawOrder);
+        GuiTransform trans = new GuiTransform(anchor.copy(), padding.copy(), drawOrder);
         trans.setParent(this.parent);
         return trans;
     }
@@ -59,7 +50,7 @@ public final class GuiTransform implements IGuiRect
 		return this.padding;
 	}
 	
-	public Vector4f getAnchor()
+	public GuiAnchor getAnchor()
 	{
 		return this.anchor;
 	}
@@ -72,28 +63,28 @@ public final class GuiTransform implements IGuiRect
 	@Override
 	public int getX()
 	{
-		int i = parent == null ? 0 : (parent.getX() + (int)Math.ceil(parent.getWidth() * this.anchor.x));
+		int i = parent == null ? 0 : (parent.getX() + (int)Math.ceil(parent.getWidth() * this.anchor.getX()));
 		return i + padding.getLeft();
 	}
 	
 	@Override
 	public int getY()
 	{
-		int i = parent == null ? 0 : (parent.getY() + (int)Math.ceil(parent.getHeight() * this.anchor.y));
+		int i = parent == null ? 0 : (parent.getY() + (int)Math.ceil(parent.getHeight() * this.anchor.getY()));
 		return i + padding.getTop();
 	}
 	
 	@Override
 	public int getWidth()
 	{
-		int i = parent == null ? 0 : (int)Math.ceil(parent.getWidth() * (this.anchor.z - this.anchor.x));
+		int i = parent == null ? 0 : (int)Math.ceil(parent.getWidth() * (this.anchor.getZ() - this.anchor.getX()));
 		return i - (padding.getRight() + padding.getLeft());
 	}
 	
 	@Override
 	public int getHeight()
 	{
-		int i = parent == null ? 0 : (int)Math.ceil(parent.getHeight() * (this.anchor.w - this.anchor.y));
+		int i = parent == null ? 0 : (int)Math.ceil(parent.getHeight() * (this.anchor.getW() - this.anchor.getY()));
 		return i - (padding.getBottom() + padding.getTop());
 	}
 	
@@ -126,12 +117,6 @@ public final class GuiTransform implements IGuiRect
 		int y2 = y1 + h;
 		return x3 >= x1 && x3 < x2 && y3 >= y1 && y3 < y2;
 	}
-	
-	/*@Override
-	public void translate(int x, int y)
-	{
-		this.padding.setPadding(padding.getLeft() + x, padding.getTop() + y, padding.getRight() - x, padding.getBottom() - y);
-	}*/
 
 	@Override
 	public int compareTo(IGuiRect o)

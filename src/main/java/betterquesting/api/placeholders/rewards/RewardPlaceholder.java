@@ -5,37 +5,37 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 public class RewardPlaceholder implements IReward
 {
-	private NBTTagCompound nbtSaved = new NBTTagCompound();
+	private CompoundNBT nbtSaved = new CompoundNBT();
 	
-	public void setRewardConfigData(NBTTagCompound nbt)
+	public void setRewardConfigData(CompoundNBT nbt)
 	{
         nbtSaved = nbt;
 	}
 	
-	public NBTTagCompound getRewardConfigData()
+	public CompoundNBT getRewardConfigData()
 	{
         return nbtSaved;
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public CompoundNBT writeToNBT(CompoundNBT nbt)
 	{
-		nbt.setTag("orig_data", nbtSaved);
+		nbt.put("orig_data", nbtSaved);
 		
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void readFromNBT(CompoundNBT nbt)
 	{
-		nbtSaved = nbt.getCompoundTag("orig_data");
+		nbtSaved = nbt.getCompound("orig_data");
 	}
 	
 	@Override
@@ -51,13 +51,13 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest)
+	public boolean canClaim(PlayerEntity player, DBEntry<IQuest> quest)
 	{
 		return false;
 	}
 	
 	@Override
-	public void claimReward(EntityPlayer player, DBEntry<IQuest> quest)
+	public void claimReward(PlayerEntity player, DBEntry<IQuest> quest)
 	{
 	}
 	
@@ -68,7 +68,7 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public GuiScreen getRewardEditor(GuiScreen parent, DBEntry<IQuest> quest)
+	public Screen getRewardEditor(Screen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}

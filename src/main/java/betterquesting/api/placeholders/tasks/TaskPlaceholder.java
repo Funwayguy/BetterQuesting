@@ -6,8 +6,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -16,52 +16,52 @@ import java.util.UUID;
 
 public class TaskPlaceholder implements ITask
 {
-	private NBTTagCompound nbtData = new NBTTagCompound();
+	private CompoundNBT nbtData = new CompoundNBT();
 	
-	public void setTaskConfigData(NBTTagCompound nbt)
+	public void setTaskConfigData(CompoundNBT nbt)
 	{
-        nbtData.setTag("orig_data", nbt);
+        nbtData.put("orig_data", nbt);
 	}
 	
-	public void setTaskProgressData(NBTTagCompound nbt)
+	public void setTaskProgressData(CompoundNBT nbt)
     {
-        nbtData.setTag("orig_prog", nbt);
+        nbtData.put("orig_prog", nbt);
     }
 	
-	public NBTTagCompound getTaskConfigData()
+	public CompoundNBT getTaskConfigData()
 	{
-        return nbtData.getCompoundTag("orig_data");
+        return nbtData.getCompound("orig_data");
 	}
 	
-	public NBTTagCompound getTaskProgressData()
+	public CompoundNBT getTaskProgressData()
     {
-        return nbtData.getCompoundTag("orig_prog");
+        return nbtData.getCompound("orig_prog");
     }
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public CompoundNBT writeToNBT(CompoundNBT nbt)
 	{
-        nbt.setTag("orig_data", nbtData.getCompoundTag("orig_data"));
+        nbt.put("orig_data", nbtData.getCompound("orig_data"));
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void readFromNBT(CompoundNBT nbt)
 	{
-        nbtData.setTag("orig_data", nbt.getCompoundTag("orig_data"));
+        nbtData.put("orig_data", nbt.getCompound("orig_data"));
 	}
 	
 	@Override
-    public NBTTagCompound writeProgressToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
+    public CompoundNBT writeProgressToNBT(CompoundNBT nbt, @Nullable List<UUID> users)
     {
-        nbt.setTag("orig_prog", nbtData.getCompoundTag("orig_prog"));
+        nbt.put("orig_prog", nbtData.getCompound("orig_prog"));
         return nbt;
     }
     
     @Override
-    public void readProgressFromNBT(NBTTagCompound nbt, boolean merge)
+    public void readProgressFromNBT(CompoundNBT nbt, boolean merge)
     {
-        nbtData.setTag("orig_prog", nbt.getCompoundTag("orig_prog"));
+        nbtData.put("orig_prog", nbt.getCompound("orig_prog"));
     }
 	
 	@Override
@@ -104,7 +104,7 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-	public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest)
+	public Screen getTaskEditor(Screen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}

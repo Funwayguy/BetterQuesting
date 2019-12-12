@@ -7,17 +7,16 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
 import betterquesting.api2.utils.ParticipantInfo;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-// TODO: Make functionally independent of IQuest. Make `detect` return boolean representing dirty state
-public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
+public interface ITask extends INBTSaveLoad<CompoundNBT>, INBTProgress<CompoundNBT>
 {
 	String getUnlocalisedName();
 	ResourceLocation getFactoryID();
@@ -30,10 +29,10 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 	void resetUser(@Nullable UUID uuid);
 	
 	@Nullable
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
     IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest);
 	
 	@Nullable
-	@SideOnly(Side.CLIENT)
-	GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest);
+	@OnlyIn(Dist.CLIENT)
+	Screen getTaskEditor(Screen parent, DBEntry<IQuest> quest);
 }

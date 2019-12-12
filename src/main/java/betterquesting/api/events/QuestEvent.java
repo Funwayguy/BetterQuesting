@@ -1,6 +1,6 @@
 package betterquesting.api.events;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 import java.util.*;
 

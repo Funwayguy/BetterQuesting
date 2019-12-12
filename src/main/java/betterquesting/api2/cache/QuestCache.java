@@ -8,10 +8,10 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.network.handlers.NetCacheSync;
 import betterquesting.questing.QuestDatabase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.UUID;
 
-public class QuestCache implements INBTSerializable<NBTTagCompound>
+public class QuestCache implements INBTSerializable<CompoundNBT>
 {
     // Quests that are visible to the player
     private final TreeSet<Integer> visibleQuests = new TreeSet<>();
@@ -96,7 +96,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     
     // TODO: Ensure this is thread safe because we're likely going to run this in the background
     // NOTE: Only run this when the quests completion and claim states change. Use markQuestDirty() for progression changes that need syncing
-    public synchronized void updateCache(EntityPlayer player)
+    public synchronized void updateCache(PlayerEntity player)
     {
         if(player == null) return;
         
@@ -113,7 +113,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
             if(entry.getValue().isUnlocked(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
             {
                 int repeat = entry.getValue().getProperty(NativeProps.REPEAT_TIME);
-                NBTTagCompound ue = entry.getValue().getCompletionInfo(uuid);
+                CompoundNBT ue = entry.getValue().getCompletionInfo(uuid);
                 
                 if((ue == null && entry.getValue().getTasks().size() <= 0) || entry.getValue().canSubmit(player)) // Can be active without completion in the case of locked progress. Also account for taskless quests
                 {
@@ -152,36 +152,36 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         autoClaims.clear();
         autoClaims.addAll(tmpAutoClaim);
         
-        NBTTagCompound tags = new NBTTagCompound();
-        tags.setTag("data", serializeNBT());
-        if(player instanceof EntityPlayerMP) NetCacheSync.sendSync((EntityPlayerMP)player);
+        CompoundNBT tags = new CompoundNBT();
+        tags.put("data", serializeNBT());
+        if(player instanceof ServerPlayerEntity) NetCacheSync.sendSync((ServerPlayerEntity)player);
     }
     
     @Override
-    public synchronized NBTTagCompound serializeNBT()
+    public synchronized CompoundNBT serializeNBT()
     {
-        NBTTagCompound tags = new NBTTagCompound();
+        CompoundNBT tags = new CompoundNBT();
         
-        tags.setIntArray("visibleQuests", getVisibleQuests());
-        tags.setIntArray("activeQuests", getActiveQuests());
-        tags.setIntArray("autoClaims", getPendingAutoClaims());
-        tags.setIntArray("markedDirty", getDirtyQuests());
+        tags.putIntArray("visibleQuests", getVisibleQuests());
+        tags.putIntArray("activeQuests", getActiveQuests());
+        tags.putIntArray("autoClaims", getPendingAutoClaims());
+        tags.putIntArray("markedDirty", getDirtyQuests());
         
-        NBTTagList tagSchedule = new NBTTagList();
+        ListNBT tagSchedule = new ListNBT();
         for(QResetTime entry : getScheduledResets())
         {
-            NBTTagCompound tagEntry = new NBTTagCompound();
-            tagEntry.setInteger("quest", entry.questID);
-            tagEntry.setLong("time", entry.time);
-            tagSchedule.appendTag(tagEntry);
+            CompoundNBT tagEntry = new CompoundNBT();
+            tagEntry.putInt("quest", entry.questID);
+            tagEntry.putLong("time", entry.time);
+            tagSchedule.add(tagEntry);
         }
-        tags.setTag("resetSchedule", tagSchedule);
+        tags.put("resetSchedule", tagSchedule);
         
         return tags;
     }
     
     @Override
-    public synchronized void deserializeNBT(NBTTagCompound nbt)
+    public synchronized void deserializeNBT(CompoundNBT nbt)
     {
         visibleQuests.clear();
         activeQuests.clear();
@@ -194,13 +194,13 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         for(int i : nbt.getIntArray("autoClaims")) autoClaims.add(i);
         for(int i : nbt.getIntArray("markedDirty")) markedDirty.add(i);
         
-        NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
-        for(int i = 0; i < tagList.tagCount(); i++)
+        ListNBT tagList = nbt.getList("resetSchedule", 10);
+        for(int i = 0; i < tagList.size(); i++)
         {
-            NBTTagCompound tagEntry = tagList.getCompoundTagAt(i);
-            if(tagEntry.hasKey("quest", 99))
+            CompoundNBT tagEntry = tagList.getCompound(i);
+            if(tagEntry.contains("quest", 99))
             {
-                resetSchedule.add(new QResetTime(tagEntry.getInteger("quest"), tagEntry.getLong("time")));
+                resetSchedule.add(new QResetTime(tagEntry.getInt("quest"), tagEntry.getLong("time")));
             }
         }
     }
@@ -232,7 +232,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
     
     // TODO: Make this based on a fixed state stored on the quest instead of calculated on demand
     // TODO: Also make this thread safe
-    public static boolean isQuestShown(IQuest quest, UUID uuid, EntityPlayer player)
+    public static boolean isQuestShown(IQuest quest, UUID uuid, PlayerEntity player)
     {
         if(quest == null || uuid == null)
         {

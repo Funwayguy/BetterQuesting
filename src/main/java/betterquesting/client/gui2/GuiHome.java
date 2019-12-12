@@ -1,5 +1,6 @@
 package betterquesting.client.gui2;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
@@ -38,27 +39,30 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
+import javafx.geometry.Side;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class GuiHome extends GuiScreenCanvas
 {
-	public static GuiScreen bookmark;
+	public static Screen bookmark;
 	
-	public GuiHome(GuiScreen parent)
+	public GuiHome(Screen parent)
 	{
 		super(parent);
 	}
@@ -88,27 +92,27 @@ public class GuiHome extends GuiScreenCanvas
 		
 		CanvasTextured splashCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 32), 0), homeSplashBG);
 		inCan.addPanel(splashCan);
-		CanvasTextured splashTitle = new CanvasTextured(new GuiTransform(new Vector4f(ancX, ancY, ancX, ancY), new GuiPadding(offX, offY, -256 - offX, -128 - offY), 0), homeSplashTitle);
+		CanvasTextured splashTitle = new CanvasTextured(new GuiTransform(new GuiAnchor(ancX, ancY, ancX, ancY), new GuiPadding(offX, offY, -256 - offX, -128 - offY), 0), homeSplashTitle);
 		splashCan.addPanel(splashTitle);
 		
-		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, QuestTranslation.translate("betterquesting.home.exit"));
+		PanelButton btnExit = new PanelButton(new GuiTransform(new GuiAnchor(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, QuestTranslation.translate("betterquesting.home.exit"));
 		inCan.addPanel(btnExit);
 		
-		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, QuestTranslation.translate("betterquesting.home.quests"));
+		PanelButton btnQuests = new PanelButton(new GuiTransform(new GuiAnchor(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, QuestTranslation.translate("betterquesting.home.quests"));
 		inCan.addPanel(btnQuests);
-		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, QuestTranslation.translate("betterquesting.home.party"));
+		PanelButton btnParty = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, QuestTranslation.translate("betterquesting.home.party"));
 		btnParty.setActive(QuestSettings.INSTANCE.getProperty(NativeProps.PARTY_ENABLE));
 		inCan.addPanel(btnParty);
-		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, QuestTranslation.translate("betterquesting.home.theme"));
+		PanelButton btnTheme = new PanelButton(new GuiTransform(new GuiAnchor(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, QuestTranslation.translate("betterquesting.home.theme"));
 		inCan.addPanel(btnTheme);
 		
-		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
+		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(minecraft.player))
 		{
 			PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, new GuiPadding(0, 0, -16, -16), 0), 4, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
 			inCan.addPanel(btnEdit);
 		}
 		
-		if(Minecraft.getMinecraft().isIntegratedServerRunning() && SaveLoadHandler.INSTANCE.hasUpdate())
+		if(Minecraft.getInstance().isIntegratedServerRunning() && SaveLoadHandler.INSTANCE.hasUpdate())
 		{
 			PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "");
 			tstBtn.setIcon(PresetIcon.ICON_NOTICE.getTexture(), PresetColor.UPDATE_NOTICE.getColor(), 0);
@@ -123,7 +127,7 @@ public class GuiHome extends GuiScreenCanvas
                 @Override
                 public void onButtonClick()
                 {
-                    mc.displayGuiScreen(new GuiStatus(GuiHome.this));
+                    minecraft.displayGuiScreen(new GuiStatus(GuiHome.this));
                     //mc.displayGuiScreen(new GuiBuilderMain(GuiHome.this));
                 }
             }; // Test screen
@@ -135,7 +139,7 @@ public class GuiHome extends GuiScreenCanvas
 	{
 	    if(!(event instanceof PEventButton)) return;
 	    
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		IPanelButton btn = ((PEventButton)event).getButton();
 		
 		if(btn.getButtonID() == 0) // Exit
@@ -160,7 +164,7 @@ public class GuiHome extends GuiScreenCanvas
 			mc.displayGuiScreen(new GuiThemes(this));
 		} else if(btn.getButtonID() == 4) // Editor
 		{
-			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (value) ->
+			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new CompoundNBT()), (value) ->
 			{
 				QuestSettings.INSTANCE.readFromNBT(value);
                 NetSettingSync.requestEdit();
@@ -175,11 +179,11 @@ public class GuiHome extends GuiScreenCanvas
 					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 					
-					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
-					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
-					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
-					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
+					ListNBT jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new ListNBT(), null);
+					CompoundNBT j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new CompoundNBT(), true);
+					QuestSettings.INSTANCE.readFromNBT(j1.getCompound("questSettings"));
+					QuestDatabase.INSTANCE.readFromNBT(j1.getList("questDatabase", 10), false);
+					QuestLineDatabase.INSTANCE.readFromNBT(j1.getList("questLines", 10), false);
 					QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
 					
 					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);

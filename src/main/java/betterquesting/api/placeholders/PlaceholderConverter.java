@@ -2,20 +2,24 @@ package betterquesting.api.placeholders;
 
 import betterquesting.api.utils.BigItemStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Optional;
 
 /**
  * In charge of safely converting to or from placeholder objects
  */
 public class PlaceholderConverter
 {
-	public static Entity convertEntity(Entity orig, World world, NBTTagCompound nbt)
+	public static Entity convertEntity(Entity orig, World world, CompoundNBT nbt)
 	{
 		Entity entity = orig;
 		
@@ -26,73 +30,68 @@ public class PlaceholderConverter
 		} else if(orig instanceof EntityPlaceholder)
 		{
 			EntityPlaceholder p = (EntityPlaceholder)orig;
-			Entity tmp = EntityList.createEntityFromNBT(p.GetOriginalTags(), world);
-			entity = tmp != null? tmp : p;
+			Optional<Entity> tmp = EntityType.loadEntityUnchecked(p.GetOriginalTags(), world);
+			entity = tmp.orElse(p);
 		}
 		
 		return entity;
 	}
 	
-	public static BigItemStack convertItem(Item item, String name, int count, int damage, String oreDict, NBTTagCompound nbt)
+	public static BigItemStack convertItem(Item item, String name, int count, String oreDict, CompoundNBT nbt)
 	{
 		if(item == null)
 		{
-			BigItemStack stack = new BigItemStack(ItemPlaceholder.placeholder, count, damage).setOreDict(oreDict);
-			stack.SetTagCompound(new NBTTagCompound());
-			stack.GetTagCompound().setString("orig_id", name);
-			stack.GetTagCompound().setInteger("orig_meta", damage);
-			if(nbt != null) stack.GetTagCompound().setTag("orig_tag", nbt);
+			BigItemStack stack = new BigItemStack(ItemPlaceholder.placeholder, count).setOreDict(oreDict);
+			stack.SetTagCompound(new CompoundNBT());
+			stack.GetTagCompound().putString("orig_id", name);
+			if(nbt != null) stack.GetTagCompound().put("orig_tag", nbt);
 			return stack;
 		} else if(item == ItemPlaceholder.placeholder)
 		{
 			if(nbt != null)
 			{
-				Item restored = Item.getByNameOrId(nbt.getString("orig_id"));
+				Item restored = ForgeRegistries.ITEMS.getValue(new ResourceLocation(nbt.getString("orig_id")));
 				
-				if(restored != null)
+				if(restored != null && restored != Items.AIR)
 				{
-					BigItemStack stack = new BigItemStack(restored, count, nbt.hasKey("orig_meta")? nbt.getInteger("orig_meta") : damage).setOreDict(oreDict);
-					if(nbt.hasKey("orig_tag")) stack.SetTagCompound(nbt.getCompoundTag("orig_tag"));
+					BigItemStack stack = new BigItemStack(restored, count).setOreDict(oreDict);
+					if(nbt.contains("orig_tag")) stack.SetTagCompound(nbt.getCompound("orig_tag"));
 					
 					return stack;
-				} else if(damage > 0 && !nbt.hasKey("orig_meta"))
-				{
-					nbt.setInteger("orig_meta", damage);
-					damage = 0;
 				}
 			}
 		}
 		
-		BigItemStack stack = new BigItemStack(item, count, damage).setOreDict(oreDict);
+		BigItemStack stack = new BigItemStack(item, count).setOreDict(oreDict);
 		if(nbt != null) stack.SetTagCompound(nbt);
 		
 		return stack;
 	}
 	
-	public static FluidStack convertFluid(Fluid fluid, String name, int amount, NBTTagCompound nbt)
+	public static FluidStack convertFluid(Fluid fluid, String name, int amount, CompoundNBT nbt)
 	{
 		if(fluid == null)
 		{
 			FluidStack stack = new FluidStack(FluidPlaceholder.fluidPlaceholder, amount);
-			NBTTagCompound orig = new NBTTagCompound();
-			orig.setString("orig_id", name);
-			if(nbt != null) orig.setTag("orig_tag", nbt);
-			stack.tag = orig;
+			CompoundNBT orig = new CompoundNBT();
+			orig.putString("orig_id", name);
+			if(nbt != null) orig.put("orig_tag", nbt);
+			stack.setTag(orig);
 			return stack;
 		} else if(fluid == FluidPlaceholder.fluidPlaceholder && nbt != null)
 		{
-			Fluid restored = FluidRegistry.getFluid(nbt.getString("orig_id"));
+			Fluid restored = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(nbt.getString("orig_id")));
 			
 			if(restored != null)
 			{
 				FluidStack stack = new FluidStack(restored, amount);
-				if(nbt.hasKey("orig_tag")) stack.tag = nbt.getCompoundTag("orig_tag");
+				if(nbt.contains("orig_tag")) stack.setTag(nbt.getCompound("orig_tag"));
 				return stack;
 			}
 		}
 		
 		FluidStack stack = new FluidStack(fluid, amount);
-		if(nbt != null) stack.tag = nbt;
+		if(nbt != null) stack.setTag(nbt);
 		
 		return stack;
 	}

@@ -1,6 +1,6 @@
 package betterquesting.api.api;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +41,7 @@ public class QuestingAPI
 	 * This should be used over the vanilla method of obtaining the player's UUID.
 	 * This is because offline servers do not sync UUIDs properly to the client
 	 */
-	public static UUID getQuestingUUID(EntityPlayer player)
+	public static UUID getQuestingUUID(PlayerEntity player)
 	{
 		if(player == null)
 		{

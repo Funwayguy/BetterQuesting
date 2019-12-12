@@ -1,46 +1,41 @@
 package betterquesting.api2.cache;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CapabilityProviderQuestCache implements ICapabilityProvider, ICapabilitySerializable<NBTTagCompound>
+public class CapabilityProviderQuestCache implements ICapabilityProvider, ICapabilitySerializable<CompoundNBT>
 {
     @CapabilityInject(QuestCache.class)
     public static Capability<QuestCache> CAP_QUEST_CACHE;
     public static final ResourceLocation LOC_QUEST_CACHE = new ResourceLocation("betterquesting", "quest_cache");
     
-    private final QuestCache cache = new QuestCache();
+    private final LazyOptional<QuestCache> cache = LazyOptional.of(QuestCache::new);
     
     @Override
-    public NBTTagCompound serializeNBT()
+    public CompoundNBT serializeNBT()
     {
-        return cache.serializeNBT();
+        return cache.orElseGet(QuestCache::new).serializeNBT();
     }
     
     @Override
-    public void deserializeNBT(NBTTagCompound nbt)
+    public void deserializeNBT(CompoundNBT nbt)
     {
-        cache.deserializeNBT(nbt);
+        cache.orElseGet(QuestCache::new).deserializeNBT(nbt);
     }
     
+    @Nonnull
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing)
     {
-        return capability == CAP_QUEST_CACHE;
-    }
-    
-    @Nullable
-    @Override
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
-    {
-        return capability == CAP_QUEST_CACHE ? CAP_QUEST_CACHE.cast(cache) : null;
+        return capability == CAP_QUEST_CACHE ? cache.cast() : LazyOptional.empty();
     }
     
     public static void register()
@@ -49,15 +44,15 @@ public class CapabilityProviderQuestCache implements ICapabilityProvider, ICapab
         {
             @Nullable
             @Override
-            public NBTBase writeNBT(Capability<QuestCache> capability, QuestCache instance, EnumFacing side)
+            public INBT writeNBT(Capability<QuestCache> capability, QuestCache instance, Direction side)
             {
                 return instance.serializeNBT();
             }
     
             @Override
-            public void readNBT(Capability<QuestCache> capability, QuestCache instance, EnumFacing side, NBTBase nbt)
+            public void readNBT(Capability<QuestCache> capability, QuestCache instance, Direction side, INBT nbt)
             {
-                if(nbt instanceof NBTTagCompound) instance.deserializeNBT((NBTTagCompound)nbt);
+                if(nbt instanceof CompoundNBT) instance.deserializeNBT((CompoundNBT)nbt);
             }
         }, QuestCache::new);
     }

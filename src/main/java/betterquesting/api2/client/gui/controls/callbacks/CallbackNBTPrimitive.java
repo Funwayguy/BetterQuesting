@@ -5,12 +5,12 @@ import net.minecraft.nbt.*;
 
 public class CallbackNBTPrimitive<T extends Number> implements ICallback<T>
 {
-    private final NBTBase tag;
+    private final INBT tag;
     private final String sKey;
     private final int iKey;
     private final int tagID;
     
-    public CallbackNBTPrimitive(NBTTagCompound tag, String key, Class<T> c)
+    public CallbackNBTPrimitive(CompoundNBT tag, String key, Class<T> c)
     {
         this.tag = tag;
         this.sKey = key;
@@ -18,7 +18,7 @@ public class CallbackNBTPrimitive<T extends Number> implements ICallback<T>
         this.tagID = getTagID(c);
     }
     
-    public CallbackNBTPrimitive(NBTTagList tag, int key, Class<T> c)
+    public CallbackNBTPrimitive(ListNBT tag, int key, Class<T> c)
     {
         this.tag = tag;
         this.sKey = null;
@@ -31,59 +31,59 @@ public class CallbackNBTPrimitive<T extends Number> implements ICallback<T>
     {
         if(tag.getId() == 10)
         {
-            setCompoundTag((NBTTagCompound)tag, value);
+            setCompoundTag((CompoundNBT)tag, value);
         } else
         {
-            setListTag((NBTTagList)tag, value);
+            setListTag((ListNBT)tag, value);
         }
     }
     
-    private void setCompoundTag(NBTTagCompound compound, T value)
+    private void setCompoundTag(CompoundNBT compound, T value)
     {
         switch(tagID)
         {
             case 1:
-                compound.setByte(sKey, value.byteValue());
+                compound.putByte(sKey, value.byteValue());
                 break;
             case 2:
-                compound.setShort(sKey, value.shortValue());
+                compound.putShort(sKey, value.shortValue());
                 break;
             case 3:
-                compound.setInteger(sKey, value.intValue());
+                compound.putInt(sKey, value.intValue());
                 break;
             case 4:
-                compound.setLong(sKey, value.longValue());
+                compound.putLong(sKey, value.longValue());
                 break;
             case 5:
-                compound.setFloat(sKey, value.floatValue());
+                compound.putFloat(sKey, value.floatValue());
                 break;
             case 6:
-                compound.setDouble(sKey, value.doubleValue());
+                compound.putDouble(sKey, value.doubleValue());
                 break;
         }
     }
     
-    private void setListTag(NBTTagList list, T value)
+    private void setListTag(ListNBT list, T value)
     {
         switch(tagID)
         {
             case 1:
-                list.set(iKey, new NBTTagByte(value.byteValue()));
+                list.set(iKey, new ByteNBT(value.byteValue()));
                 break;
             case 2:
-                list.set(iKey, new NBTTagShort(value.shortValue()));
+                list.set(iKey, new ShortNBT(value.shortValue()));
                 break;
             case 3:
-                list.set(iKey, new NBTTagInt(value.intValue()));
+                list.set(iKey, new IntNBT(value.intValue()));
                 break;
             case 4:
-                list.set(iKey, new NBTTagLong(value.longValue()));
+                list.set(iKey, new LongNBT(value.longValue()));
                 break;
             case 5:
-                list.set(iKey, new NBTTagFloat(value.floatValue()));
+                list.set(iKey, new FloatNBT(value.floatValue()));
                 break;
             case 6:
-                list.set(iKey, new NBTTagDouble(value.doubleValue()));
+                list.set(iKey, new DoubleNBT(value.doubleValue()));
                 break;
         }
     }

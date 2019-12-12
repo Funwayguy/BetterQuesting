@@ -1,8 +1,8 @@
 package betterquesting.api.properties.basic;
 
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTPrimitive;
-import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.IntNBT;
+import net.minecraft.nbt.NumberNBT;
 import net.minecraft.util.ResourceLocation;
 
 public class PropertyTypeInteger extends PropertyTypeBase<Integer>
@@ -13,24 +13,24 @@ public class PropertyTypeInteger extends PropertyTypeBase<Integer>
 	}
 
 	@Override
-	public Integer readValue(NBTBase nbt)
+	public Integer readValue(INBT nbt)
 	{
-		if(nbt == null || !(nbt instanceof NBTPrimitive))
+		if(!(nbt instanceof NumberNBT))
 		{
 			return this.getDefault();
 		}
 		
-		return ((NBTPrimitive)nbt).getInt();
+		return ((NumberNBT)nbt).getInt();
 	}
 
 	@Override
-	public NBTBase writeValue(Integer value)
+	public IntNBT writeValue(Integer value)
 	{
 		if(value == null)
 		{
-			return new NBTTagInt(this.getDefault());
+			return new IntNBT(this.getDefault());
 		}
 		
-		return new NBTTagInt(value);
+		return new IntNBT(value);
 	}
 }

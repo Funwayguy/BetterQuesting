@@ -1,6 +1,6 @@
 package betterquesting.api.events;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Fired when the whole questing database for world is modified, loaded or saved.

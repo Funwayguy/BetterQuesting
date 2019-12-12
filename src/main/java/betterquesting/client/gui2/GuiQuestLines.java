@@ -56,7 +56,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private IQuestLine selectedLine = null;
     private static int selectedLineId = -1;
     
-    //private final List<PanelButtonStorage> qlBtns = new ArrayList<>();
     private final List<Tuple<DBEntry<IQuestLine>, Integer>> visChapters = new ArrayList<>();
     
     private CanvasQuestLine cvQuest;
@@ -352,7 +351,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 cvQuest.setQuestLine(q.getValue());
                 icoChapter.setTexture(new ItemTexture(q.getValue().getProperty(NativeProps.ICON)), null);
                 txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
-                //cvChapterTray.setTrayState(false, 200);
+                cvChapterTray.setTrayState(false, 200);
                 refreshClaimAll();
             });
             cvLines.addPanel(btnLine);

@@ -9,22 +9,18 @@ import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiScreenCanvas extends GuiScreen implements IScene
+public class GuiScreenCanvas extends Screen implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
@@ -34,33 +30,15 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	private boolean useDefaultBG = false;
 	private boolean isVolatile = false;
 	
-	public final GuiScreen parent;
+	public final Screen parent;
 	
 	private IGuiPanel popup = null;
-	//private IGuiPanel focused = null;
 	
-	public GuiScreenCanvas(GuiScreen parent)
+	public GuiScreenCanvas(Screen parent)
 	{
+	    super(new StringTextComponent("BQ SCREEN"));
 		this.parent = parent;
 	}
-	
-	/*@Override
-    public IGuiRect getRootTransform()
-    {
-        return this.rootTransform;
-    }
-    
-    @Override
-    public void forceFocus(@Nonnull IGuiPanel panel)
-    {
-    
-    }
-    
-    @Override
-    public void resetFocus()
-    {
-    
-    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
@@ -68,14 +46,12 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         panel.getTransform().setParent(rootTransform);
         popup = panel;
         panel.initPanel();
-        //forceFocus(panel);
     }
     
     @Override
     public void closePopup()
     {
         popup = null;
-        //resetFocus();
     }
     
     @Override
@@ -113,19 +89,19 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	 * Use initPanel() for embed support
 	 */
 	@Override
-	public final void initGui()
+	public final void init()
 	{
-		super.initGui();
+		super.init();
 		
 		initPanel();
 	}
 	
 	@Override
-    public void onGuiClosed()
+    public void onClose()
     {
-    	super.onGuiClosed();
+    	super.onClose();
 		
-		Keyboard.enableRepeatEvents(false);
+    	this.minecraft.keyboardListener.enableRepeatEvents(false);
     }
 	
 	@Override
@@ -146,12 +122,8 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         }
 		
 		this.guiPanels.clear();
-        Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
         
-	    if(popup != null)
-        {
-            popup = null;
-        }
+	    if(popup != null) popup = null;
 	}
 	
 	@Override
@@ -171,15 +143,15 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	 * Use initPanel() for embed support
 	 */
 	@Override
-	public final void drawScreen(int mx, int my, float partialTick)
+	public final void render(int mx, int my, float partialTick)
 	{
-		super.drawScreen(mx, my, partialTick);
+		super.render(mx, my, partialTick);
 		
-		if(useDefaultBG) this.drawDefaultBackground();
+		if(useDefaultBG) this.renderBackground();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1F, 1F, 1F, 1F);
-		GlStateManager.disableDepth();
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
+		GlStateManager.disableDepthTest();
 		
 		this.drawPanel(mx, my, partialTick);
 		
@@ -187,56 +159,33 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 		
 		if(tt != null && tt.size() > 0)
 		{
-			this.drawHoveringText(tt, mx, my);
+			this.renderTooltip(tt, mx, my);
 		}
 		
-		GlStateManager.enableDepth();
+		GlStateManager.enableDepthTest();
 		GlStateManager.popMatrix();
 	}
 	
-	/**
-	 * Use panel buttons and the event broadcaster
-	 */
 	@Override
-	@Deprecated
-	public void actionPerformed(GuiButton button)
-	{
-	}
-	
-	// Remembers the last mouse buttons states. Required to fire release events
-	private boolean[] mBtnState = new boolean[3];
-	
-	@Override
-	public void handleMouseInput() throws IOException
-	{
-		super.handleMouseInput();
-		
-        int i = Mouse.getEventX() * width / mc.displayWidth;
-        int j = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-        int k = Mouse.getEventButton();
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        boolean flag = Mouse.getEventButtonState();
-        
-        if(k >= 0 && k < 3 && mBtnState[k] != flag)
-        {
-        	if(flag)
-        	{
-        		this.onMouseClick(i, j, k);
-        	} else
-        	{
-        		this.onMouseRelease(i, j, k);
-        	}
-        	mBtnState[k] = flag;
-        }
-        
-        if(SDX != 0)
-        {
-        	this.onMouseScroll(i, j, SDX);
-        }
-	}
+    public boolean mouseClicked(double mx, double my, int button)
+    {
+        return this.onMouseClick((int)Math.floor(mx), (int)Math.floor(my), button);
+    }
+    
+    @Override
+    public boolean mouseReleased(double mx, double my, int button)
+    {
+        return this.onMouseRelease((int)Math.floor(mx), (int)Math.floor(my), button);
+    }
 	
 	@Override
-    public void keyTyped(char c, int keyCode)
+    public boolean mouseScrolled(double mx, double my, double scroll)
+    {
+        return scroll != 0 && this.onMouseScroll((int)Math.floor(mx), (int)Math.floor(my), (int)Math.ceil(scroll));
+    }
+	
+	@Override
+    public boolean charTyped(char c, int keyCode)
     {
         if (keyCode == 1)
         {
@@ -245,14 +194,14 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
-				this.mc.displayGuiScreen(null);
-				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+				this.minecraft.displayGuiScreen(null);
+				if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
 			}
 			
-			return;
+			return true;
         }
         
-        this.onKeyTyped(c, keyCode);
+       return this.onKeyTyped(c, keyCode);
     }
 	
 	@Override
@@ -380,15 +329,15 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 			}
 		}
 		
-		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
+		if(!used && (BQ_Keybindings.openQuests.getKey().getKeyCode() == keycode || minecraft.gameSettings.keyBindInventory.getKey().getKeyCode() == keycode))
 		{
         	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
-				this.mc.displayGuiScreen(null);
-				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+				this.minecraft.displayGuiScreen(null);
+				if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
 			}
 		}
 		
@@ -446,30 +395,30 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	}
 	
 	@Override
-    public boolean doesGuiPauseGame()
+    public boolean isPauseScreen()
     {
         return false; // Halts packet handling if paused
     }
 	
 	@Override
-    protected void renderToolTip(ItemStack stack, int x, int y)
+    protected void renderTooltip(ItemStack stack, int x, int y)
     {
-        FontRenderer font = stack.getItem().getFontRenderer(stack);
-        RenderUtils.drawHoveringText(stack, this.getItemToolTip(stack), x, y, width, height, -1, (font == null ? fontRenderer : font));
+        FontRenderer itemFont = stack.getItem().getFontRenderer(stack);
+        RenderUtils.drawHoveringText(stack, this.getTooltipFromItem(stack), x, y, width, height, -1, (itemFont == null ? this.font : itemFont));
     }
 	
 	@Override
-    protected void drawHoveringText(List<String> textLines, int x, int y, @Nonnull FontRenderer font)
+    public void renderTooltip(List<String> textLines, int x, int y, @Nonnull FontRenderer font)
     {
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
 	public void confirmClose(int id)
     {
-        if(id == 0)
+        if(id == 0 && this.minecraft != null)
         {
-            this.mc.displayGuiScreen(null);
-            if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+            this.minecraft.displayGuiScreen(null);
+            if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
         }
     }
 }

@@ -1,7 +1,7 @@
 package betterquesting.api.events;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
 import betterquesting.api.nbt_doc.INbtDoc;
+import net.minecraftforge.eventbus.api.Event;
 
 /**
  * Can be used to override the JsonDocs in the editors with custom ones.

@@ -25,11 +25,11 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
@@ -53,7 +53,7 @@ public class ThemeRegistry implements IThemeRegistry
 	private final HashMap<ResourceLocation, IGuiTexture> defTextures = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiLine> defLines = new HashMap<>();
 	private final HashMap<ResourceLocation, IGuiColor> defColors = new HashMap<>();
-	private final HashMap<GuiKey<?>, Function<?, GuiScreen>> defGuis = new HashMap<>();
+	private final HashMap<GuiKey<?>, Function<?, Screen>> defGuis = new HashMap<>();
 	
 	private final HashMap<ResourceLocation, IGuiTheme> themes = new HashMap<>();
 	private final List<ResourceLocation> loadedThemes = new ArrayList<>();
@@ -74,14 +74,14 @@ public class ThemeRegistry implements IThemeRegistry
         
         setDefaultGui(PresetGUIs.EDIT_NBT, arg ->
         {
-            if(arg.value instanceof NBTTagCompound)
+            if(arg.value instanceof CompoundNBT)
             {
                 //noinspection unchecked
-                return new GuiNbtEditor(arg.parent, (NBTTagCompound)arg.value, arg.callback);
-            } else if(arg.value instanceof NBTTagList)
+                return new GuiNbtEditor(arg.parent, (CompoundNBT)arg.value, arg.callback);
+            } else if(arg.value instanceof ListNBT)
             {
                 //noinspection unchecked
-                return new GuiNbtEditor(arg.parent, (NBTTagList)arg.value, arg.callback);
+                return new GuiNbtEditor(arg.parent, (ListNBT)arg.value, arg.callback);
             } else
             {
                 return null;
@@ -154,7 +154,7 @@ public class ThemeRegistry implements IThemeRegistry
 	}
 	
 	@Override
-	public <T> void setDefaultGui(GuiKey<T> key, Function<T, GuiScreen> func)
+	public <T> void setDefaultGui(GuiKey<T> key, Function<T, Screen> func)
     {
         if(key == null || func == null)
         {
@@ -211,9 +211,9 @@ public class ThemeRegistry implements IThemeRegistry
         loadedThemes.forEach(themes::remove);
         loadedThemes.clear();
         
-        IResourceManager resManager = Minecraft.getMinecraft().getResourceManager();
+        IResourceManager resManager = Minecraft.getInstance().getResourceManager();
         
-        for(String domain : resManager.getResourceDomains())
+        for(String domain : resManager.getResourceNamespaces())
         {
             ResourceLocation res = new ResourceLocation(domain, "bq_themes.json");
             List<IResource> list;
@@ -236,7 +236,7 @@ public class ThemeRegistry implements IThemeRegistry
                         
                         if(!(je instanceof JsonObject))
                         {
-                            BetterQuesting.logger.log(Level.WARN, "Invalid theme entry at index " + i + " in " + iresource.getResourceLocation());
+                            BetterQuesting.logger.log(Level.WARN, "Invalid theme entry at index " + i + " in " + iresource.getLocation());
                             continue;
                         }
                         
@@ -244,7 +244,7 @@ public class ThemeRegistry implements IThemeRegistry
                         
                         if(jThm.has("themeType"))
                         {
-                            BetterQuesting.logger.warn("Deprecated legacy theme entry " + i + " in " + iresource.getResourceLocation());
+                            BetterQuesting.logger.warn("Deprecated legacy theme entry " + i + " in " + iresource.getLocation());
                             BetterQuesting.logger.warn("Please convert this to the new format");
                             continue;
                         }
@@ -266,7 +266,7 @@ public class ThemeRegistry implements IThemeRegistry
                             resTheme = new ResourceTheme(parentID, themeId, themeName);
                         } catch(Exception e)
                         {
-                            BetterQuesting.logger.error("Failed to load theme entry " + i + " in " + iresource.getResourceLocation(), e);
+                            BetterQuesting.logger.error("Failed to load theme entry " + i + " in " + iresource.getLocation(), e);
                             continue;
                         }
                         
@@ -281,7 +281,7 @@ public class ThemeRegistry implements IThemeRegistry
                             
                             if(gTex == null)
                             {
-                                BetterQuesting.logger.error("Failed to load texture type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
+                                BetterQuesting.logger.error("Failed to load texture type " + typeID + " for theme " + themeName + " in " + iresource.getLocation());
                                 continue;
                             }
                             
@@ -299,7 +299,7 @@ public class ThemeRegistry implements IThemeRegistry
                             
                             if(gCol == null)
                             {
-                                BetterQuesting.logger.error("Failed to load color type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
+                                BetterQuesting.logger.error("Failed to load color type " + typeID + " for theme " + themeName + " in " + iresource.getLocation());
                                 continue;
                             }
                             
@@ -317,7 +317,7 @@ public class ThemeRegistry implements IThemeRegistry
                             
                             if(gLine == null)
                             {
-                                BetterQuesting.logger.error("Failed to load line type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
+                                BetterQuesting.logger.error("Failed to load line type " + typeID + " for theme " + themeName + " in " + iresource.getLocation());
                                 continue;
                             }
                             
@@ -329,7 +329,7 @@ public class ThemeRegistry implements IThemeRegistry
                     }
                 } catch (Exception e)
                 {
-                    BetterQuesting.logger.error("Error reading bq_themes.json from " + iresource.getResourceLocation(), e);
+                    BetterQuesting.logger.error("Error reading bq_themes.json from " + iresource.getLocation(), e);
                 }
             }
         }
@@ -373,14 +373,14 @@ public class ThemeRegistry implements IThemeRegistry
 	
 	@Override
     @SuppressWarnings("unchecked")
-	public <T> GuiScreen getGui(GuiKey<T> key, T args)
+	public <T> Screen getGui(GuiKey<T> key, T args)
     {
         if(key == null) return null;
         
-        Function<T, GuiScreen> func = null;
+        Function<T, Screen> func = null;
         
         if(getCurrentTheme() != null) func = activeTheme.getGui(key);
-        if(func == null) func = (Function<T, GuiScreen>)defGuis.get(key);
+        if(func == null) func = (Function<T, Screen>)defGuis.get(key);
         
         return func == null ? null : func.apply(args);
     }
