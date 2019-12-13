@@ -1,10 +1,10 @@
 package betterquesting.network;
 
 import betterquesting.core.BetterQuesting;
+import net.minecraft.nbt.ByteArrayNBT;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.nbt.NBTTagByteArray;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
 
 import java.io.BufferedInputStream;
@@ -30,7 +30,7 @@ public final class PacketAssembly
     
     private static final int bufSize = 20480; // 20KB
 	
-	public List<NBTTagCompound> splitPacket(NBTTagCompound tags)
+	public List<CompoundNBT> splitPacket(CompoundNBT tags)
 	{
 		try
 		{
@@ -40,21 +40,21 @@ public final class PacketAssembly
 			byte[] data = baos.toByteArray();
 			baos.close();
 			int req = MathHelper.ceil(data.length/(float)bufSize);
-		    List<NBTTagCompound> pkts = new ArrayList<>(req);
+		    List<CompoundNBT> pkts = new ArrayList<>(req);
       
 			for(int p = 0; p < req; p++)
 			{
 				int idx = p*bufSize;
 				int s = Math.min(data.length - idx, bufSize);
-				NBTTagCompound container = new NBTTagCompound();
+				CompoundNBT container = new CompoundNBT();
 				byte[] part = new byte[s];
 				
 				System.arraycopy(data, idx, part, 0, s);
 				
-				container.setInteger("size", data.length); // If the buffer isn't yet created, how big is it
-				container.setInteger("index", idx); // Where should this piece start writing too
-				container.setBoolean("end", p == req - 1);
-				container.setTag("data", new NBTTagByteArray(part)); // The raw byte data to write
+				container.putInt("size", data.length); // If the buffer isn't yet created, how big is it
+				container.putInt("index", idx); // Where should this piece start writing too
+				container.putBoolean("end", p == req - 1);
+				container.put("data", new ByteArrayNBT(part)); // The raw byte data to write
 				
 				pkts.add(container);
 			}
@@ -70,10 +70,10 @@ public final class PacketAssembly
 	/**
 	 * Appends a packet onto the buffer and returns an assembled NBTTagCompound when complete
 	 */
-	public NBTTagCompound assemblePacket(UUID owner, NBTTagCompound tags)
+	public CompoundNBT assemblePacket(UUID owner, CompoundNBT tags)
 	{
-		int size = tags.getInteger("size");
-		int index = tags.getInteger("index");
+		int size = tags.getInt("size");
+		int index = tags.getInt("index");
 		boolean end = tags.getBoolean("end");
 		byte[] data = tags.getByteArray("data");
 		
@@ -103,7 +103,7 @@ public final class PacketAssembly
 			try
 			{
 				DataInputStream dis = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(tmp))));
-				NBTTagCompound tag = CompressedStreamTools.read(dis , NBTSizeTracker.INFINITE);
+				CompoundNBT tag = CompressedStreamTools.read(dis , NBTSizeTracker.INFINITE);
 				dis.close();
 				return tag;
 			} catch(Exception e)

@@ -1,13 +1,13 @@
 package betterquesting.api2.client.gui.resources.textures;
 
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.opengl.GL11;
-import betterquesting.api2.client.gui.misc.IGuiRect;
 
 public class SimpleTexture implements IGuiTexture
 {
@@ -52,19 +52,19 @@ public class SimpleTexture implements IGuiTexture
 			float dy = (sy - sa) * texBounds.getHeight() / 2F;
 			sx = sa;
 			sy = sa;
-			GlStateManager.translate(x + dx, y + dy, 0F);
+			GlStateManager.translated(x + dx, y + dy, 0F);
 		} else
 		{
-			GlStateManager.translate(x, y, 0F);
+			GlStateManager.translatef(x, y, 0F);
 		}
 		
-		GlStateManager.scale(sx, sy, 1F);
+		GlStateManager.scalef(sx, sy, 1F);
 		color.applyGlColor();
 		
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 		
-		Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+		Minecraft.getInstance().getTextureManager().bindTexture(texture);
 		GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY(), texBounds.getWidth(), texBounds.getHeight(), zLevel);
 		
 		GlStateManager.popMatrix();

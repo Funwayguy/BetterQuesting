@@ -14,18 +14,18 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Level;
 
 import java.util.List;
@@ -45,15 +45,15 @@ public class NetQuestEdit
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    public static void sendEdit(NBTTagCompound payload) // TODO: Make these use proper methods for each action rather than directly assembling the payload
+    @OnlyIn(Dist.CLIENT)
+    public static void sendEdit(CompoundNBT payload) // TODO: Make these use proper methods for each action rather than directly assembling the payload
     {
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
     {
-        EntityPlayerMP sender = message.getSecond();
+        ServerPlayerEntity sender = message.getB();
         MinecraftServer server = sender.getServer();
         if(server == null) return; // Here mostly just to keep intellisense happy
         
@@ -62,19 +62,19 @@ public class NetQuestEdit
 		if(!isOP) // OP pre-check
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to edit quests without OP permissions!");
-			sender.sendStatusMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"), true);
+			sender.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "You need to be OP to edit quests!"), true);
 			return; // Player is not operator. Do nothing
 		}
 		
-		NBTTagCompound tag = message.getFirst();
+		CompoundNBT tag = message.getA();
 		UUID senderID = QuestingAPI.getQuestingUUID(sender);
-		int action = !message.getFirst().hasKey("action", 99) ? -1 : message.getFirst().getInteger("action");
+		int action = !message.getA().contains("action", 99) ? -1 : message.getA().getInt("action");
 		
 		switch(action)
         {
             case 0:
             {
-                editQuests(tag.getTagList("data", 10));
+                editQuests(tag.getList("data", 10));
                 break;
             }
             case 1:
@@ -90,28 +90,28 @@ public class NetQuestEdit
             }
             case 3:
             {
-                createQuests(tag.getTagList("data", 10));
+                createQuests(tag.getList("data", 10));
                 break;
             }
             default:
             {
-                BetterQuesting.logger.log(Level.ERROR, "Invalid quest edit action '" + action + "'. Full payload:\n" + message.getFirst().toString());
+                BetterQuesting.logger.log(Level.ERROR, "Invalid quest edit action '" + action + "'. Full payload:\n" + message.getA().toString());
             }
         }
     }
     
     // Serverside only
-    public static void editQuests(NBTTagList data)
+    public static void editQuests(ListNBT data)
     {
-        int[] ids = new int[data.tagCount()];
-        for(int i = 0; i < data.tagCount(); i++)
+        int[] ids = new int[data.size()];
+        for(int i = 0; i < data.size(); i++)
         {
-            NBTTagCompound entry = data.getCompoundTagAt(i);
-            int questID = entry.getInteger("questID");
+            CompoundNBT entry = data.getCompound(i);
+            int questID = entry.getInt("questID");
             ids[i] = questID;
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
-            if(quest != null) quest.readFromNBT(entry.getCompoundTag("config"));
+            if(quest != null) quest.readFromNBT(entry.getCompound("config"));
         }
     
         SaveLoadHandler.INSTANCE.markDirty();
@@ -129,9 +129,9 @@ public class NetQuestEdit
         
         SaveLoadHandler.INSTANCE.markDirty();
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("questIDs", questIDs);
-        payload.setInteger("action", 1);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("questIDs", questIDs);
+        payload.putInt("action", 1);
         PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload));
     }
     
@@ -175,38 +175,38 @@ public class NetQuestEdit
         
         SaveLoadHandler.INSTANCE.markDirty();
         
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server == null) return;
-        EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(targetID);
+        ServerPlayerEntity player = server.getPlayerList().getPlayerByUUID(targetID);
         //noinspection ConstantConditions
         if(player == null) return;
         NetQuestSync.sendSync(player, questIDs, false, true);
     }
     
     // Serverside only
-    public static void createQuests(NBTTagList data)
+    public static void createQuests(ListNBT data)
     {
-        int[] ids = new int[data.tagCount()];
-        for(int i = 0; i < data.tagCount(); i++)
+        int[] ids = new int[data.size()];
+        for(int i = 0; i < data.size(); i++)
         {
-            NBTTagCompound entry = data.getCompoundTagAt(i);
-            int questID = entry.hasKey("questID", 99) ? entry.getInteger("questID") : -1;
+            CompoundNBT entry = data.getCompound(i);
+            int questID = entry.contains("questID", 99) ? entry.getInt("questID") : -1;
             if(questID < 0) questID = QuestDatabase.INSTANCE.nextID();
             ids[i] = questID;
             
             IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
             if(quest == null) quest = QuestDatabase.INSTANCE.createNew(questID);
-            if(entry.hasKey("config", 10)) quest.readFromNBT(entry.getCompoundTag("config"));
+            if(entry.contains("config", 10)) quest.readFromNBT(entry.getCompound("config"));
         }
         
         SaveLoadHandler.INSTANCE.markDirty();
         NetQuestSync.sendSync(null, ids, true, false);
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message) // Imparts edit specific changes
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message) // Imparts edit specific changes
     {
-		int action = !message.hasKey("action", 99) ? -1 : message.getInteger("action");
+		int action = !message.contains("action", 99) ? -1 : message.getInt("action");
 		
 		if(action == 1) // Change to a switch statement when more actions are required
         {

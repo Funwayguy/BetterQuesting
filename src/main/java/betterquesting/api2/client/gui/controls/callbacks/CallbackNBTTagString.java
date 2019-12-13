@@ -1,25 +1,27 @@
 package betterquesting.api2.client.gui.controls.callbacks;
 
 import betterquesting.api.misc.ICallback;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
+
+import javax.annotation.Nonnull;
 
 public class CallbackNBTTagString implements ICallback<String>
 {
-    private final NBTBase tag;
+    private final INBT tag;
     private final String sKey;
     private final int iKey;
     
-    public CallbackNBTTagString(NBTTagCompound tag, String key)
+    public CallbackNBTTagString(@Nonnull CompoundNBT tag, @Nonnull String key)
     {
         this.tag = tag;
         this.sKey = key;
         this.iKey = -1;
     }
     
-    public CallbackNBTTagString(NBTTagList tag, int key)
+    public CallbackNBTTagString(@Nonnull ListNBT tag, int key)
     {
         this.tag = tag;
         this.sKey = null;
@@ -29,12 +31,12 @@ public class CallbackNBTTagString implements ICallback<String>
     @Override
     public void setValue(String value)
     {
-        if(tag.getId() == 10)
+        if(tag.getId() == 10 && sKey != null)
         {
-            ((NBTTagCompound)tag).setString(sKey, value);
-        } else
+            ((CompoundNBT)tag).putString(sKey, value);
+        } else if(tag.getId() == 9)
         {
-            ((NBTTagList)tag).set(iKey, new NBTTagString(value));
+            ((ListNBT)tag).set(iKey, new StringNBT(value));
         }
     }
 }

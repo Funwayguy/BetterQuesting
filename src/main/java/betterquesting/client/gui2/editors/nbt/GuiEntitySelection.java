@@ -29,8 +29,10 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import org.lwjgl.input.Keyboard;
@@ -42,12 +44,12 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
     
     private PanelEntityPreview pnPreview;
     
-    public GuiEntitySelection(GuiScreen parent, NBTTagCompound tag, ICallback<Entity> callback)
+    public GuiEntitySelection(Screen parent, CompoundNBT tag, ICallback<Entity> callback)
     {
-        this(parent, JsonHelper.JsonToEntity(tag, Minecraft.getMinecraft().world), callback);
+        this(parent, JsonHelper.JsonToEntity(tag, Minecraft.getInstance().world), callback);
     }
     
-    public GuiEntitySelection(GuiScreen parent, Entity entity, ICallback<Entity> callback)
+    public GuiEntitySelection(Screen parent, Entity entity, ICallback<Entity> callback)
     {
         super(parent);
         this.selEntity = entity;
@@ -59,7 +61,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -92,7 +94,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
         pnPreview = new PanelEntityPreview(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 32), 0), selEntity);
         cvBackground.addPanel(pnPreview);
         
-        pnPreview.setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D)));
+        pnPreview.setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float)(System.currentTimeMillis()%30000L / 30000D * 360D)));
         
         // === DIVIDERS ===
         
@@ -128,10 +130,10 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
                 QuestingAPI.getLogger().error("Unable to return entity selection!", e);
             }
             
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
         {
-            Entity e = EntityList.newEntity(((PanelButtonStorage<EntityEntry>)btn).getStoredValue().getEntityClass(), this.mc.world);
+            Entity e = EntityList.newEntity(((PanelButtonStorage<EntityEntry>)btn).getStoredValue().getEntityClass(), this.minecraft.world);
             
             if(e != null)
             {

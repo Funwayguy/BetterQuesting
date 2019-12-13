@@ -10,17 +10,17 @@ import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
 
 public class NetChapterEdit
@@ -37,15 +37,15 @@ public class NetChapterEdit
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    public static void sendEdit(NBTTagCompound payload) // TODO: Make these use proper methods for each action rather than directly assembling the payload
+    @OnlyIn(Dist.CLIENT)
+    public static void sendEdit(CompoundNBT payload) // TODO: Make these use proper methods for each action rather than directly assembling the payload
     {
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
     {
-        EntityPlayerMP sender = message.getSecond();
+        ServerPlayerEntity sender = message.getB();
         MinecraftServer server = sender.getServer();
         if(server == null) return; // Here mostly just to keep intellisense happy
         
@@ -54,18 +54,18 @@ public class NetChapterEdit
 		if(!isOP) // OP pre-check
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to edit chapters without OP permissions!");
-			sender.sendStatusMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"), true);
+			sender.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "You need to be OP to edit quests!"), true);
 			return; // Player is not operator. Do nothing
 		}
 		
-		NBTTagCompound tag = message.getFirst();
-		int action = !message.getFirst().hasKey("action", 99) ? -1 : message.getFirst().getInteger("action");
+		CompoundNBT tag = message.getA();
+		int action = !message.getA().contains("action", 99) ? -1 : message.getA().getInt("action");
 		
 		switch(action)
         {
             case 0:
             {
-                editChapters(tag.getTagList("data", 10));
+                editChapters(tag.getList("data", 10));
                 break;
             }
             case 1:
@@ -80,27 +80,27 @@ public class NetChapterEdit
             }
             case 3:
             {
-                createChapters(tag.getTagList("data", 10));
+                createChapters(tag.getList("data", 10));
                 break;
             }
             default:
             {
-                BetterQuesting.logger.log(Level.ERROR, "Invalid chapter edit action '" + action + "'. Full payload:\n" + message.getFirst().toString());
+                BetterQuesting.logger.log(Level.ERROR, "Invalid chapter edit action '" + action + "'. Full payload:\n" + message.getA().toString());
             }
         }
     }
     
-    private static void editChapters(NBTTagList data)
+    private static void editChapters(ListNBT data)
     {
-        int[] ids = new int[data.tagCount()];
-        for(int i = 0; i < data.tagCount(); i++)
+        int[] ids = new int[data.size()];
+        for(int i = 0; i < data.size(); i++)
         {
-            NBTTagCompound entry = data.getCompoundTagAt(i);
-            int chapterID = entry.getInteger("chapterID");
+            CompoundNBT entry = data.getCompound(i);
+            int chapterID = entry.getInt("chapterID");
             ids[i] = chapterID;
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
-            if(chapter != null) chapter.readFromNBT(entry.getCompoundTag("config"), false);
+            if(chapter != null) chapter.readFromNBT(entry.getCompound("config"), false);
         }
     
         SaveLoadHandler.INSTANCE.markDirty();
@@ -116,9 +116,9 @@ public class NetChapterEdit
         
         SaveLoadHandler.INSTANCE.markDirty();
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("chapterIDs", chapterIDs);
-        payload.setInteger("action", 1);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("chapterIDs", chapterIDs);
+        payload.putInt("action", 1);
         PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload));
     }
     
@@ -131,35 +131,35 @@ public class NetChapterEdit
         
         SaveLoadHandler.INSTANCE.markDirty();
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("chapterIDs", chapterIDs);
-        payload.setInteger("action", 2);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("chapterIDs", chapterIDs);
+        payload.putInt("action", 2);
         PacketSender.INSTANCE.sendToAll(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void createChapters(NBTTagList data) // Includes future copy potential
+    private static void createChapters(ListNBT data) // Includes future copy potential
     {
-        int[] ids = new int[data.tagCount()];
-        for(int i = 0; i < data.tagCount(); i++)
+        int[] ids = new int[data.size()];
+        for(int i = 0; i < data.size(); i++)
         {
-            NBTTagCompound entry = data.getCompoundTagAt(i);
-            int chapterID = entry.hasKey("chapterID", 99) ? entry.getInteger("chapterID") : -1;
+            CompoundNBT entry = data.getCompound(i);
+            int chapterID = entry.contains("chapterID", 99) ? entry.getInt("chapterID") : -1;
             if(chapterID < 0) chapterID = QuestLineDatabase.INSTANCE.nextID();
             ids[i] = chapterID;
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
             if(chapter == null) chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
-            if(entry.hasKey("config", 10)) chapter.readFromNBT(entry.getCompoundTag("config"), false);
+            if(entry.contains("config", 10)) chapter.readFromNBT(entry.getCompound("config"), false);
         }
         
         SaveLoadHandler.INSTANCE.markDirty();
         NetChapterSync.sendSync(null, ids);
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-		int action = !message.hasKey("action", 99) ? -1 : message.getInteger("action");
+		int action = !message.contains("action", 99) ? -1 : message.getInt("action");
 		
 		switch(action) // Change to a switch statement when more actions are required
         {

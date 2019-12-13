@@ -23,9 +23,9 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TextFormatting;
-import org.lwjgl.input.Keyboard;
 
 public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
@@ -34,7 +34,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
     
     private PanelTextField<String> flText;
     
-    public GuiTextEditor(GuiScreen parent, String text, ICallback<String> callback)
+    public GuiTextEditor(Screen parent, String text, ICallback<String> callback)
     {
         super(parent);
         
@@ -48,7 +48,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
         super.initPanel();
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -98,7 +98,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
         {
             String format = ((PanelButtonStorage<String>)btn).getStoredValue();
@@ -107,9 +107,9 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
     }
     
     @Override
-    public void onGuiClosed()
+    public void onClose()
     {
-        super.onGuiClosed();
+        super.onClose();
         
         if(callback != null)
         {

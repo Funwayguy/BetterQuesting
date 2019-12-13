@@ -7,9 +7,8 @@ import betterquesting.api.questing.party.IPartyDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,36 +74,29 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList json, List<Integer> subset)
+	public synchronized ListNBT writeToNBT(ListNBT json, List<Integer> subset)
 	{
 		for(DBEntry<IParty> entry : getEntries())
 		{
 		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jp = entry.getValue().writeToNBT(new NBTTagCompound());
-			jp.setInteger("partyID", entry.getID());
-			json.appendTag(jp);
+			CompoundNBT jp = entry.getValue().writeToNBT(new CompoundNBT());
+			jp.putInt("partyID", entry.getID());
+			json.add(jp);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagList json, boolean merge)
+	public synchronized void readFromNBT(ListNBT json, boolean merge)
 	{
 		if(!merge) reset();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTBase element = json.get(i);
+			CompoundNBT jp = json.getCompound(i);
 			
-			if(element.getId() != 10)
-			{
-				continue;
-			}
-			
-			NBTTagCompound jp = (NBTTagCompound)element;
-			
-			int partyID = jp.hasKey("partyID", 99) ? jp.getInteger("partyID") : -1;
+			int partyID = jp.contains("partyID", 99) ? jp.getInt("partyID") : -1;
 			
 			if(partyID < 0)
 			{

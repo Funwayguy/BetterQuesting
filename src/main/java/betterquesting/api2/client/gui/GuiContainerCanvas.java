@@ -9,26 +9,27 @@ import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 // This will probably be rewritten at a later date once I reimplement Minecraft's inventory controls natively into their own isolated canvas elements
-public class GuiContainerCanvas extends GuiContainer implements IScene
+public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
 	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
@@ -38,14 +39,14 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 	private boolean useDefaultBG = false;
 	private boolean isVolatile = false;
 	
-	public final GuiScreen parent;
+	public final Screen parent;
 	
 	private IGuiPanel popup = null;
 	//private IGuiPanel focused = null;
 	
-    public GuiContainerCanvas(GuiScreen parent, Container container)
+    public GuiContainerCanvas(Screen parent, T container)
     {
-        super(container);
+        super(container, Minecraft.getInstance().player.inventory, new StringTextComponent("BQ CONTAINER SCREEN"));
         this.parent = parent;
     }
     
@@ -116,9 +117,9 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 	 * Use initPanel() for embed support
 	 */
 	@Override
-	public final void initGui()
+	public final void init()
 	{
-		super.initGui();
+		super.init();
 		
 		// Make the container somewhat behave using the root transform bounds
 		this.guiLeft = 0;
@@ -130,11 +131,11 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 	}
 	
 	@Override
-    public void onGuiClosed()
+    public void onClose()
     {
-    	super.onGuiClosed();
+    	super.onClose();
 		
-		Keyboard.enableRepeatEvents(false);
+		Minecraft.getInstance().keyboardListener.enableRepeatEvents(false);
     }
 	
 	@Override
@@ -173,70 +174,47 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
     {
-		if(useDefaultBG) this.drawDefaultBackground();
+		if(useDefaultBG) this.renderBackground();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1F, 1F, 1F, 1F);
-		GlStateManager.disableDepth();
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
+		GlStateManager.disableDepthTest();
 		
 		this.drawPanel(mx, my, partialTick);
 		
-		GlStateManager.enableDepth();
+		GlStateManager.enableDepthTest();
 		GlStateManager.popMatrix();
     }
     
     @Override
-    public void drawScreen(int mx, int my, float partialTick)
+    public void render(int mx, int my, float partialTick)
     {
-        super.drawScreen(mx, my, partialTick);
+        super.render(mx, my, partialTick);
 		
 		List<String> tt = this.getTooltip(mx, my);
-		if(tt != null && tt.size() > 0) this.drawHoveringText(tt, mx, my);
+		if(tt != null && tt.size() > 0) this.renderTooltip(tt, mx, my, font);
     }
 	
-	/**
-	 * Use panel buttons and the event broadcaster
-	 */
 	@Override
-	@Deprecated
-	public void actionPerformed(GuiButton button)
-	{
-	}
-	
-	// Remembers the last mouse buttons states. Required to fire release events
-	private boolean[] mBtnState = new boolean[3];
-	
-	@Override
-	public void handleMouseInput() throws IOException
-	{
-		super.handleMouseInput();
-		
-        int i = Mouse.getEventX() * width / mc.displayWidth;
-        int j = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-        int k = Mouse.getEventButton();
-        int SDX = (int)-Math.signum(Mouse.getEventDWheel());
-        boolean flag = Mouse.getEventButtonState();
-        
-        if(k >= 0 && k < 3 && mBtnState[k] != flag)
-        {
-        	if(flag)
-        	{
-        		this.onMouseClick(i, j, k);
-        	} else
-        	{
-        		this.onMouseRelease(i, j, k);
-        	}
-        	mBtnState[k] = flag;
-        }
-        
-        if(SDX != 0)
-        {
-        	this.onMouseScroll(i, j, SDX);
-        }
-	}
+    public boolean mouseClicked(double mx, double my, int button)
+    {
+        return super.mouseClicked(mx, my, button) || this.onMouseClick((int)Math.floor(mx), (int)Math.floor(my), button);
+    }
+    
+    @Override
+    public boolean mouseReleased(double mx, double my, int button)
+    {
+        return super.mouseReleased(mx, my, button) || this.onMouseRelease((int)Math.floor(mx), (int)Math.floor(my), button);
+    }
 	
 	@Override
-    public void keyTyped(char c, int keyCode)
+    public boolean mouseScrolled(double mx, double my, double scroll)
+    {
+        return scroll != 0 && (super.mouseScrolled(mx, my, scroll) || this.onMouseScroll((int)Math.floor(mx), (int)Math.floor(my), (int)Math.ceil(scroll)));
+    }
+	
+	@Override
+    public boolean charTyped(char c, int keyCode)
     {
         if (keyCode == 1)
         {
@@ -245,14 +223,14 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
-				this.mc.displayGuiScreen(null);
-				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+				this.minecraft.displayGuiScreen(null);
+				if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
 			}
 			
-			return;
+			return true;
         }
         
-        this.onKeyTyped(c, keyCode);
+        return super.charTyped(c, keyCode) || this.onKeyTyped(c, keyCode);
     }
 	
 	@Override
@@ -380,15 +358,15 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 			}
 		}
 		
-		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
+		if(!used && (BQ_Keybindings.openQuests.getKey().getKeyCode() == keycode || minecraft.gameSettings.keyBindInventory.getKey().getKeyCode() == keycode))
 		{
         	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
-				this.mc.displayGuiScreen(null);
-				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+				this.minecraft.displayGuiScreen(null);
+				if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
 			}
 		}
 		
@@ -418,11 +396,11 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 		
 		if(tt == null)
         {
-            for(Slot slot : this.inventorySlots.inventorySlots)
+            for(Slot slot : getContainer().inventorySlots)
             {
                 if(slot.isEnabled() && slot.getHasStack() && isPointInRegion(slot.xPos, slot.yPos, 16, 16, mx, my))
                 {
-                    tt = slot.getStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+                    tt = convertComponents(slot.getStack().getTooltip(minecraft.player, minecraft.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
                     return tt.size() <= 0 ? null : tt;
                 }
             }
@@ -458,40 +436,39 @@ public class GuiContainerCanvas extends GuiContainer implements IScene
 	}
 	
 	@Override
-    public boolean doesGuiPauseGame()
+    public boolean isPauseScreen()
     {
         return false; // Halts packet handling if paused
     }
 	
-	/**
-	 * Should be using PanelButton instead when using a Canvas
-	 */
 	@Override
-	@Deprecated
-	public <T extends GuiButton> T addButton(T button)
-	{
-		return super.addButton(button);
-	}
-	
-	@Override
-    protected void renderToolTip(ItemStack stack, int x, int y)
+    protected void renderTooltip(ItemStack stack, int x, int y)
     {
-        FontRenderer font = stack.getItem().getFontRenderer(stack);
-        RenderUtils.drawHoveringText(stack, this.getItemToolTip(stack), x, y, width, height, -1, (font == null ? fontRenderer : font));
+        FontRenderer itemFont = stack.getItem().getFontRenderer(stack);
+        RenderUtils.drawHoveringText(stack, this.getTooltipFromItem(stack), x, y, width, height, -1, (itemFont == null ? font : itemFont));
     }
 	
 	@Override
-    protected void drawHoveringText(List<String> textLines, int x, int y, FontRenderer font)
+    public void renderTooltip(List<String> textLines, int x, int y, FontRenderer itemFont)
     {
-        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
+        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, itemFont);
     }
 	
 	public void confirmClose(int id)
     {
         if(id == 0)
         {
-            this.mc.displayGuiScreen(null);
-            if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+            this.minecraft.displayGuiScreen(null);
+            if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
         }
+    }
+    
+    private List<String> convertComponents(List<ITextComponent> comList)
+    {
+        if(comList == null || comList.size() == 0) return Collections.emptyList();
+        
+        List<String> list = new ArrayList<>();
+        comList.forEach((com) -> list.add(com.getFormattedText()));
+        return list;
     }
 }

@@ -20,8 +20,8 @@ import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -88,7 +88,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
     public void readProgressFromJson(JsonElement json)
     {
         if(!json.isJsonObject()) return;
-        QuestDatabase.INSTANCE.readProgressFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true).getTagList("questProgress", 10), false);
+        QuestDatabase.INSTANCE.readProgressFromNBT(NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new CompoundNBT(), true).getList("questProgress", 10), false);
     }
 	
 	public void readLineDatabase(JsonArray jAry)
@@ -123,7 +123,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		quest.setProperty(NativeProps.REPEAT_TIME, JsonHelper.GetNumber(json, "repeatTime", 2000).intValue());
 		quest.setProperty(NativeProps.LOGIC_QUEST, EnumLogic.valueOf(JsonHelper.GetString(json, "logic", "AND")));
 		quest.setProperty(NativeProps.LOGIC_TASK, EnumLogic.valueOf(JsonHelper.GetString(json, "taskLogic", "AND")));
-		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new NBTTagCompound(), true)));
+		quest.setProperty(NativeProps.ICON, JsonHelper.JsonToItemStack(NBTConverter.JSONtoNBT_Object(JsonHelper.GetObject(json, "icon"), new CompoundNBT(), true)));
 		
 		JsonArray reqAry = JsonHelper.GetArray(json, "preRequisites");
 		int[] req = new int[reqAry.size()];
@@ -140,7 +140,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 		}
 		quest.setRequirements(req);
 		
-		IDatabaseNBT<ITask, NBTTagList, NBTTagList> taskDB = quest.getTasks();
+		IDatabaseNBT<ITask, ListNBT, ListNBT> taskDB = quest.getTasks();
 		List<ITask> uaTasks = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "tasks"))
@@ -168,7 +168,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
-			NBTTagCompound nbtTask = NBTConverter.JSONtoNBT_Object(jsonTask, new NBTTagCompound(), true);
+			CompoundNBT nbtTask = NBTConverter.JSONtoNBT_Object(jsonTask, new CompoundNBT(), true);
 			
 			if(task != null)
 			{
@@ -201,7 +201,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 			taskDB.add(taskDB.nextID(), t);
 		}
 		
-		IDatabaseNBT<IReward, NBTTagList, NBTTagList> rewardDB = quest.getRewards();
+		IDatabaseNBT<IReward, ListNBT, ListNBT> rewardDB = quest.getRewards();
 		List<IReward> unassigned = new ArrayList<>();
 		
 		for(JsonElement entry : JsonHelper.GetArray(json, "rewards"))
@@ -229,7 +229,7 @@ public final class LegacyLoader_v0 implements ILegacyLoader
 				}
 			}
 			
-			NBTTagCompound nbtReward = NBTConverter.JSONtoNBT_Object(jsonReward, new NBTTagCompound(), true);
+			CompoundNBT nbtReward = NBTConverter.JSONtoNBT_Object(jsonReward, new CompoundNBT(), true);
 			
 			if(reward != null)
 			{

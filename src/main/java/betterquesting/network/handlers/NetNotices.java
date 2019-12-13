@@ -5,12 +5,12 @@ import betterquesting.client.QuestNotification;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -27,13 +27,13 @@ public class NetNotices
         }
     }
     
-    public static void sendNotice(@Nullable EntityPlayerMP[] players, ItemStack icon, String mainText, String subText, String sound)
+    public static void sendNotice(@Nullable ServerPlayerEntity[] players, ItemStack icon, String mainText, String subText, String sound)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("icon", (icon != null ? icon : ItemStack.EMPTY).writeToNBT(new NBTTagCompound()));
-        if(mainText != null) payload.setString("mainText", mainText);
-        if(subText != null) payload.setString("subText", subText);
-        if(sound != null) payload.setString("sound", sound);
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("icon", (icon != null ? icon : ItemStack.EMPTY).write(new CompoundNBT()));
+        if(mainText != null) payload.putString("mainText", mainText);
+        if(subText != null) payload.putString("subText", subText);
+        if(sound != null) payload.putString("sound", sound);
         
         if(players != null)
         {
@@ -44,10 +44,10 @@ public class NetNotices
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-		ItemStack stack = new ItemStack(message.getCompoundTag("icon"));
+		ItemStack stack = ItemStack.read(message.getCompound("icon"));
 		String mainTxt = message.getString("mainText");
 		String subTxt = message.getString("subText");
 		String sound = message.getString("sound");

@@ -3,8 +3,8 @@ package betterquesting.client.gui2.inventory;
 import betterquesting.blocks.TileSubmitStation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 
 public class ContainerSubmitStation extends Container

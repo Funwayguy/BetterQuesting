@@ -10,14 +10,14 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -36,21 +36,21 @@ public class NetChapterSync
         }
     }
     
-    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] chapterIDs)
+    public static void sendSync(@Nullable ServerPlayerEntity player, @Nullable int[] chapterIDs)
     {
         if(chapterIDs != null && chapterIDs.length <= 0) return;
         
         BQThreadedIO.INSTANCE.enqueue(() -> {
-            NBTTagList data = new NBTTagList();
+            ListNBT data = new ListNBT();
             final List<DBEntry<IQuestLine>> chapterSubset = chapterIDs == null ? QuestLineDatabase.INSTANCE.getEntries() : QuestLineDatabase.INSTANCE.bulkLookup(chapterIDs);
             
             for(DBEntry<IQuestLine> chapter : chapterSubset)
             {
-                NBTTagCompound entry = new NBTTagCompound();
-                entry.setInteger("chapterID", chapter.getID());
+                CompoundNBT entry = new CompoundNBT();
+                entry.putInt("chapterID", chapter.getID());
                 //entry.setInteger("order", QuestLineDatabase.INSTANCE.getOrderIndex(chapter.getID()));
-                entry.setTag("config", chapter.getValue().writeToNBT(new NBTTagCompound(), null));
-                data.appendTag(entry);
+                entry.put("config", chapter.getValue().writeToNBT(new CompoundNBT(), null));
+                data.add(entry);
             }
             
             List<DBEntry<IQuestLine>> allSort = QuestLineDatabase.INSTANCE.getSortedEntries();
@@ -60,10 +60,10 @@ public class NetChapterSync
                 aryOrder[i] = allSort.get(i).getID();
             }
             
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setBoolean("merge", chapterIDs != null);
-            payload.setTag("data", data);
-            payload.setIntArray("order", aryOrder);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putBoolean("merge", chapterIDs != null);
+            payload.put("data", data);
+            payload.putIntArray("order", aryOrder);
             
             if(player == null)
             {
@@ -75,39 +75,39 @@ public class NetChapterSync
         });
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void requestSync(@Nullable int[] chapterIDs)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        if(chapterIDs != null) payload.setIntArray("requestIDs", chapterIDs);
+        CompoundNBT payload = new CompoundNBT();
+        if(chapterIDs != null) payload.putIntArray("requestIDs", chapterIDs);
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
     {
-        NBTTagCompound payload = message.getFirst();
-        int[] reqIDs = !payload.hasKey("requestIDs") ? null : payload.getIntArray("requestIDs");
-        sendSync(message.getSecond(), reqIDs);
+        CompoundNBT payload = message.getA();
+        int[] reqIDs = !payload.contains("requestIDs") ? null : payload.getIntArray("requestIDs");
+        sendSync(message.getB(), reqIDs);
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-        NBTTagList data = message.getTagList("data", 10);
+        ListNBT data = message.getList("data", 10);
         if(!message.getBoolean("merge")) QuestLineDatabase.INSTANCE.reset();
         
-        for(int i = 0; i < data.tagCount(); i++)
+        for(int i = 0; i < data.size(); i++)
         {
-            NBTTagCompound tag = data.getCompoundTagAt(i);
-            if(!tag.hasKey("chapterID", 99)) continue;
-            int chapterID = tag.getInteger("chapterID");
+            CompoundNBT tag = data.getCompound(i);
+            if(!tag.contains("chapterID", 99)) continue;
+            int chapterID = tag.getInt("chapterID");
             //int order = tag.getInteger("order");
             
             IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID); // TODO: Send to client side database
             if(chapter == null) chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
             
             //QuestLineDatabase.INSTANCE.setOrderIndex(chapterID, order);
-            chapter.readFromNBT(tag.getCompoundTag("config"), false); // Merging isn't really a problem unless a chapter is excessively sized. Can be improved later if necessary
+            chapter.readFromNBT(tag.getCompound("config"), false); // Merging isn't really a problem unless a chapter is excessively sized. Can be improved later if necessary
         }
         
         int[] aryOrder = message.getIntArray("order");

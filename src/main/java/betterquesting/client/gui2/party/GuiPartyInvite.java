@@ -29,10 +29,10 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.nbt.NBTTagCompound;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
     private int partyID;
     private PanelTextField<String> flName;
     
-    public GuiPartyInvite(GuiScreen parent)
+    public GuiPartyInvite(Screen parent)
     {
         super(parent);
     }
@@ -55,12 +55,12 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
     {
         super.initPanel();
         
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        UUID playerID = QuestingAPI.getQuestingUUID(minecraft.player);
         DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
         if(tmp == null)
         {
-            mc.displayGuiScreen(parent);
+            minecraft.displayGuiScreen(parent);
             return;
         }
         
@@ -68,7 +68,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         partyID = tmp.getID();
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -97,12 +97,12 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         cvNameList.setScrollDriverY(scNameScroll);
         
         int listWidth = cvBackground.getTransform().getWidth() - 64;
-        int nameSize = RenderUtils.getStringWidth("________________", fontRenderer);
+        int nameSize = RenderUtils.getStringWidth("________________", font);
         int columnNum = listWidth/nameSize;
         
         List<String> nameList = new ArrayList<>();
-        mc.player.connection.getPlayerInfoMap().forEach((info) -> nameList.add(info.getGameProfile().getName()));
-        for(NetworkPlayerInfo info : mc.player.connection.getPlayerInfoMap())
+        minecraft.player.connection.getPlayerInfoMap().forEach((info) -> nameList.add(info.getGameProfile().getName()));
+        for(NetworkPlayerInfo info : minecraft.player.connection.getPlayerInfoMap())
         {
             if(!nameList.contains(info.getGameProfile().getName()))
             {
@@ -143,22 +143,22 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
         {
-			NBTTagCompound payload = new NBTTagCompound();
-			payload.setInteger("action", 3);
-			payload.setInteger("partyID", partyID);
-			payload.setString("username", flName.getRawText());
-			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
+			CompoundNBT payload = new CompoundNBT();
+			payload.putInt("action", 3);
+			payload.putInt("partyID", partyID);
+			payload.putString("username", flName.getRawText());
+			payload.putLong("expiry", System.currentTimeMillis() + 60000L);
             NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setInteger("action", 3);
-            payload.setInteger("partyID", partyID);
-            payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
-			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putInt("action", 3);
+            payload.putInt("partyID", partyID);
+            payload.putString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
+			payload.putLong("expiry", System.currentTimeMillis() + 60000L);
             NetPartyAction.sendAction(payload);
         }
     }

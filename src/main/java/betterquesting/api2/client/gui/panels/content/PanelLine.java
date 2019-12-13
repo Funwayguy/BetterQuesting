@@ -1,12 +1,13 @@
 package betterquesting.api2.client.gui.panels.content;
 
-import java.util.List;
-
-import betterquesting.api2.client.gui.misc.*;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import net.minecraft.client.renderer.GlStateManager;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
+import com.mojang.blaze3d.platform.GlStateManager;
+
+import java.util.List;
 
 public class PanelLine implements IGuiPanel
 {

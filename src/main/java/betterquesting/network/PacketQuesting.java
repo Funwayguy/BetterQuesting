@@ -5,6 +5,8 @@ import betterquesting.core.BetterQuesting;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -18,7 +20,7 @@ import java.util.function.Consumer;
 
 public class PacketQuesting implements IMessage
 {
-	protected NBTTagCompound tags = new NBTTagCompound();
+	protected CompoundNBT tags = new CompoundNBT();
 	
 	@SuppressWarnings("unused")
 	public PacketQuesting() // For use only by forge
@@ -26,7 +28,7 @@ public class PacketQuesting implements IMessage
 	}
 	
 	@SuppressWarnings("WeakerAccess")
-    protected PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
+    protected PacketQuesting(CompoundNBT tags) // Use PacketDataTypes to instantiate new packets
 	{
 		this.tags = tags;
 	}
@@ -54,19 +56,19 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final EntityPlayerMP sender = ctx.getServerHandler().player;
-			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
+			final ServerPlayerEntity sender = ctx.getServerHandler().player;
+			final CompoundNBT message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
 			
 			if(message == null)
 			{
 				return null;
-			} else if(!message.hasKey("ID"))
+			} else if(!message.contains("ID"))
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side without an ID");
 				return null;
 			}
 			
-            final Consumer<Tuple<NBTTagCompound, EntityPlayerMP>> method = PacketTypeRegistry.INSTANCE.getServerHandler(new ResourceLocation(message.getString("ID")));
+            final Consumer<Tuple<CompoundNBT, ServerPlayerEntity>> method = PacketTypeRegistry.INSTANCE.getServerHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(method == null)
 			{
@@ -74,7 +76,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else if(sender != null)
 			{
-				sender.getServer().addScheduledTask(() -> method.accept(new Tuple<>(message, sender)));
+				sender.getServer().deferTask(() -> method.accept(new Tuple<>(message, sender)));
 			}
 			
 			return null;
@@ -92,18 +94,18 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
+			final CompoundNBT message = PacketAssembly.INSTANCE.assemblePacket(null, packet.tags);
 			
 			if(message == null)
 			{
 				return null;
-			} else if(!message.hasKey("ID"))
+			} else if(!message.contains("ID"))
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side without an ID");
 				return null;
 			}
 			
-			final Consumer<NBTTagCompound> method = PacketTypeRegistry.INSTANCE.getClientHandler(new ResourceLocation(message.getString("ID")));
+			final Consumer<CompoundNBT> method = PacketTypeRegistry.INSTANCE.getClientHandler(new ResourceLocation(message.getString("ID")));
 			
 			if(method == null)
 			{
@@ -111,7 +113,7 @@ public class PacketQuesting implements IMessage
 				return null;
 			} else
 			{
-				Minecraft.getMinecraft().addScheduledTask(() -> method.accept(message));
+				Minecraft.getInstance().deferTask(() -> method.accept(message));
 			}
 			
 			return null;

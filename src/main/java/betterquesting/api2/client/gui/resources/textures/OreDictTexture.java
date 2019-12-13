@@ -1,10 +1,7 @@
 package betterquesting.api2.client.gui.resources.textures;
 
 import betterquesting.api.utils.BigItemStack;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,25 +23,11 @@ public class OreDictTexture extends SlideShowTexture
             return list;
         }
         
-        for(ItemStack iStack : stack.getOreIngredient().getMatchingStacks())
+        for(Item iStack : stack.getOreIngredient().getMatchingItems())
         {
-            if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
-            {
-                NonNullList<ItemStack> subItems = NonNullList.create();
-                iStack.getItem().getSubItems(CreativeTabs.SEARCH, subItems);
-                
-                for(ItemStack sStack : subItems)
-                {
-                    BigItemStack bStack = new BigItemStack(sStack);
-                    bStack.stackSize = stack.stackSize;
-                    list.add(new ItemTexture(bStack, showCount, keepAspect));
-                }
-            } else
-            {
-                BigItemStack bStack = new BigItemStack(iStack);
-                bStack.stackSize = stack.stackSize;
-                list.add(new ItemTexture(bStack, showCount, keepAspect));
-            }
+            BigItemStack bStack = new BigItemStack(iStack);
+            bStack.stackSize = stack.stackSize;
+            list.add(new ItemTexture(bStack, showCount, keepAspect));
         }
         
         return list;

@@ -9,17 +9,18 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.BoxLine;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
-import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -176,8 +177,8 @@ public class PanelToolController implements IGuiPanel
             GlStateManager.pushMatrix();
             RenderUtils.startScissor(transform);
             
-            GlStateManager.translate(tx - lsx * zs, ty - lsy * zs, 0F);
-		    GlStateManager.scale(zs, zs, zs);
+            GlStateManager.translatef(tx - lsx * zs, ty - lsy * zs, 0F);
+		    GlStateManager.scalef(zs, zs, zs);
 		    
             if(selBounds != null)
             {
@@ -250,8 +251,8 @@ public class PanelToolController implements IGuiPanel
                 selBounds.h *= -1;
             }
             
-            boolean append = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
-            boolean subtract = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+            boolean append = Screen.hasShiftDown();//Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+            boolean subtract = Screen.hasControlDown();//Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
             
             if(!append && !subtract) selected.clear();
             
@@ -293,10 +294,10 @@ public class PanelToolController implements IGuiPanel
         if(activeTool != null)
         {
             if(activeTool.onKeyPressed(c, keycode)) return true;
-            if(activeTool.useSelection() && keycode == Keyboard.KEY_A)
+            if(activeTool.useSelection() && keycode == GLFW.GLFW_KEY_A)
             {
-                boolean append = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
-                boolean subtract = append && (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
+                boolean append = Screen.hasControlDown();//Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+                boolean subtract = append && Screen.hasShiftDown();//(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
                 
                 if(subtract)
                 {

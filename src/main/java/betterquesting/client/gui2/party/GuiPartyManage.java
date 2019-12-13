@@ -39,9 +39,9 @@ import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,7 +53,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     private PanelTextField<String> flName;
     private PanelVScrollBar scUserList;
     
-    public GuiPartyManage(GuiScreen parent)
+    public GuiPartyManage(Screen parent)
     {
         super(parent);
     }
@@ -61,13 +61,13 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        UUID playerID = QuestingAPI.getQuestingUUID(minecraft.player);
         
         DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
         if(tmp == null)
         {
-            mc.displayGuiScreen(new GuiPartyCreate(parent));
+            minecraft.displayGuiScreen(new GuiPartyCreate(parent));
             return;
         }
         
@@ -84,13 +84,13 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     {
         super.initPanel();
     
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        UUID playerID = QuestingAPI.getQuestingUUID(minecraft.player);
         
         DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
         if(tmp == null)
         {
-            mc.displayGuiScreen(new GuiPartyCreate(parent));
+            minecraft.displayGuiScreen(new GuiPartyCreate(parent));
             return;
         }
         
@@ -98,7 +98,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         partyID = tmp.getID();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-		Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // 0 = INVITE, 1 = MEMBER, 2 = ADMIN, 3 = OWNER/OP
         EnumPartyStatus status = NameCache.INSTANCE.isOP(playerID) ? EnumPartyStatus.OWNER : party.getStatus(playerID);
@@ -119,7 +119,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 64, 8, 64), 0));
         cvBackground.addPanel(cvLeftHalf);
         
-        PanelButtonStorage<String> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), mc.player.getGameProfile().getName());
+        PanelButtonStorage<String> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), minecraft.player.getGameProfile().getName());
         cvLeftHalf.addPanel(btnLeave);
         
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
@@ -158,7 +158,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         cvUserList.setScrollDriverY(scUserList);
         
         List<UUID> partyMemList = party.getMembers();
-        int elSize = RenderUtils.getStringWidth("...", fontRenderer);
+        int elSize = RenderUtils.getStringWidth("...", font);
         int cvWidth = cvUserList.getTransform().getWidth();
         boolean hardcore = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
         ItemTexture txHeart = new ItemTexture(new BigItemStack(BetterQuesting.extraLife));
@@ -168,9 +168,9 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             UUID mid = partyMemList.get(i);
             String mName = NameCache.INSTANCE.getName(mid);
             
-            if(RenderUtils.getStringWidth(mName, fontRenderer) > cvWidth - 58)
+            if(RenderUtils.getStringWidth(mName, font) > cvWidth - 58)
             {
-                mName = mc.fontRenderer.trimStringToWidth(mName, cvWidth - 58 - elSize) + "...";
+                mName = minecraft.fontRenderer.trimStringToWidth(mName, cvWidth - 58 - elSize) + "...";
             }
     
             PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiRectangle(0, i * 32, 32, 32, 0), mid, mName);
@@ -229,30 +229,30 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 2) // Invite
         {
-			mc.displayGuiScreen(new GuiPartyInvite(this));
+			minecraft.displayGuiScreen(new GuiPartyInvite(this));
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Kick/Leave
         {
             String id = ((PanelButtonStorage<String>)btn).getStoredValue();
-			NBTTagCompound payload = new NBTTagCompound();
-			payload.setInteger("action", 5);
-			payload.setInteger("partyID", partyID);
-			payload.setString("username", id);
+			CompoundNBT payload = new CompoundNBT();
+			payload.putInt("action", 5);
+			payload.putInt("partyID", partyID);
+			payload.putString("username", id);
             NetPartyAction.sendAction(payload);
 			
-			if(id.equals(mc.player.getGameProfile().getName()))
+			if(id.equals(minecraft.player.getGameProfile().getName()))
             {
                 //mc.displayGuiScreen(new GuiPartyCreate(parent));
             }
         } else if(btn.getButtonID() == 4) // Change name
         {
             party.getProperties().setProperty(NativeProps.NAME, flName.getRawText());
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setInteger("action", 2);
-            payload.setInteger("partyID", partyID);
-            payload.setTag("data", party.writeProperties(new NBTTagCompound()));
+            CompoundNBT payload = new CompoundNBT();
+            payload.putInt("action", 2);
+            payload.putInt("partyID", partyID);
+            payload.put("data", party.writeProperties(new CompoundNBT()));
             NetPartyAction.sendAction(payload);
         }
     }

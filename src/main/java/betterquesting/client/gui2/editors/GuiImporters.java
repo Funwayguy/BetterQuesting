@@ -26,8 +26,8 @@ import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.client.importers.ImporterRegistry;
 import betterquesting.network.handlers.NetImport;
-import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.io.File;
 import java.util.List;
@@ -39,7 +39,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
     private PanelTextBox impDescTX;
     private PanelButtonStorage<IImporter> impBtn;
     
-    public GuiImporters(GuiScreen parent)
+    public GuiImporters(Screen parent)
     {
         super(parent);
     }
@@ -50,7 +50,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         super.initPanel();
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -131,7 +131,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Select
         {
             IImporter imp = ((PanelButtonStorage<IImporter>)btn).getStoredValue();
@@ -143,7 +143,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         } else if(btn.getButtonID() == 2) // Import
         {
             lastImport = ((PanelButtonStorage<IImporter>)btn).getStoredValue();
-			mc.displayGuiScreen(new GuiFileBrowser(this, this, new File(".").getAbsoluteFile().getParentFile(), lastImport.getFileFilter()));
+			minecraft.displayGuiScreen(new GuiFileBrowser(this, this, new File(".").getAbsoluteFile().getParentFile(), lastImport.getFileFilter()));
         }
     }
     
@@ -165,7 +165,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
         if(questDB.size() > 0 || lineDB.size() > 0)
         {
             NetImport.sendImport(questDB, lineDB);
-            mc.displayGuiScreen(parent);
+            minecraft.displayGuiScreen(parent);
         }
     }
 }

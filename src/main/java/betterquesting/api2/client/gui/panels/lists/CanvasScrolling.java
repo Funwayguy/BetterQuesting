@@ -8,8 +8,8 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.input.Mouse;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -185,7 +185,7 @@ public class CanvasScrolling implements IGuiCanvas
 		int tx = transform.getX();
 		int ty = transform.getY();
 		
-		if(isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2))) // Extra fallback incase something used the usual release event
+		if(isDragging && (Minecraft.getInstance().mouseHelper.isLeftDown() || Minecraft.getInstance().mouseHelper.isMiddleDown())) // Extra fallback incase something used the usual release event
 		{
 			int dx = (int)((dragMX - mx) / zs);
 			int dy = (int)((dragMY - my) / zs);
@@ -244,8 +244,8 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		RenderUtils.startScissor(transform);
 		
-		GlStateManager.translate(tx - lsx * zs, ty - lsy * zs, 0F);
-		GlStateManager.scale(zs, zs, zs);
+		GlStateManager.translatef(tx - lsx * zs, ty - lsy * zs, 0F);
+		GlStateManager.scalef(zs, zs, zs);
 		
 		int smx = (int)((mx - tx) / zs) + lsx;
 		int smy = (int)((my - ty) / zs) + lsy;
@@ -333,7 +333,7 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		if(isDragging)
 		{
-			if(!Mouse.isButtonDown(0) && !Mouse.isButtonDown(2)) isDragging = false;
+			if(!Minecraft.getInstance().mouseHelper.isLeftDown() && !Minecraft.getInstance().mouseHelper.isMiddleDown()) isDragging = false;
 			return true;
 		}
 		

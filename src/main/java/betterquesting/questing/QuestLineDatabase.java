@@ -5,8 +5,8 @@ import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nullable;
@@ -66,34 +66,34 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
+	public synchronized ListNBT writeToNBT(ListNBT json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
 		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), null);
-			jObj.setInteger("lineID", entry.getID());
-			jObj.setInteger("order", getOrderIndex(entry.getID()));
-			json.appendTag(jObj);
+            CompoundNBT jObj = entry.getValue().writeToNBT(new CompoundNBT(), null);
+			jObj.putInt("lineID", entry.getID());
+			jObj.putInt("order", getOrderIndex(entry.getID()));
+			json.add(jObj);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagList json, boolean merge)
+	public synchronized void readFromNBT(ListNBT json, boolean merge)
 	{
 		if(!merge) reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
 		HashMap<Integer,Integer> orderMap = new HashMap<>();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound jql = json.getCompoundTagAt(i);
+			CompoundNBT jql = json.getCompound(i);
 			
-			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
-			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
+			int id = jql.contains("lineID", 99) ? jql.getInt("lineID") : -1;
+			int order = jql.contains("order", 99) ? jql.getInt("order") : -1;
 			
 			IQuestLine line = getValue(id);
 			if(line == null) line = new QuestLine();

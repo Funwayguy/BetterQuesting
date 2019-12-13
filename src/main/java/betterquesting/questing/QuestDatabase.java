@@ -4,8 +4,8 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -63,30 +63,30 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
     }
 	
 	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
+	public synchronized ListNBT writeToNBT(ListNBT json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jq = entry.getValue().writeToNBT(new NBTTagCompound());
+			CompoundNBT jq = entry.getValue().writeToNBT(new CompoundNBT());
 			if(subset != null && jq.isEmpty()) continue;
-			jq.setInteger("questID", entry.getID());
-			json.appendTag(jq);
+			jq.putInt("questID", entry.getID());
+			json.add(jq);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagList nbt, boolean merge)
+	public synchronized void readFromNBT(ListNBT nbt, boolean merge)
 	{
 		if(!merge) this.reset();
 		
-		for(int i = 0; i < nbt.tagCount(); i++)
+		for(int i = 0; i < nbt.size(); i++)
 		{
-			NBTTagCompound qTag = nbt.getCompoundTagAt(i);
+			CompoundNBT qTag = nbt.getCompound(i);
 			
-			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
+			int qID = qTag.contains("questID", 99) ? qTag.getInt("questID") : -1;
 			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
@@ -96,26 +96,26 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	}
 	
 	@Override
-	public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> users)
+	public synchronized ListNBT writeProgressToNBT(ListNBT json, @Nullable List<UUID> users)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
-			NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
-			jq.setInteger("questID", entry.getID());
-			json.appendTag(jq);
+			CompoundNBT jq = entry.getValue().writeProgressToNBT(new CompoundNBT(), users);
+			jq.putInt("questID", entry.getID());
+			json.add(jq);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public synchronized void readProgressFromNBT(NBTTagList json, boolean merge)
+	public synchronized void readProgressFromNBT(ListNBT json, boolean merge)
 	{
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound qTag = json.getCompoundTagAt(i);
+			CompoundNBT qTag = json.getCompound(i);
 			
-			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
+			int qID = qTag.contains("questID", 99) ? qTag.getInt("questID") : -1;
 			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);

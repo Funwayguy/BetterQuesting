@@ -1,12 +1,16 @@
 package betterquesting.client.ui_builder;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.misc.*;
-import betterquesting.api2.client.gui.panels.*;
+import betterquesting.api2.client.gui.panels.CanvasEmpty;
+import betterquesting.api2.client.gui.panels.CanvasTextured;
+import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -17,15 +21,13 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.client.gui2.editors.nbt.PanelScrollingNBT;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector4f;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -59,7 +61,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
     private int dragType = -1; // What kind of drag are we performing
     
     // TODO: Add context information about what this GUI is being built for
-    public GuiBuilderMain(GuiScreen parent)
+    public GuiBuilderMain(Screen parent)
     {
         super(parent);
         
@@ -83,11 +85,11 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
         
         // === PROPERTY TRAY ===
         
-        cvPropTray = new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 1F), new GuiPadding(0, 32, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+        cvPropTray = new CanvasTextured(new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 1F), new GuiPadding(0, 32, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvPropTray);
         cvPropTray.setEnabled(false);
         
-        btnTrayToggle = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), -16, -16, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_UP.getTexture());
+        btnTrayToggle = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 1F, 0.5F, 1F), -16, -16, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_UP.getTexture());
         btnTrayToggle.setClickAction((btn) -> {
             if(cvPropTray.isEnabled())
             {
@@ -96,7 +98,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
             {
                 ComponentPanel com = COM_DB.getValue(selectedID);
                 // TODO: Add a callback here so the component can read in changes
-                if(com != null) openTrayNBT(com.writeToNBT(new NBTTagCompound()));
+                if(com != null) openTrayNBT(com.writeToNBT(new CompoundNBT()));
             } else if(toolMode == 3)
             {
                 openTrayPalette();
@@ -111,7 +113,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
             @Override
             public void onButtonClick()
             {
-                mc.displayGuiScreen(parent);
+                minecraft.displayGuiScreen(parent);
             }
         }.setIcon(PresetIcon.ICON_CROSS.getTexture());
         this.addPanel(btnExit);
@@ -269,10 +271,10 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                     int dy = cmy - trans.getParent().getY();
                     int width = trans.getParent().getWidth();
                     int height = trans.getParent().getHeight();
-                    boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                    boolean shift = Screen.hasShiftDown();
                     
                     // Edge Bit Map = R L B T
-                    if((dragType & 1) == 1 && height > 0)
+                    /*if((dragType & 1) == 1 && height > 0)
                     {
                         trans.getAnchor().y = dy / (float)height;
                         if(shift)
@@ -310,18 +312,18 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                             trans.getAnchor().z += 0.025F;
                             trans.getAnchor().z -= trans.getAnchor().z % 0.05F;
                         }
-                    }
+                    }*/
                     
                     if(com != null) com.setTransform(trans);
                 } else if((dragType & 16) == 0 && selPn.getTransform() instanceof GuiTransform)
                 {
                     // TODO: Make this work for GuiRectangle (or just deprecate that class entirely... but legacy support uhg)
                     GuiTransform trans = (GuiTransform)selPn.getTransform();
-                    int width = MathHelper.ceil(trans.getParent().getWidth() * (trans.getAnchor().z - trans.getAnchor().x));
-                    int height = MathHelper.ceil(trans.getParent().getHeight() * (trans.getAnchor().w - trans.getAnchor().y));
-                    int dx = cmx - (trans.getParent().getX() + MathHelper.ceil(trans.getParent().getWidth() * trans.getAnchor().x));
-                    int dy = cmy - (trans.getParent().getY() + MathHelper.ceil(trans.getParent().getHeight() * trans.getAnchor().y));
-                    boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                    int width = MathHelper.ceil(trans.getParent().getWidth() * (trans.getAnchor().getZ() - trans.getAnchor().getX()));
+                    int height = MathHelper.ceil(trans.getParent().getHeight() * (trans.getAnchor().getW() - trans.getAnchor().getY()));
+                    int dx = cmx - (trans.getParent().getX() + MathHelper.ceil(trans.getParent().getWidth() * trans.getAnchor().getX()));
+                    int dy = cmy - (trans.getParent().getY() + MathHelper.ceil(trans.getParent().getHeight() * trans.getAnchor().getY()));
+                    boolean shift = Screen.hasShiftDown();
                     
                     // Edge Bit Map = R L B T
                     if((dragType & 1) == 1)
@@ -368,7 +370,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
                 }
             }
             
-            if(!Mouse.isButtonDown(0))
+            if(Minecraft.getInstance().mouseHelper.isLeftDown())
             {
                 if(dragID >= 0) refreshComponents();
                 dragID = -1;
@@ -440,11 +442,11 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
         if(rect instanceof GuiTransform)
         {
             GuiTransform trans = (GuiTransform)rect;
-            ax1 = x1 + MathHelper.floor(trans.getParent().getWidth() * trans.getAnchor().x);
-            ax2 = x1 + MathHelper.floor(trans.getParent().getWidth() * trans.getAnchor().z);
+            ax1 = x1 + MathHelper.floor(trans.getParent().getWidth() * trans.getAnchor().getX());
+            ax2 = x1 + MathHelper.floor(trans.getParent().getWidth() * trans.getAnchor().getZ());
             
-            ay1 = y1 + MathHelper.floor(trans.getParent().getHeight() * trans.getAnchor().y);
-            ay2 = y1 + MathHelper.floor(trans.getParent().getHeight() * trans.getAnchor().w);
+            ay1 = y1 + MathHelper.floor(trans.getParent().getHeight() * trans.getAnchor().getY());
+            ay2 = y1 + MathHelper.floor(trans.getParent().getHeight() * trans.getAnchor().getW());
             
             // X axis line
             drawSimpleLine(x1, midY, ax1, midY, 2, ancCol);
@@ -474,7 +476,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
     {
 		GlStateManager.pushMatrix();
 		
-		GlStateManager.disableTexture2D();
+		GlStateManager.disableTexture();
 		color.applyGlColor();
 		GL11.glLineWidth(width);
 		
@@ -484,8 +486,8 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
 		GL11.glEnd();
 		
 		GL11.glLineWidth(1F);
-		GlStateManager.enableTexture2D();
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.enableTexture();
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		
 		GlStateManager.popMatrix();
     }
@@ -710,7 +712,7 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
         return topPanel;
     }
     
-    private void openTrayNBT(NBTTagCompound tag)
+    private void openTrayNBT(CompoundNBT tag)
     {
         cvPropTray.setEnabled(true);
         cvPropTray.resetCanvas();
@@ -813,17 +815,17 @@ public class GuiBuilderMain extends GuiScreenCanvas implements IVolatileScreen
 	}
 	
 	private static final GuiTransform[] PRE_TF_SEG = new GuiTransform[]{
-        new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 0.5F), new GuiPadding(0, 0, 0, 0), 0),
         
-        new GuiTransform(new Vector4f(0F, 0F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0.5F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
         
-        new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0F, 0.5F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
-        new GuiTransform(new Vector4f(0.5F, 0.5F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0)
+        new GuiTransform(new GuiAnchor(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0F, 0.5F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0),
+        new GuiTransform(new GuiAnchor(0.5F, 0.5F, 1F, 1F), new GuiPadding(0, 0, 0, 0), 0)
     };
     
     private static final Map<Integer,GuiTransform> PRE_TF_EDGE;

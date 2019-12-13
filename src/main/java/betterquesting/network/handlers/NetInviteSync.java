@@ -8,13 +8,13 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.party.PartyInvitations;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -33,18 +33,18 @@ public class NetInviteSync
     }
     
     // If I needt to send other people's invites to players then I'll deal with that another time
-    public static void sendSync(@Nonnull EntityPlayerMP player)
+    public static void sendSync(@Nonnull ServerPlayerEntity player)
     {
-        NBTTagCompound payload = new NBTTagCompound();
+        CompoundNBT payload = new CompoundNBT();
         UUID playerID = QuestingAPI.getQuestingUUID(player);
-        payload.setTag("data", PartyInvitations.INSTANCE.writeToNBT(new NBTTagList(), Collections.singletonList(playerID)));
+        payload.put("data", PartyInvitations.INSTANCE.writeToNBT(new ListNBT(), Collections.singletonList(playerID)));
         PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), player);
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-        PartyInvitations.INSTANCE.readFromNBT(message.getTagList("data", 10), true);
+        PartyInvitations.INSTANCE.readFromNBT(message.getList("data", 10), true);
         MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.PARTY));
     }
 }

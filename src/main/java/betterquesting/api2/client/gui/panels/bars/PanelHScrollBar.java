@@ -3,9 +3,9 @@ package betterquesting.api2.client.gui.panels.bars;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class PanelHScrollBar implements IScrollBar
 	{
 		IGuiRect bounds = this.getTransform();
 		
-		if(active && isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2)))
+		if(active && isDragging && (Minecraft.getInstance().mouseHelper.isLeftDown() || Minecraft.getInstance().mouseHelper.isMiddleDown()))
 		{
 			float cx = (float)(mx - (bounds.getX() + hSize/2)) / (float)(bounds.getWidth() - hSize);
 			this.writeValue(cx);
@@ -105,7 +105,7 @@ public class PanelHScrollBar implements IScrollBar
 		}
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		
 		if(texBack != null)
 		{

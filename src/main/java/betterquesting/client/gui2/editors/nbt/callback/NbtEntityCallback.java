@@ -1,17 +1,18 @@
 package betterquesting.client.gui2.editors.nbt.callback;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.nbt.NBTTagCompound;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.PigEntity;
+import net.minecraft.nbt.CompoundNBT;
 
 public class NbtEntityCallback implements ICallback<Entity>
 {
-	private final NBTTagCompound json;
+	private final CompoundNBT json;
 	
-	public NbtEntityCallback(NBTTagCompound json)
+	public NbtEntityCallback(CompoundNBT json)
 	{
 		this.json = json;
 	}
@@ -25,7 +26,7 @@ public class NbtEntityCallback implements ICallback<Entity>
 			baseEntity = entity;
 		} else
 		{
-			baseEntity = new EntityPig(Minecraft.getMinecraft().world);
+			baseEntity = new PigEntity(EntityType.PIG, Minecraft.getInstance().world);
 		}
 		
 		JsonHelper.ClearCompoundTag(json);

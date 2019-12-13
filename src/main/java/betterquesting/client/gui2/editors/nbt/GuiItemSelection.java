@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
@@ -30,14 +31,16 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import net.minecraftforge.oredict.OreDictionary;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
@@ -49,12 +52,12 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
     private PanelItemSlot itemPreview;
     private PanelButtonStorage<Integer> btnOre;
     
-    public GuiItemSelection(GuiScreen parent, NBTTagCompound tag, ICallback<BigItemStack> callback)
+    public GuiItemSelection(Screen parent, CompoundNBT tag, ICallback<BigItemStack> callback)
     {
         this(parent, JsonHelper.JsonToItemStack(tag), callback);
     }
     
-    public GuiItemSelection(GuiScreen parent, BigItemStack stack, ICallback<BigItemStack> callback)
+    public GuiItemSelection(Screen parent, BigItemStack stack, ICallback<BigItemStack> callback)
     {
         super(parent);
         this.callback = callback;
@@ -66,7 +69,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -96,7 +99,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         
         // === TOP LEFT PANEL ===
         
-        CanvasEmpty cvTopLeft = new CanvasEmpty(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.4F), new GuiPadding(16, 32, 8, 8), 0));
+        CanvasEmpty cvTopLeft = new CanvasEmpty(new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 0.4F), new GuiPadding(16, 32, 8, 8), 0));
         cvBackground.addPanel(cvTopLeft);
         
         PanelTextBox txSelection = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.selection"));
@@ -119,10 +122,10 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         if(itemStack != null && !itemStack.getBaseStack().isEmpty() && !StringUtils.isNullOrEmpty(itemStack.getOreDict()))
         {
             oreName = itemStack.getOreDict();
-            int[] oreIds = OreDictionary.getOreIDs(itemStack.getBaseStack());
-            for(int i = 0; i < oreIds.length; i++)
+            List<ResourceLocation> oreIds = new ArrayList<>(itemStack.getBaseStack().getItem().getTags());
+            for(int i = 0; i < oreIds.size(); i++)
             {
-                if(OreDictionary.getOreName(oreIds[i]).equalsIgnoreCase(oreName))
+                if(oreIds.get(i).toString().equalsIgnoreCase(oreName))
                 {
                     oreIdx = i;
                     break;
@@ -135,14 +138,14 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         
         // === BOTTOM LEFT PANEL ===
         
-        CanvasEmpty cvBottomLeft = new CanvasEmpty(new GuiTransform(new Vector4f(0F, 0.4F, 0.5F, 1F), new GuiPadding(16, 8, 8, 32), 0));
+        CanvasEmpty cvBottomLeft = new CanvasEmpty(new GuiTransform(new GuiAnchor(0F, 0.4F, 0.5F, 1F), new GuiPadding(16, 8, 8, 32), 0));
         cvBackground.addPanel(cvBottomLeft);
         
         PanelTextBox txInvo = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("container.inventory"));
         txInvo.setColor(PresetColor.TEXT_MAIN.getColor());
         cvBottomLeft.addPanel(txInvo);
     
-        IInventory inventory = mc.player.inventory;
+        IInventory inventory = minecraft.player.inventory;
         
         float iScale = Math.min(cvBottomLeft.getTransform().getWidth() / 162F, (cvBottomLeft.getTransform().getHeight() - 20) / 72F);
         int slotSize = (int)Math.floor(18 * iScale);
@@ -201,7 +204,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
                 callback.setValue(itemStack);
             }
             
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
         {
             BigItemStack tmp = ((PanelButtonStorage<BigItemStack>)btn).getStoredValue();
@@ -215,18 +218,18 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             }
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage && itemStack != null && !itemStack.getBaseStack().isEmpty())
         {
-            int[] oreIds = OreDictionary.getOreIDs(itemStack.getBaseStack());
+            List<ResourceLocation> oreIds = new ArrayList<>(itemStack.getBaseStack().getItem().getTags());
             int idx = ((PanelButtonStorage<Integer>)btn).getStoredValue();
             idx++;
             
-            if(idx >= oreIds.length || idx < 0)
+            if(idx >= oreIds.size() || idx < 0)
             {
                 itemStack.setOreDict("");
                 ((PanelButtonStorage<Integer>)btn).setStoredValue(-1).setText("Ore: NONE");
                 itemPreview.setStoredValue(itemStack); // Refreshes OD
             } else
             {
-                itemStack.setOreDict(OreDictionary.getOreName(oreIds[idx]));
+                itemStack.setOreDict(oreIds.get(idx).toString());
                 ((PanelButtonStorage<Integer>)btn).setStoredValue(idx).setText("Ore: " + itemStack.getOreDict());
                 itemPreview.setStoredValue(itemStack); // Refreshes OD
             }

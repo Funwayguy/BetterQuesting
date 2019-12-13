@@ -5,11 +5,11 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.storage.LifeDatabase;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -27,11 +27,11 @@ public class NetLifeSync
         }
     }
     
-    public static void sendSync(@Nullable EntityPlayerMP[] players, @Nullable UUID[] playerIDs)
+    public static void sendSync(@Nullable ServerPlayerEntity[] players, @Nullable UUID[] playerIDs)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("data", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), playerIDs == null ? null : Arrays.asList(playerIDs)));
-        payload.setBoolean("merge", playerIDs != null);
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("data", LifeDatabase.INSTANCE.writeToNBT(new CompoundNBT(), playerIDs == null ? null : Arrays.asList(playerIDs)));
+        payload.putBoolean("merge", playerIDs != null);
         
         if(players != null)
         {
@@ -42,9 +42,9 @@ public class NetLifeSync
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-        LifeDatabase.INSTANCE.readFromNBT(message.getCompoundTag("data"), message.getBoolean("merge"));
+        LifeDatabase.INSTANCE.readFromNBT(message.getCompound("data"), message.getBoolean("merge"));
     }
 }

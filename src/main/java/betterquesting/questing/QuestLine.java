@@ -9,9 +9,9 @@ import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.storage.PropertyContainer;
-import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -101,36 +101,36 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json, @Nullable List<Integer> subset)
+	public CompoundNBT writeToNBT(CompoundNBT json, @Nullable List<Integer> subset)
 	{
-		json.setTag("properties", info.writeToNBT(new NBTTagCompound()));
+		json.put("properties", info.writeToNBT(new CompoundNBT()));
 		
-		NBTTagList jArr = new NBTTagList();
+		ListNBT jArr = new ListNBT();
 		
 		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
-			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound());
-			qle.setInteger("id", entry.getID());
-			jArr.appendTag(qle);
+			CompoundNBT qle = entry.getValue().writeToNBT(new CompoundNBT());
+			qle.putInt("id", entry.getID());
+			jArr.add(qle);
 		}
 		
-		json.setTag("quests", jArr);
+		json.put("quests", jArr);
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json, boolean merge)
+	public void readFromNBT(CompoundNBT json, boolean merge)
 	{
-		info.readFromNBT(json.getCompoundTag("properties"));
+		info.readFromNBT(json.getCompound("properties"));
 		
 		reset();
 		
-		NBTTagList qList = json.getTagList("quests", 10);
-		for(int i = 0; i < qList.tagCount(); i++)
+		ListNBT qList = json.getList("quests", 10);
+		for(int i = 0; i < qList.size(); i++)
 		{
-			NBTTagCompound qTag = qList.getCompoundTagAt(i);
+			CompoundNBT qTag = qList.getCompound(i);
 			
-			int id = qTag.hasKey("id", 99) ? qTag.getInteger("id") : -1;
+			int id = qTag.contains("id", 99) ? qTag.getInt("id") : -1;
 			if(id< 0) continue;
 			
 			add(id, new QuestLineEntry(qTag));

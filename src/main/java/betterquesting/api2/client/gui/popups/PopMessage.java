@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.popups;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api2.client.gui.SceneController;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.misc.GuiAlign;
@@ -14,7 +15,6 @@ import betterquesting.api2.client.gui.resources.textures.ColorTexture;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import org.lwjgl.util.vector.Vector4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,19 +43,19 @@ public class PopMessage extends CanvasEmpty
         
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1), new ColorTexture(new GuiColorStatic(0x80000000))));
     
-        CanvasTextured cvBox = new CanvasTextured(new GuiTransform(new Vector4f(0.2F, 0.3F, 0.8F, 0.6F)), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasTextured cvBox = new CanvasTextured(new GuiTransform(new GuiAnchor(0.2F, 0.3F, 0.8F, 0.6F)), PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBox);
         
         if(icon != null)
         {
-            CanvasTextured icoFrame = new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0.3F, 0.5F, 0.3F), -16, -40, 32, 32, 0), PresetTexture.PANEL_MAIN.getTexture());
+            CanvasTextured icoFrame = new CanvasTextured(new GuiTransform(new GuiAnchor(0.5F, 0.3F, 0.5F, 0.3F), -16, -40, 32, 32, 0), PresetTexture.PANEL_MAIN.getTexture());
             this.addPanel(icoFrame);
             
             icoFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), icon));
         }
         
         cvBox.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), message).setAlignment(1));
-        PanelButton btn = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0.6F, 0.5F, 0.6F), -48, 8, 96, 16, 0), -1, QuestTranslation.translate("gui.back"));
+        PanelButton btn = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 0.6F, 0.5F, 0.6F), -48, 8, 96, 16, 0), -1, QuestTranslation.translate("gui.back"));
         btn.setClickAction((b) -> {
             if(SceneController.getActiveScene() != null) SceneController.getActiveScene().closePopup();
         });

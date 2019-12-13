@@ -5,7 +5,7 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.registry.IFactoryData;
 import betterquesting.api2.registry.IRegistry;
 import betterquesting.core.BetterQuesting;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class RewardRegistry implements IRegistry<IFactoryData<IReward, NBTTagCompound>, IReward>
+public class RewardRegistry implements IRegistry<IFactoryData<IReward, CompoundNBT>, IReward>
 {
 	public static final RewardRegistry INSTANCE = new RewardRegistry();
 	
-	private final HashMap<ResourceLocation, IFactoryData<IReward, NBTTagCompound>> rewardRegistry = new HashMap<>();
+	private final HashMap<ResourceLocation, IFactoryData<IReward, CompoundNBT>> rewardRegistry = new HashMap<>();
 	
 	@Override
-	public void register(IFactoryData<IReward, NBTTagCompound> factory)
+	public void register(IFactoryData<IReward, CompoundNBT> factory)
 	{
 		if(factory == null)
 		{
@@ -39,13 +39,13 @@ public class RewardRegistry implements IRegistry<IFactoryData<IReward, NBTTagCom
 	}
 	
 	@Override
-	public IFactoryData<IReward, NBTTagCompound> getFactory(ResourceLocation registryName)
+	public IFactoryData<IReward, CompoundNBT> getFactory(ResourceLocation registryName)
 	{
 		return rewardRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IFactoryData<IReward, NBTTagCompound>> getAll()
+	public List<IFactoryData<IReward, CompoundNBT>> getAll()
 	{
 		return new ArrayList<>(rewardRegistry.values());
 	}
@@ -55,7 +55,7 @@ public class RewardRegistry implements IRegistry<IFactoryData<IReward, NBTTagCom
 	{
 		try
 		{
-			IFactoryData<? extends IReward, NBTTagCompound> factory;
+			IFactoryData<? extends IReward, CompoundNBT> factory;
 			
 			if(FactoryRewardPlaceholder.INSTANCE.getRegistryName().equals(registryName))
 			{

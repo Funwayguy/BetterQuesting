@@ -10,13 +10,14 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ChatAllowedCharacters;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
+import net.minecraft.util.text.TextFormatting;
+
 import java.util.List;
 
 public class PanelTextField<T> implements IGuiPanel
@@ -432,29 +433,29 @@ public class PanelTextField<T> implements IGuiPanel
         {
             return false;
         }
-        else if (GuiScreen.isKeyComboCtrlA(keyCode))
+        else if (Screen.isSelectAll(keyCode))
         {
             this.setCursorPosition(text.length());
             this.setSelectionPos(0);
             return true;
         }
-        else if (GuiScreen.isKeyComboCtrlC(keyCode))
+        else if (Screen.isCopy(keyCode))
         {
-            GuiScreen.setClipboardString(this.getSelectedText());
+            Minecraft.getInstance().keyboardListener.setClipboardString(this.getSelectedText());
             return true;
         }
-        else if (GuiScreen.isKeyComboCtrlV(keyCode))
+        else if (Screen.isPaste(keyCode))
         {
             if (this.isActive)
             {
-                this.writeText(GuiScreen.getClipboardString());
+                this.writeText(Minecraft.getInstance().keyboardListener.getClipboardString());
             }
 
             return true;
         }
-        else if (GuiScreen.isKeyComboCtrlX(keyCode))
+        else if (Screen.isCut(keyCode))
         {
-            GuiScreen.setClipboardString(this.getSelectedText());
+            Minecraft.getInstance().keyboardListener.setClipboardString(this.getSelectedText());
 
             if (this.isActive)
             {
@@ -469,7 +470,7 @@ public class PanelTextField<T> implements IGuiPanel
             {
                 case 14: // Backspace
                 {
-                    if(GuiScreen.isCtrlKeyDown())
+                    if(Screen.hasControlDown())
                     {
                         if(this.isActive)
                         {
@@ -493,7 +494,7 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 case 199: // Home
                 {
-                    if(GuiScreen.isShiftKeyDown())
+                    if(Screen.hasShiftDown())
                     {
                         this.setSelectionPos(0);
                     } else
@@ -505,16 +506,16 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 case 203: // Left arrow
                 {
-                    if(GuiScreen.isShiftKeyDown())
+                    if(Screen.hasShiftDown())
                     {
-                        if(GuiScreen.isCtrlKeyDown())
+                        if(Screen.hasControlDown())
                         {
                             this.setSelectionPos(this.getNthWordFromPos(-1, selectEnd));
                         } else
                         {
                             this.setSelectionPos(selectEnd - 1);
                         }
-                    } else if(GuiScreen.isCtrlKeyDown())
+                    } else if(Screen.hasControlDown())
                     {
                         this.setCursorPosition(this.getNthWordFromCursor(-1));
                     } else
@@ -526,16 +527,16 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 case 205: // Right arrow
                 {
-                    if(GuiScreen.isShiftKeyDown())
+                    if(Screen.hasShiftDown())
                     {
-                        if(GuiScreen.isCtrlKeyDown())
+                        if(Screen.hasControlDown())
                         {
                             this.setSelectionPos(this.getNthWordFromPos(1, selectEnd));
                         } else
                         {
                             this.setSelectionPos(selectEnd + 1);
                         }
-                    } else if(GuiScreen.isCtrlKeyDown())
+                    } else if(Screen.hasControlDown())
                     {
                         this.setCursorPosition(this.getNthWordFromCursor(1));
                     } else
@@ -547,7 +548,7 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 case 207: // End
                 {
-                    if(GuiScreen.isShiftKeyDown())
+                    if(Screen.hasShiftDown())
                     {
                         this.setSelectionPos(this.text.length());
                     } else
@@ -569,7 +570,7 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 case 211: // Delete
                 {
-                    if(GuiScreen.isCtrlKeyDown())
+                    if(Screen.hasControlDown())
                     {
                         if(this.isActive)
                         {
@@ -584,7 +585,7 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 default:
                 {
-                    if(ChatAllowedCharacters.isAllowedCharacter(typedChar))
+                    if(SharedConstants.isAllowedCharacter(typedChar))
                     {
                         if(this.isActive)
                         {
@@ -623,7 +624,7 @@ public class PanelTextField<T> implements IGuiPanel
         {
             this.selectEnd = position;
             
-            FontRenderer font = Minecraft.getMinecraft().fontRenderer;
+            FontRenderer font = Minecraft.getInstance().fontRenderer;
             
             if(canWrap)
             {
@@ -644,7 +645,7 @@ public class PanelTextField<T> implements IGuiPanel
                     }
                     
                     idx += s.length();
-                    lastFormat = FontRenderer.getFormatFromString(lastFormat + s);
+                    lastFormat = TextFormatting.getFormatString(lastFormat + s);
                 }
                 
                 y *= font.FONT_HEIGHT;
@@ -685,7 +686,7 @@ public class PanelTextField<T> implements IGuiPanel
     
     public void updateScrollBounds()
     {
-        FontRenderer font = Minecraft.getMinecraft().fontRenderer;
+        FontRenderer font = Minecraft.getInstance().fontRenderer;
         
         int prevX = getScrollX();
         int prevY = getScrollY();
@@ -731,14 +732,14 @@ public class PanelTextField<T> implements IGuiPanel
     @Override
     public void drawPanel(int mx, int my, float partialTick)
     {
-        if(isActive && dragging && Mouse.isButtonDown(0))
+        if(isActive && dragging && Minecraft.getInstance().mouseHelper.isLeftDown())
         {
             if(canWrap)
             {
-                setSelectionPos(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), my - (transform.getY() + 4) + getScrollY(), transform.getWidth() - 8, Minecraft.getMinecraft().fontRenderer));
+                setSelectionPos(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), my - (transform.getY() + 4) + getScrollY(), transform.getWidth() - 8, Minecraft.getInstance().fontRenderer));
             } else
             {
-                setSelectionPos(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), Minecraft.getMinecraft().fontRenderer));
+                setSelectionPos(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), Minecraft.getInstance().fontRenderer));
             }
         } else if(dragging)
         {
@@ -747,7 +748,7 @@ public class PanelTextField<T> implements IGuiPanel
         
         IGuiRect bounds = this.getTransform();
         int state = !this.isActive() ? 0 : (isFocused ? 2 : 1);
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         IGuiTexture t = texState[state];
         GlStateManager.pushMatrix();
         
@@ -757,13 +758,13 @@ public class PanelTextField<T> implements IGuiPanel
         }
         
         RenderUtils.startScissor(bounds);
-        GlStateManager.translate(-getScrollX(), -getScrollY(), 0);
+        GlStateManager.translatef(-getScrollX(), -getScrollY(), 0);
         
         if(text.length() <= 0)
         {
             if(!isFocused)
             {
-                mc.fontRenderer.drawString(watermark, bounds.getX() + 4, bounds.getY() + 4, colWatermark.getRGB(), false);
+                mc.fontRenderer.drawString(watermark, bounds.getX() + 4, bounds.getY() + 4, colWatermark.getRGB());
             }
         } else
         {
@@ -800,10 +801,10 @@ public class PanelTextField<T> implements IGuiPanel
             
             if(canWrap)
             {
-                setCursorPosition(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), my - (transform.getY() + 4) + getScrollY(), transform.getWidth() - 8, Minecraft.getMinecraft().fontRenderer));
+                setCursorPosition(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), my - (transform.getY() + 4) + getScrollY(), transform.getWidth() - 8, Minecraft.getInstance().fontRenderer));
             } else
             {
-                setCursorPosition(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), Minecraft.getMinecraft().fontRenderer));
+                setCursorPosition(RenderUtils.getCursorPos(text, mx - (transform.getX() + 4) + getScrollX(), Minecraft.getInstance().fontRenderer));
             }
             dragging = true;
             

@@ -1,7 +1,7 @@
 package betterquesting.api2.client.gui.resources.colors;
 
 import betterquesting.api.utils.RenderUtils;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 public class GuiColorPulse implements IGuiColor
 {
@@ -75,6 +75,6 @@ public class GuiColorPulse implements IGuiColor
         float r = (float)(color >> 16 & 255) / 255F;
         float g = (float)(color >> 8 & 255) / 255F;
         float b = (float)(color & 255) / 255F;
-        GlStateManager.color(r, g, b, a);
+        GlStateManager.color4f(r, g, b, a);
     }
 }

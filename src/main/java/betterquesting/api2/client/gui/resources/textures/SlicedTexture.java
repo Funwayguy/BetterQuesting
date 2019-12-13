@@ -1,17 +1,17 @@
 package betterquesting.api2.client.gui.resources.textures;
 
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.opengl.GL11;
 
 public class SlicedTexture implements IGuiTexture
 {
@@ -49,14 +49,14 @@ public class SlicedTexture implements IGuiTexture
 		color.applyGlColor();
 		
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 		
 		if(w != width || h != height)
         {
             dx = 0;
             dy = 0;
-            GlStateManager.translate(x, y, 0);
-            GlStateManager.scale(width / (double)w, height / (double)h, 1D);
+            GlStateManager.translatef(x, y, 0);
+            GlStateManager.scaled(width / (double)w, height / (double)h, 1D);
         }
 		
 		if(sliceMode == SliceMode.SLICED_TILE)
@@ -72,77 +72,77 @@ public class SlicedTexture implements IGuiTexture
 			float sx = (float)(w - (texBounds.getWidth() - iw)) / (float)iw;
 			float sy = (float)(h - (texBounds.getHeight() - ih)) / (float)ih;
 			
-			Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+			Minecraft.getInstance().getTextureManager().bindTexture(texture);
 			
 			// TOP LEFT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx, dy, 0F);
+			GlStateManager.translatef(dx, dy, 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY(), texBorder.getLeft(), texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// TOP SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + texBorder.getLeft(), dy, 0F);
-			GlStateManager.scale(sx, 1F, 1F);
+			GlStateManager.translatef(dx + texBorder.getLeft(), dy, 0F);
+			GlStateManager.scalef(sx, 1F, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY(), iw, texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// TOP RIGHT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + w - texBorder.getRight(), dy, 0F);
+			GlStateManager.translatef(dx + w - texBorder.getRight(), dy, 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY(), texBorder.getRight(), texBorder.getTop(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// LEFT SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx, dy + texBorder.getTop(), 0F);
-			GlStateManager.scale(1F, sy, 1F);
+			GlStateManager.translatef(dx, dy + texBorder.getTop(), 0F);
+			GlStateManager.scalef(1F, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop(), texBorder.getLeft(), ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// MIDDLE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + texBorder.getLeft(), dy + texBorder.getTop(), 0F);
-			GlStateManager.scale(sx, sy, 1F);
+			GlStateManager.translatef(dx + texBorder.getLeft(), dy + texBorder.getTop(), 0F);
+			GlStateManager.scalef(sx, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, iu, iv, iw, ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// RIGHT SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + w - texBorder.getRight(), dy + texBorder.getTop(), 0F);
-			GlStateManager.scale(1F, sy, 1F);
+			GlStateManager.translatef(dx + w - texBorder.getRight(), dy + texBorder.getTop(), 0F);
+			GlStateManager.scalef(1F, sy, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop(), texBorder.getRight(), ih, zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM LEFT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx, dy + h - texBorder.getBottom(), 0F);
+			GlStateManager.translatef(dx, dy + h - texBorder.getBottom(), 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY() + texBorder.getTop() + ih, texBorder.getLeft(), texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM SIDE
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + texBorder.getLeft(), dy + h - texBorder.getBottom(), 0F);
-			GlStateManager.scale(sx, 1F, 1F);
+			GlStateManager.translatef(dx + texBorder.getLeft(), dy + h - texBorder.getBottom(), 0F);
+			GlStateManager.scalef(sx, 1F, 1F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft(), texBounds.getY() + texBorder.getTop() + ih, iw, texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 			
 			// BOTTOM RIGHT
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(dx + w - texBorder.getRight(), dy + h - texBorder.getBottom(), 0F);
+			GlStateManager.translatef(dx + w - texBorder.getRight(), dy + h - texBorder.getBottom(), 0F);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX() + texBorder.getLeft() + iw, texBounds.getY() + texBorder.getTop() + ih, texBorder.getRight(), texBorder.getBottom(), zLevel);
 			GlStateManager.popMatrix();
 		} else
 		{
 			float sx = (float)w / (float)texBounds.getWidth();
 			float sy = (float)h / (float)texBounds.getHeight();
-			GlStateManager.translate(dx, dy, 0F);
-			GlStateManager.scale(sx, sy, 1F);
+			GlStateManager.translatef(dx, dy, 0F);
+			GlStateManager.scalef(sx, sy, 1F);
 			
 	        GlStateManager.enableBlend();
-	        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+	        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 			
-			Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+			Minecraft.getInstance().getTextureManager().bindTexture(texture);
 			GuiUtils.drawTexturedModalRect(0, 0, texBounds.getX(), texBounds.getY(), texBounds.getWidth(), texBounds.getHeight(), zLevel);
 		}
 		
@@ -198,10 +198,10 @@ public class SlicedTexture implements IGuiTexture
 	// Slightly modified version from GuiUtils.class
 	private static void drawContinuousTexturedBox(ResourceLocation res, int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder, float zLevel)
 	{
-		Minecraft.getMinecraft().renderEngine.bindTexture(res);
+		Minecraft.getInstance().getTextureManager().bindTexture(res);
 		
 		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+		GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 		
 		int fillerWidth = textureWidth - leftBorder - rightBorder;
 		int fillerHeight = textureHeight - topBorder - bottomBorder;

@@ -113,4 +113,10 @@ public class SSItemHandler implements IItemHandlerModifiable
 	{
 		return 64;
 	}
+    
+    @Override
+    public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+    {
+        return !stack.isEmpty() && tile.isItemValidForSlot(slot, stack);
+    }
 }

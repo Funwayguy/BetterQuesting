@@ -12,12 +12,11 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.item.Item;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
@@ -54,9 +53,9 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         
         if(value != null)
         {
-            Minecraft mc = Minecraft.getMinecraft();
+            Minecraft mc = Minecraft.getInstance();
             this.setIcon(oreDict ? new OreDictTexture(1F, value, showCount, true) : new ItemTexture(value, showCount, true), 1);
-            this.setTooltip(value.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+            this.setTooltip(convertComponents(value.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL)));
         } else
         {
             this.setIcon(null);
@@ -80,11 +79,20 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
                 ttStack = oreVariants.get((int)(System.currentTimeMillis()/1000D)%oreVariants.size());
             }
             
-            Minecraft mc = Minecraft.getMinecraft();
-            return ttStack.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+            Minecraft mc = Minecraft.getInstance();
+            return convertComponents(ttStack.getBaseStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
         }
         
         return null;
+    }
+    
+    private List<String> convertComponents(List<ITextComponent> comList)
+    {
+        if(comList == null || comList.size() == 0) return Collections.emptyList();
+        
+        List<String> list = new ArrayList<>();
+        comList.forEach((com) -> list.add(com.getFormattedText()));
+        return list;
     }
     
     private void updateOreStacks()
@@ -105,25 +113,11 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
             return;
         }
         
-        for(ItemStack iStack : stack.getOreIngredient().getMatchingStacks())
+        for(Item iStack : stack.getOreIngredient().getMatchingItems())
         {
-            if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
-            {
-                NonNullList<ItemStack> subItems = NonNullList.create();
-                iStack.getItem().getSubItems(CreativeTabs.SEARCH, subItems);
-                
-                for(ItemStack sStack : subItems)
-                {
-                    BigItemStack bStack = new BigItemStack(sStack);
-                    bStack.stackSize = stack.stackSize;
-                    oreVariants.add(bStack);
-                }
-            } else
-            {
-                BigItemStack bStack = new BigItemStack(iStack);
-                bStack.stackSize = stack.stackSize;
-                oreVariants.add(bStack);
-            }
+            BigItemStack bStack = new BigItemStack(iStack);
+            bStack.stackSize = stack.stackSize;
+            oreVariants.add(bStack);
         }
     }
 }

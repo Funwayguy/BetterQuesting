@@ -2,19 +2,19 @@ package betterquesting.core;
 
 import betterquesting.api.placeholders.ItemPlaceholder;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class RegEventHandler
 	private static boolean setupRecipes = false;
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public static void registerModelEvent(ModelRegistryEvent event)
 	{
 		BetterQuesting.proxy.registerRenderers();
@@ -64,7 +64,7 @@ public class RegEventHandler
     {
     	ResourceLocation res = new ResourceLocation(BetterQuesting.MODID + ":" + name);
     	ALL_BLOCKS.add(b.setRegistryName(res));
-    	ALL_ITEMS.add(new ItemBlock(b).setRegistryName(res));
+    	ALL_ITEMS.add(new BlockItem(b).setRegistryName(res));
     }
     
     public static void registerItem(Item i, String name)

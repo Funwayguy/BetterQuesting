@@ -11,11 +11,11 @@ import betterquesting.api2.client.gui.panels.bars.PanelVBarFill;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.GuiColorTransition;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 public class GuiScreenTest extends GuiScreenCanvas
 {
-	public GuiScreenTest(GuiScreen parent)
+	public GuiScreenTest(Screen parent)
 	{
 		super(parent);
 	}
@@ -51,7 +51,7 @@ public class GuiScreenTest extends GuiScreenCanvas
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-		this.drawDefaultBackground();
+		this.renderBackground();
 		
 		super.drawPanel(mx, my, partialTick);
 	}

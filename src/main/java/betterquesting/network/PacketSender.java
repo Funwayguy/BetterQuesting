@@ -5,8 +5,10 @@ import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.core.BetterQuesting;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
 
 import java.util.List;
 
@@ -15,15 +17,15 @@ public class PacketSender implements IPacketSender
 	public static final PacketSender INSTANCE = new PacketSender();
 	
 	@Override
-	public void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players)
+	public void sendToPlayers(QuestingPacket payload, ServerPlayerEntity... players)
 	{
-		payload.getPayload().setString("ID", payload.getHandler().toString());
+		payload.getPayload().putString("ID", payload.getHandler().toString());
         
         BQThreadedIO.INSTANCE.enqueue(() -> {
-            List<NBTTagCompound> fragments = PacketAssembly.INSTANCE.splitPacket(payload.getPayload());
-            for(EntityPlayerMP p : players)
+            List<CompoundNBT> fragments = PacketAssembly.INSTANCE.splitPacket(payload.getPayload());
+            for(ServerPlayerEntity p : players)
             {
-                for(NBTTagCompound tag : fragments)
+                for(CompoundNBT tag : fragments)
                 {
                     BetterQuesting.instance.network.sendTo(new PacketQuesting(tag), p);
                 }
@@ -34,10 +36,10 @@ public class PacketSender implements IPacketSender
 	@Override
 	public void sendToAll(QuestingPacket payload)
 	{
-		payload.getPayload().setString("ID", payload.getHandler().toString());
+		payload.getPayload().putString("ID", payload.getHandler().toString());
 		
 		BQThreadedIO.INSTANCE.enqueue(() -> {
-            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            for(CompoundNBT p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
             {
                 BetterQuesting.instance.network.sendToAll(new PacketQuesting(p));
             }
@@ -47,10 +49,10 @@ public class PacketSender implements IPacketSender
 	@Override
 	public void sendToServer(QuestingPacket payload)
 	{
-		payload.getPayload().setString("ID", payload.getHandler().toString());
+		payload.getPayload().putString("ID", payload.getHandler().toString());
 		
 		BQThreadedIO.INSTANCE.enqueue(() -> {
-            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            for(CompoundNBT p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
             {
                 BetterQuesting.instance.network.sendToServer(new PacketQuesting(p));
             }
@@ -60,10 +62,10 @@ public class PacketSender implements IPacketSender
 	@Override
 	public void sendToAround(QuestingPacket payload, TargetPoint point)
 	{
-		payload.getPayload().setString("ID", payload.getHandler().toString());
+		payload.getPayload().putString("ID", payload.getHandler().toString());
 		
 		BQThreadedIO.INSTANCE.enqueue(() -> {
-            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            for(CompoundNBT p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
             {
                 BetterQuesting.instance.network.sendToAllAround(new PacketQuesting(p), point);
             }
@@ -73,10 +75,10 @@ public class PacketSender implements IPacketSender
 	@Override
 	public void sendToDimension(QuestingPacket payload, int dimension)
 	{
-		payload.getPayload().setString("ID", payload.getHandler().toString());
+		payload.getPayload().putString("ID", payload.getHandler().toString());
 		
 		BQThreadedIO.INSTANCE.enqueue(() -> {
-            for(NBTTagCompound p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
+            for(CompoundNBT p : PacketAssembly.INSTANCE.splitPacket(payload.getPayload()))
             {
                 BetterQuesting.instance.network.sendToDimension(new PacketQuesting(p), dimension);
             }

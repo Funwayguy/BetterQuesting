@@ -20,7 +20,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.storage.DBEntry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 
@@ -89,7 +89,7 @@ public class CanvasQuestLine extends CanvasScrolling
         
         if(line == null) return;
         
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        PlayerEntity player = Minecraft.getInstance().player;
         UUID pid = QuestingAPI.getQuestingUUID(player);
         
         String bgString = line.getProperty(NativeProps.BG_IMAGE);

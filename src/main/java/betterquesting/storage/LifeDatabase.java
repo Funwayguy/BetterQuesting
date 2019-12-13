@@ -2,8 +2,8 @@ package betterquesting.storage;
 
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.ILifeDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
@@ -32,36 +32,36 @@ public final class LifeDatabase implements ILifeDatabase
 	}
 	
 	@Override
-	public synchronized NBTTagCompound writeToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
+	public synchronized CompoundNBT writeToNBT(CompoundNBT nbt, @Nullable List<UUID> users)
 	{
-		NBTTagList jul = new NBTTagList();
+		ListNBT jul = new ListNBT();
 		
         for(Entry<UUID,Integer> entry : playerLives.entrySet())
         {
             if(users != null && !users.contains(entry.getKey())) continue;
-            NBTTagCompound j = new NBTTagCompound();
-            j.setString("uuid", entry.getKey().toString());
-            j.setInteger("lives", entry.getValue());
-            jul.appendTag(j);
+            CompoundNBT j = new CompoundNBT();
+            j.putString("uuid", entry.getKey().toString());
+            j.putInt("lives", entry.getValue());
+            jul.add(j);
         }
-		nbt.setTag("playerLives", jul);
+		nbt.put("playerLives", jul);
 		
 		return nbt;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagCompound nbt, boolean merge)
+	public synchronized void readFromNBT(CompoundNBT nbt, boolean merge)
 	{
 		if(!merge) playerLives.clear();
-		NBTTagList tagList = nbt.getTagList("playerLives", 10);
-		for(int i = 0; i < tagList.tagCount(); i++)
+		ListNBT tagList = nbt.getList("playerLives", 10);
+		for(int i = 0; i < tagList.size(); i++)
 		{
-			NBTTagCompound j = tagList.getCompoundTagAt(i);
+			CompoundNBT j = tagList.getCompound(i);
 			
 			try
 			{
 				UUID uuid = UUID.fromString(j.getString("uuid"));
-				int lives = j.getInteger("lives");
+				int lives = j.getInt("lives");
 				playerLives.put(uuid, lives);
 			} catch(Exception ignored){}
 		}

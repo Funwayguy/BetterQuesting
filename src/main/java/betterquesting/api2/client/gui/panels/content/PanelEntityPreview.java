@@ -6,7 +6,7 @@ import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
@@ -100,13 +100,13 @@ public class PanelEntityPreview implements IGuiPanel
         GlStateManager.pushMatrix();
         RenderUtils.startScissor(new GuiRectangle(bounds));
 		
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		
 		int sizeX = bounds.getWidth();
 		int sizeY = bounds.getHeight();
-		float scale = Math.min((sizeY/2F)/entity.height, (sizeX/2F)/entity.width);
+		float scale = Math.min((sizeY/2F)/entity.getHeight(), (sizeX/2F)/entity.getWidth());
 		
-		RenderUtils.RenderEntity(bounds.getX() + sizeX/2, bounds.getY() + sizeY/2 + MathHelper.ceil(entity.height * scale / 2F), (int)scale, yawDriver.readValue(), pitchDriver.readValue(), entity);
+		RenderUtils.RenderEntity(bounds.getX() + sizeX/2, bounds.getY() + sizeY/2 + MathHelper.ceil(entity.getHeight() * scale / 2F), (int)scale, yawDriver.readValue(), pitchDriver.readValue(), entity);
 		
 		RenderUtils.endScissor();
 		GlStateManager.popMatrix();

@@ -5,12 +5,12 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
@@ -69,13 +69,13 @@ public class FluidTexture implements IGuiTexture
         
         GlStateManager.pushMatrix();
         
-        GlStateManager.translate(x + dx, y + dy, 0);
-        GlStateManager.scale(sx, sy, 1F);
+        GlStateManager.translated(x + dx, y + dy, 0);
+        GlStateManager.scalef(sx, sy, 1F);
 		
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+        GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         
-        int fCol = fluid.getFluid().getColor(fluid);
+        int fCol = fluid.getFluid().getAttributes().getColor(fluid);
         float a = (fCol >> 24 & 255) / 255F;
         float r = (fCol >> 16 & 255) / 255F;
         float g = (fCol >> 8 & 255) / 255F;
@@ -84,13 +84,13 @@ public class FluidTexture implements IGuiTexture
         r = r + color.getRed() / 2F;
         g = g + color.getGreen() / 2F;
         b = b + color.getBlue() / 2F;
-        GlStateManager.color(r, g, b, a);
+        GlStateManager.color4f(r, g, b, a);
         
         // TODO: Add tiling option
         
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(fluid.getFluid().getStill().toString());
+        Minecraft mc = Minecraft.getInstance();
+        mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        TextureAtlasSprite fluidTx = mc.getTextureMap().getAtlasSprite(fluid.getFluid().getAttributes().getStill(fluid).toString());
         this.drawTexturedModalRect(0, 0, 0, fluidTx, 16, 16);
         
         GlStateManager.popMatrix();

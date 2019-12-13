@@ -1,7 +1,7 @@
 package betterquesting.questing;
 
 import betterquesting.api.questing.IQuestLineEntry;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 
 public class QuestLineEntry implements IQuestLineEntry
 {
@@ -10,7 +10,7 @@ public class QuestLineEntry implements IQuestLineEntry
 	private int posX = 0;
 	private int posY = 0;
 	
-	public QuestLineEntry(NBTTagCompound json)
+	public QuestLineEntry(CompoundNBT json)
 	{
 		this.readFromNBT(json);
 	}
@@ -91,29 +91,29 @@ public class QuestLineEntry implements IQuestLineEntry
     }
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json)
+	public CompoundNBT writeToNBT(CompoundNBT json)
 	{
-		json.setInteger("sizeX", sizeX);
-		json.setInteger("sizeY", sizeY);
-		json.setInteger("x", posX);
-		json.setInteger("y", posY);
+		json.putInt("sizeX", sizeX);
+		json.putInt("sizeY", sizeY);
+		json.putInt("x", posX);
+		json.putInt("y", posY);
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json)
+	public void readFromNBT(CompoundNBT json)
 	{
-	    if(json.hasKey("size", 99))
+	    if(json.contains("size", 99))
         {
-            sizeX = json.getInteger("size");
+            sizeX = json.getInt("size");
             sizeY = sizeX;
         } else
         {
-            sizeX = json.getInteger("sizeX");
-            sizeY = json.getInteger("sizeY");
+            sizeX = json.getInt("sizeX");
+            sizeY = json.getInt("sizeY");
         }
-		posX = json.getInteger("x");
-		posY = json.getInteger("y");
+		posX = json.getInt("x");
+		posY = json.getInt("y");
 	}
 	
 }

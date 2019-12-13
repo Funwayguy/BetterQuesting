@@ -1,6 +1,6 @@
 package betterquesting.api2.client.gui.resources.colors;
 
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import java.awt.*;
 
@@ -61,6 +61,6 @@ public class GuiColorStatic implements IGuiColor
     @Override
     public void applyGlColor()
     {
-        GlStateManager.color(getRed(), getGreen(), getBlue(), getAlpha());
+        GlStateManager.color4f(getRed(), getGreen(), getBlue(), getAlpha());
     }
 }

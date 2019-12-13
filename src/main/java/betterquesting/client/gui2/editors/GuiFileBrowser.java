@@ -25,8 +25,8 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -47,7 +47,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
     private CanvasFileDirectory cvDirectory;
     private boolean multiSelect = true;
     
-	public GuiFileBrowser(GuiScreen parent, ICallback<File[]> callback, File directory, @Nullable FileFilter filter)
+	public GuiFileBrowser(Screen parent, ICallback<File[]> callback, File directory, @Nullable FileFilter filter)
 	{
 		super(parent);
 		this.callback = callback;
@@ -67,7 +67,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -225,7 +225,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener
         if(btn.getButtonID() == 0) // Exit
         {
             if(callback != null) callback.setValue(selList.toArray(new File[0]));
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         }
     }
     

@@ -1,22 +1,22 @@
 package betterquesting.client.ui_builder;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiTransform;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.INBTSaveLoad;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import org.lwjgl.util.vector.Vector4f;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
+public class ComponentPanel implements INBTSaveLoad<CompoundNBT>
 {
     // Purely for organisational purposes
     public String refName = "New Panel";
@@ -26,8 +26,8 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     public int cvParentID = -1; // ID of the canvas we're contained within
     public int tfParentID = -1; // ID of the transform we're positioned relative to
     
-    private NBTTagCompound transTag = new NBTTagCompound();
-    private NBTTagCompound panelData = new NBTTagCompound();
+    private CompoundNBT transTag = new CompoundNBT();
+    private CompoundNBT panelData = new CompoundNBT();
     
     // When these are passed off to the GUI context, make sure it's stated whether it's in-editor or not
     // (only content and navigation need setting up otherwise the GUI might actually edit things before intended use)
@@ -45,83 +45,83 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound>
     
     public void setTransform(GuiTransform transform)
     {
-        Vector4f anchor = transform.getAnchor();
-        transTag.setFloat("anchor_left", anchor.x);
-        transTag.setFloat("anchor_top", anchor.y);
-        transTag.setFloat("anchor_right", anchor.z);
-        transTag.setFloat("anchor_bottom", anchor.w);
+        GuiAnchor anchor = transform.getAnchor();
+        transTag.putFloat("anchor_left", anchor.getX());
+        transTag.putFloat("anchor_top", anchor.getY());
+        transTag.putFloat("anchor_right", anchor.getZ());
+        transTag.putFloat("anchor_bottom", anchor.getW());
         
         GuiPadding padding = transform.getPadding();
-        transTag.setInteger("pad_left", padding.l);
-        transTag.setInteger("pad_top", padding.t);
-        transTag.setInteger("pad_right", padding.r);
-        transTag.setInteger("pad_bottom", padding.b);
+        transTag.putInt("pad_left", padding.l);
+        transTag.putInt("pad_top", padding.t);
+        transTag.putInt("pad_right", padding.r);
+        transTag.putInt("pad_bottom", padding.b);
         
-        transTag.setInteger("depth", transform.getDepth());
+        transTag.putInt("depth", transform.getDepth());
     }
     
-    public NBTTagCompound getTransformTag()
+    public CompoundNBT getTransformTag()
     {
         return transTag;
     }
     
-    public NBTTagCompound getPanelData()
+    public CompoundNBT getPanelData()
     {
         return panelData;
     }
     
-    public void setPanelData(@Nonnull NBTTagCompound tag)
+    public void setPanelData(@Nonnull CompoundNBT tag)
     {
         this.panelData = tag;
     }
     
     public IGuiPanel build()
     {
-        Vector4f anchor = new Vector4f(transTag.getFloat("anchor_left"), transTag.getFloat("anchor_top"), transTag.getFloat("anchor_right"), transTag.getFloat("anchor_bottom"));
-        GuiPadding padding = new GuiPadding(transTag.getInteger("pad_left"), transTag.getInteger("pad_top"), transTag.getInteger("pad_right"), transTag.getInteger("pad_bottom"));
-        GuiTransform transform = new GuiTransform(anchor, padding, transTag.getInteger("depth"));
+        GuiAnchor anchor = new GuiAnchor(transTag.getFloat("anchor_left"), transTag.getFloat("anchor_top"), transTag.getFloat("anchor_right"), transTag.getFloat("anchor_bottom"));
+        GuiPadding padding = new GuiPadding(transTag.getInt("pad_left"), transTag.getInt("pad_top"), transTag.getInt("pad_right"), transTag.getInt("pad_bottom"));
+        GuiTransform transform = new GuiTransform(anchor, padding, transTag.getInt("depth"));
         
         ResourceLocation res = StringUtils.isNullOrEmpty(panelType) ? new ResourceLocation("betterquesting:canvas_empty") : new ResourceLocation(panelType);
         return ComponentRegistry.INSTANCE.createNew(res, transform, panelData);
     }
     
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+    public CompoundNBT writeToNBT(CompoundNBT nbt)
     {
-        nbt.setString("ref_name", refName);
-        nbt.setString("panel_type", panelType);
+        nbt.putString("ref_name", refName);
+        nbt.putString("panel_type", panelType);
         
-        nbt.setInteger("cv_parent", cvParentID);
-        nbt.setInteger("tf_parent", tfParentID);
+        nbt.putInt("cv_parent", cvParentID);
+        nbt.putInt("tf_parent", tfParentID);
         
-        nbt.setTag("transform", transTag.copy());
-        nbt.setTag("panel_data", panelData.copy());
+        nbt.put("transform", transTag.copy());
+        nbt.put("panel_data", panelData.copy());
         
-        NBTTagList sList = new NBTTagList();
-        scripts.forEach((str) -> sList.appendTag(new NBTTagString(str)));
-        nbt.setTag("script_hooks", sList);
+        ListNBT sList = new ListNBT();
+        scripts.forEach((str) -> sList.add(new StringNBT(str)));
+        nbt.put("script_hooks", sList);
         
         return nbt;
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
+    public void readFromNBT(CompoundNBT nbt)
     {
         refName = nbt.getString("ref_name");
         panelType = nbt.getString("panel_type");
         
-        cvParentID = nbt.getInteger("cv_parent");
-        tfParentID = nbt.getInteger("tf_parent");
+        cvParentID = nbt.getInt("cv_parent");
+        tfParentID = nbt.getInt("tf_parent");
         
         // Location of the panel
-        transTag = nbt.getCompoundTag("transform").copy();
-        panelData = nbt.getCompoundTag("panel_data").copy();
+        transTag = nbt.getCompound("transform").copy();
+        panelData = nbt.getCompound("panel_data").copy();
         
         scripts.clear();
-        NBTTagList sList = nbt.getTagList("script_hooks", 8);
-        for(int i = 0; i < sList.tagCount(); i++)
+        ListNBT sList = nbt.getList("script_hooks", 8);
+        for(int i = 0; i < sList.size(); i++)
         {
-            scripts.add(sList.getStringTagAt(i));
+            scripts.add(sList.getString(i));
         }
     }
 }

@@ -3,15 +3,15 @@ package betterquesting.storage;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api2.storage.INBTSaveLoad;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTagCompound>
+public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<CompoundNBT>
 {
-	private final NBTTagCompound nbtInfo = new NBTTagCompound();
+	private final CompoundNBT nbtInfo = new CompoundNBT();
 	
 	@Override
 	public synchronized <T> T getProperty(IPropertyType<T> prop)
@@ -26,60 +26,60 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
 	{
 		if(prop == null) return def;
 		
-        NBTTagCompound jProp = getDomain(prop.getKey());
+        CompoundNBT jProp = getDomain(prop.getKey());
 
-        if(!jProp.hasKey(prop.getKey().getPath())) return def;
+        if(!jProp.contains(prop.getKey().getPath())) return def;
 
-        return prop.readValue(jProp.getTag(prop.getKey().getPath()));
+        return prop.readValue(jProp.get(prop.getKey().getPath()));
 	}
 	
 	@Override
 	public synchronized boolean hasProperty(IPropertyType<?> prop)
 	{
 		if(prop == null) return false;
-        return getDomain(prop.getKey()).hasKey(prop.getKey().getPath());
+        return getDomain(prop.getKey()).contains(prop.getKey().getPath());
 	}
     
     @Override
     public synchronized void removeProperty(IPropertyType<?> prop)
     {
         if(prop == null) return;
-        NBTTagCompound jProp = getDomain(prop.getKey());
+        CompoundNBT jProp = getDomain(prop.getKey());
         
-        if(!jProp.hasKey(prop.getKey().getPath())) return;
+        if(!jProp.contains(prop.getKey().getPath())) return;
         
-        jProp.removeTag(prop.getKey().getPath());
+        jProp.remove(prop.getKey().getPath());
         
-        if(jProp.isEmpty()) nbtInfo.removeTag(prop.getKey().getNamespace());
+        if(jProp.isEmpty()) nbtInfo.remove(prop.getKey().getNamespace());
     }
     
     @Override
 	public synchronized <T> void setProperty(IPropertyType<T> prop, T value)
 	{
 		if(prop == null || value == null) return;
-        NBTTagCompound dom = getDomain(prop.getKey());
-        dom.setTag(prop.getKey().getPath(), prop.writeValue(value));
-        nbtInfo.setTag(prop.getKey().getNamespace(), dom);
+        CompoundNBT dom = getDomain(prop.getKey());
+        dom.put(prop.getKey().getPath(), prop.writeValue(value));
+        nbtInfo.put(prop.getKey().getNamespace(), dom);
 	}
     
     @Override
     public synchronized void removeAllProps()
     {
-        List<String> keys = new ArrayList<>(nbtInfo.getKeySet());
-        for(String key : keys) nbtInfo.removeTag(key);
+        List<String> keys = new ArrayList<>(nbtInfo.keySet());
+        for(String key : keys) nbtInfo.remove(key);
     }
     
     @Override
-	public synchronized NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public synchronized CompoundNBT writeToNBT(CompoundNBT nbt)
 	{
         nbt.merge(nbtInfo);
         return nbt;
 	}
 	
 	@Override
-	public synchronized void readFromNBT(NBTTagCompound nbt)
+	public synchronized void readFromNBT(CompoundNBT nbt)
 	{
-        for(String key : nbtInfo.getKeySet()) nbtInfo.removeTag(key);
+        for(String key : nbtInfo.keySet()) nbtInfo.remove(key);
         nbtInfo.merge(nbt);
         
         // TODO: FIX CASING
@@ -90,8 +90,8 @@ public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTa
         }*/
 	}
 	
-	private NBTTagCompound getDomain(ResourceLocation res)
+	private CompoundNBT getDomain(ResourceLocation res)
 	{
-		return nbtInfo.getCompoundTag(res.getNamespace());
+		return nbtInfo.getCompound(res.getNamespace());
 	}
 }

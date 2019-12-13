@@ -12,12 +12,12 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.logging.log4j.Level;
 
@@ -38,15 +38,15 @@ public class NetImport
     
     public static void sendImport(@Nonnull IQuestDatabase questDB, @Nonnull IQuestLineDatabase chapterDB)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("quests", questDB.writeToNBT(new NBTTagList(), null));
-        payload.setTag("chapters", chapterDB.writeToNBT(new NBTTagList(), null));
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("quests", questDB.writeToNBT(new ListNBT(), null));
+        payload.put("chapters", chapterDB.writeToNBT(new ListNBT(), null));
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-	private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+	private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
 	{
-	    EntityPlayerMP sender = message.getSecond();
+	    ServerPlayerEntity sender = message.getB();
 		if(sender.getServer() == null) return;
 		
 		boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
@@ -54,15 +54,15 @@ public class NetImport
 		if(!isOP)
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to import quests without OP permissions!");
-			sender.sendStatusMessage(new TextComponentString(TextFormatting.RED + "You need to be OP to edit quests!"), false);
+			sender.sendStatusMessage(new StringTextComponent(TextFormatting.RED + "You need to be OP to edit quests!"), false);
 			return; // Player is not operator. Do nothing
 		}
 		
 		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromNBT(message.getFirst().getTagList("quests", 10), false);
-		impQuestLineDB.readFromNBT(message.getFirst().getTagList("chapters", 10), false);
+		impQuestDB.readFromNBT(message.getA().getList("quests", 10), false);
+		impQuestLineDB.readFromNBT(message.getA().getList("chapters", 10), false);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		

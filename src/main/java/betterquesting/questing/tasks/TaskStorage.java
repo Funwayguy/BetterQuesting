@@ -6,8 +6,8 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -15,39 +15,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<ITask, NBTTagList, NBTTagList>
+public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<ITask, ListNBT, ListNBT>
 {
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
+	public ListNBT writeToNBT(ListNBT json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
-			qJson.setString("taskID", taskID.toString());
-			qJson.setInteger("index", entry.getID());
-			json.appendTag(qJson);
+			CompoundNBT qJson = entry.getValue().writeToNBT(new CompoundNBT());
+			qJson.putString("taskID", taskID.toString());
+			qJson.putInt("index", entry.getID());
+			json.add(qJson);
 		}
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public void readFromNBT(ListNBT json, boolean merge)
 	{
 	    reset();
 		List<ITask> unassigned = new ArrayList<>();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
+			CompoundNBT jsonTask = json.getCompound(i);
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
-			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
+			int index = jsonTask.contains("index", 99) ? jsonTask.getInt("index") : -1;
 			ITask task = TaskRegistry.INSTANCE.createNew(loc);
 			
 			if(task instanceof TaskPlaceholder)
 			{
-				NBTTagCompound jt2 = jsonTask.getCompoundTag("orig_data");
+				CompoundNBT jt2 = jsonTask.getCompound("orig_data");
 				ResourceLocation loc2 = new ResourceLocation(jt2.getString("taskID"));
 				ITask t2 = TaskRegistry.INSTANCE.createNew(loc2);
 				
@@ -80,27 +80,27 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	}
 	
 	@Override
-	public NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> user)
+	public ListNBT writeProgressToNBT(ListNBT json, @Nullable List<UUID> user)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
 			
-			NBTTagCompound qJson = entry.getValue().writeProgressToNBT(new NBTTagCompound(), user);
-			qJson.setString("taskID", taskID.toString());
-			qJson.setInteger("index", entry.getID());
-			json.appendTag(qJson);
+			CompoundNBT qJson = entry.getValue().writeProgressToNBT(new CompoundNBT(), user);
+			qJson.putString("taskID", taskID.toString());
+			qJson.putInt("index", entry.getID());
+			json.add(qJson);
 		}
 		return json;
 	}
 	
 	@Override
-	public void readProgressFromNBT(NBTTagList json, boolean merge)
+	public void readProgressFromNBT(ListNBT json, boolean merge)
 	{
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
-			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
+			CompoundNBT jsonTask = json.getCompound(i);
+			int index = jsonTask.contains("index", 99) ? jsonTask.getInt("index") : -1;
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			ITask task = getValue(index);
 			
@@ -120,7 +120,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 					task.readProgressFromNBT(jsonTask, merge);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
-					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), merge);
+					task.readProgressFromNBT(jsonTask.getCompound("orig_prog"), merge);
 				}
 			}
 		}

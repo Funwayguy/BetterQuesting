@@ -2,7 +2,7 @@ package betterquesting.api2.client.gui.resources.colors;
 
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 public class GuiColorTransition implements IGuiColor
 {
@@ -83,6 +83,6 @@ public class GuiColorTransition implements IGuiColor
             float b = (argb & 255) / 255F;
             float a = (argb >> 24 & 255) / 255F;
             
-            GlStateManager.color(r, g, b, a);
+            GlStateManager.color4f(r, g, b, a);
         }
 }

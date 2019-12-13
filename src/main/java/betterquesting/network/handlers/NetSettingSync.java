@@ -7,14 +7,14 @@ import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
@@ -33,18 +33,18 @@ public class NetSettingSync
         }
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public static void requestEdit()
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("data", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("data", QuestSettings.INSTANCE.writeToNBT(new CompoundNBT()));
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-    public static void sendSync(@Nullable EntityPlayerMP player)
+    public static void sendSync(@Nullable ServerPlayerEntity player)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("data", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("data", QuestSettings.INSTANCE.writeToNBT(new CompoundNBT()));
         if(player != null)
         {
             PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), player);
@@ -54,23 +54,23 @@ public class NetSettingSync
         }
     }
     
-    @SideOnly(Side.CLIENT)
-    private static void onClient(NBTTagCompound message)
+    @OnlyIn(Dist.CLIENT)
+    private static void onClient(CompoundNBT message)
     {
-        QuestSettings.INSTANCE.readFromNBT(message.getCompoundTag("data"));
+        QuestSettings.INSTANCE.readFromNBT(message.getCompound("data"));
     }
     
-    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
     {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if(!server.getPlayerList().canSendCommands(message.getSecond().getGameProfile()))
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(!server.getPlayerList().canSendCommands(message.getB().getGameProfile()))
         {
-			BetterQuesting.logger.log(Level.WARN, "Player " + message.getSecond().getName() + " (UUID:" + QuestingAPI.getQuestingUUID(message.getSecond()) + ") tried to edit settings without OP permissions!");
-            sendSync(message.getSecond());
+			BetterQuesting.logger.log(Level.WARN, "Player " + message.getB().getName() + " (UUID:" + QuestingAPI.getQuestingUUID(message.getB()) + ") tried to edit settings without OP permissions!");
+            sendSync(message.getB());
             return;
         }
         
-        QuestSettings.INSTANCE.readFromNBT(message.getFirst().getCompoundTag("data"));
+        QuestSettings.INSTANCE.readFromNBT(message.getA().getCompound("data"));
         SaveLoadHandler.INSTANCE.markDirty();
         sendSync(null);
     }

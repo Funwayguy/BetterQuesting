@@ -8,9 +8,10 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.utils.EntityPlayerPreview;
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 	private final IGuiRect transform;
 	private boolean enabled = true;
 	
-	private final AbstractClientPlayer player;
+	private final AbstractClientPlayerEntity player;
 	
 	private final IValueIO<Float> basePitch;
 	private final IValueIO<Float> baseYaw;
@@ -32,22 +33,22 @@ public class PanelPlayerPortrait implements IGuiPanel
 	
 	public PanelPlayerPortrait(IGuiRect rect, UUID playerID, String username)
 	{
-		this(rect, new EntityPlayerPreview(Minecraft.getMinecraft().world, new GameProfile(playerID, username)));
+		this(rect, new EntityPlayerPreview(Minecraft.getInstance().world, new GameProfile(playerID, username)));
 	}
 	
-	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player)
+	public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayerEntity player)
 	{
 		this.transform = rect;
-		this.player = new EntityPlayerPreview(player.world, player.getGameProfile());
+		this.player = new EntityPlayerPreview((ClientWorld)player.world, player.getGameProfile());
 		this.player.limbSwing = 0F;
 		this.player.limbSwingAmount = 0F;
 		this.player.rotationYawHead = 0F;
 		
 		ResourceLocation resource = this.player.getLocationSkin();
 		
-		if(Minecraft.getMinecraft().getTextureManager().getTexture(resource) == null)
+		if(Minecraft.getInstance().getTextureManager().getTexture(resource) == null)
 		{
-			AbstractClientPlayer.getDownloadImageSkin(resource, player.getGameProfile().getName());
+			AbstractClientPlayerEntity.getDownloadImageSkin(resource, player.getGameProfile().getName());
 		}
 		
 		this.basePitch = new ValueFuncIO<>(() -> 15F);
@@ -109,7 +110,7 @@ public class PanelPlayerPortrait implements IGuiPanel
 		GlStateManager.pushMatrix();
 		RenderUtils.startScissor(new GuiRectangle(bounds));
 		
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		int scale = Math.min(bounds.getWidth(), bounds.getHeight());
 		RenderUtils.RenderEntity(bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 + (int)(scale*1.5F), zDepth, scale, yawDriver.readValue(), pitchDriver.readValue(), player);
 		

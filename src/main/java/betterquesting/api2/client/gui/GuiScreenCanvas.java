@@ -169,19 +169,19 @@ public class GuiScreenCanvas extends Screen implements IScene
 	@Override
     public boolean mouseClicked(double mx, double my, int button)
     {
-        return this.onMouseClick((int)Math.floor(mx), (int)Math.floor(my), button);
+        return super.mouseClicked(mx, my, button) || this.onMouseClick((int)Math.floor(mx), (int)Math.floor(my), button);
     }
     
     @Override
     public boolean mouseReleased(double mx, double my, int button)
     {
-        return this.onMouseRelease((int)Math.floor(mx), (int)Math.floor(my), button);
+        return super.mouseReleased(mx, my, button) || this.onMouseRelease((int)Math.floor(mx), (int)Math.floor(my), button);
     }
 	
 	@Override
     public boolean mouseScrolled(double mx, double my, double scroll)
     {
-        return scroll != 0 && this.onMouseScroll((int)Math.floor(mx), (int)Math.floor(my), (int)Math.ceil(scroll));
+        return scroll != 0 && (super.mouseScrolled(mx, my, scroll) || this.onMouseScroll((int)Math.floor(mx), (int)Math.floor(my), (int)Math.ceil(scroll)));
     }
 	
 	@Override
@@ -408,9 +408,9 @@ public class GuiScreenCanvas extends Screen implements IScene
     }
 	
 	@Override
-    public void renderTooltip(List<String> textLines, int x, int y, @Nonnull FontRenderer font)
+    public void renderTooltip(List<String> textLines, int x, int y, @Nonnull FontRenderer itemFont)
     {
-        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
+        RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, itemFont);
     }
 	
 	public void confirmClose(int id)

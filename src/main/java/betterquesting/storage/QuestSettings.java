@@ -4,8 +4,8 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 
 public class QuestSettings extends PropertyContainer implements IQuestSettings
 {
@@ -17,14 +17,14 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	}
 	
 	@Override
-	public boolean canUserEdit(EntityPlayer player)
+	public boolean canUserEdit(PlayerEntity player)
 	{
 		if(player == null) return false;
 		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(player));
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void readFromNBT(CompoundNBT nbt)
 	{
 		super.readFromNBT(nbt);
 		
@@ -34,7 +34,7 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	@Override
 	public void reset()
 	{
-		this.readFromNBT(new NBTTagCompound());
+		this.readFromNBT(new CompoundNBT());
 	}
 	
 	private void setupProps()

@@ -19,9 +19,9 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TextFormatting;
 
 import java.text.DecimalFormat;
@@ -33,14 +33,14 @@ import java.util.UUID;
 public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 {
     public final GuiRectangle rect;
-    public final EntityPlayer player;
+    public final PlayerEntity player;
     
     public PanelButtonQuest(GuiRectangle rect, int id, String txt, DBEntry<IQuest> value)
     {
         super(rect, id, txt, value);
         this.rect = rect;
         
-        player = Minecraft.getMinecraft().player;
+        player = Minecraft.getInstance().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(QuestingAPI.getQuestingUUID(player));
         IGuiTexture txFrame = null;
         IGuiColor txIconCol = null;
@@ -84,11 +84,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID());
     }
     
-    private List<String> getQuestTooltip(IQuest quest, EntityPlayer player, int qID)
+    private List<String> getQuestTooltip(IQuest quest, PlayerEntity player, int qID)
     {
 		List<String> tooltip = getStandardTooltip(quest, player, qID);
 		
-		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
+		if(Minecraft.getInstance().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
 		{
 			tooltip.add("");
 			tooltip.addAll(this.getAdvancedTooltip(quest, player, qID));
@@ -97,11 +97,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		return tooltip;
     }
     
-    private List<String> getStandardTooltip(IQuest quest, EntityPlayer player, int qID)
+    private List<String> getStandardTooltip(IQuest quest, PlayerEntity player, int qID)
     {
 		List<String> list = new ArrayList<>();
 		
-		list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
+		list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getInstance().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 		
@@ -160,7 +160,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		return list;
     }
     
-    private List<String> getAdvancedTooltip(IQuest quest, EntityPlayer player, int qID)
+    private List<String> getAdvancedTooltip(IQuest quest, PlayerEntity player, int qID)
     {
 		List<String> list = new ArrayList<>();
 		
@@ -197,11 +197,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		return list;
     }
     
-	private long getRepeatSeconds(IQuest quest, EntityPlayer player)
+	private long getRepeatSeconds(IQuest quest, PlayerEntity player)
 	{
 		if(quest.getProperty(NativeProps.REPEAT_TIME) < 0) return -1;
 		
-        NBTTagCompound ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
+        CompoundNBT ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
         if(ue == null) return 0;
         
         return ((quest.getProperty(NativeProps.REPEAT_TIME) * 50L) - (System.currentTimeMillis() - ue.getLong("timestamp"))) / 1000L;

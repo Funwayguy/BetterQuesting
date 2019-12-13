@@ -2,12 +2,12 @@ package betterquesting.network;
 
 import betterquesting.api.network.IPacketRegistry;
 import betterquesting.network.handlers.*;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,8 +18,8 @@ public class PacketTypeRegistry implements IPacketRegistry
 {
 	public static final PacketTypeRegistry INSTANCE = new PacketTypeRegistry();
 	
-	private final HashMap<ResourceLocation, Consumer<Tuple<NBTTagCompound, EntityPlayerMP>>> serverHandlers = new HashMap<>();
-	private final HashMap<ResourceLocation, Consumer<NBTTagCompound>> clientHandlers = new HashMap<>();
+	private final HashMap<ResourceLocation, Consumer<Tuple<CompoundNBT, ServerPlayerEntity>>> serverHandlers = new HashMap<>();
+	private final HashMap<ResourceLocation, Consumer<CompoundNBT>> clientHandlers = new HashMap<>();
  
 	public void init()
 	{
@@ -46,7 +46,7 @@ public class PacketTypeRegistry implements IPacketRegistry
 	}
 	
 	@Override
-	public void registerServerHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<Tuple<NBTTagCompound,EntityPlayerMP>> method)
+	public void registerServerHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<Tuple<CompoundNBT,ServerPlayerEntity>> method)
     {
         if(serverHandlers.containsKey(idName))
         {
@@ -57,8 +57,8 @@ public class PacketTypeRegistry implements IPacketRegistry
     }
 	
 	@Override
-    @SideOnly(Side.CLIENT)
-	public void registerClientHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<NBTTagCompound> method)
+    @OnlyIn(Dist.CLIENT)
+	public void registerClientHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<CompoundNBT> method)
     {
         if(clientHandlers.containsKey(idName))
         {
@@ -69,14 +69,14 @@ public class PacketTypeRegistry implements IPacketRegistry
     }
 	
 	@Nullable
-	public Consumer<Tuple<NBTTagCompound,EntityPlayerMP>> getServerHandler(@Nonnull ResourceLocation idName)
+	public Consumer<Tuple<CompoundNBT, ServerPlayerEntity>> getServerHandler(@Nonnull ResourceLocation idName)
     {
         return serverHandlers.get(idName);
     }
 	
 	@Nullable
-    @SideOnly(Side.CLIENT)
-	public Consumer<NBTTagCompound> getClientHandler(@Nonnull ResourceLocation idName)
+    @OnlyIn(Dist.CLIENT)
+	public Consumer<CompoundNBT> getClientHandler(@Nonnull ResourceLocation idName)
     {
         return clientHandlers.get(idName);
     }

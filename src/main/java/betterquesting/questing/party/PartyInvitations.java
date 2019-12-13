@@ -3,8 +3,8 @@ package betterquesting.questing.party;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.INBTPartial;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 // NOTE: This is in a separate class because it could later be moved to a dedicated inbox system
-public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
+public class PartyInvitations implements INBTPartial<ListNBT, UUID>
 {
     public static final PartyInvitations INSTANCE = new PartyInvitations();
     
@@ -82,58 +82,58 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
     }
     
     @Override
-    public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> subset) // Don't bother saving this to disk. We do need to send packets though
+    public synchronized ListNBT writeToNBT(ListNBT nbt, @Nullable List<UUID> subset) // Don't bother saving this to disk. We do need to send packets though
     {
         if(subset != null)
         {
             subset.forEach((uuid) -> {
-                NBTTagCompound userTag = new NBTTagCompound();
-                userTag.setString("uuid", uuid.toString());
+                CompoundNBT userTag = new CompoundNBT();
+                userTag.putString("uuid", uuid.toString());
                 
                 Map<Integer,Long> userMap = invites.get(uuid);
                 if(userMap == null) userMap = Collections.emptyMap();
-                NBTTagList invList = new NBTTagList();
+                ListNBT invList = new ListNBT();
                 
                 for(Entry<Integer, Long> invEntry : userMap.entrySet())
                 {
-                    NBTTagCompound invTag = new NBTTagCompound();
-                    invTag.setInteger("partyID", invEntry.getKey());
-                    invTag.setLong("expiry", invEntry.getValue());
-                    invList.appendTag(invTag);
+                    CompoundNBT invTag = new CompoundNBT();
+                    invTag.putInt("partyID", invEntry.getKey());
+                    invTag.putLong("expiry", invEntry.getValue());
+                    invList.add(invTag);
                 }
                 
-                userTag.setTag("invites", invList);
-                nbt.appendTag(userTag);
+                userTag.put("invites", invList);
+                nbt.add(userTag);
             });
         } else
         {
             for(Entry<UUID, HashMap<Integer, Long>> userMap : invites.entrySet())
             {
-                NBTTagCompound userTag = new NBTTagCompound();
-                userTag.setString("uuid", userMap.getKey().toString());
+                CompoundNBT userTag = new CompoundNBT();
+                userTag.putString("uuid", userMap.getKey().toString());
         
-                NBTTagList invList = new NBTTagList();
+                ListNBT invList = new ListNBT();
                 for(Entry<Integer, Long> invEntry : userMap.getValue().entrySet())
                 {
-                    NBTTagCompound invTag = new NBTTagCompound();
-                    invTag.setInteger("partyID", invEntry.getKey());
-                    invTag.setLong("expiry", invEntry.getValue());
-                    invList.appendTag(invTag);
+                    CompoundNBT invTag = new CompoundNBT();
+                    invTag.putInt("partyID", invEntry.getKey());
+                    invTag.putLong("expiry", invEntry.getValue());
+                    invList.add(invTag);
                 }
-                userTag.setTag("invites", invList);
-                nbt.appendTag(userTag);
+                userTag.put("invites", invList);
+                nbt.add(userTag);
             }
         }
         return nbt;
     }
     
     @Override
-    public synchronized void readFromNBT(NBTTagList nbt, boolean merge)
+    public synchronized void readFromNBT(ListNBT nbt, boolean merge)
     {
         if(!merge) invites.clear(); // There's almost no reason to not merge. The expiry times manage themselves on both sides
-        for(int i = 0; i < nbt.tagCount(); i++)
+        for(int i = 0; i < nbt.size(); i++)
         {
-            NBTTagCompound userEntry = nbt.getCompoundTagAt(i);
+            CompoundNBT userEntry = nbt.getCompound(i);
             UUID uuid;
             try
             {
@@ -143,14 +143,14 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
                 continue;
             }
             
-            NBTTagList invList = userEntry.getTagList("invites", 10);
+            ListNBT invList = userEntry.getList("invites", 10);
             HashMap<Integer,Long> map = invites.computeIfAbsent(uuid, (key) -> new HashMap<>()); // Could start from scratch but this feels cleaner
             map.clear();
-            for(int n = 0; n < invList.tagCount(); n++)
+            for(int n = 0; n < invList.size(); n++)
             {
-                NBTTagCompound invEntry = invList.getCompoundTagAt(n);
-                int partyID = invEntry.hasKey("partyID", 99) ? invEntry.getInteger("partyID") : -1;
-                long timestamp = invEntry.hasKey("expiry", 99) ? invEntry.getLong("expiry") : -1;
+                CompoundNBT invEntry = invList.getCompound(n);
+                int partyID = invEntry.contains("partyID", 99) ? invEntry.getInt("partyID") : -1;
+                long timestamp = invEntry.contains("expiry", 99) ? invEntry.getLong("expiry") : -1;
                 if(partyID < 0 || timestamp < System.currentTimeMillis()) continue;
                 map.put(partyID, timestamp);
             }

@@ -36,9 +36,9 @@ import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -51,7 +51,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     private PanelVScrollBar inviteScroll;
     private UUID playerID;
     
-    public GuiPartyCreate(GuiScreen parent)
+    public GuiPartyCreate(Screen parent)
     {
         super(parent);
     }
@@ -63,7 +63,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         
         if(curParty != null)
         {
-            mc.displayGuiScreen(new GuiPartyManage(parent));
+            minecraft.displayGuiScreen(new GuiPartyManage(parent));
             return;
         }
         
@@ -75,18 +75,18 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     {
         super.initPanel();
         
-        playerID = QuestingAPI.getQuestingUUID(mc.player);
+        playerID = QuestingAPI.getQuestingUUID(minecraft.player);
         
         DBEntry<IParty> curParty = PartyManager.INSTANCE.getParty(playerID);
         
         if(curParty != null)
         {
-            mc.displayGuiScreen(new GuiPartyManage(parent));
+            minecraft.displayGuiScreen(new GuiPartyManage(parent));
             return;
         }
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-		Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -101,10 +101,10 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 8, 32), 0));
         cvBackground.addPanel(cvLeftHalf);
     
-        PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiTransform(GuiAlign.TOP_CENTER, -32, 0, 64, 64, 0), mc.player).setDepth(-16F);
+        PanelPlayerPortrait pnPortrait = new PanelPlayerPortrait(new GuiTransform(GuiAlign.TOP_CENTER, -32, 0, 64, 64, 0), minecraft.player).setDepth(-16F);
         cvLeftHalf.addPanel(pnPortrait);
         
-        cvLeftHalf.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_CENTER, 16, 48, 24, 24, 0), new ItemTexture(new BigItemStack(BetterQuesting.extraLife, LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mc.player))), true, true).setDepth(32F)));
+        cvLeftHalf.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_CENTER, 16, 48, 24, 24, 0), new ItemTexture(new BigItemStack(BetterQuesting.extraLife, LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(minecraft.player))), true, true).setDepth(32F)));
         
         PanelTextBox txName = new PanelTextBox(new GuiTransform(GuiAlign.BOTTOM_EDGE, new GuiPadding(16, -44, 16, 28), 0), QuestTranslation.translate("betterquesting.gui.name"));
         txName.setColor(PresetColor.TEXT_HEADER.getColor());
@@ -158,18 +158,18 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Create
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setInteger("action", 0);
-            payload.setString("name", flName.getRawText());
+            CompoundNBT payload = new CompoundNBT();
+            payload.putInt("action", 0);
+            payload.putString("name", flName.getRawText());
             NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Join
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setInteger("action", 4);
-            payload.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
+            CompoundNBT payload = new CompoundNBT();
+            payload.putInt("action", 4);
+            payload.putInt("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
             NetPartyAction.sendAction(payload);
         }
     }
@@ -179,7 +179,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         invitePanel.resetCanvas();
         int cvWidth = invitePanel.getTransform().getWidth();
         List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
-        int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
+        int elSize = RenderUtils.getStringWidth("...", minecraft.fontRenderer);
         
         // TODO: Display expiry period
         for(int i = 0; i < invites.size(); i++)
@@ -192,9 +192,9 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             invitePanel.addPanel(btnJoin);
             
             String pName = party == null ? "Unknown (" + pid + ")" : party.getProperties().getProperty(NativeProps.NAME);
-            if(RenderUtils.getStringWidth(pName, mc.fontRenderer) > cvWidth - 58)
+            if(RenderUtils.getStringWidth(pName, minecraft.fontRenderer) > cvWidth - 58)
             {
-                pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
+                pName = minecraft.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
             }
             
             PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);

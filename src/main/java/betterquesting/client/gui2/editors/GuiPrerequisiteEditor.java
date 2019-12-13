@@ -31,7 +31,11 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.GuiQuest;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
@@ -47,7 +51,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
     private CanvasQuestDatabase canvasDB;
     private CanvasScrolling canvasPreReq;
     
-    public GuiPrerequisiteEditor(GuiScreen parent, IQuest quest)
+    public GuiPrerequisiteEditor(Screen parent, IQuest quest)
     {
         super(parent);
         this.quest = quest;
@@ -61,7 +65,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         
         if(quest == null)
         {
-            mc.displayGuiScreen(parent);
+            minecraft.displayGuiScreen(parent);
             return;
         }
         
@@ -75,7 +79,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         super.initPanel();
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -190,11 +194,11 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) // Edit Quest
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            mc.displayGuiScreen(new GuiQuest(this, entry.getID()));
+            minecraft.displayGuiScreen(new GuiQuest(this, entry.getID()));
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Add
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
@@ -208,18 +212,18 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         } else if(btn.getButtonID() == 4 && btn instanceof PanelButtonStorage) // Delete
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setIntArray("questIDs", new int[]{entry.getID()});
-            payload.setInteger("action", 1);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putIntArray("questIDs", new int[]{entry.getID()});
+            payload.putInt("action", 1);
             NetQuestEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 5) // New
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            NBTTagList dataList = new NBTTagList();
-            NBTTagCompound entry = new NBTTagCompound();
-            entry.setInteger("questID", -1);
-            dataList.appendTag(entry);
-            payload.setTag("data", dataList);
+            CompoundNBT payload = new CompoundNBT();
+            ListNBT dataList = new ListNBT();
+            CompoundNBT entry = new CompoundNBT();
+            entry.putInt("questID", -1);
+            dataList.add(entry);
+            payload.put("data", dataList);
             NetQuestEdit.sendEdit(payload);
         }
     }

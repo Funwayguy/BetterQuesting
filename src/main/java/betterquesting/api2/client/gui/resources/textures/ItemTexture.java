@@ -7,8 +7,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 // Wrapper to allow embedding items into panels as IGuiTextures
@@ -73,11 +73,11 @@ public class ItemTexture implements IGuiTexture
         
         GlStateManager.pushMatrix();
         
-        GlStateManager.translate(x + dx, y + dy, 0);
-        GlStateManager.scale(sx, sy, 1F);
+        GlStateManager.translated(x + dx, y + dy, 0);
+        GlStateManager.scalef(sx, sy, 1F);
         color.applyGlColor();
         
-        RenderUtils.RenderItemStack(Minecraft.getMinecraft(), stack.getBaseStack(), 0, 0, zDepth, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "", 0xFFFFFFFF);
+        RenderUtils.RenderItemStack(Minecraft.getInstance(), stack.getBaseStack(), 0, 0, zDepth, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "", 0xFFFFFFFF);
         
         GlStateManager.popMatrix();
     }

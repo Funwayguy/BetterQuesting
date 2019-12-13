@@ -5,8 +5,8 @@ import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.SimpleDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -14,39 +14,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, NBTTagList, NBTTagList>
+public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, ListNBT, ListNBT>
 {
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
+	public ListNBT writeToNBT(ListNBT json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IReward> rew : getEntries())
 		{
 			ResourceLocation rewardID = rew.getValue().getFactoryID();
-			NBTTagCompound rJson = rew.getValue().writeToNBT(new NBTTagCompound());
-			rJson.setString("rewardID", rewardID.toString());
-			rJson.setInteger("index", rew.getID());
-			json.appendTag(rJson);
+			CompoundNBT rJson = rew.getValue().writeToNBT(new CompoundNBT());
+			rJson.putString("rewardID", rewardID.toString());
+			rJson.putInt("index", rew.getID());
+			json.add(rJson);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public void readFromNBT(ListNBT json, boolean merge)
 	{
 	    reset();
 		List<IReward> unassigned = new ArrayList<>();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound jsonReward = json.getCompoundTagAt(i);
+			CompoundNBT jsonReward = json.getCompound(i);
 			ResourceLocation loc = new ResourceLocation(jsonReward.getString("rewardID"));
-			int index = jsonReward.hasKey("index", 99) ? jsonReward.getInteger("index") : -1;
+			int index = jsonReward.contains("index", 99) ? jsonReward.getInt("index") : -1;
 			IReward reward = RewardRegistry.INSTANCE.createNew(loc);
 			
 			if(reward instanceof RewardPlaceholder)
 			{
-				NBTTagCompound jr2 = jsonReward.getCompoundTag("orig_data");
+				CompoundNBT jr2 = jsonReward.getCompound("orig_data");
 				ResourceLocation loc2 = new ResourceLocation(jr2.getString("rewardID"));
 				IReward r2 = RewardRegistry.INSTANCE.createNew(loc2);
 				
@@ -92,13 +92,13 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	// === Future support ===
 	
 	@Override
-    public NBTTagList writeProgressToNBT(NBTTagList nbt, @Nullable List<UUID> user)
+    public ListNBT writeProgressToNBT(ListNBT nbt, @Nullable List<UUID> user)
     {
         return nbt;
     }
     
     @Override
-    public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+    public void readProgressFromNBT(ListNBT nbt, boolean merge)
     {
     }
 }

@@ -19,14 +19,14 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.callback.NbtEntityCallback;
 import betterquesting.client.gui2.editors.nbt.callback.NbtFluidCallback;
 import betterquesting.client.gui2.editors.nbt.callback.NbtItemCallback;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
 
 public class GuiNbtType extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
-    private final NBTTagCompound tagCompound;
+    private final CompoundNBT tagCompound;
     
-    public GuiNbtType(GuiScreen parent, NBTTagCompound tagCompound)
+    public GuiNbtType(Screen parent, CompoundNBT tagCompound)
     {
         super(parent);
         this.tagCompound = tagCompound;
@@ -72,27 +72,27 @@ public class GuiNbtType extends GuiScreenCanvas implements IPEventListener, IVol
         {
             case 0: // Back
             {
-                mc.displayGuiScreen(this.parent);
+                minecraft.displayGuiScreen(this.parent);
                 break;
             }
             case 1: // Raw NBT
             {
-                mc.displayGuiScreen(new GuiNbtEditor(this.parent, tagCompound, null));
+                minecraft.displayGuiScreen(new GuiNbtEditor(this.parent, tagCompound, null));
                 break;
             }
             case 2: // Item
             {
-                mc.displayGuiScreen(new GuiItemSelection(this.parent, tagCompound, new NbtItemCallback(tagCompound)));
+                minecraft.displayGuiScreen(new GuiItemSelection(this.parent, tagCompound, new NbtItemCallback(tagCompound)));
                 break;
             }
             case 3: // Fluid
             {
-                mc.displayGuiScreen(new GuiFluidSelection(this.parent, tagCompound, new NbtFluidCallback(tagCompound)));
+                minecraft.displayGuiScreen(new GuiFluidSelection(this.parent, tagCompound, new NbtFluidCallback(tagCompound)));
                 break;
             }
             case 4: // Entity
             {
-                mc.displayGuiScreen(new GuiEntitySelection(this.parent, tagCompound, new NbtEntityCallback(tagCompound)));
+                minecraft.displayGuiScreen(new GuiEntitySelection(this.parent, tagCompound, new NbtEntityCallback(tagCompound)));
                 break;
             }
         }

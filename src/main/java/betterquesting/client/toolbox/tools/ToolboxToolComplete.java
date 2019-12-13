@@ -5,9 +5,9 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.handlers.NetQuestEdit;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,10 +66,10 @@ public class ToolboxToolComplete implements IToolboxTool
             questIDs[i] = btnList.get(i).getStoredValue().getID();
         }
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("questIDs", questIDs);
-        payload.setBoolean("state", true);
-        payload.setInteger("action", 2);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("questIDs", questIDs);
+        payload.putBoolean("state", true);
+        payload.putInt("action", 2);
         NetQuestEdit.sendEdit(payload);
         
         return true;
@@ -90,7 +90,7 @@ public class ToolboxToolComplete implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
-	    if(PanelToolController.selected.size() <= 0 || key != Keyboard.KEY_RETURN) return false;
+	    if(PanelToolController.selected.size() <= 0 || key != GLFW.GLFW_KEY_ENTER) return false;
 	    
         List<PanelButtonQuest> btnList = PanelToolController.selected;
         int[] questIDs = new int[btnList.size()];
@@ -100,10 +100,10 @@ public class ToolboxToolComplete implements IToolboxTool
             questIDs[i] = btnList.get(i).getStoredValue().getID();
         }
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("questIDs", questIDs);
-        payload.setBoolean("state", true);
-        payload.setInteger("action", 2);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("questIDs", questIDs);
+        payload.putBoolean("state", true);
+        payload.putInt("action", 2);
         NetQuestEdit.sendEdit(payload);
         
         return true;

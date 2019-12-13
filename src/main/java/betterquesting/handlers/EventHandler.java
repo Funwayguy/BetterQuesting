@@ -5,7 +5,6 @@ import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.events.QuestEvent;
 import betterquesting.api.events.QuestEvent.Type;
-import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
@@ -30,33 +29,34 @@ import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.GameType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -71,14 +71,14 @@ public class EventHandler
 	public static final EventHandler INSTANCE = new EventHandler();
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onKey(InputEvent.KeyInputEvent event)
 	{
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			if(mc.player.isSneaking() && mc.player.getName().equalsIgnoreCase("Funwayguy"))
+			if(mc.player.isSneaking() && mc.player.getName().getFormattedText().equalsIgnoreCase("Funwayguy"))
 			{
 				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
 			} else
@@ -97,15 +97,15 @@ public class EventHandler
 	@SubscribeEvent
     public void onCapabilityPlayer(AttachCapabilitiesEvent<Entity> event)
     {
-        if(!(event.getObject() instanceof EntityPlayer)) return;
+        if(!(event.getObject() instanceof PlayerEntity)) return;
         event.addCapability(CapabilityProviderQuestCache.LOC_QUEST_CACHE, new CapabilityProviderQuestCache());
     }
     
     @SubscribeEvent
     public void onPlayerClone(Clone event)
     {
-        betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-        betterquesting.api2.cache.QuestCache nCache = event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
+        betterquesting.api2.cache.QuestCache nCache = event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
         
         if(oCache != null && nCache != null) nCache.deserializeNBT(oCache.serializeNBT());
     }
@@ -115,11 +115,11 @@ public class EventHandler
 	{
 		if(event.getEntityLiving().world.isRemote) return;
 		
-		if(event.getEntityLiving() instanceof EntityPlayerMP)
+		if(event.getEntityLiving() instanceof ServerPlayerEntity)
 		{
 			if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
 			
-			EntityPlayerMP player = (EntityPlayerMP)event.getEntityLiving();
+			ServerPlayerEntity player = (ServerPlayerEntity)event.getEntityLiving();
             betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
             boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
             
@@ -209,9 +209,9 @@ public class EventHandler
 	}
 	
 	// TODO: Create a new message inbox system for these things. On screen popups aren't ideal in combat
-	private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset)
+	private static void postPresetNotice(IQuest quest, PlayerEntity player, int preset)
 	{
-	    if(!(player instanceof EntityPlayerMP)) return;
+	    if(!(player instanceof ServerPlayerEntity)) return;
         ItemStack icon = quest.getProperty(NativeProps.ICON).getBaseStack();
         String mainText = "";
         String subText = quest.getProperty(NativeProps.NAME);
@@ -239,7 +239,7 @@ public class EventHandler
             }
 		}
 		
-		NetNotices.sendNotice(quest.getProperty(NativeProps.GLOBAL) ? null : new EntityPlayerMP[]{(EntityPlayerMP)player}, icon, mainText, subText, sound);
+		NetNotices.sendNotice(quest.getProperty(NativeProps.GLOBAL) ? null : new ServerPlayerEntity[]{(ServerPlayerEntity)player}, icon, mainText, subText, sound);
 	}
 	
 	@SubscribeEvent
@@ -255,7 +255,7 @@ public class EventHandler
 	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
-		if(!event.getWorld().isRemote && BQ_Settings.curWorldDir != null && event.getWorld().provider.getDimension() == 0)
+		if(!event.getWorld().isRemote() && BQ_Settings.curWorldDir != null && event.getWorld().getDimension().getType().getId() == 0)
 		{
 			SaveLoadHandler.INSTANCE.saveDatabases();
 		}
@@ -264,11 +264,11 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(event.player.world.isRemote || event.player.getServer() == null || !(event.player instanceof EntityPlayerMP)) return;
+		if(event.getPlayer().world.isRemote || event.getPlayer().getServer() == null || !(event.getPlayer() instanceof ServerPlayerEntity)) return;
 		
-		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+		ServerPlayerEntity mpPlayer = (ServerPlayerEntity)event.getPlayer();
 		
-		if(BetterQuesting.proxy.isClient() && !mpPlayer.getServer().isDedicatedServer() && event.player.getServer().getServerOwner().equals(mpPlayer.getGameProfile().getName()))
+		if(BetterQuesting.proxy.isClient() && !mpPlayer.getServer().isDedicatedServer() && mpPlayer.getServer().getServerOwner().equals(mpPlayer.getGameProfile().getName()))
         {
             NameCache.INSTANCE.updateName(mpPlayer);
             return;
@@ -280,9 +280,9 @@ public class EventHandler
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
-		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && event.player instanceof EntityPlayerMP && !((EntityPlayerMP)event.player).queuedEndExit)
+		if(QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE) && event.getPlayer() instanceof ServerPlayerEntity && !((ServerPlayerEntity)event.getPlayer()).queuedEndExit)
 		{
-			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+			ServerPlayerEntity mpPlayer = (ServerPlayerEntity)event.getPlayer();
 			
 			int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer));
 			
@@ -292,15 +292,15 @@ public class EventHandler
 				if(server == null) return;
 	            
 	            mpPlayer.setGameType(GameType.SPECTATOR);
-				if(!server.isDedicatedServer()) mpPlayer.getServerWorld().getGameRules().setOrCreateGameRule("spectatorsGenerateChunks", "false");
+				if(!server.isDedicatedServer()) mpPlayer.getServerWorld().getGameRules().get(GameRules.SPECTATORS_GENERATE_CHUNKS).set(false, server);
 			} else
 			{
 				if(lives == 1)
 				{
-					mpPlayer.sendStatusMessage(new TextComponentString("This is your last life!"), true);
+					mpPlayer.sendStatusMessage(new StringTextComponent("This is your last life!"), true);
 				} else
 				{
-					mpPlayer.sendStatusMessage(new TextComponentString(lives + " lives remaining!"), true);
+					mpPlayer.sendStatusMessage(new StringTextComponent(lives + " lives remaining!"), true);
 				}
 			}
 		}
@@ -314,9 +314,9 @@ public class EventHandler
 			return;
 		}
 		
-		if(event.getEntityLiving() instanceof EntityPlayer)
+		if(event.getEntityLiving() instanceof PlayerEntity)
 		{
-			UUID uuid = QuestingAPI.getQuestingUUID(((EntityPlayer)event.getEntityLiving()));
+			UUID uuid = QuestingAPI.getQuestingUUID(((PlayerEntity)event.getEntityLiving()));
 			
             int lives = LifeDatabase.INSTANCE.getLives(uuid);
             LifeDatabase.INSTANCE.setLives(uuid, lives - 1);
@@ -324,37 +324,37 @@ public class EventHandler
 	}
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onTextureStitch(TextureStitchEvent.Pre event)
 	{
-		if(event.getMap() == Minecraft.getMinecraft().getTextureMapBlocks())
+		if(event.getMap() == Minecraft.getInstance().getTextureMap())
 		{
-			event.getMap().registerSprite(FluidPlaceholder.fluidPlaceholder.getStill());
+			//event.getMap().registerSprite(FluidPlaceholder.fluidPlaceholder.getStill());
 		}
 	}
 	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public void onDataUpdated(DatabaseEvent.Update event)
 	{
 		// TODO: Change this to a proper panel event. Also explain WHAT updated
-		final GuiScreen screen = Minecraft.getMinecraft().currentScreen;
-		if(screen instanceof INeedsRefresh) Minecraft.getMinecraft().addScheduledTask(((INeedsRefresh)screen)::refreshGui);
+		final Screen screen = Minecraft.getInstance().currentScreen;
+		if(screen instanceof INeedsRefresh) Minecraft.getInstance().deferTask(((INeedsRefresh)screen)::refreshGui);
 	}
 	
 	@SubscribeEvent
 	public void onCommand(CommandEvent event)
 	{
-		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		
 		if(server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")))
 		{
-		    EntityPlayerMP playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
+		    ServerPlayerEntity playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
 			if(playerMP != null) opQueue.add(playerMP); // Has to be delayed until after the event when the command has executed
 		}
 	}
 	
-	private final ArrayDeque<EntityPlayerMP> opQueue = new ArrayDeque<>();
+	private final ArrayDeque<ServerPlayerEntity> opQueue = new ArrayDeque<>();
 	private boolean openToLAN = false;
 	
 	@SubscribeEvent
@@ -364,11 +364,11 @@ public class EventHandler
         
         if(!openToLAN)
         {
-            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if(server.isDedicatedServer())
             {
                 openToLAN = true;
-            } else if(((IntegratedServer)server).getPublic())
+            } else if(server.getPublic())
             {
                 openToLAN = true;
                 opQueue.addAll(server.getPlayerList().getPlayers());
@@ -377,7 +377,7 @@ public class EventHandler
         
         while(!opQueue.isEmpty())
         {
-            EntityPlayerMP playerMP = opQueue.poll();
+            ServerPlayerEntity playerMP = opQueue.poll();
             if(playerMP != null && NameCache.INSTANCE.updateName(playerMP))
             {
                 DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(playerMP));
@@ -386,7 +386,7 @@ public class EventHandler
                     NetNameSync.quickSync(null, party.getID());
                 } else
                 {
-                    NetNameSync.sendNames(new EntityPlayerMP[]{playerMP}, new UUID[]{QuestingAPI.getQuestingUUID(playerMP)}, null);
+                    NetNameSync.sendNames(new ServerPlayerEntity[]{playerMP}, new UUID[]{QuestingAPI.getQuestingUUID(playerMP)}, null);
                 }
             }
         }

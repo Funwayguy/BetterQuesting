@@ -1,9 +1,9 @@
 package betterquesting.api2.client.gui.resources.lines;
 
-import betterquesting.api2.client.gui.resources.colors.IGuiColor;
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import com.mojang.blaze3d.platform.GlStateManager;
+import org.lwjgl.opengl.GL11;
 
 public class SimpleLine implements IGuiLine
 {
@@ -26,7 +26,7 @@ public class SimpleLine implements IGuiLine
 	{
 		GlStateManager.pushMatrix();
 		
-		GlStateManager.disableTexture2D();
+		GlStateManager.disableTexture();
 		GL11.glEnable(GL11.GL_LINE_STIPPLE);
 		color.applyGlColor();
 		GL11.glLineWidth(width);
@@ -40,8 +40,8 @@ public class SimpleLine implements IGuiLine
 		GL11.glLineStipple(1, (short)0xFFFF);
 		GL11.glLineWidth(1F);
 		GL11.glDisable(GL11.GL_LINE_STIPPLE);
-		GlStateManager.enableTexture2D();
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.enableTexture();
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		
 		GlStateManager.popMatrix();
 	}

@@ -6,9 +6,9 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
@@ -79,7 +79,7 @@ public class PanelTextBox implements IGuiPanel
 	private void refreshText()
     {
         IGuiRect bounds = this.getTransform();
-		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		FontRenderer fr = Minecraft.getInstance().fontRenderer;
 		float scale = fontScale / relScale;
 		
 		if(!autoFit)
@@ -131,7 +131,7 @@ public class PanelTextBox implements IGuiPanel
 	    if(lines < 0) return;
 	    
 		IGuiRect bounds = this.getTransform();
-		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+		FontRenderer fr = Minecraft.getInstance().fontRenderer;
 		//FontRenderer fr = BqFontRenderer.FONT_UNICODE;
         //FontRenderer fr = BqFontRenderer.FONT_STANDARD;
 		
@@ -142,10 +142,10 @@ public class PanelTextBox implements IGuiPanel
 		if(bw <= 0) return;
         
         GlStateManager.pushMatrix();
-        GlStateManager.translate(bounds.getX(), bounds.getY(), 1);
-        if(align == 1) GlStateManager.translate(bounds.getWidth() / 2D - w / 2D, 0D, 0D);
-        if(align == 2) GlStateManager.translate(bounds.getWidth() - w, 0D, 0D);
-        GlStateManager.scale(s, s, 1D);
+        GlStateManager.translatef(bounds.getX(), bounds.getY(), 1);
+        if(align == 1) GlStateManager.translated(bounds.getWidth() / 2D - w / 2D, 0D, 0D);
+        if(align == 2) GlStateManager.translated(bounds.getWidth() - w, 0D, 0D);
+        GlStateManager.scaled(s, s, 1D);
         
 		if(align == 2)
 		{

@@ -10,20 +10,17 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.api2.storage.INBTSaveLoad;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.input.Mouse;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTagCompound>
+public class PanelButton implements IPanelButton, IGuiPanel
 {
 	private final IGuiRect transform;
 	private boolean enabled = true;
@@ -168,10 +165,10 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 	{
 		IGuiRect bounds = this.getTransform();
 		GlStateManager.pushMatrix();
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
 		int curState = !isActive()? 0 : (bounds.contains(mx, my)? 2 : 1);
 		
-		if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
+		if(curState == 2 && pendingRelease && Minecraft.getInstance().mouseHelper.isLeftDown())
 		{
 			curState = 0;
 		}
@@ -201,7 +198,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
+			drawCenteredString(Minecraft.getInstance().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
 		}
 		
 		GlStateManager.popMatrix();
@@ -213,18 +210,29 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
         {
             case 0:
             {
-                font.drawString(text, x + 4, y, color, shadow);
+                drawString(font, text, x + 4, y, color, shadow);
                 break;
             }
             case 2:
             {
-                font.drawString(text, x + width - RenderUtils.getStringWidth(text, font) / 2F - 4, y, color, shadow);
+                drawString(font, text, x + width - RenderUtils.getStringWidth(text, font) / 2F - 4, y, color, shadow);
                 break;
             }
             default:
             {
-                font.drawString(text, x + Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
+                drawString(font, text, x + Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F, y, color, shadow);
             }
+        }
+    }
+    
+    private static void drawString(FontRenderer font, String text, float x, float y, int color, boolean shadow)
+    {
+        if(shadow)
+        {
+            font.drawStringWithShadow(text, x, y, color);
+        } else
+        {
+            font.drawString(text, x, y, color);
         }
     }
     
@@ -252,7 +260,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 		
 		if(clicked)
 		{
-	        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+	        Minecraft.getInstance().getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	        onButtonClick();
 		}
 		
@@ -286,18 +294,5 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
     public void onButtonClick()
     {
         if(clickAction != null) clickAction.accept(this);
-    }
-    
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
-        // TODO: Fix me
-        return nbt;
-    }
-    
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-    
     }
 }

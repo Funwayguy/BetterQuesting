@@ -1,11 +1,11 @@
 package betterquesting.storage;
 
 import betterquesting.api.storage.INameCache;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,21 +17,21 @@ public final class NameCache implements INameCache
 	public static final NameCache INSTANCE = new NameCache();
 	
     // TODO: Label known names as offline/online and convert accordingly?
-	private final HashMap<UUID,NBTTagCompound> cache = new HashMap<>();
+	private final HashMap<UUID, CompoundNBT> cache = new HashMap<>();
 	
 	@Override
-    public synchronized boolean updateName(@Nonnull EntityPlayerMP player)
+    public synchronized boolean updateName(@Nonnull ServerPlayerEntity player)
     {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        NBTTagCompound tag = cache.computeIfAbsent(player.getGameProfile().getId(), (key) -> new NBTTagCompound());
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        CompoundNBT tag = cache.computeIfAbsent(player.getGameProfile().getId(), (key) -> new CompoundNBT());
         
         String name = player.getGameProfile().getName();
         boolean isOP = server.getPlayerList().canSendCommands(player.getGameProfile());
         
         if(!tag.getString("name").equals(name) || tag.getBoolean("isOP") != isOP)
         {
-            tag.setString("name", name);
-            tag.setBoolean("isOP", isOP);
+            tag.putString("name", name);
+            tag.putBoolean("isOP", isOP);
             return true;
         }
         
@@ -41,14 +41,14 @@ public final class NameCache implements INameCache
 	@Override
 	public synchronized String getName(@Nonnull UUID uuid)
 	{
-	    NBTTagCompound tag = cache.get(uuid);
+	    CompoundNBT tag = cache.get(uuid);
 	    return tag == null ? uuid.toString() : tag.getString("name");
 	}
 	
 	@Override
 	public synchronized UUID getUUID(@Nonnull String name)
 	{
-        for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
+        for(Entry<UUID, CompoundNBT> entry : cache.entrySet())
         {
             if(entry.getValue().getString("name").equalsIgnoreCase(name))
             {
@@ -62,7 +62,7 @@ public final class NameCache implements INameCache
 	@Override
 	public synchronized boolean isOP(@Nonnull UUID uuid)
 	{
-	    NBTTagCompound tag = cache.get(uuid);
+	    CompoundNBT tag = cache.get(uuid);
 	    return tag != null && tag.getBoolean("isOP");
 	}
 	
@@ -73,28 +73,28 @@ public final class NameCache implements INameCache
 	}
 
 	@Override
-	public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> users)
+	public synchronized ListNBT writeToNBT(ListNBT nbt, @Nullable List<UUID> users)
 	{
-        for(Entry<UUID, NBTTagCompound> entry : cache.entrySet())
+        for(Entry<UUID, CompoundNBT> entry : cache.entrySet())
         {
             if(users != null && !users.contains(entry.getKey())) continue;
-            NBTTagCompound jn = new NBTTagCompound();
-            jn.setString("uuid", entry.getKey().toString());
-            jn.setString("name", entry.getValue().getString("name"));
-            jn.setBoolean("isOP", entry.getValue().getBoolean("isOP"));
-            nbt.appendTag(jn);
+            CompoundNBT jn = new CompoundNBT();
+            jn.putString("uuid", entry.getKey().toString());
+            jn.putString("name", entry.getValue().getString("name"));
+            jn.putBoolean("isOP", entry.getValue().getBoolean("isOP"));
+            nbt.add(jn);
         }
 		
 		return nbt;
 	}
 
 	@Override
-	public synchronized void readFromNBT(NBTTagList nbt, boolean merge)
+	public synchronized void readFromNBT(ListNBT nbt, boolean merge)
 	{
         if(!merge) cache.clear();
-        for(int i = 0; i < nbt.tagCount(); i++)
+        for(int i = 0; i < nbt.size(); i++)
         {
-            NBTTagCompound jn = nbt.getCompoundTagAt(i);
+            CompoundNBT jn = nbt.getCompound(i);
     
             try
             {
@@ -102,9 +102,9 @@ public final class NameCache implements INameCache
                 String name = jn.getString("name");
                 boolean isOP = jn.getBoolean("isOP");
         
-                NBTTagCompound j2 = new NBTTagCompound();
-                j2.setString("name", name);
-                j2.setBoolean("isOP", isOP);
+                CompoundNBT j2 = new CompoundNBT();
+                j2.putString("name", name);
+                j2.putBoolean("isOP", isOP);
                 cache.put(uuid, j2);
             } catch(Exception ignored){}
         }
@@ -126,9 +126,9 @@ public final class NameCache implements INameCache
 	    
 		nameCache = new ArrayList<>();
 		
-        for(NBTTagCompound tag : cache.values())
+        for(CompoundNBT tag : cache.values())
         {
-            if(tag != null && tag.hasKey("name", 8))
+            if(tag != null && tag.contains("name", 8))
             {
                 nameCache.add(tag.getString("name"));
             }

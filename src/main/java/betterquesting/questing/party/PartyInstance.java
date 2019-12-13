@@ -7,8 +7,8 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
 import betterquesting.storage.PropertyContainer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -164,43 +164,43 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound json)
+	public CompoundNBT writeToNBT(CompoundNBT json)
 	{
-		NBTTagList memJson = new NBTTagList();
+		ListNBT memJson = new ListNBT();
 		for(Entry<UUID,EnumPartyStatus> mem : members.entrySet())
 		{
-			NBTTagCompound jm = new NBTTagCompound();
-			jm.setString("uuid", mem.getKey().toString());
-			jm.setString("status", mem.getValue().toString());
-			memJson.appendTag(jm);
+			CompoundNBT jm = new CompoundNBT();
+			jm.putString("uuid", mem.getKey().toString());
+			jm.putString("status", mem.getValue().toString());
+			memJson.add(jm);
 		}
-		json.setTag("members", memJson);
+		json.put("members", memJson);
 		
-		json.setTag("properties", pInfo.writeToNBT(new NBTTagCompound()));
+		json.put("properties", pInfo.writeToNBT(new CompoundNBT()));
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound jObj)
+	public void readFromNBT(CompoundNBT jObj)
 	{
-		if(jObj.hasKey("properties", 10))
+		if(jObj.contains("properties", 10))
 		{
-			pInfo.readFromNBT(jObj.getCompoundTag("properties"));
+			pInfo.readFromNBT(jObj.getCompound("properties"));
 		} else // Legacy stuff
 		{
-			pInfo.readFromNBT(new NBTTagCompound());
+			pInfo.readFromNBT(new CompoundNBT());
 			pInfo.setProperty(NativeProps.NAME, jObj.getString("name"));
 		}
 		
 		members.clear();
-		NBTTagList memList = jObj.getTagList("members", 10);
-		for(int i = 0; i < memList.tagCount(); i++)
+		ListNBT memList = jObj.getList("members", 10);
+		for(int i = 0; i < memList.size(); i++)
 		{
 			try
 			{
-			    NBTTagCompound jMem = memList.getCompoundTagAt(i);
-			    if(!jMem.hasKey("uuid", 8) || !jMem.hasKey("status")) continue;
+			    CompoundNBT jMem = memList.getCompound(i);
+			    if(!jMem.contains("uuid", 8) || !jMem.contains("status")) continue;
 				UUID uuid = UUID.fromString(jMem.getString("uuid"));
 				EnumPartyStatus priv = EnumPartyStatus.valueOf(jMem.getString("status"));
 				members.put(uuid, priv);
@@ -212,13 +212,13 @@ public class PartyInstance implements IParty
 	}
     
     @Override
-    public NBTTagCompound writeProperties(NBTTagCompound nbt)
+    public CompoundNBT writeProperties(CompoundNBT nbt)
     {
         return pInfo.writeToNBT(nbt);
     }
     
     @Override
-    public void readProperties(NBTTagCompound nbt)
+    public void readProperties(CompoundNBT nbt)
     {
         pInfo.readFromNBT(nbt);
     }
