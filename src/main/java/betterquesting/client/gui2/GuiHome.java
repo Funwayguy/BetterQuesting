@@ -39,19 +39,14 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.QuestSettings;
-import javafx.geometry.Side;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.lwjgl.util.vector.Vector4f;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.util.Collections;
@@ -120,7 +115,7 @@ public class GuiHome extends GuiScreenCanvas
 			inCan.addPanel(tstBtn);
 		}
 		
-		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+		if(minecraft.player.getGameProfile().getName().equalsIgnoreCase("funwayguy"))//(Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
         {
 		    PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -2, "?")
             {
@@ -175,7 +170,7 @@ public class GuiHome extends GuiScreenCanvas
 			
 			if(qFile.exists())
 			{
-				FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+				ServerLifecycleHooks.getCurrentServer().deferTask(() -> {
 					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
 					

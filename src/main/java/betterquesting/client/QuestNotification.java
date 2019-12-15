@@ -3,28 +3,27 @@ package betterquesting.client;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.utils.QuestTranslation;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.GlStateManager.DestFactor;
-import net.minecraft.client.renderer.GlStateManager.SourceFactor;
+import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class QuestNotification
 {
 	public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
@@ -53,10 +52,9 @@ public class QuestNotification
 			return;
 		}
 		
-		Minecraft mc = Minecraft.getMinecraft();
-		ScaledResolution resolution = new ScaledResolution(mc);
-		int width = resolution.getScaledWidth();
-		int height = resolution.getScaledHeight();
+		Minecraft mc = Minecraft.getInstance();
+		int width = mc.mainWindow.getScaledWidth();
+		int height = mc.mainWindow.getScaledHeight();
 		QuestNotice notice = notices.get(0);
 		
 		if(!notice.init)
@@ -67,8 +65,8 @@ public class QuestNotification
 			}
 			
 			notice.init = true;
-			notice.startTime = Minecraft.getSystemTime();
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(new SoundEvent(new ResourceLocation(notice.sound)), 1.0F));
+			notice.startTime = System.currentTimeMillis();
+			mc.getSoundHandler().play(SimpleSound.master(new SoundEvent(new ResourceLocation(notice.sound)), 1.0F));
 		}
 		
 		if(notice.getTime() >= 6F)
@@ -81,7 +79,7 @@ public class QuestNotification
 		
 		float scale = width > 600? 1.5F : 1F;
 		
-		GlStateManager.scale(scale, scale, scale);
+		GlStateManager.scalef(scale, scale, scale);
 		width = MathHelper.ceil(width/scale);
 		height = MathHelper.ceil(height/scale);
 		
@@ -89,7 +87,7 @@ public class QuestNotification
 		alpha = MathHelper.clamp(alpha, 0.02F, 1F);
 		int color = new Color(1F, 1F, 1F, alpha).getRGB();
 		
-		GlStateManager.color(1F, 1F, 1F, alpha);
+		GlStateManager.color4f(1F, 1F, 1F, alpha);
 		
 		if(notice.icon != null)
 		{
@@ -101,11 +99,11 @@ public class QuestNotification
      	
 		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + QuestTranslation.translate(notice.mainTxt);
 		int txtW = RenderUtils.getStringWidth(tmp, mc.fontRenderer);
-		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4, color, false);
+		mc.fontRenderer.drawString(tmp, width/2F - txtW/2F, height/4F, color);
 		
 		tmp = QuestTranslation.translate(notice.subTxt);
 		txtW = RenderUtils.getStringWidth(tmp, mc.fontRenderer);
-		mc.fontRenderer.drawString(tmp, width/2 - txtW/2, height/4 + 12, color, false);
+		mc.fontRenderer.drawString(tmp, width/2F - txtW/2F, height/4F + 12, color);
 		
 		//GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
@@ -122,7 +120,7 @@ public class QuestNotification
 		
 		public QuestNotice(String mainTxt, String subTxt, ItemStack icon, String sound)
 		{
-			this.startTime = Minecraft.getSystemTime();
+			this.startTime = System.currentTimeMillis();
 			this.mainTxt = mainTxt;
 			this.subTxt = subTxt;
 			this.icon = icon;
@@ -131,7 +129,7 @@ public class QuestNotification
 		
 		public float getTime()
 		{
-			return (Minecraft.getSystemTime() - startTime)/1000F;
+			return (System.currentTimeMillis() - startTime)/1000F;
 		}
 	}
 }

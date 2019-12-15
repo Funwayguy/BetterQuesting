@@ -36,10 +36,10 @@ import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,7 +53,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
     private CanvasQuestDatabase canvasDB;
     private CanvasScrolling canvasQL;
     
-    public GuiQuestLineAddRemove(GuiScreen parent, @Nullable IQuestLine questLine)
+    public GuiQuestLineAddRemove(Screen parent, @Nullable IQuestLine questLine)
     {
         super(parent);
         this.questLine = questLine;
@@ -74,7 +74,7 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         super.initPanel();
     
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
     
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -176,11 +176,11 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Edit
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            mc.displayGuiScreen(new GuiQuest(this, entry.getID()));
+            minecraft.displayGuiScreen(new GuiQuest(this, entry.getID()));
         } else if(btn.getButtonID() == 2) // Add
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
@@ -219,25 +219,25 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
         } else if(btn.getButtonID() == 4) // Delete
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setIntArray("questIDs", new int[]{entry.getID()});
-            payload.setInteger("action", 1);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putIntArray("questIDs", new int[]{entry.getID()});
+            payload.putInt("action", 1);
             NetQuestEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 5) // New
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            NBTTagList dataList = new NBTTagList();
-            NBTTagCompound entry = new NBTTagCompound();
-            entry.setInteger("questID", -1);
-            dataList.appendTag(entry);
-            payload.setTag("data", dataList);
-            payload.setInteger("action", 3);
+            CompoundNBT payload = new CompoundNBT();
+            ListNBT dataList = new ListNBT();
+            CompoundNBT entry = new CompoundNBT();
+            entry.putInt("questID", -1);
+            dataList.add(entry);
+            payload.put("data", dataList);
+            payload.putInt("action", 3);
             NetQuestEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 6) // Error resolve
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setIntArray("questIDs", new int[]{((PanelButtonStorage<Integer>)btn).getStoredValue()});
-            payload.setInteger("action", 1);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putIntArray("questIDs", new int[]{((PanelButtonStorage<Integer>)btn).getStoredValue()});
+            payload.putInt("action", 1);
             NetQuestEdit.sendEdit(payload);
         }
     }
@@ -281,14 +281,14 @@ public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventLis
 	{
 	    if(questLine == null) return;
 	    
-	    NBTTagCompound payload = new NBTTagCompound();
-        NBTTagList dataList = new NBTTagList();
-        NBTTagCompound entry = new NBTTagCompound();
-        entry.setInteger("chapterID", lineID);
-        entry.setTag("config", questLine.writeToNBT(new NBTTagCompound(), null));
-        dataList.appendTag(entry);
-        payload.setTag("data", dataList);
-        payload.setInteger("action", 0);
+	    CompoundNBT payload = new CompoundNBT();
+        ListNBT dataList = new ListNBT();
+        CompoundNBT entry = new CompoundNBT();
+        entry.putInt("chapterID", lineID);
+        entry.put("config", questLine.writeToNBT(new CompoundNBT(), null));
+        dataList.add(entry);
+        payload.put("data", dataList);
+        payload.putInt("action", 0);
         NetChapterEdit.sendEdit(payload);
 	}
 }

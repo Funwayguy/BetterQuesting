@@ -6,7 +6,7 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.GuiKey;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.core.BetterQuesting;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -121,7 +121,7 @@ public class ResourceTheme implements IGuiTheme
     
     @Nullable
     @Override
-    public <T> Function<T, GuiScreen> getGui(GuiKey<T> key)
+    public <T> Function<T, Screen> getGui(GuiKey<T> key)
     {
         return null;
     }

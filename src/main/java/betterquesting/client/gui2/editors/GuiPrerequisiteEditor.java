@@ -32,13 +32,9 @@ import betterquesting.client.gui2.GuiQuest;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
 import java.util.List;
@@ -265,14 +261,14 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 	
 	private void SendChanges()
 	{
-	    NBTTagCompound payload = new NBTTagCompound();
-	    NBTTagList dataList = new NBTTagList();
-	    NBTTagCompound entry = new NBTTagCompound();
-	    entry.setInteger("questID", questID);
-	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-	    dataList.appendTag(entry);
-	    payload.setTag("data", dataList);
-	    payload.setInteger("action", 0);
+	    CompoundNBT payload = new CompoundNBT();
+	    ListNBT dataList = new ListNBT();
+	    CompoundNBT entry = new CompoundNBT();
+	    entry.putInt("questID", questID);
+	    entry.put("config", quest.writeToNBT(new CompoundNBT()));
+	    dataList.add(entry);
+	    payload.put("data", dataList);
+	    payload.putInt("action", 0);
 	    NetQuestEdit.sendEdit(payload);
 	}
 }

@@ -9,10 +9,10 @@ import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.network.handlers.NetQuestEdit;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,22 +54,22 @@ public class ToolboxToolIcon implements IToolboxTool
 	
 	private void changeIcon(List<PanelButtonQuest> list, BigItemStack refItem)
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         mc.displayGuiScreen(new GuiItemSelection(mc.currentScreen, refItem, value -> {
-            NBTTagList dataList = new NBTTagList();
+            ListNBT dataList = new ListNBT();
             for(PanelButtonQuest b : list)
             {
                 b.getStoredValue().getValue().setProperty(NativeProps.ICON, value);
                 
-                NBTTagCompound entry = new NBTTagCompound();
-                entry.setInteger("questID", b.getStoredValue().getID());
-                entry.setTag("config", b.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-                dataList.appendTag(entry);
+                CompoundNBT entry = new CompoundNBT();
+                entry.putInt("questID", b.getStoredValue().getID());
+                entry.put("config", b.getStoredValue().getValue().writeToNBT(new CompoundNBT()));
+                dataList.add(entry);
             }
             
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setTag("data", dataList);
-            payload.setInteger("action", 0);
+            CompoundNBT payload = new CompoundNBT();
+            payload.put("data", dataList);
+            payload.putInt("action", 0);
             NetQuestEdit.sendEdit(payload);
         }));
     }
@@ -89,7 +89,7 @@ public class ToolboxToolIcon implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
-	    if(PanelToolController.selected.size() <= 0 || key != Keyboard.KEY_RETURN) return false;
+	    if(PanelToolController.selected.size() <= 0 || key != GLFW.GLFW_KEY_ENTER) return false;
 	    changeIcon(PanelToolController.selected, PanelToolController.selected.get(0).getStoredValue().getValue().getProperty(NativeProps.ICON));
 	    return true;
 	}

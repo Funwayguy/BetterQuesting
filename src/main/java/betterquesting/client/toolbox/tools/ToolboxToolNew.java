@@ -12,8 +12,8 @@ import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 
 import java.util.Collections;
@@ -100,24 +100,24 @@ public class ToolboxToolNew implements IToolboxTool
 		}
 		
 		// Sync Quest
-		NBTTagCompound quPayload = new NBTTagCompound();
-        NBTTagList qdList = new NBTTagList();
-        NBTTagCompound qTag = new NBTTagCompound();
-        qTag.setInteger("questID", qID);
-        qdList.appendTag(qTag);
-        quPayload.setTag("data", qdList);
-        quPayload.setInteger("action", 3);
+		CompoundNBT quPayload = new CompoundNBT();
+        ListNBT qdList = new ListNBT();
+        CompoundNBT qTag = new CompoundNBT();
+        qTag.putInt("questID", qID);
+        qdList.add(qTag);
+        quPayload.put("data", qdList);
+        quPayload.putInt("action", 3);
         NetQuestEdit.sendEdit(quPayload);
         
 		// Sync Line
-		NBTTagCompound chPayload = new NBTTagCompound();
-        NBTTagList cdList = new NBTTagList();
-        NBTTagCompound cTag = new NBTTagCompound();
-        cTag.setInteger("chapterID", lID);
-        cTag.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
-        cdList.appendTag(cTag);
-        chPayload.setTag("data", cdList);
-        chPayload.setInteger("action", 0);
+		CompoundNBT chPayload = new CompoundNBT();
+        ListNBT cdList = new ListNBT();
+        CompoundNBT cTag = new CompoundNBT();
+        cTag.putInt("chapterID", lID);
+        cTag.put("config", qLine.writeToNBT(new CompoundNBT(), null));
+        cdList.add(cTag);
+        chPayload.put("data", cdList);
+        chPayload.putInt("action", 0);
         NetChapterEdit.sendEdit(chPayload);
 		
 		return true;

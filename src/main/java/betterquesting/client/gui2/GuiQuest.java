@@ -1,5 +1,6 @@
 package betterquesting.client.gui2;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -32,6 +33,7 @@ import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -63,7 +65,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     private int rewardIndex = 0;
     private int taskIndex = 0;
     
-    public GuiQuest(GuiScreen parent, int questID)
+    public GuiQuest(Screen parent, int questID)
     {
         super(parent);
         this.questID = questID;
@@ -78,7 +80,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(quest == null)
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
             return;
         }
     
@@ -92,7 +94,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         panTxt.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(panTxt);
     
-        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
+        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(minecraft.player))
         {
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0, QuestTranslation.translate("gui.back")));
             cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, 0, -16, 100, 16, 0), 1, QuestTranslation.translate("betterquesting.btn.edit")));
@@ -106,7 +108,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(quest.getRewards().size() > 0)
         {
-            CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
+            CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
             cvInner.addPanel(cvDesc);
             PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getProperty(NativeProps.DESC)), true);
             paDesc.setColor(PresetColor.TEXT_MAIN.getColor());//.setFontSize(4);
@@ -117,7 +119,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvDesc.setScrollDriverY(paDescScroll);
             paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
     
-            btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, QuestTranslation.translate("betterquesting.btn.claim"));
+            btnClaim = new PanelButton(new GuiTransform(new GuiAnchor(0F, 1F, 0.5F, 1F), new GuiPadding(16, -16, 24, 0), 0), 6, QuestTranslation.translate("betterquesting.btn.claim"));
             btnClaim.setActive(false);
             cvInner.addPanel(btnClaim);
     
@@ -125,14 +127,14 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             btnRewardLeft.setActive(rewardIndex > 0);
             cvInner.addPanel(btnRewardLeft);
     
-            btnRewardRight = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(-24, -16, 8, 0), 0), 3, ">");
+            btnRewardRight = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 1F, 0.5F, 1F), new GuiPadding(-24, -16, 8, 0), 0), 3, ">");
             btnRewardRight.setActive(rewardIndex < quest.getRewards().size() - 1);
             cvInner.addPanel(btnRewardRight);
             
-            rectReward = new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
+            rectReward = new GuiTransform(new GuiAnchor(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
             rectReward.setParent(cvInner.getTransform());
             
-            titleReward = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 0.5F), new GuiPadding(0, -16, 8, 0), 0), "?");
+            titleReward = new PanelTextBox(new GuiTransform(new GuiAnchor(0F, 0.5F, 0.5F, 0.5F), new GuiPadding(0, -16, 8, 0), 0), "?");
             titleReward.setColor(PresetColor.TEXT_HEADER.getColor()).setAlignment(1);
             cvInner.addPanel(titleReward);
             
@@ -153,11 +155,11 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         //if(quest.getTasks().size() > 0)
         {
-            btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
+            btnDetect = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
             btnDetect.setActive(false);
             cvInner.addPanel(btnDetect);
     
-            btnTaskLeft = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(8, -16, -24, 0), 0), 4, "<");
+            btnTaskLeft = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 1F, 0.5F, 1F), new GuiPadding(8, -16, -24, 0), 0), 4, "<");
             btnTaskLeft.setActive(taskIndex > 0);
             cvInner.addPanel(btnTaskLeft);
     
@@ -168,7 +170,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             rectTask = new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0);
             rectTask.setParent(cvInner.getTransform());
     
-            titleTask = new PanelTextBox(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(8, 0, 0, -16), 0), "?");
+            titleTask = new PanelTextBox(new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 0F), new GuiPadding(8, 0, 0, -16), 0), "?");
             titleTask.setColor(PresetColor.TEXT_HEADER.getColor()).setAlignment(1);
             cvInner.addPanel(titleTask);
             
@@ -242,10 +244,10 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Edit
         {
-            mc.displayGuiScreen(new GuiQuestEditor(this, questID));
+            minecraft.displayGuiScreen(new GuiQuestEditor(this, questID));
         } else if(btn.getButtonID() == 2) // Reward previous
         {
             rewardIndex = MathHelper.clamp(rewardIndex - 1, 0, quest.getRewards().size() - 1);
@@ -345,7 +347,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     
     private void updateButtons()
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         
         if(btnRewardLeft != null && btnRewardRight != null && btnClaim != null)
         {

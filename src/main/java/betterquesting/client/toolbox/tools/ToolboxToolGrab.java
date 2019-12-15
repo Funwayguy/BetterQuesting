@@ -9,8 +9,8 @@ import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 
 import java.util.ArrayList;
@@ -154,14 +154,14 @@ public class ToolboxToolGrab implements IToolboxTool
             }
             
             // Send quest line edits
-            NBTTagCompound chPayload = new NBTTagCompound();
-            NBTTagList cdList = new NBTTagList();
-            NBTTagCompound tagEntry = new NBTTagCompound();
-            tagEntry.setInteger("chapterID", lID);
-            tagEntry.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
-            cdList.appendTag(tagEntry);
-            chPayload.setTag("data", cdList);
-            chPayload.setInteger("action", 0);
+            CompoundNBT chPayload = new CompoundNBT();
+            ListNBT cdList = new ListNBT();
+            CompoundNBT tagEntry = new CompoundNBT();
+            tagEntry.putInt("chapterID", lID);
+            tagEntry.put("config", qLine.writeToNBT(new CompoundNBT(), null));
+            cdList.add(tagEntry);
+            chPayload.put("data", cdList);
+            chPayload.putInt("action", 0);
             NetChapterEdit.sendEdit(chPayload);
             
             grabList.clear();

@@ -6,8 +6,8 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
 import betterquesting.questing.QuestLine;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,34 +55,34 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<Integer> subset)
+	public ListNBT writeToNBT(ListNBT json, List<Integer> subset)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
 		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), null);
-			jObj.setInteger("lineID", entry.getID());
-			jObj.setInteger("order", getOrderIndex(entry.getID()));
-			json.appendTag(jObj);
+			CompoundNBT jObj = entry.getValue().writeToNBT(new CompoundNBT(), null);
+			jObj.putInt("lineID", entry.getID());
+			jObj.putInt("order", getOrderIndex(entry.getID()));
+			json.add(jObj);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public void readFromNBT(ListNBT json, boolean merge)
 	{
 		reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
 		HashMap<Integer,Integer> orderMap = new HashMap<>();
 		
-		for(int i = 0; i < json.tagCount(); i++)
+		for(int i = 0; i < json.size(); i++)
 		{
-			NBTTagCompound jql = json.getCompoundTagAt(i);
+			CompoundNBT jql = json.getCompound(i);
 			
-			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
-			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
+			int id = jql.contains("lineID", 99) ? jql.getInt("lineID") : -1;
+			int order = jql.contains("order", 99) ? jql.getInt("order") : -1;
 			QuestLine line = new QuestLine();
 			line.readFromNBT(jql, merge);
 			

@@ -6,10 +6,10 @@ import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.handlers.NetQuestEdit;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Collections;
 import java.util.List;
@@ -72,20 +72,20 @@ public class ToolboxToolFrame implements IToolboxTool
     {
         boolean state = !btnList.get(0).getStoredValue().getValue().getProperty(NativeProps.MAIN);
         
-        NBTTagList dataList = new NBTTagList();
+        ListNBT dataList = new ListNBT();
         for(PanelButtonQuest btn : btnList)
         {
             btn.getStoredValue().getValue().setProperty(NativeProps.MAIN, state);
             
-            NBTTagCompound entry = new NBTTagCompound();
-            entry.setInteger("questID", btn.getStoredValue().getID());
-            entry.setTag("config", btn.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-            dataList.appendTag(entry);
+            CompoundNBT entry = new CompoundNBT();
+            entry.putInt("questID", btn.getStoredValue().getID());
+            entry.put("config", btn.getStoredValue().getValue().writeToNBT(new CompoundNBT()));
+            dataList.add(entry);
         }
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("data", dataList);
-        payload.setInteger("action", 0);
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("data", dataList);
+        payload.putInt("action", 0);
         NetQuestEdit.sendEdit(payload);
     }
     
@@ -104,7 +104,7 @@ public class ToolboxToolFrame implements IToolboxTool
     @Override
     public boolean onKeyPressed(char c, int key)
     {
-	    if(PanelToolController.selected.size() <= 0 || key != Keyboard.KEY_RETURN) return false;
+	    if(PanelToolController.selected.size() <= 0 || key != GLFW.GLFW_KEY_ENTER) return false;
 	    
 	    changeFrame(PanelToolController.selected);
         return true;

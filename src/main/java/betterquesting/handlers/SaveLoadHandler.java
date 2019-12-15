@@ -20,11 +20,11 @@ import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.ModList;
 
 import java.io.File;
 
@@ -121,18 +121,18 @@ public class SaveLoadHandler
 		{
 			JsonObject defTmp = JsonHelper.ReadFromFile(new File(BQ_Settings.defaultDir, "DefaultQuests.json"));
 			QuestSettings tmpSettings = new QuestSettings();
-			tmpSettings.readFromNBT(NBTConverter.JSONtoNBT_Object(defTmp, new NBTTagCompound(), true).getCompoundTag("questSettings"));
+			tmpSettings.readFromNBT(NBTConverter.JSONtoNBT_Object(defTmp, new CompoundNBT(), true).getCompound("questSettings"));
 			packVer = tmpSettings.getProperty(NativeProps.PACK_VER);
 			packName = tmpSettings.getProperty(NativeProps.PACK_NAME);
 		}
 		
 		JsonObject j1 = JsonHelper.ReadFromFile(fileDatabase);
 		
-		NBTTagCompound nbt1 = NBTConverter.JSONtoNBT_Object(j1, new NBTTagCompound(), true);
+		CompoundNBT nbt1 = NBTConverter.JSONtoNBT_Object(j1, new CompoundNBT(), true);
 		
-		String fVer = nbt1.hasKey("format", 8) ? nbt1.getString("format") : "0.0.0";
+		String fVer = nbt1.contains("format", 8) ? nbt1.getString("format") : "0.0.0";
 		String bVer = nbt1.getString("build");
-		String cVer = Loader.instance().getIndexedModList().get(BetterQuesting.MODID).getVersion();
+		String cVer = ModList.get().getModContainerById(BetterQuesting.MODID).get().getModInfo().getVersion().toString();
 		
 		if(!cVer.equalsIgnoreCase(bVer) && !useDef) // RUN BACKUPS
 		{
@@ -153,9 +153,9 @@ public class SaveLoadHandler
 		
 		if(loader == null)
 		{
-			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompoundTag("questSettings"));
-			QuestDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questDatabase", 10), false);
-			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getTagList("questLines", 10), false);
+			QuestSettings.INSTANCE.readFromNBT(nbt1.getCompound("questSettings"));
+			QuestDatabase.INSTANCE.readFromNBT(nbt1.getList("questDatabase", 10), false);
+			QuestLineDatabase.INSTANCE.readFromNBT(nbt1.getList("questLines", 10), false);
 		} else
 		{
 			loader.readFromJson(j1);
@@ -170,8 +170,8 @@ public class SaveLoadHandler
 		
 		if(loader == null)
 		{
-			NBTTagCompound nbt2 = NBTConverter.JSONtoNBT_Object(j2, new NBTTagCompound(), true);
-			QuestDatabase.INSTANCE.readProgressFromNBT(nbt2.getTagList("questProgress", 10), false);
+			CompoundNBT nbt2 = NBTConverter.JSONtoNBT_Object(j2, new CompoundNBT(), true);
+			QuestDatabase.INSTANCE.readProgressFromNBT(nbt2.getList("questProgress", 10), false);
 		} else
 		{
 			loader.readProgressFromJson(j2);
@@ -181,22 +181,22 @@ public class SaveLoadHandler
 		
 	    JsonObject j3 = JsonHelper.ReadFromFile(fileParties);
 	    
-		NBTTagCompound nbt3 = NBTConverter.JSONtoNBT_Object(j3, new NBTTagCompound(), true);
-	    PartyManager.INSTANCE.readFromNBT(nbt3.getTagList("parties", 10), false);
+		CompoundNBT nbt3 = NBTConverter.JSONtoNBT_Object(j3, new CompoundNBT(), true);
+	    PartyManager.INSTANCE.readFromNBT(nbt3.getList("parties", 10), false);
 	    
 	    // === NAMES ===
 	    
 	    JsonObject j4 = JsonHelper.ReadFromFile(fileNames);
 	    
-		NBTTagCompound nbt4 = NBTConverter.JSONtoNBT_Object(j4, new NBTTagCompound(), true);
-	    NameCache.INSTANCE.readFromNBT(nbt4.getTagList("nameCache", 10), false);
+		CompoundNBT nbt4 = NBTConverter.JSONtoNBT_Object(j4, new CompoundNBT(), true);
+	    NameCache.INSTANCE.readFromNBT(nbt4.getList("nameCache", 10), false);
 	    
 	    // === LIVES ===
 	    
 	    JsonObject j5 = JsonHelper.ReadFromFile(fileLives);
 	    
-		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
-	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
+		CompoundNBT nbt5 = NBTConverter.JSONtoNBT_Object(j5, new CompoundNBT(), true);
+	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompound("lifeDatabase"), false);
 	    
 	    BetterQuesting.logger.info("Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.info("Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
@@ -212,47 +212,47 @@ public class SaveLoadHandler
         
         if(isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
         {
-            NBTTagCompound jsonCon = new NBTTagCompound();
+            CompoundNBT jsonCon = new CompoundNBT();
     
-            jsonCon.setTag("questSettings", QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()));
-            jsonCon.setTag("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
-            jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
+            jsonCon.put("questSettings", QuestSettings.INSTANCE.writeToNBT(new CompoundNBT()));
+            jsonCon.put("questDatabase", QuestDatabase.INSTANCE.writeToNBT(new ListNBT(), null));
+            jsonCon.put("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new ListNBT(), null));
     
-            jsonCon.setString("format", BetterQuesting.FORMAT);
-            jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
+            jsonCon.putString("format", BetterQuesting.FORMAT);
+            jsonCon.putString("build", ModList.get().getModContainerById(BetterQuesting.MODID).get().getModInfo().getVersion().toString());
     
             JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
         }
         
         // === PROGRESS ===
         
-        NBTTagCompound jsonProg = new NBTTagCompound();
+        CompoundNBT jsonProg = new CompoundNBT();
         
-        jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
+        jsonProg.put("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new ListNBT(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
         
         // === PARTIES ===
         
-        NBTTagCompound jsonP = new NBTTagCompound();
+        CompoundNBT jsonP = new CompoundNBT();
         
-        jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), null));
+        jsonP.put("parties", PartyManager.INSTANCE.writeToNBT(new ListNBT(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true));
         
         // === NAMES ===
         
-        NBTTagCompound jsonN = new NBTTagCompound();
+        CompoundNBT jsonN = new CompoundNBT();
         
-        jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), null));
+        jsonN.put("nameCache", NameCache.INSTANCE.writeToNBT(new ListNBT(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true));
         
         // === LIVES ===
         
-        NBTTagCompound jsonL = new NBTTagCompound();
+        CompoundNBT jsonL = new CompoundNBT();
         
-        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), null));
+        jsonL.put("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new CompoundNBT(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         

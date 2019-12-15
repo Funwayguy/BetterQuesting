@@ -1,5 +1,6 @@
 package betterquesting.client.gui2;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
@@ -44,6 +45,7 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Tuple;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -75,7 +77,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
     private PanelButton claimAll;
     
-    public GuiQuestLines(GuiScreen parent)
+    public GuiQuestLines(Screen parent)
     {
         super(parent);
     }
@@ -101,7 +103,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             selectedLine = null;
         }
         
-        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
+        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(minecraft.player);
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         
@@ -109,17 +111,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         this.addPanel(cvBackground);
         
         PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -24, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_PG_PREV.getTexture());
-        btnExit.setClickAction((b) -> mc.displayGuiScreen(parent));
+        btnExit.setClickAction((b) -> minecraft.displayGuiScreen(parent));
         cvBackground.addPanel(btnExit);
         
         if(canEdit)
         {
             PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
-            btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
+            btnEdit.setClickAction((b) -> minecraft.displayGuiScreen(new GuiQuestLinesEditor(this)));
             cvBackground.addPanel(btnEdit);
         }
         
-        txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
+        txTitle = new PanelTextBox(new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
         cvBackground.addPanel(txTitle);
         
         icoChapter = new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, 40, 8, 16, 16, 0), null);
@@ -195,7 +197,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons())
             {
                 IQuest q = pbQuest.getStoredValue().getValue();
-                if(q.getRewards().size() > 0 && q.canClaim(mc.player)) claimIdList.add(pbQuest.getStoredValue().getID());
+                if(q.getRewards().size() > 0 && q.canClaim(minecraft.player)) claimIdList.add(pbQuest.getStoredValue().getID());
             }
             
             int[] cIDs = new int[claimIdList.size()];
@@ -252,7 +254,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     // TODO: Change CanvasQuestLine to NOT need these panel events anymore
     private void onButtonPress(PEventButton event)
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         IPanelButton btn = event.getButton();
         
         if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Quest Instance Select
@@ -267,10 +269,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
     private void refreshChapterVisibility()
     {
-        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
+        boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(minecraft.player);
         List<DBEntry<IQuestLine>> lineList = QuestLineDatabase.INSTANCE.getSortedEntries();
         this.visChapters.clear();
-        UUID playerID = QuestingAPI.getQuestingUUID(mc.player);
+        UUID playerID = QuestingAPI.getQuestingUUID(minecraft.player);
         
         for(DBEntry<IQuestLine> dbEntry : lineList)
         {
@@ -300,7 +302,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 if(!pendingClaim && q.isComplete(playerID) && !q.hasClaimed(playerID)) pendingClaim = true;
                 if(!unlocked && q.isUnlocked(playerID)) unlocked = true;
                 if(!complete && q.isComplete(playerID)) complete = true;
-                if(!show && QuestCache.isQuestShown(q, playerID, mc.player)) show = true;
+                if(!show && QuestCache.isQuestShown(q, playerID, minecraft.player)) show = true;
                 if(unlocked && complete && show && pendingClaim && !allComplete) break;
             }
         
@@ -330,8 +332,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         for(int n = 0; n < visChapters.size(); n++)
         {
-            DBEntry<IQuestLine> entry = visChapters.get(n).getFirst();
-            int vis = visChapters.get(n).getSecond();
+            DBEntry<IQuestLine> entry = visChapters.get(n).getA();
+            int vis = visChapters.get(n).getB();
             
             cvLines.addPanel(new PanelGeneric(new GuiRectangle(0, n * 16, 16, 16, 0), new OreDictTexture(1F, entry.getValue().getProperty(NativeProps.ICON), false, true)));
             
@@ -397,7 +399,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         for(PanelButtonQuest btn : cvQuest.getQuestButtons())
         {
-            if(btn.getStoredValue().getValue().canClaim(mc.player))
+            if(btn.getStoredValue().getValue().canClaim(minecraft.player))
             {
                 claimAll.setActive(true);
                 return;

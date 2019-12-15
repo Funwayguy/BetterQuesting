@@ -27,10 +27,10 @@ import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import org.lwjgl.input.Keyboard;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
@@ -44,7 +44,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     private PanelButton btnLogic;
     private PanelButton btnVis;
     
-    public GuiQuestEditor(GuiScreen parent, int questID)
+    public GuiQuestEditor(Screen parent, int questID)
     {
         super(parent);
         this.questID = questID;
@@ -57,7 +57,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         
         if(quest == null)
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else
         {
             pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(quest.getProperty(NativeProps.NAME))));
@@ -77,12 +77,12 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         
         if(quest == null)
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
             return;
         }
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -183,27 +183,27 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
         {
             case 0: // Exit
             {
-                mc.displayGuiScreen(this.parent);
+                minecraft.displayGuiScreen(this.parent);
                 break;
             }
             case 1: // Edit tasks
             {
-			    mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiTaskEditor(this, quest));
+			    minecraft.displayGuiScreen(new GuiTaskEditor(this, quest));
 			    break;
             }
             case 2: // Edit rewards
             {
-			    mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiRewardEditor(this, quest));
+			    minecraft.displayGuiScreen(new GuiRewardEditor(this, quest));
 			    break;
             }
             case 3: // Requirements
             {
-                mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiPrerequisiteEditor(this, quest));
+                minecraft.displayGuiScreen(new GuiPrerequisiteEditor(this, quest));
                 break;
             }
             case 4: // Advanced
             {
-                mc.displayGuiScreen(new GuiNbtEditor(this, quest.writeToNBT(new NBTTagCompound()), value -> {
+                minecraft.displayGuiScreen(new GuiNbtEditor(this, quest.writeToNBT(new CompoundNBT()), value -> {
                     quest.readFromNBT(value);
                     SendChanges();
                 }));
@@ -231,7 +231,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             }
             case 7: // Description Editor
             {
-                mc.displayGuiScreen(new GuiTextEditor(this, quest.getProperty(NativeProps.DESC), value -> {
+                minecraft.displayGuiScreen(new GuiTextEditor(this, quest.getProperty(NativeProps.DESC), value -> {
                     quest.setProperty(NativeProps.DESC, value);
                     SendChanges();
                 }));
@@ -239,7 +239,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
             }
             case 8:
             {
-                mc.displayGuiScreen(new GuiItemSelection(this, quest.getProperty(NativeProps.ICON), value -> {
+                minecraft.displayGuiScreen(new GuiItemSelection(this, quest.getProperty(NativeProps.ICON), value -> {
                     quest.setProperty(NativeProps.ICON, value);
                     SendChanges();
                 }));
@@ -249,14 +249,14 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     
     private void SendChanges()
 	{
-	    NBTTagCompound payload = new NBTTagCompound();
-	    NBTTagList dataList = new NBTTagList();
-	    NBTTagCompound entry = new NBTTagCompound();
-	    entry.setInteger("questID", questID);
-	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-	    dataList.appendTag(entry);
-	    payload.setTag("data", dataList);
-	    payload.setInteger("action", 0);
+	    CompoundNBT payload = new CompoundNBT();
+	    ListNBT dataList = new ListNBT();
+	    CompoundNBT entry = new CompoundNBT();
+	    entry.putInt("questID", questID);
+	    entry.put("config", quest.writeToNBT(new CompoundNBT()));
+	    dataList.add(entry);
+	    payload.put("data", dataList);
+	    payload.putInt("action", 0);
 	    NetQuestEdit.sendEdit(payload);
 	}
 }

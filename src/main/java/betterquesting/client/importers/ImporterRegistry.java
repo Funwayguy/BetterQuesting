@@ -1,15 +1,16 @@
 package betterquesting.client.importers;
 
-import java.util.ArrayList;
-import java.util.List;
 import betterquesting.api.client.importers.IImportRegistry;
 import betterquesting.api.client.importers.IImporter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ImporterRegistry implements IImportRegistry
 {
 	public static final ImporterRegistry INSTANCE = new ImporterRegistry();
 	
-	private ArrayList<IImporter> importers = new ArrayList<IImporter>();
+	private ArrayList<IImporter> importers = new ArrayList<>();
 	
 	private ImporterRegistry()
 	{

@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors.designer;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.questing.IQuestLine;
@@ -18,17 +19,16 @@ import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.client.toolbox.IToolTab;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.client.gui.GuiScreen;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
     
     private CanvasQuestLine cvQuest;
     
-    public GuiDesigner(GuiScreen parent, IQuestLine line)
+    public GuiDesigner(Screen parent, IQuestLine line)
     {
         super(parent);
         this.questLine = line;
@@ -64,7 +64,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         
         if(questLine == null)
         {
-            mc.displayGuiScreen(parent);
+            minecraft.displayGuiScreen(parent);
             return;
         }
         
@@ -85,7 +85,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         super.initPanel();
         
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 96, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -103,7 +103,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         cvBackground.addPanel(cvQuest);
         cvQuest.setQuestLine(questLine);
         
-        PanelButton btnTabLeft = new PanelButton(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(16, 32, 0, -40), 0), 2, "")
+        PanelButton btnTabLeft = new PanelButton(new GuiTransform(new GuiAnchor(0F, 0F, 0.5F, 0F), new GuiPadding(16, 32, 0, -40), 0), 2, "")
         {
             @Override
             public void onButtonClick()
@@ -115,7 +115,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         btnTabLeft.setIcon(PresetIcon.ICON_LEFT.getTexture());
         cvTray.addPanel(btnTabLeft);
         
-        PanelButton btnTabRight = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(0, 32, 16, -40), 0), 3, "")
+        PanelButton btnTabRight = new PanelButton(new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 0F), new GuiPadding(0, 32, 16, -40), 0), 3, "")
         {
             @Override
             public void onButtonClick()
@@ -176,7 +176,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         }
     }
 }

@@ -5,8 +5,8 @@ import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.questing.QuestInstance;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -42,30 +42,30 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
     }
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList nbt, List<Integer> subset)
+	public ListNBT writeToNBT(ListNBT nbt, List<Integer> subset)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
 		    if(subset != null && !subset.contains(entry.getID())) continue;
-			NBTTagCompound jq = new NBTTagCompound();
+			CompoundNBT jq = new CompoundNBT();
 			entry.getValue().writeToNBT(jq);
-			jq.setInteger("questID", entry.getID());
-			nbt.appendTag(jq);
+			jq.putInt("questID", entry.getID());
+			nbt.add(jq);
 		}
 		
 		return nbt;
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList nbt, boolean merge)
+	public void readFromNBT(ListNBT nbt, boolean merge)
 	{
 		this.reset();
 		
-		for(int i = 0; i < nbt.tagCount(); i++)
+		for(int i = 0; i < nbt.size(); i++)
 		{
-			NBTTagCompound qTag = nbt.getCompoundTagAt(i);
+			CompoundNBT qTag = nbt.getCompound(i);
 			
-			int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
+			int qID = qTag.contains("questID", 99) ? qTag.getInt("questID") : -1;
 			if(qID < 0) continue;
 			
 			IQuest quest = getValue(qID);
@@ -75,13 +75,13 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 	}
 	
 	@Override
-    public NBTTagList writeProgressToNBT(NBTTagList nbt, @Nullable List<UUID> users)
+    public ListNBT writeProgressToNBT(ListNBT nbt, @Nullable List<UUID> users)
     {
         return nbt;
     }
     
     @Override
-    public void readProgressFromNBT(NBTTagList nbt, boolean merge)
+    public void readProgressFromNBT(ListNBT nbt, boolean merge)
     {
     }
 }

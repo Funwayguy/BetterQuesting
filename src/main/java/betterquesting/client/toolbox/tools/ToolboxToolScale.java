@@ -1,5 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
@@ -14,11 +15,10 @@ import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,11 +99,11 @@ public class ToolboxToolScale implements IToolboxTool
             scaleBounds.w = dx - scaleBounds.x;
             scaleBounds.h = dy - scaleBounds.y;
             
-            boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+            boolean shift = Screen.hasShiftDown();
             for(GrabEntry grab : grabList)
             {
-                grab.btn.rect.w = Math.max(1, Math.round(scaleBounds.w * grab.anchor.z));
-                grab.btn.rect.h = Math.max(1, Math.round(scaleBounds.h * grab.anchor.w));
+                grab.btn.rect.w = Math.max(1, Math.round(scaleBounds.w * grab.anchor.getZ()));
+                grab.btn.rect.h = Math.max(1, Math.round(scaleBounds.h * grab.anchor.getW()));
                 
                 if(shift) // Probably could be implemented better but I'm just going to leave it as now
                 {
@@ -111,8 +111,8 @@ public class ToolboxToolScale implements IToolboxTool
                     grab.btn.rect.y = grab.sy - grab.btn.rect.h/2;
                 } else
                 {
-                    grab.btn.rect.x = scaleBounds.x + Math.round(scaleBounds.w * grab.anchor.x);
-                    grab.btn.rect.y = scaleBounds.y + Math.round(scaleBounds.h * grab.anchor.y);
+                    grab.btn.rect.x = scaleBounds.x + Math.round(scaleBounds.w * grab.anchor.getX());
+                    grab.btn.rect.y = scaleBounds.y + Math.round(scaleBounds.h * grab.anchor.getY());
                 }
             }
             
@@ -175,14 +175,14 @@ public class ToolboxToolScale implements IToolboxTool
             }
             
             // Send quest line edits
-            NBTTagCompound chPayload = new NBTTagCompound();
-            NBTTagList cdList = new NBTTagList();
-            NBTTagCompound tagEntry = new NBTTagCompound();
-            tagEntry.setInteger("chapterID", lID);
-            tagEntry.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
-            cdList.appendTag(tagEntry);
-            chPayload.setTag("data", cdList);
-            chPayload.setInteger("action", 0);
+            CompoundNBT chPayload = new CompoundNBT();
+            ListNBT cdList = new ListNBT();
+            CompoundNBT tagEntry = new CompoundNBT();
+            tagEntry.putInt("chapterID", lID);
+            tagEntry.put("config", qLine.writeToNBT(new CompoundNBT(), null));
+            cdList.add(tagEntry);
+            chPayload.put("data", cdList);
+            chPayload.putInt("action", 0);
             NetChapterEdit.sendEdit(chPayload);
             
             grabList.clear();
@@ -222,7 +222,7 @@ public class ToolboxToolScale implements IToolboxTool
                     float y = (btn.rect.y - scaleBounds.y) / (float)scaleBounds.h;
                     float w = btn.rect.w / (float)scaleBounds.w;
                     float h = btn.rect.h / (float)scaleBounds.h;
-                    grabList.add(new GrabEntry(btn, new Vector4f(x, y, w, h)));
+                    grabList.add(new GrabEntry(btn, new GuiAnchor(x, y, w, h)));
                 }
             } else
             {
@@ -230,7 +230,7 @@ public class ToolboxToolScale implements IToolboxTool
                 scaleBounds.y = btnClicked.rect.y;
                 scaleBounds.w = btnClicked.rect.w;
                 scaleBounds.h = btnClicked.rect.h;
-                grabList.add(new GrabEntry(btnClicked, new Vector4f(0F, 0F, 1F, 1F)));
+                grabList.add(new GrabEntry(btnClicked, new GuiAnchor(0F, 0F, 1F, 1F)));
             }
             
             return true;
@@ -277,11 +277,11 @@ public class ToolboxToolScale implements IToolboxTool
 	private class GrabEntry
     {
         private final PanelButtonQuest btn;
-        private final Vector4f anchor;
+        private final GuiAnchor anchor;
         private final int sx;
         private final int sy;
         
-        private GrabEntry(PanelButtonQuest btn, Vector4f anchor)
+        private GrabEntry(PanelButtonQuest btn, GuiAnchor anchor)
         {
             this.btn = btn;
             this.anchor = anchor;

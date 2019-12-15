@@ -18,8 +18,8 @@ import betterquesting.client.toolbox.tools.*;
 import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
@@ -62,16 +62,16 @@ public class PanelTabMain extends CanvasEmpty
             @Override
             public void onButtonClick()
             {
-                Minecraft mc = Minecraft.getMinecraft();
-                mc.displayGuiScreen(new GuiNbtEditor(mc.currentScreen, cvQuestLine.getQuestLine().writeToNBT(new NBTTagCompound(), null), value -> {
-                    NBTTagCompound payload = new NBTTagCompound();
-                    NBTTagList dataList = new NBTTagList();
-                    NBTTagCompound entry = new NBTTagCompound();
-                    entry.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(cvQuestLine.getQuestLine()));
-                    entry.setTag("config", value);
-                    dataList.appendTag(entry);
-                    payload.setTag("data", dataList);
-                    payload.setInteger("action", 0);
+                Minecraft mc = Minecraft.getInstance();
+                mc.displayGuiScreen(new GuiNbtEditor(mc.currentScreen, cvQuestLine.getQuestLine().writeToNBT(new CompoundNBT(), null), value -> {
+                    CompoundNBT payload = new CompoundNBT();
+                    ListNBT dataList = new ListNBT();
+                    CompoundNBT entry = new CompoundNBT();
+                    entry.putInt("chapterID", QuestLineDatabase.INSTANCE.getID(cvQuestLine.getQuestLine()));
+                    entry.put("config", value);
+                    dataList.add(entry);
+                    payload.put("data", dataList);
+                    payload.putInt("action", 0);
                     NetChapterEdit.sendEdit(payload);
                 }));
             }
@@ -107,7 +107,7 @@ public class PanelTabMain extends CanvasEmpty
 	{
 		List<String> list = new ArrayList<>();
 		list.add(title);
-		list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
+		list.addAll(Minecraft.getInstance().fontRenderer.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
 		return list;
 	}
     

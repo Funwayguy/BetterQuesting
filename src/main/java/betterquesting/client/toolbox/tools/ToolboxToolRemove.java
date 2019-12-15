@@ -7,10 +7,10 @@ import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -58,14 +58,14 @@ public class ToolboxToolRemove implements IToolboxTool
             }
 		    
             // Sync Line
-            NBTTagCompound chPayload = new NBTTagCompound();
-            NBTTagList cdList = new NBTTagList();
-            NBTTagCompound cTag = new NBTTagCompound();
-            cTag.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(line));
-            cTag.setTag("config", line.writeToNBT(new NBTTagCompound(), null));
-            cdList.appendTag(cTag);
-            chPayload.setTag("data", cdList);
-            chPayload.setInteger("action", 0);
+            CompoundNBT chPayload = new CompoundNBT();
+            ListNBT cdList = new ListNBT();
+            CompoundNBT cTag = new CompoundNBT();
+            cTag.putInt("chapterID", QuestLineDatabase.INSTANCE.getID(line));
+            cTag.put("config", line.writeToNBT(new CompoundNBT(), null));
+            cdList.add(cTag);
+            chPayload.put("data", cdList);
+            chPayload.putInt("action", 0);
             NetChapterEdit.sendEdit(chPayload);
 			return true;
 		}
@@ -104,20 +104,20 @@ public class ToolboxToolRemove implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
-	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
+	    if(PanelToolController.selected.size() > 0 && key == GLFW.GLFW_KEY_ENTER)
         {
             IQuestLine line = gui.getQuestLine();
             for(PanelButtonQuest b : PanelToolController.selected) line.removeID(b.getStoredValue().getID());
 		    
             // Sync Line
-            NBTTagCompound chPayload = new NBTTagCompound();
-            NBTTagList cdList = new NBTTagList();
-            NBTTagCompound cTag = new NBTTagCompound();
-            cTag.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(line));
-            cTag.setTag("config", line.writeToNBT(new NBTTagCompound(), null));
-            cdList.appendTag(cTag);
-            chPayload.setTag("data", cdList);
-            chPayload.setInteger("action", 0);
+            CompoundNBT chPayload = new CompoundNBT();
+            ListNBT cdList = new ListNBT();
+            CompoundNBT cTag = new CompoundNBT();
+            cTag.putInt("chapterID", QuestLineDatabase.INSTANCE.getID(line));
+            cTag.put("config", line.writeToNBT(new CompoundNBT(), null));
+            cdList.add(cTag);
+            chPayload.put("data", cdList);
+            chPayload.putInt("action", 0);
             NetChapterEdit.sendEdit(chPayload);
 			return true;
         }

@@ -14,8 +14,8 @@ import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 
 import java.util.*;
@@ -142,7 +142,7 @@ public class ToolboxToolCopy implements IToolboxTool
         
         for(int i = 0; i < grabList.size(); i++) remappedIDs.put(grabList.get(i).btn.getStoredValue().getID(), nextIDs[i]);
         
-        NBTTagList qdList = new NBTTagList();
+        ListNBT qdList = new ListNBT();
         
         for(int i = 0; i < grabList.size(); i++)
         {
@@ -152,7 +152,7 @@ public class ToolboxToolCopy implements IToolboxTool
             
             if(qLine.getValue(qID) == null) qLine.add(qID, new QuestLineEntry(grab.btn.rect.x, grab.btn.rect.y, grab.btn.rect.w, grab.btn.rect.h));
             
-            NBTTagCompound questTags = quest.writeToNBT(new NBTTagCompound());
+            CompoundNBT questTags = quest.writeToNBT(new CompoundNBT());
             
             int[] oldIDs = Arrays.copyOf(quest.getRequirements(), quest.getRequirements().length);
             
@@ -165,31 +165,31 @@ public class ToolboxToolCopy implements IToolboxTool
             }
             
             // We can't tamper with the original so we change it in NBT post-write
-            questTags.setIntArray("preRequisites", oldIDs);
+            questTags.putIntArray("preRequisites", oldIDs);
             
-            NBTTagCompound tagEntry = new NBTTagCompound();
-            tagEntry.setInteger("questID", qID);
-            tagEntry.setTag("config", questTags);
-            qdList.appendTag(tagEntry);
+            CompoundNBT tagEntry = new CompoundNBT();
+            tagEntry.putInt("questID", qID);
+            tagEntry.put("config", questTags);
+            qdList.add(tagEntry);
         }
         
         grabList.clear();
         
         // Send new quests
-        NBTTagCompound quPayload = new NBTTagCompound();
-        quPayload.setTag("data", qdList);
-        quPayload.setInteger("action", 3);
+        CompoundNBT quPayload = new CompoundNBT();
+        quPayload.put("data", qdList);
+        quPayload.putInt("action", 3);
         NetQuestEdit.sendEdit(quPayload);
         
         // Send quest line edits
-        NBTTagCompound chPayload = new NBTTagCompound();
-        NBTTagList cdList = new NBTTagList();
-        NBTTagCompound tagEntry = new NBTTagCompound();
-        tagEntry.setInteger("chapterID", lID);
-        tagEntry.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
-        cdList.appendTag(tagEntry);
-        chPayload.setTag("data", cdList);
-        chPayload.setInteger("action", 0);
+        CompoundNBT chPayload = new CompoundNBT();
+        ListNBT cdList = new ListNBT();
+        CompoundNBT tagEntry = new CompoundNBT();
+        tagEntry.putInt("chapterID", lID);
+        tagEntry.put("config", qLine.writeToNBT(new CompoundNBT(), null));
+        cdList.add(tagEntry);
+        chPayload.put("data", cdList);
+        chPayload.putInt("action", 0);
         NetChapterEdit.sendEdit(chPayload);
 		
 		return true;

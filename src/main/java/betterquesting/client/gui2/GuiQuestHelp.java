@@ -16,11 +16,11 @@ import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 public class GuiQuestHelp extends GuiScreenCanvas
 {
-    public GuiQuestHelp(GuiScreen parent)
+    public GuiQuestHelp(Screen parent)
     {
         super(parent);
     }
@@ -43,7 +43,7 @@ public class GuiQuestHelp extends GuiScreenCanvas
             @Override
             public void onButtonClick()
             {
-                mc.displayGuiScreen(parent);
+                minecraft.displayGuiScreen(parent);
             }
         };
         cvBackground.addPanel(btnBack);

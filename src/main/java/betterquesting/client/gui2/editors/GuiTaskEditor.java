@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.questing.IQuest;
@@ -31,11 +32,10 @@ import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRegistry;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.TextFormatting;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
@@ -49,7 +49,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
     private IQuest quest;
     private final int qID;
     
-    public GuiTaskEditor(GuiScreen parent, IQuest quest)
+    public GuiTaskEditor(Screen parent, IQuest quest)
     {
         super(parent);
         
@@ -64,7 +64,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
 	    
 	    if(quest == null)
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
             return;
         }
         
@@ -78,7 +78,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
 	    
 	    if(qID < 0)
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
             return;
         }
 		
@@ -94,24 +94,24 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
     
-        CanvasSearch<IFactoryData<ITask, NBTTagCompound>, IFactoryData<ITask, NBTTagCompound>> cvRegSearch = new CanvasSearch<IFactoryData<ITask, NBTTagCompound>, IFactoryData<ITask, NBTTagCompound>>((new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 48, 24, 32), 0)))
+        CanvasSearch<IFactoryData<ITask, CompoundNBT>, IFactoryData<ITask, CompoundNBT>> cvRegSearch = new CanvasSearch<IFactoryData<ITask, CompoundNBT>, IFactoryData<ITask, CompoundNBT>>((new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 48, 24, 32), 0)))
         {
             @Override
-            protected Iterator<IFactoryData<ITask, NBTTagCompound>> getIterator()
+            protected Iterator<IFactoryData<ITask, CompoundNBT>> getIterator()
             {
-                List<IFactoryData<ITask, NBTTagCompound>> list = TaskRegistry.INSTANCE.getAll();
+                List<IFactoryData<ITask, CompoundNBT>> list = TaskRegistry.INSTANCE.getAll();
                 list.sort(Comparator.comparing(o -> o.getRegistryName().toString().toLowerCase()));
                 return list.iterator();
             }
     
             @Override
-            protected void queryMatches(IFactoryData<ITask, NBTTagCompound> value, String query, ArrayDeque<IFactoryData<ITask, NBTTagCompound>> results)
+            protected void queryMatches(IFactoryData<ITask, CompoundNBT> value, String query, ArrayDeque<IFactoryData<ITask, CompoundNBT>> results)
             {
                 if(value.getRegistryName().toString().toLowerCase().contains(query.toLowerCase())) results.add(value);
             }
     
             @Override
-            protected boolean addResult(IFactoryData<ITask, NBTTagCompound> entry, int index, int cachedWidth)
+            protected boolean addResult(IFactoryData<ITask, CompoundNBT> entry, int index, int cachedWidth)
             {
                 this.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), 1, entry.getRegistryName().toString(), entry));
                 return true;
@@ -123,7 +123,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         cvBackground.addPanel(scReg);
         cvRegSearch.setScrollDriverY(scReg);
         
-        PanelTextField<String> tfSearch = new PanelTextField<>(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(8, 32, 16, -48), 0), "", FieldFilterString.INSTANCE);
+        PanelTextField<String> tfSearch = new PanelTextField<>(new GuiTransform(new GuiAnchor(0.5F, 0F, 1F, 0F), new GuiPadding(8, 32, 16, -48), 0), "", FieldFilterString.INSTANCE);
         tfSearch.setCallback(cvRegSearch::setSearchFilter);
         tfSearch.setWatermark("Search...");
         cvBackground.addPanel(tfSearch);
@@ -131,7 +131,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         qtList = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 16, 32), 0));
         cvBackground.addPanel(qtList);
         
-        PanelVScrollBar scTsk = new PanelVScrollBar(new GuiTransform(new Vector4f(0.5F, 0F, 0.5F, 1F), new GuiPadding(-16, 32, 8, 32), 0));
+        PanelVScrollBar scTsk = new PanelVScrollBar(new GuiTransform(new GuiAnchor(0.5F, 0F, 0.5F, 1F), new GuiPadding(-16, 32, 8, 32), 0));
         cvBackground.addPanel(scTsk);
         qtList.setScrollDriverY(scTsk);
 		
@@ -163,10 +163,10 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() ==  1 && btn instanceof PanelButtonStorage) // Add
         {
-            IFactoryData<ITask, NBTTagCompound> fact = ((PanelButtonStorage<IFactoryData<ITask, NBTTagCompound>>)btn).getStoredValue();
+            IFactoryData<ITask, CompoundNBT> fact = ((PanelButtonStorage<IFactoryData<ITask, CompoundNBT>>)btn).getStoredValue();
             quest.getTasks().add(quest.getTasks().nextID(), fact.createNew());
             
             SendChanges();
@@ -181,14 +181,14 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
             ITask task = ((PanelButtonStorage<ITask>)btn).getStoredValue();
-            GuiScreen editor = task.getTaskEditor(this, new DBEntry<>(qID, quest));
+            Screen editor = task.getTaskEditor(this, new DBEntry<>(qID, quest));
             
             if(editor != null)
             {
-                mc.displayGuiScreen(editor);
+                minecraft.displayGuiScreen(editor);
             } else
             {
-                mc.displayGuiScreen(new GuiNbtEditor(this, task.writeToNBT(new NBTTagCompound()), value -> {
+                minecraft.displayGuiScreen(new GuiNbtEditor(this, task.writeToNBT(new CompoundNBT()), value -> {
                     task.readFromNBT(value);
                     SendChanges();
                 }));
@@ -213,14 +213,14 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
 	
 	private void SendChanges()
 	{
-	    NBTTagCompound payload = new NBTTagCompound();
-	    NBTTagList dataList = new NBTTagList();
-	    NBTTagCompound entry = new NBTTagCompound();
-	    entry.setInteger("questID", qID);
-	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-	    dataList.appendTag(entry);
-	    payload.setTag("data", dataList);
-	    payload.setInteger("action", 0);
+	    CompoundNBT payload = new CompoundNBT();
+	    ListNBT dataList = new ListNBT();
+	    CompoundNBT entry = new CompoundNBT();
+	    entry.putInt("questID", qID);
+	    entry.put("config", quest.writeToNBT(new CompoundNBT()));
+	    dataList.add(entry);
+	    payload.put("data", dataList);
+	    payload.putInt("action", 0);
 	    NetQuestEdit.sendEdit(payload);
 	}
 }

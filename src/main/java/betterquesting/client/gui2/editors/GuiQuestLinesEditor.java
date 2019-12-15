@@ -1,5 +1,6 @@
 package betterquesting.client.gui2.editors;
 
+import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumQuestVisibility;
@@ -32,11 +33,10 @@ import betterquesting.client.gui2.editors.designer.GuiDesigner;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     private IQuestLine selected;
     private int selID = -1;
     
-    public GuiQuestLinesEditor(GuiScreen parent)
+    public GuiQuestLinesEditor(Screen parent)
     {
         super(parent);
     }
@@ -93,7 +93,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         super.initPanel();
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-        Keyboard.enableRepeatEvents(true);
+        Minecraft.getInstance().keyboardListener.enableRepeatEvents(true);
         
         // Background panel
         CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -110,14 +110,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         lineList = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 16, 48), 0));
         cvBackground.addPanel(lineList);
         
-        PanelVScrollBar scList = new PanelVScrollBar(new GuiTransform(new Vector4f(0.5F, 0F, 0.5F, 1F), new GuiPadding(-16, 32, 8, 48), 0));
+        PanelVScrollBar scList = new PanelVScrollBar(new GuiTransform(new GuiAnchor(0.5F, 0F, 0.5F, 1F), new GuiPadding(-16, 32, 8, 48), 0));
         cvBackground.addPanel(scList);
         lineList.setScrollDriverY(scList);
         
-        PanelButton btnAdd = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(16, -40, 0, 24), 0), 1, QuestTranslation.translate("betterquesting.btn.new"));
+        PanelButton btnAdd = new PanelButton(new GuiTransform(new GuiAnchor(0F, 1F, 0.25F, 1F), new GuiPadding(16, -40, 0, 24), 0), 1, QuestTranslation.translate("betterquesting.btn.new"));
         cvBackground.addPanel(btnAdd);
         
-        PanelButton btnImport = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -40, 16, 24), 0), 2, QuestTranslation.translate("betterquesting.btn.import"));
+        PanelButton btnImport = new PanelButton(new GuiTransform(new GuiAnchor(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -40, 16, 24), 0), 2, QuestTranslation.translate("betterquesting.btn.import"));
         cvBackground.addPanel(btnImport);
         
         // Right side
@@ -146,7 +146,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             public void onButtonClick()
             {
                 if(selected == null) return;
-                mc.displayGuiScreen(new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
+                minecraft.displayGuiScreen(new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
                     selected.setProperty(NativeProps.ICON, value);
                     SendChanges(new DBEntry<>(selID, selected));
                 }));
@@ -260,27 +260,27 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     
         if(btn.getButtonID() == 0) // Exit
         {
-            mc.displayGuiScreen(this.parent);
+            minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // New Quest Line
         {
-            NBTTagCompound payload = new NBTTagCompound();
-            NBTTagList dataList = new NBTTagList();
-            NBTTagCompound entry = new NBTTagCompound();
-            entry.setInteger("chapterID", -1);
-            dataList.appendTag(entry);
-            payload.setTag("data", dataList);
-            payload.setInteger("action", 3);
+            CompoundNBT payload = new CompoundNBT();
+            ListNBT dataList = new ListNBT();
+            CompoundNBT entry = new CompoundNBT();
+            entry.putInt("chapterID", -1);
+            dataList.add(entry);
+            payload.put("data", dataList);
+            payload.putInt("action", 3);
             NetChapterEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 2) // Import
         {
-            mc.displayGuiScreen(new GuiImporters(this));
+            minecraft.displayGuiScreen(new GuiImporters(this));
         } else if(btn.getButtonID() == 3) // Add/Remove Quests
         {
-            mc.displayGuiScreen(new GuiQuestLineAddRemove(this, selected));
+            minecraft.displayGuiScreen(new GuiQuestLineAddRemove(this, selected));
         } else if(btn.getButtonID() == 4 && selected != null) // Designer
         {
 			//mc.displayGuiScreen(new GuiQuestLineDesigner(this, selected));
-			mc.displayGuiScreen(new GuiDesigner(this, selected));
+			minecraft.displayGuiScreen(new GuiDesigner(this, selected));
         } else if(btn.getButtonID() == 5 && btn instanceof PanelButtonStorage) // Select Quest
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();
@@ -297,9 +297,9 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         } else if(btn.getButtonID() == 6 && btn instanceof PanelButtonStorage) // Delete Quest
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();
-            NBTTagCompound payload = new NBTTagCompound();
-            payload.setIntArray("chapterIDs", new int[]{entry.getID()});
-            payload.setInteger("action", 1);
+            CompoundNBT payload = new CompoundNBT();
+            payload.putIntArray("chapterIDs", new int[]{entry.getID()});
+            payload.putInt("action", 1);
             NetChapterEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 7 && btn instanceof PanelButtonStorage) // Move Up
         {
@@ -308,7 +308,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             if(order > 0) SendReorder(order);
         } else if(btn.getButtonID() == 8) // Big Description Editor
         {
-            mc.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
+            minecraft.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
                 if(selected != null)
                 {
                     tfDesc.setText(value);
@@ -341,14 +341,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     }
 	private void SendChanges(DBEntry<IQuestLine> chapter)
 	{
-	    NBTTagCompound payload = new NBTTagCompound();
-	    NBTTagList dataList = new NBTTagList();
-	    NBTTagCompound entry = new NBTTagCompound();
-	    entry.setInteger("chapterID", chapter.getID());
-	    entry.setTag("config", chapter.getValue().writeToNBT(new NBTTagCompound(), null));
-	    dataList.appendTag(entry);
-	    payload.setTag("data", dataList);
-	    payload.setInteger("action", 0);
+	    CompoundNBT payload = new CompoundNBT();
+	    ListNBT dataList = new ListNBT();
+	    CompoundNBT entry = new CompoundNBT();
+	    entry.putInt("chapterID", chapter.getID());
+	    entry.put("config", chapter.getValue().writeToNBT(new CompoundNBT(), null));
+	    dataList.add(entry);
+	    payload.put("data", dataList);
+	    payload.putInt("action", 0);
 	    NetChapterEdit.sendEdit(payload);
 	}
 	
@@ -367,9 +367,9 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         chapterIDs[indexToShift] = chapterIDs[indexToShift - 1];
         chapterIDs[indexToShift - 1] = tmp;
         
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setIntArray("chapterIDs", chapterIDs);
-        payload.setInteger("action", 2);
+        CompoundNBT payload = new CompoundNBT();
+        payload.putIntArray("chapterIDs", chapterIDs);
+        payload.putInt("action", 2);
         NetChapterEdit.sendEdit(payload);
     }
 }

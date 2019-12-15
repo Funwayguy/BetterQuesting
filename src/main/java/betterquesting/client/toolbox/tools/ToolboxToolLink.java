@@ -9,8 +9,8 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.handlers.NetQuestEdit;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.NonNullList;
 
 import java.util.ArrayList;
@@ -115,7 +115,7 @@ public class ToolboxToolLink implements IToolboxTool
 				IQuest q2 = b2.getStoredValue().getValue();
 				boolean mod2 = false;
                 
-                NBTTagList dataList = new NBTTagList();
+                ListNBT dataList = new ListNBT();
     
 				for(PanelButtonQuest b1 : linking)
                 {
@@ -134,24 +134,24 @@ public class ToolboxToolLink implements IToolboxTool
                     
                     if(mod1)
                     {
-                        NBTTagCompound entry = new NBTTagCompound();
-                        entry.setInteger("questID", b1.getStoredValue().getID());
-                        entry.setTag("config", b1.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
-                        dataList.appendTag(entry);
+                        CompoundNBT entry = new CompoundNBT();
+                        entry.putInt("questID", b1.getStoredValue().getID());
+                        entry.put("config", b1.getStoredValue().getValue().writeToNBT(new CompoundNBT()));
+                        dataList.add(entry);
                     }
                 }
 				
                 if(mod2)
                 {
-                    NBTTagCompound entry = new NBTTagCompound();
-                    entry.setInteger("questID", b2.getStoredValue().getID());
-                    entry.setTag("config", q2.writeToNBT(new NBTTagCompound()));
-                    dataList.appendTag(entry);
+                    CompoundNBT entry = new CompoundNBT();
+                    entry.putInt("questID", b2.getStoredValue().getID());
+                    entry.put("config", q2.writeToNBT(new CompoundNBT()));
+                    dataList.add(entry);
                 }
                 
-                NBTTagCompound payload = new NBTTagCompound();
-                payload.setTag("data", dataList);
-                payload.setInteger("action", 0);
+                CompoundNBT payload = new CompoundNBT();
+                payload.put("data", dataList);
+                payload.putInt("action", 0);
                 NetQuestEdit.sendEdit(payload);
 				
 				linking.clear();
