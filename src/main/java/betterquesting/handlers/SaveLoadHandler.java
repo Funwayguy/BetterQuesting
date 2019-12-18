@@ -219,7 +219,7 @@ public class SaveLoadHandler
             jsonCon.setTag("questLines", QuestLineDatabase.INSTANCE.writeToNBT(new NBTTagList(), null));
     
             jsonCon.setString("format", BetterQuesting.FORMAT);
-            jsonCon.setString("build", Loader.instance().activeModContainer().getVersion());
+            jsonCon.setString("build", Loader.instance().getIndexedModList().get(BetterQuesting.MODID).getVersion());
     
             JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
         }

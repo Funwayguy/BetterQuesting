@@ -29,9 +29,9 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
-import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.OreDictTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
@@ -48,6 +48,7 @@ import net.minecraft.util.Tuple;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,7 +57,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private IQuestLine selectedLine = null;
     private static int selectedLineId = -1;
     
-    //private final List<PanelButtonStorage> qlBtns = new ArrayList<>();
     private final List<Tuple<DBEntry<IQuestLine>, Integer>> visChapters = new ArrayList<>();
     
     private CanvasQuestLine cvQuest;
@@ -111,16 +111,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -24, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_PG_PREV.getTexture());
         btnExit.setClickAction((b) -> mc.displayGuiScreen(parent));
+        btnExit.setTooltip(Collections.singletonList(QuestTranslation.translate("gui.back")));
         cvBackground.addPanel(btnExit);
         
         if(canEdit)
         {
             PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
+            btnEdit.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.edit")));
             cvBackground.addPanel(btnEdit);
         }
         
         txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
+        txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         
         icoChapter = new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, 40, 8, 16, 16, 0), null);
@@ -128,7 +131,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         // === CHAPTER TRAY ===
         
-        cvChapterTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(40, 24, 0, 8), -1), PresetTexture.PANEL_MAIN.getTexture());
+        cvChapterTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -40 - 150 - 24, 8), -1), PresetTexture.PANEL_MAIN.getTexture());
         cvChapterTray.setManualOpen(true);
         cvChapterTray.setOpenAction(() -> {
             cvDescTray.setTrayState(false, 200);
@@ -136,16 +139,16 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         cvBackground.addPanel(cvChapterTray);
         
-        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
+        cvLines = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 16, 8), 0));
         cvChapterTray.getCanvasOpen().addPanel(cvLines);
         
-        scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+        scLines = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-16, 8, 8, 8), 0));
         cvLines.setScrollDriverY(scLines);
         cvChapterTray.getCanvasOpen().addPanel(scLines);
         
         // === DESCRIPTION TRAY ===
         
-        cvDescTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(40, 24, 0, 8), -1), PresetTexture.PANEL_MAIN.getTexture());
+        cvDescTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -40 - 150 - 24, 8), -1), PresetTexture.PANEL_MAIN.getTexture());
         cvDescTray.setManualOpen(true);
         cvDescTray.setOpenAction(() -> {
             cvChapterTray.setTrayState(false, 200);
@@ -164,21 +167,27 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         cvBackground.addPanel(cvDescTray);
         
-        cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(4, 4, 8, 4), 0));
+        cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 20, 8), 0));
         cvDescTray.getCanvasOpen().addPanel(cvDesc);
     
-        scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+        scDesc = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-16, 8, 8, 8), 0));
         cvDesc.setScrollDriverY(scDesc);
         cvDescTray.getCanvasOpen().addPanel(scDesc);
         
         // === LEFT SIDEBAR ===
         
-        PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 24, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_BOOKMARK.getTexture());
-        btnTrayToggle.setClickAction((b) -> cvChapterTray.setTrayState(!cvChapterTray.isTrayOpen(), 200));
+        PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 24, 32, 16, 0), -1, "");
+        btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture(), selectedLineId < 0 ? new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F) : new GuiColorStatic(0xFFFFFFFF), 0);
+        btnTrayToggle.setClickAction((b) -> {
+            cvChapterTray.setTrayState(!cvChapterTray.isTrayOpen(), 200);
+            btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture());
+        });
+        btnTrayToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.title.quest_lines")));
         cvBackground.addPanel(btnTrayToggle);
         
-        PanelButton btnDescToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_NOTICE.getTexture());
+        PanelButton btnDescToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_DESC.getTexture());
         btnDescToggle.setClickAction((b) -> cvDescTray.setTrayState(!cvDescTray.isTrayOpen(), 200));
+        btnDescToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.description")));
         cvBackground.addPanel(btnDescToggle);
         
         PanelButton fitView = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 72, 32, 16, -2), 5, "");
@@ -186,10 +195,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         fitView.setClickAction((b) -> {
             if(cvQuest.getQuestLine() != null) cvQuest.fitToWindow();
         });
+        fitView.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.zoom_fit")));
         cvBackground.addPanel(fitView);
         
         claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 56, 32, 16, -2), -1, "");
-        claimAll.setIcon(PresetIcon.ICON_CHEST.getTexture());
+        claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture());
         claimAll.setClickAction((b) -> {
             if(cvQuest.getQuestButtons().size() <= 0) return;
             List<Integer> claimIdList = new ArrayList<>();
@@ -206,7 +216,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             }
     
             NetQuestAction.requestClaim(cIDs);
+            claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
         });
+        claimAll.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.claim_all")));
         cvBackground.addPanel(claimAll);
         
         // === CHAPTER VIEWPORT ===
@@ -232,7 +244,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             }
             
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
-            icoChapter.setTexture(new ItemTexture(selectedLine.getProperty(NativeProps.ICON)), null);
+            icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         }
         
         // === MISC ===
@@ -350,9 +362,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 selectedLine = q.getValue();
                 selectedLineId = q.getID();
                 cvQuest.setQuestLine(q.getValue());
-                icoChapter.setTexture(new ItemTexture(q.getValue().getProperty(NativeProps.ICON)), null);
+                icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
                 txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
-                //cvChapterTray.setTrayState(false, 200);
+                cvChapterTray.setTrayState(false, 200);
                 refreshClaimAll();
             });
             cvLines.addPanel(btnLine);
@@ -373,12 +385,20 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             selectedLine = null;
         }
         
-        if(cvQuest.getQuestLine() != selectedLine) cvQuest.setQuestLine(selectedLine);
+        float zoom = cvQuest.getZoom();
+        int sx = cvQuest.getScrollX();
+        int sy = cvQuest.getScrollY();
+        /*if(cvQuest.getQuestLine() != selectedLine)*/ cvQuest.setQuestLine(selectedLine);
+        cvQuest.setZoom(zoom);
+        cvQuest.setScrollX(sx);
+        cvQuest.setScrollY(sy);
+        cvQuest.refreshScrollBounds();
+        cvQuest.updatePanelScroll();
         
         if(selectedLine != null)
         {
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
-            icoChapter.setTexture(new ItemTexture(selectedLine.getProperty(NativeProps.ICON)), null);
+            icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         } else
         {
             txTitle.setText("");
@@ -393,6 +413,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         if(cvQuest.getQuestLine() == null || cvQuest.getQuestButtons().size() <= 0)
         {
             claimAll.setActive(false);
+            claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
             return;
         }
         
@@ -401,10 +422,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             if(btn.getStoredValue().getValue().canClaim(mc.player))
             {
                 claimAll.setActive(true);
+                claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F), 0);
                 return;
             }
         }
         
+        claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
         claimAll.setActive(false);
     }
 }

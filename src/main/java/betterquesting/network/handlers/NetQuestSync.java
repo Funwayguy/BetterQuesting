@@ -11,6 +11,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -49,7 +50,7 @@ public class NetQuestSync
         
         if(config) sendSync(null, IDs, true, false); // We're not sending progress in this pass.
         
-        if(progress)
+        if(progress) // Send everyone's individual progression
         {
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             if(server == null) return;
@@ -69,14 +70,14 @@ public class NetQuestSync
         BQThreadedIO.INSTANCE.enqueue(() -> {
             NBTTagList dataList = new NBTTagList();
             final List<DBEntry<IQuest>> questSubset = questIDs == null ? QuestDatabase.INSTANCE.getEntries() : QuestDatabase.INSTANCE.bulkLookup(questIDs);
-            final UUID playerID = player == null ? null : QuestingAPI.getQuestingUUID(player);
+            final List<UUID> pidList = player == null ? null : Collections.singletonList(QuestingAPI.getQuestingUUID(player));
             
             for(DBEntry<IQuest> entry : questSubset)
             {
                 NBTTagCompound tag = new NBTTagCompound();
                 
                 if(config) tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound()));
-                if(progress) tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), Collections.singletonList(playerID)));
+                if(progress) tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), pidList));
                 tag.setInteger("questID", entry.getID());
                 dataList.appendTag(tag);
             }
@@ -109,7 +110,7 @@ public class NetQuestSync
     private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
     {
         NBTTagCompound payload = message.getFirst();
-        int[] reqIDs = !payload.hasKey("requestIDs") ? null : payload.getIntArray("requestIDs");
+        int[] reqIDs = !payload.hasKey("requestIDs", 11) ? null : payload.getIntArray("requestIDs");
         sendSync(message.getSecond(), reqIDs, payload.getBoolean("getConfig"), payload.getBoolean("getProgress"));
     }
     
@@ -135,7 +136,9 @@ public class NetQuestSync
             
             if(tag.hasKey("progress", 10) && quest != null)
             {
-                quest.readProgressFromNBT(tag.getCompoundTag("progress"), true); // TODO: Once moved over to the client side database, always overwrite
+                // TODO: Fix this properly
+                // If there we're not running the LAN server off this client then we overwrite always
+                quest.readProgressFromNBT(tag.getCompoundTag("progress"), !Minecraft.getMinecraft().isIntegratedServerRunning());
             }
         }
         

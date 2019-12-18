@@ -69,11 +69,11 @@ public class ItemComparison
     		topLoop:
     		for(int i = 0; i < list1.tagCount(); i++)
     		{
-    			NBTBase lt1 = list1.getCompoundTagAt(i);
+    			NBTBase lt1 = list1.get(i);
     			
     			for(int j = 0; j < list2.tagCount(); j++)
     			{
-    				if(CompareNBTTag(lt1, list2.getCompoundTagAt(j), partial))
+    				if(CompareNBTTag(lt1, list2.get(j), partial))
     				{
     					continue topLoop;
     				}

@@ -49,6 +49,8 @@ betterquesting.btn.party_join=Join
 betterquesting.btn.party_share_lives=Share Lives
 betterquesting.btn.party_share_loot=Single Reward
 betterquesting.btn.icon=Icon
+betterquesting.btn.claim_all=Claim All
+betterquesting.btn.zoom_fit=Zoom to Fit
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
