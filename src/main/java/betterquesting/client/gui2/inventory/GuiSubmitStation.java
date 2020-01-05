@@ -1,48 +1,8 @@
 package betterquesting.client.gui2.inventory;
 
-import betterquesting.abs.misc.GuiAnchor;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.IFluidTask;
-import betterquesting.api.questing.tasks.IItemTask;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api2.cache.CapabilityProviderQuestCache;
-import betterquesting.api2.cache.QuestCache;
-import betterquesting.api2.client.gui.GuiContainerCanvas;
-import betterquesting.api2.client.gui.controls.IPanelButton;
-import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.misc.GuiAlign;
-import betterquesting.api2.client.gui.misc.GuiPadding;
-import betterquesting.api2.client.gui.misc.GuiTransform;
-import betterquesting.api2.client.gui.panels.CanvasTextured;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
-import betterquesting.api2.client.gui.panels.IGuiPanel;
-import betterquesting.api2.client.gui.panels.content.PanelGeneric;
-import betterquesting.api2.client.gui.panels.content.PanelTextBox;
-import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
-import betterquesting.api2.client.gui.themes.presets.PresetColor;
-import betterquesting.api2.client.gui.themes.presets.PresetIcon;
-import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.questing.QuestDatabase;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.util.NonNullList;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.util.vector.Vector4f;
-
-import java.util.Iterator;
-import java.util.List;
-
-public class GuiSubmitStation extends GuiContainerCanvas<ContainerSubmitStation> implements INeedsRefresh
+public class GuiSubmitStation// extends GuiContainerCanvas<ContainerSubmitStation> implements INeedsRefresh
 {
-    private final ContainerSubmitStation ssContainer;
+    /*private final ContainerSubmitStation ssContainer;
     private final TileSubmitStation tile;
     
     private final NonNullList<DBEntry<IQuest>> quests = NonNullList.create();
@@ -65,7 +25,7 @@ public class GuiSubmitStation extends GuiContainerCanvas<ContainerSubmitStation>
     private int selQuest = 0;
     private int selTask = 0;
     
-    public GuiSubmitStation(Screen parent, InventoryPlayer playerInvo, TileSubmitStation submitStation)
+    public GuiSubmitStation(Screen parent, PlayerInventory playerInvo, TileSubmitStation submitStation)
     {
         super(parent, new ContainerSubmitStation(playerInvo, submitStation));
         this.ssContainer = this.getContainer();
@@ -319,5 +279,5 @@ public class GuiSubmitStation extends GuiContainerCanvas<ContainerSubmitStation>
     private int lazyPosMod(int a, int b)
     {
         return ((a % b) + b) % b;
-    }
+    }*/
 }

@@ -22,7 +22,7 @@ public class NetCacheSync
     
     public static void registerHandler()
     {
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetCacheSync::onClient);
         }

@@ -21,7 +21,7 @@ public class PacketTypeRegistry implements IPacketRegistry
 	private final HashMap<ResourceLocation, Consumer<Tuple<CompoundNBT, ServerPlayerEntity>>> serverHandlers = new HashMap<>();
 	private final HashMap<ResourceLocation, Consumer<CompoundNBT>> clientHandlers = new HashMap<>();
  
-	public void init()
+	public void initCommon()
 	{
         NetQuestSync.registerHandler();
         NetQuestEdit.registerHandler();
@@ -44,6 +44,11 @@ public class PacketTypeRegistry implements IPacketRegistry
 		NetCacheSync.registerHandler();
 		NetBulkSync.registerHandler();
 	}
+	
+	/*public void initClient()
+    {
+    
+    }*/
 	
 	@Override
 	public void registerServerHandler(@Nonnull ResourceLocation idName, @Nonnull Consumer<Tuple<CompoundNBT,ServerPlayerEntity>> method)

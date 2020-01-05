@@ -1,13 +1,8 @@
 package betterquesting.blocks;
 
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-
-import javax.annotation.Nonnull;
-
-public class SSItemHandler implements IItemHandlerModifiable
+public class SSItemHandler// implements IItemHandlerModifiable
 {
-	private final TileSubmitStation tile;
+	/*private final TileSubmitStation tile;
 	
 	public SSItemHandler(TileSubmitStation tile)
 	{
@@ -118,5 +113,5 @@ public class SSItemHandler implements IItemHandlerModifiable
     public boolean isItemValid(int slot, @Nonnull ItemStack stack)
     {
         return !stack.isEmpty() && tile.isItemValidForSlot(slot, stack);
-    }
+    }*/
 }

@@ -1,37 +1,14 @@
 package betterquesting.items;
 
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.core.BetterQuesting;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.QuestSettings;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-
-public class ItemExtraLife extends Item
+public class ItemExtraLife// extends Item
 {
-	public ItemExtraLife()
+	/*public ItemExtraLife()
 	{
 		this.setTranslationKey("betterquesting.extra_life");
 		this.setCreativeTab(BetterQuesting.tabQuesting);
 		this.setHasSubtypes(true);
 	}
-
-    /**
-     * Called whenever this item is equipped and the right mouse button is pressed. Args: itemStack, world, entityPlayer
-     */
+	
     @Nonnull
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, @Nonnull EnumHand hand)
@@ -75,11 +52,7 @@ public class ItemExtraLife extends Item
     	
 		return new ActionResult<>(EnumActionResult.PASS, stack);
     }
-
-    /**
-     * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
-     * different names based on their damage or NBT.
-     */
+    
     @Override
     @Nonnull
     public String getTranslationKey(ItemStack stack)
@@ -101,10 +74,7 @@ public class ItemExtraLife extends Item
     {
 		return stack.getItemDamage() == 0;
     }
-
-    /**
-     * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
-     */
+    
     @Override
 	@SideOnly(Side.CLIENT)
     public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list)
@@ -115,5 +85,5 @@ public class ItemExtraLife extends Item
 	    	list.add(new ItemStack(this, 1, 1));
 	    	list.add(new ItemStack(this, 1, 2));
     	}
-    }
+    }*/
 }

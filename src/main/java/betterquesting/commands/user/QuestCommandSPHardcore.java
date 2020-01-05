@@ -1,59 +1,41 @@
 package betterquesting.commands.user;
 
 import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.handlers.NetSettingSync;
+import betterquesting.commands.args.BooleanArgument;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.util.text.TranslationTextComponent;
 
-public class QuestCommandSPHardcore extends QuestCommandBase
+public class QuestCommandSPHardcore
 {
-	@Override
-	public String getCommand()
-	{
-		return "hardcore";
-	}
-	
-	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
-	{
-		if(!server.isSinglePlayer() || !server.getServerOwner().equalsIgnoreCase(sender.getName()))
-		{
-			TextComponentTranslation cc = new TextComponentTranslation("commands.generic.permission");
-			cc.getStyle().setColor(TextFormatting.RED);
-			sender.sendMessage(cc);
-			return;
-		}
-		
-		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, true);
-        SaveLoadHandler.INSTANCE.markDirty();
-        
-		sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.hardcore", new TextComponentTranslation("options.on")));
-        NetSettingSync.sendSync(null);
-	}
-	
-	@Override
-	public String getPermissionNode() 
-	{
-		return "betterquesting.command.user.hardcores";
-	}
-
-	@Override
-	public DefaultPermissionLevel getPermissionLevel() 
-	{
-		return DefaultPermissionLevel.ALL;
-	}
-
-	@Override
-	public String getPermissionDescription() 
-	{
-		return "Permission to manually resyncs the local questing database with the server in case of potential desync issues";
-	}
+    private static final String permNode = "betterquesting.command.user.hardcore";
+    
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        return Commands.literal("hardcore").requires((source) -> {
+            try
+            {
+                return source.getServer().isSinglePlayer() && source.getServer().func_213199_b(source.asPlayer().getGameProfile()); // isOwner
+            } catch(CommandSyntaxException e)
+            {
+                return false;
+            }
+        }).executes(QuestCommandSPHardcore::runCommand).then(Commands.argument("state", BooleanArgument.INSTANCE)).executes((source) -> runCommand(source, BooleanArgument.getValue(source, "state")));
+    }
+    
+    private static int runCommand(CommandContext<CommandSource> source)
+    {
+		return runCommand(source, !QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE));
+    }
+    
+    private static int runCommand(CommandContext<CommandSource> source, boolean state)
+    {
+		QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, state);
+		source.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.hardcore", new TranslationTextComponent(state ? "options.on" : "options.off")), true);
+        return 1;
+    }
 }

@@ -4,9 +4,9 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelFluidSlot;
 import betterquesting.core.BetterQuesting;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraft.fluid.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -25,13 +25,13 @@ public class CanvasFluidDatabase extends CanvasSearch<FluidStack, Fluid>
     @Override
     protected Iterator<Fluid> getIterator()
     {
-        return FluidRegistry.getRegisteredFluids().values().iterator();
+        return ForgeRegistries.FLUIDS.iterator();
     }
     
     @Override
     protected void queryMatches(Fluid fluid, String query, final ArrayDeque<FluidStack> results)
     {
-        if(fluid == null || fluid.getName() == null)
+        if(fluid == null || fluid.getRegistryName() == null)
         {
             return;
         }
@@ -40,13 +40,13 @@ public class CanvasFluidDatabase extends CanvasSearch<FluidStack, Fluid>
         {
             FluidStack stack = new FluidStack(fluid, 1000);
 
-            if(fluid.getUnlocalizedName().toLowerCase().contains(query) || fluid.getLocalizedName(stack).toLowerCase().contains(query) || fluid.getName().toLowerCase().contains(query))
+            if(fluid.getAttributes().getTranslationKey().toLowerCase().contains(query) || fluid.getAttributes().getDisplayName(stack).getFormattedText().toLowerCase().contains(query) || fluid.getRegistryName().toString().toLowerCase().contains(query))
             {
                 results.add(stack);
             }
         } catch(Exception e)
         {
-            BetterQuesting.logger.error("An error occured while searching fluid \"" + fluid.getName() + "\" (" + fluid.getClass().getName() + ")", e);
+            BetterQuesting.logger.error("An error occured while searching fluid \"" + fluid.getRegistryName().toString() + "\" (" + fluid.getClass().getName() + ")", e);
         }
     }
     

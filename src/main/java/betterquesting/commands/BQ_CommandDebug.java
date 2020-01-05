@@ -1,27 +1,19 @@
 package betterquesting.commands;
 
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
 
-public class BQ_CommandDebug extends CommandBase
+public class BQ_CommandDebug
 {
-	@Override
-	public String getName()
-	{
-		return "bq_debug";
-	}
-	
-	@Override
-	public String getUsage(ICommandSender sender)
-	{
-		return "TO BE USED IN DEV ONLY";
-	}
-	
-	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-	{
+    public static void register(CommandDispatcher<CommandSource> dispatch)
+    {
+        dispatch.register(Commands.literal("bq_debug").executes(BQ_CommandDebug::runCommand));
+    }
+    
+    private static int runCommand(CommandContext<CommandSource> context)
+    {
 	    /*if(!(sender instanceof EntityPlayer)) return;
 	    
 	    EntityPlayer player = (EntityPlayer)sender;
@@ -78,5 +70,6 @@ public class BQ_CommandDebug extends CommandBase
         {
             e.printStackTrace();
         }*/
+        return 1;
     }
 }

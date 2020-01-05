@@ -3,6 +3,7 @@ package betterquesting.client;
 import betterquesting.core.BetterQuesting;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,7 +23,7 @@ public class CreativeTabQuesting extends ItemGroup
     @OnlyIn(Dist.CLIENT)
 	public ItemStack createIcon()
 	{
-		if(tabStack == null) this.tabStack = new ItemStack(BetterQuesting.extraLife);
+		if(tabStack == null) this.tabStack = new ItemStack(Items.WRITTEN_BOOK/*BetterQuesting.extraLife*/);
 		return tabStack;
 	}
 }

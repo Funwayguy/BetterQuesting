@@ -29,8 +29,8 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.themes.ThemeRegistry;
-import betterquesting.core.BetterQuesting;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
@@ -134,7 +134,7 @@ public class GuiThemes extends GuiScreenCanvas
 		CanvasTextured itemFrame = new CanvasTextured(new GuiTransform(new GuiAnchor(0.75F, 0.5F, 0.75F, 0.5F), -12, -12, 24, 24, 0), PresetTexture.ITEM_FRAME.getTexture());
 		preCanIn2.addPanel(itemFrame);
 		
-		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(BetterQuesting.guideBook, 9999), true, true)));
+		itemFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(1, 1, 1, 1), 0), new ItemTexture(new BigItemStack(Items.WRITTEN_BOOK, 9999), true, true)));
 		
 		IGuiLine linSeq = new GuiLineSequence(1F, PresetLine.QUEST_LOCKED.getLine(), PresetLine.QUEST_UNLOCKED.getLine(), PresetLine.QUEST_PENDING.getLine(), PresetLine.QUEST_COMPLETE.getLine());
 		IGuiColor colSeq = new GuiColorSequence(1F, PresetColor.QUEST_LINE_LOCKED.getColor(), PresetColor.QUEST_LINE_UNLOCKED.getColor(), PresetColor.QUEST_LINE_PENDING.getColor(), PresetColor.QUEST_LINE_COMPLETE.getColor());

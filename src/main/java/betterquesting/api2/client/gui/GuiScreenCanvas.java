@@ -103,6 +103,14 @@ public class GuiScreenCanvas extends Screen implements IScene
 		
     	this.minecraft.keyboardListener.enableRepeatEvents(false);
     }
+    
+    @Override
+    public void setSize(int w, int h)
+    {
+        super.setSize(w, h);
+        rootTransform.w = w;
+        rootTransform.h = h;
+    }
 	
 	@Override
 	public void initPanel()

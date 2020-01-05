@@ -34,7 +34,7 @@ public class NetPartySync
     {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetPartySync::onServer);
         
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetPartySync::onClient);
         }

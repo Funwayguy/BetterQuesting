@@ -30,7 +30,7 @@ public class NetChapterSync
     {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetChapterSync::onServer);
         
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetChapterSync::onClient);
         }

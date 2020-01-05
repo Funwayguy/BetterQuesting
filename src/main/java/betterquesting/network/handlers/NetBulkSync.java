@@ -33,7 +33,7 @@ public class NetBulkSync // Clears local data and negotiates a full resync with 
     {
             PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetBulkSync::onServer);
             
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetBulkSync::onClient);
         }

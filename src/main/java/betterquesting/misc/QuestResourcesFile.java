@@ -4,38 +4,43 @@ import betterquesting.core.BetterQuesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.ResourcePackFileNotFoundException;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.MetadataSerializer;
+import net.minecraft.resources.IResourcePack;
+import net.minecraft.resources.ResourcePackType;
+import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
-import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class QuestResourcesFile implements IResourcePack, Closeable
+public class QuestResourcesFile implements IResourcePack
 {
-    
-    private static final ResourceLocation UNKNOWN_PACK_TEXTURE = new ResourceLocation("textures/misc/unknown_pack.png");
+    //private static final ResourceLocation UNKNOWN_PACK_TEXTURE = new ResourceLocation("textures/misc/unknown_pack.png");
     
 	private static final File rootFolder = new File("config/betterquesting/resources/");
     private static final Splitter entryNameSplitter = Splitter.on('/').omitEmptyStrings().limit(3);
     private List<ZipFile> zipList = null;
-    private BufferedImage bufferedImage = null;
+    //private BufferedImage bufferedImage = null;
+    
+    @Nonnull
+    @Override
+    public InputStream getRootResourceStream(@Nonnull String fileName)
+    {
+       throw new UnsupportedOperationException("BQ does not support root streams via its resource loader");
+    }
     
     @Nonnull
 	@Override
-	public InputStream getInputStream(@Nonnull ResourceLocation loc) throws IOException
+	public InputStream getResourceStream(@Nonnull ResourcePackType type, @Nonnull ResourceLocation loc) throws IOException
 	{
 		String locName = locationToName(loc);
 		
@@ -49,11 +54,43 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	        }
 		}
 		
-        throw new ResourcePackFileNotFoundException(rootFolder, locName);
+        throw new FileNotFoundException(loc.getPath());
 	}
-	
-	@Override
-	public boolean resourceExists(@Nonnull ResourceLocation loc)
+ 
+	@Nonnull
+    @Override
+    public Collection<ResourceLocation> getAllResourceLocations(@Nonnull ResourcePackType type, @Nonnull String pathIn, int maxDepth, @Nonnull Predicate<String> filter)
+    {
+        Set<ResourceLocation> set = new HashSet<>();
+        for(String s : getResourceNamespaces(type))
+        {
+            try
+            {
+                set.addAll(this.getResourceLocations(maxDepth, s, rootFolder.toPath().resolve(type.getDirectoryName()).resolve(s), pathIn, filter));
+            } catch(Exception ignored){}
+        }
+        return set;
+    }
+
+    private Collection<ResourceLocation> getResourceLocations(int maxDepth, String namespace, Path baseDir, String pathIn, Predicate<String> filter) throws IOException
+    {
+        List<ResourceLocation> list = Lists.newArrayList();
+        Iterator<Path> iterator = Files.walk(baseDir.resolve(pathIn), maxDepth).iterator();
+        
+        while(iterator.hasNext())
+        {
+            Path path = iterator.next();
+            if(!path.endsWith(".mcmeta") && Files.isRegularFile(path) && filter.test(path.getFileName().toString()))
+            {
+                list.add(new ResourceLocation(namespace, baseDir.relativize(path).toString().replaceAll("\\\\", "/")));
+            }
+        }
+        
+        return list;
+    }
+    
+    @Override
+	public boolean resourceExists(@Nonnull ResourcePackType type,  @Nonnull ResourceLocation loc)
 	{
 		String locName = locationToName(loc);
 		
@@ -73,9 +110,9 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 		return false;
 	}
 	
-	@Override
     @Nonnull
-	public Set<String> getResourceDomains()
+	@Override
+	public Set<String> getResourceNamespaces(@Nonnull ResourcePackType type)
 	{
         HashSet<String> hashset = Sets.newHashSet();
         
@@ -102,7 +139,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 
             if (s.startsWith("assets/"))
             {
-                ArrayList<String> arraylist = Lists.newArrayList(entryNameSplitter.split(s));
+                List<String> arraylist = Lists.newArrayList(entryNameSplitter.split(s));
 
                 if (arraylist.size() > 1)
                 {
@@ -124,12 +161,12 @@ public class QuestResourcesFile implements IResourcePack, Closeable
 	}
 	
 	@Override
-	public <T extends IMetadataSection> T getPackMetadata(@Nonnull MetadataSerializer meta, @Nonnull String s)
+	public <T> T getMetadata(@Nonnull IMetadataSectionSerializer<T> deserializer)
 	{
 		return null;
 	}
 	
-	@Nonnull
+	/*@Nonnull
 	@Override
 	public BufferedImage getPackImage()
 	{
@@ -145,11 +182,11 @@ public class QuestResourcesFile implements IResourcePack, Closeable
         }
         
         return bufferedImage;
-	}
+	}*/
 	
 	@Nonnull
 	@Override
-	public String getPackName()
+	public String getName()
 	{
 		return BetterQuesting.NAME + "_files";
 	}
@@ -190,6 +227,12 @@ public class QuestResourcesFile implements IResourcePack, Closeable
     private void logNameNotLowercase(String name, String file)
     {
         BetterQuesting.logger.log(Level.WARN, "ResourcePack: ignored non-lowercase namespace: {} in {}", new Object[] {name, file});
+    }
+    
+    @Override
+    public boolean isHidden()
+    {
+        return true;
     }
     
     @Override

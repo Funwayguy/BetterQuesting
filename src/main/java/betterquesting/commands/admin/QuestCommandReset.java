@@ -1,157 +1,70 @@
 package betterquesting.commands.admin;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.NameCache;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.EntityArgument;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class QuestCommandReset extends QuestCommandBase
+public class QuestCommandReset
 {
-	@Override
-	public String getUsageSuffix()
-	{
-		return "[all|<quest_id>] [username|uuid]";
-	}
-	
-	@Override
-	public boolean validArgs(String[] args)
-	{
-		return args.length == 2 || args.length == 3;
-	}
-	
-	@Override
-	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
-	{
-		if(args.length == 2)
-		{
-		    List<String> list = new ArrayList<>();
-			list.add("all");
-			
-			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
-			{
-				list.add("" + i.getID());
-			}
-		
-		    return list;
-		} else if(args.length == 3)
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
-		}
-		
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public String getCommand()
-	{
-		return "reset";
-	}
-	
-	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
-	{
-		String action = args[1];
-		
-		UUID uuid = null;
-		
-		if(args.length == 3)
-		{
-			uuid = this.findPlayerID(server, sender, args[2]);
-			
-			if(uuid == null)
-			{
-				throw this.getException(command);
-			}
-		}
-		
-		String pName = uuid == null? "NULL" : NameCache.INSTANCE.getName(uuid);
-		EntityPlayerMP player = uuid == null ? null : server.getPlayerList().getPlayerByUUID(uuid);
-		
-		if(action.equalsIgnoreCase("all"))
-		{
-			for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries())
-			{
-				if(uuid != null)
-				{
-					entry.getValue().resetUser(uuid, true); // Clear progress and state
-				} else
-				{
-					entry.getValue().resetUser(null, true);
-				}
-			}
-			
-			if(uuid != null)
-			{
-				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_all", pName));
-				if(player != null) NetQuestSync.sendSync(player, null, false, true);
-			} else
-			{
-				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_all"));
-                NetQuestSync.quickSync(-1, false, true);
-			}
-   
-		} else
-		{
-			try
-			{
-				int id = Integer.parseInt(action.trim());
-				IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-				
-				if(uuid != null)
-				{
-					quest.resetUser(uuid, true); // Clear progress and state
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.player_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
-					if(player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true);
-				} else
-				{
-					quest.resetUser(null, true);
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.reset.all_single", new TextComponentTranslation(quest.getProperty(NativeProps.NAME))));
-					NetQuestSync.quickSync(id, false, true);
-				}
-			} catch(Exception e)
-			{
-				throw getException(command);
-			}
-		}
-	}
-	
-	@Override
-	public boolean isArgUsername(String[] args, int index)
-	{
-		return index == 2;
-	}
-	
-	@Override
-	public String getPermissionNode() 
-	{
-		return "betterquesting.command.admin.reset";
-	}
-
-	@Override
-	public DefaultPermissionLevel getPermissionLevel() 
-	{
-		return DefaultPermissionLevel.OP;
-	}
-
-	@Override
-	public String getPermissionDescription() 
-	{
-		return "Permission to erases quest completion data for the given user";
-	}
-	
+    private static final String permNode = "betterquesting.command.admin.reset";
+    
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        LiteralArgumentBuilder<CommandSource> baseNode = Commands.literal("reset");
+        
+        baseNode.then(Commands.literal("all")).then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> resetAll(context, EntityArgument.getPlayers(context, "target")));
+        
+        baseNode.then(Commands.argument("quest_id", IntegerArgumentType.integer(0))).then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> resetQuest(context, IntegerArgumentType.getInteger(context, "quest_id"), EntityArgument.getPlayers(context, "target")));
+        
+        return baseNode;
+    }
+    
+    private static int resetQuest(CommandContext<CommandSource> context, int id, Collection<ServerPlayerEntity> targets)
+    {
+        IQuest quest = QuestDatabase.INSTANCE.getValue(id);
+        if(quest == null) return 0;
+        
+        for(ServerPlayerEntity player : targets)
+        {
+            final UUID playerID = QuestingAPI.getQuestingUUID(player);
+            quest.resetUser(playerID, true);
+            context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.reset.player_single", new TranslationTextComponent(quest.getProperty(NativeProps.NAME)), player.getGameProfile().getName()), true);
+            NetQuestSync.sendSync(player, new int[]{id}, false, true);
+        }
+        
+        return 1;
+    }
+    
+    private static int resetAll(CommandContext<CommandSource> context, Collection<ServerPlayerEntity> targets)
+    {
+        List<DBEntry<IQuest>> dbList = QuestDatabase.INSTANCE.getEntries();
+        
+        for(ServerPlayerEntity player : targets)
+        {
+            final UUID playerID = QuestingAPI.getQuestingUUID(player);
+            dbList.parallelStream().forEach((entry) -> entry.getValue().resetUser(playerID, true));
+            context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.reset.player_all", player.getGameProfile().getName()), true);
+            NetQuestSync.sendSync(player, null, false, true);
+        }
+        
+        return 1;
+    }
 }

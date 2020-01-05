@@ -1,17 +1,10 @@
 package betterquesting.client.gui2.inventory;
 
-import betterquesting.blocks.TileSubmitStation;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-
-public class ContainerSubmitStation extends Container
+public class ContainerSubmitStation// extends Container
 {
-	private TileSubmitStation tile;
+	/*private TileSubmitStation tile;
 	
-	public ContainerSubmitStation(InventoryPlayer inventory, TileSubmitStation tile)
+	public ContainerSubmitStation(PlayerInventory inventory, TileSubmitStation tile)
 	{
 		this.tile = tile;
 		
@@ -70,10 +63,7 @@ public class ContainerSubmitStation extends Container
         	idx++;
         }
 	}
-
-    /**
-     * Called when a player shift-clicks on a slot. You must override this or you will crash when someone does that.
-     */
+	
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int idx)
     {
@@ -160,5 +150,5 @@ public class ContainerSubmitStation extends Container
 	public boolean canInteractWith(EntityPlayer player)
 	{
 		return tile.isUsableByPlayer(player);
-	}
+	}*/
 }

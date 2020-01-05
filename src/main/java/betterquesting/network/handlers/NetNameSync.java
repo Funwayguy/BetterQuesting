@@ -36,7 +36,7 @@ public class NetNameSync
     {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetNameSync::onServer);
         
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetNameSync::onClient);
         }

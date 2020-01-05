@@ -32,10 +32,8 @@ import betterquesting.client.gui2.editors.GuiQuestEditor;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.util.vector.Vector4f;
 
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {

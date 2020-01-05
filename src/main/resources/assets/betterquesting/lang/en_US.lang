@@ -190,6 +190,12 @@ betterquesting.cmd.reset.all_single=Reset quest '%s' for everyone
 betterquesting.cmd.reset.all_all=Reset all quests for everyone
 betterquesting.cmd.refresh=Refreshing local database...
 
+betterquesting.config.quest_notices=Quest Notices
+betterquesting.config.theme=Theme
+betterquesting.config.use_bookmark=Auto Bookmark
+betterquesting.config.max_ui_width=Max GUI Width
+betterquesting.config.max_ui_height=Max GUI Height
+
 json.betterquesting.quest.name=Quest Data
 jdoc.betterquesting.quest.rewards.name=Rewards
 jdoc.betterquesting.quest.rewards.desc=List of configurable rewards types

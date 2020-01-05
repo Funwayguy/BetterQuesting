@@ -2,180 +2,103 @@ package betterquesting.commands.admin;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.handlers.NetLifeSync;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.EntityArgument;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 
-public class QuestCommandLives extends QuestCommandBase
+public class QuestCommandLives
 {
-	@Override
-	public String getCommand()
-	{
-		return "lives";
-	}
-	
-	@Override
-	public String getUsageSuffix()
-	{
-		return "[add|set|max|default] <value> [username|uuid]";
-	}
-	
-	@Override
-	public boolean validArgs(String[] args)
-	{
-		return args.length == 4 || args.length == 3;
-	}
-	
-	@Override
-	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
-	{
-		if(args.length == 4 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set")))
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
-		} else if(args.length == 2)
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, "add", "set", "max", "default");
-		}
-		
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
-	{
-		String action = args[1];
-		int value;
-		UUID playerID = null;
-		
-		try
-		{
-			value = Integer.parseInt(args[2]);
-		} catch(Exception e)
-		{
-			throw getException(command);
-		}
-		
-		if(args.length >= 4)
-		{
-			playerID = this.findPlayerID(server, sender, args[3]);
-			
-			if(playerID == null)
-			{
-				throw getException(command);
-			}
-		}
-		
-		String pName = playerID == null? "NULL" : NameCache.INSTANCE.getName(playerID);
-		
-		if(action.equalsIgnoreCase("set"))
-		{
-			value = Math.max(1, value);
-			
-			if(playerID != null)
-			{
-				LifeDatabase.INSTANCE.setLives(playerID, value);
-                EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
-                //noinspection ConstantConditions
-                if(target != null) NetLifeSync.sendSync(new EntityPlayerMP[]{target}, new UUID[]{playerID});
-				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
-			} else
-			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayers()) // TODO: Make this work for offline players
-				{
-				    UUID uuid = QuestingAPI.getQuestingUUID(p);
-					LifeDatabase.INSTANCE.setLives(uuid, value);
-					NetLifeSync.sendSync(new EntityPlayerMP[]{p}, new UUID[]{uuid});
-				}
-				
-				sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_all", value));
-			}
-		} else if(action.equalsIgnoreCase("add"))
-		{
-			if(playerID != null)
-			{
-				int lives = LifeDatabase.INSTANCE.getLives(playerID) + value;
-				LifeDatabase.INSTANCE.setLives(playerID, lives);
-                EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
-                //noinspection ConstantConditions
-                if(target != null) NetLifeSync.sendSync(new EntityPlayerMP[]{target}, new UUID[]{playerID});
-                
-				if(value >= 0)
-				{
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));
-				} else
-				{
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_player", Math.abs(value), pName, lives));
-				}
-			} else
-			{
-				for(EntityPlayerMP p : server.getPlayerList().getPlayers())
-				{
-				    UUID uuid = QuestingAPI.getQuestingUUID(p);
-					int lives = LifeDatabase.INSTANCE.getLives(uuid);
-					LifeDatabase.INSTANCE.setLives(uuid, lives + value);
-					NetLifeSync.sendSync(new EntityPlayerMP[]{p}, new UUID[]{uuid});
-				}
-				
-				if(value >= 0)
-				{
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_all", value));
-				} else
-				{
-					sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.remove_all", Math.abs(value)));
-				}
-			}
-		} else if(action.equalsIgnoreCase("max"))
-		{
-			value = Math.max(1, value);
-			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, value);
-			// TODO: Sync this for display purposes client side
-			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.max", value));
-		} else if(action.equalsIgnoreCase("default"))
-		{
-			value = Math.max(1, value);
-			QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, value);
-			// TODO: Sync this for display purposes client side
-			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.default" + value));
-		} else
-		{
-			throw getException(command);
-		}
-	}
-	
-	@Override
-	public boolean isArgUsername(String[] args, int index)
-	{
-		return index == 3;
-	}
-	
-	@Override
-	public String getPermissionNode() 
-	{
-		return "betterquesting.command.admin.lives";
-	}
-
-	@Override
-	public DefaultPermissionLevel getPermissionLevel() 
-	{
-		return DefaultPermissionLevel.OP;
-	}
-
-	@Override
-	public String getPermissionDescription() 
-	{
-		return "Permission to set lives to the given user";
-	}
+    private static final String permNode = "betterquesting.command.admin.lives";
+    
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        LiteralArgumentBuilder<CommandSource> baseNode = Commands.literal("lives");
+        
+        baseNode.then(Commands.literal("add"))
+                .then(Commands.argument("amount", IntegerArgumentType.integer()))
+                .then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> addLives(context, IntegerArgumentType.getInteger(context, "amount"), EntityArgument.getPlayers(context, "target")));
+        
+        baseNode.then(Commands.literal("set"))
+                .then(Commands.argument("amount", IntegerArgumentType.integer()))
+                .then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> setLives(context, IntegerArgumentType.getInteger(context, "amount"), EntityArgument.getPlayers(context, "target")));
+        
+        baseNode.then(Commands.literal("max"))
+                .then(Commands.argument("amount", IntegerArgumentType.integer()))
+                .executes((context) -> maxLives(context, IntegerArgumentType.getInteger(context, "amount")));
+        
+        baseNode.then(Commands.literal("default"))
+                .then(Commands.argument("amount", IntegerArgumentType.integer()))
+                .executes((context) -> defLives(context, IntegerArgumentType.getInteger(context, "amount")));
+        
+        return baseNode;
+    }
+    
+    private static int addLives(CommandContext<CommandSource> context, int amount, Collection<ServerPlayerEntity> targets)
+    {
+        for(ServerPlayerEntity player : targets)
+        {
+            UUID playerID = QuestingAPI.getQuestingUUID(player);
+            int lives = LifeDatabase.INSTANCE.getLives(playerID) + amount;
+            LifeDatabase.INSTANCE.setLives(playerID, lives);
+            
+            NetLifeSync.sendSync(new ServerPlayerEntity[]{player}, new UUID[]{playerID});
+    
+            if(amount >= 0)
+            {
+                context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.lives.add_player", amount, player.getGameProfile().getName(), lives), true);
+            } else
+            {
+                context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.lives.remove_player", -amount, player.getGameProfile().getName(), lives), true);
+            }
+        }
+        return targets.size();
+    }
+    
+    private static int setLives(CommandContext<CommandSource> context, int amount, Collection<ServerPlayerEntity> targets)
+    {
+        for(ServerPlayerEntity player : targets)
+        {
+            UUID playerID = QuestingAPI.getQuestingUUID(player);
+            int lives = Math.max(0, amount);
+            LifeDatabase.INSTANCE.setLives(playerID, lives);
+            
+            NetLifeSync.sendSync(new ServerPlayerEntity[]{player}, new UUID[]{playerID});
+            
+            context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.lives.set_player", player.getGameProfile().getName(), lives), true);
+        }
+        return targets.size();
+    }
+    
+    private static int maxLives(CommandContext<CommandSource> context, int amount)
+    {
+        int lives = Math.max(1, amount);
+        QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_MAX, lives);
+        context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.lives.max", lives), true);
+        NetSettingSync.sendSync(null);
+        return 1;
+    }
+    
+    private static int defLives(CommandContext<CommandSource> context, int amount)
+    {
+        int lives = Math.max(1, amount);
+        QuestSettings.INSTANCE.setProperty(NativeProps.LIVES_DEF, lives);
+        context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.lives.default", lives), true);
+        NetSettingSync.sendSync(null);
+        return 1;
+    }
 }

@@ -31,7 +31,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
 
 import java.io.InputStreamReader;
@@ -182,15 +181,7 @@ public class ThemeRegistry implements IThemeRegistry
 		this.activeTheme = theme;
 		
 		BQ_Settings.curTheme = id == null ? "" : id.toString();
-		
-		if(ConfigHandler.config != null)
-		{
-			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Theme", "").set(BQ_Settings.curTheme);
-			ConfigHandler.config.save();
-		} else
-		{
-			BetterQuesting.logger.log(Level.WARN, "Unable to save theme setting");
-		}
+        ConfigHandler.CLIENT.curTheme.set(BQ_Settings.curTheme);
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
@@ -35,7 +36,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.GameType;
@@ -45,7 +45,6 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -55,7 +54,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.ArrayDeque;
@@ -120,10 +118,8 @@ public class EventHandler
 			if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
 			
 			ServerPlayerEntity player = (ServerPlayerEntity)event.getEntityLiving();
-            betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+            QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElseGet(QuestCache::new);
             boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
-            
-            if(qc == null) return;
             
             List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
             List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
@@ -243,16 +239,6 @@ public class EventHandler
 	}
 	
 	@SubscribeEvent
-	public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
-	{
-		if(event.getModID().equals(BetterQuesting.MODID))
-		{
-			ConfigHandler.config.save();
-			ConfigHandler.initConfigs();
-		}
-	}
-	
-	@SubscribeEvent
 	public void onWorldSave(WorldEvent.Save event)
 	{
 		if(!event.getWorld().isRemote() && BQ_Settings.curWorldDir != null && event.getWorld().getDimension().getType().getId() == 0)
@@ -268,7 +254,7 @@ public class EventHandler
 		
 		ServerPlayerEntity mpPlayer = (ServerPlayerEntity)event.getPlayer();
 		
-		if(BetterQuesting.proxy.isClient() && !mpPlayer.getServer().isDedicatedServer() && mpPlayer.getServer().getServerOwner().equals(mpPlayer.getGameProfile().getName()))
+		if(BetterQuesting.isClient() && !mpPlayer.getServer().isDedicatedServer() && mpPlayer.getServer().getServerOwner().equals(mpPlayer.getGameProfile().getName()))
         {
             NameCache.INSTANCE.updateName(mpPlayer);
             return;
@@ -342,17 +328,19 @@ public class EventHandler
 		if(screen instanceof INeedsRefresh) Minecraft.getInstance().deferTask(((INeedsRefresh)screen)::refreshGui);
 	}
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void onCommand(CommandEvent event)
 	{
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+		String comName = event.getParseResults().getContext().getRootNode().getName();
+		ParsedArgument<? ,?> args = event.getParseResults().getContext().getArguments().get("targets");
 		
-		if(server != null && (event.getCommand().getName().equalsIgnoreCase("op") || event.getCommand().getName().equalsIgnoreCase("deop")))
+		if(server != null && (comName.equalsIgnoreCase("op") || comName.equalsIgnoreCase("deop")))
 		{
 		    ServerPlayerEntity playerMP = server.getPlayerList().getPlayerByUsername(event.getParameters()[0]);
 			if(playerMP != null) opQueue.add(playerMP); // Has to be delayed until after the event when the command has executed
 		}
-	}
+	}*/
 	
 	private final ArrayDeque<ServerPlayerEntity> opQueue = new ArrayDeque<>();
 	private boolean openToLAN = false;

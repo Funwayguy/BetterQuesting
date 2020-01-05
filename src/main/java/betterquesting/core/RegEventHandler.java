@@ -1,29 +1,11 @@
 package betterquesting.core;
 
-import betterquesting.api.placeholders.ItemPlaceholder;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Mod.EventBusSubscriber
 public class RegEventHandler
 {
-	public static final List<Item> ALL_ITEMS = new ArrayList<>();
+	/*public static final List<Item> ALL_ITEMS = new ArrayList<>();
 	public static final List<Block> ALL_BLOCKS = new ArrayList<>();
 	public static final List<IRecipe> ALL_RECIPES = new ArrayList<>();
 	
@@ -53,7 +35,7 @@ public class RegEventHandler
 	{
 		if(!setupRecipes)
 		{
-			initRecipes();
+			//initRecipes();
 		}
 		
 		IRecipe[] tmp = ALL_RECIPES.toArray(new IRecipe[0]);
@@ -104,5 +86,5 @@ public class RegEventHandler
     	registerItem(BetterQuesting.guideBook, "guide_book");
     	
     	registerBlock(BetterQuesting.submitStation, "submit_station");
-	}
+	}*/
 }

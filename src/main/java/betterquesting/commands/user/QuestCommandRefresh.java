@@ -3,60 +3,43 @@ package betterquesting.commands.user;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api2.storage.DBEntry;
-import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.handlers.NetBulkSync;
 import betterquesting.network.handlers.NetNameSync;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraft.util.text.TranslationTextComponent;
 
-public class QuestCommandRefresh extends QuestCommandBase
+public class QuestCommandRefresh
 {
-	@Override
-	public String getCommand()
-	{
-		return "refresh";
-	}
-	
-	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
-	{
-	    if(!(sender instanceof EntityPlayerMP)) return;
-        EntityPlayerMP player = (EntityPlayerMP)sender;
+    private static final String permNode = "betterquesting.command.user.refresh";
+    
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        return Commands.literal("refresh").executes(QuestCommandRefresh::runCommand);
+    }
+    
+    private static int runCommand(CommandContext<CommandSource> context) throws CommandSyntaxException
+    {
+        ServerPlayerEntity player = context.getSource().asPlayer();
+        MinecraftServer server = context.getSource().getServer();
 	    
 		if(server.isDedicatedServer() || !server.getServerOwner().equals(player.getGameProfile().getName()))
 		{
             NetBulkSync.sendReset(player, true, true);
-			sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.refresh"));
+			context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.refresh"), true);
 		} else
         {
             boolean nameChanged = NameCache.INSTANCE.updateName(player);
             DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(player));
             if(nameChanged && party != null) NetNameSync.quickSync(null, party.getID());
         }
-	}
-	
-	@Override
-	public String getPermissionNode() 
-	{
-		return "betterquesting.command.user.refresh";
-	}
-
-	@Override
-	public DefaultPermissionLevel getPermissionLevel() 
-	{
-		return DefaultPermissionLevel.ALL;
-	}
-
-	@Override
-	public String getPermissionDescription() 
-	{
-		return "Permission to manually resync the local questing database with the server in case of potential desync issues";
-	}
-	
+		return 1;
+    }
 }

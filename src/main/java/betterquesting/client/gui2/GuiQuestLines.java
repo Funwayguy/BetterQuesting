@@ -44,10 +44,8 @@ import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Tuple;
-import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;

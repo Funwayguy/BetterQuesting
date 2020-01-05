@@ -6,13 +6,13 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelItemSlot;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
     @Override
     protected Iterator<Item> getIterator()
     {
-        return Item.REGISTRY.iterator();
+        return ForgeRegistries.ITEMS.iterator();
     }
     
     @Override
@@ -50,7 +50,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
         {
             NonNullList<ItemStack> subList = NonNullList.create();
             
-            item.getSubItems(CreativeTabs.SEARCH, subList);
+            item.fillItemGroup(ItemGroup.SEARCH, subList);
             
             if(subList.isEmpty())
             {
@@ -66,13 +66,13 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
                 {
                     try
                     {
-                        if(subItem.getTranslationKey().toLowerCase().contains(query) || subItem.getDisplayName().toLowerCase().contains(query))
+                        if(subItem.getTranslationKey().toLowerCase().contains(query) || subItem.getDisplayName().getFormattedText().toLowerCase().contains(query))
                         {
                             results.add(subItem);
                             continue;
                         }
                         
-                        int[] oids = OreDictionary.getOreIDs(subItem);
+                        /*int[] oids = OreDictionary.getOreIDs(subItem);
                         for(int oid : oids)
                         {
                             if(OreDictionary.getOreName(oid).toLowerCase().contains(query))
@@ -80,10 +80,10 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
                                 results.add(subItem);
                                 break;
                             }
-                        }
+                        }*/
                     } catch(Exception e)
                     {
-                        BetterQuesting.logger.error("An error occured while searching itemstack " + subItem.toString() + " from item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ").\nNBT: " + subItem.writeToNBT(new NBTTagCompound()), e);
+                        BetterQuesting.logger.error("An error occured while searching itemstack " + subItem.toString() + " from item \"" + item.getRegistryName() + "\" (" + item.getClass().getName() + ").\nNBT: " + subItem.write(new CompoundNBT()), e);
                     }
                 }
             }

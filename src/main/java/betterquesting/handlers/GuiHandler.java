@@ -1,10 +1,6 @@
 package betterquesting.handlers;
 
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.client.gui2.inventory.ContainerSubmitStation;
 import betterquesting.client.gui2.GuiQuestHelp;
-import betterquesting.client.gui2.inventory.GuiSubmitStation;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -18,10 +14,10 @@ public class GuiHandler implements IGuiHandler
 	{
 		TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
 		
-		if(ID == 0 && tile instanceof TileSubmitStation)
+		/*if(ID == 0 && tile instanceof TileSubmitStation)
 		{
 			return new ContainerSubmitStation(player.inventory, (TileSubmitStation)tile);
-		}
+		}*/
 		
 		return null;
 	}
@@ -31,10 +27,10 @@ public class GuiHandler implements IGuiHandler
 	{
 		TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
 		
-		if(ID == 0 && tile instanceof TileSubmitStation)
+		/*if(ID == 0 && tile instanceof TileSubmitStation)
 		{
             return new GuiSubmitStation(null, player.inventory, (TileSubmitStation)tile);
-		} else if(ID == 1)
+		} else */if(ID == 1)
 		{
 			return new GuiQuestHelp(null);
 		}

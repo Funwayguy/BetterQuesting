@@ -11,6 +11,7 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -35,7 +36,7 @@ public class NetQuestSync
     {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestSync::onServer);
         
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetQuestSync::onClient);
         }
@@ -135,7 +136,7 @@ public class NetQuestSync
             
             if(tag.contains("progress", 10) && quest != null)
             {
-                quest.readProgressFromNBT(tag.getCompound("progress"), true);
+                quest.readProgressFromNBT(tag.getCompound("progress"), !Minecraft.getInstance().isIntegratedServerRunning());
             }
         }
         

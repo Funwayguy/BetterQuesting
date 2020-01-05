@@ -33,7 +33,6 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
@@ -41,6 +40,7 @@ import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 
 import java.util.List;
@@ -161,7 +161,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         int elSize = RenderUtils.getStringWidth("...", font);
         int cvWidth = cvUserList.getTransform().getWidth();
         boolean hardcore = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
-        ItemTexture txHeart = new ItemTexture(new BigItemStack(BetterQuesting.extraLife));
+        ItemTexture txHeart = new ItemTexture(new BigItemStack(Items.DIAMOND/*BetterQuesting.extraLife*/));
         
         for(int i = 0; i < partyMemList.size(); i++)
         {

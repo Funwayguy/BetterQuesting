@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class NetQuestEdit
     {
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetQuestEdit::onServer);
         
-        if(BetterQuesting.proxy.isClient())
+        if(BetterQuesting.isClient())
         {
             PacketTypeRegistry.INSTANCE.registerClientHandler(ID_NAME, NetQuestEdit::onClient);
         }
@@ -136,9 +137,9 @@ public class NetQuestEdit
     }
     
     // Serverside only
-    public static void setQuestStates(int[] questIDs, boolean state, UUID targetID)
+    public static void setQuestStates(@Nullable int[] questIDs, boolean state, UUID targetID)
     {
-        List<DBEntry<IQuest>> questList = QuestDatabase.INSTANCE.bulkLookup(questIDs);
+        List<DBEntry<IQuest>> questList = questIDs == null ? QuestDatabase.INSTANCE.getEntries() : QuestDatabase.INSTANCE.bulkLookup(questIDs);
         
         for(DBEntry<IQuest> entry : questList)
         {
@@ -178,7 +179,6 @@ public class NetQuestEdit
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server == null) return;
         ServerPlayerEntity player = server.getPlayerList().getPlayerByUUID(targetID);
-        //noinspection ConstantConditions
         if(player == null) return;
         NetQuestSync.sendSync(player, questIDs, false, true);
     }

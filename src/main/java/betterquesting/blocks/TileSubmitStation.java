@@ -1,47 +1,8 @@
 package betterquesting.blocks;
 
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.tasks.IFluidTask;
-import betterquesting.api.questing.tasks.IItemTask;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api2.cache.CapabilityProviderQuestCache;
-import betterquesting.api2.cache.QuestCache;
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.core.BetterQuesting;
-import betterquesting.network.handlers.NetStationEdit;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.QuestSettings;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.UUID;
-
-public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IFluidTankProperties
+public class TileSubmitStation// extends TileEntity implements IFluidHandler, ISidedInventory, ITickable, IFluidTankProperties
 {
-	private final IItemHandler itemHandler;
+	/*private final IItemHandler itemHandler;
 	private final IFluidHandler fluidHandler;
 	private NonNullList<ItemStack> itemStack = NonNullList.withSize(2, ItemStack.EMPTY);
 	private boolean needsUpdate = false;
@@ -360,46 +321,30 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		qCached = null;
 		this.markDirty();
 	}
-
-    /**
-     * Overridden in a sign to provide the text.
-     */
+	
     @Nonnull
 	@Override
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(pos, 0, this.writeToNBT(new NBTTagCompound()));
     }
-
-    /**
-     * Called when you receive a TileEntityData packet for the location this
-     * TileEntity is currently in. On the client, the NetworkManager will always
-     * be the remote server. On the server, it will be whomever is responsible for
-     * sending the packet.
-     *
-     * @param net The NetworkManager the packet originated from
-     * @param pkt The data packet
-     */
+    
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
     	this.readFromNBT(pkt.getNbtCompound());
     }
     
-    /**
-     * Client: Ignores parameter on client side and sends own data to server for owner setup
-     * Server side: Sends reads any modification data (if specified) then syncs to all nearby clients
-     */
-    public void SyncTile(@Nullable NBTTagCompound data)
+    public void SyncTile(@Nullable CompoundNBT data)
     {
     	if(!world.isRemote)
     	{
     		if(data != null) this.readFromNBT(data); // Note: The handler has already read out the "tile" subtag in advance
     		this.markDirty();
-    		if(world.getMinecraftServer() != null) world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
+    		if(world.getServer() != null) world.getServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.getDimension().getType(), getUpdatePacket());
     	} else
     	{
-            NetStationEdit.sendEdit(this.writeToNBT(new NBTTagCompound()));
+            NetStationEdit.sendEdit(this.writeToNBT(new CompoundNBT()));
     	}
     }
 	
@@ -533,5 +478,5 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	public boolean isEmpty()
 	{
 		return itemStack.isEmpty();
-	}
+	}*/
 }

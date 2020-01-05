@@ -19,6 +19,16 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 
 minecraft {
     mappings channel: mcpChannel, version: mcpVersion
+    runs {
+      client {
+        workingDirectory project.file('run')
+        mods {
+            betterquesting {
+                source sourceSets.main
+            }
+        }
+      }
+    }
 }
 
 dependencies {

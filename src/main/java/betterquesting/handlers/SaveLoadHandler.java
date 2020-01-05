@@ -60,7 +60,7 @@ public class SaveLoadHandler
         
         hasUpdate = false;
 		
-		if(BetterQuesting.proxy.isClient())
+		if(BetterQuesting.isClient())
 		{
 			GuiHome.bookmark = null;
 			QuestNotification.resetNotices();
@@ -68,7 +68,7 @@ public class SaveLoadHandler
 		
 		File rootDir;
 		
-		if(BetterQuesting.proxy.isClient())
+		if(BetterQuesting.isClient())
 		{
 			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName() + "/betterquesting");
 			rootDir = server.getFile("saves/" + server.getFolderName());
@@ -276,7 +276,7 @@ public class SaveLoadHandler
             PartyInvitations.INSTANCE.reset();
             PartyManager.INSTANCE.reset();
             
-            if(BetterQuesting.proxy.isClient())
+            if(BetterQuesting.isClient())
             {
                 GuiHome.bookmark = null;
                 QuestNotification.resetNotices();

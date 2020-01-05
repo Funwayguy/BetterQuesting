@@ -1,19 +1,16 @@
 package betterquesting.network.handlers;
 
-import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.blocks.TileSubmitStation;
-import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class NetStationEdit
 {
@@ -24,28 +21,28 @@ public class NetStationEdit
         PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetStationEdit::onServer);
     }
     
-    @SideOnly(Side.CLIENT)
-    public static void sendEdit(NBTTagCompound tag)
+    @OnlyIn(Dist.CLIENT)
+    public static void sendEdit(CompoundNBT tag)
     {
-        NBTTagCompound payload = new NBTTagCompound();
-        payload.setTag("data", tag);
+        CompoundNBT payload = new CompoundNBT();
+        payload.put("data", tag);
         PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
     }
     
-    private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message)
+    private static void onServer(Tuple<CompoundNBT, ServerPlayerEntity> message)
     {
-		NBTTagCompound tileData = message.getFirst().getCompoundTag("data");
-		TileEntity tile = message.getSecond().world.getTileEntity(new BlockPos(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z")));
-		if(tile instanceof TileSubmitStation)
+		CompoundNBT tileData = message.getA().getCompound("data");
+		TileEntity tile = message.getB().world.getTileEntity(new BlockPos(tileData.getInt("x"), tileData.getInt("y"), tileData.getInt("z")));
+		/*if(tile instanceof TileSubmitStation)
         {
             TileSubmitStation ss = (TileSubmitStation)tile;
-            if(ss.owner == null || ss.isUsableByPlayer(message.getSecond()))
+            if(ss.owner == null || ss.isUsableByPlayer(message.getB()))
             {
                 ss.SyncTile(tileData);
             } else
             {
-                BetterQuesting.logger.warn("Player " + message.getSecond().getName() + " attempted to hijack an OSS they do not own!");
+                BetterQuesting.logger.warn("Player " + message.getB().getName() + " attempted to hijack an OSS they do not own!");
             }
-        }
+        }*/
     }
 }

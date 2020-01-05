@@ -1,113 +1,67 @@
 package betterquesting.commands.admin;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api2.storage.DBEntry;
-import betterquesting.commands.QuestCommandBase;
 import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.NameCache;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
+import net.minecraft.command.arguments.EntityArgument;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.UUID;
 
-public class QuestCommandComplete extends QuestCommandBase
+public class QuestCommandComplete
 {
-	@Override
-	public String getUsageSuffix()
-	{
-		return "<quest_id> [username|uuid]";
-	}
-	
-	@Override
-	public boolean validArgs(String[] args)
-	{
-		return args.length == 2 || args.length == 3;
-	}
-	
-	@Override
-	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
-	{
-		if(args.length == 2)
-		{
-		    List<String> list = new ArrayList<>();
-			for(DBEntry<IQuest> i : QuestDatabase.INSTANCE.getEntries())
-			{
-				list.add("" + i.getID());
-			}
-			return list;
-		} else if(args.length == 3)
-		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, NameCache.INSTANCE.getAllNames());
-		}
-		
-		return Collections.emptyList();
-	}
-	
-	@Override
-	public String getCommand()
-	{
-		return "complete";
-	}
-	
-	@Override
-	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args) throws CommandException
-	{
-		UUID uuid;
-		
-		if(args.length >= 3)
-		{
-			uuid = this.findPlayerID(server, sender, args[2]);
-			
-			if(uuid == null)
-			{
-				throw this.getException(command);
-			}
-		} else
-		{
-			uuid = this.findPlayerID(server, sender, sender.getName());
-		}
-		
-		if(uuid == null) return;
-		
-		String pName = NameCache.INSTANCE.getName(uuid);
-		
-        int id = Integer.parseInt(args[1].trim());
+    private static final String permNode = "betterquesting.command.admin.complete";
+    
+    public static ArgumentBuilder<CommandSource, ?> register()
+    {
+        LiteralArgumentBuilder<CommandSource> baseNode = Commands.literal("complete");
+        
+        baseNode.then(Commands.literal("all")).then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> completeAll(context, EntityArgument.getPlayers(context, "target")));
+        
+        baseNode.then(Commands.argument("quest_id", IntegerArgumentType.integer(0))).then(Commands.argument("target", EntityArgument.players()))
+                .executes((context) -> completeQuest(context, IntegerArgumentType.getInteger(context, "quest_id"), EntityArgument.getPlayers(context, "target")));
+        
+        return baseNode;
+    }
+    
+    private static int completeQuest(CommandContext<CommandSource> context, int id, Collection<ServerPlayerEntity> targets)
+    {
         IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-        if(quest == null) throw getException(command);
-        NetQuestEdit.setQuestStates(new int[]{id}, true, uuid);
-        sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete", new TextComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
-	}
-	
-	@Override
-	public boolean isArgUsername(String[] args, int index)
-	{
-		return index == 2;
-	}
-
-	@Override
-	public String getPermissionNode() 
-	{
-		return "betterquesting.command.admin.complete";
-	}
-
-	@Override
-	public DefaultPermissionLevel getPermissionLevel() 
-	{
-		return DefaultPermissionLevel.OP;
-	}
-
-	@Override
-	public String getPermissionDescription() 
-	{
-		return "Permission to force completes a quest for the given user";
-	}
+        if(quest == null) return 0;
+        
+        int[] idAry = new int[]{id};
+        String qName = quest.getProperty(NativeProps.NAME);
+        
+        for(ServerPlayerEntity player : targets)
+        {
+            UUID playerID = QuestingAPI.getQuestingUUID(player);
+            NetQuestEdit.setQuestStates(idAry, true, playerID);
+            context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.complete", qName, player.getGameProfile().getName()), true);
+        }
+        
+        return 1;
+    }
+    
+    private static int completeAll(CommandContext<CommandSource> context, Collection<ServerPlayerEntity> targets)
+    {
+        for(ServerPlayerEntity player : targets)
+        {
+            UUID playerID = QuestingAPI.getQuestingUUID(player);
+            NetQuestEdit.setQuestStates(null, true, playerID);
+            context.getSource().sendFeedback(new TranslationTextComponent("betterquesting.cmd.complete", "ALL", player.getGameProfile().getName()), true);
+        }
+        
+        return 1;
+    }
 }

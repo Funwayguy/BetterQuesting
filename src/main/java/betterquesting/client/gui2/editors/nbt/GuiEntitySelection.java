@@ -5,7 +5,10 @@ import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.*;
+import betterquesting.api2.client.gui.controls.IPanelButton;
+import betterquesting.api2.client.gui.controls.PanelButton;
+import betterquesting.api2.client.gui.controls.PanelButtonStorage;
+import betterquesting.api2.client.gui.controls.PanelTextField;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.events.IPEventListener;
@@ -28,14 +31,10 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import org.lwjgl.input.Keyboard;
 
 public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
 {
@@ -133,7 +132,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
             minecraft.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
         {
-            Entity e = EntityList.newEntity(((PanelButtonStorage<EntityEntry>)btn).getStoredValue().getEntityClass(), this.minecraft.world);
+            Entity e = ((PanelButtonStorage<EntityType<?>>)btn).getStoredValue().create(this.minecraft.world);
             
             if(e != null)
             {

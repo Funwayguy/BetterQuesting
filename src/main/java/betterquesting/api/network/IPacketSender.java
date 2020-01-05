@@ -1,6 +1,7 @@
 package betterquesting.api.network;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
 
 public interface IPacketSender
@@ -14,5 +15,5 @@ public interface IPacketSender
 	
 	// Misc.
 	void sendToAround(QuestingPacket payload, TargetPoint point);
-	void sendToDimension(QuestingPacket payload, int dimension);
+	void sendToDimension(QuestingPacket payload, DimensionType dimension);
 }
