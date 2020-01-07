@@ -3,7 +3,6 @@ package betterquesting.api.client.gui.lists;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -17,8 +16,6 @@ import betterquesting.api.utils.RenderUtils;
 public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.ScrollingEntryItem>
 {
 	private final Minecraft mc;
-	private int mx;
-	private int my;
 	
 	public GuiScrollingItems(Minecraft mc, int x, int y, int w, int h)
 	{
@@ -36,27 +33,12 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 	{
 		this.getEntryList().add(new ScrollingEntryItem(mc, stack, description));
 	}
-
-	@Override
-	public void onKeyTyped(char c, int keyCode)
-	{
-		for(int i = getEntryList().size() - 1; i >= 0; i--)
-		{
-			ScrollingEntryItem e = getEntryList().get(i);
-			e.onKeyTyped(c, keyCode);
-		}
-		
-	}
 	
 	public static class ScrollingEntryItem extends GuiElement implements IScrollingEntry
 	{
 		private final Minecraft mc;
 		private BigItemStack stack;
 		private String desc = "";
-		private int mx3;
-		private int my3;
-		private int px3;
-		private int py3;
 		
 		private List<ItemStack> subStacks = new ArrayList<ItemStack>();
 		
@@ -162,10 +144,6 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		@SuppressWarnings("unchecked")
 		public void drawForeground(int mx, int my, int px, int py, int width)
 		{
-			this.mx3 = mx;
-			this.my3 = my;
-			this.px3 = px;
-			this.py3 = py;
 			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
 			{
 				ItemStack tmpStack = subStacks.get((int)(Minecraft.getSystemTime()/1000)%subStacks.size()).copy();
@@ -182,21 +160,13 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		public void onMouseClick(int mx, int my, int px, int py, int click, int index)
 		{
 			// JEI/NEI support here
-			if(stack != null && isWithin(mx3, my3, px3 + 2, py3 + 2, 32, 32))
+			if(stack != null && isWithin(mx, my, px + 2, py + 2, 32, 32))
 			{
 				if(Loader.isModLoaded("NotEnoughItems"))
 		     	{
 		 			try
 		 			{
-		 				if(click == 1)
-		 				{
-		 					codechicken.nei.recipe.GuiUsageRecipe.openRecipeGui("item", stack.getBaseStack());
-		 				}
-		 				else
-		 				{
-		 					codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui("item", stack.getBaseStack());
-		 				}
-		 				
+		 				codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui("item", stack.getBaseStack());
 		 			} catch(Exception e){}
 		 		}
 		 	}
@@ -212,28 +182,6 @@ public class GuiScrollingItems extends GuiScrollingBase<GuiScrollingItems.Scroll
 		public boolean canDrawOutsideBox(boolean isForeground)
 		{
 			return isForeground;
-		}
-
-		public void onKeyTyped(char c, int keyCode)
-		{
-			//NEI integration for 'R' and 'U' keys
-			if(stack != null && (c == 'r' || c == 'u') && isWithin(this.mx3, this.my3, this.px3 + 2, this.py3 + 2, 32, 32))
-			{
-				if(Loader.isModLoaded("NotEnoughItems"))
-			   	{
-					try
-					{
-						if(c == 'r')
-						{	
-							codechicken.nei.recipe.GuiCraftingRecipe.openRecipeGui("item", stack.getBaseStack());
-						}	
-						else if(c == 'u')
-						{
-							codechicken.nei.recipe.GuiUsageRecipe.openRecipeGui("item", stack.getBaseStack());
-						}
-					} catch(Exception e){}			
-				}
-			}
 		}
 	}
 }
