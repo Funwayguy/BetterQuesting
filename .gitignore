@@ -223,3 +223,7 @@ pip-log.txt
 jars/
 classes/
 out/
+*.bat
+Better Questing.iml
+Better Questing.ipr
+Better Questing.iws
