@@ -1,5 +1,12 @@
 package betterquesting.misc;
 
+import betterquesting.core.BetterQuesting;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.client.resources.data.IMetadataSerializer;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,16 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.logging.log4j.Level;
-import net.minecraft.client.resources.IResourcePack;
-import net.minecraft.client.resources.data.IMetadataSection;
-import net.minecraft.client.resources.data.IMetadataSerializer;
-import net.minecraft.util.ResourceLocation;
-import betterquesting.core.BetterQuesting;
 
 public class QuestResourcesFolder implements IResourcePack
 {
-	static final File rootFolder = new File("config/betterquesting/resources/");
+	private static final File rootFolder = new File("config/betterquesting/resources/");
 	
 	@Override
 	public InputStream getInputStream(ResourceLocation location) throws IOException
@@ -67,7 +68,7 @@ public class QuestResourcesFolder implements IResourcePack
 	}
 	
 	@Override
-	public IMetadataSection getPackMetadata(IMetadataSerializer p_135058_1_, String p_135058_2_) throws IOException
+	public IMetadataSection getPackMetadata(IMetadataSerializer meta, String s) throws IOException
 	{
 		return null;
 	}

@@ -1,21 +1,24 @@
 package betterquesting.client.toolbox.tools;
 
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.network.QuestingPacket;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
+import net.minecraft.nbt.NBTTagCompound;
+import org.lwjgl.input.Keyboard;
+
+import java.util.List;
 
 public class ToolboxToolDelete implements IToolboxTool
 {
-	IGuiQuestLine gui;
+	private CanvasQuestLine gui;
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
 	}
@@ -24,57 +27,95 @@ public class ToolboxToolDelete implements IToolboxTool
 	public void disableTool()
 	{
 	}
+	
+	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+    }
 
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return null;
+    }
+	
+	@Override
+	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0)
-		{
-			return;
-		}
+		if(click != 0 || !gui.getTransform().contains(mx, my)) return false;
 		
-		GuiButtonQuestInstance btn = gui.getQuestLine().getButtonAt(mx, my);
+		PanelButtonQuest btn = gui.getButtonAt(mx, my);
 		
 		if(btn != null)
 		{
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Delete quest
-			tags.setInteger("questID", QuestDatabase.INSTANCE.getKey(btn.getQuest()));
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+		    if(PanelToolController.selected.size() > 0)
+            {
+                if(!PanelToolController.selected.contains(btn)) return false;
+                
+                for(PanelButtonQuest b : PanelToolController.selected)
+                {
+                    NBTTagCompound tags = new NBTTagCompound();
+                    tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                    tags.setInteger("questID", b.getStoredValue().getID());
+			        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                }
+            } else
+            {
+                NBTTagCompound tags = new NBTTagCompound();
+                tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+                tags.setInteger("questID", btn.getStoredValue().getID());
+                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+            }
+            
+            return true;
 		}
+		
+		return false;
+	}
+	
+	@Override
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
+	{
+	    return false;
 	}
 
 	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
+	public boolean onKeyPressed(char c, int key)
 	{
-	}
-
-	@Override
-	public void onKeyPressed(char c, int key)
-	{
-	}
-
-	@Override
-	public boolean allowTooltips()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return true;
-	}
-
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
+	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
+        {
+            int[] bulkIDs = new int[PanelToolController.selected.size()];
+            for(int i = 0; i < bulkIDs.length; i++)
+            {
+                bulkIDs[i] = PanelToolController.selected.get(i).getStoredValue().getID();
+            }
+            
+            NBTTagCompound tags = new NBTTagCompound();
+            tags.setInteger("action", EnumPacketAction.REMOVE.ordinal()); // Complete quest
+            tags.setInteger("questID", -1);
+            tags.setIntArray("bulkIDs", bulkIDs);
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+            
+            return true;
+        }
+        
+        return false;
 	}
 
 	@Override
@@ -82,4 +123,15 @@ public class ToolboxToolDelete implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(List<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return true; // TODO: Fix the database before re-enabling this
+    }
 }

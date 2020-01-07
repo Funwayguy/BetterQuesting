@@ -1,19 +1,20 @@
 package betterquesting.api.client.importers;
 
-import java.io.File;
-import java.io.FileFilter;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api.questing.IQuestLineDatabase;
+
+import java.io.File;
+import java.io.FileFilter;
 
 /**
  * Used as a basis for quest importers
  */
 public interface IImporter
 {
-	public String getUnlocalisedName();
-	public String getUnlocalisedDescription();
+	String getUnlocalisedName();
+	String getUnlocalisedDescription();
 	
-	public FileFilter getFileFilter();
+	FileFilter getFileFilter();
 	
-	public void loadFiles(IQuestDatabase questDB, IQuestLineDatabase lineDB, File[] files);
+	void loadFiles(IQuestDatabase questDB, IQuestLineDatabase lineDB, File[] files);
 }

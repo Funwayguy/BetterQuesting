@@ -1,140 +1,188 @@
 package betterquesting.client.toolbox.tools;
 
-import java.awt.Color;
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
-import betterquesting.api.utils.NBTConverter;
-import betterquesting.api.utils.RenderUtils;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.misc.GuiRectangle;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
 
-public class ToolboxToolLink extends GuiElement implements IToolboxTool
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class ToolboxToolLink implements IToolboxTool
 {
-	IGuiQuestLine gui;
-	GuiButtonQuestInstance b1;
+	private CanvasQuestLine gui;
+	private final List<PanelButtonQuest> linking = new ArrayList<>();
+	private final GuiRectangle mouseRect = new GuiRectangle(0, 0, 0, 0);
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
-		b1 = null;
+		linking.clear();
 	}
 	
 	@Override
 	public void disableTool()
 	{
-		b1 = null;
+		linking.clear();
 	}
 	
 	@Override
-	public void drawTool(int mx, int my, float partialTick)
+    public void refresh(CanvasQuestLine gui)
+    {
+        if(linking.size() <= 0) return;
+        
+        List<PanelButtonQuest> tmp = new ArrayList<>();
+        
+        for(PanelButtonQuest b1 : linking)
+        {
+            for(PanelButtonQuest b2 : gui.getQuestButtons()) if(b1.getStoredValue().getID() == b2.getStoredValue().getID()) tmp.add(b2);
+        }
+        
+        linking.clear();
+        linking.addAll(tmp);
+    }
+	
+	@Override
+	public void drawCanvas(int mx, int my, float partialTick)
 	{
-		if(b1 == null)
-		{
-			return;
-		}
+		if(linking.size() <= 0) return;
 		
-		RenderUtils.DrawLine(b1.xPosition + b1.width/2, b1.yPosition + b1.height/2, mx, my, 4F, Color.GREEN.getRGB());
+		mouseRect.x = mx;
+		mouseRect.y = my;
+		
+		for(PanelButtonQuest btn : linking)
+        {
+            PresetLine.QUEST_COMPLETE.getLine().drawLine(btn.rect, mouseRect, 2, PresetColor.QUEST_LINE_COMPLETE.getColor(), partialTick);
+        }
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        return null;
+    }
+	
+	@Override
+	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click == 1)
+		if(click == 1 && linking.size() > 0)
 		{
-			b1 = null;
-			return;
-		} else if(click != 0)
+            linking.clear();
+            return true;
+		} else if(click != 0 || !gui.getTransform().contains(mx, my))
 		{
-			return;
+			return false;
 		}
 		
-		if(b1 == null)
+		if(linking.size() <= 0)
 		{
-			b1 = gui.getQuestLine().getButtonAt(mx, my);
+			PanelButtonQuest btn = gui.getButtonAt(mx, my);
+			if(btn == null) return false;
+			
+			if(PanelToolController.selected.size() > 0)
+            {
+                if(!PanelToolController.selected.contains(btn)) return false;
+                linking.addAll(PanelToolController.selected);
+                return true;
+            }
+            
+            linking.add(btn);
+			return true;
 		} else
 		{
-			GuiButtonQuestInstance b2 = gui.getQuestLine().getButtonAt(mx, my);
+			PanelButtonQuest b2 = gui.getButtonAt(mx, my);
 			
-			if(b1 == b2)
+			if(b2 == null) return false;
+			linking.remove(b2);
+			
+			if(linking.size() > 0)
 			{
-				b1 = null;
-			} else if(b2 != null)
-			{
-				// LINK!
+				IQuest q2 = b2.getStoredValue().getValue();
+				boolean mod2 = false;
+    
+				for(PanelButtonQuest b1 : linking)
+                {
+                    IQuest q1 = b1.getStoredValue().getValue();
+                    boolean mod1 = false;
+                    
+                    // Don't have to worry about the lines anymore. The panel is getting refereshed anyway
+                    if(!containsReq(q2, b1.getStoredValue().getID()) && !containsReq(q1, b2.getStoredValue().getID()))
+                    {
+                        mod2 = addReq(q2, b1.getStoredValue().getID());
+                    } else
+                    {
+                        mod2 = removeReq(q2, b1.getStoredValue().getID()) || mod2;
+                        mod1 = removeReq(q1, b2.getStoredValue().getID());
+                    }
+                    
+                    if(mod1)
+                    {
+                        // Sync Quest 1
+                        NBTTagCompound tag1 = new NBTTagCompound();
+                        NBTTagCompound base1 = new NBTTagCompound();
+                        base1.setTag("config", q1.writeToNBT(new NBTTagCompound()));
+                        base1.setTag("progress", q1.writeProgressToNBT(new NBTTagCompound(), null));
+                        tag1.setTag("data", base1);
+                        tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
+                        tag1.setInteger("questID", b1.getStoredValue().getID());
+                        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+                    }
+                }
 				
-				if(!b2.getParents().contains(b1) && !b2.getQuest().getPrerequisites().contains(b1.getQuest()) && !b1.getParents().contains(b2) && !b1.getQuest().getPrerequisites().contains(b2.getQuest()))
-				{
-					b2.addParent(b1);
-					b2.getQuest().getPrerequisites().add(b1.getQuest());
-				} else
-				{
-					b2.getParents().remove(b1);
-					b1.getParents().remove(b2);
-					b2.getQuest().getPrerequisites().remove(b1.getQuest());
-					b1.getQuest().getPrerequisites().remove(b2.getQuest());
-				}
+                if(mod2)
+                {
+                    // Sync Quest 2
+                    NBTTagCompound tag2 = new NBTTagCompound();
+                    NBTTagCompound base2 = new NBTTagCompound();
+                    base2.setTag("config", q2.writeToNBT(new NBTTagCompound()));
+                    base2.setTag("progress", q2.writeProgressToNBT(new NBTTagCompound(), null));
+                    tag2.setTag("data", base2);
+                    tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+                    tag2.setInteger("questID", b2.getStoredValue().getID());
+                    
+                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
+                }
 				
-				// Sync Quest 1
-				NBTTagCompound tag1 = new NBTTagCompound();
-				JsonObject base1 = new JsonObject();
-				base1.add("config", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				base1.add("progress", b1.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-				tag1.setTag("data", NBTConverter.JSONtoNBT_Object(base1, new NBTTagCompound()));
-				tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag1.setInteger("questID", QuestDatabase.INSTANCE.getKey(b1.getQuest()));
-				
-				// Sync Quest 2
-				NBTTagCompound tag2 = new NBTTagCompound();
-				JsonObject base2 = new JsonObject();
-				base2.add("config", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				base1.add("progress", b2.getQuest().writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
-				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag2.setInteger("questID", QuestDatabase.INSTANCE.getKey(b2.getQuest()));
-				
-				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
-				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
-				
-				b1 = null;
+				linking.clear();
+                return true;
 			}
+			
+			return false;
 		}
 	}
 	
 	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
+	    return false;
 	}
 	
 	@Override
-	public void onKeyPressed(char c, int keyCode)
+	public boolean onKeyPressed(char c, int keyCode)
 	{
-	}
-	
-	@Override
-	public boolean allowTooltips()
-	{
-		return true;
-	}
-	
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return b1 == null || click == 2;
-	}
-	
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
+	    return false;
 	}
 	
 	@Override
@@ -142,4 +190,52 @@ public class ToolboxToolLink extends GuiElement implements IToolboxTool
 	{
 		return true;
 	}
+	
+	@Override
+    public void onSelection(List<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+    public boolean useSelection()
+    {
+        return linking.size() <= 0;
+    }
+    
+    private boolean containsReq(IQuest quest, int id)
+    {
+        for(int reqID : quest.getRequirements()) if(id == reqID) return true;
+        return false;
+    }
+    
+    private boolean removeReq(IQuest quest, int id)
+    {
+        int[] orig = quest.getRequirements();
+        if(orig.length <= 0) return false;
+        boolean hasRemoved = false;
+        int[] rem = new int[orig.length - 1];
+        for(int i = 0; i < orig.length; i++)
+        {
+            if(!hasRemoved && orig[i] == id)
+            {
+                hasRemoved = true;
+                continue;
+            } else if(!hasRemoved && i >= rem.length) break;
+            
+            rem[!hasRemoved ? i : (i - 1)] = orig[i];
+        }
+        
+        if(hasRemoved) quest.setRequirements(rem);
+        return hasRemoved;
+    }
+    
+    private boolean addReq(IQuest quest, int id)
+    {
+        if(containsReq(quest, id)) return false;
+        int[] orig = quest.getRequirements();
+        int[] added = Arrays.copyOf(orig, orig.length + 1);
+        added[orig.length] = id;
+        quest.setRequirements(added);
+        return true;
+    }
 }

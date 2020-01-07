@@ -1,6 +1,14 @@
 package betterquesting.items;
 
-import java.util.List;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.core.BetterQuesting;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.QuestSettings;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,20 +19,14 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.party.IParty;
-import betterquesting.core.BetterQuesting;
-import betterquesting.questing.party.PartyManager;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.QuestSettings;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ItemExtraLife extends Item
 {
-	IIcon iconQuarter;
-	IIcon iconHalf;
+	private IIcon iconQuarter;
+	private IIcon iconHalf;
 	
 	public ItemExtraLife()
 	{
@@ -59,7 +61,7 @@ public class ItemExtraLife extends Item
     			stack.stackSize--;
     		}
     		
-    		int lives = 0;
+    		int lives;
     		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
     		
     		if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
@@ -76,11 +78,11 @@ public class ItemExtraLife extends Item
     			{
     	    		player.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED.toString()).appendSibling(new ChatComponentTranslation("betterquesting.gui.full_lives")));
     			}
-    			
-    			return stack;
+	    		
+	    		return stack;
     		}
-    		
-    		world.playSoundAtEntity(player, "random.levelup", 1F, 1F);
+
+            world.playSoundAtEntity(player, "random.levelup", 1F, 1F);
     		
     		if(!world.isRemote)
     		{
@@ -99,13 +101,15 @@ public class ItemExtraLife extends Item
     		player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.msg.heart_disabled"));
     	}
     	
-        return stack;
+		return stack;
     }
 
     /**
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
+    @Nonnull
+    @Override
     public String getUnlocalizedName(ItemStack stack)
     {
         switch(stack.getItemDamage()%3)
@@ -115,7 +119,7 @@ public class ItemExtraLife extends Item
         	case 1:
         		return this.getUnlocalizedName() + ".half";
         	default:
-        		return this.getUnlocalizedName() + ".full";	
+        		return this.getUnlocalizedName() + ".full";
         }
     }
 	
@@ -129,8 +133,9 @@ public class ItemExtraLife extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
 	@SideOnly(Side.CLIENT)
+    @SuppressWarnings("unchecked")
     public void getSubItems(Item item, CreativeTabs tab, List list)
     {
     	list.add(new ItemStack(item, 1, 0));

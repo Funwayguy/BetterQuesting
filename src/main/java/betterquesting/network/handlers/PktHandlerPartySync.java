@@ -28,12 +28,18 @@ public class PktHandlerPartySync implements IPacketHandler
 	public void handleClient(NBTTagCompound tag)
 	{
 		int partyID = !tag.hasKey("partyID")? -1 : tag.getInteger("partyID");
+		
+		if(partyID < 0)
+		{
+			return;
+		}
+		
 		IParty party = PartyManager.INSTANCE.getValue(partyID);
 		
 		if(party == null)
 		{
 			party = new PartyInstance();
-			PartyManager.INSTANCE.add(party, partyID);
+			PartyManager.INSTANCE.add(partyID, party);
 		}
 		
 		party.readPacket(tag);

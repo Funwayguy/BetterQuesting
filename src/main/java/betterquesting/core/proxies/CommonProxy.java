@@ -1,13 +1,12 @@
 package betterquesting.core.proxies;
 
-import net.minecraftforge.common.MinecraftForge;
-import betterquesting.api.api.IQuestExpansion;
 import betterquesting.core.BetterQuesting;
 import betterquesting.core.ExpansionLoader;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.GuiHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import net.minecraftforge.common.MinecraftForge;
 
 public class CommonProxy
 {
@@ -20,19 +19,14 @@ public class CommonProxy
 	{
 		ExpansionLoader.INSTANCE.initCommonAPIs();
 		
-		EventHandler handler = new EventHandler();
-		MinecraftForge.EVENT_BUS.register(handler);
-		MinecraftForge.TERRAIN_GEN_BUS.register(handler);
-		FMLCommonHandler.instance().bus().register(handler);
+		MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
+		MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(EventHandler.INSTANCE);
 		
 		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
 	}
 	
-	public void registerExpansions()
+	public void registerRenderers()
 	{
-		for(IQuestExpansion exp : ExpansionLoader.INSTANCE.getAllExpansions())
-		{
-			exp.loadExpansion();
-		}
 	}
 }

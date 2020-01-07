@@ -1,16 +1,51 @@
 package betterquesting.handlers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.QuestEvent.QuestComplete;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.placeholders.FluidPlaceholder;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.BigItemStack;
+import betterquesting.api2.cache.QuestCache;
+import betterquesting.api2.cache.QuestCache.QResetTime;
+import betterquesting.api2.client.gui.GuiScreenTest;
+import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
+import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.themes.ThemeRegistry;
+import betterquesting.core.BetterQuesting;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.QuestLineDatabase;
+import betterquesting.questing.party.PartyManager;
+import betterquesting.storage.LifeDatabase;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFutureTask;
+import cpw.mods.fml.client.event.ConfigChangedEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.UserListBansEntry;
 import net.minecraft.util.ChatComponentText;
@@ -18,52 +53,27 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.WorldEvent;
-import org.apache.logging.log4j.Level;
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.events.DatabaseEvent;
-import betterquesting.api.placeholders.FluidPlaceholder;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.party.IParty;
-import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.questing.tasks.ITickableTask;
-import betterquesting.api.storage.BQ_Settings;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.QuestCache;
-import betterquesting.client.BQ_Keybindings;
-import betterquesting.client.gui.GuiHome;
-import betterquesting.client.gui.GuiQuestLinesMain;
-import betterquesting.core.BetterQuesting;
-import betterquesting.legacy.ILegacyLoader;
-import betterquesting.legacy.LegacyLoaderRegistry;
-import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestInstance;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.questing.party.PartyManager;
-import betterquesting.storage.LifeDatabase;
-import betterquesting.storage.NameCache;
-import betterquesting.storage.QuestSettings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import cpw.mods.fml.client.event.ConfigChangedEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.Validate;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Event handling for standard quests and core BetterQuesting functionality
  */
 public class EventHandler
 {
+	public static final EventHandler INSTANCE = new EventHandler();
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onKey(InputEvent.KeyInputEvent event)
@@ -72,15 +82,45 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			if(BQ_Settings.useBookmark && GuiQuestLinesMain.bookmarked != null)
+			if(mc.thePlayer.isSneaking() && mc.thePlayer.getCommandSenderName().equalsIgnoreCase("Funwayguy"))
 			{
-				mc.displayGuiScreen(GuiQuestLinesMain.bookmarked);
+				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
 			} else
 			{
-				mc.displayGuiScreen(new GuiHome(mc.currentScreen));
+				if(BQ_Settings.useBookmark && GuiHome.bookmark != null)
+				{
+					mc.displayGuiScreen(GuiHome.bookmark);
+				} else
+				{
+					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
+				}
 			}
 		}
 	}
+    
+    @SubscribeEvent
+    public void onEntityJoin(EntityJoinWorldEvent event)
+    {
+        if(event.entity instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer)event.entity;
+            player.registerExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString(), new QuestCache());
+        }
+    }
+    
+    @SubscribeEvent
+    public void onPlayerClone(Clone event)
+    {
+        betterquesting.api2.cache.QuestCache oCache = (QuestCache)event.original.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
+        betterquesting.api2.cache.QuestCache nCache = (QuestCache)event.entityPlayer.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
+        
+        if(oCache != null && nCache != null)
+        {
+            NBTTagCompound tmp = new NBTTagCompound();
+            oCache.saveNBTData(tmp);
+            nCache.loadNBTData(tmp);
+        }
+    }
 	
 	@SubscribeEvent
 	public void onLivingUpdate(LivingUpdateEvent event)
@@ -92,82 +132,152 @@ public class EventHandler
 		
 		if(event.entityLiving instanceof EntityPlayer)
 		{
+			if(event.entityLiving.ticksExisted%20 != 0) return; // Only triggers once per second
+			
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
+            betterquesting.api2.cache.QuestCache qc = (QuestCache)player.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
+            boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+            
+            if(qc == null) return;
+            
+            List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
+            List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
+            QResetTime[] pendingResets = qc.getScheduledResets();
+			
 			UUID uuid = QuestingAPI.getQuestingUUID(player);
+			boolean refreshCache = false;
 			
-			List<IQuest> syncList = new ArrayList<IQuest>();
-			List<QuestInstance> updateList = new ArrayList<QuestInstance>();
-			
-			for(Entry<ITask,IQuest> entry : QuestCache.INSTANCE.getActiveTasks(uuid).entrySet())
-			{
-				ITask task = entry.getKey();
-				IQuest quest = entry.getValue();
-				
-				if(!task.isComplete(uuid))
-				{
-					task.update(player, quest); // Legacy support only. Will be replaced by ITickableTask
-					
-					if(task instanceof ITickableTask)
-					{
-						((ITickableTask)task).updateTask(player, quest);
-					}
-					
-					if(task.isComplete(uuid))
-					{
-						if(!syncList.contains(quest))
-						{
-							syncList.add(quest);
-						}
-						
-						if(!updateList.contains(quest) && quest instanceof QuestInstance)
-						{
-							updateList.add((QuestInstance)quest);
-						}
-					}
-				}
-			}
-			
-			if(player.ticksExisted%20 == 0)
-			{
-				for(IQuest quest : QuestCache.INSTANCE.getActiveQuests(uuid))
-				{
-					quest.update(player);
-					
-					if(quest.isComplete(uuid) && !syncList.contains(quest))
-					{
-						syncList.add(quest);
-						updateList.remove(quest);
-					}
-				}
-				
-				QuestCache.INSTANCE.updateCache(player);
-			} else
-			{
-				Iterator<IQuest> iterator = syncList.iterator();
-				
-				while(iterator.hasNext())
-				{
-					IQuest quest = iterator.next();
-					
-					quest.update(player);
-					
-					if(quest.isComplete(uuid) && !quest.canSubmit(player))
-					{
-						iterator.remove();
-						updateList.remove(quest);
-					}
-				}
-			}
-			
-			for(IQuest quest : syncList)
-			{
-				PacketSender.INSTANCE.sendToAll(quest.getSyncPacket());
-			}
-			
-			for(QuestInstance quest : updateList)
-			{
-				quest.postPresetNotice(player, 1);
-			}
+			if(!editMode && player.ticksExisted%60 == 0) // Passive quest state check every 3 seconds
+            {
+                for(DBEntry<IQuest> quest : activeQuests)
+                {
+                    if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
+                    
+                    if(quest.getValue().canSubmit(player)) quest.getValue().update(player);
+                    
+                    if(quest.getValue().isComplete(uuid) && !quest.getValue().canSubmit(player))
+                    {
+                        refreshCache = true;
+                        qc.markQuestDirty(quest.getID());
+                        
+                        MinecraftForge.EVENT_BUS.post(new QuestComplete(quest.getID(), uuid));
+                        
+                        if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
+                    }
+                }
+            }
+            
+            if(!editMode && MinecraftServer.getServer() != null) // Repeatable quest resets
+            {
+                long totalTime = MinecraftServer.getServer().worldServerForDimension(0).getTotalWorldTime();
+                
+                for(QResetTime rTime : pendingResets)
+                {
+                    IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
+                    
+                    if(totalTime >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
+                    {
+                        if(entry.getProperty(NativeProps.GLOBAL))
+                        {
+                            entry.resetAll(false);
+                        } else
+                        {
+                            entry.resetUser(uuid, false);
+                        }
+                        
+                        refreshCache = true;
+                        qc.markQuestDirty(rTime.questID);
+                        if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
+                    } else break; // Entries are sorted by time so we fail fast and skip checking the others
+                }
+            }
+            
+            if(!editMode)
+            {
+                for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
+                {
+                    if(entry.getValue().canClaim(player))
+                    {
+                        entry.getValue().claimReward(player);
+                        refreshCache = true;
+                        qc.markQuestDirty(entry.getID());
+                        // Not going to notify of auto-claims anymore. Kinda pointless if they're already being pinged for completion
+                    }
+                }
+            }
+            
+            if(refreshCache || player.ticksExisted % 200 == 0) // Refresh the cache if something changed or every 10 seconds
+            {
+                qc.updateCache(player);
+            }
+            
+            List<DBEntry<IQuest>> syncMe = QuestDatabase.INSTANCE.bulkLookup(qc.getDirtyQuests());
+            
+            // TODO: Check partial data writes from here when fully implemented
+            for(DBEntry<IQuest> entry : syncMe)
+            {
+                if(entry.getValue().getProperty(NativeProps.GLOBAL))
+                {
+                    PacketSender.INSTANCE.sendToAll(entry.getValue().getSyncPacket());
+                } else if(player instanceof EntityPlayerMP)
+                {
+                    IParty party = PartyManager.INSTANCE.getUserParty(uuid);
+                    
+                    if(party != null && MinecraftServer.getServer() != null)
+                    {
+                        for(UUID memID : party.getMembers()) // Send to party only
+                        {
+                            EntityPlayerMP memPlayer = MinecraftServer.getServer().getConfigurationManager().func_152612_a(NameCache.INSTANCE.getName(memID));
+                            //noinspection ConstantConditions // No idea why IntelliJ is being silly with this null check
+                            if(memPlayer != null) PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), memPlayer);
+                        }
+                    } else
+                    {
+                        PacketSender.INSTANCE.sendToPlayer(entry.getValue().getSyncPacket(), (EntityPlayerMP)player);
+                    }
+                }
+            }
+            
+            qc.cleanAllQuests();
+		}
+	}
+	
+	private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset)
+	{
+		switch(preset)
+		{
+			case 0:
+				postNotice(quest, player, "betterquesting.notice.unlock", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UNLOCK), quest.getProperty(NativeProps.ICON));
+				break;
+			case 1:
+				postNotice(quest, player, "betterquesting.notice.update", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_UPDATE), quest.getProperty(NativeProps.ICON));
+				break;
+			case 2:
+				postNotice(quest, player, "betterquesting.notice.complete", quest.getProperty(NativeProps.NAME), quest.getProperty(NativeProps.SOUND_COMPLETE), quest.getProperty(NativeProps.ICON));
+				break;
+		}
+	}
+	
+	private static void postNotice(IQuest quest, EntityPlayer player, String mainTxt, String subTxt, String sound, BigItemStack icon)
+	{
+		if(QuestDatabase.INSTANCE.getID(quest) < 0)
+		{
+			BetterQuesting.logger.error("Non-existant quest is posting notifications!", new Exception());
+		}
+		
+		NBTTagCompound tags = new NBTTagCompound();
+		tags.setString("Main", mainTxt);
+		tags.setString("Sub", subTxt);
+		tags.setString("Sound", sound);
+		tags.setTag("Icon", icon.writeToNBT(new NBTTagCompound()));
+		QuestingPacket payload = new QuestingPacket(PacketTypeNative.NOTIFICATION.GetLocation(), tags);
+		
+		if(quest.getProperty(NativeProps.GLOBAL))
+		{
+			PacketSender.INSTANCE.sendToAll(payload);
+		} else if(player instanceof EntityPlayerMP)
+		{
+		    PacketSender.INSTANCE.sendToPlayer(payload, (EntityPlayerMP)player);
 		}
 	}
 	
@@ -186,231 +296,30 @@ public class EventHandler
 	{
 		if(!event.world.isRemote && BQ_Settings.curWorldDir != null && event.world.provider.dimensionId == 0)
 		{
-			// === CONFIG ===
-			
-			JsonObject jsonCon = new JsonObject();
-			
-			jsonCon.add("questSettings", QuestSettings.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-			jsonCon.add("questDatabase", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			jsonCon.add("questLines", QuestLineDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			
-			jsonCon.addProperty("format", BetterQuesting.FORMAT);
-			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), jsonCon);
-			
-			// === PROGRESS ===
-			
-			JsonObject jsonProg = new JsonObject();
-			
-			jsonProg.add("questProgress", QuestDatabase.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.PROGRESS));
-			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), jsonProg);
-			
-			// === PARTIES ===
-			
-			JsonObject jsonP = new JsonObject();
-			
-			jsonP.add("parties", PartyManager.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), jsonP);
-			
-			// === NAMES ===
-			
-			JsonObject jsonN = new JsonObject();
-			
-			jsonN.add("nameCache", NameCache.INSTANCE.writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-			
-			JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), jsonN);
-		    
-		    // === LIVES ===
-		    
-		    JsonObject jsonL = new JsonObject();
-		    
-		    jsonL.add("lifeDatabase", LifeDatabase.INSTANCE.writeToJson(new JsonObject(), EnumSaveType.PROGRESS));
-		    
-		    JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), jsonL);
-		    
-		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
+			SaveLoadHandler.INSTANCE.saveDatabases();
 		}
-	}
-	
-	@SubscribeEvent
-	public void onWorldUnload(WorldEvent.Unload event)
-	{
-		if(!event.world.isRemote && !MinecraftServer.getServer().isServerRunning())
-		{
-			BQ_Settings.curWorldDir = null;
-			
-			QuestSettings.INSTANCE.reset();
-			QuestDatabase.INSTANCE.reset();
-			QuestLineDatabase.INSTANCE.reset();
-			LifeDatabase.INSTANCE.reset();
-			NameCache.INSTANCE.reset();
-		}
-	}
-	
-	@SubscribeEvent
-	public void onWorldLoad(WorldEvent.Load event)
-	{
-		if(event.world.isRemote || BQ_Settings.curWorldDir != null)
-		{
-			return;
-		}
-		
-		QuestSettings.INSTANCE.reset();
-		QuestDatabase.INSTANCE.reset();
-		QuestLineDatabase.INSTANCE.reset();
-		LifeDatabase.INSTANCE.reset();
-		NameCache.INSTANCE.reset();
-		GuiQuestLinesMain.bookmarked = null;
-		
-		MinecraftServer server = MinecraftServer.getServer();
-		
-		File readDir;
-		
-		if(BetterQuesting.proxy.isClient())
-		{
-			BQ_Settings.curWorldDir = server.getFile("saves/" + server.getFolderName() + "/betterquesting");
-			readDir = server.getFile("saves/" + server.getFolderName());
-		} else
-		{
-			BQ_Settings.curWorldDir = server.getFile(server.getFolderName() + "/betterquesting");
-			readDir = server.getFile(server.getFolderName());
-		}
-    	
-		// Workaround for old files
-		boolean rename = false;
-		File legFile = new File(readDir, "QuestDatabase.json");
-		if(legFile.exists())
-		{
-			rename = true;
-		} else
-		{
-			readDir = BQ_Settings.curWorldDir;
-		}
-		
-		// === CONFIG ===
-		
-    	File f1 = new File(readDir, "QuestDatabase.json");
-		JsonObject j1 = new JsonObject();
-		
-		if(f1.exists())
-		{
-			j1 = JsonHelper.ReadFromFile(f1);
-			
-			if(rename)
-			{
-				JsonHelper.CopyPaste(f1, new File(readDir, "QuestDatabase_Legacy.json"));
-				f1.delete();
-			}
-		} else
-		{
-			f1 = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
-			
-			if(f1.exists())
-			{
-				j1 = JsonHelper.ReadFromFile(f1);
-			}
-		}
-		
-		String fVer = JsonHelper.GetString(j1, "format", "0.0.0");
-		
-		ILegacyLoader loader = LegacyLoaderRegistry.getLoader(fVer);
-		
-		if(loader == null)
-		{
-			QuestSettings.INSTANCE.readFromJson(JsonHelper.GetObject(j1, "questSettings"), EnumSaveType.CONFIG);
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questDatabase"), EnumSaveType.CONFIG);
-			QuestLineDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j1, "questLines"), EnumSaveType.CONFIG);
-		} else
-		{
-			loader.readFromJson(j1, EnumSaveType.CONFIG);
-		}
-    	
-		// === PROGRESS ===
-		
-    	File f2 = new File(readDir, "QuestProgress.json");
-		JsonObject j2 = new JsonObject();
-		
-		if(f2.exists())
-		{
-			j2 = JsonHelper.ReadFromFile(f2);
-			
-			if(rename)
-			{
-				JsonHelper.CopyPaste(f2, new File(readDir, "QuestDatabase_Legacy.json"));
-				f2.delete();
-			}
-		}
-		
-		if(loader == null)
-		{
-			QuestDatabase.INSTANCE.readFromJson(JsonHelper.GetArray(j2, "questProgress"), EnumSaveType.PROGRESS);
-		} else
-		{
-			loader.readFromJson(j2, EnumSaveType.PROGRESS);
-		}
-		
-		// === PARTIES ===
-		
-	    File f3 = new File(BQ_Settings.curWorldDir, "QuestingParties.json");
-	    JsonObject j3 = new JsonObject();
-	    
-	    if(f3.exists())
-	    {
-	    	j3 = JsonHelper.ReadFromFile(f3);
-	    }
-	    
-	    PartyManager.INSTANCE.readFromJson(JsonHelper.GetArray(j3, "parties"), EnumSaveType.CONFIG);
-	    
-	    // === NAMES ===
-	    
-	    File f4 = new File(BQ_Settings.curWorldDir, "NameCache.json");
-	    JsonObject j4 = new JsonObject();
-	    
-	    if(f4.exists())
-	    {
-	    	j4 = JsonHelper.ReadFromFile(f4);
-	    }
-	    
-	    NameCache.INSTANCE.readFromJson(JsonHelper.GetArray(j4, "nameCache"), EnumSaveType.CONFIG);
-	    
-	    // === LIVES ===
-	    
-	    File f5 = new File(BQ_Settings.curWorldDir, "LifeDatabase.json");
-	    JsonObject j5 = new JsonObject();
-	    
-	    if(f5.exists())
-	    {
-	    	j5 = JsonHelper.ReadFromFile(f5);
-	    }
-	    
-	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.CONFIG);
-	    LifeDatabase.INSTANCE.readFromJson(JsonHelper.GetObject(j5, "lifeDatabase"), EnumSaveType.PROGRESS);
-	    
-	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestDatabase.INSTANCE.size() + " quests");
-	    BetterQuesting.logger.log(Level.INFO, "Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
-	    BetterQuesting.logger.log(Level.INFO, "Loaded " + PartyManager.INSTANCE.size() + " parties");
-	    BetterQuesting.logger.log(Level.INFO, "Loaded " + NameCache.INSTANCE.size() + " names");
-	    
-	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load());
 	}
 	
 	@SubscribeEvent
 	public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
 	{
-		if(!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
+		if(event.player.worldObj.isRemote || MinecraftServer.getServer() == null || !(event.player instanceof EntityPlayerMP))
 		{
-			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
-			
-			NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
-			
-			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
-			PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
+			return;
+		} else if(BetterQuesting.proxy.isClient() && !MinecraftServer.getServer().isDedicatedServer() && MinecraftServer.getServer().getServerOwner().equals(event.player.getGameProfile().getName()))
+		{
+			return;
 		}
+		
+		EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
+		
+		NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
+		
+		PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), mpPlayer);
+		PacketSender.INSTANCE.sendToPlayer(PartyManager.INSTANCE.getSyncPacket(), mpPlayer);
 	}
 	
 	@SubscribeEvent
@@ -421,7 +330,7 @@ public class EventHandler
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)event.player;
 			
 			IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(mpPlayer));
-			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
+			int lives = (party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES)) ? LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(mpPlayer)) : LifeDatabase.INSTANCE.getLives(party);
 			
 			if(lives <= 0)
 			{
@@ -439,7 +348,7 @@ public class EventHandler
                 }
                 else
                 {
-                    UserListBansEntry userlistbansentry = new UserListBansEntry(mpPlayer.getGameProfile(), (Date)null, "(You just lost the game)", (Date)null, "Death in Hardcore");
+                    UserListBansEntry userlistbansentry = new UserListBansEntry(mpPlayer.getGameProfile(), null, "(You just lost the game)", null, "Death in Hardcore");
                     server.getConfigurationManager().func_152608_h().func_152687_a(userlistbansentry);
                     mpPlayer.playerNetServerHandler.kickPlayerFromServer("You have died. Game over, man, it\'s game over!");
                 }
@@ -487,8 +396,8 @@ public class EventHandler
 	{
 		if(event.map.getTextureType() == 0)
 		{
-			IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
-			FluidPlaceholder.fluidPlaceholder.setIcons(icon);
+            IIcon icon = event.map.registerIcon("betterquesting:fluid_placeholder");
+            FluidPlaceholder.fluidPlaceholder.setIcons(icon);
 		}
 	}
 	
@@ -496,12 +405,9 @@ public class EventHandler
 	@SideOnly(Side.CLIENT)
 	public void onDataUpdated(DatabaseEvent.Update event)
 	{
-		GuiScreen screen = Minecraft.getMinecraft().currentScreen;
-		
-		if(screen instanceof INeedsRefresh)
-		{
-			((INeedsRefresh)screen).refreshGui();
-		}
+		// TODO: Change this to a proper panel event. Also explain WHAT updated
+		final GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+		if(screen instanceof INeedsRefresh) Minecraft.getMinecraft().func_152343_a(Executors.callable(((INeedsRefresh)screen)::refreshGui));
 	}
 	
 	@SubscribeEvent
@@ -514,4 +420,47 @@ public class EventHandler
 			NameCache.INSTANCE.updateNames(server);
 		}
 	}
+	
+	private static final ArrayDeque<FutureTask> serverTasks = new ArrayDeque<>();
+	private static Thread serverThread = null;
+	
+	@SuppressWarnings("UnstableApiUsage")
+    public static <T> ListenableFuture<T> scheduleServerTask(Callable<T> task)
+    {
+        Validate.notNull(task);
+
+        if (Thread.currentThread() != serverThread)
+        {
+            ListenableFutureTask<T> listenablefuturetask = ListenableFutureTask.create(task);
+
+            synchronized (serverTasks)
+            {
+                serverTasks.add(listenablefuturetask);
+                return listenablefuturetask;
+            }
+        }
+        else
+        {
+            try
+            {
+                return Futures.immediateFuture(task.call());
+            }
+            catch (Exception exception)
+            {
+                return Futures.immediateFailedCheckedFuture(exception);
+            }
+        }
+    }
+	
+	@SubscribeEvent
+    public void onServerTick(ServerTickEvent event)
+    {
+        if(event.phase != Phase.START) return;
+        if(serverThread == null) serverThread = Thread.currentThread();
+        
+        synchronized(serverTasks)
+        {
+            while(!serverTasks.isEmpty()) serverTasks.poll().run();
+        }
+    }
 }

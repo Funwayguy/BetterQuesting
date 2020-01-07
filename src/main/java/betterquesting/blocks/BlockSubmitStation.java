@@ -1,5 +1,8 @@
 package betterquesting.blocks;
 
+import betterquesting.core.BetterQuesting;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -11,13 +14,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import betterquesting.core.BetterQuesting;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class BlockSubmitStation extends BlockContainer
 {
-	IIcon topIcon;
+	private IIcon topIcon;
 	
 	public BlockSubmitStation()
 	{
@@ -37,6 +37,7 @@ public class BlockSubmitStation extends BlockContainer
     /**
      * Called upon block activation (right click on the block.)
      */
+	@Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ)
     {
     	if(!world.isRemote)
@@ -45,12 +46,13 @@ public class BlockSubmitStation extends BlockContainer
     	}
         return true;
     }
-
+    
+    @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
         TileSubmitStation tileStation = (TileSubmitStation)world.getTileEntity(x, y, z);
-
-        if (tileStation != null)
+        
+        if(tileStation != null)
         {
             for (int i1 = 0; i1 < tileStation.getSizeInventory(); ++i1)
             {

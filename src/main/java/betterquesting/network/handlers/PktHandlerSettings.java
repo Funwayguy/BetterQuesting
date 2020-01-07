@@ -1,13 +1,5 @@
 package betterquesting.network.handlers;
 
-import org.apache.logging.log4j.Level;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.network.IPacketHandler;
@@ -15,6 +7,13 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.QuestSettings;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.Level;
 
 public class PktHandlerSettings implements IPacketHandler
 {
@@ -33,7 +32,7 @@ public class PktHandlerSettings implements IPacketHandler
 			return;
 		}
 		
-		boolean isOP = MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile());
+		boolean isOP = sender.mcServer.getConfigurationManager().func_152596_g(sender.getGameProfile());
 		
 		if(!isOP)
 		{

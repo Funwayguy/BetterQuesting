@@ -1,257 +1,144 @@
 package betterquesting.questing;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
-import betterquesting.misc.QuestLineSortByKey;
-import betterquesting.misc.QuestLineSortByValue;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.SimpleDatabase;
+import betterquesting.api2.utils.QuestLineSorter;
 import betterquesting.network.PacketTypeNative;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
-public final class QuestLineDatabase implements IQuestLineDatabase
+import java.util.*;
+
+public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
 	public static final QuestLineDatabase INSTANCE = new QuestLineDatabase();
 	
-	private final ConcurrentHashMap<Integer, IQuestLine> questLines = new ConcurrentHashMap<Integer, IQuestLine>();
-	private final List<Integer> lineOrder = new ArrayList<Integer>();
-	
-	private QuestLineDatabase()
-	{
-	}
+	private final List<Integer> lineOrder = new ArrayList<>();
+	private final QuestLineSorter SORTER = new QuestLineSorter(this);
 	
 	@Override
 	public int getOrderIndex(int lineID)
 	{
-		if(!questLines.containsKey(lineID))
-		{
-			return -1;
-		} else if(!lineOrder.contains(lineID))
-		{
-			lineOrder.add(lineID);
-		}
-		
-		return lineOrder.indexOf(lineID);
+	    synchronized(lineOrder)
+        {
+            if(getValue(lineID) == null)
+            {
+                return -1;
+            } else if(!lineOrder.contains(lineID))
+            {
+                lineOrder.add(lineID);
+            }
+    
+            return lineOrder.indexOf(lineID);
+        }
 	}
 	
 	@Override
 	public void setOrderIndex(int lineID, int index)
 	{
-		lineOrder.remove((Integer)lineID);
-		lineOrder.add(index, lineID);
+	    synchronized(lineOrder)
+        {
+            lineOrder.remove((Integer)lineID);
+            lineOrder.add(index, lineID);
+        }
 	}
 	
 	@Override
-	public IQuestLine createNew()
+	public DBEntry<IQuestLine>[] getSortedEntries()
 	{
-		return new QuestLine();
+		DBEntry<IQuestLine>[] array = this.getEntries();
+		Arrays.sort(array, SORTER);
+		return array;
+	}
+	
+	@Override
+	public IQuestLine createNew(int id)
+	{
+		IQuestLine ql = new QuestLine();
+		ql.setParentDatabase(this);
+		this.add(id, ql);
+		return ql;
 	}
 	
 	@Override
 	public void removeQuest(int questID)
 	{
-		for(IQuestLine ql : getAllValues())
+		for(DBEntry<IQuestLine> ql : getEntries())
 		{
-			ql.removeKey(questID);
+			ql.getValue().removeID(questID);
 		}
-	}
-	
-	@Override
-	public Integer nextKey()
-	{
-		int id = 0;
-		
-		while(questLines.containsKey(id))
-		{
-			id += 1;
-		}
-		
-		return id;
-	}
-	
-	@Override
-	public boolean add(IQuestLine questLine, Integer id)
-	{
-		if(id < 0 || questLine == null || questLines.containsValue(questLine) || questLines.containsKey(id))
-		{
-			return false;
-		}
-		
-		questLines.put(id, questLine);
-		return true;
-	}
-	
-	@Override
-	public boolean removeKey(Integer lineId)
-	{
-		return questLines.remove(lineId) != null;
-	}
-	
-	@Override
-	public boolean removeValue(IQuestLine quest)
-	{
-		return removeKey(getKey(quest));
-	}
-	
-	@Override
-	public Integer getKey(IQuestLine questLine)
-	{
-		for(Entry<Integer,IQuestLine> entry  : questLines.entrySet())
-		{
-			if(entry.getValue() == questLine)
-			{
-				return entry.getKey();
-			}
-		}
-		
-		return -1;
-	}
-	
-	@Override
-	public IQuestLine getValue(Integer lineId)
-	{
-		return questLines.get(lineId);
-	}
-	
-	@Override
-	public List<IQuestLine> getAllValues()
-	{
-		List<IQuestLine> list = new ArrayList<IQuestLine>(questLines.values());
-		Collections.sort(list, new QuestLineSortByValue(this));
-		return list;
-	}
-	
-	@Override
-	public List<Integer> getAllKeys()
-	{
-		List<Integer> list = new ArrayList<Integer>(((Map<Integer,IQuestLine>)questLines).keySet());
-		Collections.sort(list, new QuestLineSortByKey(this));
-		return list;
-	}
-	
-	@Override
-	public int size()
-	{
-		return questLines.size();
-	}
-	
-	@Override
-	public void reset()
-	{
-		questLines.clear();
 	}
 	
 	@Override
 	public QuestingPacket getSyncPacket()
 	{
 		NBTTagCompound tags = new NBTTagCompound();
-		JsonObject base = new JsonObject();
-		base.add("questLines", writeToJson(new JsonArray(), EnumSaveType.CONFIG));
-		tags.setTag("data", NBTConverter.JSONtoNBT_Object(base, new NBTTagCompound()));
+		tags.setTag("data", writeToNBT(new NBTTagList(), null));
 		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
 	}
 	
 	@Override
 	public void readPacket(NBTTagCompound payload)
 	{
-		JsonObject base = NBTConverter.NBTtoJSON_Compound(payload.getCompoundTag("data"), new JsonObject());
-		
-		this.readFromJson(JsonHelper.GetArray(base, "questLines"), EnumSaveType.CONFIG);
+		this.readFromNBT(payload.getTagList("data", 10), false);
 	}
 	
 	@Override
-	public JsonArray writeToJson(JsonArray json, EnumSaveType saveType)
+	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
 	{
-		if(saveType != EnumSaveType.CONFIG)
+		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			return json;
-		}
-		
-		for(Entry<Integer,IQuestLine> entry : questLines.entrySet())
-		{
-			if(entry.getValue() == null)
-			{
-				continue;
-			}
-			
-			int id = entry.getKey();
-			
-			JsonObject jObj = entry.getValue().writeToJson(new JsonObject(), saveType);
-			jObj.addProperty("lineID", id);
-			jObj.addProperty("order", getOrderIndex(id));
-			json.add(jObj);
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
+			jObj.setInteger("lineID", entry.getID());
+			jObj.setInteger("order", getOrderIndex(entry.getID()));
+			json.appendTag(jObj);
 		}
 		
 		return json;
 	}
 	
 	@Override
-	public void readFromJson(JsonArray json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		if(saveType != EnumSaveType.CONFIG)
+		reset();
+		
+		List<IQuestLine> unassigned = new ArrayList<>();
+		HashMap<Integer,Integer> orderMap = new HashMap<>();
+		
+		for(int i = 0; i < json.tagCount(); i++)
 		{
-			return;
-		}
-		
-		questLines.clear();
-		ArrayList<IQuestLine> unassigned = new ArrayList<IQuestLine>();
-		
-		HashMap<Integer,Integer> orderMap = new HashMap<Integer,Integer>();
-		
-		for(JsonElement entry : json)
-		{
-			if(entry == null || !entry.isJsonObject())
-			{
-				continue;
-			}
+			NBTTagCompound jql = json.getCompoundTagAt(i);
 			
-			JsonObject jql = entry.getAsJsonObject();
-			
-			int id = JsonHelper.GetNumber(jql, "lineID", -1).intValue();
-			int order = JsonHelper.GetNumber(jql, "order", -1).intValue();
+			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
+			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			
 			QuestLine line = new QuestLine();
-			line.readFromJson(entry.getAsJsonObject(), saveType);
+			line.readFromNBT(jql, merge);
 			
 			if(id >= 0)
 			{
-				questLines.put(id, line);
+				add(id, line);
 			} else
 			{
 				unassigned.add(line);
 			}
 			
-			if(order >= 0)
-			{
-				orderMap.put(order, id);
-			}
+			if(order >= 0) orderMap.put(order, id);
 		}
 		
 		// Legacy support ONLY
-		for(IQuestLine q : unassigned)
-		{
-			questLines.put(this.nextKey(), q);
-		}
+		for(IQuestLine q : unassigned) add(nextID(), q);
 		
-		List<Integer> orderKeys = new ArrayList<Integer>(orderMap.keySet());
+		List<Integer> orderKeys = new ArrayList<>(orderMap.keySet());
 		Collections.sort(orderKeys);
 		
-		lineOrder.clear();
-		for(int o : orderKeys)
-		{
-			lineOrder.add(orderMap.get(o));
-		}
+		synchronized(lineOrder)
+        {
+            lineOrder.clear();
+            for(int o : orderKeys) lineOrder.add(orderMap.get(o));
+        }
 	}
 }

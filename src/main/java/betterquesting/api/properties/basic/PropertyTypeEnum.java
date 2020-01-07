@@ -1,8 +1,8 @@
 package betterquesting.api.properties.basic;
 
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ResourceLocation;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 public class PropertyTypeEnum<E extends Enum<E>> extends PropertyTypeBase<E>
 {
@@ -16,16 +16,16 @@ public class PropertyTypeEnum<E extends Enum<E>> extends PropertyTypeBase<E>
 	}
 	
 	@Override
-	public E readValue(JsonElement json)
+	public E readValue(NBTBase nbt)
 	{
-		if(json == null || !json.isJsonPrimitive())
+		if(nbt == null || nbt.getId() != 8)
 		{
 			return this.getDefault();
 		}
 		
 		try
 		{
-			return Enum.valueOf(eClazz, json.getAsString());
+			return Enum.valueOf(eClazz, ((NBTTagString)nbt).func_150285_a_());
 		} catch(Exception e)
 		{
 			return this.getDefault();
@@ -33,13 +33,13 @@ public class PropertyTypeEnum<E extends Enum<E>> extends PropertyTypeBase<E>
 	}
 	
 	@Override
-	public JsonElement writeValue(E value)
+	public NBTBase writeValue(E value)
 	{
 		if(value == null)
 		{
-			return new JsonPrimitive(this.getDefault().toString());
+			return new NBTTagString(this.getDefault().toString());
 		}
 		
-		return new JsonPrimitive(value.toString());
+		return new NBTTagString(value.toString());
 	}
 }

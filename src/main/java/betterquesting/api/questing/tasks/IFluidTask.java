@@ -1,10 +1,12 @@
 package betterquesting.api.questing.tasks;
 
-import java.util.UUID;
+import betterquesting.api.questing.IQuest;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidTask
+import java.util.UUID;
+
+public interface IFluidTask extends ITask
 {
-	public boolean canAcceptFluid(UUID owner, FluidStack fluid);
-	public FluidStack submitFluid(UUID owner, FluidStack fluid);
+	boolean canAcceptFluid(UUID owner, IQuest quest, FluidStack fluid);
+	FluidStack submitFluid(UUID owner, IQuest quest, FluidStack fluid);
 }

@@ -1,15 +1,17 @@
 package betterquesting.client.gui;
 
-import java.util.ArrayList;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraftforge.common.config.ConfigElement;
-import net.minecraftforge.common.config.Configuration;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.ConfigHandler;
 import cpw.mods.fml.client.config.GuiConfig;
 import cpw.mods.fml.client.config.IConfigElement;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.common.config.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class GuiBQConfig extends GuiConfig
@@ -19,10 +21,9 @@ public class GuiBQConfig extends GuiConfig
 		super(parent, getCategories(ConfigHandler.config), BetterQuesting.MODID, false, false, BetterQuesting.NAME);
 	}
 	
-	@SuppressWarnings({"rawtypes"})
-	public static ArrayList<IConfigElement> getCategories(Configuration config)
+	public static List<IConfigElement> getCategories(Configuration config)
 	{
-		ArrayList<IConfigElement> cats = new ArrayList<IConfigElement>();
+		List<IConfigElement> cats = new ArrayList<>();
 		
 		for(String s : config.getCategoryNames())
 		{

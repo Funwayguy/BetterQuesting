@@ -1,55 +1,58 @@
 package betterquesting.api.questing;
 
-import java.util.List;
-import java.util.UUID;
-import net.minecraft.entity.player.EntityPlayer;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api.questing.tasks.ITask;
-import betterquesting.api.storage.IRegStorageBase;
-import betterquesting.api.utils.BigItemStack;
-import com.google.gson.JsonObject;
+import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.storage.INBTProgress;
+import betterquesting.api2.storage.INBTSaveLoad;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
-public interface IQuest extends IJsonSaveLoad<JsonObject>, IDataSync
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.UUID;
+
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer, IDataSync
 {
-	public String getUnlocalisedName();
-	public String getUnlocalisedDescription();
-	
-	// Defaults to the API if not used
-	public void setParentDatabase(IQuestDatabase questDB);
-	
+	/** Deprecated: GUIs can build the tooltips themselves based on theme and purpose */
+	@Deprecated
 	@SideOnly(Side.CLIENT)
-	public List<String> getTooltip(EntityPlayer player);
+	List<String> getTooltip(EntityPlayer player);
 	
-	public BigItemStack getItemIcon();
+	EnumQuestState getState(UUID uuid);
 	
-	public IPropertyContainer getProperties();
+	@Nullable
+	NBTTagCompound getCompletionInfo(UUID uuid);
+	void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
 	
-	public EnumQuestState getState(UUID uuid);
+	void update(EntityPlayer player);
+	void detect(EntityPlayer player);
 	
-	public void update(EntityPlayer player);
-	public void detect(EntityPlayer player);
+	boolean isUnlocked(UUID uuid);
+	boolean canSubmit(EntityPlayer player);
 	
-	public boolean isUnlocked(UUID uuid);
-	public boolean canSubmit(EntityPlayer player);
+	boolean isComplete(UUID uuid);
+	void setComplete(UUID uuid, long timeStamp);
 	
-	public boolean isComplete(UUID uuid);
-	public void setComplete(UUID uuid, long timeStamp);
+	boolean canClaim(EntityPlayer player);
+	boolean hasClaimed(UUID uuid);
+	void claimReward(EntityPlayer player);
+	void setClaimed(UUID uuid, long timestamp);
 	
-	public boolean canClaim(EntityPlayer player);
-	public boolean hasClaimed(UUID uuid);
-	public void claimReward(EntityPlayer player);
+	void resetUser(UUID uuid, boolean fullReset);
+	void resetAll(boolean fullReset);
 	
-	public void resetUser(UUID uuid, boolean fullReset);
-	public void resetAll(boolean fullReset);
+	IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
+	IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
 	
-	public IRegStorageBase<Integer,ITask> getTasks();
-	public IRegStorageBase<Integer,IReward> getRewards();
-	
-	public List<IQuest> getPrerequisites();
+	@Nonnull
+	int[] getRequirements();
+	void setRequirements(@Nonnull int[] req);
 }

@@ -1,60 +1,40 @@
 package betterquesting.api.placeholders.rewards;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import com.google.gson.JsonObject;
-import betterquesting.api.client.gui.misc.IGuiEmbedded;
-import betterquesting.api.enums.EnumSaveType;
-import betterquesting.api.jdoc.IJsonDoc;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.utils.JsonHelper;
+import betterquesting.api2.client.gui.misc.IGuiRect;
+import betterquesting.api2.client.gui.panels.IGuiPanel;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
 public class RewardPlaceholder implements IReward
 {
-	private JsonObject jsonSaved = new JsonObject();
+	private NBTTagCompound nbtSaved = new NBTTagCompound();
 	
-	public void setRewardData(JsonObject json, EnumSaveType saveType)
+	public void setRewardConfigData(NBTTagCompound nbt)
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			jsonSaved = json;
-		}
+        nbtSaved = nbt;
 	}
 	
-	public JsonObject getRewardData(EnumSaveType saveType)
+	public NBTTagCompound getRewardConfigData()
 	{
-		if(saveType == EnumSaveType.CONFIG)
-		{
-			return jsonSaved;
-		}
-		
-		return new JsonObject();
+        return nbtSaved;
 	}
 	
 	@Override
-	public JsonObject writeToJson(JsonObject json, EnumSaveType saveType)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return json;
-		}
+		nbt.setTag("orig_data", nbtSaved);
 		
-		json.add("orig_data", jsonSaved);
-		
-		return json;
+		return nbt;
 	}
 	
 	@Override
-	public void readFromJson(JsonObject json, EnumSaveType saveType)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		if(saveType != EnumSaveType.CONFIG)
-		{
-			return;
-		}
-		
-		jsonSaved = JsonHelper.GetObject(json, "orig_data");
+		nbtSaved = nbt.getCompoundTag("orig_data");
 	}
 	
 	@Override
@@ -81,13 +61,7 @@ public class RewardPlaceholder implements IReward
 	}
 	
 	@Override
-	public IJsonDoc getDocumentation()
-	{
-		return null;
-	}
-	
-	@Override
-	public IGuiEmbedded getRewardGui(int x, int y, int w, int h, IQuest quest)
+	public IGuiPanel getRewardGui(IGuiRect rect, IQuest quest)
 	{
 		return null;
 	}

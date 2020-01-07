@@ -1,7 +1,8 @@
 package betterquesting.api.events;
 
-import java.util.UUID;
 import cpw.mods.fml.common.eventhandler.Event;
+
+import java.util.UUID;
 
 public abstract class QuestEvent extends Event
 {
@@ -27,22 +28,6 @@ public abstract class QuestEvent extends Event
 	public static class QuestComplete extends QuestEvent
 	{
 		public QuestComplete(int questId, UUID user)
-		{
-			super(questId, user);
-		}
-	}
-	
-	public static class TaskComplete extends QuestEvent
-	{
-		public TaskComplete(int questId, UUID user)
-		{
-			super(questId, user);
-		}
-	}
-	
-	public static class RewardClaim extends QuestEvent
-	{
-		public RewardClaim(int questId, UUID user)
 		{
 			super(questId, user);
 		}

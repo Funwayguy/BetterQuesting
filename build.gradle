@@ -17,15 +17,15 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "CI_MOD_VERSION"
-group= "betterquesting" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "BetterQuesting"
+version = modVersion
+group= modGroup
+archivesBaseName = modBaseName
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    version = "1.7.10-10.13.4.1448-1.7.10"
+    version = project.forgeVersion
 }
 
 dependencies {
@@ -54,6 +54,7 @@ task deobfJar(type: Jar) {
 task apiJar(type: Jar) {
         from(sourceSets.main.output) {
             include 'betterquesting/api/**'
+            include 'betterquesting/api2/**'
         }
         appendix = 'api'
 }

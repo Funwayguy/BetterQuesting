@@ -1,22 +1,21 @@
 package betterquesting.api.questing;
 
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
 import betterquesting.api.properties.IPropertyContainer;
-import betterquesting.api.storage.IRegStorageBase;
-import com.google.gson.JsonObject;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTPartial;
+import net.minecraft.nbt.NBTTagCompound;
 
-public interface IQuestLine extends IDataSync, IJsonSaveLoad<JsonObject>, IRegStorageBase<Integer,IQuestLineEntry>
+public interface IQuestLine extends IDataSync, IDatabase<IQuestLineEntry>, INBTPartial<NBTTagCompound>, IPropertyContainer
 {
-	public String getUnlocalisedName();
-	public String getUnlocalisedDescription();
+    IQuestLineEntry createNew(int id);
+    
+	String getUnlocalisedName();
+	String getUnlocalisedDescription();
 	
 	// Defaults to the API if not used
-	public void setParentDatabase(IQuestLineDatabase questDB);
+	void setParentDatabase(IQuestLineDatabase questDB);
 	
-	public IPropertyContainer getProperties();
-	
-	public int getQuestAt(int x, int y);
-	
-	public IQuestLineEntry createNewEntry();
+	DBEntry<IQuestLineEntry> getEntryAt(int x, int y);
 }

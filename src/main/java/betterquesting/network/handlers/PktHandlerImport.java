@@ -1,24 +1,12 @@
 package betterquesting.network.handlers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.questing.IQuestDatabase;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
@@ -26,7 +14,17 @@ import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class PktHandlerImport implements IPacketHandler
 {
@@ -39,12 +37,12 @@ public class PktHandlerImport implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound tag, EntityPlayerMP sender)
 	{
-		if(sender == null)
+		if(sender == null || sender.mcServer == null)
 		{
 			return;
 		}
 		
-		boolean isOP = MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile());
+		boolean isOP = sender.mcServer.getConfigurationManager().func_152596_g(sender.getGameProfile());
 		
 		if(!isOP)
 		{
@@ -53,33 +51,57 @@ public class PktHandlerImport implements IPacketHandler
 			return; // Player is not operator. Do nothing
 		}
 		
-		JsonObject jsonBase = NBTConverter.NBTtoJSON_Compound(tag.getCompoundTag("data"), new JsonObject());
+		NBTTagCompound jsonBase = tag.getCompoundTag("data");
 		
-		IQuestDatabase impQuestDB = new ImportedQuests();
+		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromJson(JsonHelper.GetArray(jsonBase, "quests"), EnumSaveType.CONFIG);
-		impQuestLineDB.readFromJson(JsonHelper.GetArray(jsonBase, "lines"), EnumSaveType.CONFIG);
+		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), false);
+		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), false);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		
-		HashMap<Integer,Integer> remapped = getRemappedIDs(impQuestDB.getAllKeys());
+		HashMap<Integer,Integer> remapped = getRemappedIDs(impQuestDB.getEntries());
 		
-		for(Entry<Integer,Integer> entry : remapped.entrySet())
+		for(DBEntry<IQuest> entry : impQuestDB.getEntries())
 		{
-			QuestDatabase.INSTANCE.add(impQuestDB.getValue(entry.getKey()), entry.getValue());
+		    int[] oldIDs = Arrays.copyOf(entry.getValue().getRequirements(), entry.getValue().getRequirements().length);
+            
+            for(int n = 0; n < oldIDs.length; n++)
+            {
+                if(remapped.containsKey(oldIDs[n]))
+                {
+                    oldIDs[n] = remapped.get(oldIDs[n]);
+                }
+            }
+            
+            entry.getValue().setRequirements(oldIDs);
+            
+			QuestDatabase.INSTANCE.add(remapped.get(entry.getID()), entry.getValue());
 		}
 		
-		for(IQuestLine questLine : impQuestLineDB.getAllValues())
+		for(DBEntry<IQuestLine> questLine : impQuestLineDB.getEntries())
 		{
-			for(IQuestLineEntry qle : questLine.getAllValues())
+		    List<DBEntry<IQuestLineEntry>> pendingQLE = new ArrayList<>();
+		    
+			for(DBEntry<IQuestLineEntry> qle : questLine.getValue().getEntries())
 			{
-				int oldID = questLine.getKey(qle);
-				questLine.removeKey(oldID);
-				questLine.add(qle, remapped.get(oldID));
+			    pendingQLE.add(qle);
+				questLine.getValue().removeID(qle.getID());
 			}
 			
-			QuestLineDatabase.INSTANCE.add(questLine, QuestLineDatabase.INSTANCE.nextKey());
+			for(DBEntry<IQuestLineEntry> qle : pendingQLE)
+            {
+                if(!remapped.containsKey(qle.getID()))
+                {
+                    BetterQuesting.logger.error("Failed to import quest into quest line. Unable to remap ID " + qle.getID());
+                    continue;
+                }
+                
+                questLine.getValue().add(remapped.get(qle.getID()), qle.getValue());
+            }
+			
+			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), questLine.getValue());
 		}
 		
 		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
@@ -94,23 +116,43 @@ public class PktHandlerImport implements IPacketHandler
 	/**
 	 * Takes a list of imported IDs and returns a remapping to unused IDs
 	 */
-	private HashMap<Integer,Integer> getRemappedIDs(List<Integer> idList)
+	private HashMap<Integer,Integer> getRemappedIDs(DBEntry<IQuest>[] idList)
 	{
-		List<Integer> existing = QuestDatabase.INSTANCE.getAllKeys();
-		HashMap<Integer,Integer> remapped = new HashMap<Integer,Integer>();
-		
-		int n = 0;
-		
-		for(int id : idList)
-		{
-			while(existing.contains(n) || remapped.containsValue(n))
-			{
-				n++;
-			}
-			
-			remapped.put(id, n);
-		}
+	    int[] nextIDs = getNextIDs(idList.length);
+		HashMap<Integer,Integer> remapped = new HashMap<>();
+	    
+	    for(int i = 0; i < nextIDs.length; i++)
+        {
+            remapped.put(idList[i].getID(), nextIDs[i]);
+        }
 		
 		return remapped;
 	}
+	
+	private int[] getNextIDs(int num)
+    {
+        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        int[] nxtIDs = new int[num];
+        
+        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        {
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            return nxtIDs;
+        }
+        
+        int n1 = 0;
+        int n2 = 0;
+        for(int i = 0; i < num; i++)
+        {
+            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            {
+                n1++;
+                n2++;
+            }
+            
+            nxtIDs[i] = n1++;
+        }
+        
+        return nxtIDs;
+    }
 }

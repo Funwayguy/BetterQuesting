@@ -1,6 +1,6 @@
 package betterquesting.api.client.gui.misc;
 
-public interface INeedsRefresh
+public interface INeedsRefresh // TODO: Replace with a proper event because this interface is dumb
 {
-	public void refreshGui();
+	void refreshGui();
 }

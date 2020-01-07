@@ -1,17 +1,22 @@
 package betterquesting.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.command.WrongUsageException;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
 import betterquesting.commands.user.QuestCommandSPHardcore;
+import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.command.WrongUsageException;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class BQ_CommandUser extends CommandBase
 {
-	ArrayList<QuestCommandBase> coms = new ArrayList<QuestCommandBase>();
+	private final List<QuestCommandBase> coms = new ArrayList<>();
 	
 	public BQ_CommandUser()
 	{
@@ -20,46 +25,48 @@ public class BQ_CommandUser extends CommandBase
 		coms.add(new QuestCommandSPHardcore());
 	}
 	
+    @Nonnull
 	@Override
 	public String getCommandName()
 	{
 		return "bq_user";
 	}
 	
+    @Nonnull
 	@Override
-	public String getCommandUsage(ICommandSender sender)
+	public String getCommandUsage(@Nonnull ICommandSender sender)
 	{
-		String txt = "";
+		StringBuilder txt = new StringBuilder();
 		
 		for(int i = 0; i < coms.size(); i++)
 		{
 			QuestCommandBase c = coms.get(i);
-			txt += "/bq_user " + c.getCommand();
+			txt.append("/bq_user ").append(c.getCommand());
 			
 			if(c.getUsageSuffix().length() > 0)
 			{
-				txt += " " + c.getUsageSuffix();
+				txt.append(" ").append(c.getUsageSuffix());
 			}
 			
 			if(i < coms.size() -1)
 			{
-				txt += ", ";
+				txt.append(", ");
 			}
 		}
 		
-		return txt;
+		return txt.toString();
 	}
 
     /**
      * Adds the strings available in this command to the given list of tab completion options.
      */
 	@Override
-	@SuppressWarnings("unchecked")
-    public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
+    @SuppressWarnings("unchecked")
+	public List<String> addTabCompletionOptions(ICommandSender sender, String[] strings)
     {
 		if(strings.length == 1)
 		{
-			ArrayList<String> base = new ArrayList<String>();
+			List<String> base = new ArrayList<>();
 			for(QuestCommandBase c : coms)
 			{
 				base.add(c.getCommand());
@@ -71,12 +78,12 @@ public class BQ_CommandUser extends CommandBase
 			{
 				if(c.getCommand().equalsIgnoreCase(strings[0]))
 				{
-					return c.autoComplete(sender, strings);
+					return c.autoComplete(FMLCommonHandler.instance().getMinecraftServerInstance(), sender, strings);
 				}
 			}
 		}
 		
-		return new ArrayList<String>();
+		return Collections.emptyList();
     }
 
     /**
@@ -95,7 +102,7 @@ public class BQ_CommandUser extends CommandBase
 	}
 	
 	@Override
-	public void processCommand(ICommandSender sender, String[] args)
+	public void processCommand(ICommandSender sender, String[] args) throws CommandException
 	{
 		if(args.length < 1)
 		{
@@ -108,7 +115,7 @@ public class BQ_CommandUser extends CommandBase
 			{
 				if(c.validArgs(args))
 				{
-					c.runCommand(this, sender, args);
+					c.runCommand(FMLCommonHandler.instance().getMinecraftServerInstance(), this, sender, args);
 					return;
 				} else
 				{

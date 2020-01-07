@@ -1,9 +1,13 @@
 package betterquesting.api.client.toolbox;
 
-import java.util.List;
+import betterquesting.api2.client.toolbox.IToolTab;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.Collection;
 
 public interface IToolRegistry
 {
-	public void registerToolbox(IToolboxTab toolbox);
-	public List<IToolboxTab> getAllTools();
+	void registerToolTab(ResourceLocation tabID, IToolTab tab);
+	IToolTab getTabByID(ResourceLocation tabID);
+	Collection<IToolTab> getAllTabs();
 }

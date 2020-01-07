@@ -2,12 +2,13 @@ package betterquesting.api.questing.tasks;
 
 import java.util.UUID;
 
-public interface IProgression<T>
+// TODO: Deprecate after party progression split?
+public interface IProgression<T> extends ITask
 {
-	public void setUserProgress(UUID uuid, T data);
+	void setUserProgress(UUID uuid, T data);
 	
-	public T getUsersProgress(UUID... users);
-	public T getGlobalProgress();
+	T getUsersProgress(UUID... users);
+	T getGlobalProgress();
 	
-	public float getParticipation(UUID uuid);
+	float getParticipation(UUID uuid);
 }

@@ -1,11 +1,12 @@
 package betterquesting.commands.user;
 
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.core.BetterQuesting;
+import net.minecraft.server.MinecraftServer;
 
 public class QuestCommandHelp extends QuestCommandBase
 {
@@ -16,7 +17,7 @@ public class QuestCommandHelp extends QuestCommandBase
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		if(sender instanceof EntityPlayer)
 		{

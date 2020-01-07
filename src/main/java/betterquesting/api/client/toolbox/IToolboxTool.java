@@ -1,21 +1,35 @@
 package betterquesting.api.client.toolbox;
 
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+
+import java.util.List;
 
 public interface IToolboxTool
 {
-	public void initTool(IGuiQuestLine gui);
-	public void disableTool();
+    /** Starts up the tool in its initial starting state */
+	void initTool(CanvasQuestLine gui);
 	
-	public void drawTool(int mx, int my, float partialTick);
+	/** Canvas has been refreshed. Restore references to buttons, etc. */
+	void refresh(CanvasQuestLine gui);
 	
-	public void onMouseClick(int mx, int my, int click);
-	public void onMouseScroll(int mx, int my, int scroll);
-	public void onKeyPressed(char c, int key);
+	/** Shut down tool and reset values */
+	void disableTool();
 	
-	public boolean allowTooltips();
-	public boolean allowScrolling(int click);
-	public boolean allowZoom();
+	/** Draws within the relative scrolling portion of the canvas */
+	void drawCanvas(int mx, int my, float partialTick);
+	/** Draws over the top of the canvas without being affected by scrolling */
+	void drawOverlay(int mx, int my, float partialTick);
+	/** Fired when the tool controller has changed its multi-selection */
+	void onSelection(List<PanelButtonQuest> buttons);
 	
-	public boolean clampScrolling();
+	boolean onMouseClick(int mx, int my, int click);
+	boolean onMouseRelease(int mx, int my, int click);
+	boolean onMouseScroll(int mx, int my, int scroll);
+	boolean onKeyPressed(char c, int key);
+	List<String> getTooltip(int mx, int my);
+	
+	boolean clampScrolling();
+	/** Allows the tool controller to intercept some interactions to perform multi-quest selections*/
+	boolean useSelection();
 }

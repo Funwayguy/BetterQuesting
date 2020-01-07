@@ -1,154 +1,236 @@
 package betterquesting.client.toolbox.tools;
 
-import net.minecraft.nbt.NBTTagCompound;
-import betterquesting.api.client.gui.GuiElement;
-import betterquesting.api.client.gui.controls.GuiButtonQuestInstance;
-import betterquesting.api.client.gui.misc.IGuiQuestLine;
 import betterquesting.api.client.toolbox.IToolboxTool;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
-import betterquesting.api.utils.NBTConverter;
-import betterquesting.client.toolbox.ToolboxGuiMain;
+import betterquesting.api2.client.gui.controls.PanelButtonQuest;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
+import betterquesting.client.gui2.editors.designer.PanelToolController;
+import betterquesting.client.toolbox.ToolboxTabMain;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
+import net.minecraft.nbt.NBTTagCompound;
 
-public class ToolboxToolGrab extends GuiElement implements IToolboxTool
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ToolboxToolGrab implements IToolboxTool
 {
-	IGuiQuestLine gui;
-	int grabID = -1;
-	GuiButtonQuestInstance grabbed;
+	private CanvasQuestLine gui;
+	
+	private final List<GrabEntry> grabList = new ArrayList<>();
 	
 	@Override
-	public void initTool(IGuiQuestLine gui)
+	public void initTool(CanvasQuestLine gui)
 	{
 		this.gui = gui;
-		grabbed = null;
-		grabID = -1;
+        grabList.clear();
 	}
 	
 	@Override
 	public void disableTool()
 	{
-		if(grabbed != null)
-		{
-			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
+	    for(GrabEntry grab : grabList)
+        {
+			IQuestLineEntry qle = gui.getQuestLine().getValue(grab.btn.getStoredValue().getID());
 			
 			if(qle != null)
-			{
-				// Reset position
-				grabbed.xPosition = qle.getPosX();
-				grabbed.yPosition = qle.getPosY();
-			}
+            {
+                grab.btn.rect.x = qle.getPosX();
+                grab.btn.rect.y = qle.getPosY();
+            }
+        }
+        
+		grabList.clear();
+	}
+	
+	@Override
+    public void refresh(CanvasQuestLine gui)
+    {
+        if(grabList.size() <= 0) return;
+        
+        List<GrabEntry> tmp = new ArrayList<>();
+        
+        for(GrabEntry grab : grabList)
+        {
+            for(PanelButtonQuest btn : PanelToolController.selected)
+            {
+                if(btn.getStoredValue().getID() == grab.btn.getStoredValue().getID())
+                {
+                    tmp.add(new GrabEntry(btn, grab.offX, grab.offY));
+                    break;
+                }
+            }
+        }
+        
+        grabList.clear();
+        grabList.addAll(tmp);
+    }
+	
+	@Override
+	public void drawCanvas(int mx, int my, float partialTick)
+	{
+	    if(grabList.size() <= 0) return;
+	    
+	    int snap = Math.max(1, ToolboxTabMain.INSTANCE.getSnapValue());
+	    int dx = mx;
+	    int dy = my;
+	    dx = ((dx%snap) + snap)%snap;
+	    dy = ((dy%snap) + snap)%snap;
+	    dx = mx - dx;
+	    dy = my - dy;
+	    
+	    for(GrabEntry grab : grabList)
+        {
+            grab.btn.rect.x = dx + grab.offX;
+            grab.btn.rect.y = dy + grab.offY;
+        }
+	}
+	
+	@Override
+    public void drawOverlay(int mx, int my, float partialTick)
+    {
+        ToolboxTabMain.INSTANCE.drawGrid(gui);
+    }
+    
+    @Override
+    public List<String> getTooltip(int mx, int my)
+    {
+        if(grabList.size() <= 0) return null;
+        
+        for(GrabEntry grab : grabList)
+        {
+            if(grab.offX == 0 && grab.offY == 0)
+            {
+                List<String> list = new ArrayList<>();
+                list.add("X: " + grab.btn.rect.x);
+                list.add("Y: " + grab.btn.rect.y);
+                return list;
+            }
+        }
+        
+        return Collections.emptyList();
+    }
+    
+    @Override
+    public void onSelection(List<PanelButtonQuest> buttons)
+    {
+    }
+	
+	@Override
+	public boolean onMouseClick(int mx, int my, int click)
+	{
+		if(click == 1 && grabList.size() > 0) // Reset tool
+		{
+			for(GrabEntry grab : grabList)
+            {
+                IQuestLineEntry qle = gui.getQuestLine().getValue(grab.btn.getStoredValue().getID());
+                
+                if(qle != null)
+                {
+                    grab.btn.rect.x = qle.getPosX();
+                    grab.btn.rect.y = qle.getPosY();
+                }
+            }
+            
+            grabList.clear();
+			return true;
+		} else if(click != 0 || !gui.getTransform().contains(mx, my)) // Not a click we're listening for
+		{
+			return false;
 		}
 		
-		grabbed = null;
-		grabID = -1;
-	}
-	
-	@Override
-	public void drawTool(int mx, int my, float partialTick)
-	{
-		if(grabbed != null)
-		{
-			int snap = ToolboxGuiMain.getSnapValue();
-			grabbed.xPosition = mx;
-			grabbed.yPosition = my;
-			int modX = ((grabbed.xPosition%snap) + snap)%snap;
-			int modY = ((grabbed.yPosition%snap) + snap)%snap;
-			grabbed.xPosition -= modX;
-			grabbed.yPosition -= modY;
-		}
+		if(grabList.size() > 0) // Apply positioning
+        {
+            IQuestLine qLine = gui.getQuestLine();
+			int lID = QuestLineDatabase.INSTANCE.getID(qLine);
+            for(GrabEntry grab : grabList)
+            {
+			    IQuestLineEntry qle = gui.getQuestLine().getValue(grab.btn.getStoredValue().getID());
+			    if(qle != null) qle.setPosition(grab.btn.rect.x, grab.btn.rect.y);
+            }
+            
+            // Sync Line
+            NBTTagCompound tag2 = new NBTTagCompound();
+            NBTTagCompound base2 = new NBTTagCompound();
+            base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
+            tag2.setTag("data", base2);
+            tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
+            tag2.setInteger("lineID", lID);
+            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+            
+            grabList.clear();
+            return true;
+        }
+        
+        PanelButtonQuest btnClicked = gui.getButtonAt(mx, my);
 		
-		ToolboxGuiMain.drawGrid(gui);
+		if(btnClicked != null) // Pickup the group or the single one if none are selected
+        {
+            if(PanelToolController.selected.size() > 0)
+            {
+                if(!PanelToolController.selected.contains(btnClicked)) return false;
+                
+                for(PanelButtonQuest btn : PanelToolController.selected)
+                {
+                    grabList.add(new GrabEntry(btn, btn.rect.x - btnClicked.rect.x, btn.rect.y - btnClicked.rect.y));
+                }
+            } else
+            {
+                grabList.add(new GrabEntry(btnClicked, 0, 0));
+            }
+            
+            return true;
+        }
+        
+        return false;
 	}
 	
 	@Override
-	public void onMouseClick(int mx, int my, int click)
+    public boolean onMouseRelease(int mx, int my, int click)
+    {
+        return false;
+    }
+	
+	@Override
+	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
-		if(click == 1 && grabbed != null)
-		{
-			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
-			
-			if(qle != null)
-			{
-				// Reset position
-				grabbed.xPosition = qle.getPosX();
-				grabbed.yPosition = qle.getPosY();
-			}
-			
-			grabbed = null;
-			return;
-		} else if(click != 0)
-		{
-			return;
-		}
-		
-		if(grabbed == null)
-		{
-			grabbed = gui.getQuestLine().getButtonAt(mx, my);
-			grabID = grabbed == null? -1 : QuestDatabase.INSTANCE.getKey(grabbed.getQuest());
-		} else
-		{
-			IQuestLine qLine = gui.getQuestLine().getQuestLine();
-			int lID = QuestLineDatabase.INSTANCE.getKey(qLine);
-			IQuestLineEntry qle = gui.getQuestLine().getQuestLine().getValue(grabID);
-			
-			if(qle != null)
-			{
-				qle.setPosition(grabbed.xPosition, grabbed.yPosition);
-				
-				// Sync Line
-				NBTTagCompound tag2 = new NBTTagCompound();
-				JsonObject base2 = new JsonObject();
-				base2.add("line", qLine.writeToJson(new JsonObject(), EnumSaveType.CONFIG));
-				tag2.setTag("data", NBTConverter.JSONtoNBT_Object(base2, new NBTTagCompound()));
-				tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-				tag2.setInteger("lineID", lID);
-				PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
-			}
-			
-			grabbed = null;
-			grabID = -1;
-		}
+	    return false;
 	}
 	
 	@Override
-	public void onMouseScroll(int mx, int my, int scroll)
+	public boolean onKeyPressed(char c, int keyCode)
 	{
-	}
-	
-	@Override
-	public void onKeyPressed(char c, int keyCode)
-	{
-	}
-	
-	@Override
-	public boolean allowTooltips()
-	{
-		return grabbed == null;
-	}
-	
-	@Override
-	public boolean allowScrolling(int click)
-	{
-		return grabbed == null || click == 2;
-	}
-	
-	@Override
-	public boolean allowZoom()
-	{
-		return true;
+	    return grabList.size() > 0;
 	}
 	
 	@Override
 	public boolean clampScrolling()
 	{
-		return false;
+		return grabList.size() <= 0;
 	}
+	
+	@Override
+    public boolean useSelection()
+    {
+        return grabList.size() <= 0;
+    }
+	
+	private class GrabEntry
+    {
+        private final PanelButtonQuest btn;
+        private final int offX;
+        private final int offY;
+        
+        private GrabEntry(PanelButtonQuest btn, int offX, int offY)
+        {
+            this.btn = btn;
+            this.offX = offX;
+            this.offY = offY;
+        }
+    }
 }

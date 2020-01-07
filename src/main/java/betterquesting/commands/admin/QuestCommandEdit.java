@@ -1,16 +1,18 @@
 package betterquesting.commands.admin;
 
-import java.util.ArrayList;
-import java.util.List;
+import betterquesting.api.properties.NativeProps;
+import betterquesting.commands.QuestCommandBase;
+import betterquesting.handlers.SaveLoadHandler;
+import betterquesting.network.PacketSender;
+import betterquesting.storage.NameCache;
+import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
-import betterquesting.api.properties.NativeProps;
-import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.storage.NameCache;
-import betterquesting.storage.QuestSettings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuestCommandEdit extends QuestCommandBase
 {
@@ -33,21 +35,21 @@ public class QuestCommandEdit extends QuestCommandBase
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<String> autoComplete(ICommandSender sender, String[] args)
+    @SuppressWarnings("unchecked")
+	public List<String> autoComplete(MinecraftServer server, ICommandSender sender, String[] args)
 	{
-		ArrayList<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		if(args.length == 2)
 		{
-			return CommandBase.getListOfStringsMatchingLastWord(args, new String[]{"true","false"});
+			return CommandBase.getListOfStringsMatchingLastWord(args, "true","false");
 		}
 		
 		return list;
 	}
 	
 	@Override
-	public void runCommand(CommandBase command, ICommandSender sender, String[] args)
+	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
 		boolean flag = !QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
 		
@@ -71,13 +73,12 @@ public class QuestCommandEdit extends QuestCommandBase
 			}
 		}
 		
-		if(flag)
-		{
-			NameCache.INSTANCE.updateNames(MinecraftServer.getServer());
-		}
-		
+		if(flag) NameCache.INSTANCE.updateNames(server);
 		QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, flag);
-		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)? "options.on" : "options.off")));
+		
+		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.edit", new ChatComponentTranslation(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE) ? "options.on" : "options.off")));
+  
+		SaveLoadHandler.INSTANCE.markDirty();
 		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
 	}
 }

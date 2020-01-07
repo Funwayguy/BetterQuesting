@@ -1,25 +1,20 @@
 package betterquesting.network.handlers;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.enums.EnumSaveType;
 import betterquesting.api.network.IPacketHandler;
 import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.utils.JsonHelper;
-import betterquesting.api.utils.NBTConverter;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestLine;
 import betterquesting.questing.QuestLineDatabase;
-import com.google.gson.JsonObject;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
 
 public class PktHandlerLineEdit implements IPacketHandler
 {
@@ -32,12 +27,12 @@ public class PktHandlerLineEdit implements IPacketHandler
 	@Override
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
-		if(sender == null)
+		if(sender == null || sender.mcServer == null)
 		{
 			return;
 		}
 		
-		boolean isOP = MinecraftServer.getServer().getConfigurationManager().func_152596_g(sender.getGameProfile());
+		boolean isOP = sender.mcServer.getConfigurationManager().func_152596_g(sender.getGameProfile());
 		
 		if(!isOP)
 		{
@@ -61,19 +56,18 @@ public class PktHandlerLineEdit implements IPacketHandler
 		if(action == EnumPacketAction.ADD) 
 		{
 			IQuestLine nq = new QuestLine();
-			int nID = QuestLineDatabase.INSTANCE.nextKey();
+			int nID = QuestLineDatabase.INSTANCE.nextID();
 			
 			if(data.hasKey("data") && lID >= 0)
 			{
 				nID = lID;
 				
-				JsonObject base = NBTConverter.NBTtoJSON_Compound(data.getCompoundTag("data"), new JsonObject());
-				nq.readFromJson(JsonHelper.GetObject(base, "line"), EnumSaveType.CONFIG);
+				NBTTagCompound base = data.getCompoundTag("data");
+				nq.readFromNBT(base.getCompoundTag("line"), false);
 			}
 			
-			QuestLineDatabase.INSTANCE.add(nq, nID);
+			QuestLineDatabase.INSTANCE.add(nID, nq);
 			PacketSender.INSTANCE.sendToAll(nq.getSyncPacket());
-			return;
 		} else if(action == EnumPacketAction.EDIT && questLine != null) // Edit quest lines
 		{
 			questLine.readPacket(data);
@@ -86,12 +80,10 @@ public class PktHandlerLineEdit implements IPacketHandler
 			{
 				PacketSender.INSTANCE.sendToAll(questLine.getSyncPacket());
 			}
-			return;
 		} else if(action == EnumPacketAction.REMOVE && questLine != null)
 		{
-			QuestLineDatabase.INSTANCE.removeKey(lID);
+			QuestLineDatabase.INSTANCE.removeID(lID);
 			PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
-			return;
 		}
 	}
 	

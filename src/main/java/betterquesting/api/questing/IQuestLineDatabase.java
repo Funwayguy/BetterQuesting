@@ -1,19 +1,23 @@
 package betterquesting.api.questing;
 
-import com.google.gson.JsonArray;
 import betterquesting.api.misc.IDataSync;
-import betterquesting.api.misc.IJsonSaveLoad;
-import betterquesting.api.storage.IRegStorageBase;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.storage.IDatabase;
+import betterquesting.api2.storage.INBTPartial;
+import net.minecraft.nbt.NBTTagList;
 
-public interface IQuestLineDatabase extends IRegStorageBase<Integer,IQuestLine>, IJsonSaveLoad<JsonArray>, IDataSync
+public interface IQuestLineDatabase extends IDatabase<IQuestLine>, INBTPartial<NBTTagList>, IDataSync
 {
+	IQuestLine createNew(int id);
+	
 	/**
 	 * Deletes quest from all quest lines
 	 */
-	public void removeQuest(int lineID);
+	void removeQuest(int questID);
 	
-	public int getOrderIndex(int lineID);
-	public void setOrderIndex(int lineID, int index);
+	int getOrderIndex(int lineID);
+	void setOrderIndex(int lineID, int index);
 	
-	public IQuestLine createNew();
+	DBEntry<IQuestLine>[] getSortedEntries();
+	
 }

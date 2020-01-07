@@ -1,28 +1,26 @@
 package betterquesting.questing.rewards;
 
+import betterquesting.api.placeholders.rewards.FactoryRewardPlaceholder;
+import betterquesting.api.questing.rewards.IReward;
+import betterquesting.api2.registry.IFactoryData;
+import betterquesting.api2.registry.IRegistry;
+import betterquesting.core.BetterQuesting;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.Level;
-import betterquesting.api.misc.IFactory;
-import betterquesting.api.placeholders.rewards.FactoryRewardPlaceholder;
-import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.questing.rewards.IRewardRegistry;
-import betterquesting.core.BetterQuesting;
 
-public class RewardRegistry implements IRewardRegistry
+public class RewardRegistry implements IRegistry<IFactoryData<IReward, NBTTagCompound>, IReward>
 {
 	public static final RewardRegistry INSTANCE = new RewardRegistry();
 	
-	private HashMap<ResourceLocation, IFactory<? extends IReward>> rewardRegistry = new HashMap<ResourceLocation, IFactory<? extends IReward>>();
-	
-	private RewardRegistry()
-	{
-	}
+	private final HashMap<ResourceLocation, IFactoryData<IReward, NBTTagCompound>> rewardRegistry = new HashMap<>();
 	
 	@Override
-	public void registerReward(IFactory<? extends IReward> factory)
+	public void register(IFactoryData<IReward, NBTTagCompound> factory)
 	{
 		if(factory == null)
 		{
@@ -41,23 +39,23 @@ public class RewardRegistry implements IRewardRegistry
 	}
 	
 	@Override
-	public IFactory<? extends IReward> getFactory(ResourceLocation registryName)
+	public IFactoryData<IReward, NBTTagCompound> getFactory(ResourceLocation registryName)
 	{
 		return rewardRegistry.get(registryName);
 	}
 	
 	@Override
-	public List<IFactory<? extends IReward>> getAll()
+	public List<IFactoryData<IReward, NBTTagCompound>> getAll()
 	{
-		return new ArrayList<IFactory<? extends IReward>>(rewardRegistry.values());
+		return new ArrayList<>(rewardRegistry.values());
 	}
 	
 	@Override
-	public IReward createReward(ResourceLocation registryName)
+	public IReward createNew(ResourceLocation registryName)
 	{
 		try
 		{
-			IFactory<? extends IReward> factory = null;
+			IFactoryData<? extends IReward, NBTTagCompound> factory;
 			
 			if(FactoryRewardPlaceholder.INSTANCE.getRegistryName().equals(registryName))
 			{
