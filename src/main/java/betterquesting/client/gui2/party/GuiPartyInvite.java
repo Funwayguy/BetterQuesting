@@ -112,7 +112,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         
         nameList.removeIf((entry) -> {
            UUID memID = NameCache.INSTANCE.getUUID(entry);
-           return party.getStatus(memID) != null;
+           return memID != null && party.getStatus(memID) != null;
         });
         
         for(int i = 0; i < nameList.size(); i++)
@@ -150,7 +150,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
 			payload.setInteger("action", 3);
 			payload.setInteger("partyID", partyID);
 			payload.setString("username", flName.getRawText());
-			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
+			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
             NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
@@ -158,7 +158,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             payload.setInteger("action", 3);
             payload.setInteger("partyID", partyID);
             payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
-			payload.setLong("expiry", System.currentTimeMillis() + 60000L);
+			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
             NetPartyAction.sendAction(payload);
         }
     }

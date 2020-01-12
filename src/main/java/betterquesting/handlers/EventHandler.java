@@ -25,6 +25,7 @@ import betterquesting.network.handlers.NetNameSync;
 import betterquesting.network.handlers.NetNotices;
 import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.NameCache;
@@ -362,9 +363,10 @@ public class EventHandler
     {
         if(event.phase != Phase.END) return;
         
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        
         if(!openToLAN)
         {
-            MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             if(server.isDedicatedServer())
             {
                 openToLAN = true;
@@ -390,5 +392,7 @@ public class EventHandler
                 }
             }
         }
+        
+        if(server.getTickCounter() % 60 == 0) PartyInvitations.INSTANCE.cleanExpired();
     }
 }

@@ -185,6 +185,7 @@ public class RenderUtils
 	        GlStateManager.disableTexture2D();
 	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
 	        GlStateManager.enableTexture2D(); // Breaks subsequent text rendering if not included
+            GlStateManager.disableColorMaterial();
     	} catch(Exception e)
     	{
     		// Hides rendering errors with entities which are common for invalid/technical entities
@@ -261,6 +262,9 @@ public class RenderUtils
 			
 			idxStart += noFormat.get(i).length();
 		}
+		
+		// Text rendering is very vulnerable to colour leaking
+        GlStateManager.color(1F, 1F, 1F, 1F);
 		
 		for(int i = start; i <= end; i++)
 		{

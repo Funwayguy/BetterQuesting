@@ -34,7 +34,7 @@ import java.util.concurrent.Future;
  */
 public class JsonHelper
 {
-	private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	
 	public static JsonArray GetArray(@Nonnull JsonObject json, @Nonnull String id)
 	{

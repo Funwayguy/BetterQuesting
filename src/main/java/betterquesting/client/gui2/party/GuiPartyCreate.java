@@ -12,6 +12,7 @@ import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
+import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -19,12 +20,16 @@ import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
+import betterquesting.api2.client.gui.panels.bars.PanelHBarFill;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelPlayerPortrait;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.GuiColorTransition;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
@@ -184,11 +189,12 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         // TODO: Display expiry period
         for(int i = 0; i < invites.size(); i++)
         {
-            Integer pid = invites.get(i).getKey();
+            int pid = invites.get(i).getKey();
             if(pid < 0) continue;
+            long exp = invites.get(i).getValue();
             IParty party = PartyManager.INSTANCE.getValue(pid);
-    
-            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
+            
+            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 24, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
             invitePanel.addPanel(btnJoin);
             
             String pName = party == null ? "Unknown (" + pid + ")" : party.getProperties().getProperty(NativeProps.NAME);
@@ -197,9 +203,15 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
                 pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
             }
             
-            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
+            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 24 + 4, cvWidth - 58, 12, 0), pName);
             txPartyName.setColor(PresetColor.TEXT_MAIN.getColor());
             invitePanel.addPanel(txPartyName);
+    
+            PanelHBarFill flExpiry = new PanelHBarFill(new GuiRectangle(0, i * 24 + 16, cvWidth, 8));
+            ValueFuncIO<Float> expFunc = new ValueFuncIO<>(() -> (float)((exp - System.currentTimeMillis()) / 300000D));
+            flExpiry.setFillDriver(expFunc);
+            flExpiry.setFillColor(new GuiColorTransition(new GuiColorStatic(0xFF00FF00), new GuiColorPulse(0xFFFF0000, 0xFFC00000, 1F, 0F)).setupBlending(false, 0.2F).setBlendDriver(expFunc));
+            invitePanel.addPanel(flExpiry);
         }
         
         inviteScroll.setActive(invitePanel.getScrollBounds().getHeight() > 0);

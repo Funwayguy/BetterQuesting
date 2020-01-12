@@ -179,10 +179,10 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             PanelTextBox txMemName = new PanelTextBox(new GuiRectangle(32, i * 32 + 4, cvWidth - 32, 12, 0), mName);
             txMemName.setColor(PresetColor.TEXT_MAIN.getColor());
             cvUserList.addPanel(txMemName);
-    
+            
             PanelButtonStorage<String> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, i * 32, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), mName);
             cvUserList.addPanel(btnKick);
-    
+            
             PanelGeneric pnItem = new PanelGeneric(new GuiRectangle(32, i * 32 + 16, 16, 16, 0), txHeart);
             cvUserList.addPanel(pnItem);
             

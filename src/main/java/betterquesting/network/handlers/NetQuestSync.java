@@ -118,7 +118,8 @@ public class NetQuestSync
     private static void onClient(NBTTagCompound message)
     {
         NBTTagList data = message.getTagList("data", 10);
-        if(!message.getBoolean("merge")) QuestDatabase.INSTANCE.reset();
+        boolean merge = message.getBoolean("merge");
+        if(!merge) QuestDatabase.INSTANCE.reset();
         
         for(int i = 0; i < data.tagCount(); i++)
         {
@@ -138,7 +139,7 @@ public class NetQuestSync
             {
                 // TODO: Fix this properly
                 // If there we're not running the LAN server off this client then we overwrite always
-                quest.readProgressFromNBT(tag.getCompoundTag("progress"), !Minecraft.getMinecraft().isIntegratedServerRunning());
+                quest.readProgressFromNBT(tag.getCompoundTag("progress"), merge || Minecraft.getMinecraft().isIntegratedServerRunning());
             }
         }
         

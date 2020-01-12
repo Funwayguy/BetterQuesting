@@ -81,6 +81,9 @@ public enum PresetIcon
     
     // === OPTIONS ===
     
+    ICON_LOCKED("icon_locked"),
+    ICON_UNLOCKED("icon_unlocked"),
+    
     // == MISC ===
     
     ICON_BOX_FIT("icon_box_fit"),
@@ -173,6 +176,10 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_PG_PREV.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 48, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_PG_NEXT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(240, 48, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_SAVE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(0, 80, 16, 16)).maintainAspect(true));
+		
+		// === OPTIONS ===
+        reg.setDefaultTexture(ICON_LOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 48, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_UNLOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(96, 48, 16, 16)).maintainAspect(true));
 		
 		// === MISC ===
         reg.setDefaultTexture(ICON_BOX_FIT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 64, 16, 16)).maintainAspect(true));
