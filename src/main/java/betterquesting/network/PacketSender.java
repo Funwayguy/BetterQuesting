@@ -23,6 +23,8 @@ public class PacketSender implements IPacketSender
 	public void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());
+		
+		if (player == null || player.playerNetServerHandler == null) return;
         
         BQThreadedIO.INSTANCE.enqueue(() -> {
             List<NBTTagCompound> fragments = PacketAssembly.INSTANCE.splitPacket(payload.getPayload());
