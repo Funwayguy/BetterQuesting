@@ -20,9 +20,17 @@ public class PktHandlerTileEdit implements IPacketHandler
 	public void handleServer(NBTTagCompound data, EntityPlayerMP sender)
 	{
 		NBTTagCompound tileData = data.getCompoundTag("tile");
-		TileEntity tile = sender.worldObj.getTileEntity(tileData.getInteger("x"), tileData.getInteger("y"), tileData.getInteger("z"));
-		
-		if(tile instanceof TileSubmitStation) ((TileSubmitStation)tile).SyncTile(tileData);
+		int x = tileData.getInteger("x");
+		int y = tileData.getInteger("y");
+		int z = tileData.getInteger("z");
+
+		if (sender.openContainer instanceof ContainerSubmitStation)
+		{
+			ContainerSubmitStation container = (ContainerSubmitStation) sender.openContainer;
+			TileSubmitStation tile = container.getTile();
+			if (tile != null && tile.xCoord == x && tile.yCoord == y && tile.zCoord == z)
+				tile.SyncTile(tileData);
+		}
 	}
 	
 	@Override
