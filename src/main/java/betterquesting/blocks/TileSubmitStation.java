@@ -400,6 +400,23 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     	if(!worldObj.isRemote)
     	{
     		if(data != null) this.readFromNBT(data); // Note: The handler has already read out the "tile" subtag in advance
+		try
+			{
+				this.owner = UUID.fromString(data.getString("owner"));
+			}
+			catch (Exception e)
+			{
+				this.reset();
+				return;
+			}
+
+			this.questID = data.hasKey("questID") ? data.getInteger("questID") : -1;
+			this.taskID = data.hasKey("task") ? data.getInteger("task") : -1;
+			if (this.isSetup())
+			{
+				BetterQuesting.logger.log(Level.ERROR, "One or more tags were missing!", new Exception());
+				this.reset();
+			}
     		this.markDirty();
     		MinecraftServer server = MinecraftServer.getServer();
     		if(server != null) server.getConfigurationManager().sendToAllNearExcept(null, xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
