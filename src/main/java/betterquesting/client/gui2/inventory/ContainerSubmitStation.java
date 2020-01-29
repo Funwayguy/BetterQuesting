@@ -9,6 +9,11 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerSubmitStation extends Container
 {
+	public TileSubmitStation getTile()
+	{
+		return this.tile;
+	}
+
 	private TileSubmitStation tile;
 	
 	public ContainerSubmitStation(InventoryPlayer inventory, TileSubmitStation tile)
