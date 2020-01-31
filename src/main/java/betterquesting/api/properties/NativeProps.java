@@ -38,9 +38,9 @@ public class NativeProps
 	@Deprecated
 	public static final IPropertyType<Float> PARTICIPATION =				new PropertyTypeFloat(new ResourceLocation("betterquesting:participation"), 1F);
 	
-	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
-	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "minecraft:entity.player.levelup");
-	public static final IPropertyType<String> SOUND_COMPLETE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_complete"), "minecraft:entity.player.levelup");
+	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "random.click");
+	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "random.levelup");
+	public static final IPropertyType<String> SOUND_COMPLETE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_complete"), "random.levelup");
 	
 	public static final IPropertyType<BigItemStack> ICON =					new PropertyTypeItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.nether_star));
 	
