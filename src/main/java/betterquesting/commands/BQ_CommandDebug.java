@@ -33,7 +33,7 @@ public class BQ_CommandDebug
 	    sender.sendMessage(new TextComponentString("SPD: " + Math.floor(spdBase.getAttributeValue() * 100) + " (+" + spdDiff + ")"));*/
 	    
 	    /*File fileIn = new File("D:/Jon Stuff/Github/Repositories/BetterQuesting - 1.12/jars", "fix_me.lang");
-	    File fileOut = new File("D:/Jon Stuff/Github/Repositories/BetterQuesting - 1.12/jars", "ru_RU.lang");
+	    File fileOut = new File("D:/Jon Stuff/Github/Repositories/BetterQuesting - 1.12/jars", "ru_ru.json");
 	    
 	    try
         {
