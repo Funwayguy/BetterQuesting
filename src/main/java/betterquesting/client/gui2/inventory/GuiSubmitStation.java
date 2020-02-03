@@ -2,6 +2,7 @@ package betterquesting.client.gui2.inventory;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
@@ -30,9 +31,12 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.network.PacketSender;
+import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -159,7 +163,14 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
             public void onButtonClick()
             {
                 tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quests.get(selQuest).getValue(), tasks.get(selTask).getValue());
-                tile.SyncTile(null);
+                NBTTagCompound payload = new NBTTagCompound();
+                payload.setInteger("action", 1);
+                payload.setInteger("questID", selQuest);
+                payload.setInteger("questID", selTask);
+                payload.setInteger("tileX", tile.xCoord);
+                payload.setInteger("tileY", tile.yCoord);
+                payload.setInteger("tileZ", tile.zCoord);
+                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
                 refreshTaskPanel();
             }
         };
@@ -172,7 +183,12 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
             public void onButtonClick()
             {
                 tile.reset();
-                tile.SyncTile(null);
+                NBTTagCompound payload = new NBTTagCompound();
+                payload.setInteger("action", 0);
+                payload.setInteger("tileX", tile.xCoord);
+                payload.setInteger("tileY", tile.yCoord);
+                payload.setInteger("tileZ", tile.zCoord);
+                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
                 refreshTaskPanel();
             }
         };
@@ -222,7 +238,6 @@ public class GuiSubmitStation extends GuiContainerCanvas implements IPEventListe
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void onButtonPress(PEventButton event)
     {
         IPanelButton btn = event.getButton();

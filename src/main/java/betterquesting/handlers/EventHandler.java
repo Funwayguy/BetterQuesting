@@ -101,10 +101,9 @@ public class EventHandler
     @SubscribeEvent
     public void onEntityJoin(EntityJoinWorldEvent event)
     {
-        if(event.entity instanceof EntityPlayer)
+        if(event.entity instanceof EntityPlayer && event.entity.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString()) == null)
         {
-            EntityPlayer player = (EntityPlayer)event.entity;
-            player.registerExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString(), new QuestCache());
+            event.entity.registerExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString(), new QuestCache());
         }
     }
     

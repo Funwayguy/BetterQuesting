@@ -1,6 +1,5 @@
 package betterquesting.blocks;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.IFluidTask;
@@ -8,8 +7,6 @@ import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.entity.player.EntityPlayer;
@@ -168,8 +165,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
 	{
-        return owner == null || player.getUniqueID().equals(owner);
-        
+        return (owner == null || player.getUniqueID().equals(owner)) && player.getDistanceSq(this.xCoord, this.yCoord, this.zCoord) < 256;
     }
 
 	@Override
@@ -364,7 +360,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		qCached = null;
 		this.markDirty();
 	}
-
+    
     /**
      * Overridden in a sign to provide the text.
      */
@@ -376,7 +372,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
         this.writeToNBT(nbtTagCompound);
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbtTagCompound);
     }
-
+    
     /**
      * Called when you receive a TileEntityData packet for the location this
      * TileEntity is currently in. On the client, the NetworkManager will always
@@ -390,27 +386,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
     	this.readFromNBT(pkt.func_148857_g());
-    }
-    
-    /**
-     * Ignores parameter on client side (uses own data instead)
-     */
-    public void SyncTile(NBTTagCompound data)
-    {
-    	if(!worldObj.isRemote)
-    	{
-    		if(data != null) this.readFromNBT(data); // Note: The handler has already read out the "tile" subtag in advance
-    		this.markDirty();
-    		MinecraftServer server = MinecraftServer.getServer();
-    		if(server != null) server.getConfigurationManager().sendToAllNearExcept(null, xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
-    	} else
-    	{
-    		NBTTagCompound payload = new NBTTagCompound();
-    		NBTTagCompound tileData = new NBTTagCompound();
-    		this.writeToNBT(tileData);
-    		payload.setTag("tile", tileData);
-    		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.EDIT_STATION.GetLocation(), payload));
-    	}
     }
 	
 	@Override
