@@ -29,6 +29,8 @@ public class ResourceRegistry implements IResourceReg
         lazyRegister(TEX_REG, FactoryLayeredTexture.INSTANCE, new JsonObject());
         lazyRegister(TEX_REG, FactoryColorTexture.INSTANCE, new JsonObject());
         lazyRegister(TEX_REG, FactoryEmptyTexture.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactoryPolyTextureR.INSTANCE, new JsonObject());
+        lazyRegister(TEX_REG, FactoryPolyTextureC.INSTANCE, new JsonObject());
         
         lazyRegister(COL_REG, FactoryColorStatic.INSTANCE, new JsonObject());
         lazyRegister(COL_REG, FactoryColorSequence.INSTANCE, new JsonObject());

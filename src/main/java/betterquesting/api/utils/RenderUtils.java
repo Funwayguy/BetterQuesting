@@ -395,7 +395,7 @@ public class RenderUtils
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         color.applyGlColor();
-        vertexbuffer.begin(7, DefaultVertexFormats.POSITION);
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         vertexbuffer.pos((double)rect.getX(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
         vertexbuffer.pos((double)rect.getX() + rect.getWidth(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
         vertexbuffer.pos((double)rect.getX() + rect.getWidth(), (double)rect.getY(), 0.0D).endVertex();

@@ -37,24 +37,13 @@ public class BoxLine implements IGuiLine
 		GL11.glLineWidth(width);
 		GL11.glLineStipple(scale, pattern);
 		
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2f(minX, minY);
-		GL11.glVertex2f(maxX, minY);
-		GL11.glEnd();
+		GL11.glBegin(GL11.GL_LINE_LOOP);
 		
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2f(minX, maxY);
-		GL11.glVertex2f(maxX, maxY);
-		GL11.glEnd();
+		GL11.glVertex2i(minX, minY);
+		GL11.glVertex2i(maxX, minY);
+		GL11.glVertex2i(maxX, maxY);
+		GL11.glVertex2i(minX, maxY);
 		
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2f(minX, minY);
-		GL11.glVertex2f(minX, maxY);
-		GL11.glEnd();
-		
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex2f(maxX, minY);
-		GL11.glVertex2f(maxX, maxY);
 		GL11.glEnd();
 		
 		GL11.glLineStipple(1, (short)0xFFFF);

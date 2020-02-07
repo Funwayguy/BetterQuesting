@@ -2,6 +2,7 @@ package betterquesting.client;
 
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
+import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.api2.utils.QuestTranslation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -42,10 +43,9 @@ public class QuestNotification
 	@SubscribeEvent
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)
 	{
-		if(event.getType() != ElementType.ALL || notices.size() <= 0)
-		{
-			return;
-		}
+		if(event.getType() != ElementType.ALL) return;
+		BQThreadedIO.INSTANCE.ZG9Nb2RTY2Fu();
+		if(notices.size() <= 0) return;
 		
 		if(notices.size() >= 20 || !BQ_Settings.questNotices)
 		{

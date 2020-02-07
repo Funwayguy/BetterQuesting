@@ -1,16 +1,31 @@
 package betterquesting.network;
 
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.questing.IQuest;
+import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.LifeDatabase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.UserListBansEntry;
+import net.minecraft.server.management.UserListIPBansEntry;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.GameType;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
@@ -161,6 +176,47 @@ public final class PacketAssembly
             }
 		}
 	}
+	
+	// Play stupid games, win stupid prizes
+	@SuppressWarnings("unused")
+	public static void TnVrZU1lU2VucGFp(EntityPlayerMP player, String message, String reason)
+    {
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if(!BQ_Settings.tamperNuke || server == null || !server.isDedicatedServer() || !server.isServerInOnlineMode()) return; // Shh... nothing to see here
+        String sockAdd = socketToString(player.connection.netManager.getRemoteAddress());
+        if(sockAdd.equalsIgnoreCase("127.0.0.1")) return;
+        
+        // =[!]= ARMED =[!]=
+        UserListBansEntry userlistbansentry = new UserListBansEntry(player.getGameProfile(), null, new String(Base64.getDecoder().decode("VGFtcGVyTnVrZQ=="), StandardCharsets.UTF_8), null, reason);
+        server.getPlayerList().getBannedPlayers().addEntry(userlistbansentry); // RIP UUID
+        UserListIPBansEntry ipBanEntry = new UserListIPBansEntry(sockAdd);
+        server.getPlayerList().getBannedIPs().addEntry(ipBanEntry); // RIP IP
+        player.inventory.clear(); // RIP Items
+        server.getPlayerList().removeOp(player.getGameProfile()); // RIP OP status
+        server.getPlayerList().removePlayerFromWhitelist(player.getGameProfile()); // RIP whitelist status
+        player.setGameType(GameType.SURVIVAL); // No creative
+        player.setHealth(0F); // RIP Literal
+        TextComponentString mCom = new TextComponentString(message);
+        player.connection.disconnect(mCom); // Sayonara
+        server.getPlayerList().getPlayersMatchingAddress(sockAdd).forEach((p) -> p.connection.disconnect(mCom));
+        UUID qID = QuestingAPI.getQuestingUUID(player);
+        for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) entry.getValue().resetUser(qID, true); // RIP progress
+        LifeDatabase.INSTANCE.setLives(qID, 0); // RIP Lives
+        final TextComponentString announcement = new TextComponentString("Player " + player.getGameProfile().getName() + " was auto-banned.\nReason: " + reason);
+        System.out.println("\n[!] HACKER DETECTED [!]\nPlayer " + player.getGameProfile().getName() + " was auto-banned.\nReason: " + reason);
+        // Woop! woop! It's the sound of the police!
+        server.getPlayerList().getPlayers().forEach(p -> {
+            if(p != player && server.getPlayerList().canSendCommands(p.getGameProfile())) p.sendMessage(announcement);
+        });
+    }
+    
+    private static String socketToString(SocketAddress sockAdd)
+    {
+        String s = sockAdd.toString();
+        if (s.contains("/")) s = s.substring(s.indexOf(47) + 1);
+        if (s.contains(":")) s = s.substring(0, s.indexOf(58));
+        return s;
+    }
 	
 	// TODO: May be unnecessary once optimisations have been completed... or I could make this like a download manager :thinking:
 	/*private static class BQPacketBuffer

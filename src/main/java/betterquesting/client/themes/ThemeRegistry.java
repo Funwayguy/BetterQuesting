@@ -39,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 public class ThemeRegistry implements IThemeRegistry
@@ -103,7 +102,7 @@ public class ThemeRegistry implements IThemeRegistry
 			throw new NullPointerException("Cannot register null theme");
 		} else if(themes.containsKey(theme.getID()))
 		{
-			throw new IllegalArgumentException("Cannot register duplicate theme: " + theme.getID());
+			//throw new IllegalArgumentException("Cannot register duplicate theme: " + theme.getID());
 		}
 		
 		themes.put(theme.getID(), theme);
@@ -270,60 +269,7 @@ public class ThemeRegistry implements IThemeRegistry
                             continue;
                         }
                         
-                        JsonObject jsonTextureRoot = JsonHelper.GetObject(jThm, "textures");
-                        for(Entry<String, JsonElement> entry : jsonTextureRoot.entrySet())
-                        {
-                            if(!entry.getValue().isJsonObject()) continue;
-                            JsonObject joTex = entry.getValue().getAsJsonObject();
-                            
-                            ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joTex, "textureType", ""));
-                            IGuiTexture gTex = ResourceRegistry.INSTANCE.getTexReg().createNew(typeID, joTex);
-                            
-                            if(gTex == null)
-                            {
-                                BetterQuesting.logger.error("Failed to load texture type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            resTheme.setTexture(new ResourceLocation(entry.getKey()), gTex);
-                        }
-                        
-                        JsonObject jsonColourRoot = JsonHelper.GetObject(jThm, "colors");
-                        for(Entry<String, JsonElement> entry : jsonColourRoot.entrySet())
-                        {
-                            if(!(entry.getValue() instanceof JsonObject)) continue;
-                            JsonObject joCol = entry.getValue().getAsJsonObject();
-                            
-                            ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joCol, "colorType", ""));
-                            IGuiColor gCol = ResourceRegistry.INSTANCE.getColorReg().createNew(typeID, joCol);
-                            
-                            if(gCol == null)
-                            {
-                                BetterQuesting.logger.error("Failed to load color type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            resTheme.setColor(new ResourceLocation(entry.getKey()), gCol);
-                        }
-                        
-                        JsonObject jsonLinesRoot = JsonHelper.GetObject(jThm, "lines");
-                        for(Entry<String, JsonElement> entry : jsonLinesRoot.entrySet())
-                        {
-                            if(!(entry.getValue() instanceof JsonObject)) continue;
-                            JsonObject joLine = entry.getValue().getAsJsonObject();
-                            
-                            ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joLine, "lineType", ""));
-                            IGuiLine gLine = ResourceRegistry.INSTANCE.getLineReg().createNew(typeID, joLine);
-                            
-                            if(gLine == null)
-                            {
-                                BetterQuesting.logger.error("Failed to load line type " + typeID + " for theme " + themeName + " in " + iresource.getResourceLocation());
-                                continue;
-                            }
-                            
-                            resTheme.setLine(new ResourceLocation(entry.getKey()), gLine);
-                        }
-                        
+                        resTheme.loadFromJson(jThm);
                         themes.put(resTheme.getID(), resTheme);
                         loadedThemes.add(resTheme.getID());
                     }

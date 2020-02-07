@@ -27,6 +27,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.network.handlers.NetStationEdit;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -157,7 +158,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
             public void onButtonClick()
             {
                 tile.setupTask(QuestingAPI.getQuestingUUID(mc.player), quests.get(selQuest).getValue(), tasks.get(selTask).getValue());
-                tile.SyncTile(null);
+                NetStationEdit.setupStation(tile.getPos(), selQuest, selTask);
                 refreshTaskPanel();
             }
         };
@@ -170,7 +171,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
             public void onButtonClick()
             {
                 tile.reset();
-                tile.SyncTile(null);
+                NetStationEdit.resetStation(tile.getPos());
                 refreshTaskPanel();
             }
         };

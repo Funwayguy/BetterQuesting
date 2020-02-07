@@ -9,7 +9,6 @@ import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.handlers.NetStationEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.entity.player.EntityPlayer;
@@ -164,7 +163,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isUsableByPlayer(@Nonnull EntityPlayer player)
 	{
-        return owner == null || player.getUniqueID().equals(owner);
+        return (owner == null || player.getUniqueID().equals(owner)) && player.getDistanceSq(this.pos) < 256;
         
     }
 
@@ -384,23 +383,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
     	this.readFromNBT(pkt.getNbtCompound());
-    }
-    
-    /**
-     * Client: Ignores parameter on client side and sends own data to server for owner setup
-     * Server side: Sends reads any modification data (if specified) then syncs to all nearby clients
-     */
-    public void SyncTile(@Nullable NBTTagCompound data)
-    {
-    	if(!world.isRemote)
-    	{
-    		if(data != null) this.readFromNBT(data); // Note: The handler has already read out the "tile" subtag in advance
-    		this.markDirty();
-    		if(world.getMinecraftServer() != null) world.getMinecraftServer().getPlayerList().sendToAllNearExcept(null, pos.getX(), pos.getY(), pos.getZ(), 128, world.provider.getDimension(), getUpdatePacket());
-    	} else
-    	{
-            NetStationEdit.sendEdit(this.writeToNBT(new NBTTagCompound()));
-    	}
     }
 	
 	@Override
