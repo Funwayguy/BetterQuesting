@@ -6,8 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class OreDictTexture extends SlideShowTexture
 {
@@ -16,13 +15,81 @@ public class OreDictTexture extends SlideShowTexture
         super(interval, splitOreTextures(stack, showCount, keepAspect).toArray(new ItemTexture[0]));
     }
     
+    public OreDictTexture(float interval, Collection<BigItemStack> list, boolean showCount, boolean keepAspect)
+    {
+        super(interval, buildTextures(list, showCount, keepAspect).toArray(new ItemTexture[0]));
+    }
+    
+    private static List<ItemTexture> buildTextures(Collection<BigItemStack> subItems, boolean showCount, boolean keepAspect)
+    {
+        List<ItemTexture> list = new ArrayList<>();
+        subItems.forEach((is) -> list.add(new ItemTexture(is, showCount, keepAspect)));
+        return list;
+    }
+    
+    private static Collection<BigItemStack> splitVariants(BigItemStack stack)
+    {
+        Set<BigItemStack> list = new HashSet<>();
+        
+        if(!stack.hasOreDict())
+        {
+            if(stack.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            {
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                stack.getBaseStack().getItem().getSubItems(CreativeTabs.SEARCH, subItems);
+                subItems.forEach((is) -> {
+                    BigItemStack bis = new BigItemStack(is);
+                    bis.stackSize = stack.stackSize;
+                    list.add(bis);
+                });
+            } else
+            {
+                list.add(stack);
+            }
+            return list;
+        }
+        
+        for(ItemStack iStack : stack.getOreIngredient().getMatchingStacks())
+        {
+            if(iStack.getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            {
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                iStack.getItem().getSubItems(CreativeTabs.SEARCH, subItems);
+                subItems.forEach((is) -> {
+                    BigItemStack bis = new BigItemStack(is);
+                    bis.stackSize = stack.stackSize;
+                    list.add(bis);
+                });
+            } else
+            {
+                BigItemStack bStack = new BigItemStack(iStack);
+                bStack.stackSize = stack.stackSize;
+                list.add(bStack);
+            }
+        }
+        
+        return list;
+    }
+    
     private static List<ItemTexture> splitOreTextures(BigItemStack stack, boolean showCount, boolean keepAspect)
     {
         List<ItemTexture> list = new ArrayList<>();
         
         if(!stack.hasOreDict())
         {
-            list.add(new ItemTexture(stack));
+            if(stack.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            {
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                stack.getBaseStack().getItem().getSubItems(CreativeTabs.SEARCH, subItems);
+                subItems.forEach((is) -> {
+                    BigItemStack bis = new BigItemStack(is);
+                    bis.stackSize = stack.stackSize;
+                    list.add(new ItemTexture(bis, showCount, keepAspect));
+                });
+            } else
+            {
+                list.add(new ItemTexture(stack, showCount, keepAspect));
+            }
             return list;
         }
         
