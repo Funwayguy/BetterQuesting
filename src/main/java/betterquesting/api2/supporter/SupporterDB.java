@@ -1,6 +1,7 @@
 package betterquesting.api2.supporter;
 
 import betterquesting.api2.storage.INBTSaveLoad;
+import betterquesting.core.BetterQuesting;
 import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
@@ -14,19 +15,20 @@ public class SupporterDB implements INBTSaveLoad<NBTTagCompound>
     
     private final TreeMap<UUID, SupporterEntry> mapDB = new TreeMap<>();
     
-    public synchronized SupporterEntry add(@Nonnull UUID uuid)
+    public synchronized SupporterEntry add(@Nonnull UUID playerID)
     {
         SupporterEntry entry = new SupporterEntry();
-        if(mapDB.putIfAbsent(uuid, entry) != null)
+        if(mapDB.putIfAbsent(playerID, entry) != null)
         {
-            throw new IllegalArgumentException("ID or value is already contained within database");
+            BetterQuesting.logger.warn("Tried to add duplicate supporter to DB: " + playerID.toString());
+            return mapDB.get(playerID);
         }
         return entry;
     }
     
-    public synchronized boolean removeID(@Nonnull UUID uuid)
+    public synchronized boolean removeID(@Nonnull UUID playerID)
     {
-        return mapDB.remove(uuid) != null;
+        return mapDB.remove(playerID) != null;
     }
     
     @Nullable

@@ -32,7 +32,7 @@ public class SSItemHandler implements IItemHandlerModifiable
 		// Existing stack
 		ItemStack ts1 = getStackInSlot(slot);
 		
-		if(!stack.isItemEqual(ts1))
+		if(!ts1.isEmpty() && !stack.isItemEqual(ts1))
 		{
 			return stack;
 		}

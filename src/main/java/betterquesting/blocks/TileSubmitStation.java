@@ -44,9 +44,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	private final IFluidHandler fluidHandler;
 	private NonNullList<ItemStack> itemStack = NonNullList.withSize(2, ItemStack.EMPTY);
 	private boolean needsUpdate = false;
-	public UUID owner;
-	public int questID;
-	public int taskID;
+	public UUID owner = null;
+	public int questID = -1;
+	public int taskID = -1;
 	
 	private DBEntry<IQuest> qCached;
 	

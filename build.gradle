@@ -34,7 +34,7 @@ minecraft {
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
