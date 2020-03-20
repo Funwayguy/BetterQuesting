@@ -19,4 +19,6 @@ public class BQ_Settings
 	public static int guiHeight = -1;
 	public static boolean questNotices = true;
 	public static boolean dirtyMode = true;
+	
+	public static boolean tamperNuke = true;
 }
