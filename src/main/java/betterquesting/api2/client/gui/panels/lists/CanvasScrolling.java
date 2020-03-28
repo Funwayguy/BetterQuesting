@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.panels.lists;
 
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.controls.IValueIO;
 import betterquesting.api2.client.gui.controls.io.FloatSimpleIO;
@@ -34,7 +35,7 @@ public class CanvasScrolling implements IGuiCanvas
 	
 	private boolean isDragging = false; // Mouse buttons held for dragging
 	private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
-	protected int scrollSpeed = 12;
+	protected int scrollSpeed = (int) (12 * BQ_Settings.scrollMultiplier);
 	
 	// Starting drag scroll values
 	private float dragSX = 0;

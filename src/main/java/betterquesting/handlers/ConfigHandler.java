@@ -26,6 +26,8 @@ public class ConfigHandler
 		BQ_Settings.guiHeight = config.getInt("Max GUI Height", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI height (-1 to disable)");
 		
 		BQ_Settings.tamperNuke = config.getBoolean("Tamper Nuke", Configuration.CATEGORY_GENERAL, true, "Bans and erases the data of known hacking clients");
+
+		BQ_Settings.scrollMultiplier = config.getFloat("Scroll multiplier", Configuration.CATEGORY_GENERAL, 1F, 0F, 10F, "Scrolling multiplier");
 		config.save();
 	}
 }

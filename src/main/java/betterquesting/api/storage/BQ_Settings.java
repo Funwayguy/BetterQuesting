@@ -21,4 +21,6 @@ public class BQ_Settings
 	public static boolean dirtyMode = true;
 	
 	public static boolean tamperNuke = true;
+
+	public static float scrollMultiplier = 0.1F;
 }
