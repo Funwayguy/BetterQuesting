@@ -1,5 +1,6 @@
 package betterquesting.api2.client.gui.panels.bars;
 
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
@@ -19,7 +20,7 @@ public class PanelHScrollBar implements IScrollBar
 	private IGuiTexture[] texHandleState = new IGuiTexture[3];
 	
 	private float scroll = 0F;
-	private float speed = 0.1F;
+	private float speed = BQ_Settings.scrollMultiplier / 20;
 	private int hSize = 16;
 	private int inset = 0;
 	private boolean isDragging = false;
