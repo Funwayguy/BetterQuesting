@@ -34,7 +34,6 @@ import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.MathHelper;
 import org.lwjgl.util.vector.Vector4f;
 
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
@@ -43,13 +42,8 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
     private IQuest quest;
 
-    private PanelButton btnTaskLeft;
-    private PanelButton btnTaskRight;
-
     private PanelButton btnDetect;
     private PanelButton btnClaim;
-
-    private PanelTextBox titleTask;
 
     private CanvasEmpty cvInner;
 
@@ -58,8 +52,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
     private CanvasEmpty pnReward;
     private CanvasEmpty pnTask;
-
-    private int taskIndex = 0;
 
     public GuiQuest(GuiScreen parent, int questID)
     {
@@ -139,24 +131,12 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
         //if(quest.getTasks().size() > 0)
         {
-            btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(24, -16, 16, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
+            btnDetect = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 1F, 1F), new GuiPadding(8, -16, 0, 0), 0), 7, QuestTranslation.translate("betterquesting.btn.detect_submit"));
             btnDetect.setActive(false);
             cvInner.addPanel(btnDetect);
 
-            btnTaskLeft = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.5F, 1F), new GuiPadding(8, -16, -24, 0), 0), 4, "<");
-            btnTaskLeft.setActive(taskIndex > 0);
-            cvInner.addPanel(btnTaskLeft);
-
-            btnTaskRight = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, new GuiPadding(-16, -16, 0, 0), 0), 5, ">");
-            btnTaskRight.setActive(taskIndex < quest.getTasks().size() - 1);
-            cvInner.addPanel(btnTaskRight);
-
             rectTask = new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 16, 0, 16), 0);
             rectTask.setParent(cvInner.getTransform());
-
-            titleTask = new PanelTextBox(new GuiTransform(new Vector4f(0.5F, 0F, 1F, 0F), new GuiPadding(8, 0, 0, -16), 0), "?");
-            titleTask.setColor(PresetColor.TEXT_HEADER.getColor()).setAlignment(1);
-            cvInner.addPanel(titleTask);
 
             refreshTaskPanel();
         }
@@ -233,14 +213,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         {
             //mc.displayGuiScreen(new GuiQuestEditor(this, quest));
             mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiQuestEditor(this, questID));
-        } else if(btn.getButtonID() == 4) // Task previous
-        {
-            taskIndex = MathHelper.clamp_int(taskIndex - 1, 0, quest.getTasks().size() - 1);
-            refreshTaskPanel();
-        } else if(btn.getButtonID() == 5) // Task next
-        {
-            taskIndex = MathHelper.clamp_int(taskIndex + 1, 0, quest.getTasks().size() - 1);
-            refreshTaskPanel();
         } else if(btn.getButtonID() == 6) // Reward claim
         {
             NBTTagCompound tags = new NBTTagCompound();
@@ -304,31 +276,40 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvInner.removePanel(pnTask);
         }
 
-        if(taskIndex < 0 || taskIndex >= quest.getTasks().size())
-        {
-            titleTask.setText("?");
-            titleTask.setEnabled(false);
-            updateButtons();
-
-            return;
-        }
-
-        ITask tsk = quest.getTasks().getEntries()[taskIndex].getValue();
-        IGuiPanel taskGui = tsk.getTaskGui(rectTask, quest);
-
         pnTask = new CanvasEmpty(rectTask);
         cvInner.addPanel(pnTask);
 
         CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
         pnTask.addPanel(cvList);
-        cvList.addPanel(taskGui);
 
         PanelVScrollBar scList = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
         pnTask.addPanel(scList);
         cvList.setScrollDriverY(scList);
 
-        titleTask.setText(QuestTranslation.translate(tsk.getUnlocalisedName()));
-        titleTask.setEnabled(true);
+        int yOffset = 0;
+        DBEntry<ITask>[] entries = quest.getTasks().getEntries();
+        for (int i = 0; i < entries.length; i++) {
+            ITask tsk = entries[i].getValue();
+
+            String taskName = (i + 1) + ". " + QuestTranslation.translate(tsk.getUnlocalisedName());
+            PanelTextBox titleReward = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), taskName);
+            titleReward.setColor(PresetColor.TEXT_HEADER.getColor()).setAlignment(1);
+            titleReward.setEnabled(true);
+            cvList.addPanel(titleReward);
+            yOffset += 10;
+
+            IGuiPanel taskGui = tsk.getTaskGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectTask.getWidth(), rectTask.getHeight(), 0), quest);
+            taskGui.initPanel();
+            // Wrapping into canvas allow avoid empty space at end
+            CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectTask.getWidth(), taskGui.getTransform().getHeight() - taskGui.getTransform().getY(), 1));
+            cvList.addPanel(tempCanvas);
+            tempCanvas.addPanel(taskGui);
+            int guiHeight = tempCanvas.getTransform().getHeight();
+            yOffset += guiHeight;
+
+            //Indent from the previous
+            yOffset += 8;
+        }
 
         updateButtons();
     }
@@ -343,11 +324,8 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             btnClaim.setActive(quest.getRewards().size() > 0 && quest.canClaim(mc.thePlayer));
         }
 
-        if(btnTaskLeft != null && btnTaskRight != null && btnDetect != null)
+        if(btnDetect != null)
         {
-            btnTaskLeft.setActive(taskIndex > 0);
-            btnTaskRight.setActive(taskIndex < quest.getTasks().size() - 1);
-
             // Detect/submit button state
             btnDetect.setActive(quest.canSubmit(mc.thePlayer));
         }
