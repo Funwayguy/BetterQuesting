@@ -57,7 +57,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     private IGuiRect rectTask;
 
     private CanvasEmpty pnReward;
-    private IGuiPanel pnTask;
+    private CanvasEmpty pnTask;
 
     private int taskIndex = 0;
 
@@ -314,13 +314,18 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         }
 
         ITask tsk = quest.getTasks().getEntries()[taskIndex].getValue();
+        IGuiPanel taskGui = tsk.getTaskGui(rectTask, quest);
 
-        pnTask = tsk.getTaskGui(rectTask, quest);
+        pnTask = new CanvasEmpty(rectTask);
+        cvInner.addPanel(pnTask);
 
-        if(pnTask != null)
-        {
-            cvInner.addPanel(pnTask);
-        }
+        CanvasScrolling cvList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 8, 0), 0));
+        pnTask.addPanel(cvList);
+        cvList.addPanel(taskGui);
+
+        PanelVScrollBar scList = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 0, 0, 0), 0));
+        pnTask.addPanel(scList);
+        cvList.setScrollDriverY(scList);
 
         titleTask.setText(QuestTranslation.translate(tsk.getUnlocalisedName()));
         titleTask.setEnabled(true);
