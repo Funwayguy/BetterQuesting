@@ -9,6 +9,7 @@ import betterquesting.client.CreativeTabQuesting;
 import betterquesting.commands.BQ_CommandAdmin;
 import betterquesting.commands.BQ_CommandDebug;
 import betterquesting.commands.BQ_CommandUser;
+import betterquesting.commands.BQ_CopyProgress;
 import betterquesting.core.proxies.CommonProxy;
 import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
@@ -124,9 +125,10 @@ public class BetterQuesting
 		ICommandManager command = server.getCommandManager();
 		ServerCommandManager manager = (ServerCommandManager) command;
 		
+		manager.registerCommand(new BQ_CopyProgress());
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
-  
+
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) manager.registerCommand(new BQ_CommandDebug());
 		
 		SaveLoadHandler.INSTANCE.loadDatabases(server);
