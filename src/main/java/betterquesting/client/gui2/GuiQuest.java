@@ -261,9 +261,13 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvList.addPanel(titleReward);
             yOffset += 12;
 
-            IGuiPanel rewardGui = rew.getRewardGui(new GuiTransform(GuiAlign.FULL_BOX, 0, yOffset, rectReward.getWidth(), rectReward.getHeight(), 111), quest);
-            cvList.addPanel(rewardGui);
-            yOffset += rewardGui.getTransform().getHeight();
+            IGuiPanel rewardGui = rew.getRewardGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectReward.getWidth(), rectReward.getHeight(), 111), quest);
+            rewardGui.initPanel();
+            // Wrapping into canvas allow avoid empty space at end
+            CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectReward.getWidth(), rewardGui.getTransform().getHeight() - rewardGui.getTransform().getY(), 1));
+            cvList.addPanel(tempCanvas);
+            tempCanvas.addPanel(rewardGui);
+            yOffset += tempCanvas.getTransform().getHeight();
         }
 
         updateButtons();
