@@ -40,14 +40,14 @@ public class BQ_CopyProgress extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/bq_copyquests [username] <to>";
+        return "/bq_copyquests [toPlayer] <fromPlayer>";
     }
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if(sender instanceof EntityPlayer) {
-            if(args.length == 0) throw new CommandException("Not enough arguments");
-            UUID ownUUID = ((EntityPlayer) sender).getPersistentID();
+            if(args.length == 0 || args.length > 2) throw new CommandException("Wrong arguments");
+            UUID ownUUID = (args.length == 2 ? getPlayer(sender, args[1]) : ((EntityPlayer) sender)).getPersistentID();
             EntityPlayerMP addPlayer = getPlayer(sender, args[0]);
             UUID addUUID = addPlayer.getPersistentID();
             long current = System.currentTimeMillis();
