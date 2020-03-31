@@ -162,6 +162,17 @@ public class EventHandler
                         MinecraftForge.EVENT_BUS.post(new QuestComplete(quest.getID(), uuid));
                         
                         if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
+
+                        // Force detect (update) all party members quests
+						IParty party = PartyManager.INSTANCE.getUserParty(uuid);
+						if(party != null && MinecraftServer.getServer() != null)
+						{
+							for(UUID memID : party.getMembers()){
+								EntityPlayerMP memPlayer = MinecraftServer.getServer().getConfigurationManager().func_152612_a(NameCache.INSTANCE.getName(memID));
+								if (memPlayer != null)
+									quest.getValue().detect(memPlayer);
+							}
+						}
                     }
                 }
             }
