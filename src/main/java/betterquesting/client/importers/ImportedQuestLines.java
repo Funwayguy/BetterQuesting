@@ -1,6 +1,5 @@
 package betterquesting.client.importers;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.storage.DBEntry;
@@ -10,7 +9,10 @@ import betterquesting.questing.QuestLine;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
@@ -45,19 +47,20 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public DBEntry<IQuestLine>[] getSortedEntries()
+	public List<DBEntry<IQuestLine>> getSortedEntries()
 	{
-		DBEntry<IQuestLine>[] ary = getEntries();
-		Arrays.sort(ary, SORTER);
+		List<DBEntry<IQuestLine>> ary = new ArrayList<>(getEntries());
+		ary.sort(SORTER);
 		return ary;
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, List<Integer> subset)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
+		    if(subset != null && !subset.contains(entry.getID())) continue;
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), null);
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);
@@ -111,17 +114,6 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	}
 	
 	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		return null;
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-	}
-	
-	@Override
 	public void removeQuest(int questID)
 	{
 		for(DBEntry<IQuestLine> ql : getEntries())
@@ -134,7 +126,6 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	public IQuestLine createNew(int id)
 	{
 		QuestLine ql = new QuestLine();
-		ql.setParentDatabase(this);
 		add(id, ql);
 		return ql;
 	}

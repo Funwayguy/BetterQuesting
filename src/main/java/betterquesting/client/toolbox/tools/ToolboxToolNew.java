@@ -1,20 +1,19 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxTabMain;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetChapterEdit;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 import java.util.Collections;
 import java.util.List;
@@ -100,19 +99,25 @@ public class ToolboxToolNew implements IToolboxTool
 		}
 		
 		// Sync Quest
-		NBTTagCompound tag1 = new NBTTagCompound();
-		tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
-		tag1.setInteger("questID", qID);
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
-		
+		NBTTagCompound quPayload = new NBTTagCompound();
+        NBTTagList qdList = new NBTTagList();
+        NBTTagCompound qTag = new NBTTagCompound();
+        qTag.setInteger("questID", qID);
+        qdList.appendTag(qTag);
+        quPayload.setTag("data", qdList);
+        quPayload.setInteger("action", 3);
+        NetQuestEdit.sendEdit(quPayload);
+        
 		// Sync Line
-		NBTTagCompound tag2 = new NBTTagCompound();
-		NBTTagCompound base2 = new NBTTagCompound();
-		base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
-		tag2.setTag("data", base2);
-		tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-		tag2.setInteger("lineID", lID);
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+		NBTTagCompound chPayload = new NBTTagCompound();
+        NBTTagList cdList = new NBTTagList();
+        NBTTagCompound cTag = new NBTTagCompound();
+        cTag.setInteger("chapterID", lID);
+        cTag.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
+        cdList.appendTag(cTag);
+        chPayload.setTag("data", cdList);
+        chPayload.setInteger("action", 0);
+        NetChapterEdit.sendEdit(chPayload);
 		
 		return true;
 	}

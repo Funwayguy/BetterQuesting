@@ -8,7 +8,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     private final TreeMap<Integer, T> mapDB = new TreeMap<>();
     
     private final BitSet idMap = new BitSet();
-    private DBEntry<T>[] refCache = null; // TODO: Change out to an unmodifiable list
+    private List<DBEntry<T>> refCache = null;
     
     @Override
     public synchronized int nextID()
@@ -17,7 +17,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    public synchronized DBEntry<T> add(int id, T value)// throws NullPointerException, IllegalArgumentException // TODO: Enforce this
+    public synchronized DBEntry<T> add(int id, T value)
     {
         if(value == null)
         {
@@ -87,28 +87,48 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    @SuppressWarnings("unchecked")
     public synchronized void reset()
     {
         mapDB.clear();
         idMap.clear();
-        refCache = new DBEntry[0];
+        refCache = Collections.emptyList();
     }
     
     @Override
-    @SuppressWarnings("unchecked")
-    public synchronized DBEntry<T>[] getEntries() // TODO: Change out to an unmodifiable list
+    public synchronized List<DBEntry<T>> getEntries() // TODO: Change out to an unmodifiable list
     {
         if(refCache == null)
         {
-            refCache = new DBEntry[mapDB.size()];
-            int i = 0;
+            List<DBEntry<T>> temp = new ArrayList<>();
             for(Entry<Integer,T> entry : mapDB.entrySet())
             {
-                refCache[i++] = new DBEntry<>(entry.getKey(), entry.getValue());
+                temp.add(new DBEntry<>(entry.getKey(), entry.getValue()));
             }
+            refCache = Collections.unmodifiableList(temp);
         }
         
         return refCache;
+    }
+    
+    @Override
+    public synchronized List<DBEntry<T>> bulkLookup(int... keys)
+    {
+        if(keys.length <= 0) return Collections.emptyList();
+        
+        int[] sortedKeys = new int[keys.length];
+        System.arraycopy(keys, 0, sortedKeys, 0, keys.length);
+        Arrays.sort(sortedKeys);
+        
+        List<DBEntry<T>> subList = new ArrayList<>();
+        int n = 0;
+        
+        for(DBEntry<T> entry : getEntries())
+        {
+            while(n < sortedKeys.length && sortedKeys[n] < entry.getID()) n++;
+            if(n >= sortedKeys.length) break;
+            if(sortedKeys[n] == entry.getID()) subList.add(entry);
+        }
+        
+        return subList;
     }
 }

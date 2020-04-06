@@ -1,8 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
@@ -14,10 +12,10 @@ import betterquesting.api2.client.gui.resources.lines.BoxLine;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -175,14 +173,16 @@ public class ToolboxToolScale implements IToolboxTool
                 }
             }
             
-            // Sync Line
-            NBTTagCompound tag2 = new NBTTagCompound();
-            NBTTagCompound base2 = new NBTTagCompound();
-            base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
-            tag2.setTag("data", base2);
-            tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-            tag2.setInteger("lineID", lID);
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tag2));
+            // Send quest line edits
+            NBTTagCompound chPayload = new NBTTagCompound();
+            NBTTagList cdList = new NBTTagList();
+            NBTTagCompound tagEntry = new NBTTagCompound();
+            tagEntry.setInteger("chapterID", lID);
+            tagEntry.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
+            cdList.appendTag(tagEntry);
+            chPayload.setTag("data", cdList);
+            chPayload.setInteger("action", 0);
+            NetChapterEdit.sendEdit(chPayload);
             
             grabList.clear();
             return true;

@@ -1,8 +1,7 @@
 package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -25,9 +24,9 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
 import net.minecraft.client.gui.GuiPlayerInfo;
@@ -41,6 +40,7 @@ import java.util.UUID;
 public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
 {
     private IParty party;
+    private int partyID;
     private PanelTextField<String> flName;
     
     public GuiPartyInvite(GuiScreen parent)
@@ -55,13 +55,16 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         super.initPanel();
         
         UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
-        this.party = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
         if(party == null)
         {
             mc.displayGuiScreen(parent);
             return;
         }
+        
+        party = tmp.getValue();
+        partyID = tmp.getID();
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
@@ -72,7 +75,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
     
         cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
     
-        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_invite", party.getName())).setAlignment(1);
+        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_invite", party.getProperties().getProperty(NativeProps.NAME))).setAlignment(1);
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
         
@@ -145,19 +148,20 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
         {
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-			tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-			tags.setString("target", flName.getRawText());
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+			NBTTagCompound payload = new NBTTagCompound();
+			payload.setInteger("action", 3);
+			payload.setInteger("partyID", partyID);
+			payload.setString("username", flName.getRawText());
+			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
+            NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.INVITE.ordinal());
-            tags.setInteger("partyID", PartyManager.INSTANCE.getID(party));
-            tags.setString("target", ((PanelButtonStorage<String>)btn).getStoredValue());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
-            btn.setActive(false);
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 3);
+            payload.setInteger("partyID", partyID);
+            payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
+			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
+            NetPartyAction.sendAction(payload);
         }
     }
 }

@@ -1,6 +1,7 @@
 package betterquesting.handlers;
 
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.DatabaseEvent.DBType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.JsonHelper;
@@ -193,14 +194,14 @@ public class SaveLoadHandler
 	    JsonObject j5 = JsonHelper.ReadFromFile(fileLives);
 	    
 		NBTTagCompound nbt5 = NBTConverter.JSONtoNBT_Object(j5, new NBTTagCompound(), true);
-	    LifeDatabase.INSTANCE.readProgressFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
+	    LifeDatabase.INSTANCE.readFromNBT(nbt5.getCompoundTag("lifeDatabase"), false);
 	    
 	    BetterQuesting.logger.info("Loaded " + QuestDatabase.INSTANCE.size() + " quests");
 	    BetterQuesting.logger.info("Loaded " + QuestLineDatabase.INSTANCE.size() + " quest lines");
 	    BetterQuesting.logger.info("Loaded " + PartyManager.INSTANCE.size() + " parties");
 	    BetterQuesting.logger.info("Loaded " + NameCache.INSTANCE.size() + " names");
 	    
-	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load());
+	    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Load(DBType.ALL));
     }
     
     public void saveDatabases()
@@ -249,11 +250,11 @@ public class SaveLoadHandler
         
         NBTTagCompound jsonL = new NBTTagCompound();
         
-        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeProgressToNBT(new NBTTagCompound(), null));
+        jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), null));
         
         JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
         
-        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save());
+        MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save(DBType.ALL));
         
         isDirty = false;
     }

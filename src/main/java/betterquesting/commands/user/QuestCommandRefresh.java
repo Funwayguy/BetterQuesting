@@ -1,12 +1,13 @@
 package betterquesting.commands.user;
 
+import betterquesting.api.api.QuestingAPI;
+import betterquesting.api.questing.party.IParty;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.commands.QuestCommandBase;
-import betterquesting.network.PacketSender;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.questing.QuestLineDatabase;
-import betterquesting.storage.LifeDatabase;
+import betterquesting.network.handlers.NetBulkSync;
+import betterquesting.network.handlers.NetNameSync;
+import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
-import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -24,15 +25,18 @@ public class QuestCommandRefresh extends QuestCommandBase
 	@Override
 	public void runCommand(MinecraftServer server, CommandBase command, ICommandSender sender, String[] args)
 	{
-		if(sender instanceof EntityPlayerMP)
+	    if(!(sender instanceof EntityPlayerMP)) return;
+        EntityPlayerMP player = (EntityPlayerMP)sender;
+	    
+		if(server.isDedicatedServer() || !server.getServerOwner().equals(player.getGameProfile().getName()))
 		{
-			EntityPlayerMP player = (EntityPlayerMP)sender;
-			PacketSender.INSTANCE.sendToPlayer(QuestDatabase.INSTANCE.getSyncPacket(), player);
-			PacketSender.INSTANCE.sendToPlayer(QuestLineDatabase.INSTANCE.getSyncPacket(), player);
-			PacketSender.INSTANCE.sendToPlayer(LifeDatabase.INSTANCE.getSyncPacket(), player);
-			PacketSender.INSTANCE.sendToPlayer(NameCache.INSTANCE.getSyncPacket(), player);
-			PacketSender.INSTANCE.sendToPlayer(QuestSettings.INSTANCE.getSyncPacket(), player);
+            NetBulkSync.sendReset(player, true, true);
 			sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.refresh"));
-		}
+		} else
+        {
+            boolean nameChanged = NameCache.INSTANCE.updateName(player);
+            DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(player));
+            if(nameChanged && party != null) NetNameSync.quickSync(null, party.getID());
+        }
 	}
 }

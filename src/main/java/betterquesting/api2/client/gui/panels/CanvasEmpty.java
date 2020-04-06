@@ -3,6 +3,7 @@ package betterquesting.api2.client.gui.panels;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -23,6 +24,13 @@ public class CanvasEmpty implements IGuiCanvas
 	{
 		return transform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
 	
 	@Override
 	public void initPanel()

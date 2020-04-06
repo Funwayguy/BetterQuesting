@@ -4,11 +4,10 @@ import net.minecraft.nbt.NBTBase;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.UUID;
 
 // Used when the base data set can safely be split by user. Can be used in place of INBTSaveLoad
-public interface INBTPartial<T extends NBTBase>
+public interface INBTPartial<T extends NBTBase, K>
 {
-    T writeToNBT(T nbt, @Nullable List<UUID> users);
+    T writeToNBT(T nbt, @Nullable List<K> subset);
     void readFromNBT(T nbt, boolean merge);
 }

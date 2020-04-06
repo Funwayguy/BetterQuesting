@@ -1,54 +1,93 @@
 package betterquesting.api2.client.gui;
 
-import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.popups.PopChoice;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCallback
+public class GuiScreenCanvas extends GuiScreen implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
 	private boolean enabled = true;
+	private boolean useMargins = true;
+	private boolean useDefaultBG = false;
+	private boolean isVolatile = false;
 	
 	public final GuiScreen parent;
-	private boolean useDefaultBQ = false;
+	
+	private IGuiPanel popup = null;
+	//private IGuiPanel focused = null;
 	
 	public GuiScreenCanvas(GuiScreen parent)
 	{
 		this.parent = parent;
 	}
-	
-	@Override
+    
+    @Override
+    public void openPopup(@Nonnull IGuiPanel panel)
+    {
+        panel.getTransform().setParent(rootTransform);
+        popup = panel;
+        panel.initPanel();
+        //forceFocus(panel);
+    }
+    
+    @Override
+    public void closePopup()
+    {
+        popup = null;
+        //resetFocus();
+    }
+    
+    @Override
 	public IGuiRect getTransform()
 	{
-		return transform;
+		return this.transform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
+    
+	public GuiScreenCanvas useMargins(boolean enable)
+    {
+        this.useMargins = enable;
+        return this;
+    }
 	
 	public GuiScreenCanvas useDefaultBG(boolean enable)
     {
-        this.useDefaultBQ = enable;
+        this.useDefaultBG = enable;
+        return this;
+    }
+    
+    public GuiScreenCanvas setVolatile(boolean state)
+    {
+        this.isVolatile = state;
         return this;
     }
 	
@@ -74,26 +113,27 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	@Override
 	public void initPanel()
 	{
-		int marginX = 16;
-		int marginY = 16;
-		
-		if(BQ_Settings.guiWidth > 0)
-		{
-			marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		}
-		
-		if(BQ_Settings.guiHeight > 0)
-		{
-			marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		}
-		
-		transform.x = marginX;
-		transform.y = marginY;
-		transform.w = this.width - marginX * 2;
-		transform.h = this.height - marginY * 2;
+	    rootTransform.w = this.width;
+	    rootTransform.h = this.height;
+	    transform.setParent(rootTransform);
+	    
+	    if(useMargins)
+        {
+            int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+            int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+            transform.getPadding().setPadding(marginX, marginY, marginX, marginY);
+		} else
+        {
+            transform.getPadding().setPadding(0, 0, 0, 0);
+        }
 		
 		this.guiPanels.clear();
         Arrays.fill(mBtnState, false); // Reset mouse states // TODO: See if I can just make this static across all GUIs
+        
+	    if(popup != null)
+        {
+            popup = null;
+        }
 	}
 	
 	@Override
@@ -116,6 +156,8 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	public final void drawScreen(int mx, int my, float partialTick)
 	{
 		super.drawScreen(mx, my, partialTick);
+		
+		if(useDefaultBG) this.drawDefaultBackground();
         
         GL11.glPushMatrix();
 		GL11.glColor4f(1F, 1F, 1F, 1F);
@@ -180,17 +222,13 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
     {
         if (keyCode == 1)
         {
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 			
 			return;
@@ -209,12 +247,23 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 				entry.drawPanel(mx, my, partialTick);
 			}
 		}
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.drawPanel(mx, my, partialTick);
+        }
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseClick(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -237,6 +286,12 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	{
 		boolean used = false;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseRelease(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -253,10 +308,16 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 		return used;
 	}
 	
-	//@Override
+	@Override
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseScroll(mx, my, scroll);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -279,6 +340,15 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	{
 		boolean used = false;
 		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onKeyTyped(c, keycode);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -294,17 +364,13 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 		
 		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
 		{
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 		}
 		
@@ -317,21 +383,19 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		List<String> tt;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            tt = popup.getTooltip(mx, my);
+            if(tt != null) return tt;
+        }
+		
 		while(pnIter.hasPrevious())
 		{
 			IGuiPanel entry = pnIter.previous();
-			
-			if(!entry.isEnabled())
-			{
-				continue;
-			}
+			if(!entry.isEnabled()) continue;
 			
 			tt = entry.getTooltip(mx, my);
-			
-			if(tt != null)
-			{
-				return tt;
-			}
+			if(tt != null) return tt;
 		}
 		
 		return null;
@@ -389,7 +453,7 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
             }
             else
             {
-                list.set(i, EnumChatFormatting.GRAY + list.get(i));
+                list.set(i, ChatFormatting.GRAY + list.get(i));
             }
         }
         
@@ -398,21 +462,17 @@ public class GuiScreenCanvas extends GuiScreen implements IGuiCanvas, GuiYesNoCa
 	
 	@Override
     @SuppressWarnings("unchecked")
-    protected void drawHoveringText(List textLines, int x, int y, FontRenderer font)
+    protected void drawHoveringText(List textLines, int x, int y, @Nonnull FontRenderer font)
     {
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
-	@Override
-    public void confirmClicked(boolean confirmed, int id)
-	{
-		if(confirmed && id == 0)
-		{
+	public void confirmClose(int id)
+    {
+        if(id == 0)
+        {
             this.mc.displayGuiScreen(null);
-            this.mc.setIngameFocus();
-		} else
-		{
-			this.mc.displayGuiScreen(this);
-		}
-	}
+            if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+        }
+    }
 }

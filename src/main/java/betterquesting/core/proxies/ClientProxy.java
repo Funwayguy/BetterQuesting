@@ -1,6 +1,7 @@
 package betterquesting.core.proxies;
 
 import betterquesting.api.placeholders.EntityPlaceholder;
+import betterquesting.api2.client.gui.SceneController;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.QuestNotification;
@@ -45,6 +46,7 @@ public class ClientProxy extends CommonProxy
 		}*/
 		
 		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
+		MinecraftForge.EVENT_BUS.register(SceneController.class);
 		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		

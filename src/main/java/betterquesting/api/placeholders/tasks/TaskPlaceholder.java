@@ -4,11 +4,13 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.utils.ParticipantInfo;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +77,7 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-	public void detect(EntityPlayer player, IQuest quest)
+	public void detect(ParticipantInfo participant, DBEntry<IQuest> quest)
 	{
 	}
 	
@@ -91,23 +93,18 @@ public class TaskPlaceholder implements ITask
 	}
 	
 	@Override
-	public void resetUser(UUID uuid)
+	public void resetUser(@Nullable UUID uuid)
 	{
 	}
 	
 	@Override
-	public void resetAll()
-	{
-	}
-	
-	@Override
-	public IGuiPanel getTaskGui(IGuiRect rect, IQuest quest)
+	public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest)
 	{
 		return null;
 	}
 	
 	@Override
-	public GuiScreen getTaskEditor(GuiScreen parent, IQuest quest)
+	public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest)
 	{
 		return null;
 	}

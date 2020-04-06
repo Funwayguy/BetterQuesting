@@ -22,6 +22,10 @@ public enum PresetIcon
 	ICON_RIGHT("icon_right"),
 	ICON_UP("icon_up"),
 	ICON_DOWN("icon_down"),
+    ICON_INFO("icon_info"),
+    ICON_DESC("icon_desc"),
+    ICON_IMAGE("icon_image"),
+    ICON_BOOKS("icon_books"),
 	
     // === TOOLS ===
 	ICON_PROPS("icon_props"),
@@ -54,8 +58,8 @@ public enum PresetIcon
     ICON_AV_STOP("icon_av_stop"),
     ICON_AV_BACK("icon_av_back"),
     ICON_AV_SKIP("icon_av_skip"),
-    // Fast Foward
-    // Rewind
+    ICON_AV_FF("icon_av_fastforward"),
+    ICON_AV_REWIND("icon_av_rewind"),
     ICON_AV_SOUND("icon_av_sound"),
     ICON_AV_VOL_UP("icon_av_vol_up"),
     ICON_AV_VOL_DOWN("icon_av_vol_down"),
@@ -69,12 +73,16 @@ public enum PresetIcon
     ICON_PG_NEXT("icon_pg_next"),
     ICON_PG_PREV("icon_pg_prev"),
     ICON_UPLOAD("icon_upload"),
+    ICON_SAVE("icon_save"),
 	
 	// === PARTY ===
     
     // === VALUES ===
     
     // === OPTIONS ===
+    
+    ICON_LOCKED("icon_locked"),
+    ICON_UNLOCKED("icon_unlocked"),
     
     // == MISC ===
     
@@ -85,7 +93,11 @@ public enum PresetIcon
     
     ICON_CHEST("icon_chest"),
     ICON_CHEST_ALL("icon_chest_all"),
-    ICON_BOOKMARK("icon_bookmark");
+    ICON_BOOKMARK("icon_bookmark"),
+    ICON_MENU("icon_menu"),
+	
+	ICON_PATREON("icon_patreon"),
+    ICON_TWITCH("icon_twitch");
 	
 	public static final ResourceLocation TX_ICONS = new ResourceLocation(BetterQuesting.MODID, "textures/gui/editor_icons.png");
 	
@@ -141,6 +153,10 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_PARTY.key, new SimpleTexture(TX_ICONS, new GuiRectangle(192, 0, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_THEME.key, new SimpleTexture(TX_ICONS, new GuiRectangle(208, 0, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_HOME.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 0, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_INFO.key, new SimpleTexture(TX_ICONS, new GuiRectangle(64, 80, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_DESC.key, new SimpleTexture(TX_ICONS, new GuiRectangle(208, 64, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_BOOKS.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 64, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_IMAGE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(240, 64, 16, 16)).maintainAspect(true));
 		
 		// === AUDIO ===
 		reg.setDefaultTexture(ICON_AV_PLAY.key, new SimpleTexture(TX_ICONS, new GuiRectangle(0, 32, 16, 16)).maintainAspect(true));
@@ -148,6 +164,8 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_AV_STOP.key, new SimpleTexture(TX_ICONS, new GuiRectangle(16, 32, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_AV_BACK.key, new SimpleTexture(TX_ICONS, new GuiRectangle(48, 32, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_AV_SKIP.key, new SimpleTexture(TX_ICONS, new GuiRectangle(64, 32, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_AV_FF.key, new SimpleTexture(TX_ICONS, new GuiRectangle(32, 80, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_AV_REWIND.key, new SimpleTexture(TX_ICONS, new GuiRectangle(48, 80, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_AV_VOL_UP.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 32, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_AV_VOL_DOWN.key, new SimpleTexture(TX_ICONS, new GuiRectangle(96, 32, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_AV_VOL_MUTE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(112, 32, 16, 16)).maintainAspect(true));
@@ -160,6 +178,11 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_DIR_UP.key, new SimpleTexture(TX_ICONS, new GuiRectangle(48, 64, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_PG_PREV.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 48, 16, 16)).maintainAspect(true));
 		reg.setDefaultTexture(ICON_PG_NEXT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(240, 48, 16, 16)).maintainAspect(true));
+		reg.setDefaultTexture(ICON_SAVE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(0, 80, 16, 16)).maintainAspect(true));
+		
+		// === OPTIONS ===
+        reg.setDefaultTexture(ICON_LOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 48, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_UNLOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(96, 48, 16, 16)).maintainAspect(true));
 		
 		// === MISC ===
         reg.setDefaultTexture(ICON_BOX_FIT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 64, 16, 16)).maintainAspect(true));
@@ -169,5 +192,9 @@ public enum PresetIcon
         reg.setDefaultTexture(ICON_CHEST_ALL.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 64, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_CHEST.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 64, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_BOOKMARK.key, new SimpleTexture(TX_ICONS, new GuiRectangle(176, 64, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_MENU.key, new SimpleTexture(TX_ICONS, new GuiRectangle(192, 64, 16, 16)).maintainAspect(true));
+        
+        reg.setDefaultTexture(ICON_PATREON.key, new SimpleTexture(TX_ICONS, new GuiRectangle(144, 80, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_TWITCH.key, new SimpleTexture(TX_ICONS, new GuiRectangle(160, 80, 16, 16)).maintainAspect(true));
 	}
 }

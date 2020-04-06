@@ -16,8 +16,8 @@ public class PanelGeneric implements IGuiPanel
     private final IGuiRect transform;
     private boolean enabled = true;
     
-    private final IGuiTexture texture;
-    private final IGuiColor color;
+    private IGuiTexture texture;
+    private IGuiColor color;
     
     private List<String> tooltip = null;
     
@@ -36,6 +36,12 @@ public class PanelGeneric implements IGuiPanel
     public void setTooltip(List<String> tooltip)
     {
         this.tooltip = tooltip;
+    }
+    
+    public void setTexture(IGuiTexture texture, IGuiColor color)
+    {
+        this.texture = texture;
+        this.color = color;
     }
     
     @Override

@@ -1,63 +1,68 @@
 package betterquesting.network.handlers;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.network.IPacketHandler;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.IQuestLine;
-import betterquesting.api.questing.IQuestLineDatabase;
-import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.questing.*;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.api2.utils.Tuple2;
 import betterquesting.client.importers.ImportedQuestLines;
 import betterquesting.client.importers.ImportedQuests;
 import betterquesting.core.BetterQuesting;
+import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class PktHandlerImport implements IPacketHandler
+public class NetImport
 {
-	@Override
-	public ResourceLocation getRegistryName()
+    private static final ResourceLocation ID_NAME = new ResourceLocation("betterquesting:import");
+    
+    public static void registerHandler()
+    {
+        PacketTypeRegistry.INSTANCE.registerServerHandler(ID_NAME, NetImport::onServer);
+    }
+    
+    public static void sendImport(@Nonnull IQuestDatabase questDB, @Nonnull IQuestLineDatabase chapterDB)
+    {
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setTag("quests", questDB.writeToNBT(new NBTTagList(), null));
+        payload.setTag("chapters", chapterDB.writeToNBT(new NBTTagList(), null));
+        PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
+    }
+    
+	private static void onServer(Tuple2<NBTTagCompound, EntityPlayerMP> message)
 	{
-		return PacketTypeNative.IMPORT.GetLocation();
-	}
-	
-	@Override
-	public void handleServer(NBTTagCompound tag, EntityPlayerMP sender)
-	{
-		if(sender == null || sender.mcServer == null)
-		{
-			return;
-		}
+	    EntityPlayerMP sender = message.getSecond();
+		if(sender.mcServer == null) return;
 		
 		boolean isOP = sender.mcServer.getConfigurationManager().func_152596_g(sender.getGameProfile());
 		
 		if(!isOP)
 		{
 			BetterQuesting.logger.log(Level.WARN, "Player " + sender.getCommandSenderName() + " (UUID:" + QuestingAPI.getQuestingUUID(sender) + ") tried to import quests without OP permissions!");
-			sender.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.RED + "You need to be OP to edit quests!"));
+			sender.addChatComponentMessage(new ChatComponentText(ChatFormatting.RED + "You need to be OP to edit quests!"));
 			return; // Player is not operator. Do nothing
 		}
-		
-		NBTTagCompound jsonBase = tag.getCompoundTag("data");
 		
 		ImportedQuests impQuestDB = new ImportedQuests();
 		IQuestLineDatabase impQuestLineDB = new ImportedQuestLines();
 		
-		impQuestDB.readFromNBT(jsonBase.getTagList("quests", 10), false);
-		impQuestLineDB.readFromNBT(jsonBase.getTagList("lines", 10), false);
+		impQuestDB.readFromNBT(message.getFirst().getTagList("quests", 10), false);
+		impQuestLineDB.readFromNBT(message.getFirst().getTagList("chapters", 10), false);
 		
 		BetterQuesting.logger.log(Level.INFO, "Importing " + impQuestDB.size() + " quest(s) and " + impQuestLineDB.size() + " quest line(s) from " + sender.getGameProfile().getName());
 		
@@ -103,40 +108,36 @@ public class PktHandlerImport implements IPacketHandler
 			
 			QuestLineDatabase.INSTANCE.add(QuestLineDatabase.INSTANCE.nextID(), questLine.getValue());
 		}
-		
-		PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-		PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
-	}
-	
-	@Override
-	public void handleClient(NBTTagCompound tag)
-	{
+        
+        SaveLoadHandler.INSTANCE.markDirty();
+        NetQuestSync.quickSync(-1, true, true);
+        NetChapterSync.sendSync(null, null);
 	}
 	
 	/**
 	 * Takes a list of imported IDs and returns a remapping to unused IDs
 	 */
-	private HashMap<Integer,Integer> getRemappedIDs(DBEntry<IQuest>[] idList)
+	private static HashMap<Integer,Integer> getRemappedIDs(List<DBEntry<IQuest>> idList)
 	{
-	    int[] nextIDs = getNextIDs(idList.length);
+	    int[] nextIDs = getNextIDs(idList.size());
 		HashMap<Integer,Integer> remapped = new HashMap<>();
 	    
 	    for(int i = 0; i < nextIDs.length; i++)
         {
-            remapped.put(idList[i].getID(), nextIDs[i]);
+            remapped.put(idList.get(i).getID(), nextIDs[i]);
         }
 		
 		return remapped;
 	}
 	
-	private int[] getNextIDs(int num)
+	private static int[] getNextIDs(int num)
     {
-        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        List<DBEntry<IQuest>> listDB = QuestDatabase.INSTANCE.getEntries();
         int[] nxtIDs = new int[num];
         
-        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        if(listDB.size() <= 0 || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1)
         {
-            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.size() + i;
             return nxtIDs;
         }
         
@@ -144,7 +145,7 @@ public class PktHandlerImport implements IPacketHandler
         int n2 = 0;
         for(int i = 0; i < num; i++)
         {
-            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            while(n2 < listDB.size() && listDB.get(n2).getID() == n1)
             {
                 n1++;
                 n2++;

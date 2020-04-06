@@ -11,6 +11,7 @@ import betterquesting.api2.client.gui.panels.IGuiPanel;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -165,6 +166,13 @@ public class CanvasScrolling implements IGuiCanvas
 	{
 		return transform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
 	
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)

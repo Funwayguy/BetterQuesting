@@ -1,8 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
@@ -10,9 +8,9 @@ import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestEdit;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,6 +113,8 @@ public class ToolboxToolLink implements IToolboxTool
 			{
 				IQuest q2 = b2.getStoredValue().getValue();
 				boolean mod2 = false;
+                
+                NBTTagList dataList = new NBTTagList();
     
 				for(PanelButtonQuest b1 : linking)
                 {
@@ -124,7 +124,7 @@ public class ToolboxToolLink implements IToolboxTool
                     // Don't have to worry about the lines anymore. The panel is getting refereshed anyway
                     if(!containsReq(q2, b1.getStoredValue().getID()) && !containsReq(q1, b2.getStoredValue().getID()))
                     {
-                        mod2 = addReq(q2, b1.getStoredValue().getID());
+                        mod2 = addReq(q2, b1.getStoredValue().getID()) || mod2;
                     } else
                     {
                         mod2 = removeReq(q2, b1.getStoredValue().getID()) || mod2;
@@ -133,31 +133,25 @@ public class ToolboxToolLink implements IToolboxTool
                     
                     if(mod1)
                     {
-                        // Sync Quest 1
-                        NBTTagCompound tag1 = new NBTTagCompound();
-                        NBTTagCompound base1 = new NBTTagCompound();
-                        base1.setTag("config", q1.writeToNBT(new NBTTagCompound()));
-                        base1.setTag("progress", q1.writeProgressToNBT(new NBTTagCompound(), null));
-                        tag1.setTag("data", base1);
-                        tag1.setInteger("action", EnumPacketAction.EDIT.ordinal());
-                        tag1.setInteger("questID", b1.getStoredValue().getID());
-                        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag1));
+                        NBTTagCompound entry = new NBTTagCompound();
+                        entry.setInteger("questID", b1.getStoredValue().getID());
+                        entry.setTag("config", b1.getStoredValue().getValue().writeToNBT(new NBTTagCompound()));
+                        dataList.appendTag(entry);
                     }
                 }
 				
                 if(mod2)
                 {
-                    // Sync Quest 2
-                    NBTTagCompound tag2 = new NBTTagCompound();
-                    NBTTagCompound base2 = new NBTTagCompound();
-                    base2.setTag("config", q2.writeToNBT(new NBTTagCompound()));
-                    base2.setTag("progress", q2.writeProgressToNBT(new NBTTagCompound(), null));
-                    tag2.setTag("data", base2);
-                    tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-                    tag2.setInteger("questID", b2.getStoredValue().getID());
-                    
-                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag2));
+                    NBTTagCompound entry = new NBTTagCompound();
+                    entry.setInteger("questID", b2.getStoredValue().getID());
+                    entry.setTag("config", q2.writeToNBT(new NBTTagCompound()));
+                    dataList.appendTag(entry);
                 }
+                
+                NBTTagCompound payload = new NBTTagCompound();
+                payload.setTag("data", dataList);
+                payload.setInteger("action", 0);
+                NetQuestEdit.sendEdit(payload);
 				
 				linking.clear();
                 return true;

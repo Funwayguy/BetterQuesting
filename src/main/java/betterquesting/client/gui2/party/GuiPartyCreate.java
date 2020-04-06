@@ -2,8 +2,7 @@ package betterquesting.client.gui2.party;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
+import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.RenderUtils;
@@ -13,6 +12,7 @@ import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
 import betterquesting.api2.client.gui.controls.PanelTextField;
 import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
+import betterquesting.api2.client.gui.controls.io.ValueFuncIO;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -20,20 +20,25 @@ import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
+import betterquesting.api2.client.gui.panels.bars.PanelHBarFill;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelPlayerPortrait;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.GuiColorTransition;
 import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetPartyAction;
+import betterquesting.questing.party.PartyInvitations;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import net.minecraft.client.gui.GuiScreen;
@@ -41,6 +46,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
@@ -58,7 +64,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
     @Override
     public void refreshGui()
     {
-        IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> curParty = PartyManager.INSTANCE.getParty(playerID);
         
         if(curParty != null)
         {
@@ -76,7 +82,7 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         
         playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
         
-        IParty curParty = PartyManager.INSTANCE.getUserParty(playerID);
+        DBEntry<IParty> curParty = PartyManager.INSTANCE.getParty(playerID);
         
         if(curParty != null)
         {
@@ -160,47 +166,51 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // Create
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.ADD.ordinal());
-            tags.setString("name", flName.getRawText());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 0);
+            payload.setString("name", flName.getRawText());
+            NetPartyAction.sendAction(payload);
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Join
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.JOIN.ordinal());
-            tags.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.PARTY_EDIT.GetLocation(), tags));
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 4);
+            payload.setInteger("partyID", ((PanelButtonStorage<Integer>)btn).getStoredValue());
+            NetPartyAction.sendAction(payload);
         }
     }
     
     private void refreshInvites()
     {
+        invitePanel.resetCanvas();
         int cvWidth = invitePanel.getTransform().getWidth();
-        List<Integer> invites = PartyManager.INSTANCE.getPartyInvites(playerID);
+        List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
         int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
         
         for(int i = 0; i < invites.size(); i++)
         {
-            Integer pid = invites.get(i);
+            int pid = invites.get(i).getKey();
+            if(pid < 0) continue;
+            long exp = invites.get(i).getValue();
             IParty party = PartyManager.INSTANCE.getValue(pid);
             
-            if(party == null)
-            {
-                continue;
-            }
-    
-            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 16, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
+            PanelButtonStorage<Integer> btnJoin = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 50, i * 24, 50, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_join"), pid);
             invitePanel.addPanel(btnJoin);
             
-            String pName = party.getName();
+            String pName = party == null ? "Unknown (" + pid + ")" : party.getProperties().getProperty(NativeProps.NAME);
             if(RenderUtils.getStringWidth(pName, mc.fontRenderer) > cvWidth - 58)
             {
                 pName = mc.fontRenderer.trimStringToWidth(pName, cvWidth - 58 - elSize) + "...";
             }
             
-            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 16 + 4, cvWidth - 58, 12, 0), pName);
+            PanelTextBox txPartyName = new PanelTextBox(new GuiRectangle(0, i * 24 + 4, cvWidth - 58, 12, 0), pName);
             txPartyName.setColor(PresetColor.TEXT_MAIN.getColor());
             invitePanel.addPanel(txPartyName);
+    
+            PanelHBarFill flExpiry = new PanelHBarFill(new GuiRectangle(0, i * 24 + 16, cvWidth, 8));
+            ValueFuncIO<Float> expFunc = new ValueFuncIO<>(() -> (float)((exp - System.currentTimeMillis()) / 300000D));
+            flExpiry.setFillDriver(expFunc);
+            flExpiry.setFillColor(new GuiColorTransition(new GuiColorStatic(0xFF00FF00), new GuiColorPulse(0xFFFF0000, 0xFFC00000, 1F, 0F)).setupBlending(false, 0.2F).setBlendDriver(expFunc));
+            invitePanel.addPanel(flExpiry);
         }
         
         inviteScroll.setActive(invitePanel.getScrollBounds().getHeight() > 0);
