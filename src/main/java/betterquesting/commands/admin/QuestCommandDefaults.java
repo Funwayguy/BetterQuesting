@@ -9,7 +9,9 @@ import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.legacy.ILegacyLoader;
 import betterquesting.legacy.LegacyLoaderRegistry;
-import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.NetChapterSync;
+import betterquesting.network.handlers.NetQuestSync;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.storage.QuestSettings;
@@ -128,9 +130,9 @@ public class QuestCommandDefaults extends QuestCommandBase
 					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.default.load"));
 				}
 				
-				PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestDatabase.INSTANCE.getSyncPacket());
-				PacketSender.INSTANCE.sendToAll(QuestLineDatabase.INSTANCE.getSyncPacket());
+                NetSettingSync.sendSync(null);
+                NetQuestSync.quickSync(-1, true, true);
+                NetChapterSync.sendSync(null, null);
                 SaveLoadHandler.INSTANCE.markDirty();
 			} else
 			{

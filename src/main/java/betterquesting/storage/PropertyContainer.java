@@ -2,6 +2,7 @@ package betterquesting.storage;
 
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
+import betterquesting.api2.storage.INBTSaveLoad;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class PropertyContainer implements IPropertyContainer
+public class PropertyContainer implements IPropertyContainer, INBTSaveLoad<NBTTagCompound>
 {
 	private final NBTTagCompound nbtInfo = new NBTTagCompound();
 	

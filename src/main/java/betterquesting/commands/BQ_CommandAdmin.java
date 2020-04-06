@@ -23,6 +23,7 @@ public class BQ_CommandAdmin extends CommandBase
 		coms.add(new QuestCommandDelete());
 		coms.add(new QuestCommandDefaults());
 		coms.add(new QuestCommandLives());
+		coms.add(new QuestCommandPurge());
 	}
 	
 	@Override

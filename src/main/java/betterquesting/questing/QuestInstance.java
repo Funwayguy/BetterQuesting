@@ -2,34 +2,25 @@ package betterquesting.questing;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumLogic;
-import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
-import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.rewards.IReward;
-import betterquesting.api.questing.tasks.IProgression;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.NBTConverter;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
-import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketTypeNative;
-import betterquesting.questing.party.PartyManager;
 import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.NBTBase;
@@ -37,12 +28,10 @@ import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumChatFormatting;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -78,6 +67,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.LOGIC_TASK, EnumLogic.AND);
 		
 		setupValue(NativeProps.REPEAT_TIME, -1);
+		setupValue(NativeProps.REPEAT_REL, true);
 		setupValue(NativeProps.LOCKED_PROGRESS, false);
 		setupValue(NativeProps.AUTO_CLAIM, false);
 		setupValue(NativeProps.SILENT, false);
@@ -145,12 +135,15 @@ public class QuestInstance implements IQuest
 		{
 			int done = 0;
 			boolean update = false;
+            
+            ParticipantInfo partInfo = new ParticipantInfo(player);
+            DBEntry<IQuest> dbe = new DBEntry<>(questID, this);
 			
 			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
 				if(!entry.getValue().isComplete(playerID))
 				{
-					entry.getValue().detect(player, this);
+					entry.getValue().detect(partInfo, dbe);
 					
 					if(entry.getValue().isComplete(playerID))
 					{
@@ -186,52 +179,39 @@ public class QuestInstance implements IQuest
   
 		synchronized(completeUsers)
         {
-            if(qInfo.getProperty(NativeProps.GLOBAL))
+            if(qInfo.getProperty(NativeProps.GLOBAL) && !qInfo.getProperty(NativeProps.GLOBAL_SHARE))
             {
-                if(GetParticipation(uuid) < qInfo.getProperty(NativeProps.PARTICIPATION))
+                for(NBTTagCompound entry : completeUsers.values())
                 {
-                    return true;
-                } else if(!qInfo.getProperty(NativeProps.GLOBAL_SHARE))
-                {
-                    for(NBTTagCompound entry : completeUsers.values())
+                    if(entry.getBoolean("claimed"))
                     {
-                        if(entry.getBoolean("claimed"))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
-            
-                    return false;
                 }
-            }
-    
-            NBTTagCompound entry = getCompletionInfo(uuid);
-    
-            if(entry == null)
-            {
+        
                 return false;
             }
     
-            return entry.getBoolean("claimed");
+            NBTTagCompound entry = getCompletionInfo(uuid);
+            return entry != null && entry.getBoolean("claimed");
         }
 	}
 	
 	@Override
 	public boolean canClaim(EntityPlayer player)
 	{
-		NBTTagCompound entry = getCompletionInfo(QuestingAPI.getQuestingUUID(player));
+	    UUID pID = QuestingAPI.getQuestingUUID(player);
+		NBTTagCompound entry = getCompletionInfo(pID);
 		
-		if(entry == null || hasClaimed(QuestingAPI.getQuestingUUID(player)))
-		{
-			return false;
-		} else if(canSubmit(player))
+		if(entry == null || hasClaimed(pID) || canSubmit(player))
 		{
 			return false;
 		} else
 		{
+		    DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
 			for(DBEntry<IReward> rew : rewards.getEntries())
 			{
-				if(!rew.getValue().canClaim(player, this))
+				if(!rew.getValue().canClaim(player, dbe))
 				{
 					return false;
 				}
@@ -244,52 +224,28 @@ public class QuestInstance implements IQuest
 	@Override
 	public void claimReward(EntityPlayer player)
 	{
+        int questID = QuestDatabase.INSTANCE.getID(this);
+        DBEntry<IQuest> dbe = new DBEntry<>(questID, this);
 		for(DBEntry<IReward> rew : rewards.getEntries())
 		{
-			rew.getValue().claimReward(player, this);
+			rew.getValue().claimReward(player, dbe);
 		}
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);
-		IParty party = PartyManager.INSTANCE.getUserParty(pID); // TODO: Remove party share support?
         QuestCache qc = (QuestCache)player.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
 		
         synchronized(completeUsers)
         {
-            if(party != null && this.qInfo.getProperty(NativeProps.PARTY_LOOT)) // One claim per-party
+            NBTTagCompound entry = getCompletionInfo(pID);
+
+            if(entry == null)
             {
-                for(UUID mem : party.getMembers())
-                {
-                    EnumPartyStatus pStat = party.getStatus(mem);
-    
-                    if(pStat == null || pStat == EnumPartyStatus.INVITE)
-                    {
-                        continue;
-                    }
-    
-                    NBTTagCompound entry = getCompletionInfo(mem);
-    
-                    if(entry == null)
-                    {
-                        entry = new NBTTagCompound();
-                        this.completeUsers.put(mem, entry);
-                    }
-    
-                    entry.setBoolean("claimed", true);
-                    entry.setLong("timestamp", FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0).getTotalWorldTime());
-                }
-            } else // One claim per-person
-            {
-                NBTTagCompound entry = getCompletionInfo(pID);
-    
-                if(entry == null)
-                {
-                    entry = new NBTTagCompound();
-                    this.completeUsers.put(pID, entry);
-                }
-    
-                entry.setBoolean("claimed", true);
-                entry.setLong("timestamp", FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(0).getTotalWorldTime());
+                entry = new NBTTagCompound();
+                this.completeUsers.put(pID, entry);
             }
+
+            entry.setBoolean("claimed", true);
+            entry.setLong("timestamp", System.currentTimeMillis());
         }
 		
 		if(qc != null) qc.markQuestDirty(QuestDatabase.INSTANCE.getID(this));
@@ -327,182 +283,6 @@ public class QuestInstance implements IQuest
                 return false;
             }
         }
-	}
-	
-	private float GetParticipation(UUID uuid)
-	{
-		if(tasks.size() <= 0)
-		{
-			return 0F;
-		}
-		
-		float total = 0F;
-		
-		for(DBEntry<ITask> t : tasks.getEntries())
-		{
-			if(t.getValue() instanceof IProgression)
-			{
-				total += ((IProgression)t.getValue()).getParticipation(uuid);
-			}
-		}
-		
-		return total / tasks.size();
-	}
-	
-	@Override
-    @Deprecated
-	@SideOnly(Side.CLIENT)
-	public List<String> getTooltip(EntityPlayer player)
-	{
-		List<String> tooltip = this.getStandardTooltip(player);
-		
-		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
-		{
-			tooltip.add("");
-			tooltip.addAll(this.getAdvancedTooltip(player));
-		}
-		
-		return tooltip;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private List<String> getStandardTooltip(EntityPlayer player)
-	{
-		List<String> list = new ArrayList<>();
-		
-		list.add(QuestTranslation.translate(qInfo.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + QuestDatabase.INSTANCE.getID(this))));
-		
-		UUID playerID = QuestingAPI.getQuestingUUID(player);
-		
-		if(isComplete(playerID))
-		{
-			list.add(EnumChatFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete"));
-			
-			if(!hasClaimed(playerID))
-			{
-				list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
-			} else if(qInfo.getProperty(NativeProps.REPEAT_TIME) > 0)
-			{
-				long time = getRepeatSeconds(player);
-				DecimalFormat df = new DecimalFormat("00");
-				String timeTxt = "";
-				
-				if(time >= 3600)
-				{
-					timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
-				} else if(time >= 60)
-				{
-					timeTxt += (time/60) + "m ";
-				}
-				
-				timeTxt += df.format(time%60) + "s";
-				
-				list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
-			}
-		} else if(!isUnlocked(playerID))
-		{
-			list.add(EnumChatFormatting.RED + "" + EnumChatFormatting.UNDERLINE + QuestTranslation.translate("betterquesting.tooltip.requires") + " (" + qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
-			
-			// TODO: Make this lookup unnecessary or better yet, deprecate the tooltip and make the GUIs in charge of assembling its own information.
-			for(DBEntry<IQuest> req : QuestDatabase.INSTANCE.bulkLookup(getRequirements()))
-			{
-				if(!req.getValue().isComplete(playerID))
-				{
-					list.add(EnumChatFormatting.RED + "- " + QuestTranslation.translate(req.getValue().getProperty(NativeProps.NAME)));
-				}
-			}
-		} else
-		{
-			int n = 0;
-			
-			for(DBEntry<ITask> task : tasks.getEntries())
-			{
-				if(task.getValue().isComplete(playerID))
-				{
-					n++;
-				}
-			}
-			
-			list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.tasks_complete", n, tasks.size()));
-		}
-		
-		return list;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private List<String> getAdvancedTooltip(EntityPlayer player)
-	{
-		List<String> list = new ArrayList<>();
-		
-		list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.main_quest", qInfo.getProperty(NativeProps.MAIN)));
-		list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", qInfo.getProperty(NativeProps.GLOBAL)));
-		if(qInfo.getProperty(NativeProps.GLOBAL))
-		{
-			list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share", qInfo.getProperty(NativeProps.GLOBAL_SHARE)));
-		}
-		list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.task_logic", qInfo.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
-		list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous", qInfo.getProperty(NativeProps.SIMULTANEOUS)));
-		list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", qInfo.getProperty(NativeProps.AUTO_CLAIM)));
-		if(qInfo.getProperty(NativeProps.REPEAT_TIME).intValue() >= 0)
-		{
-			long time = qInfo.getProperty(NativeProps.REPEAT_TIME)/20;
-			DecimalFormat df = new DecimalFormat("00");
-			String timeTxt = "";
-			
-			if(time >= 3600)
-			{
-				timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
-			} else if(time >= 60)
-			{
-				timeTxt += (time/60) + "m ";
-			}
-			
-			timeTxt += df.format(time%60) + "s";
-			
-			list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
-		} else
-		{
-			list.add(EnumChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", false));
-		}
-		
-		return list;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public long getRepeatSeconds(EntityPlayer player)
-	{
-		if(qInfo.getProperty(NativeProps.REPEAT_TIME) < 0) return -1;
-		
-		synchronized(completeUsers)
-        {
-            NBTTagCompound ue = getCompletionInfo(QuestingAPI.getQuestingUUID(player));
-            if(ue == null) return 0;
-            
-            // TODO: This isn't accurate outside of the overworld dimension. Adjust later
-            return (qInfo.getProperty(NativeProps.REPEAT_TIME) - (player.worldObj.getTotalWorldTime() - ue.getLong("timestamp"))) / 20L;
-        }
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", writeProgressToNBT(new NBTTagCompound(), null));
-		tags.setTag("data", base);
-		tags.setInteger("questID", QuestDatabase.INSTANCE.getID(this));
-		
-		return new QuestingPacket(PacketTypeNative.QUEST_SYNC.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		NBTTagCompound base = payload.getCompoundTag("data");
-		
-		readFromNBT(base.getCompoundTag("config"));
-		readProgressFromNBT(base.getCompoundTag("progress"), false);
 	}
 	
 	@Override
@@ -609,55 +389,39 @@ public class QuestInstance implements IQuest
 	 * Resets task progress and claim status. If performing a full reset, completion status will also be erased
 	 */
 	@Override
-	public void resetUser(UUID uuid, boolean fullReset)
+	public void resetUser(@Nullable UUID uuid, boolean fullReset)
 	{
 	    synchronized(completeUsers)
         {
             if(fullReset)
             {
-                completeUsers.remove(uuid);
-            } else
-            {
-                NBTTagCompound entry = getCompletionInfo(uuid);
-        
-                if(entry != null)
+                if(uuid == null)
                 {
-                    entry.setBoolean("claimed", false);
-                    entry.setLong("timestamp", 0);
+                    completeUsers.clear();
+                } else
+                {
+                    completeUsers.remove(uuid);
                 }
-            }
-            
-            for(DBEntry<ITask> t : tasks.getEntries())
-            {
-                t.getValue().resetUser(uuid);
-            }
-        }
-	}
-	
-	/**
-	 * Resets task progress and claim status for all users
-	 */
-	@Override
-	public void resetAll(boolean fullReset)
-	{
-	    synchronized(completeUsers)
-        {
-            if(fullReset)
-            {
-                completeUsers.clear();
             } else
             {
-                for(NBTTagCompound entry : completeUsers.values())
+                if(uuid == null)
                 {
-                    entry.setBoolean("claimed", false);
-                    entry.setLong("timestamp", 0);
+                    completeUsers.forEach((key, value) -> {
+                        value.setBoolean("claimed", false);
+                        value.setLong("timestamp", 0);
+                    });
+                } else
+                {
+                    NBTTagCompound entry = getCompletionInfo(uuid);
+                    if(entry != null)
+                    {
+                        entry.setBoolean("claimed", false);
+                        entry.setLong("timestamp", 0);
+                    }
                 }
             }
     
-            for(DBEntry<ITask> t : tasks.getEntries())
-            {
-                t.getValue().resetAll();
-            }
+            tasks.getEntries().forEach((value) -> value.getValue().resetUser(uuid));
         }
 	}
 	
@@ -722,7 +486,7 @@ public class QuestInstance implements IQuest
 	}
 	
 	@Override
-	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, List<UUID> users)
+	public NBTTagCompound writeProgressToNBT(NBTTagCompound json, @Nullable List<UUID> users)
 	{
 	    synchronized(completeUsers)
         {
@@ -748,7 +512,7 @@ public class QuestInstance implements IQuest
 	{
 	    synchronized(completeUsers)
         {
-            completeUsers.clear();
+            if(!merge) completeUsers.clear();
             NBTTagList comList = json.getTagList("completed", 10);
             for(int i = 0; i < comList.tagCount(); i++)
             {
@@ -771,43 +535,20 @@ public class QuestInstance implements IQuest
     @Override
 	public void setClaimed(UUID uuid, long timestamp)
 	{
-		IParty party = PartyManager.INSTANCE.getUserParty(uuid);
-		
 		synchronized(completeUsers)
         {
-            if(party == null || !getProperty(NativeProps.PARTY_LOOT))
+            NBTTagCompound entry = this.getCompletionInfo(uuid);
+    
+            if(entry != null)
             {
-                NBTTagCompound entry = this.getCompletionInfo(uuid);
-        
-                if(entry != null)
-                {
-                    entry.setBoolean("claimed", true);
-                    entry.setLong("timestamp", timestamp);
-                } else
-                {
-                    entry = new NBTTagCompound();
-                    entry.setBoolean("claimed", true);
-                    entry.setLong("timestamp", timestamp);
-                    completeUsers.put(uuid, entry);
-                }
+                entry.setBoolean("claimed", true);
+                entry.setLong("timestamp", timestamp);
             } else
             {
-                for(UUID mem : party.getMembers())
-                {
-                    NBTTagCompound entry = this.getCompletionInfo(mem);
-            
-                    if(entry != null)
-                    {
-                        entry.setBoolean("claimed", true);
-                        entry.setLong("timestamp", timestamp);
-                    } else
-                    {
-                        entry = new NBTTagCompound();
-                        entry.setBoolean("claimed", true);
-                        entry.setLong("timestamp", timestamp);
-                        completeUsers.put(mem, entry);
-                    }
-                }
+                entry = new NBTTagCompound();
+                entry.setBoolean("claimed", true);
+                entry.setLong("timestamp", timestamp);
+                completeUsers.put(uuid, entry);
             }
         }
 	}

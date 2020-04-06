@@ -2,34 +2,47 @@ package betterquesting.api.events;
 
 import cpw.mods.fml.common.eventhandler.Event;
 
-import java.util.UUID;
+import java.util.*;
 
-public abstract class QuestEvent extends Event
+public class QuestEvent extends Event
 {
-	private final UUID user;
-	private final int questId;
+    private final Type type;
+	private final UUID playerID;
+	private final Set<Integer> questIDs;
 	
-	public int getQuestID()
+	public Set<Integer> getQuestIDs()
 	{
-		return questId;
+		return this.questIDs;
 	}
 	
-	public UUID getUser()
+	public UUID getPlayerID()
 	{
-		return user;
+		return this.playerID;
 	}
 	
-	public QuestEvent(int questId, UUID user)
+	public Type getType()
+    {
+        return this.type;
+    }
+	
+	public QuestEvent(Type type, UUID playerID, int questID)
 	{
-		this.user = user;
-		this.questId = questId;
+	    this.type = type;
+		this.playerID = playerID;
+	    this.questIDs = Collections.singleton(questID);
 	}
 	
-	public static class QuestComplete extends QuestEvent
+	public QuestEvent(Type type, UUID playerID, Collection<Integer> questIDs)
 	{
-		public QuestComplete(int questId, UUID user)
-		{
-			super(questId, user);
-		}
+	    this.type = type;
+		this.playerID = playerID;
+	    this.questIDs = Collections.unmodifiableSet(new TreeSet<>(questIDs));
 	}
+	
+	public enum Type
+    {
+        COMPLETED,
+        UPDATED,
+        RESET
+    }
 }

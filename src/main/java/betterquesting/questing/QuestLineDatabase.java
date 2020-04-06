@@ -1,16 +1,19 @@
 package betterquesting.questing;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineDatabase;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.api2.utils.QuestLineSorter;
-import betterquesting.network.PacketTypeNative;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.MathHelper;
 
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implements IQuestLineDatabase
 {
@@ -20,46 +23,36 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	private final QuestLineSorter SORTER = new QuestLineSorter(this);
 	
 	@Override
-	public int getOrderIndex(int lineID)
+	public synchronized int getOrderIndex(int lineID)
 	{
-	    synchronized(lineOrder)
-        {
-            if(getValue(lineID) == null)
-            {
-                return -1;
-            } else if(!lineOrder.contains(lineID))
-            {
-                lineOrder.add(lineID);
-            }
-    
-            return lineOrder.indexOf(lineID);
-        }
+	    int order = lineOrder.indexOf(lineID);
+	    if(order >= 0) return order;
+        if(getValue(lineID) == null) return -1;
+        
+        lineOrder.add(lineID);
+        return lineOrder.size() - 1;
 	}
 	
 	@Override
 	public void setOrderIndex(int lineID, int index)
 	{
-	    synchronized(lineOrder)
-        {
-            lineOrder.remove((Integer)lineID);
-            lineOrder.add(index, lineID);
-        }
+        lineOrder.remove((Integer)lineID);
+        lineOrder.add(MathHelper.clamp_int(index, 0, lineOrder.size()), lineID);
 	}
 	
 	@Override
-	public DBEntry<IQuestLine>[] getSortedEntries()
+	public synchronized List<DBEntry<IQuestLine>> getSortedEntries()
 	{
-		DBEntry<IQuestLine>[] array = this.getEntries();
-		Arrays.sort(array, SORTER);
-		return array;
+	    List<DBEntry<IQuestLine>> list = new ArrayList<>(this.getEntries());
+	    list.sort(SORTER);
+	    return list;
 	}
 	
 	@Override
 	public IQuestLine createNew(int id)
 	{
 		IQuestLine ql = new QuestLine();
-		ql.setParentDatabase(this);
-		this.add(id, ql);
+		if(id >= 0) this.add(id, ql);
 		return ql;
 	}
 	
@@ -73,25 +66,12 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagList(), null));
-		return new QuestingPacket(PacketTypeNative.LINE_DATABASE.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		this.readFromNBT(payload.getTagList("data", 10), false);
-	}
-	
-	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IQuestLine> entry : getEntries())
 		{
-			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), users);
+		    if(subset != null && !subset.contains(entry.getID())) continue;
+			NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), null);
 			jObj.setInteger("lineID", entry.getID());
 			jObj.setInteger("order", getOrderIndex(entry.getID()));
 			json.appendTag(jObj);
@@ -101,11 +81,11 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json, boolean merge)
+	public synchronized void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
-		
-		List<IQuestLine> unassigned = new ArrayList<>();
+		if(!merge) reset();
+        
+        List<IQuestLine> unassigned = new ArrayList<>();
 		HashMap<Integer,Integer> orderMap = new HashMap<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
@@ -115,7 +95,8 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 			int id = jql.hasKey("lineID", 99) ? jql.getInteger("lineID") : -1;
 			int order = jql.hasKey("order", 99) ? jql.getInteger("order") : -1;
 			
-			QuestLine line = new QuestLine();
+			IQuestLine line = getValue(id);
+			if(line == null) line = new QuestLine();
 			line.readFromNBT(jql, merge);
 			
 			if(id >= 0)
@@ -135,10 +116,14 @@ public final class QuestLineDatabase extends SimpleDatabase<IQuestLine> implemen
 		List<Integer> orderKeys = new ArrayList<>(orderMap.keySet());
 		Collections.sort(orderKeys);
 		
-		synchronized(lineOrder)
-        {
-            lineOrder.clear();
-            for(int o : orderKeys) lineOrder.add(orderMap.get(o));
-        }
+        lineOrder.clear();
+        for(int o : orderKeys) lineOrder.add(orderMap.get(o));
 	}
+	
+	@Override
+    public synchronized void reset()
+    {
+        super.reset();
+        lineOrder.clear();
+    }
 }

@@ -2,8 +2,6 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -30,13 +28,13 @@ import betterquesting.api2.registry.IFactoryData;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.tasks.TaskRegistry;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayDeque;
@@ -46,7 +44,7 @@ import java.util.List;
 
 public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
-	private CanvasScrolling qrList;
+	private CanvasScrolling qtList;
 	
     private IQuest quest;
     private final int qID;
@@ -70,7 +68,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
             return;
         }
         
-        refreshRewards();
+        refreshTasks();
     }
     
     @Override
@@ -130,12 +128,12 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
         tfSearch.setWatermark("Search...");
         cvBackground.addPanel(tfSearch);
         
-        qrList = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 16, 32), 0));
-        cvBackground.addPanel(qrList);
+        qtList = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 32, 16, 32), 0));
+        cvBackground.addPanel(qtList);
         
         PanelVScrollBar scRew = new PanelVScrollBar(new GuiTransform(new Vector4f(0.5F, 0F, 0.5F, 1F), new GuiPadding(-16, 32, 8, 32), 0));
         cvBackground.addPanel(scRew);
-        qrList.setScrollDriverY(scRew);
+        qtList.setScrollDriverY(scRew);
 		
         // === DIVIDERS ===
         
@@ -146,7 +144,7 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
 		PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
 		cvBackground.addPanel(paLine0);
         
-        refreshRewards();
+        refreshTasks();
     }
 	
 	@Override
@@ -174,62 +172,55 @@ public class GuiTaskEditor extends GuiScreenCanvas implements IPEventListener, I
             SendChanges();
         } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Remove
         {
-            ITask reward = ((PanelButtonStorage<ITask>)btn).getStoredValue();
+            ITask task = ((PanelButtonStorage<ITask>)btn).getStoredValue();
             
-            if(quest.getTasks().removeValue(reward))
+            if(quest.getTasks().removeValue(task))
             {
                 SendChanges();
             }
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Edit
         {
-            ITask reward = ((PanelButtonStorage<ITask>)btn).getStoredValue();
-            GuiScreen editor = reward.getTaskEditor(this, quest);
+            ITask task = ((PanelButtonStorage<ITask>)btn).getStoredValue();
+            GuiScreen editor = task.getTaskEditor(this, new DBEntry<>(qID, quest));
             
             if(editor != null)
             {
                 mc.displayGuiScreen(editor);
             } else
             {
-                mc.displayGuiScreen(new GuiNbtEditor(this, reward.writeToNBT(new NBTTagCompound()), value -> {
-                    reward.readFromNBT(value);
-                    
-                    NBTTagCompound base = new NBTTagCompound();
-                    base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-                    base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
-                    NBTTagCompound tags = new NBTTagCompound();
-                    tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-                    tags.setInteger("questID", qID);
-                    tags.setTag("data", base);
-                    PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+                mc.displayGuiScreen(new GuiNbtEditor(this, task.writeToNBT(new NBTTagCompound()), value -> {
+                    task.readFromNBT(value);
+                    SendChanges();
                 }));
             }
         }
     }
     
-    private void refreshRewards()
+    private void refreshTasks()
     {
-        DBEntry<ITask>[] dbRew = quest.getTasks().getEntries();
+        List<DBEntry<ITask>> dbTsk = quest.getTasks().getEntries();
         
-        qrList.resetCanvas();
-        int w = qrList.getTransform().getWidth();
+        qtList.resetCanvas();
+        int w = qtList.getTransform().getWidth();
         
-        for(int i = 0; i < dbRew.length; i++)
+        for(int i = 0; i < dbTsk.size(); i++)
         {
-            ITask reward = dbRew[i].getValue();
-            qrList.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 16, 16, 0), 3, QuestTranslation.translate(reward.getUnlocalisedName()), reward));
-            qrList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 2, "" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + "x", reward));
+            ITask task = dbTsk.get(i).getValue();
+            qtList.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, i * 16, w - 16, 16, 0), 3, QuestTranslation.translate(task.getUnlocalisedName()), task));
+            qtList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 2, "" + ChatFormatting.RED + ChatFormatting.BOLD + "x", task));
         }
     }
 	
 	private void SendChanges()
 	{
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", qID);
-		tags.setTag("data",base);
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+	    NBTTagCompound payload = new NBTTagCompound();
+	    NBTTagList dataList = new NBTTagList();
+	    NBTTagCompound entry = new NBTTagCompound();
+	    entry.setInteger("questID", qID);
+	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+	    dataList.appendTag(entry);
+	    payload.setTag("data", dataList);
+	    payload.setInteger("action", 0);
+	    NetQuestEdit.sendEdit(payload);
 	}
 }

@@ -3,9 +3,7 @@ package betterquesting.client.gui2.editors;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumLogic;
-import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -27,11 +25,11 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
@@ -251,13 +249,14 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     
     private void SendChanges()
 	{
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setInteger("action", EnumPacketAction.EDIT.ordinal()); // Action: Update data
-		tags.setInteger("questID", questID);
-		tags.setTag("data", base);
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+	    NBTTagCompound payload = new NBTTagCompound();
+	    NBTTagList dataList = new NBTTagList();
+	    NBTTagCompound entry = new NBTTagCompound();
+	    entry.setInteger("questID", questID);
+	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+	    dataList.appendTag(entry);
+	    payload.setTag("data", dataList);
+	    payload.setInteger("action", 0);
+	    NetQuestEdit.sendEdit(payload);
 	}
 }

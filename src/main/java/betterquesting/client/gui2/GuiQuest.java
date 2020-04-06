@@ -3,7 +3,6 @@ package betterquesting.client.gui2;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
@@ -28,12 +27,12 @@ import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.MathHelper;
 import org.lwjgl.util.vector.Vector4f;
 
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
@@ -215,14 +214,10 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             mc.displayGuiScreen(new betterquesting.client.gui2.editors.GuiQuestEditor(this, questID));
         } else if(btn.getButtonID() == 6) // Reward claim
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.CLAIM.GetLocation(), tags));
+            NetQuestAction.requestClaim(new int[]{questID});
         } else if(btn.getButtonID() == 7) // Task detect/submit
         {
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("questID", QuestDatabase.INSTANCE.getID(quest));
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.DETECT.GetLocation(), tags));
+            NetQuestAction.requestDetect(new int[]{questID});
         }
     }
 
@@ -238,8 +233,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             this.initPanel();
             return;
         }
-
-
 
         pnReward = new CanvasEmpty(rectReward);
         cvInner.addPanel(pnReward);
@@ -291,7 +284,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         cvList.setScrollDriverY(scList);
 
         int yOffset = 0;
-        DBEntry<ITask>[] entries = quest.getTasks().getEntries();
+        DBEntry<ITask>[] entries =  quest.getTasks().getEntries();
         for (int i = 0; i < entries.length; i++) {
             ITask tsk = entries[i].getValue();
 
@@ -313,6 +306,23 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
             //Indent from the previous
             yOffset += 8;
+
+        if(taskIndex < 0 || taskIndex >= quest.getTasks().size())
+        {
+            titleTask.setText("?");
+            titleTask.setEnabled(false);
+            updateButtons();
+
+            return;
+        }
+
+        ITask tsk = quest.getTasks().getEntries().get(taskIndex).getValue();
+
+        pnTask = tsk.getTaskGui(rectTask, new DBEntry<>(questID, quest));
+
+        if(pnTask != null)
+        {
+            cvInner.addPanel(pnTask);
         }
 
         updateButtons();

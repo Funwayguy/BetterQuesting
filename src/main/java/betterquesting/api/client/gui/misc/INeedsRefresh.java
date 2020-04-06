@@ -1,6 +1,7 @@
 package betterquesting.api.client.gui.misc;
 
-public interface INeedsRefresh // TODO: Replace with a proper event because this interface is dumb
+@Deprecated // TODO: Replace with a proper event because this interface is dumb
+public interface INeedsRefresh
 {
 	void refreshGui();
 }
