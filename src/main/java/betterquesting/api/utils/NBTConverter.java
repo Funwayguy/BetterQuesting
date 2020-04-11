@@ -9,6 +9,8 @@ import net.minecraft.nbt.*;
 import org.apache.logging.log4j.Level;
 
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class NBTConverter
 {
@@ -120,7 +122,8 @@ public class NBTConverter
 			return jObj;
 		}
 		
-		for(String key : parent.getKeySet())
+		Set<String> keySet = new TreeSet<>(parent.getKeySet());
+		for(String key : keySet)
 		{
 			NBTBase tag = parent.getTag(key);
 			
