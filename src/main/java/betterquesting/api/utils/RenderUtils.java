@@ -412,7 +412,11 @@ public class RenderUtils
 			w = Math.max(0, w - x); // Clamp to 0 to prevent OpenGL errors
 			h = Math.max(0, h - y); // Clamp to 0 to prevent OpenGL errors
 			sRect = new GuiRectangle(x, y, w, h, 0);
-		}
+		} else
+        {
+            sRect.w = Math.max(0, sRect.w);
+            sRect.h = Math.max(0, sRect.h);
+        }
 		
 		GL11.glScissor(sRect.getX(),sRect.getY(), sRect.getWidth(), sRect.getHeight());
 		scissorStack.add(sRect);

@@ -2,13 +2,8 @@ package betterquesting.client.gui2;
 
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
 import betterquesting.api2.client.gui.controls.PanelButtonStorage;
-import betterquesting.api2.client.gui.events.IPEventListener;
-import betterquesting.api2.client.gui.events.PEventBroadcaster;
-import betterquesting.api2.client.gui.events.PanelEvent;
-import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
@@ -27,21 +22,20 @@ import betterquesting.api2.client.gui.resources.textures.ItemTexture;
 import betterquesting.api2.client.gui.resources.textures.SlideShowTexture;
 import betterquesting.api2.client.gui.themes.IGuiTheme;
 import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
-import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
-import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
+import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.client.gui.themes.presets.PresetLine;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.List;
 
-public class GuiThemes extends GuiScreenCanvas implements IPEventListener
+public class GuiThemes extends GuiScreenCanvas
 {
 	// Last value of the scrollbar before loading new theme
 	private PanelVScrollBar scrollPanel;
@@ -56,8 +50,6 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 	{
 		super.initPanel();
 		
-		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
-		
 		// Background panel
 		CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(bgCan);
@@ -71,6 +63,7 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		inCan.addPanel(panTxt);
 		
 		PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, new GuiPadding(-100, -16, -100, 0), 0), 0, QuestTranslation.translate("gui.done"));
+		btnExit.setClickAction((b) -> mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE)));
 		bgCan.addPanel(btnExit);
 		
 		CanvasScrolling canScroll = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 16, 16, 16), 0));
@@ -86,7 +79,13 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		{
 		    IGuiTheme theme = themes.get(i);
 			GuiRectangle trans = new GuiRectangle(0, i * 24, width, 24, 0);
-			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, 1, theme.getName(), theme.getID());
+			PanelButtonStorage<ResourceLocation> pbs = new PanelButtonStorage<>(trans, -1, theme.getName(), theme.getID());
+			pbs.setCallback((res) -> {
+			    float scroll = scrollPanel.readValueRaw();
+                ThemeRegistry.INSTANCE.setTheme(res);
+                this.initGui();
+                scrollPanel.writeValueRaw(scroll);
+            });
 			canScroll.addPanel(pbs);
 			pbs.setActive(curTheme == null || !curTheme.getID().equals(theme.getID()));
 		}
@@ -149,34 +148,5 @@ public class GuiThemes extends GuiScreenCanvas implements IPEventListener
 		le0.setParent(inCan.getTransform());
 		PanelLine paLine0 = new PanelLine(ls0, le0, PresetLine.GUI_DIVIDER.getLine(), 1, PresetColor.GUI_DIVIDER.getColor(), 1);
 		inCan.addPanel(paLine0);
-	}
-	
-	@Override
-	public void onPanelEvent(PanelEvent event)
-	{
-		if(event instanceof PEventButton)
-		{
-			onButtonPress((PEventButton)event);
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void onButtonPress(PEventButton event)
-	{
-		Minecraft mc = Minecraft.getMinecraft();
-		IPanelButton btn = event.getButton();
-		
-		if(btn.getButtonID() == 0) // Exit
-		{
-			mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
-		} else if(btn.getButtonID() == 1 && btn instanceof PanelButtonStorage)
-		{
-			ResourceLocation res = ((PanelButtonStorage<ResourceLocation>)btn).getStoredValue();
-			
-			float scroll = scrollPanel.readValueRaw();
-			ThemeRegistry.INSTANCE.setTheme(res);
-			this.initGui();
-			scrollPanel.writeValueRaw(scroll);
-		}
 	}
 }

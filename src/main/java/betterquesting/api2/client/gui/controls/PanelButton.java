@@ -199,7 +199,7 @@ public class PanelButton implements IPanelButton
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
+			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
 		}
         
         GL11.glPopMatrix();
