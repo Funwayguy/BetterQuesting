@@ -80,7 +80,7 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 	@Override
 	public synchronized void readFromNBT(NBTTagList nbt, boolean merge)
 	{
-		this.reset();
+		if(!merge) this.reset();
 		
 		for(int i = 0; i < nbt.tagCount(); i++)
 		{

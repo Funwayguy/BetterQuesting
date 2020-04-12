@@ -65,7 +65,7 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
 	}
 	
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json, List<Integer> subset)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IParty> entry : getEntries())
 		{

@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,12 +18,12 @@ import java.util.UUID;
 public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<ITask, NBTTagList, NBTTagList>
 {
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			ResourceLocation taskID = entry.getValue().getFactoryID();
-			
 			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
 			qJson.setString("taskID", taskID.toString());
 			qJson.setInteger("index", entry.getID());
@@ -32,10 +33,9 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
-		
+		if(!merge) reset();
 		List<ITask> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)

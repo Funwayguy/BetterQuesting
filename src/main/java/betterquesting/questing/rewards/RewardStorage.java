@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseNBT<IReward, NBTTagList, NBTTagList>
 {
 	@Override
-	public NBTTagList writeToNBT(NBTTagList json)
+	public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset)
 	{
 		for(DBEntry<IReward> rew : getEntries())
 		{
@@ -32,10 +33,9 @@ public class RewardStorage extends SimpleDatabase<IReward> implements IDatabaseN
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagList json)
+	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
-		
+		if(!merge) reset();
 		List<IReward> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)
