@@ -3,6 +3,7 @@ package betterquesting.api2.client.gui.panels;
 import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -204,6 +205,12 @@ public class CanvasMinimum implements IGuiCanvas {
         boolean result = guiPanels.remove(panel);
         recalcSizes();
         return result;
+    }
+
+    @Nonnull
+    @Override
+    public List<IGuiPanel> getChildren() {
+        return guiPanels;
     }
 
     @Override

@@ -35,6 +35,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.util.vector.Vector4f;
 
+import java.util.List;
+
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private final int questID;
@@ -254,7 +256,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvList.addPanel(titleReward);
             yOffset += 12;
 
-            IGuiPanel rewardGui = rew.getRewardGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectReward.getWidth(), rectReward.getHeight(), 111), quest);
+            IGuiPanel rewardGui = rew.getRewardGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectReward.getWidth(), rectReward.getHeight(), 111), new DBEntry<>(questID, quest));
             rewardGui.initPanel();
             // Wrapping into canvas allow avoid empty space at end
             CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectReward.getWidth(), rewardGui.getTransform().getHeight() - rewardGui.getTransform().getY(), 1));
@@ -284,9 +286,9 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         cvList.setScrollDriverY(scList);
 
         int yOffset = 0;
-        DBEntry<ITask>[] entries =  quest.getTasks().getEntries();
-        for (int i = 0; i < entries.length; i++) {
-            ITask tsk = entries[i].getValue();
+        List<DBEntry<ITask>> entries = quest.getTasks().getEntries();
+        for (int i = 0; i < entries.size(); i++) {
+            ITask tsk = entries.get(i).getValue();
 
             String taskName = (i + 1) + ". " + QuestTranslation.translate(tsk.getUnlocalisedName());
             PanelTextBox titleReward = new PanelTextBox(new GuiTransform(new Vector4f(), 0, yOffset, rectTask.getWidth(), 12, 0), taskName);
@@ -295,7 +297,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             cvList.addPanel(titleReward);
             yOffset += 10;
 
-            IGuiPanel taskGui = tsk.getTaskGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectTask.getWidth(), rectTask.getHeight(), 0), quest);
+            IGuiPanel taskGui = tsk.getTaskGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectTask.getWidth(), rectTask.getHeight(), 0), new DBEntry<>(questID, quest));
             taskGui.initPanel();
             // Wrapping into canvas allow avoid empty space at end
             CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectTask.getWidth(), taskGui.getTransform().getHeight() - taskGui.getTransform().getY(), 1));
@@ -306,23 +308,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
             //Indent from the previous
             yOffset += 8;
-
-        if(taskIndex < 0 || taskIndex >= quest.getTasks().size())
-        {
-            titleTask.setText("?");
-            titleTask.setEnabled(false);
-            updateButtons();
-
-            return;
-        }
-
-        ITask tsk = quest.getTasks().getEntries().get(taskIndex).getValue();
-
-        pnTask = tsk.getTaskGui(rectTask, new DBEntry<>(questID, quest));
-
-        if(pnTask != null)
-        {
-            cvInner.addPanel(pnTask);
         }
 
         updateButtons();
