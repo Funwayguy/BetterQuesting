@@ -2,9 +2,7 @@ package betterquesting.items;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.properties.NativeProps;
-import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
-import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.LifeDatabase;
 import betterquesting.storage.QuestSettings;
 import cpw.mods.fml.relauncher.Side;
@@ -22,6 +20,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.UUID;
 
 public class ItemExtraLife extends Item
 {
@@ -61,18 +60,10 @@ public class ItemExtraLife extends Item
     			stack.stackSize--;
     		}
     		
-    		int lives;
-    		IParty party = PartyManager.INSTANCE.getUserParty(QuestingAPI.getQuestingUUID(player));
+    		UUID uuid = QuestingAPI.getQuestingUUID(player);
+            int lives = LifeDatabase.INSTANCE.getLives(uuid);
     		
-    		if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
-    		{
-    			lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
-    		} else
-    		{
-    			lives = LifeDatabase.INSTANCE.getLives(party);
-    		}
-    		
-    		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX).intValue())
+    		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX))
     		{
     			if(!world.isRemote)
     			{
@@ -86,13 +77,7 @@ public class ItemExtraLife extends Item
     		
     		if(!world.isRemote)
     		{
-    			if(party == null || !party.getProperties().getProperty(NativeProps.PARTY_LIVES))
-    			{
-    				LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
-    			} else
-    			{
-    				LifeDatabase.INSTANCE.setLives(party, lives + 1);
-    			}
+    			LifeDatabase.INSTANCE.setLives(uuid, lives + 1);
     			
     			player.addChatComponentMessage(new ChatComponentTranslation("betterquesting.gui.remaining_lives", EnumChatFormatting.YELLOW.toString() + (lives + 1)));
     		}

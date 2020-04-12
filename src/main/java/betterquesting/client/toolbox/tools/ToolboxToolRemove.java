@@ -1,16 +1,14 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 import java.util.List;
@@ -57,14 +55,17 @@ public class ToolboxToolRemove implements IToolboxTool
                 int qID = btn.getStoredValue().getID();
                 line.removeID(qID);
             }
-			
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", line.writeToNBT(new NBTTagCompound(), null));
-			tags.setTag("data", base);
-			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+		    
+            // Sync Line
+            NBTTagCompound chPayload = new NBTTagCompound();
+            NBTTagList cdList = new NBTTagList();
+            NBTTagCompound cTag = new NBTTagCompound();
+            cTag.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(line));
+            cTag.setTag("config", line.writeToNBT(new NBTTagCompound(), null));
+            cdList.appendTag(cTag);
+            chPayload.setTag("data", cdList);
+            chPayload.setInteger("action", 0);
+            NetChapterEdit.sendEdit(chPayload);
 			return true;
 		}
 		
@@ -106,14 +107,17 @@ public class ToolboxToolRemove implements IToolboxTool
         {
             IQuestLine line = gui.getQuestLine();
             for(PanelButtonQuest b : PanelToolController.selected) line.removeID(b.getStoredValue().getID());
-			
-			NBTTagCompound tags = new NBTTagCompound();
-			tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", line.writeToNBT(new NBTTagCompound(), null));
-			tags.setTag("data", base);
-			tags.setInteger("lineID", QuestLineDatabase.INSTANCE.getID(line));
-			PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
+		    
+            // Sync Line
+            NBTTagCompound chPayload = new NBTTagCompound();
+            NBTTagList cdList = new NBTTagList();
+            NBTTagCompound cTag = new NBTTagCompound();
+            cTag.setInteger("chapterID", QuestLineDatabase.INSTANCE.getID(line));
+            cTag.setTag("config", line.writeToNBT(new NBTTagCompound(), null));
+            cdList.appendTag(cTag);
+            chPayload.setTag("data", cdList);
+            chPayload.setInteger("action", 0);
+            NetChapterEdit.sendEdit(chPayload);
 			return true;
         }
         

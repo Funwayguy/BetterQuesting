@@ -1,6 +1,5 @@
 package betterquesting.client.importers;
 
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestDatabase;
 import betterquesting.api2.storage.DBEntry;
@@ -39,21 +38,11 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
     }
 	
 	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		return null;
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-	}
-	
-	@Override
-	public NBTTagList writeToNBT(NBTTagList nbt, List<UUID> users)
+	public NBTTagList writeToNBT(NBTTagList nbt, List<Integer> subset)
 	{
 		for(DBEntry<IQuest> entry : this.getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			NBTTagCompound jq = new NBTTagCompound();
 			entry.getValue().writeToNBT(jq);
 			jq.setInteger("questID", entry.getID());
@@ -66,7 +55,7 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 	@Override
 	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
-		this.reset();
+		if(!merge) this.reset();
 		
 		for(int i = 0; i < nbt.tagCount(); i++)
 		{

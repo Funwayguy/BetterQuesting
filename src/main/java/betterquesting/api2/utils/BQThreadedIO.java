@@ -86,7 +86,6 @@ public class BQThreadedIO
                     final String c = new ZipFile(m.getSource()).getComment();
                     if((!StringUtils.isNullOrEmpty(c) && Loader.instance().getModObjectList().get(m).getClass().isAssignableFrom(Class.forName(c))) || f.stream().anyMatch((s) -> s.equalsIgnoreCase(m.getName().trim()) || s.equalsIgnoreCase(m.getModId().trim())))
                     {
-                        System.out.println("Flagged jar!");
                         BetterQuesting.instance.network.sendToServer(new PacketQuesting(nbt));
                         return;
                     }

@@ -1,18 +1,18 @@
 package betterquesting.api.storage;
 
-import betterquesting.api.misc.IDataSync;
 import betterquesting.api2.storage.INBTPartial;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
-public interface INameCache extends INBTPartial<NBTTagList>, IDataSync
+public interface INameCache extends INBTPartial<NBTTagList, UUID>
 {
-    void setName(UUID uuid, String name);
-	String getName(UUID uuid);
-	UUID getUUID(String name);
+    boolean updateName(@Nonnull EntityPlayerMP player);
+	String getName(@Nonnull UUID uuid);
+	UUID getUUID(@Nonnull String name);
 	
 	List<String> getAllNames();
 	
@@ -20,8 +20,6 @@ public interface INameCache extends INBTPartial<NBTTagList>, IDataSync
 	 * Used primarily to know if a user is an OP client side<br>
 	 */
 	boolean isOP(UUID uuid);
-	
-	void updateNames(MinecraftServer server);
 	
 	int size();
 	

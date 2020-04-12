@@ -2,8 +2,6 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -31,11 +29,11 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.GuiQuest;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
@@ -210,15 +208,19 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
         } else if(btn.getButtonID() == 4 && btn instanceof PanelButtonStorage) // Delete
         {
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>)btn).getStoredValue();
-            NBTTagCompound tags = new NBTTagCompound();
-            tags.setInteger("action", EnumPacketAction.REMOVE.ordinal());
-            tags.setInteger("questID", entry.getID());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setIntArray("questIDs", new int[]{entry.getID()});
+            payload.setInteger("action", 1);
+            NetQuestEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 5) // New
         {
-            NBTTagCompound tag = new NBTTagCompound();
-            tag.setInteger("action", EnumPacketAction.ADD.ordinal());
-            PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tag));
+            NBTTagCompound payload = new NBTTagCompound();
+            NBTTagList dataList = new NBTTagList();
+            NBTTagCompound entry = new NBTTagCompound();
+            entry.setInteger("questID", -1);
+            dataList.appendTag(entry);
+            payload.setTag("data", dataList);
+            NetQuestEdit.sendEdit(payload);
         }
     }
     
@@ -259,13 +261,14 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 	
 	private void SendChanges()
 	{
-		NBTTagCompound tags = new NBTTagCompound();
-		NBTTagCompound base = new NBTTagCompound();
-		base.setTag("config", quest.writeToNBT(new NBTTagCompound()));
-		base.setTag("progress", quest.writeProgressToNBT(new NBTTagCompound(), null));
-		tags.setTag("data", base);
-		tags.setInteger("questID", questID);
-		tags.setInteger("action", EnumPacketAction.EDIT.ordinal());
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
+	    NBTTagCompound payload = new NBTTagCompound();
+	    NBTTagList dataList = new NBTTagList();
+	    NBTTagCompound entry = new NBTTagCompound();
+	    entry.setInteger("questID", questID);
+	    entry.setTag("config", quest.writeToNBT(new NBTTagCompound()));
+	    dataList.appendTag(entry);
+	    payload.setTag("data", dataList);
+	    payload.setInteger("action", 0);
+	    NetQuestEdit.sendEdit(payload);
 	}
 }

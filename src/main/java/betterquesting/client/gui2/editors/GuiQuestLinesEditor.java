@@ -2,9 +2,7 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
-import betterquesting.api.enums.EnumPacketAction;
 import betterquesting.api.enums.EnumQuestVisibility;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -32,13 +30,15 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
 import betterquesting.client.gui2.editors.nbt.GuiItemSelection;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetChapterEdit;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.util.List;
 
 public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
 {
@@ -148,7 +148,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                 if(selected == null) return;
                 mc.displayGuiScreen(new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
                     selected.setProperty(NativeProps.ICON, value);
-                    SendChanges(EnumPacketAction.EDIT, new DBEntry<>(selID, selected));
+                    SendChanges(new DBEntry<>(selID, selected));
                 }));
             }
         };
@@ -236,7 +236,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             
             if(changed)
             {
-                SendChanges(EnumPacketAction.EDIT, new DBEntry<>(selID, selected));
+                SendChanges(new DBEntry<>(selID, selected));
             }
         }
         
@@ -262,7 +262,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 1) // New Quest Line
         {
-			SendChanges(EnumPacketAction.ADD, null);
+            NBTTagCompound payload = new NBTTagCompound();
+            NBTTagList dataList = new NBTTagList();
+            NBTTagCompound entry = new NBTTagCompound();
+            entry.setInteger("chapterID", -1);
+            dataList.appendTag(entry);
+            payload.setTag("data", dataList);
+            payload.setInteger("action", 3);
+            NetChapterEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 2) // Import
         {
             mc.displayGuiScreen(new GuiImporters(this));
@@ -289,16 +296,15 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         } else if(btn.getButtonID() == 6 && btn instanceof PanelButtonStorage) // Delete Quest
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();
-            SendChanges(EnumPacketAction.REMOVE, entry);
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setIntArray("chapterIDs", new int[]{entry.getID()});
+            payload.setInteger("action", 1);
+            NetChapterEdit.sendEdit(payload);
         } else if(btn.getButtonID() == 7 && btn instanceof PanelButtonStorage) // Move Up
         {
             DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>)btn).getStoredValue();
             int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
-            
-            if(order > 0)
-            {
-                SendChanges(EnumPacketAction.EDIT, entry, order - 1);
-            }
+            if(order > 0) SendReorder(order);
         } else if(btn.getButtonID() == 8) // Big Description Editor
         {
             mc.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
@@ -306,7 +312,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                 {
                     tfDesc.setText(value);
                     selected.setProperty(NativeProps.DESC, value);
-                    SendChanges(EnumPacketAction.EDIT, new DBEntry<>(selID, selected));
+                    SendChanges(new DBEntry<>(selID, selected));
                 }
             }));
         }
@@ -330,32 +336,38 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             i++;
         }
     }
-
-	private void SendChanges(EnumPacketAction action, DBEntry<IQuestLine> entry)
+    
+	private void SendChanges(DBEntry<IQuestLine> chapter)
 	{
-		SendChanges(action, entry, entry == null? -1 : QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID()));
+	    NBTTagCompound payload = new NBTTagCompound();
+	    NBTTagList dataList = new NBTTagList();
+	    NBTTagCompound entry = new NBTTagCompound();
+	    entry.setInteger("chapterID", chapter.getID());
+	    entry.setTag("config", chapter.getValue().writeToNBT(new NBTTagCompound(), null));
+	    dataList.appendTag(entry);
+	    payload.setTag("data", dataList);
+	    payload.setInteger("action", 0);
+	    NetChapterEdit.sendEdit(payload);
 	}
 	
-	private void SendChanges(EnumPacketAction action, DBEntry<IQuestLine> entry, int order)
-	{
-		if(action == null)
-		{
-			return;
-		}
-		
-		NBTTagCompound tags = new NBTTagCompound();
-		
-		if(action == EnumPacketAction.EDIT && entry != null)
-		{
-			NBTTagCompound base = new NBTTagCompound();
-			base.setTag("line", entry.getValue().writeToNBT(new NBTTagCompound(), null));
-			tags.setTag("data", base);
-		}
-		
-		tags.setInteger("lineID", entry == null? -1 : entry.getID());
-		tags.setInteger("order", order);
-		tags.setInteger("action", action.ordinal());
-		
-		PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.LINE_EDIT.GetLocation(), tags));
-	}
+	private void SendReorder(int indexToShift)
+    {
+        if(indexToShift <= 0) return;
+        List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
+        if(indexToShift >= entries.size()) return;
+        int[] chapterIDs = new int[entries.size()];
+        for(int i = 0; i < entries.size(); i++)
+        {
+            chapterIDs[i] = entries.get(i).getID();
+        }
+        
+        int tmp = chapterIDs[indexToShift];
+        chapterIDs[indexToShift] = chapterIDs[indexToShift - 1];
+        chapterIDs[indexToShift - 1] = tmp;
+        
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setIntArray("chapterIDs", chapterIDs);
+        payload.setInteger("action", 2);
+        NetChapterEdit.sendEdit(payload);
+    }
 }

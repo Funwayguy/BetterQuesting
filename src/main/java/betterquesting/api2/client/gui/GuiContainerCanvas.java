@@ -1,20 +1,17 @@
 package betterquesting.api2.client.gui;
 
-import betterquesting.api.client.gui.GuiYesNoLocked;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.client.gui.misc.ComparatorGuiDepth;
-import betterquesting.api2.client.gui.misc.GuiRectangle;
-import betterquesting.api2.client.gui.misc.IGuiRect;
-import betterquesting.api2.client.gui.panels.IGuiCanvas;
+import betterquesting.api2.client.gui.misc.*;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
+import betterquesting.api2.client.gui.popups.PopChoice;
+import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
@@ -23,23 +20,42 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 // This will probably be rewritten at a later date once I reimplement Minecraft's inventory controls natively into their own isolated canvas elements
-public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiYesNoCallback
+public class GuiContainerCanvas extends GuiContainer implements IScene
 {
 	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-	private final GuiRectangle transform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiRectangle rootTransform = new GuiRectangle(0, 0, 0, 0, 0);
+	private final GuiTransform transform = new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0);
 	private boolean enabled = true;
+	private boolean useMargins = true;
+	private boolean useDefaultBG = false;
+	private boolean isVolatile = false;
 	
 	public final GuiScreen parent;
+	
+	private IGuiPanel popup = null;
 	
     public GuiContainerCanvas(GuiScreen parent, Container container)
     {
         super(container);
         this.parent = parent;
+    }
+    
+    @Override
+    public void openPopup(@Nonnull IGuiPanel panel)
+    {
+        this.popup = panel;
+    }
+    
+    @Override
+    public void closePopup()
+    {
+        this.popup = null;
     }
 	
 	@Override
@@ -47,6 +63,31 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	{
 		return transform;
 	}
+	
+	@Nonnull
+	@Override
+	public List<IGuiPanel> getChildren()
+    {
+        return this.guiPanels;
+    }
+    
+	public GuiContainerCanvas useMargins(boolean enable)
+    {
+        this.useMargins = enable;
+        return this;
+    }
+	
+	public GuiContainerCanvas useDefaultBG(boolean enable)
+    {
+        this.useDefaultBG = enable;
+        return this;
+    }
+    
+    public GuiContainerCanvas setVolatile(boolean state)
+    {
+        this.isVolatile = state;
+        return this;
+    }
 	
 	/**
 	 * Use initPanel() for embed support
@@ -82,16 +123,19 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	@Override
 	public void initPanel()
 	{
-		int marginX = 16;
-		int marginY = 16;
-		
-		if(BQ_Settings.guiWidth > 0) marginX = Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-		if(BQ_Settings.guiHeight > 0) marginY = Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
-		
-		transform.x = marginX;
-		transform.y = marginY;
-		transform.w = this.width - marginX * 2;
-		transform.h = this.height - marginY * 2;
+	    rootTransform.w = this.width;
+	    rootTransform.h = this.height;
+	    transform.setParent(rootTransform);
+	    
+	    if(useMargins)
+        {
+            int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
+            int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+            transform.getPadding().setPadding(marginX, marginY, marginX, marginY);
+		} else
+        {
+            transform.getPadding().setPadding(0, 0, 0, 0);
+        }
 		
 		this.guiPanels.clear();
 	}
@@ -112,6 +156,8 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my)
     {
+		if(useDefaultBG) this.drawDefaultBackground();
+		
         GL11.glPushMatrix();
         GL11.glColor4f(1F, 1F, 1F, 1F);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
@@ -175,17 +221,13 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
     {
         if (keyCode == 1)
         {
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 			
 			return;
@@ -204,12 +246,23 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 				entry.drawPanel(mx, my, partialTick);
 			}
 		}
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.drawPanel(mx, my, partialTick);
+        }
 	}
 	
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseClick(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -232,6 +285,12 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	{
 		boolean used = false;
 		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseRelease(mx, my, click);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -252,6 +311,12 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	public boolean onMouseScroll(int mx, int my, int scroll)
 	{
 		boolean used = false;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            popup.onMouseScroll(mx, my, scroll);
+            return true;// Regardless of whether this is actually used we prevent other things from being edited
+        }
 		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
@@ -274,6 +339,15 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	{
 		boolean used = false;
 		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onKeyTyped(c, keycode);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
+		
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		
 		while(pnIter.hasPrevious())
@@ -289,17 +363,13 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 		
 		if(!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode || mc.gameSettings.keyBindInventory.getKeyCode() == keycode))
 		{
-        	if(this instanceof IVolatileScreen)
+        	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
-        		this.mc.displayGuiScreen(new GuiYesNoLocked(this, QuestTranslation.translate("betterquesting.gui.closing_warning"), QuestTranslation.translate("betterquesting.gui.closing_confirm"), 0));
+        	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.mc.displayGuiScreen(null);
-				
-				if(this.mc.currentScreen == null)
-				{
-					this.mc.setIngameFocus();
-				}
+				if(this.mc.currentScreen == null) this.mc.setIngameFocus();
 			}
 		}
 		
@@ -311,6 +381,12 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
 	{
 		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
 		List<String> tt;
+		
+		if(popup != null && popup.isEnabled())
+        {
+            tt = popup.getTooltip(mx, my);
+            if(tt != null) return tt;
+        }
 		
 		while(pnIter.hasPrevious())
 		{
@@ -398,16 +474,12 @@ public class GuiContainerCanvas extends GuiContainer implements IGuiCanvas, GuiY
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
-	@Override
-    public void confirmClicked(boolean confirmed, int id)
-	{
-		if(confirmed && id == 0)
-		{
+	public void confirmClose(int id)
+    {
+        if(id == 0)
+        {
             this.mc.displayGuiScreen(null);
-            this.mc.setIngameFocus();
-		} else
-		{
-			this.mc.displayGuiScreen(this);
-		}
-	}
+            if(this.mc.currentScreen == null) this.mc.setIngameFocus();
+        }
+    }
 }

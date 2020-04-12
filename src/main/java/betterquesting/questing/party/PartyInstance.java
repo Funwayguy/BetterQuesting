@@ -1,30 +1,25 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyContainer;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
 import betterquesting.storage.PropertyContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import javax.annotation.Nonnull;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 public class PartyInstance implements IParty
 {
 	private final HashMap<UUID, EnumPartyStatus> members = new HashMap<>();
-	private final PropertyContainer pInfo = new PropertyContainer();
+	private List<UUID> memCache = null;
 	
-	private final List<UUID> memCache = new ArrayList<>();
+	private final PropertyContainer pInfo = new PropertyContainer();
 	
 	public PartyInstance()
 	{
@@ -34,8 +29,6 @@ public class PartyInstance implements IParty
 	private void setupProps()
 	{
 		setupValue(NativeProps.NAME, "New Party");
-		setupValue(NativeProps.PARTY_LIVES);
-		setupValue(NativeProps.PARTY_LOOT);
 	}
 	
 	private <T> void setupValue(IPropertyType<T> prop)
@@ -50,22 +43,8 @@ public class PartyInstance implements IParty
 	
 	private void refreshCache()
     {
-        memCache.clear();
-        
-        for(Entry<UUID, EnumPartyStatus> entry : members.entrySet())
-        {
-            if(entry.getValue() != EnumPartyStatus.INVITE)
-            {
-                memCache.add(entry.getKey());
-            }
-        }
+        memCache = Collections.unmodifiableList(new ArrayList<>(members.keySet()));
     }
-	
-	@Override
-	public String getName()
-	{
-		return pInfo.getProperty(NativeProps.NAME, "New Party");
-	}
 	
 	@Override
 	public IPropertyContainer getProperties()
@@ -74,67 +53,22 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
-	public void inviteUser(UUID uuid)
+	public void kickUser(@Nonnull UUID uuid)
 	{
-		if(uuid == null || members.containsKey(uuid))
-		{
-			return;
-		}
-		
-		if(members.size() == 0)
-		{
-			members.put(uuid, EnumPartyStatus.OWNER);
-		} else
-		{
-			members.put(uuid, EnumPartyStatus.INVITE);
-		}
-		
-		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
-	}
-	
-	@Override
-	public void kickUser(UUID uuid)
-	{
-		if(!members.containsKey(uuid))
-		{
-			return;
-		}
+		if(!members.containsKey(uuid)) return;
 		
 		EnumPartyStatus old = members.get(uuid);
-		
-		if(members.remove(uuid) == null)
-        {
-            BetterQuesting.logger.error("Unabled to locate user \"" + uuid + "\" to kick from party " + this.getName());
-            return;
-        }
+		members.remove(uuid);
         
-		if(members.size() <= 0)
-		{
-			PartyManager.INSTANCE.removeValue(this);
-			PacketSender.INSTANCE.sendToAll(PartyManager.INSTANCE.getSyncPacket());
-		} else if(old == EnumPartyStatus.OWNER)
-		{
-			hostMigrate();
-            refreshCache();
-		    PacketSender.INSTANCE.sendToAll(getSyncPacket());
-		}
+		if(old == EnumPartyStatus.OWNER && members.size() > 0) hostMigrate();
+        refreshCache();
 	}
 	
 	@Override
-	public void setStatus(UUID uuid, EnumPartyStatus priv)
+	public void setStatus(@Nonnull UUID uuid, @Nonnull EnumPartyStatus priv)
 	{
-		if(!members.containsKey(uuid))
-		{
-			return;
-		}
-		
 		EnumPartyStatus old = members.get(uuid);
-		
-		if(old == priv)
-		{
-			return;
-		}
+		if(old == priv) return;
 		
 		members.put(uuid, priv);
 		
@@ -144,9 +78,7 @@ public class PartyInstance implements IParty
 			{
 				if(mem != uuid && members.get(mem) == EnumPartyStatus.OWNER)
 				{
-					// Removes previous owner
 					members.put(mem, EnumPartyStatus.ADMIN);
-					break;
 				}
 			}
 		} else if(old == EnumPartyStatus.OWNER)
@@ -180,11 +112,10 @@ public class PartyInstance implements IParty
 		}
 		
 		refreshCache();
-		PacketSender.INSTANCE.sendToAll(getSyncPacket());
 	}
 	
 	@Override
-	public EnumPartyStatus getStatus(UUID uuid)
+	public EnumPartyStatus getStatus(@Nonnull UUID uuid)
 	{
 		return members.get(uuid);
 	}
@@ -192,12 +123,12 @@ public class PartyInstance implements IParty
 	@Override
 	public List<UUID> getMembers()
 	{
+	    if(memCache == null) refreshCache();
 		return memCache;
 	}
 	
 	private void hostMigrate()
 	{
-	    System.out.println("Migrating host...");
 		// Pre check for existing owners
 		for(UUID uuid : members.keySet())
 		{
@@ -228,24 +159,8 @@ public class PartyInstance implements IParty
 			members.put(migrate, EnumPartyStatus.OWNER);
 		} else
         {
-            BetterQuesting.logger.error("Failed to find suitable host to migrate party " + this.getName() + ". This should not happen and may now requires an admin to disband this party.");
+            BetterQuesting.logger.error("Failed to find suitable host to migrate party " + this.pInfo.getProperty(NativeProps.NAME));
         }
-	}
-	
-	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound()));
-		tags.setInteger("partyID", PartyManager.INSTANCE.getID(this));
-		
-		return new QuestingPacket(PacketTypeNative.PARTY_SYNC.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		readFromNBT(payload.getCompoundTag("data"));
 	}
 	
 	@Override
@@ -276,42 +191,35 @@ public class PartyInstance implements IParty
 		{
 			pInfo.readFromNBT(new NBTTagCompound());
 			pInfo.setProperty(NativeProps.NAME, jObj.getString("name"));
-			pInfo.setProperty(NativeProps.PARTY_LIVES, jObj.getBoolean("lifeShare"));
-			pInfo.setProperty(NativeProps.PARTY_LOOT, jObj.getBoolean("lootShare"));
-			pInfo.setProperty(NativeProps.LIVES, jObj.getInteger("lives"));
 		}
 		
 		members.clear();
 		NBTTagList memList = jObj.getTagList("members", 10);
 		for(int i = 0; i < memList.tagCount(); i++)
 		{
-			NBTTagCompound jMem = memList.getCompoundTagAt(i);
-			UUID uuid;
-			EnumPartyStatus priv;
-			
 			try
 			{
-				uuid = UUID.fromString(jMem.getString("uuid"));
-			} catch(Exception e)
-			{
-				uuid = null;
-			}
-			
-			try
-			{
-				priv = EnumPartyStatus.valueOf(jMem.hasKey("status", 8) ? jMem.getString("status") : EnumPartyStatus.INVITE.toString());
-			} catch(Exception e)
-			{
-				priv = EnumPartyStatus.INVITE;
-			}
-			
-			if(uuid != null)
-			{
+			    NBTTagCompound jMem = memList.getCompoundTagAt(i);
+			    if(!jMem.hasKey("uuid", 8) || !jMem.hasKey("status")) continue;
+				UUID uuid = UUID.fromString(jMem.getString("uuid"));
+				EnumPartyStatus priv = EnumPartyStatus.valueOf(jMem.getString("status"));
 				members.put(uuid, priv);
-			}
+			} catch(Exception ignored){}
 		}
 		
 		refreshCache();
 		this.setupProps();
 	}
+    
+    @Override
+    public NBTTagCompound writeProperties(NBTTagCompound nbt)
+    {
+        return pInfo.writeToNBT(nbt);
+    }
+    
+    @Override
+    public void readProperties(NBTTagCompound nbt)
+    {
+        pInfo.readFromNBT(nbt);
+    }
 }

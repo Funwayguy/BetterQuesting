@@ -1,11 +1,9 @@
 package betterquesting.storage;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.storage.IQuestSettings;
-import betterquesting.network.PacketTypeNative;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -19,38 +17,21 @@ public class QuestSettings extends PropertyContainer implements IQuestSettings
 	}
 	
 	@Override
-	public QuestingPacket getSyncPacket()
-	{
-		NBTTagCompound tags = new NBTTagCompound();
-		tags.setTag("data", writeToNBT(new NBTTagCompound()));
-		return new QuestingPacket(PacketTypeNative.SETTINGS.GetLocation(), tags);
-	}
-	
-	@Override
-	public void readPacket(NBTTagCompound payload)
-	{
-		readFromNBT(payload.getCompoundTag("data"));
-	}
-	
-	@Override
 	public boolean canUserEdit(EntityPlayer player)
 	{
-		if(player == null)
-		{
-			return false;
-		}
-		
+		if(player == null) return false;
 		return this.getProperty(NativeProps.EDIT_MODE) && NameCache.INSTANCE.isOP(QuestingAPI.getQuestingUUID(player));
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound json)
+	public void readFromNBT(NBTTagCompound nbt)
 	{
-		super.readFromNBT(json);
+		super.readFromNBT(nbt);
 		
 		this.setupProps();
 	}
 	
+	@Override
 	public void reset()
 	{
 		this.readFromNBT(new NBTTagCompound());

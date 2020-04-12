@@ -1,47 +1,34 @@
 package betterquesting.api2.client.gui.events;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class PEventEntry<T extends PanelEvent>
 {
-	private final ArrayList<IPEventListener> listeners = new ArrayList<IPEventListener>();
-	private final PEventFilter<T> filter;
+	private final List<Consumer<PanelEvent>> listeners = new ArrayList<>();
+	private final Class<T> cType;
 	
 	public PEventEntry(Class<T> type)
 	{
-		this.filter = new PEventFilter<T>(type);
+	    this.cType = type;
 	}
 	
-	public void registerListener(IPEventListener l)
+	public void registerListener(@Nonnull Consumer<PanelEvent> consumer)
+    {
+        if(listeners.contains(consumer)) return;
+        listeners.add(consumer);
+    }
+	
+	public void unregisterListener(@Nonnull Consumer<PanelEvent> consumer)
 	{
-		if(l == null || listeners.contains(l))
-		{
-			return;
-		}
-		
-		listeners.add(l);
+		listeners.remove(consumer);
 	}
 	
-	public void unregisterListener(IPEventListener l)
+	public void fire(@Nonnull PanelEvent event)
 	{
-		listeners.remove(l);
-	}
-	
-	public PEventFilter<T> getTypeFilter()
-	{
-		return this.filter;
-	}
-	
-	public void fire(PanelEvent event)
-	{
-		if(!filter.isCompatible(event))
-		{
-			return;
-		}
-		
-		for(IPEventListener l : listeners)
-		{
-			l.onPanelEvent(event);
-		}
+		if(!cType.isAssignableFrom(event.getClass())) return;
+        listeners.forEach((l) -> l.accept(event));
 	}
 }

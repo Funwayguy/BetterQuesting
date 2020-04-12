@@ -3,7 +3,7 @@ package betterquesting.commands.user;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.commands.QuestCommandBase;
 import betterquesting.handlers.SaveLoadHandler;
-import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.NetSettingSync;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -34,6 +34,6 @@ public class QuestCommandSPHardcore extends QuestCommandBase
         SaveLoadHandler.INSTANCE.saveDatabases();
         
 		sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.hardcore", new ChatComponentTranslation("options.on")));
-		PacketSender.INSTANCE.sendToAll(QuestSettings.INSTANCE.getSyncPacket());
+		NetSettingSync.sendSync(null);
 	}
 }

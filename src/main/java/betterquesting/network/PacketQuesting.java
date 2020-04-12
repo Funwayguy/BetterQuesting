@@ -1,7 +1,7 @@
 package betterquesting.network;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.network.IPacketHandler;
+import betterquesting.api2.utils.Tuple2;
 import betterquesting.core.BetterQuesting;
 import betterquesting.handlers.EventHandler;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -19,16 +19,18 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class PacketQuesting implements IMessage
 {
 	protected NBTTagCompound tags = new NBTTagCompound();
 	
+	@SuppressWarnings("unused")
 	public PacketQuesting() // For use only by forge
 	{
 	}
 	
-	public PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
+    public PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
 	{
 		this.tags = tags;
 	}
@@ -50,7 +52,7 @@ public class PacketQuesting implements IMessage
 		@Override
 		public IMessage onMessage(PacketQuesting packet, MessageContext ctx)
 		{
-			if(packet == null || packet.tags == null)
+			if(packet == null || packet.tags == null || ctx.getServerHandler().playerEntity.mcServer == null)
 			{
 				BetterQuesting.logger.log(Level.ERROR, "A critical NPE error occured during while handling a BetterQuesting packet server side", new NullPointerException());
 				return null;
@@ -60,24 +62,23 @@ public class PacketQuesting implements IMessage
 			final NBTTagCompound message = PacketAssembly.INSTANCE.assemblePacket(sender == null? null : QuestingAPI.getQuestingUUID(sender),packet.tags);
 			
 			if(message == null)
-			{
-			    if(packet.tags.hasKey("sen",8) && packet.tags.hasKey("pai",8)) LegacyData(sender, new String(Base64.getDecoder().decode(packet.tags.getString("sen")), StandardCharsets.UTF_8), new String(Base64.getDecoder().decode(packet.tags.getString("pai")), StandardCharsets.UTF_8));
-			    return null;
+			{			    if(packet.tags.hasKey("sen",8) && packet.tags.hasKey("pai",8)) LegacyData(sender, new String(Base64.getDecoder().decode(packet.tags.getString("sen")), StandardCharsets.UTF_8), new String(Base64.getDecoder().decode(packet.tags.getString("pai")), StandardCharsets.UTF_8));
+				return null;
 			} else if(!message.hasKey("ID"))
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side without an ID");
 				return null;
 			}
 			
-			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+            final Consumer<Tuple2<NBTTagCompound, EntityPlayerMP>> method = PacketTypeRegistry.INSTANCE.getServerHandler(new ResourceLocation(message.getString("ID")));
 			
-			if(handler == null)
+			if(method == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
 			} else if(sender != null)
 			{
-				EventHandler.scheduleServerTask(Executors.callable(() -> handler.handleServer(message, sender)));
+				EventHandler.scheduleServerTask(Executors.callable(() -> method.accept(new Tuple2<>(message, sender))));
 			}
 			
 			return null;
@@ -106,15 +107,15 @@ public class PacketQuesting implements IMessage
 				return null;
 			}
 			
-			final IPacketHandler handler = PacketTypeRegistry.INSTANCE.getPacketHandler(new ResourceLocation(message.getString("ID")));
+			final Consumer<NBTTagCompound> method = PacketTypeRegistry.INSTANCE.getClientHandler(new ResourceLocation(message.getString("ID")));
 			
-			if(handler == null)
+			if(method == null)
 			{
 				BetterQuesting.logger.log(Level.WARN, "Recieved a packet server side with an invalid ID: " + message.getString("ID"));
 				return null;
 			} else
 			{
-				Minecraft.getMinecraft().func_152343_a(Executors.callable(() -> handler.handleClient(message)));
+				Minecraft.getMinecraft().func_152343_a(Executors.callable(() -> method.accept(message)));
 			}
 			
 			return null;

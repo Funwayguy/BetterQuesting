@@ -1,16 +1,14 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetQuestEdit;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ToolboxToolReset implements IToolboxTool
@@ -36,40 +34,28 @@ public class ToolboxToolReset implements IToolboxTool
 	@Override
 	public boolean onMouseClick(int mx, int my, int click)
 	{
-		if(click != 0 || !gui.getTransform().contains(mx, my))
-		{
-			return false;
-		}
+		if(click != 0 || !gui.getTransform().contains(mx, my)) return false;
 		
 		PanelButtonQuest btn = gui.getButtonAt(mx, my);
 		
-		if(btn != null)
-		{
-		    if(PanelToolController.selected.size() > 0)
-            {
-                if(!PanelToolController.selected.contains(btn)) return false;
-                
-                for(PanelButtonQuest b : PanelToolController.selected)
-                {
-                    NBTTagCompound tags = new NBTTagCompound();
-                    tags.setInteger("action", EnumPacketAction.SET.ordinal()); // Complete quest
-                    tags.setInteger("questID", b.getStoredValue().getID());
-                    tags.setBoolean("state", false);
-			        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
-                }
-            } else
-            {
-                NBTTagCompound tags = new NBTTagCompound();
-                tags.setInteger("action", EnumPacketAction.SET.ordinal()); // Complete quest
-                tags.setInteger("questID", btn.getStoredValue().getID());
-                tags.setBoolean("state", false);
-                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
-            }
-            
-            return true;
-		}
+		if(btn == null) return false;
+		if(PanelToolController.selected.size() > 0 && !PanelToolController.selected.contains(btn)) return false;
 		
-		return false;
+        List<PanelButtonQuest> btnList = PanelToolController.selected.size() > 0 ? PanelToolController.selected : Collections.singletonList(btn);
+        int[] questIDs = new int[btnList.size()];
+        
+        for(int i = 0; i < btnList.size(); i++)
+        {
+            questIDs[i] = btnList.get(i).getStoredValue().getID();
+        }
+        
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setIntArray("questIDs", questIDs);
+        payload.setBoolean("state", false);
+        payload.setInteger("action", 2);
+        NetQuestEdit.sendEdit(payload);
+		
+		return true;
 	}
 	
 	@Override
@@ -103,21 +89,23 @@ public class ToolboxToolReset implements IToolboxTool
 	@Override
 	public boolean onKeyPressed(char c, int key)
 	{
-	    if(PanelToolController.selected.size() > 0 && key == Keyboard.KEY_RETURN)
+	    if(PanelToolController.selected.size() <= 0 || key != Keyboard.KEY_RETURN) return false;
+	    
+        List<PanelButtonQuest> btnList = PanelToolController.selected;
+        int[] questIDs = new int[btnList.size()];
+        
+        for(int i = 0; i < btnList.size(); i++)
         {
-            for(PanelButtonQuest b : PanelToolController.selected)
-            {
-                NBTTagCompound tags = new NBTTagCompound();
-                tags.setInteger("action", EnumPacketAction.SET.ordinal()); // Complete quest
-                tags.setInteger("questID", b.getStoredValue().getID());
-                tags.setBoolean("state", false);
-                PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.QUEST_EDIT.GetLocation(), tags));
-            }
-            
-            return true;
+            questIDs[i] = btnList.get(i).getStoredValue().getID();
         }
         
-	    return false;
+        NBTTagCompound payload = new NBTTagCompound();
+        payload.setIntArray("questIDs", questIDs);
+        payload.setBoolean("state", false);
+        payload.setInteger("action", 2);
+        NetQuestEdit.sendEdit(payload);
+        
+        return true;
 	}
 
 	@Override

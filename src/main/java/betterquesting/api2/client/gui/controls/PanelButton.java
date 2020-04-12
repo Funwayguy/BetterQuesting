@@ -12,11 +12,13 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PanelButton implements IPanelButton
 {
@@ -32,10 +34,13 @@ public class PanelButton implements IPanelButton
 	private List<String> tooltip = null;
 	private boolean txtShadow = true;
 	private String btnText;
+	private int textAlign = 1;
 	private boolean isActive = true;
 	private final int btnID;
 	
 	private boolean pendingRelease = false;
+	
+	private Consumer<PanelButton> clickAction = null;
 	
 	public PanelButton(IGuiRect rect, int id, String txt)
 	{
@@ -46,6 +51,12 @@ public class PanelButton implements IPanelButton
 		this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(), PresetTexture.BTN_NORMAL_2.getTexture());
 		this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(), PresetColor.BTN_HOVER.getColor());
 	}
+	
+	public PanelButton setClickAction(Consumer<PanelButton> action)
+    {
+        this.clickAction = action;
+        return this;
+    }
 	
 	public PanelButton setTextHighlight(IGuiColor disabled, IGuiColor idle, IGuiColor hover)
 	{
@@ -60,6 +71,12 @@ public class PanelButton implements IPanelButton
 		this.txtShadow = enabled;
 		return this;
 	}
+	
+	public PanelButton setTextAlignment(int align)
+    {
+        this.textAlign = MathHelper.clamp_int(align, 0, 2);
+        return this;
+    }
 	
 	public PanelButton setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover)
 	{
@@ -182,15 +199,31 @@ public class PanelButton implements IPanelButton
 		
 		if(btnText != null && btnText.length() > 0)
 		{
-			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX() + bounds.getWidth()/2, bounds.getY() + bounds.getHeight()/2 - 4, colStates[curState].getRGB(), txtShadow);
+			drawCenteredString(Minecraft.getMinecraft().fontRenderer, btnText, bounds.getX(), bounds.getY() + bounds.getHeight()/2 - 4, bounds.getWidth(), colStates[curState].getRGB(), txtShadow, textAlign);
 		}
         
         GL11.glPopMatrix();
 	}
 	
-    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int color, boolean shadow)
+    private static void drawCenteredString(FontRenderer font, String text, int x, int y, int width, int color, boolean shadow, int align)
     {
-        font.drawString(text, x - RenderUtils.getStringWidth(text, font) / 2, y, color, shadow);
+        switch(align)
+        {
+            case 0:
+            {
+                font.drawString(text, x + 4, y, color, shadow);
+                break;
+            }
+            case 2:
+            {
+                font.drawString(text, MathHelper.floor_float(x + width - RenderUtils.getStringWidth(text, font) / 2F - 4), y, color, shadow);
+                break;
+            }
+            default:
+            {
+                font.drawString(text, MathHelper.floor_float(x + Math.floorDiv(width, 2) - RenderUtils.getStringWidth(text, font) / 2F), y, color, shadow);
+            }
+        }
     }
     
 	@Override
@@ -250,5 +283,6 @@ public class PanelButton implements IPanelButton
 	@Override
     public void onButtonClick()
     {
+        if(clickAction != null) clickAction.accept(this);
     }
 }

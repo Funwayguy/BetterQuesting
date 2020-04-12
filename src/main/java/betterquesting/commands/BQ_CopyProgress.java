@@ -3,6 +3,7 @@ package betterquesting.commands;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.network.PacketSender;
+import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestInstance;
 import betterquesting.storage.NameCache;
@@ -40,7 +41,7 @@ public class BQ_CopyProgress extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/bq_copyquests [toPlayer] <fromPlayer>";
+        return "/bq_copyquests <toPlayer> [fromPlayer]";
     }
 
     @Override
@@ -51,16 +52,17 @@ public class BQ_CopyProgress extends CommandBase {
             EntityPlayerMP addPlayer = getPlayer(sender, args[0]);
             UUID addUUID = addPlayer.getPersistentID();
             long current = System.currentTimeMillis();
-            int questsCompleted = 0;
+            List<Integer> ids = new ArrayList<>();
             for(DBEntry<IQuest> questDBEntry : QuestDatabase.INSTANCE.getEntries()) {
                 IQuest quest = questDBEntry.getValue();
                 if(quest.isComplete(ownUUID) && !quest.isComplete(addUUID)) {
                     quest.setComplete(addUUID, current);
-                    PacketSender.INSTANCE.sendToPlayer(quest.getSyncPacket(), addPlayer);
-                    questsCompleted++;
+                    ids.add(questDBEntry.getID());
                 }
             }
-            ((EntityPlayer) sender).addChatComponentMessage(new ChatComponentText("Completed " + questsCompleted + " for " + addUUID));
+
+            NetQuestSync.sendSync(addPlayer, ids.stream().mapToInt(i -> i).toArray(), false, true);
+            sender.addChatMessage(new ChatComponentText("Completed " + ids.size() + " for " + addUUID));
         }
     }
 }

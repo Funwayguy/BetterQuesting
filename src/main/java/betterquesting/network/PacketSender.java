@@ -15,11 +15,6 @@ public class PacketSender implements IPacketSender
 	public static final PacketSender INSTANCE = new PacketSender();
 	
 	@Override
-	public void sendToPlayer(QuestingPacket payload, EntityPlayerMP player)
-	{
-        sendToPlayers(payload, player);
-	}
-	
 	public void sendToPlayers(QuestingPacket payload, EntityPlayerMP... players)
 	{
 		payload.getPayload().setString("ID", payload.getHandler().toString());

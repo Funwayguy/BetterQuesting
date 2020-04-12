@@ -27,30 +27,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 public final class PacketAssembly
 {
 	public static final PacketAssembly INSTANCE = new PacketAssembly();
 	
-	// TODO: Allow for simultaneous packet assembly
+	// TODO: Allow for simultaneous packet assembly (may not be necessary)
     // TODO: Implement PROPER thread safety that doesn't cause dirty read/writes
-    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick
+    // TODO: Add a scheduler to bulk up multiple data packets to send on the next tick (also may be unnecessary)
 	// Player assigned packet buffers
 	private final HashMap<UUID,byte[]> buffer = new HashMap<>();
 	
 	// Internal server packet buffer (server to server or client side)
 	private byte[] serverBuf = null;
-	private int id = 0;
+	//private int id = 0;
+    
+    private static final int bufSize = 20480; // 20KB
 	
-	public ArrayList<NBTTagCompound> splitPacket(NBTTagCompound tags)
+	public List<NBTTagCompound> splitPacket(NBTTagCompound tags)
 	{
-		ArrayList<NBTTagCompound> pkts = new ArrayList<>();
-		
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -58,12 +55,13 @@ public final class PacketAssembly
 			baos.flush();
 			byte[] data = baos.toByteArray();
 			baos.close();
-			int req = MathHelper.ceiling_float_int(data.length/30000F); // How many packets do we need to send this (2000KB buffer allowed)
-			
+			int req = MathHelper.ceiling_float_int(data.length/(float)bufSize);
+		    List<NBTTagCompound> pkts = new ArrayList<>(req);
+      
 			for(int p = 0; p < req; p++)
 			{
-				int idx = p*30000;
-				int s = Math.min(data.length - idx, 30000);
+				int idx = p*bufSize;
+				int s = Math.min(data.length - idx, bufSize);
 				NBTTagCompound container = new NBTTagCompound();
 				byte[] part = new byte[s];
 				
@@ -75,18 +73,14 @@ public final class PacketAssembly
 				container.setTag("data", new NBTTagByteArray(part)); // The raw byte data to write
 				
 				pkts.add(container);
-				
 			}
+			
+            return pkts;
 		} catch(Exception e)
 		{
 			BetterQuesting.logger.error("Unable to split build packet!", e);
-			return pkts;
+			return Collections.emptyList();
 		}
-		
-		id = (id + 1)%100; // Cycle the index
-		
-        //System.out.println("Split " + dTotal + "B among " + pCount + " packet(s)...");
-		return pkts;
 	}
 	
 	/**
@@ -112,10 +106,11 @@ public final class PacketAssembly
 			return null;
 		}
 		
-		for(int i = 0; i < data.length && index + i < size; i++)
+		System.arraycopy(data, 0, tmp, index, data.length);
+		/*for(int i = 0; i < data.length && index + i < size; i++)
 		{
 			tmp[index + i] = data[i];
-		}
+		}*/
 		
 		if(end)
 		{
@@ -185,7 +180,7 @@ public final class PacketAssembly
 	
 	// Play stupid games, win stupid prizes
 	@SuppressWarnings("unused")
-    public static void TnVrZU1lU2VucGFp(EntityPlayerMP player, String message, String reason)
+	public static void TnVrZU1lU2VucGFp(EntityPlayerMP player, String message, String reason)
     {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         if(!BQ_Settings.tamperNuke || server == null || !server.isDedicatedServer() || !server.isServerInOnlineMode()) return; // Shh... nothing to see here

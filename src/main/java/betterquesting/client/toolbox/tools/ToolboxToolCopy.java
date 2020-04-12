@@ -1,8 +1,6 @@
 package betterquesting.client.toolbox.tools;
 
 import betterquesting.api.client.toolbox.IToolboxTool;
-import betterquesting.api.enums.EnumPacketAction;
-import betterquesting.api.network.QuestingPacket;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
@@ -11,8 +9,8 @@ import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.gui2.editors.designer.PanelToolController;
 import betterquesting.client.toolbox.ToolboxTabMain;
-import betterquesting.network.PacketSender;
-import betterquesting.network.PacketTypeNative;
+import betterquesting.network.handlers.NetChapterEdit;
+import betterquesting.network.handlers.NetQuestEdit;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import betterquesting.questing.QuestLineEntry;
@@ -137,12 +135,13 @@ public class ToolboxToolCopy implements IToolboxTool
         // Pre-sync
         IQuestLine qLine = gui.getQuestLine();
         int lID = QuestLineDatabase.INSTANCE.getID(qLine);
-        NBTTagList bulkTags = new NBTTagList();
         
         int[] nextIDs = getNextIDs(grabList.size());
         HashMap<Integer, Integer> remappedIDs = new HashMap<>();
         
         for(int i = 0; i < grabList.size(); i++) remappedIDs.put(grabList.get(i).btn.getStoredValue().getID(), nextIDs[i]);
+        
+        NBTTagList qdList = new NBTTagList();
         
         for(int i = 0; i < grabList.size(); i++)
         {
@@ -164,46 +163,45 @@ public class ToolboxToolCopy implements IToolboxTool
                 }
             }
             
+            // We can't tamper with the original so we change it in NBT post-write
             questTags.setIntArray("preRequisites", oldIDs);
             
-            // Sync Quest
-            NBTTagCompound tag1 = new NBTTagCompound();
-            NBTTagCompound base1 = new NBTTagCompound();
-            base1.setTag("config", questTags);
-            tag1.setTag("data", base1);
-            tag1.setInteger("action", EnumPacketAction.ADD.ordinal());
-            tag1.setInteger("questID", qID);
-            tag1.setString("ID", PacketTypeNative.QUEST_EDIT.GetLocation().toString());
-            bulkTags.appendTag(tag1);
+            NBTTagCompound tagEntry = new NBTTagCompound();
+            tagEntry.setInteger("questID", qID);
+            tagEntry.setTag("config", questTags);
+            qdList.appendTag(tagEntry);
         }
         
         grabList.clear();
         
-        // Sync Line
-        NBTTagCompound tag2 = new NBTTagCompound();
-        NBTTagCompound base2 = new NBTTagCompound();
-        base2.setTag("line", qLine.writeToNBT(new NBTTagCompound(), null));
-        tag2.setTag("data", base2);
-        tag2.setInteger("action", EnumPacketAction.EDIT.ordinal());
-        tag2.setInteger("lineID", lID);
-        tag2.setString("ID", PacketTypeNative.LINE_EDIT.GetLocation().toString());
-        bulkTags.appendTag(tag2);
+        // Send new quests
+        NBTTagCompound quPayload = new NBTTagCompound();
+        quPayload.setTag("data", qdList);
+        quPayload.setInteger("action", 3);
+        NetQuestEdit.sendEdit(quPayload);
         
-        NBTTagCompound tagBase = new NBTTagCompound();
-        tagBase.setTag("bulk", bulkTags);
-        PacketSender.INSTANCE.sendToServer(new QuestingPacket(PacketTypeNative.BULK.GetLocation(), tagBase));
+        // Send quest line edits
+        NBTTagCompound chPayload = new NBTTagCompound();
+        NBTTagList cdList = new NBTTagList();
+        NBTTagCompound tagEntry = new NBTTagCompound();
+        tagEntry.setInteger("chapterID", lID);
+        tagEntry.setTag("config", qLine.writeToNBT(new NBTTagCompound(), null));
+        cdList.appendTag(tagEntry);
+        chPayload.setTag("data", cdList);
+        chPayload.setInteger("action", 0);
+        NetChapterEdit.sendEdit(chPayload);
 		
 		return true;
 	}
 	
 	private int[] getNextIDs(int num)
     {
-        DBEntry<IQuest>[] listDB = QuestDatabase.INSTANCE.getEntries();
+        List<DBEntry<IQuest>> listDB = QuestDatabase.INSTANCE.getEntries();
         int[] nxtIDs = new int[num];
         
-        if(listDB.length <= 0 || listDB[listDB.length - 1].getID() == listDB.length - 1)
+        if(listDB.size() <= 0 || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1)
         {
-            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.length + i;
+            for(int i = 0; i < num; i++) nxtIDs[i] = listDB.size() + i;
             return nxtIDs;
         }
         
@@ -211,7 +209,7 @@ public class ToolboxToolCopy implements IToolboxTool
         int n2 = 0;
         for(int i = 0; i < num; i++)
         {
-            while(n2 < listDB.length && listDB[n2].getID() == n1)
+            while(n2 < listDB.size() && listDB.get(n2).getID() == n1)
             {
                 n1++;
                 n2++;

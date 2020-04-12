@@ -1,10 +1,10 @@
 package betterquesting.api2.storage;
 
+import java.util.List;
+
 public interface IDatabase<T>
 {
     int nextID();
-    
-    //DBEntry<T> createNew(int id);
     
     DBEntry<T> add(int id, T value);
     boolean removeID(int key);
@@ -16,5 +16,6 @@ public interface IDatabase<T>
     int size();
     void reset();
     
-    DBEntry<T>[] getEntries();
+    List<DBEntry<T>> getEntries();
+    List<DBEntry<T>> bulkLookup(int... keys);
 }
