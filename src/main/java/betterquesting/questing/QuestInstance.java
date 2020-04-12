@@ -453,8 +453,8 @@ public class QuestInstance implements IQuest
 	public NBTTagCompound writeToNBT(NBTTagCompound jObj)
 	{
 		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound()));
-		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList()));
-		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList()));
+		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), null));
+		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("preRequisites", new NBTTagIntArray(getRequirements()));
 		
 		return jObj;
@@ -464,8 +464,8 @@ public class QuestInstance implements IQuest
 	public void readFromNBT(NBTTagCompound jObj)
 	{
 		this.qInfo.readFromNBT(jObj.getCompoundTag("properties"));
-		this.tasks.readFromNBT(jObj.getTagList("tasks", 10));
-		this.rewards.readFromNBT(jObj.getTagList("rewards", 10));
+		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), false);
+		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), false);
 		
 		if(jObj.func_150299_b("preRequisites") == 11) // Native NBT
 		{

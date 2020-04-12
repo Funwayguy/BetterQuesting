@@ -129,6 +129,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		
 		for(DBEntry<IQuestLineEntry> entry : getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound());
 			qle.setInteger("id", entry.getID());
 			jArr.appendTag(qle);
@@ -143,7 +144,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 	{
 		info.readFromNBT(json.getCompoundTag("properties"));
 		
-		reset();
+		if(!merge) reset();
 		
 		NBTTagList qList = json.getTagList("quests", 10);
 		for(int i = 0; i < qList.tagCount(); i++)
