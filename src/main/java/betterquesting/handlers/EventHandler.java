@@ -2,6 +2,7 @@ package betterquesting.handlers;
 
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.events.BQLivingUpdateEvent;
 import betterquesting.api.events.DatabaseEvent;
 import betterquesting.api.events.QuestEvent;
 import betterquesting.api.events.QuestEvent.Type;
@@ -58,7 +59,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.WorldEvent;
 import org.apache.commons.lang3.Validate;
@@ -126,10 +126,9 @@ public class EventHandler
     }
 	
 	@SubscribeEvent
-	public void onLivingUpdate(LivingUpdateEvent event)
+	public void onLivingUpdate(BQLivingUpdateEvent event)
 	{
 		if(event.entityLiving.worldObj.isRemote) return;
-		
 		if(!(event.entityLiving instanceof EntityPlayerMP)) return;
         if(event.entityLiving.ticksExisted%20 != 0) return; // Only triggers once per second
 
@@ -173,8 +172,7 @@ public class EventHandler
         {
             List<Integer> res = new ArrayList<>();
             long totalTime = System.currentTimeMillis();
-            //long totalTime = MinecraftServer.getServer().worldServerForDimension(0).getTotalWorldTime();
-
+            
             for(QResetTime rTime : pendingResets)
             {
                 IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
@@ -427,6 +425,8 @@ public class EventHandler
             {
                 while(!serverTasks.isEmpty()) serverTasks.poll().run();
             }
+            
+            return;
         }
 
         MinecraftServer server = MinecraftServer.getServer();
@@ -463,5 +463,12 @@ public class EventHandler
         }
 
         if(server.getTickCounter() % 60 == 0) PartyInvitations.INSTANCE.cleanExpired();
+        
+        // === FIX FOR OnLivingUpdate FIRING MULTIPLE TIMES PER TICK ===
+        //noinspection unchecked
+        for(EntityPlayerMP player : (List<EntityPlayerMP>)server.getConfigurationManager().playerEntityList)
+        {
+            MinecraftForge.EVENT_BUS.post(new BQLivingUpdateEvent(player));
+        }
     }
 }

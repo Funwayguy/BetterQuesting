@@ -118,11 +118,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         CanvasEmpty cvLeftHalf = new CanvasEmpty(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(16, 64, 8, 64), 0));
         cvBackground.addPanel(cvLeftHalf);
         
-        PanelButton btnLifeShare = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, -75, 0, 150, 16, 0), 1,QuestTranslation.translate("betterquesting.btn.party_share_lives") + ": " + party.getProperties().getProperty(NativeProps.PARTY_LIVES));
-        cvLeftHalf.addPanel(btnLifeShare);
-        btnLifeShare.setActive(status.ordinal() >= 3);
-        
-        PanelButtonStorage<UUID> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), playerID);
+        PanelButtonStorage<String> btnLeave = new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, -75, 32, 70, 16, 0), 3, QuestTranslation.translate("betterquesting.btn.party_leave"), mc.thePlayer.getGameProfile().getName());
         cvLeftHalf.addPanel(btnLeave);
         
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
@@ -183,7 +179,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             txMemName.setColor(PresetColor.TEXT_MAIN.getColor());
             cvUserList.addPanel(txMemName);
     
-            PanelButtonStorage<UUID> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, i * 32, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), mid);
+            PanelButtonStorage<String> btnKick = new PanelButtonStorage<>(new GuiRectangle(cvWidth - 32, i * 32, 32, 32, 0), 3, QuestTranslation.translate("betterquesting.btn.party_kick"), mName);
             cvUserList.addPanel(btnKick);
     
             PanelGeneric pnItem = new PanelGeneric(new GuiRectangle(32, i * 32 + 16, 16, 16, 0), txHeart);

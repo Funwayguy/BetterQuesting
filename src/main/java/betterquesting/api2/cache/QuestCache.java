@@ -213,7 +213,7 @@ public class QuestCache implements IExtendedEntityProperties
         public final int questID;
         public final long time;
         
-        public QResetTime(int questID, long time)
+        private QResetTime(int questID, long time)
         {
             this.questID = questID;
             this.time = time;

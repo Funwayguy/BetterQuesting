@@ -95,7 +95,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     }
     
     @Override
-    public synchronized List<DBEntry<T>> getEntries() // TODO: Change out to an unmodifiable list
+    public synchronized List<DBEntry<T>> getEntries()
     {
         if(refCache == null)
         {

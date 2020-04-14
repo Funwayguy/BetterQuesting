@@ -52,6 +52,8 @@ public class ItemTexture implements IGuiTexture
     @Override
     public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
     {
+	    if(width <= 0 || height <= 0) return;
+	    
         float sx = width/16F;
         float sy = height/16F;
         
