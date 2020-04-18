@@ -76,9 +76,6 @@ public class BQ_CopyProgress extends CommandBase {
             throw new CommandException("Wrong arguments");
         }
 
-        System.out.println(fromUUID.toString());
-        System.out.println(toUUID.toString());
-
         long current = System.currentTimeMillis();
         List<Integer> ids = new ArrayList<>();
         for(DBEntry<IQuest> questDBEntry : QuestDatabase.INSTANCE.getEntries()) {
