@@ -123,17 +123,17 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
         
         PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.MID_CENTER, 5, 32, 70, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.party_invite"));
         cvLeftHalf.addPanel(btnInvite);
-        btnInvite.setActive(status.ordinal() >= 2);
+        btnInvite.setActive(status.ordinal() >= EnumPartyStatus.ADMIN.ordinal());
         
         if(flName == null) flName = new PanelTextField<>(new GuiTransform(GuiAlign.MID_CENTER, -75, -32, 134, 16, 0), party.getProperties().getProperty(NativeProps.NAME), FieldFilterString.INSTANCE);
         cvLeftHalf.addPanel(flName);
-        flName.setActive(status.ordinal() >= 3);
+        flName.setActive(status.ordinal() >= EnumPartyStatus.OWNER.ordinal());
         
         PanelButton btnSetName = new PanelButton(new GuiTransform(GuiAlign.RIGHT_EDGE, 0, 0, 16, 16, 0), 4, "");
         cvLeftHalf.addPanel(btnSetName);
         btnSetName.getTransform().setParent(flName.getTransform());
         btnSetName.setIcon(PresetIcon.ICON_REFRESH.getTexture());
-        btnSetName.setActive(status.ordinal() >= 3);
+        btnSetName.setActive(status.ordinal() >= EnumPartyStatus.OWNER.ordinal());
         
         PanelTextBox txName = new PanelTextBox(new GuiTransform(GuiAlign.MID_CENTER, -75, -48, 134, 16, 0), QuestTranslation.translate("betterquesting.gui.name"));
         txName.setColor(PresetColor.TEXT_HEADER.getColor());
@@ -231,6 +231,7 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
             mc.displayGuiScreen(this.parent);
         } else if(btn.getButtonID() == 2) // Invite
         {
+            System.out.println("Opening invite screen");
 			mc.displayGuiScreen(new GuiPartyInvite(this));
         } else if(btn.getButtonID() == 3 && btn instanceof PanelButtonStorage) // Kick/Leave
         {

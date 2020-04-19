@@ -130,8 +130,18 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             }
         }
         
-        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 0, -52), 0), 2, "OreDict: " + oreName, oreIdx);
+        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 24, -52), 0), 2, "OreDict: " + oreName, oreIdx);
         cvTopLeft.addPanel(btnOre);
+        
+        PanelButton btnWild = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 36, 16, 16, 0), 3, "*");
+        btnWild.setClickAction((b) -> {
+            if(itemStack != null)
+            {
+                itemStack.getBaseStack().setItemDamage(OreDictionary.WILDCARD_VALUE);
+                itemPreview.setStoredValue(itemStack);
+            }
+        });
+        cvTopLeft.addPanel(btnWild);
         
         // === BOTTOM LEFT PANEL ===
         
