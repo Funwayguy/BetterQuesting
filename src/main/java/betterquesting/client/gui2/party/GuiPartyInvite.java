@@ -34,6 +34,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +58,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
         DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
         
-        if(party == null)
+        if(tmp == null)
         {
             mc.displayGuiScreen(parent);
             return;
@@ -99,22 +100,13 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         int nameSize = RenderUtils.getStringWidth("________________", fontRendererObj);
         int columnNum = listWidth/nameSize;
         
-        List<String> nameList = NameCache.INSTANCE.getAllNames();
-        for(GuiPlayerInfo info : (List<GuiPlayerInfo>)mc.thePlayer.sendQueue.playerInfoList)
-        {
-            if(!nameList.contains(info.name))
-            {
-                nameList.add(info.name);
-            }
-        }
+        List<String> nameList = new ArrayList<>();
+        ((List<GuiPlayerInfo>)mc.thePlayer.sendQueue.playerInfoList).forEach((info) -> nameList.add(info.name));
         
-        boolean[] invited = new boolean[nameList.size()];
-        
-        for(int i = 0; i < nameList.size(); i++)
-        {
-            UUID memID = NameCache.INSTANCE.getUUID(nameList.get(i));
-            invited[i] = memID != null && party.getStatus(memID) != null;
-        }
+        nameList.removeIf((entry) -> {
+           UUID memID = NameCache.INSTANCE.getUUID(entry);
+           return memID != null && party.getStatus(memID) != null;
+        });
         
         for(int i = 0; i < nameList.size(); i++)
         {
@@ -123,7 +115,6 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
             String name = nameList.get(i);
             PanelButtonStorage<String> btnName = new PanelButtonStorage<>(new GuiRectangle(x1 * nameSize, y1 * 16, nameSize, 16), 2, name, name);
             cvNameList.addPanel(btnName);
-            btnName.setActive(!invited[i]);
         }
         
         scNameScroll.setActive(cvNameList.getScrollBounds().getHeight() > 0);

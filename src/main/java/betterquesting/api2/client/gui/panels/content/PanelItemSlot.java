@@ -53,7 +53,7 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         if(value != null)
         {
             Minecraft mc = Minecraft.getMinecraft();
-            this.setIcon(oreDict ? new OreDictTexture(1F, value, showCount, true) : new ItemTexture(value, showCount, true), 1);
+            this.setIcon(oreDict || value.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE ? new OreDictTexture(1F, value, showCount, true) : new ItemTexture(value, showCount, true), 1);
             this.setTooltip(value.getBaseStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips));
         } else
         {
@@ -100,7 +100,21 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         
         if(!stack.hasOreDict())
         {
-            oreVariants.add(stack);
+            if(stack.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE)
+            {
+                List<ItemStack> subItems = new ArrayList<>();
+                stack.getBaseStack().getItem().getSubItems(stack.getBaseStack().getItem(), CreativeTabs.tabAllSearch, subItems);
+                
+                for(ItemStack sStack : subItems)
+                {
+                    BigItemStack bStack = new BigItemStack(sStack);
+                    bStack.stackSize = stack.stackSize;
+                    oreVariants.add(bStack);
+                }
+            } else
+            {
+                oreVariants.add(stack);
+            }
             return;
         }
         
