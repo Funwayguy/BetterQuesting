@@ -287,6 +287,10 @@ public class EventHandler
 		}
 
         NetBulkSync.sendReset(mpPlayer, true, true);
+
+        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(mpPlayer.getPersistentID());
+        if (party != null)
+            PartyManager.SyncPartyQuests(party.getValue());
 	}
 	
 	@SubscribeEvent

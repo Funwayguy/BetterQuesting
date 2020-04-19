@@ -1,10 +1,13 @@
 package betterquesting.questing.party;
 
 import betterquesting.api.enums.EnumPartyStatus;
+import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.INBTPartial;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetInviteSync;
+import betterquesting.questing.QuestDatabase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -46,7 +49,14 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
 	    IParty party = PartyManager.INSTANCE.getValue(id);
 	    boolean valid = timestamp > System.currentTimeMillis();
 	    
-	    if(valid && party != null) party.setStatus(uuid, EnumPartyStatus.MEMBER);
+	    if(valid && party != null) {
+	        // Resetting user before joining party
+            for (DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) {
+                entry.getValue().resetUser(uuid, true);
+            }
+	        party.setStatus(uuid, EnumPartyStatus.MEMBER);
+            PartyManager.SyncPartyQuests(party);
+	    }
 	    
         userInvites.remove(id); // We still remove it regardless of validity
         if(userInvites.size() <= 0) invites.remove(uuid);
