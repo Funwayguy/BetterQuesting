@@ -115,98 +115,95 @@ public class EventHandler
 	public void onLivingUpdate(LivingUpdateEvent event)
 	{
 		if(event.getEntityLiving().world.isRemote) return;
-		
-		if(event.getEntityLiving() instanceof EntityPlayerMP)
-		{
-			if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
-			
-			EntityPlayerMP player = (EntityPlayerMP)event.getEntityLiving();
-            betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-            boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+		if(!(event.getEntityLiving() instanceof EntityPlayerMP)) return;
+        if(event.getEntityLiving().ticksExisted%20 != 0) return; // Only triggers once per second
+        
+        EntityPlayerMP player = (EntityPlayerMP)event.getEntityLiving();
+        betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+        boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+        
+        if(qc == null) return;
+        
+        List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
+        List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
+        QResetTime[] pendingResets = qc.getScheduledResets();
+        
+        UUID uuid = QuestingAPI.getQuestingUUID(player);
+        boolean refreshCache = false;
+        
+        if(!editMode && player.ticksExisted%60 == 0) // Passive quest state check every 3 seconds
+        {
+            List<Integer> com = new ArrayList<>();
             
-            if(qc == null) return;
-            
-            List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
-            List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
-            QResetTime[] pendingResets = qc.getScheduledResets();
-			
-			UUID uuid = QuestingAPI.getQuestingUUID(player);
-			boolean refreshCache = false;
-			
-			if(!editMode && player.ticksExisted%60 == 0) // Passive quest state check every 3 seconds
+            for(DBEntry<IQuest> quest : activeQuests)
             {
-                List<Integer> com = new ArrayList<>();
+                if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
                 
-                for(DBEntry<IQuest> quest : activeQuests)
+                if(quest.getValue().canSubmit(player)) quest.getValue().update(player);
+                
+                if(quest.getValue().isComplete(uuid) && !quest.getValue().canSubmit(player))
                 {
-                    if(!quest.getValue().isUnlocked(uuid)) continue; // Although it IS active, it cannot be completed yet
+                    refreshCache = true;
+                    qc.markQuestDirty(quest.getID());
                     
-                    if(quest.getValue().canSubmit(player)) quest.getValue().update(player);
-                    
-                    if(quest.getValue().isComplete(uuid) && !quest.getValue().canSubmit(player))
+                    com.add(quest.getID());
+                    if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
+                }
+            }
+            
+            MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.COMPLETED, uuid, com));
+        }
+        
+        if(!editMode && player.getServer() != null) // Repeatable quest resets
+        {
+            List<Integer> res = new ArrayList<>();
+            long totalTime = System.currentTimeMillis();
+            
+            for(QResetTime rTime : pendingResets)
+            {
+                IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
+                
+                if(totalTime >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
+                {
+                    if(entry.getProperty(NativeProps.GLOBAL))
                     {
-                        refreshCache = true;
-                        qc.markQuestDirty(quest.getID());
-                        
-                        com.add(quest.getID());
-                        if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
+                        entry.resetUser(null, false);
+                    } else
+                    {
+                        entry.resetUser(uuid, false);
                     }
-                }
-                
-                MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.COMPLETED, uuid, com));
-            }
-            
-            if(!editMode && player.getServer() != null) // Repeatable quest resets
-            {
-                List<Integer> res = new ArrayList<>();
-                long totalTime = System.currentTimeMillis();
-                
-                for(QResetTime rTime : pendingResets)
-                {
-                    IQuest entry = QuestDatabase.INSTANCE.getValue(rTime.questID);
                     
-                    if(totalTime >= rTime.time && !entry.canSubmit(player)) // REEEEEEEEEset
-                    {
-                        if(entry.getProperty(NativeProps.GLOBAL))
-                        {
-                            entry.resetUser(null, false);
-                        } else
-                        {
-                            entry.resetUser(uuid, false);
-                        }
-                        
-                        refreshCache = true;
-                        qc.markQuestDirty(rTime.questID);
-                        res.add(rTime.questID);
-                        if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
-                    } else break; // Entries are sorted by time so we fail fast and skip checking the others
-                }
-                
-                MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.RESET, uuid, res));
+                    refreshCache = true;
+                    qc.markQuestDirty(rTime.questID);
+                    res.add(rTime.questID);
+                    if(!entry.getProperty(NativeProps.SILENT)) postPresetNotice(entry, player, 1);
+                } else break; // Entries are sorted by time so we fail fast and skip checking the others
             }
             
-            if(!editMode)
+            MinecraftForge.EVENT_BUS.post(new QuestEvent(Type.RESET, uuid, res));
+        }
+        
+        if(!editMode)
+        {
+            for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
             {
-                for(DBEntry<IQuest> entry : pendingAutoClaims) // Auto claims
+                if(entry.getValue().canClaim(player))
                 {
-                    if(entry.getValue().canClaim(player))
-                    {
-                        entry.getValue().claimReward(player);
-                        refreshCache = true;
-                        qc.markQuestDirty(entry.getID());
-                        // Not going to notify of auto-claims anymore. Kinda pointless if they're already being pinged for completion
-                    }
+                    entry.getValue().claimReward(player);
+                    refreshCache = true;
+                    qc.markQuestDirty(entry.getID());
+                    // Not going to notify of auto-claims anymore. Kinda pointless if they're already being pinged for completion
                 }
             }
-            
-            if(refreshCache || player.ticksExisted % 200 == 0) // Refresh the cache if something changed or every 10 seconds
-            {
-                qc.updateCache(player);
-            }
-            
-            if(qc.getDirtyQuests().length > 0) NetQuestSync.sendSync(player, qc.getDirtyQuests(), false, true);
-            qc.cleanAllQuests();
-		}
+        }
+        
+        if(refreshCache || player.ticksExisted % 200 == 0) // Refresh the cache if something changed or every 10 seconds
+        {
+            qc.updateCache(player);
+        }
+        
+        if(qc.getDirtyQuests().length > 0) NetQuestSync.sendSync(player, qc.getDirtyQuests(), false, true);
+        qc.cleanAllQuests();
 	}
 	
 	// TODO: Create a new message inbox system for these things. On screen popups aren't ideal in combat
@@ -375,6 +372,9 @@ public class EventHandler
                 openToLAN = true;
                 opQueue.addAll(server.getPlayerList().getPlayers());
             }
+        } else if(server instanceof IntegratedServer && !((IntegratedServer)server).getPublic())
+        {
+            openToLAN = false;
         }
         
         while(!opQueue.isEmpty())

@@ -131,12 +131,13 @@ public class QuestInstance implements IQuest
 			boolean update = false;
             
             ParticipantInfo partInfo = new ParticipantInfo(player);
+            DBEntry<IQuest> dbe = new DBEntry<>(questID, this);
 			
 			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
 				if(!entry.getValue().isComplete(playerID))
 				{
-					entry.getValue().detect(partInfo, new DBEntry<>(questID, this));
+					entry.getValue().detect(partInfo, dbe);
 					
 					if(entry.getValue().isComplete(playerID))
 					{
@@ -199,10 +200,10 @@ public class QuestInstance implements IQuest
 			return false;
 		} else
 		{
-		    int questID = QuestDatabase.INSTANCE.getID(this);
+		    DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
 			for(DBEntry<IReward> rew : rewards.getEntries())
 			{
-				if(!rew.getValue().canClaim(player, new DBEntry<>(questID, this)))
+				if(!rew.getValue().canClaim(player, dbe))
 				{
 					return false;
 				}
@@ -216,9 +217,10 @@ public class QuestInstance implements IQuest
 	public void claimReward(EntityPlayer player)
 	{
         int questID = QuestDatabase.INSTANCE.getID(this);
+        DBEntry<IQuest> dbe = new DBEntry<>(questID, this);
 		for(DBEntry<IReward> rew : rewards.getEntries())
 		{
-			rew.getValue().claimReward(player, new DBEntry<>(questID, this));
+			rew.getValue().claimReward(player, dbe);
 		}
 		
 		UUID pID = QuestingAPI.getQuestingUUID(player);

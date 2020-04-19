@@ -186,7 +186,6 @@ public class GuiPartyCreate extends GuiScreenCanvas implements IPEventListener, 
         List<Entry<Integer,Long>> invites = PartyInvitations.INSTANCE.getPartyInvites(playerID);
         int elSize = RenderUtils.getStringWidth("...", mc.fontRenderer);
         
-        // TODO: Display expiry period
         for(int i = 0; i < invites.size(); i++)
         {
             int pid = invites.get(i).getKey();

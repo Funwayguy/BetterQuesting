@@ -72,7 +72,7 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-		reset();
+        if(!merge) reset();
 		
 		List<IQuestLine> unassigned = new ArrayList<>();
 		HashMap<Integer,Integer> orderMap = new HashMap<>();

@@ -35,7 +35,6 @@ public final class LifeDatabase implements ILifeDatabase
 	public synchronized NBTTagCompound writeToNBT(NBTTagCompound nbt, @Nullable List<UUID> users)
 	{
 		NBTTagList jul = new NBTTagList();
-		
         for(Entry<UUID,Integer> entry : playerLives.entrySet())
         {
             if(users != null && !users.contains(entry.getKey())) continue;

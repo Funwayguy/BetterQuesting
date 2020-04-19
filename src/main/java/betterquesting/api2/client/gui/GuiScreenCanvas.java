@@ -43,24 +43,6 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	{
 		this.parent = parent;
 	}
-	
-	/*@Override
-    public IGuiRect getRootTransform()
-    {
-        return this.rootTransform;
-    }
-    
-    @Override
-    public void forceFocus(@Nonnull IGuiPanel panel)
-    {
-    
-    }
-    
-    @Override
-    public void resetFocus()
-    {
-    
-    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)

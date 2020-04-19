@@ -110,7 +110,7 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         
         for(DBEntry<IQuest> entry : questDB)
         {
-            if(entry.getValue().isUnlocked(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
+            if(entry.getValue().isUnlocked(uuid) || entry.getValue().isComplete(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
             {
                 int repeat = entry.getValue().getProperty(NativeProps.REPEAT_TIME);
                 NBTTagCompound ue = entry.getValue().getCompletionInfo(uuid);
@@ -152,8 +152,6 @@ public class QuestCache implements INBTSerializable<NBTTagCompound>
         autoClaims.clear();
         autoClaims.addAll(tmpAutoClaim);
         
-        NBTTagCompound tags = new NBTTagCompound();
-        tags.setTag("data", serializeNBT());
         if(player instanceof EntityPlayerMP) NetCacheSync.sendSync((EntityPlayerMP)player);
     }
     

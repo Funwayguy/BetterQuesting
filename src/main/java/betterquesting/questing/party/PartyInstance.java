@@ -53,7 +53,7 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
-	public void kickUser(UUID uuid)
+	public void kickUser(@Nonnull UUID uuid)
 	{
 		if(!members.containsKey(uuid)) return;
 		
@@ -115,7 +115,7 @@ public class PartyInstance implements IParty
 	}
 	
 	@Override
-	public EnumPartyStatus getStatus(UUID uuid)
+	public EnumPartyStatus getStatus(@Nonnull UUID uuid)
 	{
 		return members.get(uuid);
 	}

@@ -35,14 +35,14 @@ public class NativeProps
 	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
 	public static final IPropertyType<Integer> REPEAT_TIME =				new PropertyTypeInteger(new ResourceLocation("betterquesting:repeatTime"), -1);
-	public static final IPropertyType<Boolean> REPEAT_REL =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:repeat_relative"), true);
+	public static final IPropertyType<Boolean> REPEAT_REL =				    new PropertyTypeBoolean(new ResourceLocation("betterquesting:repeat_relative"), true);
 	
 	public static final IPropertyType<String> SOUND_UNLOCK =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_unlock"), "minecraft:ui.button.click");
 	public static final IPropertyType<String> SOUND_UPDATE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_update"), "minecraft:entity.player.levelup");
 	public static final IPropertyType<String> SOUND_COMPLETE =				new PropertyTypeString(new ResourceLocation("betterquesting:snd_complete"), "minecraft:entity.player.levelup");
 	
 	public static final IPropertyType<BigItemStack> ICON =					new PropertyTypeItemStack(new ResourceLocation("betterquesting:icon"), new BigItemStack(Items.NETHER_STAR));
-	//public static final IPropertyType<String> FRAME =                       new PropertyTypeString(new ResourceLocation("betterquesting:frame"), "minecraft:entity.player.levelup");
+	//public static final IPropertyType<String> FRAME =                       new PropertyTypeString(new ResourceLocation("betterquesting:frame"), "");
 	
 	public static final IPropertyType<String> BG_IMAGE =					new PropertyTypeString(new ResourceLocation("betterquesting:bg_image"), "");
 	public static final IPropertyType<Integer> BG_SIZE =					new PropertyTypeInteger(new ResourceLocation("betterquesting:bg_size"), 256);
