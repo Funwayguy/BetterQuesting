@@ -362,19 +362,14 @@ public class EventHandler
         
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         
-        if(!openToLAN)
+        if(!server.isDedicatedServer())
         {
-            if(server.isDedicatedServer())
-            {
-                openToLAN = true;
-            } else if(((IntegratedServer)server).getPublic())
-            {
-                openToLAN = true;
-                opQueue.addAll(server.getPlayerList().getPlayers());
-            }
-        } else if(server instanceof IntegratedServer && !((IntegratedServer)server).getPublic())
+            boolean tmp = openToLAN;
+            openToLAN = server instanceof IntegratedServer && ((IntegratedServer)server).getPublic();
+            if(openToLAN && !tmp) opQueue.addAll(server.getPlayerList().getPlayers());
+        } else if(!openToLAN)
         {
-            openToLAN = false;
+            openToLAN = true;
         }
         
         while(!opQueue.isEmpty())

@@ -30,7 +30,6 @@ import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
@@ -102,13 +101,6 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
         
         List<String> nameList = new ArrayList<>();
         mc.player.connection.getPlayerInfoMap().forEach((info) -> nameList.add(info.getGameProfile().getName()));
-        for(NetworkPlayerInfo info : mc.player.connection.getPlayerInfoMap())
-        {
-            if(!nameList.contains(info.getGameProfile().getName()))
-            {
-                nameList.add(info.getGameProfile().getName());
-            }
-        }
         
         nameList.removeIf((entry) -> {
            UUID memID = NameCache.INSTANCE.getUUID(entry);
