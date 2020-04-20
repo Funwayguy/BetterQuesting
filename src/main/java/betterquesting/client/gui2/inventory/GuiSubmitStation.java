@@ -186,7 +186,6 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
         txtTskTitle.setColor(PresetColor.TEXT_MAIN.getColor()).setAlignment(1);
         cvBackground.addPanel(txtTskTitle);
         
-        //setInventoryPosition((xSize - 32)/4 + 16 - 81, (ySize - 32)/2 + 16 - 49);
         setInventoryPosition((xSize - 64)/4 + 16 - 81, (ySize - 64)/2 + 16 - 49);
         refreshTaskPanel();
     }
