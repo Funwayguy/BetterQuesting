@@ -167,7 +167,7 @@ public class NBTConverter
 	{
 		if(jObj == null)
 		{
-			return new StringNBT();
+			return StringNBT.valueOf("");
 		}
 		
 		byte tagID = id <= 0? fallbackTagID(jObj) : id;
@@ -176,13 +176,13 @@ public class NBTConverter
 		{
 			if(tagID == 1 && (id <= 0 || jObj.getAsJsonPrimitive().isBoolean())) // Edge case for BQ2 legacy files
 			{
-				return new ByteNBT(jObj.getAsBoolean() ? (byte)1 : (byte)0);
+				return ByteNBT.valueOf(jObj.getAsBoolean() ? (byte)1 : (byte)0);
 			} else if(tagID >= 1 && tagID <= 6)
 			{
 				return instanceNumber(jObj.getAsNumber(), tagID);
 			} else if(tagID == 8)
 			{
-				return new StringNBT(jObj.getAsString());
+				return StringNBT.valueOf(jObj.getAsString());
 			} else if(tagID == 10)
 			{
 				return JSONtoNBT_Object(jObj.getAsJsonObject(), new CompoundNBT(), format);
@@ -262,7 +262,7 @@ public class NBTConverter
 		}
 		
 		QuestingAPI.getLogger().log(Level.WARN, "Unknown NBT representation for " + jObj.toString() + " (ID: " + tagID + ")");
-		return new StringNBT();
+		return StringNBT.valueOf("");
 	}
 	
 	@SuppressWarnings("WeakerAccess")
@@ -298,17 +298,17 @@ public class NBTConverter
 		switch (type)
         {
             case 1:
-                return new ByteNBT(num.byteValue());
+                return ByteNBT.valueOf(num.byteValue());
             case 2:
-                return new ShortNBT(num.shortValue());
+                return ShortNBT.valueOf(num.shortValue());
             case 3:
-                return new IntNBT(num.intValue());
+                return IntNBT.valueOf(num.intValue());
             case 4:
-                return new LongNBT(num.longValue());
+                return LongNBT.valueOf(num.longValue());
             case 5:
-                return new FloatNBT(num.floatValue());
+                return FloatNBT.valueOf(num.floatValue());
             default:
-                return new DoubleNBT(num.doubleValue());
+                return DoubleNBT.valueOf(num.doubleValue());
         }
 	}
 	

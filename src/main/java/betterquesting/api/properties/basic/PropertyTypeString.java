@@ -27,9 +27,9 @@ public class PropertyTypeString extends PropertyTypeBase<String>
 	{
 		if(value == null)
 		{
-			return new StringNBT(this.getDefault());
+			return StringNBT.valueOf(this.getDefault());
 		}
 		
-		return new StringNBT(value);
+		return StringNBT.valueOf(value);
 	}
 }

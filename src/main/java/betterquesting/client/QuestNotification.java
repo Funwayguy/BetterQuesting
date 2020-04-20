@@ -53,8 +53,8 @@ public class QuestNotification
 		}
 		
 		Minecraft mc = Minecraft.getInstance();
-		int width = mc.mainWindow.getScaledWidth();
-		int height = mc.mainWindow.getScaledHeight();
+		int width = mc.getMainWindow().getScaledWidth();
+		int height = mc.getMainWindow().getScaledHeight();
 		QuestNotice notice = notices.get(0);
 		
 		if(!notice.init)
@@ -95,7 +95,7 @@ public class QuestNotification
 		}
 
 		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param);
      	
 		String tmp = TextFormatting.UNDERLINE + "" + TextFormatting.BOLD + QuestTranslation.translate(notice.mainTxt);
 		int txtW = RenderUtils.getStringWidth(tmp, mc.fontRenderer);

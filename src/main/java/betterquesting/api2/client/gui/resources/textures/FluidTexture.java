@@ -90,7 +90,7 @@ public class FluidTexture implements IGuiTexture
         
         Minecraft mc = Minecraft.getInstance();
         mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-        TextureAtlasSprite fluidTx = mc.getTextureMap().getAtlasSprite(fluid.getFluid().getAttributes().getStill(fluid).toString());
+        TextureAtlasSprite fluidTx = mc.getAtlasSpriteGetter(AtlasTexture.LOCATION_BLOCKS_TEXTURE).apply(fluid.getFluid().getAttributes().getStillTexture(fluid));
         this.drawTexturedModalRect(0, 0, 0, fluidTx, 16, 16);
         
         GlStateManager.popMatrix();

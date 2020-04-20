@@ -59,14 +59,14 @@ public class QuestResourcesFile implements IResourcePack
  
 	@Nonnull
     @Override
-    public Collection<ResourceLocation> getAllResourceLocations(@Nonnull ResourcePackType type, @Nonnull String pathIn, int maxDepth, @Nonnull Predicate<String> filter)
+    public Collection<ResourceLocation> getAllResourceLocations(@Nonnull ResourcePackType type, String namespaceIn, @Nonnull String pathIn, int maxDepth, @Nonnull Predicate<String> filter)
     {
         Set<ResourceLocation> set = new HashSet<>();
-        for(String s : getResourceNamespaces(type))
+        //for(String s : getResourceNamespaces(type))
         {
             try
             {
-                set.addAll(this.getResourceLocations(maxDepth, s, rootFolder.toPath().resolve(type.getDirectoryName()).resolve(s), pathIn, filter));
+                set.addAll(this.getResourceLocations(maxDepth, namespaceIn, rootFolder.toPath().resolve(type.getDirectoryName()).resolve(namespaceIn), pathIn, filter));
             } catch(Exception ignored){}
         }
         return set;

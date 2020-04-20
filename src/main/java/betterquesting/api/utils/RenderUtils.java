@@ -6,8 +6,10 @@ import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.core.BetterQuesting;
-import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.LogicOp;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -67,8 +69,8 @@ public class RenderUtils
 		float r = (float)(color >> 16 & 255) / 255.0F;
 		float g = (float)(color >> 8 & 255) / 255.0F;
 		float b = (float)(color & 255) / 255.0F;
-		GlStateManager.color3f(r, g, b);
-		RenderHelper.enableGUIStandardItemLighting();
+		GlStateManager.color4f(r, g, b, 1F);
+		RenderHelper.enableStandardItemLighting();
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableDepthTest();
 		
@@ -170,8 +172,8 @@ public class RenderUtils
 	        
 	        RenderHelper.enableStandardItemLighting();
 	        EntityRendererManager rendermanager = Minecraft.getInstance().getRenderManager();
-	        rendermanager.setPlayerViewY(180.0F);
-	        rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+	        //rendermanager.setPlayerViewY(180.0F);
+	        //rendermanager.renderEntityStatic(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
 	        entity.rotationYaw = f3;
 	        entity.rotationPitch = f4;
 	        entity.prevRotationYaw = f5;
@@ -186,9 +188,9 @@ public class RenderUtils
 	        GlStateManager.popMatrix();
 	        RenderHelper.disableStandardItemLighting();
 	        GlStateManager.disableRescaleNormal();
-            GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+            GlStateManager.activeTexture(33985/*GLX.GL_TEXTURE1*/); // Fuck you and your magic numbers
 	        GlStateManager.disableTexture();
-            GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+            GlStateManager.activeTexture(33984/*GLX.GL_TEXTURE0*/);
 	        GlStateManager.enableTexture(); // Breaks subsequent text rendering if not included
     	} catch(Exception e)
     	{
@@ -386,7 +388,7 @@ public class RenderUtils
         GlStateManager.color4f(f, f1, f2, f3);
         GlStateManager.disableTexture();
        	GlStateManager.enableColorLogicOp();
-        GlStateManager.logicOp(GlStateManager.LogicOp.OR_REVERSE);
+        GlStateManager.logicOp(LogicOp.OR_REVERSE.opcode);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
         bufferbuilder.pos((double)left, (double)bottom, 0.0D).endVertex();
         bufferbuilder.pos((double)right, (double)bottom, 0.0D).endVertex();
@@ -407,7 +409,7 @@ public class RenderUtils
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture();
-        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param, SourceFactor.ONE.param, DestFactor.ZERO.param);
         color.applyGlColor();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION);
         vertexbuffer.pos((double)rect.getX(), (double)rect.getY() + rect.getHeight(), 0.0D).endVertex();
@@ -457,8 +459,8 @@ public class RenderUtils
 	
 	private static void fillScreen()
     {
-    	int w = Minecraft.getInstance().mainWindow.getWidth();
-    	int h = Minecraft.getInstance().mainWindow.getHeight();
+    	int w = Minecraft.getInstance().getMainWindow().getWidth();
+    	int h = Minecraft.getInstance().getMainWindow().getHeight();
     	
         GL11.glPushAttrib(GL11.GL_TEXTURE_BIT | GL11.GL_DEPTH_TEST | GL11.GL_LIGHTING);
     	

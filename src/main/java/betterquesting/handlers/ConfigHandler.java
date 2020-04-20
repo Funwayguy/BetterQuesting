@@ -9,8 +9,8 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.config.ModConfig.ConfigReloading;
 import net.minecraftforge.fml.config.ModConfig.Loading;
+import net.minecraftforge.fml.config.ModConfig.ModConfigEvent;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -96,7 +96,7 @@ public class ConfigHandler
     }
     
     @SubscribeEvent
-    public static void onReload(final ConfigReloading event)
+    public static void onReload(final ModConfigEvent event)
     {
         if(!event.getConfig().getModId().equalsIgnoreCase(BetterQuesting.MODID)) return;
         

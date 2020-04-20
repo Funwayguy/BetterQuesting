@@ -12,7 +12,6 @@ import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
-import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
 import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.storage.DBEntry;
@@ -31,6 +30,7 @@ import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -76,19 +76,13 @@ public class EventHandler
 		
 		if(BQ_Keybindings.openQuests.isPressed())
 		{
-			if(mc.player.isSneaking() && mc.player.getName().getFormattedText().equalsIgnoreCase("Funwayguy"))
-			{
-				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
-			} else
-			{
-				if(BQ_Settings.useBookmark && GuiHome.bookmark != null)
-				{
-					mc.displayGuiScreen(GuiHome.bookmark);
-				} else
-				{
-					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
-				}
-			}
+            if(BQ_Settings.useBookmark && GuiHome.bookmark != null)
+            {
+                mc.displayGuiScreen(GuiHome.bookmark);
+            } else
+            {
+                mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
+            }
 		}
 	}
 	
@@ -103,7 +97,7 @@ public class EventHandler
     public void onPlayerClone(Clone event)
     {
         betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
-        betterquesting.api2.cache.QuestCache nCache = event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
+        betterquesting.api2.cache.QuestCache nCache = event.getPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
         
         if(oCache != null && nCache != null) nCache.deserializeNBT(oCache.serializeNBT());
     }
@@ -313,7 +307,7 @@ public class EventHandler
 	@OnlyIn(Dist.CLIENT)
 	public void onTextureStitch(TextureStitchEvent.Pre event)
 	{
-		if(event.getMap() == Minecraft.getInstance().getTextureMap())
+		if(event.getMap().getTextureLocation().equals(AtlasTexture.LOCATION_BLOCKS_TEXTURE))
 		{
 			//event.getMap().registerSprite(FluidPlaceholder.fluidPlaceholder.getStill());
 		}

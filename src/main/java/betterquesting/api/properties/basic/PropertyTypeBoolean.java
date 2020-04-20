@@ -34,9 +34,9 @@ public class PropertyTypeBoolean extends PropertyTypeBase<Boolean>
 	{
 		if(value == null)
 		{
-			return new ByteNBT(this.getDefault() ? (byte)1 : (byte)0);
+			return ByteNBT.valueOf(this.getDefault() ? (byte)1 : (byte)0);
 		}
 		
-		return new ByteNBT(value ? (byte)1 : (byte)0);
+		return ByteNBT.valueOf(value ? (byte)1 : (byte)0);
 	}
 }

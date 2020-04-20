@@ -19,7 +19,7 @@ public class QuestCommandSPHardcore
         return Commands.literal("hardcore").requires((source) -> {
             try
             {
-                return source.getServer().isSinglePlayer() && source.getServer().func_213199_b(source.asPlayer().getGameProfile()); // isOwner
+                return source.getServer().isSinglePlayer() && source.getServer().isServerOwner(source.asPlayer().getGameProfile()); // isOwner
             } catch(CommandSyntaxException e)
             {
                 return false;

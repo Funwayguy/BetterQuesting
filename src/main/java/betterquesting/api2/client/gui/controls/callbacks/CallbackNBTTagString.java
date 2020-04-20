@@ -36,7 +36,7 @@ public class CallbackNBTTagString implements ICallback<String>
             ((CompoundNBT)tag).putString(sKey, value);
         } else if(tag.getId() == 9)
         {
-            ((ListNBT)tag).set(iKey, new StringNBT(value));
+            ((ListNBT)tag).set(iKey, StringNBT.valueOf(value));
         }
     }
 }

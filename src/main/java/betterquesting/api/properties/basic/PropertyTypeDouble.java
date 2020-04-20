@@ -28,9 +28,9 @@ public class PropertyTypeDouble extends PropertyTypeBase<Double>
 	{
 		if(value == null)
 		{
-			return new DoubleNBT(this.getDefault());
+			return DoubleNBT.valueOf(this.getDefault());
 		}
 		
-		return new DoubleNBT(value);
+		return DoubleNBT.valueOf(value);
 	}
 }

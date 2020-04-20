@@ -21,6 +21,7 @@ import net.minecraft.resources.FolderPackFinder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -46,9 +47,6 @@ public class BetterQuesting
     public static final String CHANNEL = "bq_net_chan";
     public static final String NET_PROTOCOL = "1.0.0";
     public static final String FORMAT = "3.0.0";
-    
-    // TODO: Possibly make use of this in future
-    private static final String MCL_API = "Yo1nkbXn7uVptLoL3GpkAaT7HsU8QFGJ";
 	
 	public static BetterQuesting instance;
 	
@@ -76,6 +74,8 @@ public class BetterQuesting
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverStop);
         
         FMLJavaModLoadingContext.get().getModEventBus().register(ConfigHandler.class);
+    
+        //ScreenManager.registerFactory();
     }
     
     public void setupCommon(final FMLCommonSetupEvent event)
@@ -94,6 +94,8 @@ public class BetterQuesting
     public void setupClient(final FMLClientSetupEvent event)
     {
     	//PacketTypeRegistry.INSTANCE.initClient();
+    
+        MinecraftForgeClient.reserveStencilBit();
         
         // Figure this out
         /*if(!Minecraft.getInstance().getFramebuffer().isStencilEnabled())

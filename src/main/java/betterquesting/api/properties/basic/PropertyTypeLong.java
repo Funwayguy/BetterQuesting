@@ -28,9 +28,9 @@ public class PropertyTypeLong extends PropertyTypeBase<Long>
 	{
 		if(value == null)
 		{
-			return new LongNBT(this.getDefault());
+			return LongNBT.valueOf(this.getDefault());
 		}
 		
-		return new LongNBT(value);
+		return LongNBT.valueOf(value);
 	}
 }

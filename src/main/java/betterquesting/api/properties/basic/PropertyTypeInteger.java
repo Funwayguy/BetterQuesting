@@ -28,9 +28,9 @@ public class PropertyTypeInteger extends PropertyTypeBase<Integer>
 	{
 		if(value == null)
 		{
-			return new IntNBT(this.getDefault());
+			return IntNBT.valueOf(this.getDefault());
 		}
 		
-		return new IntNBT(value);
+		return IntNBT.valueOf(value);
 	}
 }

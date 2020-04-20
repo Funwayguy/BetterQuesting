@@ -28,9 +28,9 @@ public class PropertyTypeFloat extends PropertyTypeBase<Float>
 	{
 		if(value == null)
 		{
-			return new FloatNBT(this.getDefault());
+			return FloatNBT.valueOf(this.getDefault());
 		}
 		
-		return new FloatNBT(value);
+		return FloatNBT.valueOf(value);
 	}
 }

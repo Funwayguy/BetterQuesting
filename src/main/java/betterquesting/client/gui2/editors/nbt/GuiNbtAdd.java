@@ -120,15 +120,15 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, QuestTranslation.translate("betterquesting.btn.entity"), JsonHelper.EntityToJson(new PigEntity(EntityType.PIG, minecraft.world), new CompoundNBT())));
 
         // NBT types
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, StringNBT.class.getSimpleName(), new StringNBT("")));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, StringNBT.class.getSimpleName(), StringNBT.valueOf("")));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, CompoundNBT.class.getSimpleName(), new CompoundNBT()));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ListNBT.class.getSimpleName(), new ListNBT()));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ByteNBT.class.getSimpleName(), new ByteNBT((byte)0)));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ShortNBT.class.getSimpleName(), new ShortNBT((short)0)));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, IntNBT.class.getSimpleName(), new IntNBT(0)));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, LongNBT.class.getSimpleName(), new LongNBT(0L)));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, FloatNBT.class.getSimpleName(), new FloatNBT(0F)));
-        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, DoubleNBT.class.getSimpleName(), new DoubleNBT(0D)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ByteNBT.class.getSimpleName(), ByteNBT.valueOf((byte)0)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ShortNBT.class.getSimpleName(), ShortNBT.valueOf((short)0)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, IntNBT.class.getSimpleName(), IntNBT.valueOf(0)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, LongNBT.class.getSimpleName(), LongNBT.valueOf(0L)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, FloatNBT.class.getSimpleName(), FloatNBT.valueOf(0F)));
+        options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, DoubleNBT.class.getSimpleName(), DoubleNBT.valueOf(0D)));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, ByteArrayNBT.class.getSimpleName(), new ByteArrayNBT(new byte[0])));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n++ * 16, 192, 16, 0), 2, IntArrayNBT.class.getSimpleName(), new IntArrayNBT(new int[0])));
         options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 0, n * 16, 192, 16, 0), 2, LongArrayNBT.class.getSimpleName(), new LongArrayNBT(new long[0])));

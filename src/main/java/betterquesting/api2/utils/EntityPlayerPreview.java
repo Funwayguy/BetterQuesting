@@ -26,7 +26,7 @@ public class EntityPlayerPreview extends RemoteClientPlayerEntity
 	public EntityPlayerPreview(ClientWorld worldIn, GameProfile gameProfileIn)
 	{
 		super(worldIn, gameProfileIn);
-		this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName());
+		this.resource = new ResourceLocation(BetterQuesting.MODID, "textures/skin_cache/" + gameProfileIn.getName().toLowerCase());
         this.getDataManager().set(PLAYER_MODEL_FLAG, (byte)1);
 	}
 	
