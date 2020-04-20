@@ -130,7 +130,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             }
         }
         
-        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 24, -52), 0), 2, "OreDict: " + oreName, oreIdx);
+        btnOre = new PanelButtonStorage<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 36, 24, -52), 0), 2, "Ore: " + oreName, oreIdx);
         cvTopLeft.addPanel(btnOre);
         
         PanelButton btnWild = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 36, 16, 16, 0), 3, "*");

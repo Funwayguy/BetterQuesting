@@ -34,6 +34,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefresh
@@ -74,6 +75,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
         quests.clear();
         QuestCache qc = (QuestCache)mc.thePlayer.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
         if(qc != null) quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        filterQuests();
         
         refreshTaskPanel();
     }
@@ -89,6 +91,7 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
         taskPanel = null;
         QuestCache qc = (QuestCache)mc.thePlayer.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
         if(qc != null) quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+        filterQuests();
         
         // Background panel
         cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
@@ -206,6 +209,29 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 54, y, 18, 18, -1), PresetTexture.ITEM_FRAME.getTexture()));
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 72, y, 18, 18, -1), PresetIcon.ICON_RIGHT.getTexture()));
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 90, y, 18, 18, -1), PresetTexture.ITEM_FRAME.getTexture()));
+    }
+    
+    private void filterQuests()
+    {
+        Iterator<DBEntry<IQuest>> iter = quests.iterator();
+        
+        while(iter.hasNext())
+        {
+            DBEntry<IQuest> entry = iter.next();
+            
+            boolean valid = false;
+            
+            for(DBEntry<ITask> tsk : entry.getValue().getTasks().getEntries())
+            {
+                if(tsk.getValue() instanceof IItemTask || tsk.getValue() instanceof IFluidTask)
+                {
+                    valid = true;
+                    break;
+                }
+            }
+            
+            if(!valid) iter.remove();
+        }
     }
     
     private void refreshTaskPanel()

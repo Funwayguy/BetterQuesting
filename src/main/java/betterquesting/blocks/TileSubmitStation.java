@@ -6,6 +6,7 @@ import betterquesting.api.questing.tasks.IFluidTask;
 import betterquesting.api.questing.tasks.IItemTask;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.cache.QuestCache;
+import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
@@ -33,11 +34,11 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 {
 	private ItemStack[] itemStack = new ItemStack[2];
 	private boolean needsUpdate = false;
-	public UUID owner;
-	public int questID;
-	public int taskID;
+	public UUID owner = null;
+	public int questID = -1;
+	public int taskID = -1;
 	
-	private IQuest qCached;
+	private DBEntry<IQuest> qCached;
 	
 	@SuppressWarnings("WeakerAccess")
     public TileSubmitStation()
@@ -45,30 +46,25 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		super();
 	}
 	
-	public IQuest getQuest()
+	public DBEntry<IQuest> getQuest()
 	{
-		if(questID < 0)
-		{
-			return null;
-		} else
-		{
-		    if(qCached == null) qCached = QuestDatabase.INSTANCE.getValue(questID);
-			return qCached;
-		}
+		if(questID < 0) return null;
+		
+		if(qCached == null)
+        {
+            IQuest tmp = QuestDatabase.INSTANCE.getValue(questID);
+            if(tmp != null) qCached = new DBEntry<>(questID, tmp);
+        }
+		
+        return qCached;
 	}
 	
 	@SuppressWarnings("WeakerAccess")
     public ITask getRawTask()
 	{
-		IQuest q = getQuest();
-		
-		if(q == null || taskID < 0)
-		{
-			return null;
-		} else
-		{
-			return q.getTasks().getValue(taskID);
-		}
+		DBEntry<IQuest> q = getQuest();
+		if(q == null || taskID < 0) return null;
+		return q.getValue().getTasks().getValue(taskID);
 	}
 	
 	@SuppressWarnings("WeakerAccess")
@@ -263,7 +259,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		if(wtt%10 == 0 && owner != null)
 		{
 		    if(wtt%20 == 0) qCached = null; // Reset and lookup quest again once every second
-            IQuest q = getQuest();
+            DBEntry<IQuest> q = getQuest();
             IItemTask t = getItemTask();
             MinecraftServer server = MinecraftServer.getServer();
             EntityPlayerMP player = getPlayerByUUID(owner);
@@ -334,7 +330,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		}
 		
 		this.questID = QuestDatabase.INSTANCE.getID(quest);
-		this.qCached = quest;
+		this.qCached = new DBEntry<>(questID, quest);
 		this.taskID = quest.getTasks().getID(task);
 		
 		if(this.questID < 0 || this.taskID < 0)
