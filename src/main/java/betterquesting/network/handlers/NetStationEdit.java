@@ -37,7 +37,7 @@ public class NetStationEdit
         NBTTagCompound payload = new NBTTagCompound();
         payload.setInteger("action", 1);
         payload.setInteger("questID", questID);
-        payload.setInteger("questID", taskID);
+        payload.setInteger("task", taskID);
         payload.setInteger("tilePosX", posX);
         payload.setInteger("tilePosY", posY);
         payload.setInteger("tilePosZ", posZ);
