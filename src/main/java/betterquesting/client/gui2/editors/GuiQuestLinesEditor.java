@@ -2,7 +2,6 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
@@ -40,7 +39,7 @@ import net.minecraft.nbt.ListNBT;
 
 import java.util.List;
 
-public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
+public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private CanvasScrolling lineList;
     private PanelTextField<String> tfName;

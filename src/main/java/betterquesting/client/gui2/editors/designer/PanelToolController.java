@@ -277,27 +277,25 @@ public class PanelToolController implements IGuiPanel
             if(activeTool != null) activeTool.onSelection(selected);
         }
         
-        if(activeTool != null) return activeTool.onMouseRelease(mx, my, button);
-        return false;
+        return activeTool != null && activeTool.onMouseRelease(mx, my, button);
     }
     
     @Override
     public boolean onMouseScroll(int mx, int my, int scroll)
     {
-        if(activeTool != null) return activeTool.onMouseScroll(mx, my, scroll);
-        return false;
+        return activeTool != null && activeTool.onMouseScroll(mx, my, scroll);
     }
     
     @Override
-    public boolean onKeyTyped(char c, int keycode)
+    public boolean onKeyPressed(int keycode, int scancode, int modifiers)
     {
         if(activeTool != null)
         {
-            if(activeTool.onKeyPressed(c, keycode)) return true;
+            if(activeTool.onKeyPressed(keycode, scancode, modifiers)) return true;
             if(activeTool.useSelection() && keycode == GLFW.GLFW_KEY_A)
             {
-                boolean append = Screen.hasControlDown();//Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
-                boolean subtract = append && Screen.hasShiftDown();//(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT));
+                boolean append = Screen.hasControlDown();
+                boolean subtract = append && Screen.hasShiftDown();
                 
                 if(subtract)
                 {
@@ -324,6 +322,18 @@ public class PanelToolController implements IGuiPanel
             }
         }
         return false;
+    }
+    
+    @Override
+    public boolean onKeyRelease(int keycode, int scancode, int modifiers)
+    {
+        return activeTool != null && activeTool.onKeyRelease(keycode, scancode, modifiers);
+    }
+    
+    @Override
+    public boolean onCharTyped(char c, int keycode)
+    {
+        return activeTool != null && activeTool.onCharTyped(c, keycode);
     }
     
     @Override

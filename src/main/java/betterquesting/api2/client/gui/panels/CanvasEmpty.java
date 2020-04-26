@@ -126,7 +126,7 @@ public class CanvasEmpty implements IGuiCanvas
 	}
 	
 	@Override
-	public boolean onKeyTyped(char c, int keycode)
+	public boolean onCharTyped(char c, int keycode)
 	{
 		boolean used = false;
 		
@@ -136,7 +136,49 @@ public class CanvasEmpty implements IGuiCanvas
 		{
 			IGuiPanel entry = pnIter.previous();
 			
-			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
+			if(entry.isEnabled() && entry.onCharTyped(c, keycode))
+			{
+				used = true;
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onKeyPressed(int keycode, int scancode, int modifiers)
+	{
+		boolean used = false;
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyPressed(keycode, scancode, modifiers))
+			{
+				used = true;
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onKeyRelease(int keycode, int scancode, int modifiers)
+	{
+		boolean used = false;
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyRelease(keycode, scancode, modifiers))
 			{
 				used = true;
 				break;

@@ -7,8 +7,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.List;
-
 public class PanelHScrollBar implements IScrollBar
 {
 	private final IGuiRect transform;
@@ -142,12 +140,6 @@ public class PanelHScrollBar implements IScrollBar
 		
 		return false;
 	}
-	
-	@Override
-	public boolean onMouseRelease(int mx, int my, int click)
-	{
-		return false;
-	}
 
 	@Override
 	public boolean onMouseScroll(int mx, int my, int sdx)
@@ -168,18 +160,6 @@ public class PanelHScrollBar implements IScrollBar
 			this.writeValue(dx + scroll);
 			return true;
 		}
-	}
-
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-
-	@Override
-	public List<String> getTooltip(int mx, int my)
-	{
-		return null;
 	}
 	
 	@Override

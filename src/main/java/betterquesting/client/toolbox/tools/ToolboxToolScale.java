@@ -238,21 +238,9 @@ public class ToolboxToolScale implements IToolboxTool
 		
 		return false;
 	}
-	
-	@Override
-    public boolean onMouseRelease(int mx, int my, int click)
-    {
-        return false;
-    }
 
 	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-	    return false;
-	}
-
-	@Override
-	public boolean onKeyPressed(char c, int key)
+	public boolean onKeyPressed(int key, int scancode, int modifiers)
 	{
 	    return grabList.size() > 0;
 	}

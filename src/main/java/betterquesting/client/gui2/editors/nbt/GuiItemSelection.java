@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
 import betterquesting.abs.misc.GuiAnchor;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
@@ -43,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
-public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
 {
     private final ICallback<BigItemStack> callback;
     private BigItemStack itemStack;

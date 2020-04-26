@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
@@ -44,7 +43,7 @@ import net.minecraft.nbt.ListNBT;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
+public class GuiQuestLineAddRemove extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     @Nullable
     private IQuestLine questLine;

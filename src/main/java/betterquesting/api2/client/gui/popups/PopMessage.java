@@ -68,7 +68,6 @@ public class PopMessage extends CanvasEmpty
     public boolean onMouseClick(int mx, int my, int click)
     {
         super.onMouseClick(mx, my, click);
-        
         return true;
     }
     
@@ -76,7 +75,6 @@ public class PopMessage extends CanvasEmpty
     public boolean onMouseRelease(int mx, int my, int click)
     {
         super.onMouseRelease(mx, my, click);
-        
         return true;
     }
     
@@ -84,15 +82,27 @@ public class PopMessage extends CanvasEmpty
     public boolean onMouseScroll(int mx, int my, int scroll)
     {
         super.onMouseScroll(mx, my, scroll);
-        
         return true;
     }
     
     @Override
-    public boolean onKeyTyped(char c, int keycode)
+    public boolean onKeyPressed(int keycode, int scancode, int modifiers)
     {
-        super.onKeyTyped(c, keycode);
-        
+        super.onKeyPressed(keycode, scancode, modifiers);
+        return true;
+    }
+    
+    @Override
+    public boolean onKeyRelease(int keycode, int scancode, int modifiers)
+    {
+        super.onKeyRelease(keycode, scancode, modifiers);
+        return true;
+    }
+    
+    @Override
+    public boolean onCharTyped(char c, int keycode)
+    {
+        super.onCharTyped(c, keycode);
         return true;
     }
 }

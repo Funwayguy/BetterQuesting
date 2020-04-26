@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors;
 
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -39,7 +38,7 @@ import net.minecraft.nbt.ListNBT;
 import java.util.Arrays;
 import java.util.List;
 
-public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
+public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private IQuest quest;
     private final int questID;

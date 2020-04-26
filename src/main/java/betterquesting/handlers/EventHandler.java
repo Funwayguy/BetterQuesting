@@ -55,6 +55,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -72,9 +73,11 @@ public class EventHandler
 	@OnlyIn(Dist.CLIENT)
 	public void onKey(InputEvent.KeyInputEvent event)
 	{
+	    if(event.getAction() != GLFW.GLFW_PRESS) return;
+	    
 		Minecraft mc = Minecraft.getInstance();
 		
-		if(BQ_Keybindings.openQuests.isPressed())
+		if(mc.currentScreen == null && BQ_Keybindings.openQuests.isPressed())
 		{
             if(BQ_Settings.useBookmark && GuiHome.bookmark != null)
             {
@@ -96,10 +99,10 @@ public class EventHandler
     @SubscribeEvent
     public void onPlayerClone(Clone event)
     {
-        betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
-        betterquesting.api2.cache.QuestCache nCache = event.getPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElse(null);
+        betterquesting.api2.cache.QuestCache oCache = event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElseGet(QuestCache::new);
+        betterquesting.api2.cache.QuestCache nCache = event.getPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null).orElseGet(QuestCache::new);
         
-        if(oCache != null && nCache != null) nCache.deserializeNBT(oCache.serializeNBT());
+        nCache.deserializeNBT(oCache.serializeNBT());
     }
 	
 	@SubscribeEvent

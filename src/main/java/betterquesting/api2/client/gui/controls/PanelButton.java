@@ -268,18 +268,6 @@ public class PanelButton implements IPanelButton, IGuiPanel
 	}
 	
 	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-	
-	@Override
 	public List<String> getTooltip(int mx, int my)
 	{
 		if(this.getTransform().contains(mx, my))

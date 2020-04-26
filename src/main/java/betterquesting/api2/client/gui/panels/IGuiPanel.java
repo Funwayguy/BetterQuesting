@@ -1,7 +1,9 @@
 package betterquesting.api2.client.gui.panels;
 
-import java.util.List;
 import betterquesting.api2.client.gui.misc.IGuiRect;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public interface IGuiPanel
 {
@@ -10,12 +12,17 @@ public interface IGuiPanel
 	void initPanel();
 	void setEnabled(boolean state);
 	boolean isEnabled();
+	
 	void drawPanel(int mx, int my, float partialTick);
 	
-	boolean onMouseClick(int mx, int my, int button);
-	boolean onMouseRelease(int mx, int my, int button);
-	boolean onMouseScroll(int mx, int my, int scroll);
-	boolean onKeyTyped(char c, int keycode);
+	default boolean onMouseClick(int mx, int my, int button) {return false; }
+	default boolean onMouseRelease(int mx, int my, int button) {return false; }
+	default boolean onMouseScroll(int mx, int my, int scroll) {return false; }
 	
-	List<String> getTooltip(int mx, int my);
+	default boolean onKeyPressed(int keycode, int scancode, int modifiers) { return false; }
+	default boolean onKeyRelease(int keycode, int scancode, int modifiers) { return false; }
+	default boolean onCharTyped(char c, int keycode) { return false; }
+	
+	@Nullable
+	default List<String> getTooltip(int mx, int my) { return null; }
 }

@@ -1,6 +1,5 @@
 package betterquesting.api2.client.gui;
 
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.client.gui.misc.*;
@@ -20,6 +19,7 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -49,24 +49,6 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
         super(container, Minecraft.getInstance().player.inventory, new StringTextComponent("BQ CONTAINER SCREEN"));
         this.parent = parent;
     }
-    
-    /*@Override
-    public IGuiRect getRootTransform()
-    {
-        return this.rootTransform;
-    }
-    
-    @Override
-    public void forceFocus(@Nonnull IGuiPanel panel)
-    {
-        this.focused = panel;
-    }
-    
-    @Override
-    public void resetFocus()
-    {
-        this.focused = null;
-    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
@@ -214,11 +196,11 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
     }
 	
 	@Override
-    public boolean charTyped(char c, int keyCode)
+    public boolean keyPressed(int keyCode, int scancode, int modifiers)
     {
-        if (keyCode == 1)
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE)
         {
-        	if(this.isVolatile || this instanceof IVolatileScreen)
+        	if(this.isVolatile)
         	{
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
@@ -230,7 +212,19 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
 			return true;
         }
         
-        return super.charTyped(c, keyCode) || this.onKeyTyped(c, keyCode);
+        return super.keyPressed(keyCode, scancode, modifiers) || this.onKeyPressed(keyCode, scancode, modifiers);
+    }
+    
+    @Override
+    public boolean keyReleased(int keyCode, int scancode, int modifiers)
+    {
+        return super.keyReleased(keyCode, scancode, modifiers) || this.onKeyRelease(keyCode, scancode, modifiers);
+    }
+    
+    @Override
+    public boolean charTyped(char c, int keycode)
+    {
+        return super.charTyped(c, keycode) || this.onCharTyped(c, keycode);
     }
 	
 	@Override
@@ -332,7 +326,7 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
 	}
 	
 	@Override
-	public boolean onKeyTyped(char c, int keycode)
+	public boolean onKeyPressed(int keycode, int scancode, int modifiers)
 	{
 		boolean used = false;
 		
@@ -340,7 +334,7 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
         {
             if(popup.isEnabled())
             {
-                popup.onKeyTyped(c, keycode);
+                popup.onKeyPressed(keycode, scancode, modifiers);
                 return true;// Regardless of whether this is actually used we prevent other things from being edited
             }
         }
@@ -351,7 +345,7 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
 		{
 			IGuiPanel entry = pnIter.previous();
 			
-			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
+			if(entry.isEnabled() && entry.onKeyPressed(keycode, scancode, modifiers))
 			{
 				used = true;
 				break;
@@ -360,13 +354,75 @@ public class GuiContainerCanvas<T extends Container> extends ContainerScreen<T> 
 		
 		if(!used && (BQ_Keybindings.openQuests.getKey().getKeyCode() == keycode || minecraft.gameSettings.keyBindInventory.getKey().getKeyCode() == keycode))
 		{
-        	if(this.isVolatile || this instanceof IVolatileScreen)
+        	if(this.isVolatile)
         	{
         	    openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.closing_confirm"), PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
         	} else
 			{
 				this.minecraft.displayGuiScreen(null);
 				if(this.minecraft.currentScreen == null) this.minecraft.setGameFocused(true);
+			}
+        	
+        	used = true;
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onKeyRelease(int keycode, int scancode, int modifiers)
+	{
+		boolean used = false;
+		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onKeyRelease(keycode, scancode, modifiers);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyRelease(keycode, scancode, modifiers))
+			{
+				used = true;
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onCharTyped(char c, int keycode)
+	{
+		boolean used = false;
+		
+		if(popup != null)
+        {
+            if(popup.isEnabled())
+            {
+                popup.onCharTyped(c, keycode);
+                return true;// Regardless of whether this is actually used we prevent other things from being edited
+            }
+        }
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onCharTyped(c, keycode))
+			{
+				used = true;
+				break;
 			}
 		}
 		

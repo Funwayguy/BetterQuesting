@@ -87,37 +87,9 @@ public class PanelGeneric implements IGuiPanel
     }
     
     @Override
-    public boolean onMouseClick(int mx, int my, int button)
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onMouseRelease(int mx, int my, int button)
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onMouseScroll(int mx, int my, int scroll)
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onKeyTyped(char c, int keycode)
-    {
-        return false;
-    }
-    
-    @Override
     public List<String> getTooltip(int mx, int my)
     {
-        if(transform.contains(mx, my))
-        {
-            return tooltip;
-        }
-        
+        if(transform.contains(mx, my))return tooltip;
         return null;
     }
 }

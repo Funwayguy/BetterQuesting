@@ -427,7 +427,7 @@ public class PanelTextField<T> implements IGuiPanel
      * Call this method from your GuiScreen to process the keys into the textbox
      */
     @Override
-    public boolean onKeyTyped(char typedChar, int keyCode)
+    public boolean onKeyPressed(int keyCode, int scancode, int modifers)
     {
         if (!this.isFocused)
         {
@@ -585,21 +585,18 @@ public class PanelTextField<T> implements IGuiPanel
                 }
                 default:
                 {
-                    if(SharedConstants.isAllowedCharacter(typedChar))
-                    {
-                        if(this.isActive)
-                        {
-                            this.writeText(Character.toString(typedChar));
-                        }
-    
-                        return true;
-                    } else
-                    {
-                        return false; // We're not using this key. Other controls/menus are free to use it
-                    }
+                    return false; // We're not using this key. Other controls/menus are free to use
                 }
             }
         }
+    }
+    
+    @Override
+    public boolean onCharTyped(char typedChar, int keyCode)
+    {
+        if(!isFocused || !SharedConstants.isAllowedCharacter(typedChar)) return false;
+        if(this.isActive) this.writeText(Character.toString(typedChar));
+        return true;
     }
     
     /**
@@ -844,11 +841,5 @@ public class PanelTextField<T> implements IGuiPanel
         }*/
         
         return false;
-    }
-    
-    @Override
-    public List<String> getTooltip(int mx, int my)
-    {
-        return null;
     }
 }

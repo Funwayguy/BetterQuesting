@@ -216,9 +216,9 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     }
     
     @Override
-    public boolean onKeyTyped(char c, int keycode)
+    public boolean onKeyPressed(int keycode, int scancode, int modifers)
     {
-        if(super.onKeyTyped(c, keycode))
+        if(super.onKeyPressed(keycode, scancode, modifers))
         {
             this.updateButtons();
             return true;

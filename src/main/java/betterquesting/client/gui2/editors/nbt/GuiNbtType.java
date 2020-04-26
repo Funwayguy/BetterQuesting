@@ -1,6 +1,5 @@
 package betterquesting.client.gui2.editors.nbt;
 
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -22,7 +21,7 @@ import betterquesting.client.gui2.editors.nbt.callback.NbtItemCallback;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.CompoundNBT;
 
-public class GuiNbtType extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiNbtType extends GuiScreenCanvas implements IPEventListener
 {
     private final CompoundNBT tagCompound;
     

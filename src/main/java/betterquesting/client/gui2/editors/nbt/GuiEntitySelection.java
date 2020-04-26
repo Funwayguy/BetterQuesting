@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
 import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -36,7 +35,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 
-public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListener
 {
     private final ICallback<Entity> callback;
     private Entity selEntity;

@@ -24,13 +24,16 @@ public interface IToolboxTool
 	/** Fired when the tool controller has changed its multi-selection */
 	void onSelection(NonNullList<PanelButtonQuest> buttons);
 	
-	boolean onMouseClick(int mx, int my, int click);
-	boolean onMouseRelease(int mx, int my, int click);
-	boolean onMouseScroll(int mx, int my, int scroll);
-	boolean onKeyPressed(char c, int key);
-	List<String> getTooltip(int mx, int my);
+	default boolean onMouseClick(int mx, int my, int click) { return false; }
+	default boolean onMouseRelease(int mx, int my, int click) { return false; }
+	default boolean onMouseScroll(int mx, int my, int scroll) { return false; }
 	
-	boolean clampScrolling();
+	default boolean onKeyPressed(int keycode, int scancode, int modifiers) { return false; }
+	default boolean onKeyRelease(int keycode, int scancode, int modifiers) { return false; }
+	default boolean onCharTyped(char c, int keycode) { return false; }
+	default List<String> getTooltip(int mx, int my) { return null; }
+	
+	default boolean clampScrolling() { return true; }
 	/** Allows the tool controller to intercept some interactions to perform multi-quest selections*/
-	boolean useSelection();
+	default boolean useSelection() { return false; }
 }

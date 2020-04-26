@@ -161,36 +161,6 @@ public class PanelTextBox implements IGuiPanel
 		GlStateManager.popMatrix();
 	}
 	
-	@Override
-	public boolean onMouseClick(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseRelease(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-	
-	@Override
-	public List<String> getTooltip(int mx, int my)
-	{
-		return null;
-	}
-	
 	private static class GuiRectText implements IGuiRect
 	{
 		private final IGuiRect proxy;

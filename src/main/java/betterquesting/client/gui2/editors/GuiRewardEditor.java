@@ -2,7 +2,6 @@ package betterquesting.client.gui2.editors;
 
 import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.rewards.IReward;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -42,7 +41,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
+public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
 	private CanvasScrolling qrList;
 	

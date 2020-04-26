@@ -90,35 +90,11 @@ public class ToolboxToolFrame implements IToolboxTool
     }
     
     @Override
-    public boolean onMouseRelease(int mx, int my, int click)
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onMouseScroll(int mx, int my, int scroll)
-    {
-        return false;
-    }
-    
-    @Override
-    public boolean onKeyPressed(char c, int key)
+    public boolean onKeyPressed(int key, int scancode, int modifiers)
     {
 	    if(PanelToolController.selected.size() <= 0 || key != GLFW.GLFW_KEY_ENTER) return false;
 	    
 	    changeFrame(PanelToolController.selected);
-        return true;
-    }
-    
-    @Override
-    public List<String> getTooltip(int mx, int my)
-    {
-        return null;
-    }
-    
-    @Override
-    public boolean clampScrolling()
-    {
         return true;
     }
     

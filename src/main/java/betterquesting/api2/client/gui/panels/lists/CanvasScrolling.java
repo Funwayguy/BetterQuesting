@@ -404,7 +404,7 @@ public class CanvasScrolling implements IGuiCanvas
 	}
 	
 	@Override
-	public boolean onKeyTyped(char c, int keycode)
+	public boolean onKeyPressed(int keycode, int scancode, int modifiers)
 	{
 		boolean used = false;
 		
@@ -414,18 +414,54 @@ public class CanvasScrolling implements IGuiCanvas
 		{
 			IGuiPanel entry = pnIter.previous();
 			
-			if(entry.isEnabled() && entry.onKeyTyped(c, keycode))
+			if(entry.isEnabled() && entry.onKeyPressed(keycode, scancode, modifiers))
 			{
 				used = true;
 				break;
 			}
 		}
 		
-		/*if(!used && c == 'c')
-        {
-            setScrollX(0);
-            setScrollY(0);
-        }*/
+		return used;
+	}
+	
+	@Override
+	public boolean onKeyRelease(int keycode, int scancode, int modifiers)
+	{
+		boolean used = false;
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onKeyRelease(keycode, scancode, modifiers))
+			{
+				used = true;
+				break;
+			}
+		}
+		
+		return used;
+	}
+	
+	@Override
+	public boolean onCharTyped(char c, int keycode)
+	{
+		boolean used = false;
+		
+		ListIterator<IGuiPanel> pnIter = guiPanels.listIterator(guiPanels.size());
+		
+		while(pnIter.hasPrevious())
+		{
+			IGuiPanel entry = pnIter.previous();
+			
+			if(entry.isEnabled() && entry.onCharTyped(c, keycode))
+			{
+				used = true;
+				break;
+			}
+		}
 		
 		return used;
 	}

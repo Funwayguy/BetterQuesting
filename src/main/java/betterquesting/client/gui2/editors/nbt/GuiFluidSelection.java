@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
 import betterquesting.abs.misc.GuiAnchor;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
@@ -41,7 +40,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
-public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListener
 {
     private final ICallback<FluidStack> callback;
     private FluidStack itemStack;

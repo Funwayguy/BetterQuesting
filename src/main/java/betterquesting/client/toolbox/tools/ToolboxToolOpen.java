@@ -7,8 +7,6 @@ import betterquesting.client.gui2.GuiQuest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.NonNullList;
 
-import java.util.List;
-
 public class ToolboxToolOpen implements IToolboxTool
 {
 	private CanvasQuestLine gui;
@@ -49,12 +47,6 @@ public class ToolboxToolOpen implements IToolboxTool
 		
 		return false;
 	}
-	
-	@Override
-    public boolean onMouseRelease(int mx, int my, int click)
-    {
-        return false;
-    }
 
 	@Override
 	public void drawCanvas(int mx, int my, float partialTick)
@@ -65,30 +57,6 @@ public class ToolboxToolOpen implements IToolboxTool
     public void drawOverlay(int mx, int my, float partialTick)
     {
     }
-    
-    @Override
-    public List<String> getTooltip(int mx, int my)
-    {
-        return null;
-    }
-
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-	    return false;
-	}
-
-	@Override
-	public boolean onKeyPressed(char c, int key)
-	{
-	    return false;
-	}
- 
-	@Override
-	public boolean clampScrolling()
-	{
-		return true;
-	}
 	
 	@Override
     public void onSelection(NonNullList<PanelButtonQuest> buttons)

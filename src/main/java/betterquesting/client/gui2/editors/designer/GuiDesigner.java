@@ -2,7 +2,6 @@ package betterquesting.client.gui2.editors.designer;
 
 import betterquesting.abs.misc.GuiAnchor;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -33,7 +32,7 @@ import net.minecraft.client.gui.screen.Screen;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INeedsRefresh, IPEventListener
+public class GuiDesigner extends GuiScreenCanvas implements INeedsRefresh, IPEventListener
 {
     // Not final because I hope to support hot swapping in future
     private IQuestLine questLine;

@@ -1,6 +1,5 @@
 package betterquesting.client.gui2.editors;
 
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.misc.ICallback;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -27,7 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TextFormatting;
 
-public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener
 {
     private final ICallback<String> callback;
     private final String textIn;
@@ -40,6 +39,7 @@ public class GuiTextEditor extends GuiScreenCanvas implements IPEventListener, I
         
         textIn = text;
         this.callback = callback;
+        this.setVolatile(true);
     }
     
     @Override

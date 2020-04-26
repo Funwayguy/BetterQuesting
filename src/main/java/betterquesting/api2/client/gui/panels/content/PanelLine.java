@@ -7,8 +7,6 @@ import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import java.util.List;
-
 public class PanelLine implements IGuiPanel
 {
 	/**
@@ -63,35 +61,5 @@ public class PanelLine implements IGuiPanel
 		GlStateManager.pushMatrix();
 		line.drawLine(start, end, width, color, partialTick);
 		GlStateManager.popMatrix();
-	}
-	
-	@Override
-	public boolean onMouseClick(int mx, int my, int button)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseRelease(int mx, int my, int button)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-	
-	@Override
-	public List<String> getTooltip(int mx, int my)
-	{
-		return null;
 	}
 }

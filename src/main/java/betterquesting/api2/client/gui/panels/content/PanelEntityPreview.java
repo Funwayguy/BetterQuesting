@@ -10,8 +10,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.List;
-
 public class PanelEntityPreview implements IGuiPanel
 {
 	private final IGuiRect transform;
@@ -111,34 +109,4 @@ public class PanelEntityPreview implements IGuiPanel
 		RenderUtils.endScissor();
 		GlStateManager.popMatrix();
     }
-	
-	@Override
-	public boolean onMouseClick(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseRelease(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-	
-	@Override
-	public List<String> getTooltip(int mx, int my)
-	{
-		return null;
-	}
 }

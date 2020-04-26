@@ -192,19 +192,7 @@ public class ToolboxToolGrab implements IToolboxTool
 	}
 	
 	@Override
-    public boolean onMouseRelease(int mx, int my, int click)
-    {
-        return false;
-    }
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-	    return false;
-	}
-	
-	@Override
-	public boolean onKeyPressed(char c, int keyCode)
+	public boolean onKeyPressed(int keyCode, int scancode, int modifiers)
 	{
 	    return grabList.size() > 0;
 	}

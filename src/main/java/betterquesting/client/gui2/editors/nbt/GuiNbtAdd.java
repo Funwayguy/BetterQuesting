@@ -1,7 +1,6 @@
 package betterquesting.client.gui2.editors.nbt;
 
 import betterquesting.abs.misc.GuiAnchor;
-import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api.utils.JsonHelper;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
@@ -37,7 +36,7 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVolatileScreen
+public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener
 {
     private final INBT nbt;
     private final int index;

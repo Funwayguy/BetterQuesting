@@ -75,19 +75,7 @@ public class ToolboxToolIcon implements IToolboxTool
     }
 	
 	@Override
-    public boolean onMouseRelease(int mx, int my, int click)
-    {
-        return false;
-    }
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-	    return false;
-	}
-	
-	@Override
-	public boolean onKeyPressed(char c, int key)
+	public boolean onKeyPressed(int key, int scancode, int modifiers)
 	{
 	    if(PanelToolController.selected.size() <= 0 || key != GLFW.GLFW_KEY_ENTER) return false;
 	    changeIcon(PanelToolController.selected, PanelToolController.selected.get(0).getStoredValue().getValue().getProperty(NativeProps.ICON));
@@ -103,18 +91,6 @@ public class ToolboxToolIcon implements IToolboxTool
     public void drawOverlay(int mx, int my, float partialTick)
     {
     }
-    
-    @Override
-    public List<String> getTooltip(int mx, int my)
-    {
-        return null;
-    }
-
-	@Override
-	public boolean clampScrolling()
-	{
-		return true;
-	}
 	
 	@Override
     public void onSelection(NonNullList<PanelButtonQuest> buttons)

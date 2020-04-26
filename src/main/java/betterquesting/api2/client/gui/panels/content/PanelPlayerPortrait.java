@@ -14,7 +14,6 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.List;
 import java.util.UUID;
 
 public class PanelPlayerPortrait implements IGuiPanel
@@ -116,35 +115,5 @@ public class PanelPlayerPortrait implements IGuiPanel
 		
 		RenderUtils.endScissor();
 		GlStateManager.popMatrix();
-	}
-	
-	@Override
-	public boolean onMouseClick(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseRelease(int mx, int my, int click)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseScroll(int mx, int my, int scroll)
-	{
-		return false;
-	}
-	
-	@Override
-	public boolean onKeyTyped(char c, int keycode)
-	{
-		return false;
-	}
-	
-	@Override
-	public List<String> getTooltip(int mx, int my)
-	{
-		return null;
 	}
 }
