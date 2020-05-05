@@ -1,12 +1,18 @@
 package betterquesting.api.events;
 
+import cpw.mods.fml.common.eventhandler.Event;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 
-public class BQLivingUpdateEvent extends LivingUpdateEvent
+public class BQLivingUpdateEvent extends Event
 {
+    public final EntityLivingBase entityLiving;
+    public final Entity entity;
+    
     public BQLivingUpdateEvent(EntityPlayerMP player)
     {
-        super(player);
+        this.entityLiving = player;
+        this.entity = player;
     }
 }
