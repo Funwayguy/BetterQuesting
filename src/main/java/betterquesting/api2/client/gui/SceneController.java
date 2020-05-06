@@ -24,7 +24,7 @@ public class SceneController
     
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public static void onGuiOpened(GuiOpenEvent event)
+    public void onGuiOpened(GuiOpenEvent event)
     {
         if(event.gui instanceof IScene)
         {

