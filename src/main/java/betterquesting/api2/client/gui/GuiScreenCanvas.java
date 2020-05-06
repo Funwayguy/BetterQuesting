@@ -446,7 +446,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
-	public void confirmClose(int id)
+	private void confirmClose(int id)
     {
         if(id == 0)
         {

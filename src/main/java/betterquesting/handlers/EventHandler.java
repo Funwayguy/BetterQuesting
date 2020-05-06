@@ -77,7 +77,7 @@ public class EventHandler
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		if(BQ_Keybindings.openQuests.isPressed())
+		if(mc.currentScreen == null && BQ_Keybindings.openQuests.isPressed())
 		{
 			if(mc.player.isSneaking() && mc.player.getName().equalsIgnoreCase("Funwayguy"))
 			{
