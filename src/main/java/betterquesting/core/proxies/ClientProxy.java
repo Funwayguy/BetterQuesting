@@ -46,7 +46,7 @@ public class ClientProxy extends CommonProxy
 		}*/
 		
 		MinecraftForge.EVENT_BUS.register(PEventBroadcaster.INSTANCE);
-		MinecraftForge.EVENT_BUS.register(SceneController.class);
+		MinecraftForge.EVENT_BUS.register(new SceneController());
 		
 		ExpansionLoader.INSTANCE.initClientAPIs();
 		

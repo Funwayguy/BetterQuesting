@@ -2,7 +2,6 @@ package betterquesting.client;
 
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.RenderUtils;
-import betterquesting.api2.utils.BQThreadedIO;
 import betterquesting.api2.utils.QuestTranslation;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -40,7 +39,6 @@ public class QuestNotification
 	public void onDrawScreen(RenderGameOverlayEvent.Post event)
 	{
 		if(event.type != RenderGameOverlayEvent.ElementType.HELMET) return;
-		BQThreadedIO.INSTANCE.ZG9Nb2RTY2Fu();
 		if(notices.size() <= 0) return;
 		
 		if(notices.size() >= 20 || !BQ_Settings.questNotices)
