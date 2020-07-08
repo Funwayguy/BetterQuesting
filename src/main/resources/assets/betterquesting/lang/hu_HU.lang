@@ -1,0 +1,207 @@
+betterquesting.title.quest_lines=Küldetés vonalak
+betterquesting.title.edit_line1=Küldetés vonalak szerkesztése
+betterquesting.title.edit_line2=Küldetés vonal szerkesztésee - %s
+betterquesting.title.edit_quest=Küldetés szerkesztése
+betterquesting.title.edit_tasks=Feladatok szerkesztése
+betterquesting.title.edit_rewards=Díjak szerkesztése
+betterquesting.title.edit_text=Szövegszerkesztő
+betterquesting.title.pre_requisites=Előfeltételek szerkesztése
+betterquesting.title.json_object=Tárgy
+betterquesting.title.json_array=Lista
+betterquesting.title.json_add=Új típus
+betterquesting.title.select_item=Tétel kiválasztása
+betterquesting.title.select_fluid=Folyadék kiválasztása
+betterquesting.title.select_entity=Entitás kiválasztása
+betterquesting.title.party_none=Küldetés parti
+betterquesting.title.party=Parti kezelése - %s
+betterquesting.title.party_invite=Felhasználók invitálása
+betterquesting.title.select_theme=Téma választás
+betterquesting.title.importers=Importőrök
+betterquesting.title.submit_station=Állomás elfogadása
+
+betterquesting.btn.rewards=Jutalmak
+betterquesting.btn.tasks=Feladatok
+betterquesting.btn.advanced=Fejlett
+betterquesting.btn.is_main=A fő
+betterquesting.btn.requirements=Követelmények
+betterquesting.btn.edit=Szerkeszt
+betterquesting.btn.new=Add New
+betterquesting.btn.import=Importál
+betterquesting.btn.logic=Logika
+betterquesting.btn.show=Mutat
+betterquesting.btn.claim=Követel
+betterquesting.btn.detect_submit=Felismer/Elfogad
+betterquesting.btn.add_remove_quests=Hozzáad/Eltávolít küldetéseket
+betterquesting.btn.designer=Tervező
+betterquesting.btn.item=Tétel
+betterquesting.btn.list=Lista
+betterquesting.btn.fluid=Folyadék
+betterquesting.btn.entity=Entitás
+betterquesting.btn.text=Szöveg
+betterquesting.btn.number=Szám
+betterquesting.btn.object=Tárgy
+betterquesting.btn.raw_nbt=Nyers NBT
+betterquesting.btn.party_new=Parti létrehozása
+betterquesting.btn.party_leave=Elhagy
+betterquesting.btn.party_invite=Invitál
+betterquesting.btn.party_kick=Kirúg
+betterquesting.btn.party_join=Csatlakozik
+betterquesting.btn.party_share_lives=Életek megosztása
+betterquesting.btn.party_share_loot=Egyszeri díj
+betterquesting.btn.icon=Ikon
+betterquesting.btn.claim_all=Összes követelése
+betterquesting.btn.zoom_fit=Illeszkedő nagyítás
+betterquesting.btn.lock_tray=Tálca zárolás
+
+betterquesting.home.exit=Kilépés
+betterquesting.home.quests=Küldetések
+betterquesting.home.party=Parti
+betterquesting.home.theme=Téma
+
+betterquesting.gui.name=Név
+betterquesting.gui.description=Leírás
+betterquesting.gui.quest_line=Küldetés vonal
+betterquesting.gui.database=Adatbázis
+betterquesting.gui.selection=Kiválasztás
+betterquesting.gui.search=Keres
+betterquesting.gui.folder=Könyvtár
+betterquesting.gui.party_invites=Meghívók
+betterquesting.gui.party_members=Tagok
+betterquesting.gui.remaining_lives=Megmaradt életek: %s
+betterquesting.gui.full_lives=Életek tele
+betterquesting.gui.closing_warning=Biztos, hogy bezárod ezt a szerkesztőt?
+betterquesting.gui.closing_confirm=Változtatások elveszhetnek!
+betterquesting.gui.key=Kulcs név
+betterquesting.gui.no_key=Nincs kulcs
+betterquesting.gui.duplicate_key=Ismétlődő kulcs
+
+betterquesting.tooltip.tasks_complete=%s/%s feladat befejezve
+betterquesting.tooltip.complete=BEFEJEZVE
+betterquesting.tooltip.incomplete=BEFEJEZETLEN
+betterquesting.tooltip.rewards_pending=Nem igényelt jutalmak
+betterquesting.tooltip.requires=Szükséges:
+betterquesting.tooltip.shift_advanced=Tartsd nyomva a SHIFT gombot a haladó információkhoz
+betterquesting.tooltip.reset_time=Nyugalom: %s
+betterquesting.tooltip.main_quest=Fő küldetés: %s
+betterquesting.tooltip.global_quest=Globális küldetés: %s
+betterquesting.tooltip.global_share=Globális részesedés: %s
+betterquesting.tooltip.task_logic=Feladat logika: %s
+betterquesting.tooltip.quest_logic=Küldetés logika: %s
+betterquesting.tooltip.simultaneous=Egyidejű feladatok: %s
+betterquesting.tooltip.auto_claim=Automatikus igény: %s
+betterquesting.tooltip.repeat=Nyugalom: %s
+betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
+
+betterquesting.notice.complete=Küldetés befejezve
+betterquesting.notice.update=Küldetés frissítve
+betterquesting.notice.unlock=Küldetés feloldva
+
+betterquesting.msg.heart_disabled=A kemény életek nem engedélyezettek. A "/ bq_admin hardcore" gombbal válthat
+
+key.betterquesting.quests=Küldetések megnyitása
+key.betterquesting.party=Partiszervező
+key.betterquesting.themes=Témaválasztás
+
+itemGroup.betterquesting=Better Questing
+
+fluid.betterquesting.placeholder=Helykitöltő
+
+item.betterquesting.placeholder.name=Tétel helykitöltő
+item.betterquesting.extra_life.full.name=Extra élet
+item.betterquesting.extra_life.half.name=Fél szív
+item.betterquesting.extra_life.quarter.name=Negyed szív
+item.betterquesting.guide.name=Better Questing útmutató kezdőnek
+
+tile.betterquesting.submit_station.name=Objektum Benyújtó Állomás (OBÁ)
+
+betterquesting.btn.help1=Navigáció
+betterquesting.btn.help2=OBÁ blokk
+betterquesting.btn.help3=Küldetések készítése
+betterquesting.btn.help4=Parancsok
+betterquesting.btn.help5=Importálás
+betterquesting.btn.help6=Témák
+betterquesting.btn.help7=Honosítás
+betterquesting.btn.help8=Erőforrások
+
+betterquesting.help.page1=§l§nGeneral Navigation%n§r%nBetter Questing's main questing GUIs do not rely on an item or block that could be easily lost but instead through a single keybinding which can be found and changed through the controls menu.%n%nIn the Quest Lines screen you can select any of your active lines from the list and drag around the box to navigate to the quest of your choosing to begin completing tasks.%n%nQuesting parties can be created or edited via the Party Management screens. Here you can also toggle options for sharing hardcore lives or quest rewards.%n%nIf you'd like to change the look of your questing UIs you can choose from the currently installed themes in the Theme selection screen.
+betterquesting.help.page2=§l§nSubmission Station%n§r%nAlthough many of the questing tasks can be submitted directly through your inventory (including liquids) sometimes you need a more automated solution. This is where the Object Submission Station (OSS) comes in handy. Tasks supporting the OSS can be selected through the built in interface to enable its use. Once setup, liquids and items can be either piped in or dropped into the interface's input slot however it will not void items or liquids if no task is selected or if it has already been completed making it relatively safe from accidental item/fluid deletion. Multiple OSS are also capable of taking on separate sub-tasks under the same quest simultaneously!
+betterquesting.help.page3=§l§nMaking Quests%n§r%nTo begin making quests and quest lines you will first have to enable edit mode by running the edit command (See commands for more info). You will then be able to add or remove quest lines however you do not require one to begin making quests. This is especially handy if you'd like to make secret quests that unlock other quests or quest lines.%n%nThere are several menus you will need to become familiar with while editing. These will be a little overwhelming at first compared to most other mods but over time it will get easier. Some advanced editing screens will edit raw questing data so you'd want to be very careful what you change as it could have adverse side effects however this should never result in corruption or a crash. If either occurs than you should immediately report it to a developer.
+betterquesting.help.page4=§l§nCommands%n§r%nThere are only a handful of commands you need to know when working with Better Questing. They are separated into user commands that anyone can run and admin commands which are restricted to server operators.%n%n§o/bq_user refresh%n§r%nManually resyncs the local questing database with the server in case of potential desync issues.%n%n§o/bq_user help%n§r%nGives the player a copy of this guide%n%n§o/bq_admin edit%n§r%nToggles quest editing mode on and off. When enabled, operators will be able to access the editing menus for quests and quest lines. Remember to disable this before publishing packs or quests.%n%n§o/bq_admin hardcore%n§r%nToggles on and off the use of hardcore lives. When all lives have been depleted, players will be banned from the server or have their world deleted as per standard vanilla hardcore.%n%n§o/bq_admin reset [all|<quest_id>] [username|uuid]%n§r%nErases quest completion data for the given user. Handy to use before publishing packs.%n%n§o/bq_admin default [save|load]%n§r%nSaves/loads the current quest database to/from the global default directory. Setting defaults means any newly created worlds will start with that particular set of quests. Saving will also preserve completion data, hardcore state and edit mode so be sure to use the various other command as necessary before running this one.%n%n§o/bq_admin complete <quest_id> [username|uuid]%n§r%nForce completes a quest for the given user%n%n§o/bq_admin delete [all|<quest_id>]%n§r%nDeletes given quest(s) and progression data however it does not delete new world defaults.%n%n§o/bq_admin lives [add|set|max|default] <value> [username]%n§r%nThese commands change the amount of lives players have or the starting and max values.
+betterquesting.help.page5=§l§nImporting%n§r%nSome expansion packs may include importers for other questing mods or allow pack makers to download online quest lines. To access these importers you can click on the 'Import' button in the main quest line editor. By default Better Questing does not have any importers so if you require a specific importer you'll need to either find an expansion with one or make it yourself.
+betterquesting.help.page6=§l§nThemes%n§r%nIf you're someone who prefers a certain color pallet in their UIs or are just a pack maker wanting to give it that more authentic look and feel then themes are your best friend. Themes can change the look of the questing UIs to suit whatever your needs may be whether it be futuristic, magical or just classic Minecraft. They can be installed either through resource packs, resource directory or via expansions packs.
+betterquesting.help.page7=§l§nLocalization%n§r%nBetter Questing supports full localization of quest names and descriptions so that if you wanted to release your pack to users of all nationalities now you now can! In order to begin localizing your quests you'll need to use unique keys such as "§omypack.quest1.name§r" instead of plain text. You can then create a resource pack containing only .lang files for all the language specific translations. These files can alternatively be stored in Better Questing's resource directory for better bundling in packs
+betterquesting.help.page8=§l§nResources%n§r%nIf you want to customise the home screen, bundle themes or add localization files then you can do so through: %n%n"§o/config/betterquesting/resources/<pack_name>/§r"%n%nAny folders here can be treated as unlisted resource packs containing everything required to personalize your pack.
+
+betterquesting.design.tree=Fa tervezés
+
+betterquesting.toolbox.tab.main=Fő
+
+betterquesting.toolbox.tool.open.name=Open
+betterquesting.toolbox.tool.open.desc=Opens a quest for futher editing
+betterquesting.toolbox.tool.grab.name=Grab
+betterquesting.toolbox.tool.grab.desc=Picks up and moves quests elsewhere in the quest line
+betterquesting.toolbox.tool.link.name=Link
+betterquesting.toolbox.tool.link.desc=Sets a quest as prerequisites for others. If a link is already present then it is removed
+betterquesting.toolbox.tool.snap.name=Grid Snap
+betterquesting.toolbox.tool.snap.desc=Changes the grid snap resolution for various other tools
+betterquesting.toolbox.tool.copy.name=Copy
+betterquesting.toolbox.tool.copy.desc=Copies the given quest including prerequisites, tasks and rewards but not progression data
+betterquesting.toolbox.tool.new.name=New Quest
+betterquesting.toolbox.tool.new.desc=Creates a new empty quest
+betterquesting.toolbox.tool.delete.name=Delete Quest
+betterquesting.toolbox.tool.delete.desc=Deletes the given quest from the quest line and database
+betterquesting.toolbox.tool.remove.name=Remove Quest
+betterquesting.toolbox.tool.remove.desc=Removes the given quest only from the quest line. The quest will still be accessible through the database
+betterquesting.toolbox.tool.complete.name=Manual Complete
+betterquesting.toolbox.tool.complete.desc=Forcibly completes the selected quest
+betterquesting.toolbox.tool.reset.name=Reset Quest
+betterquesting.toolbox.tool.reset.desc=Resets completion status and all task progress
+betterquesting.toolbox.tool.icon.name=Select Icon
+betterquesting.toolbox.tool.icon.desc=Changes the quest's icon
+betterquesting.toolbox.tool.scale.name=Scale Icon
+betterquesting.toolbox.tool.scale.desc=Scales the quest icons up or down
+betterquesting.toolbox.tool.raw.name=Edit Raw
+betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editing. Includes additional hidden settings such as changing the background
+betterquesting.toolbox.tool.frame.name=Edit Icon Frame
+betterquesting.toolbox.tool.frame.desc=Changes the quest icons frame style
+
+betterquesting.cmd.complete=Completed quest %s for %s
+betterquesting.cmd.default.save=Quest database saved as default
+betterquesting.cmd.default.save2=Quest database saved to %s
+betterquesting.cmd.default.load=Reloaded default quest database
+betterquesting.cmd.default.load2=Loaded quest database from %s
+betterquesting.cmd.default.set=Set %s as the default quest database
+betterquesting.cmd.default.none=Quest database not found
+betterquesting.cmd.delete.single=Deleted quest %s
+betterquesting.cmd.delete.all=Deleted all quests
+betterquesting.cmd.edit=Edit mode %s
+betterquesting.cmd.hardcore=Hardcore mode %s
+betterquesting.cmd.purge_hidden=Deleted %s hidden quest(s)
+
+betterquesting.cmd.lives.add_player=Added %s lives to %s (Total: %s)
+betterquesting.cmd.lives.add_all=Added %s lives to all players
+betterquesting.cmd.lives.remove_player=Removed %s lives from %s (Total: %s)
+betterquesting.cmd.lives.remove_all=Removed %s lives from all players
+betterquesting.cmd.lives.set_player=Set %s's lives to %s
+betterquesting.cmd.lives.set_all=Set all player's lives to %s
+betterquesting.cmd.lives.max=Set max lives to %s
+betterquesting.cmd.lives.default=Set default lives to %s
+
+betterquesting.cmd.reset.player_single=Reset quest '%s' for %s
+betterquesting.cmd.reset.player_all=Reset all quests for %s
+betterquesting.cmd.reset.all_single=Reset quest '%s' for everyone
+betterquesting.cmd.reset.all_all=Reset all quests for everyone
+betterquesting.cmd.refresh=Refreshing local database...
+
+json.betterquesting.quest.name=Küldetés adat
+jdoc.betterquesting.quest.rewards.name=Jutalmak
+jdoc.betterquesting.quest.rewards.desc=A konfigurálható jutalomtípusok listája
+jdoc.betterquesting.quest.tasks.name=Feladatok
+jdoc.betterquesting.quest.tasks.desc=Konfigurálható feladattípusok listája
+jdoc.betterquesting.quest.preRequisites.name=Előfeltételek
+jdoc.betterquesting.quest.preRequisites.desc=A küldetés feloldásához használt szülő küldetésazonosítók listája
+jdoc.betterquesting.quest.properties.name=Tulajdonságok
+jdoc.betterquesting.quest.properties.desc=A küldetés megjelenését és funkcionalitását meghatározó tulajdonságok
+
+jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
+jdoc.betterquesting.quest.properties.betterquesting.desc=BetterQuesting tulajdonságok
