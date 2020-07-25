@@ -1,0 +1,207 @@
+betterquesting.title.quest_lines=Küldetésvonalak
+betterquesting.title.edit_line1=Küldetésvonalak szerkesztése
+betterquesting.title.edit_line2=Küldetésvonal szerkesztésee - %s
+betterquesting.title.edit_quest=Küldetés szerkesztése
+betterquesting.title.edit_tasks=Feladatok szerkesztése
+betterquesting.title.edit_rewards=Díjak szerkesztése
+betterquesting.title.edit_text=Szövegszerkesztő
+betterquesting.title.pre_requisites=Előfeltételek szerkesztése
+betterquesting.title.json_object=Tárgy
+betterquesting.title.json_array=Lista
+betterquesting.title.json_add=Új típus
+betterquesting.title.select_item=Tétel kiválasztása
+betterquesting.title.select_fluid=Folyadék kiválasztása
+betterquesting.title.select_entity=Entitás kiválasztása
+betterquesting.title.party_none=Küldetés parti
+betterquesting.title.party=Parti kezelése - %s
+betterquesting.title.party_invite=Felhasználók meghívása
+betterquesting.title.select_theme=Téma választás
+betterquesting.title.importers=Importőrök
+betterquesting.title.submit_station=Állomás elfogadása
+
+betterquesting.btn.rewards=Jutalmak
+betterquesting.btn.tasks=Feladatok
+betterquesting.btn.advanced=Fejlett
+betterquesting.btn.is_main=A fő
+betterquesting.btn.requirements=Követelmények
+betterquesting.btn.edit=Szerkeszt
+betterquesting.btn.new=Új hozzáadása
+betterquesting.btn.import=Importál
+betterquesting.btn.logic=Logika
+betterquesting.btn.show=Mutat
+betterquesting.btn.claim=Követel
+betterquesting.btn.detect_submit=Felismer/Elfogad
+betterquesting.btn.add_remove_quests=Hozzáad/Eltávolít küldetéseket
+betterquesting.btn.designer=Tervező
+betterquesting.btn.item=Tétel
+betterquesting.btn.list=Lista
+betterquesting.btn.fluid=Folyadék
+betterquesting.btn.entity=Entitás
+betterquesting.btn.text=Szöveg
+betterquesting.btn.number=Szám
+betterquesting.btn.object=Tárgy
+betterquesting.btn.raw_nbt=Nyers NBT
+betterquesting.btn.party_new=Parti létrehozása
+betterquesting.btn.party_leave=Elhagy
+betterquesting.btn.party_invite=Meghív
+betterquesting.btn.party_kick=Kirúg
+betterquesting.btn.party_join=Csatlakozik
+betterquesting.btn.party_share_lives=Életek megosztása
+betterquesting.btn.party_share_loot=Egyszeri díj
+betterquesting.btn.icon=Ikon
+betterquesting.btn.claim_all=Összes követelése
+betterquesting.btn.zoom_fit=Illeszkedő nagyítás
+betterquesting.btn.lock_tray=Tálca zárolás
+
+betterquesting.home.exit=Kilépés
+betterquesting.home.quests=Küldetések
+betterquesting.home.party=Parti
+betterquesting.home.theme=Téma
+
+betterquesting.gui.name=Név
+betterquesting.gui.description=Leírás
+betterquesting.gui.quest_line=Küldetésvonal
+betterquesting.gui.database=Adatbázis
+betterquesting.gui.selection=Kiválasztás
+betterquesting.gui.search=Keres
+betterquesting.gui.folder=Könyvtár
+betterquesting.gui.party_invites=Meghívók
+betterquesting.gui.party_members=Tagok
+betterquesting.gui.remaining_lives=Megmaradt életek: %s
+betterquesting.gui.full_lives=Életek tele
+betterquesting.gui.closing_warning=Biztos, hogy bezárod ezt a szerkesztőt?
+betterquesting.gui.closing_confirm=Változtatások elveszhetnek!
+betterquesting.gui.key=Kulcs név
+betterquesting.gui.no_key=Nincs kulcs
+betterquesting.gui.duplicate_key=Ismétlődő kulcs
+
+betterquesting.tooltip.tasks_complete=%s/%s feladat befejezve
+betterquesting.tooltip.complete=BEFEJEZVE
+betterquesting.tooltip.incomplete=BEFEJEZETLEN
+betterquesting.tooltip.rewards_pending=Nem igényelt jutalmak
+betterquesting.tooltip.requires=Szükséges:
+betterquesting.tooltip.shift_advanced=Tartsd nyomva a SHIFT gombot a haladó információkhoz
+betterquesting.tooltip.reset_time=Nyugalom: %s
+betterquesting.tooltip.main_quest=Fő küldetés: %s
+betterquesting.tooltip.global_quest=Globális küldetés: %s
+betterquesting.tooltip.global_share=Globális részesedés: %s
+betterquesting.tooltip.task_logic=Feladat logika: %s
+betterquesting.tooltip.quest_logic=Küldetés logika: %s
+betterquesting.tooltip.simultaneous=Egyidejű feladatok: %s
+betterquesting.tooltip.auto_claim=Automatikus igény: %s
+betterquesting.tooltip.repeat=Nyugalom: %s
+betterquesting.tooltip.update_quests=Frissítés érhető el!%n§7Új küldetésvonal verzió érhető el.%nKattints az előrehaladás telepítésére és migrációjára.
+
+betterquesting.notice.complete=Küldetés befejezve
+betterquesting.notice.update=Küldetés frissítve
+betterquesting.notice.unlock=Küldetés feloldva
+
+betterquesting.msg.heart_disabled=A hardcore életek nem engedélyezettek. A "/ bq_admin hardcore" gombbal válthat
+
+key.betterquesting.quests=Küldetések megnyitása
+key.betterquesting.party=Partiszervező
+key.betterquesting.themes=Témaválasztás
+
+itemGroup.betterquesting=Better Questing
+
+fluid.betterquesting.placeholder=Helykitöltő
+
+item.betterquesting.placeholder.name=Tétel helykitöltő
+item.betterquesting.extra_life.full.name=Extra élet
+item.betterquesting.extra_life.half.name=Fél szív
+item.betterquesting.extra_life.quarter.name=Negyed szív
+item.betterquesting.guide.name=Better Questing útmutató kezdőnek
+
+tile.betterquesting.submit_station.name=Objektum Benyújtó Állomás (OBÁ)
+
+betterquesting.btn.help1=Navigáció
+betterquesting.btn.help2=OBÁ blokk
+betterquesting.btn.help3=Küldetések készítése
+betterquesting.btn.help4=Parancsok
+betterquesting.btn.help5=Importálás
+betterquesting.btn.help6=Témák
+betterquesting.btn.help7=Honosítás
+betterquesting.btn.help8=Erőforrások
+
+betterquesting.help.page1=§l§nÁltalános navigáció%n§r%nA Better Questing fő keresési felhasználói felületei nem olyan elemekre vagy blokkokra támaszkodnak, amelyeket könnyen el lehet veszíteni, hanem inkább egyetlen gombnyomással, amely megtalálható és megváltoztatható a vezérlőmenüben.%n%nA Quest Lines képernyőn kiválaszthatja az aktív sorokat a listából, és húzza a doboz körül, hogy navigáljon a választott küldetéshez, amellyel megkezdi a feladatok elvégzését.%n%nA küldető felek létrehozhatók vagy szerkeszthetők a Party Management képernyőin. Itt válthat a hardcore élet megosztásának lehetőségeire vagy jutalmakra is.%n%nHa meg akarja változtatni a kereső felhasználói felületek megjelenését, akkor a Téma kiválasztása képernyőn kiválaszthatja az aktuálisan telepített témákat.
+betterquesting.help.page2=§l§nLeadó állomás%n§r%nBár sok küldetési feladatot közvetlenül a leltárán keresztül lehet benyújtani (beleértve a folyadékokat is), néha szüksége van egy automatizáltabb megoldásra. Az Object Submission Station (OSS) itt hasznos. Az OBÁ -t támogató feladatok a beépített interfészen keresztül választhatók ki annak használatához. A telepítés után a folyadékokat és az elemeket be lehet csövezni vagy csepegtetni az interfész bemeneti nyílásába, ám az sem tárgyakat, sem folyadékokat nem ürít, ha nem választották ki a feladatot, vagy ha már befejezték, ez viszonylag biztonságos a véletlen tárgyak / folyadékok törlése ellen. A több operációs rendszer képes külön alfeladatok elvégzésére ugyanabban a küldetésben egyidejűleg!
+betterquesting.help.page3=§l§nKüldetések készítése%n§r%nA küldetések és a keresési sorok elindításához először engedélyeznie kell a szerkesztési módot a szerkesztési parancs futtatásával (További információ a parancsokban). Ezután felveheti vagy eltávolíthatja a küldetési sorokat, azonban nincs rá szüksége a küldetések megkezdésére. Ez különösen akkor hasznos, ha titkos küldetéseket szeretne készíteni, amelyek feloldják más küldetéseket vagy küldetési sorokat.%n%nSzámos menü létezik, amelyeket szerkesztés közben meg kell ismernie. Ezek eleinte kissé túlterheltek a legtöbb más modhoz képest, de idővel könnyebbé válnak. Néhány fejlett szerkesztési képernyő szerkeszti a nyers küldetési adatokat, ezért nagyon óvatosnak kell lennie a változtatásokon, mivel ennek káros mellékhatásai lehetnek, ám ez soha nem vezet korrupcióhoz vagy összeomláshoz. Ha valamelyik bekövetkezik, akkor azonnal értesítenie kell a fejlesztőt.
+betterquesting.help.page4=§l§nParancsok%n§r%nCsak néhány parancs van, amelyeket tudnia kell, ha a Better Questing -vel dolgozik. Ezeket felhasználói parancsokra osztják, amelyeket bárki futtathat, és adminisztrátori parancsokra, amelyek kiszolgáló-üzemeltetőkre korlátozódnak.%n%n§o/bq_user refresh%n§r%nA helyi keresési adatbázist manuálisan szinkronizálja a kiszolgálóval potenciális desync problémák esetén.%n%n§o/bq_user help%n§r%nA játékos megkapja az útmutató másolatát%n%n§o/bq_admin edit%n§r%nA küldetés-szerkesztési mód be- és kikapcsolása. Ha engedélyezve van, az operátorok hozzáférhetnek a küldetések és a küldetési sorok szerkesztési menüjéhez. Ne felejtse el kikapcsolni ezt a csomagok vagy küldetések közzététele előtt.%n%n§o/bq_admin hardcore%n§r%nBe- és kikapcsolja a hardcore élet használatát. Ha az összes élet kimerül, a játékosokat kiszorítják a szerverből, vagy törlik a világot a szokásos vanília hardcore szerint.%n%n§o/bq_admin reset [all|<quest_id>] [username|uuid]%n§r%nTörli az adott felhasználó küldetési teljesítési adatait. Használható csomagok közzététele előtt.%n%n§o/bq_admin default [save|load]%n§r%nMenti / betölti az aktuális küldetési adatbázist a globális alapértelmezett könyvtárba. Az alapértelmezés beállítása azt jelenti, hogy minden újonnan létrehozott világ az adott küldetések sorozatával kezdődik. A mentés megőrzi a befejezési adatokat, a hardcore állapotot és a szerkesztési módot is, ezért mielőtt futtatnád, mindenképpen használd a különféle egyéb parancsokat.%n%n§o/bq_admin complete <quest_id> [username|uuid]%n§r%nKényszeríti az adott felhasználó küldetését%n%n§o/bq_admin delete [all|<quest_id>]%n§r%nTörli a megadott küldetéseket és előrehaladási adatokat, azonban az új világ alapértelmezett értékeit nem törli.%n%n§o/bq_admin lives [add|set|max|default] <value> [username]%n§r%nEzek a parancsok megváltoztatják a játékosok élettartama vagy a kiindulási és a maximális értéket.
+betterquesting.help.page5=§l§nImportálás%n§r%nEgyes bővítőcsomagok tartalmazhatnak más küldetési modók importőreit, vagy engedélyezhetik a csomagkészítők számára az online küldetési sorok letöltését. Az importőrök eléréséhez kattintson a "import" gombra a fő küldetéssor-szerkesztőben. Alapértelmezés szerint a Better Questing nem rendelkezik importőrrel, így ha egy konkrét importőrre van szüksége, akkor vagy keressen kibővítést egyet, vagy saját maga készítse el.
+betterquesting.help.page6=§l§nTémák%n§r%nHa valaki inkább egy bizonyos színes raklapot használ az felhasználói felületében, vagy csak egy csomagkészítő, aki azt akarja, hogy valósághűbb megjelenést és érzetet adjon neki, akkor a témák vannak a legjobb barátok. A témák megváltoztathatják a kereső felhasználói felületek megjelenését, hogy megfeleljenek bármilyen igényének, akár futurisztikus, varázslatos, akár csak klasszikus Minecraft. Telepíthetők akár erőforrás-csomagokon, erőforrás-könyvtáron vagy bővítőcsomagokon keresztül.
+betterquesting.help.page7=§l§nLokalizáció%n§r%nA Better Questing támogatja a küldetések nevének és leírásainak teljes lokalizálását, így ha minden nemzetiségű felhasználó számára kiadni akarta csomagját, akkor most már megteheti! A küldetések lokalizálásának megkezdéséhez egyedi kulcsszavak helyett egyedi kulcsokat kell használni, például "§omypack.quest1.name§r". Ezután létrehozhat egy erőforráscsomagot, amely csak .lang fájlokat tartalmaz az összes nyelvspecifikus fordításhoz. Ezeket a fájlokat alternatívaként a Better Questing erőforrás könyvtárában is tárolhatjuk, hogy könnyebben csomagolhassuk őket
+betterquesting.help.page8=§l§nErőforrások%n§r%nHa testre szeretné szabni a kezdőképernyőt, csomagolni témákat vagy hozzáadni lokalizációs fájlokat, akkor ezt megteheti: %n%n"§o/config/betterquesting/resources/<pack_name>/§r"%n%nAz itt található mappák nem listázott erőforrás-csomagokként kezelhetők, amelyek mindent tartalmaznak, amely a csomag testreszabásához szükséges.
+
+betterquesting.design.tree=Fa tervezés
+
+betterquesting.toolbox.tab.main=Fő
+
+betterquesting.toolbox.tool.open.name=Nyit
+betterquesting.toolbox.tool.open.desc=Küldetés megnyitása további szerkesztésre
+betterquesting.toolbox.tool.grab.name=Megragad
+betterquesting.toolbox.tool.grab.desc=Küldetések felvétele és áthelyezése a küldetés sorba
+betterquesting.toolbox.tool.link.name=Összekapcsol
+betterquesting.toolbox.tool.link.desc=Sets a quest as prerequisites for others. If a link is already present then it is removed
+betterquesting.toolbox.tool.snap.name=Rács bepattintás
+betterquesting.toolbox.tool.snap.desc=Megváltoztatja a rács raszterfelbontását számos egyéb eszköznél
+betterquesting.toolbox.tool.copy.name=Másol
+betterquesting.toolbox.tool.copy.desc=Az adott küldetés, beleértve előfeltételeket, feladatok és jutalmak másolása a progresszió adatai kivételével
+betterquesting.toolbox.tool.new.name=Új küldetés
+betterquesting.toolbox.tool.new.desc=Új üres küldetést látrehozása
+betterquesting.toolbox.tool.delete.name=Küldetés törlése
+betterquesting.toolbox.tool.delete.desc=Az adott küldetés törlése a küldetés sorból és az adatbázisból
+betterquesting.toolbox.tool.remove.name=Küldetés eltávolítása
+betterquesting.toolbox.tool.remove.desc=Az adott küldetést csak a küldetési sorból távolítja el. A küldetés továbbra is elérhető lesz az adatbázison keresztül
+betterquesting.toolbox.tool.complete.name=Kézi bejezés
+betterquesting.toolbox.tool.complete.desc=Kézzel teljesíti a kiválasztott küldetést
+betterquesting.toolbox.tool.reset.name=Küldetés alaphelyzetbe állítása
+betterquesting.toolbox.tool.reset.desc=Alaphelyzetbe állítja a teljes állapotot és az összes feladat előrehaladását
+betterquesting.toolbox.tool.icon.name=Ikon kiválasztása
+betterquesting.toolbox.tool.icon.desc=Küldetés ikonjának megváltoztatása
+betterquesting.toolbox.tool.scale.name=Ikon átméretezése
+betterquesting.toolbox.tool.scale.desc=A küldetés ikonjait fel- vagy lefelé méretezheti
+betterquesting.toolbox.tool.raw.name=Nyers szerkesztés
+betterquesting.toolbox.tool.raw.desc=Megnyitja a nyers JSON küldetést szerkesztésre. További rejtett beállításokat tartalmaz, például a háttér megváltoztatását
+betterquesting.toolbox.tool.frame.name=Ikonkeret szerkesztése
+betterquesting.toolbox.tool.frame.desc=Megváltoztatja a küldetés ikonkeretének stílusát
+
+betterquesting.cmd.complete=A(z) %s küldetés befejezve %s -ra
+betterquesting.cmd.default.save=Küldetés adatbázis alapértelmezettként mentve
+betterquesting.cmd.default.save2=Küldetés adatbázis elmentve %s -ba
+betterquesting.cmd.default.load=Alapértelmezett küldetés adatbázis újratöltve
+betterquesting.cmd.default.load2=Küldetés adatbázis betöltve %s -ból
+betterquesting.cmd.default.set=Állítsd be a(z) %s -t, mint alapértelmezett küldetés adatbázis
+betterquesting.cmd.default.none=Nem található a küldetés adatbázis
+betterquesting.cmd.delete.single=A(z) %s küldetést törölve
+betterquesting.cmd.delete.all=Az összes küldetést törölve
+betterquesting.cmd.edit=Szerkesztés mód %s
+betterquesting.cmd.hardcore=Hardcore mód %s
+betterquesting.cmd.purge_hidden=A(z) %s rejtett küldetés(ek) törölve
+
+betterquesting.cmd.lives.add_player=Hozzáadott %s életek %s -nak (Összes: %s)
+betterquesting.cmd.lives.add_all=Hozzáadott %s életek az összes játékoshoz
+betterquesting.cmd.lives.remove_player=Eltávolított %s életek %s -tól (Összes: %s)
+betterquesting.cmd.lives.remove_all=A(z) %s életek eltávolítása az összes játékostól
+betterquesting.cmd.lives.set_player=A(z) %s életeinek beállítása %s -ra
+betterquesting.cmd.lives.set_all=Az összes játékos életeinek beállítása %s -ra
+betterquesting.cmd.lives.max=Max életek beállítása %s -ra
+betterquesting.cmd.lives.default=Alap életek beállítása %s -ra
+
+betterquesting.cmd.reset.player_single=Küldetés '%s' alaphelyzetbe állítása %s számára
+betterquesting.cmd.reset.player_all=Alaphelyzetbe állít minden küldetést %s számára
+betterquesting.cmd.reset.all_single=A(z) '%s' küldetés alaphelyzetbe állítása mindenkinek
+betterquesting.cmd.reset.all_all=Az összes küldetés alaphelyzetbe állítása mindenkinek
+betterquesting.cmd.refresh=Helyi adatbázis frissítése...
+
+json.betterquesting.quest.name=Küldetés adat
+jdoc.betterquesting.quest.rewards.name=Jutalmak
+jdoc.betterquesting.quest.rewards.desc=A konfigurálható jutalomtípusok listája
+jdoc.betterquesting.quest.tasks.name=Feladatok
+jdoc.betterquesting.quest.tasks.desc=Konfigurálható feladattípusok listája
+jdoc.betterquesting.quest.preRequisites.name=Előfeltételek
+jdoc.betterquesting.quest.preRequisites.desc=A küldetés feloldásához használt szülő küldetésazonosítók listája
+jdoc.betterquesting.quest.properties.name=Tulajdonságok
+jdoc.betterquesting.quest.properties.desc=A küldetés megjelenését és funkcionalitását meghatározó tulajdonságok
+
+jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
+jdoc.betterquesting.quest.properties.betterquesting.desc=BetterQuesting tulajdonságok
