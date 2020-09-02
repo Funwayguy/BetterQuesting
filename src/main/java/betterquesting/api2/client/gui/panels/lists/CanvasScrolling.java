@@ -230,10 +230,13 @@ public class CanvasScrolling implements IGuiCanvas
 				float swcx = (mx - tx) / (float)transform.getWidth();
 				float swcy = (my - ty) / (float)transform.getHeight();
 
-				float dw = scrollWindow.getWidth() * change - scrollWindow.getWidth();
-				float dh = scrollWindow.getHeight() * change - scrollWindow.getHeight();
+				float dw = scrollWindow.getWidth();
+				float dh = scrollWindow.getHeight() ;
 
 				this.refreshScrollBounds(); // NOTE: This runs updatePanelScroll() too. Hence why the math above is done first before the scroll bounds are changed
+
+				dw -= scrollWindow.getWidth();
+				dh -= scrollWindow.getHeight();
 
 				if(scrollBounds.getWidth() > 0)
 					scrollX.writeValue(((csx + swcx*dw) - scrollBounds.getX()) / (float)scrollBounds.getWidth());
