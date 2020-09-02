@@ -30,6 +30,9 @@ public class ConfigHandler
 		BQ_Settings.zoomSpeed = config.getFloat("Zoom Speed", Configuration.CATEGORY_GENERAL, 1.25F, 1.05F, 3F, "Zoom Speed");
 
 		BQ_Settings.zoomTimeInMs = config.getFloat("Zoom smoothness in ms", Configuration.CATEGORY_GENERAL, 100F, 0F, 2000F, "Zoom smoothness in ms");
+
+		BQ_Settings.zoomInToCursor = config.getBoolean("Zoom in on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom in on cursor. If false, zooms in on center of screen.");
+		BQ_Settings.zoomOutToCursor = config.getBoolean("Zoom out on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom out on cursor. If false, zooms out on center of screen.");
 		config.save();
 	}
 }

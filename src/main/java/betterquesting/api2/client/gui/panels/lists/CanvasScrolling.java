@@ -217,13 +217,28 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		if(lsz != zs)
         {
-//        	if(lsz < zs)
-//        	{
-//
-//			} else
-			{
+        	boolean zoomIn = lsz < zs;
+        	if((zoomIn && !BQ_Settings.zoomInToCursor) || (!zoomIn && !BQ_Settings.zoomOutToCursor))
+        	{
 				float change = zs / lsz; // This could probably crash if someone allowed the zoom driver to go to zero. Not really my fault to be fair
 
+				int csx = getScrollX();
+				int csy = getScrollY();
+				float swcx = scrollWindow.w/2F;
+				float swcy = scrollWindow.h/2F;
+				swcx -= swcx / change;
+				swcy -= swcy / change;
+
+				this.refreshScrollBounds(); // NOTE: This runs updatePanelPcroll() too. Hence why the math above is done first before the scroll bounds are changed
+
+				if(scrollBounds.getWidth() > 0)
+					scrollX.writeValue(((csx + swcx) - scrollBounds.getX()) / (float)scrollBounds.getWidth());
+
+				if(scrollBounds.getHeight() > 0)
+					scrollY.writeValue(((csy + swcy) - scrollBounds.getY()) / (float)scrollBounds.getHeight());
+
+			} else
+			{
 				int csx = getScrollX();
 				int csy = getScrollY();
 
@@ -240,6 +255,7 @@ public class CanvasScrolling implements IGuiCanvas
 
 				if(scrollBounds.getWidth() > 0)
 					scrollX.writeValue(((csx + swcx*dw) - scrollBounds.getX()) / (float)scrollBounds.getWidth());
+
 				if(scrollBounds.getHeight() > 0)
 					scrollY.writeValue(((csy + swcy*dh) - scrollBounds.getY()) / (float)scrollBounds.getHeight());
 
@@ -247,9 +263,6 @@ public class CanvasScrolling implements IGuiCanvas
 
             lsx = getScrollX();
             lsy = getScrollY();
-
-			System.out.format("lsx: %d, lsy: %d\r\n\r\n", lsx, lsy);
-
             lsz = zs;
 
         } else if(lsx != getScrollX() || lsy != getScrollY()) // We can skip this if the above case ran

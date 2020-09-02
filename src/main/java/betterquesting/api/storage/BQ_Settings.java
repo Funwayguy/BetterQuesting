@@ -23,4 +23,7 @@ public class BQ_Settings
 
 	public static float zoomSpeed = 1.25f;
 	public static float zoomTimeInMs = 100f;
+
+	public static boolean zoomInToCursor = true;
+	public static boolean zoomOutToCursor = false;
 }
