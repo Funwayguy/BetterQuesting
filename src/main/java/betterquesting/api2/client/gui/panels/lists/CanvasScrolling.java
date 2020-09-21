@@ -61,7 +61,7 @@ public class CanvasScrolling implements IGuiCanvas
 		
 		scrollX = new FloatSimpleIO().setLerp(false, 0.02F);
 		scrollY = new FloatSimpleIO().setLerp(false, 0.02F);
-		zoomScale = new FloatSimpleIO(1F, 0.2F, 3F).setLerp(BQ_Settings.zoomTimeInMs > 0, BQ_Settings.zoomTimeInMs > 0 ? 1.0F / BQ_Settings.zoomTimeInMs : 0);
+		zoomScale = new FloatSimpleIO(1F, 0.2F, 2F).setLerp(BQ_Settings.zoomTimeInMs > 0, BQ_Settings.zoomTimeInMs > 0 ? 1.0F / BQ_Settings.zoomTimeInMs : 0);
 	}
 	
 	public CanvasScrolling setScrollDriverX(IValueIO<Float> driver)
