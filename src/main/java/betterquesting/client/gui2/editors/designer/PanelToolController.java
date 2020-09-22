@@ -63,7 +63,7 @@ public class PanelToolController implements IGuiPanel
                     this.v = MathHelper.clamp_float(value, 0F, 1F);
                 }
             }
-        }.setLerp(true, 0.02F);
+        }.setLerp(false, 0.02F);
         
         scDriverY = new FloatSimpleIO()
         {
@@ -78,7 +78,7 @@ public class PanelToolController implements IGuiPanel
                     this.v = MathHelper.clamp_float(value, 0F, 1F);
                 }
             }
-        }.setLerp(true, 0.02F);
+        }.setLerp(false, 0.02F);
     }
     
     public void setActiveTool(IToolboxTool tool)

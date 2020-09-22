@@ -142,6 +142,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
             cvBackground.addPanel(toolController);
             cvQuest.setScrollDriverX(toolController.getScrollX());
             cvQuest.setScrollDriverY(toolController.getScrollY());
+            cvQuest.fitToWindow();
         }
         
         refreshToolTab();
