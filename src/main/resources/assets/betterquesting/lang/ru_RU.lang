@@ -68,9 +68,12 @@ betterquesting.gui.remaining_lives=Осталось жизней: %s
 betterquesting.gui.full_lives=Всего жизней
 betterquesting.gui.closing_warning=Вы уверены, что хотите закрыть этот редактор?
 betterquesting.gui.closing_confirm=Ваши изменения могут быть утеряны!
+betterquesting.gui.claim_all_warning=Вы уверены, что хотите получить все награды?
+betterquesting.gui.claim_all_confirm=Здесь может быть много предметов, которые выпадут на землю, если инвентарь будет заполнен!
 betterquesting.gui.key=Название ключа
 betterquesting.gui.no_key=Без ключа
 betterquesting.gui.duplicate_key=Дубль ключа
+betterquesting.gui.yes_always=Да, всегда
 
 betterquesting.tooltip.tasks_complete=%s/%s заданий завершено
 betterquesting.tooltip.complete=ЗАВЕРШЕНО

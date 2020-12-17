@@ -71,9 +71,12 @@ betterquesting.gui.remaining_lives=Remaining Lives: %s
 betterquesting.gui.full_lives=Lives Full
 betterquesting.gui.closing_warning=Are you sure you want to close this editor?
 betterquesting.gui.closing_confirm=Changes may be lost!
+betterquesting.gui.claim_all_warning=Are you sure you want to claim all rewards?
+betterquesting.gui.claim_all_confirm=There may be a lot of items that will drop to the ground if your inventory is full!
 betterquesting.gui.key=Key Name
 betterquesting.gui.no_key=No Key
 betterquesting.gui.duplicate_key=Duplicate Key
+betterquesting.gui.yes_always=Yes, always
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE

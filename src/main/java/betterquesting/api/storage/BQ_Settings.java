@@ -26,4 +26,6 @@ public class BQ_Settings
 
 	public static boolean zoomInToCursor = true;
 	public static boolean zoomOutToCursor = false;
+
+	public static boolean claimAllConfirmation = true;
 }
