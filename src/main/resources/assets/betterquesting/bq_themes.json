@@ -313,6 +313,22 @@
       {
         "colorType": "betterquesting:color_static",
         "color": "FF00FF00"
+      },
+      "betterquesting:quest_icon_repeatable":
+      {
+        "colorType": "betterquesting:color_pulse",
+        "period": 1.0,
+        "phase": 0.0,
+        "color1":
+        {
+          "colorType": "betterquesting:color_static",
+          "color": "ff4500ff"
+        },
+        "color2":
+        {
+          "colorType": "betterquesting:color_static",
+          "color": "ff6000ff"
+        }
       }
     },
     "lines":

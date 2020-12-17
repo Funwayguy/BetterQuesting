@@ -76,6 +76,7 @@ betterquesting.tooltip.tasks_complete=%s/%s заданий завершено
 betterquesting.tooltip.complete=ЗАВЕРШЕНО
 betterquesting.tooltip.incomplete=ОТКРЫТО
 betterquesting.tooltip.rewards_pending=Незапрошенные награды
+betterquesting.tooltip.repeatable=Можно повторить
 betterquesting.tooltip.requires=Условия:
 betterquesting.tooltip.shift_advanced=Удерживать SHIFT для получения доп.информации
 betterquesting.tooltip.reset_time=Откат: %s

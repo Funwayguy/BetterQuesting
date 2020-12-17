@@ -79,6 +79,7 @@ betterquesting.tooltip.tasks_complete=%s/%s 已达成
 betterquesting.tooltip.complete=已达成
 betterquesting.tooltip.incomplete=未达成
 betterquesting.tooltip.rewards_pending=未领取奖励
+betterquesting.tooltip.repeatable=可以重复
 betterquesting.tooltip.requires=前置任务:
 betterquesting.tooltip.shift_advanced=按住shift显示信息
 betterquesting.tooltip.reset_time=重置冷却: %s

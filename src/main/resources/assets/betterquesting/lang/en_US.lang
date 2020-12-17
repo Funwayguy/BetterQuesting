@@ -79,6 +79,7 @@ betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE
 betterquesting.tooltip.incomplete=INCOMPLETE
 betterquesting.tooltip.rewards_pending=Unclaimed rewards
+betterquesting.tooltip.repeatable=Can be repeated
 betterquesting.tooltip.requires=Requires:
 betterquesting.tooltip.shift_advanced=Hold SHIFT for advanced info
 betterquesting.tooltip.reset_time=Cooldown: %s
