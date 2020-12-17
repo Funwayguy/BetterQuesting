@@ -126,7 +126,7 @@ public class CanvasQuestLine extends CanvasScrolling
             if(reqList.size() <= 0) continue;
             
             boolean main = quest.getValue().getProperty(NativeProps.MAIN);
-            EnumQuestState qState = quest.getValue().getState(pid);
+            EnumQuestState qState = quest.getValue().getState(player);
             IGuiLine lineRender = null;
             IGuiColor txLineCol = null;
             

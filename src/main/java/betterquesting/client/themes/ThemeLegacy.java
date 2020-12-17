@@ -126,6 +126,7 @@ public class ThemeLegacy implements IGuiTheme
 	    COLOR_MAP.put(PresetColor.QUEST_ICON_UNLOCKED.getKey(), new GuiColorPulse(incomplete, darkenColor(locked), 1F, 0F));
 	    COLOR_MAP.put(PresetColor.QUEST_ICON_PENDING.getKey(), new GuiColorPulse(pending, darkenColor(locked), 1F, 0F));
 	    COLOR_MAP.put(PresetColor.QUEST_ICON_COMPLETE.getKey(), new GuiColorPulse(complete, darkenColor(locked), 1F, 0F));
+	    COLOR_MAP.put(PresetColor.QUEST_ICON_REPEATABLE.getKey(), new GuiColorPulse(complete, darkenColor(locked), 1F, 0F));
 		return this;
 	}
 	

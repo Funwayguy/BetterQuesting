@@ -7,6 +7,7 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
 {
-	EnumQuestState getState(UUID uuid);
+	EnumQuestState getState(EntityPlayer player);
 	
 	@Nullable
 	NBTTagCompound getCompletionInfo(UUID uuid);

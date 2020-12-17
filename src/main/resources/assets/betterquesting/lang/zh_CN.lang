@@ -82,6 +82,7 @@ betterquesting.tooltip.tasks_complete=%s/%s 已达成
 betterquesting.tooltip.complete=已达成
 betterquesting.tooltip.incomplete=未达成
 betterquesting.tooltip.rewards_pending=未领取奖励
+betterquesting.tooltip.repeatable=可以重复
 betterquesting.tooltip.requires=前置任务:
 betterquesting.tooltip.shift_advanced=按住shift显示信息
 betterquesting.tooltip.reset_time=重置冷却: %s
@@ -93,6 +94,7 @@ betterquesting.tooltip.quest_logic=任务逻辑: %s
 betterquesting.tooltip.simultaneous=同步任务: %s
 betterquesting.tooltip.auto_claim=自动领取: %s
 betterquesting.tooltip.repeat=重置任务: %s
+betterquesting.tooltip.repeat_with_edit_mode=启用编辑模式，可重复的任务不会重置
 betterquesting.tooltip.update_quests=更新可用!%n§7新任务线版本可用.%n单击此处可安装并迁移进度.
 
 betterquesting.notice.complete=任务完成
