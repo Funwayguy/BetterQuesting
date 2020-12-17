@@ -73,6 +73,7 @@ betterquesting.gui.claim_all_confirm=Здесь может быть много �
 betterquesting.gui.key=Название ключа
 betterquesting.gui.no_key=Без ключа
 betterquesting.gui.duplicate_key=Дубль ключа
+betterquesting.gui.yes_always=Да, всегда
 
 betterquesting.tooltip.tasks_complete=%s/%s заданий завершено
 betterquesting.tooltip.complete=ЗАВЕРШЕНО

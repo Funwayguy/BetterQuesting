@@ -76,6 +76,7 @@ betterquesting.gui.claim_all_confirm=There can be a lot of items here that will 
 betterquesting.gui.key=Key Name
 betterquesting.gui.no_key=No Key
 betterquesting.gui.duplicate_key=Duplicate Key
+betterquesting.gui.yes_always=Yes, always
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE

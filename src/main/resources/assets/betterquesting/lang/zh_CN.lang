@@ -76,6 +76,7 @@ betterquesting.gui.claim_all_confirm=如果库存已满，这里可能有很多�
 betterquesting.gui.key=键位名称
 betterquesting.gui.no_key=无效键位
 betterquesting.gui.duplicate_key=键位冲突
+betterquesting.gui.yes_always=是的，总是
 
 betterquesting.tooltip.tasks_complete=%s/%s 已达成
 betterquesting.tooltip.complete=已达成
