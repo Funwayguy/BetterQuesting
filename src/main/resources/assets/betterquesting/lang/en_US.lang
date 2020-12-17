@@ -90,6 +90,7 @@ betterquesting.tooltip.quest_logic=Quest Logic: %s
 betterquesting.tooltip.simultaneous=Simultaneous Tasks: %s
 betterquesting.tooltip.auto_claim=Auto Claim: %s
 betterquesting.tooltip.repeat=Cooldown: %s
+betterquesting.tooltip.repeat_with_edit_mode=Edit mode enabled, repeatable quests won't resets
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
 
 betterquesting.notice.complete=Quest Complete

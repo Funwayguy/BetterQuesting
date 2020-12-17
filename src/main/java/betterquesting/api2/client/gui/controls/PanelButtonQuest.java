@@ -129,6 +129,9 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 				timeTxt += df.format(time%60) + "s";
 				
 				list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
+				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)){
+					list.add(ChatFormatting.RED + QuestTranslation.translate("betterquesting.tooltip.repeat_with_edit_mode"));
+				}
 			}
 		} else if(!quest.isUnlocked(playerID))
 		{

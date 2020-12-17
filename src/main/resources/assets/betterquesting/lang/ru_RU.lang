@@ -86,6 +86,7 @@ betterquesting.tooltip.task_logic=Логика задания: %s
 betterquesting.tooltip.simultaneous=Одновременные задания: %s
 betterquesting.tooltip.auto_claim=Авто-запрос: %s
 betterquesting.tooltip.repeat=Повторяется: %s
+betterquesting.tooltip.repeat_with_edit_mode=Включен режим редактирования, повторающиеся квесты не будут сбрасываться
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
 
 betterquesting.notice.complete=Квест завершён
