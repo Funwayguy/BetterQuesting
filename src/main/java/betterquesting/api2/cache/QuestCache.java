@@ -116,7 +116,8 @@ public class QuestCache implements IExtendedEntityProperties
         List<Integer> tmpActive = new ArrayList<>();
         List<QResetTime> tmpReset = new ArrayList<>();
         List<Integer> tmpAutoClaim = new ArrayList<>();
-        
+
+        long currentTime = System.currentTimeMillis();
         for(DBEntry<IQuest> entry : questDB)
         {
             if(entry.getValue().isUnlocked(uuid) || entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
@@ -132,7 +133,8 @@ public class QuestCache implements IExtendedEntityProperties
                     if(repeat >= 0 && entry.getValue().hasClaimed(uuid))
                     {
                         long altTime = ue.getLong("timestamp");
-                        if(repeat > 1 && !entry.getValue().getProperty(NativeProps.REPEAT_REL)) altTime -= (altTime % repeat);
+                        if (altTime > currentTime) altTime = currentTime;
+                        if (repeat > 1 && !entry.getValue().getProperty(NativeProps.REPEAT_REL)) altTime -= (altTime % repeat);
                         tmpReset.add(new QResetTime(entry.getID(), altTime + (repeat * 50)));
                     }
                     
