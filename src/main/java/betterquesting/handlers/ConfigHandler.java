@@ -34,7 +34,7 @@ public class ConfigHandler
 		BQ_Settings.zoomInToCursor = config.getBoolean("Zoom in on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom in on cursor. If false, zooms in on center of screen.");
 		BQ_Settings.zoomOutToCursor = config.getBoolean("Zoom out on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom out on cursor. If false, zooms out on center of screen.");
 
-		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "Zoom out on cursor. If false, zooms out on center of screen.");
+		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
 		config.save();
 	}
 }
