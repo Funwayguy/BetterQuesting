@@ -148,6 +148,10 @@ public class CanvasQuestLine extends CanvasScrolling
                     lineRender = PresetLine.QUEST_COMPLETE.getLine();
                     txLineCol = PresetColor.QUEST_LINE_COMPLETE.getColor();
                     break;
+                case REPEATABLE:
+                    lineRender = PresetLine.QUEST_REPEATABLE.getLine();
+                    txLineCol = PresetColor.QUEST_LINE_REPEATABLE.getColor();
+                    break;
             }
             
             for(DBEntry<IQuest> req : reqList)
