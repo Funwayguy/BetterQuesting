@@ -108,17 +108,14 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
 		
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
-		
+
 		if(quest.isComplete(playerID))
 		{
 			list.add(ChatFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete"));
 
-			boolean hasClaimed = quest.hasClaimed(playerID);
-			boolean canClaim = quest.canClaim(player);
-			if(!hasClaimed && canClaim)
-			{
+			if (quest.canClaimBasically(player)) {
 				list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
-			} else if(!hasClaimed){
+			} else if (!quest.hasClaimed(playerID)) {
 				list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeatable"));
 			} else if(quest.getProperty(NativeProps.REPEAT_TIME) > 0)
 			{
@@ -129,7 +126,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 					timeTxt += "-";
 					time = time * -1;
 				}
-				
+
 				if(time >= 3600)
 				{
 					timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
@@ -137,9 +134,9 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 				{
 					timeTxt += (time/60) + "m ";
 				}
-				
+
 				timeTxt += df.format(time%60) + "s";
-				
+
 				list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
 				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)){
 					list.add(ChatFormatting.RED + QuestTranslation.translate("betterquesting.tooltip.repeat_with_edit_mode"));
