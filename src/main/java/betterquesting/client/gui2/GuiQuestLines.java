@@ -366,14 +366,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 unlocked = true;
                 complete = true;
             }
-            
+
             for(DBEntry<IQuestLineEntry> qID : ql.getEntries())
             {
                 IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
                 if(q == null) continue;
-                
-                if(allComplete && !q.isComplete(playerID)) allComplete = false;
-                if(!pendingClaim && q.isComplete(playerID) && !q.hasClaimed(playerID)) pendingClaim = true;
+
+                if(allComplete && !(q.isComplete(playerID) || q.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)) allComplete = false;
+                if(!pendingClaim && q.canClaimBasically(mc.thePlayer)) pendingClaim = true;
                 if(!unlocked && q.isUnlocked(playerID)) unlocked = true;
                 if(!complete && q.isComplete(playerID)) complete = true;
                 if(!show && QuestCache.isQuestShown(q, playerID, mc.thePlayer)) show = true;
