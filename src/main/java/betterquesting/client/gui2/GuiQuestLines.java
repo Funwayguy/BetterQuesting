@@ -3,6 +3,7 @@ package betterquesting.client.gui2;
 import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
+import betterquesting.api.enums.EnumLogic;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
@@ -372,7 +373,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
                 if(q == null) continue;
 
-                if(allComplete && !(q.isComplete(playerID) || q.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN)) allComplete = false;
+                if(allComplete && !isQuestCompletedForQuestline(playerID, q)) allComplete = false;
                 if(!pendingClaim && q.canClaimBasically(mc.thePlayer)) pendingClaim = true;
                 if(!unlocked && q.isUnlocked(playerID)) unlocked = true;
                 if(!complete && q.isComplete(playerID)) complete = true;
@@ -397,7 +398,22 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         if(cvChapterTray.isTrayOpen()) buildChapterList();
     }
-    
+
+    private boolean isQuestCompletedForQuestline(UUID playerID, IQuest q) {
+        if (q.isComplete(playerID)) return true; // Completed quest
+        if (q.getProperty(NativeProps.VISIBILITY) == EnumQuestVisibility.HIDDEN) return true; // Always hidden quest
+        if (q.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR){ // Quest with choice
+            int reqCount = 0;
+            for (int qRequirementId : q.getRequirements()) {
+                IQuest quest = QuestDatabase.INSTANCE.getValue(qRequirementId);
+                if (quest.isComplete(playerID)) reqCount++;
+                if (reqCount == 2) return true;
+            }
+        }
+
+        return false;
+    }
+
     private void buildChapterList()
     {
         cvLines.resetCanvas();
