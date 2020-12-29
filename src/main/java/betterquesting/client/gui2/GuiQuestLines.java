@@ -12,10 +12,8 @@ import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
-import betterquesting.api2.client.gui.controls.IPanelButton;
-import betterquesting.api2.client.gui.controls.PanelButton;
-import betterquesting.api2.client.gui.controls.PanelButtonQuest;
-import betterquesting.api2.client.gui.controls.PanelButtonStorage;
+import betterquesting.api2.client.gui.controls.*;
+import betterquesting.api2.client.gui.controls.filters.FieldFilterString;
 import betterquesting.api2.client.gui.events.IPEventListener;
 import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.PanelEvent;
@@ -24,13 +22,12 @@ import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiTransform;
+import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
-import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
-import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
-import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.panels.lists.*;
 import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
@@ -45,18 +42,17 @@ import betterquesting.api2.utils.Tuple2;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
 import betterquesting.handlers.ConfigHandler;
+import betterquesting.misc.QuestSearchEntry;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector4f;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
@@ -86,7 +82,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private static boolean trayLock = false;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
-    
+
     public GuiQuestLines(GuiScreen parent)
     {
         super(parent);
@@ -127,15 +123,21 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnExit.setClickAction((b) -> mc.displayGuiScreen(parent));
         btnExit.setTooltip(Collections.singletonList(QuestTranslation.translate("gui.back")));
         cvBackground.addPanel(btnExit);
+
+        // Search button
+        PanelButton btnSearch = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_ZOOM.getTexture());
+        btnSearch.setClickAction(this::openSearch);
+        btnSearch.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.search")));
+        cvBackground.addPanel(btnSearch);
         
         if(canEdit)
         {
-            PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -40, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
+            PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
             btnEdit.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.edit")));
             cvBackground.addPanel(btnEdit);
             
-            PanelButton btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 24, -40, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
+            PanelButton btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 24, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
             btnDesign.setClickAction((b) -> {
                 if(selectedLine != null) mc.displayGuiScreen(new GuiDesigner(this, selectedLine));
             });
@@ -439,20 +441,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             btnLine.setTextAlignment(0);
             btnLine.setActive((vis & 4) == 0 && entry.getID() != selectedLineId);
             btnLine.setCallback((q) -> {
-                btnListRef.forEach((b) -> {if(b.getStoredValue().getID() == selectedLineId) b.setActive(true);});
-                btnLine.setActive(false);
-                selectedLine = q.getValue();
-                selectedLineId = q.getID();
-                cvQuest.setQuestLine(q.getValue());
-                icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
-                txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
-                if(!trayLock)
-                {
-                    cvFrame.setTrayState(true, 200);
-                    cvChapterTray.setTrayState(false, 200);
-                    cvQuest.fitToWindow();
-                }
-                refreshClaimAll();
+                openQuestLine(q);
             });
             cvLines.addPanel(btnLine);
             btnListRef.add(btnLine);
@@ -461,7 +450,26 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         cvLines.refreshScrollBounds();
         scLines.setEnabled(cvLines.getScrollBounds().getHeight() > 0);
     }
-    
+
+    private void openQuestLine(DBEntry<IQuestLine> q) {
+        selectedLine = q.getValue();
+        selectedLineId = q.getID();
+        for (int i = 0; i < btnListRef.size(); i++) {
+            btnListRef.get(i).setActive((visChapters.get(i).getSecond() & 4) == 0 && q.getID() != selectedLineId);
+        }
+
+        cvQuest.setQuestLine(q.getValue());
+        icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
+        txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
+        if(!trayLock)
+        {
+            cvFrame.setTrayState(true, 200);
+            cvChapterTray.setTrayState(false, 200);
+            cvQuest.fitToWindow();
+        }
+        refreshClaimAll();
+    }
+
     private void refreshContent()
     {
         if(selectedLineId >= 0)
@@ -517,5 +525,78 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
         claimAll.setActive(false);
+    }
+
+    private void openSearch(PanelButton panelButton) {
+        this.resetCanvas();
+        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+        this.addPanel(cvBackground);
+        CanvasEmpty cvRight = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0));
+        cvBackground.addPanel(cvRight);
+
+        PanelButton btnExit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back"));
+        btnExit.setClickAction((b) -> this.initPanel());
+        cvRight.addPanel(btnExit);
+
+        PanelTextBox txtDb = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("betterquesting.gui.search")).setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor());
+        cvRight.addPanel(txtDb);
+
+        PanelTextField<String> searchBox = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 8, -32), 0), "", FieldFilterString.INSTANCE);
+        searchBox.setWatermark("Search...");
+        cvRight.addPanel(searchBox);
+
+        GuiQuestLines thisGui = this;
+        UUID playerUUID = QuestingAPI.getQuestingUUID(mc.thePlayer);
+        CanvasQuestSearch canvasQuestSearch = new CanvasQuestSearch(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 32, 8, 24), 0)) {
+            @Override
+            protected boolean addResult(QuestSearchEntry entry, int index, int cachedWidth) {
+                PanelButtonCustom buttonContainer = new PanelButtonCustom(new GuiRectangle(0, index * 32, cachedWidth, 32, 0), 2);
+                buttonContainer.setCallback(panelButtonCustom -> {
+                    if (!buttonContainer.isActive()) return;
+                    thisGui.initPanel();
+                    openQuestLine(entry.getQuestLineEntry());
+                    int selectedQuestId = entry.getQuest().getID();
+                    Optional<PanelButtonQuest> targetQuestButton = cvQuest.getQuestButtons().stream().filter(panelButtonQuest -> panelButtonQuest.getStoredValue().getID() == selectedQuestId).findFirst();
+                    targetQuestButton.ifPresent(panelButtonQuest ->{
+                        GuiTextureColored newTexture = new GuiTextureColored(panelButtonQuest.txFrame,
+                                new GuiColorPulse(
+                                        new GuiColorStatic(255, 220, 115, 255),
+                                        new GuiColorStatic(255, 191, 0, 255),
+                                        1, 0
+                                ));
+                        panelButtonQuest.setTextures(newTexture, newTexture, newTexture);
+                    });
+                });
+                buttonContainer.setActive(QuestCache.isQuestShown(entry.getQuest().getValue(), playerUUID, mc.thePlayer));
+                this.addPanel(buttonContainer);
+
+                PanelButtonQuest questButton = new PanelButtonQuest(new GuiRectangle(2, 2, 28, 28), 0, "", entry.getQuest());
+                questButton.setCallback(value -> {
+                    if (!questButton.isActive()) return;
+                    thisGui.initPanel();
+                    openQuestLine(entry.getQuestLineEntry());
+                    GuiHome.bookmark = new GuiQuest(thisGui, entry.getQuest().getID());
+                    mc.displayGuiScreen(GuiHome.bookmark);
+                });
+                buttonContainer.addPanel(questButton);
+
+                buttonContainer.addPanel(new PanelGeneric(new GuiRectangle(36, 2, 14, 14, 0), new OreDictTexture(1F, entry.getQuestLineEntry().getValue().getProperty(NativeProps.ICON), false, true)));
+
+                PanelTextBox chapterName = new PanelTextBox(new GuiRectangle(56, 6, cachedWidth - 56, 16), QuestTranslation.translate(entry.getQuestLineEntry().getValue().getProperty(NativeProps.NAME)));
+                buttonContainer.addPanel(chapterName);
+
+                PanelTextBox questName = new PanelTextBox(new GuiRectangle(36, 20, cachedWidth - 40, 16), QuestTranslation.translate(entry.getQuest().getValue().getProperty(NativeProps.NAME)));
+                buttonContainer.addPanel(questName);
+
+                return true;
+            }
+        };
+        cvRight.addPanel(canvasQuestSearch);
+
+        searchBox.setCallback(canvasQuestSearch::setSearchFilter);
+
+        PanelVScrollBar scDb = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-8, 32, 0, 24), 0));
+        cvRight.addPanel(scDb);
+        canvasQuestSearch.setScrollDriverY(scDb);
     }
 }
