@@ -85,21 +85,18 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
         boolean released = super.onMouseRelease(mx, my, click);
         if (released) return true;
 
-        if (pendingRelease) {
-            pendingRelease = false;
+        if (!pendingRelease) return false;
+        pendingRelease = false;
 
-            IGuiRect bounds = this.getTransform();
-            boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+        IGuiRect bounds = this.getTransform();
+        boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 
-            if (clicked) {
-                Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(CLICK_SND, 1.0F));
-                onButtonClick();
-            }
-
-            return clicked;
-        } else {
-            return false;
+        if (clicked) {
+            Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(CLICK_SND, 1.0F));
+            onButtonClick();
         }
+
+        return clicked;
     }
 
     public Consumer<PanelButtonCustom> getCallback() {

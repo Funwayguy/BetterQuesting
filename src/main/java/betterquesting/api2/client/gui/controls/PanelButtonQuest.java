@@ -39,7 +39,6 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 	public PanelButtonQuest(GuiRectangle rect, int id, String txt, DBEntry<IQuest> value)
     {
 		super(rect, id, txt, value);
-		IGuiTexture txFrame1 = null;
         this.rect = rect;
         
         player = Minecraft.getMinecraft().thePlayer;
@@ -51,64 +50,65 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         switch(qState)
         {
             case LOCKED:
-                txFrame1 = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
+				txFrame = main ? PresetTexture.QUEST_MAIN_0.getTexture() : PresetTexture.QUEST_NORM_0.getTexture();
                 txIconCol = PresetColor.QUEST_ICON_LOCKED.getColor();
                 lock = true;
                 break;
             case UNLOCKED:
-                txFrame1 = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
+				txFrame = main ? PresetTexture.QUEST_MAIN_1.getTexture() : PresetTexture.QUEST_NORM_1.getTexture();
                 txIconCol = PresetColor.QUEST_ICON_UNLOCKED.getColor();
                 break;
             case UNCLAIMED:
-                txFrame1 = main ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
+				txFrame = main ? PresetTexture.QUEST_MAIN_2.getTexture() : PresetTexture.QUEST_NORM_2.getTexture();
                 txIconCol = PresetColor.QUEST_ICON_PENDING.getColor();
                 break;
             case COMPLETED:
-                txFrame1 = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
+				txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
                 txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
                 break;
 			case REPEATABLE:
-				txFrame1 = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
+				txFrame = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
 				txIconCol = PresetColor.QUEST_ICON_REPEATABLE.getColor();
 				break;
+			default:
+				txFrame = null;
         }
 
-		txFrame = txFrame1;
 		IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
         setTextures(btnTx, btnTx, btnTx);
         setIcon(new OreDictTexture(1F, value == null ? new BigItemStack(Items.nether_star) : value.getValue().getProperty(NativeProps.ICON), false, true), 4);
         //setTooltip(value == null ? Collections.emptyList() : value.getValue().getTooltip(player));
         setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
     }
-    
+
     @Override
     public List<String> getTooltip(int mx, int my)
     {
         if(!this.getTransform().contains(mx, my)) return null;
-        
+
         DBEntry<IQuest> value = this.getStoredValue();
         return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID());
     }
-    
+
     private List<String> getQuestTooltip(IQuest quest, EntityPlayer player, int qID)
     {
 		List<String> tooltip = getStandardTooltip(quest, player, qID);
-		
+
 		if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips && QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
 		{
 			tooltip.add("");
 			tooltip.addAll(this.getAdvancedTooltip(quest, player, qID));
 		}
-		
+
 		return tooltip;
     }
-    
+
     private List<String> getStandardTooltip(IQuest quest, EntityPlayer player, int qID)
     {
 		List<String> list = new ArrayList<>();
-		
+
 		list.add(QuestTranslation.translate(quest.getProperty(NativeProps.NAME)) + (!Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? "" : (" #" + qID)));
-		
+
 		UUID playerID = QuestingAPI.getQuestingUUID(player);
 
 		if(quest.isComplete(playerID))
@@ -147,7 +147,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		} else if(!quest.isUnlocked(playerID))
 		{
 			list.add(ChatFormatting.RED + "" + ChatFormatting.UNDERLINE + QuestTranslation.translate("betterquesting.tooltip.requires") + " (" + quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase() + ")");
-			
+
 			// TODO: Make this lookup unnecessary
 			for(DBEntry<IQuest> req : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements()))
 			{
@@ -159,7 +159,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		} else
 		{
 			int n = 0;
-			
+
 			for(DBEntry<ITask> task : quest.getTasks().getEntries())
 			{
 				if(task.getValue().isComplete(playerID))
@@ -167,17 +167,17 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 					n++;
 				}
 			}
-			
+
 			list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.tasks_complete", n, quest.getTasks().size()));
 		}
-		
+
 		return list;
     }
-    
+
     private List<String> getAdvancedTooltip(IQuest quest, EntityPlayer player, int qID)
     {
 		List<String> list = new ArrayList<>();
-		
+
 		list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", quest.getProperty(NativeProps.GLOBAL)));
 		if(quest.getProperty(NativeProps.GLOBAL))
 		{
@@ -191,7 +191,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 			long time = quest.getProperty(NativeProps.REPEAT_TIME)/20;
 			DecimalFormat df = new DecimalFormat("00");
 			String timeTxt = "";
-			
+
 			if(time >= 3600)
 			{
 				timeTxt += (time/3600) + "h " + df.format((time%3600)/60) + "m ";
@@ -199,25 +199,25 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 			{
 				timeTxt += (time/60) + "m ";
 			}
-			
+
 			timeTxt += df.format(time%60) + "s";
-			
+
 			list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
 		} else
 		{
 			list.add(ChatFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", false));
 		}
-		
+
 		return list;
     }
-    
+
 	private long getRepeatSeconds(IQuest quest, EntityPlayer player)
 	{
 		if(quest.getProperty(NativeProps.REPEAT_TIME) < 0) return -1;
-		
+
         NBTTagCompound ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
         if(ue == null) return 0;
-        
+
         return ((quest.getProperty(NativeProps.REPEAT_TIME) * 50L) - (System.currentTimeMillis() - ue.getLong("timestamp"))) / 1000L;
 	}
 }
