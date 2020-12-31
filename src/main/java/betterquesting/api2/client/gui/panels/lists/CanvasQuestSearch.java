@@ -41,7 +41,7 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
 
     @Override
     protected Iterator<QuestSearchEntry> getIterator() {
-        if (questList != null) questList.iterator();
+        if (questList != null) return questList.iterator();
         questList = collectQuests();
         return questList.iterator();
     }
