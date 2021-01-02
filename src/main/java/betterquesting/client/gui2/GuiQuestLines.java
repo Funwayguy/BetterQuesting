@@ -47,6 +47,7 @@ import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.input.Mouse;
@@ -99,6 +100,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     public void initPanel()
     {
         super.initPanel();
+
+        GuiHome.bookmark = this;
+        // If we come to quests gui - we set skip home to true
+        if (!BQ_Settings.skipHome){
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip home", false).set(true);
+            ConfigHandler.config.save();
+            ConfigHandler.initConfigs();
+        }
         
         if(selectedLineId >= 0)
         {

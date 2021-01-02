@@ -30,6 +30,7 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
+import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.EventHandler;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
@@ -46,6 +47,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.io.File;
@@ -66,6 +68,14 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 	public void initPanel()
 	{
 		super.initPanel();
+
+		GuiHome.bookmark = this;
+		// If we come to home gui - we set skip home to false
+		if (BQ_Settings.skipHome){
+			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip home", false).set(false);
+			ConfigHandler.config.save();
+			ConfigHandler.initConfigs();
+		}
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 		
