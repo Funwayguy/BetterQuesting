@@ -36,7 +36,11 @@ public class ConfigHandler
 
 		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
 
+
 		BQ_Settings.skipHome = config.getBoolean("Skip home", Configuration.CATEGORY_GENERAL, false, "If true will skip home gui and open quests at startup. This property will be changed by the mod itself.");
+    
+		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start");
+
 		config.save();
 	}
 }

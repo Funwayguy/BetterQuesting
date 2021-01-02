@@ -29,4 +29,6 @@ public class BQ_Settings
 	public static boolean zoomOutToCursor = false;
 
 	public static boolean claimAllConfirmation = true;
+
+	public static boolean lockTray = true;
 }
