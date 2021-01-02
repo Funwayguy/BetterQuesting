@@ -35,6 +35,8 @@ public class ConfigHandler
 		BQ_Settings.zoomOutToCursor = config.getBoolean("Zoom out on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom out on cursor. If false, zooms out on center of screen.");
 
 		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
+
+		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start");
 		config.save();
 	}
 }
