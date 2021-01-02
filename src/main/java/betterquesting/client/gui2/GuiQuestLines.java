@@ -455,7 +455,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         selectedLine = q.getValue();
         selectedLineId = q.getID();
         for (int i = 0; i < btnListRef.size(); i++) {
-            btnListRef.get(i).setActive((visChapters.get(i).getSecond() & 4) == 0 && q.getID() != selectedLineId);
+            btnListRef.get(i).setActive((visChapters.get(i).getSecond() & 4) == 0 && btnListRef.get(i).getStoredValue().getID() != selectedLineId);
         }
 
         cvQuest.setQuestLine(q.getValue());
