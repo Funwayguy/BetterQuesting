@@ -1,21 +1,57 @@
 package betterquesting.api2.storage;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 public abstract class SimpleDatabase<T> implements IDatabase<T>
 {
-    private final TreeMap<Integer, T> mapDB = new TreeMap<>();
-    
+    /**
+     * If the cache size would somehow exceed 24MB (on 64bit machines) we stop.
+     */
+    public static int CACHE_MAX_SIZE = 24 * 1024 * 1024 / 8;
+    /**
+     * If {@code mapDB.size < SPARSE_RATIO * (mapDB.lastKey() - mapDB.firstKey())} the database will be considered
+     * sparse and an cache array won't be built to save memory.
+     * <p>
+     * Under this sparsity a 10k element database will roughly result in a 0.5MB cache which is more than enough reasonable.
+     */
+    public static double SPARSE_RATIO = 0.15d;
+
+    final TreeMap<Integer, T> mapDB = new TreeMap<>();
+
     private final BitSet idMap = new BitSet();
-    private List<DBEntry<T>> refCache = null;
-    
+    private LookupLogicType type = null;
+    private LookupLogic<T> logic = null;
+
+    private LookupLogic<T> getLookupLogic()
+    {
+        if (type != null) return logic;
+        LookupLogicType newType = LookupLogicType.determine(this);
+        type = newType;
+        logic = newType.get(this);
+        return logic;
+    }
+
+    private void updateLookupLogic()
+    {
+        if(type == null) return;
+        LookupLogicType newType = LookupLogicType.determine(this);
+        if(newType != type)
+        {
+            type = null;
+            logic = null;
+        }
+        else
+        {
+            logic.onDataChange();
+        }
+    }
+
     @Override
     public synchronized int nextID()
     {
         return idMap.nextClearBit(0);
     }
-    
+
     @Override
     public synchronized DBEntry<T> add(int id, T value)
     {
@@ -30,7 +66,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             if(mapDB.putIfAbsent(id, value) == null)
             {
                 idMap.set(id);
-                refCache = null;
+                updateLookupLogic();
                 return new DBEntry<>(id, value);
             } else
             {
@@ -38,7 +74,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
             }
         }
     }
-    
+
     @Override
     public synchronized boolean removeID(int key)
     {
@@ -47,7 +83,7 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
         if(mapDB.remove(key) != null)
         {
             idMap.clear(key);
-            refCache = null;
+            updateLookupLogic();
             return true;
         }
         
@@ -91,44 +127,24 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
     {
         mapDB.clear();
         idMap.clear();
-        refCache = Collections.emptyList();
+        type = null;
+        logic = null;
     }
-    
+
     @Override
     public synchronized List<DBEntry<T>> getEntries()
     {
-        if(refCache == null)
-        {
-            List<DBEntry<T>> temp = new ArrayList<>();
-            for(Entry<Integer,T> entry : mapDB.entrySet())
-            {
-                temp.add(new DBEntry<>(entry.getKey(), entry.getValue()));
-            }
-            refCache = Collections.unmodifiableList(temp);
-        }
-        
-        return refCache;
+        return mapDB.isEmpty() ? Collections.emptyList() : getLookupLogic().getRefCache();
     }
-    
+
+    /**
+     * First try use array cache.
+     * If memory usage would be too high try use sort merge join if keys is large.
+     * Otherwise look up each key separately via {@link TreeMap#get(Object)}.
+     */
     @Override
     public synchronized List<DBEntry<T>> bulkLookup(int... keys)
     {
-        if(keys.length <= 0) return Collections.emptyList();
-        
-        int[] sortedKeys = new int[keys.length];
-        System.arraycopy(keys, 0, sortedKeys, 0, keys.length);
-        Arrays.sort(sortedKeys);
-        
-        List<DBEntry<T>> subList = new ArrayList<>();
-        int n = 0;
-        
-        for(DBEntry<T> entry : getEntries())
-        {
-            while(n < sortedKeys.length && sortedKeys[n] < entry.getID()) n++;
-            if(n >= sortedKeys.length) break;
-            if(sortedKeys[n] == entry.getID()) subList.add(entry);
-        }
-        
-        return subList;
+        return mapDB.isEmpty() || keys.length == 0 ? Collections.emptyList() : getLookupLogic().bulkLookup(keys);
     }
 }
