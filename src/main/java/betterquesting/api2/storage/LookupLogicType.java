@@ -8,7 +8,6 @@ import static betterquesting.api2.storage.SimpleDatabase.*;
 enum LookupLogicType
 {
 	ArrayCache(db -> db.mapDB.size() < CACHE_MAX_SIZE && db.mapDB.size() > SPARSE_RATIO * (db.mapDB.lastKey() - db.mapDB.firstKey()), ArrayCacheLookupLogic::new),
-	SortMergeJoin(db -> db.mapDB.size() > SORT_MERGE_JOIN_THRESHOLD, SortMergeJoinLookupLogic::new),
 	Naive(db -> true, NaiveLookupLogic::new);
 	private final Predicate<SimpleDatabase<?>> shouldUse;
 	private final Function<SimpleDatabase<?>, LookupLogic<?>> factory;
