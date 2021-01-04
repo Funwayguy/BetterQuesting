@@ -15,10 +15,6 @@ public abstract class SimpleDatabase<T> implements IDatabase<T>
      * Under this sparsity a 10k element database will roughly result in a 0.5MB cache which is more than enough reasonable.
      */
     public static double SPARSE_RATIO = 0.15d;
-    /**
-     * When array cache is disabled, sort merge join will be used when query size is bigger than this
-     */
-    public static int SORT_MERGE_JOIN_THRESHOLD = 300;
 
     final TreeMap<Integer, T> mapDB = new TreeMap<>();
 
