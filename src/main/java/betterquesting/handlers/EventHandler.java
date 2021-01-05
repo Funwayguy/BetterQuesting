@@ -288,9 +288,10 @@ public class EventHandler
 
         NetBulkSync.sendReset(mpPlayer, true, true);
 
-        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(mpPlayer.getPersistentID());
+        UUID questingUUID = QuestingAPI.getQuestingUUID(mpPlayer);
+        DBEntry<IParty> party = PartyManager.INSTANCE.getParty(questingUUID);
         if (party != null)
-            PartyManager.SyncPartyQuests(party.getValue());
+            PartyManager.SyncPartyQuests(party.getValue(), false);
 	}
 	
 	@SubscribeEvent

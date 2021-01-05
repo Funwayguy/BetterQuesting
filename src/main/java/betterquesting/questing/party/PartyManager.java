@@ -1,83 +1,80 @@
 package betterquesting.questing.party;
 
+import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumPartyStatus;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.questing.party.IPartyDatabase;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.SimpleDatabase;
 import betterquesting.core.BetterQuesting;
-import betterquesting.network.handlers.NetQuestSync;
 import betterquesting.questing.QuestDatabase;
+import betterquesting.storage.NameCache;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PartyManager extends SimpleDatabase<IParty> implements IPartyDatabase
 {
 	public static final PartyManager INSTANCE = new PartyManager();
 
-	public static void SyncPartyQuests(IParty party, UUID targetPlayer) {
+	public static void SyncPartyQuests(IParty party, UUID targetPlayer, boolean prohibitClaim) {
 		ArrayList<UUID> uuids = new ArrayList<>();
 		uuids.add(targetPlayer);
-		SyncPartyQuests(party, uuids);
-	}
-	public static void SyncPartyQuests(IParty party) {
-		SyncPartyQuests(party, party.getMembers());
+		SyncPartyQuests(party, uuids, prohibitClaim);
 	}
 
-	private static void SyncPartyQuests(IParty party, List<UUID> targets) {
+	public static void SyncPartyQuests(IParty party, boolean prohibitClaim) {
+		SyncPartyQuests(party, party.getMembers(), prohibitClaim);
+	}
+
+	private static void SyncPartyQuests(IParty party, List<UUID> targetUUIDs, boolean prohibitClaim) {
 		new Thread(() -> {
 			BetterQuesting.logger.info("Start force party quest sync");
-			long current = System.currentTimeMillis();
 			List<UUID> partyMembers = party.getMembers();
 
-			Map<UUID, List<Integer>> syncQueue = new HashMap<>();
-			for (UUID target : targets) {
-				syncQueue.put(target, new ArrayList<>());
-			}
+            List<SyncPlayerContainer> t = targetUUIDs.stream().map(SyncPlayerContainer::new).collect(Collectors.toList());
 
-			for (DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) {
-				IQuest value = entry.getValue();
-				boolean isCompleted = false;
+			for (DBEntry<IQuest> questEntry : QuestDatabase.INSTANCE.getEntries()) {
+				IQuest quest = questEntry.getValue();
+				long completionTime = -1;
 				for (UUID member : partyMembers) {
-					if (value.isComplete(member)){
-						isCompleted = true;
+					NBTTagCompound completionInfo = quest.getCompletionInfo(member);
+					if (completionInfo != null){
+						completionTime = completionInfo.getLong("timestamp");
 						break;
 					}
 				}
 
-				if (isCompleted){
-					for (UUID target : targets) {
-						if (!value.isComplete(target)) {
-							value.setComplete(target, current);
-							syncQueue.get(target).add(entry.getID());
-						}
-					}
-				}
+                if (completionTime != -1) {
+                    for (SyncPlayerContainer target : t) {
+                        if (quest.isComplete(target.uuid)) continue;
+                        quest.setComplete(target.uuid, completionTime);
+                        if (prohibitClaim){
+                            quest.setClaimed(target.uuid, completionTime);
+                        }
+                        if (target.isPlayerOnline()){
+                            target.questCache.markQuestDirty(questEntry.getID());
+                        }
+
+                        target.questsCompleted += 1;
+                    }
+                }
 			}
 
-			for (Map.Entry<UUID, List<Integer>> uuidListEntry : syncQueue.entrySet()) {
-				EntityPlayerMP player = getPlayer(uuidListEntry.getKey());
-				BetterQuesting.logger.info("Force party quest sync: Completed " + uuidListEntry.getValue().size() + " quests for " +
-						(player != null ? player.getDisplayName() : uuidListEntry.getKey().toString()));
-				if (player == null) continue;
-				NetQuestSync.sendSync(player, uuidListEntry.getValue().stream().mapToInt(i -> i).toArray(), false, true);
-			}
+            for (SyncPlayerContainer syncPlayerContainer : t) {
+                if (syncPlayerContainer.questsCompleted == 0) continue;
+                BetterQuesting.logger.info("Force party quest sync: completed " + syncPlayerContainer.questsCompleted + " quests for " + syncPlayerContainer.playerName);
+            }
 		}).start();
-	}
-
-	private static EntityPlayerMP getPlayer(UUID uuid){
-		Optional onlinePlayer = MinecraftServer.getServer().getConfigurationManager().playerEntityList.stream().filter(i -> i instanceof EntityPlayerMP)
-				.filter(o -> ((EntityPlayerMP) o).getPersistentID() == uuid).findFirst();
-		return onlinePlayer.isPresent() ? (EntityPlayerMP) onlinePlayer.get() : null;
 	}
 
 	private final HashMap<UUID,Integer> partyCache = new HashMap<>();
@@ -165,5 +162,30 @@ public class PartyManager extends SimpleDatabase<IParty> implements IPartyDataba
     {
         super.reset();
         partyCache.clear();
+    }
+
+    private static class SyncPlayerContainer {
+        public SyncPlayerContainer(UUID uuid, EntityPlayerMP entityPlayerMP, QuestCache questCache, String playerName) {
+            this.uuid = uuid;
+            this.player = entityPlayerMP;
+            this.questCache = questCache;
+            this.playerName = playerName;
+        }
+
+        public SyncPlayerContainer(UUID uuid) {
+            this.uuid = uuid;
+            this.player = QuestingAPI.getPlayer(uuid);
+            this.questCache = player != null ? (QuestCache)player.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString()) : null;
+            this.playerName = player != null ? player.getDisplayName() : String.format("%s (%s)", uuid.toString(), NameCache.INSTANCE.getName(uuid));
+        }
+
+        public UUID uuid;
+	    public EntityPlayerMP player;
+	    public QuestCache questCache;
+	    public String playerName;
+	    public Integer questsCompleted = 0;
+	    public boolean isPlayerOnline(){
+	        return player != null;
+        }
     }
 }
