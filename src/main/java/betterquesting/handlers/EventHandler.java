@@ -19,6 +19,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetGUIs;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.client.BQ_Keybindings;
 import betterquesting.client.gui2.GuiHome;
+import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
 import betterquesting.network.handlers.NetBulkSync;
@@ -96,7 +97,10 @@ public class EventHandler
 					mc.displayGuiScreen(GuiHome.bookmark);
 				} else
 				{
-					mc.displayGuiScreen(ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE));
+                    GuiScreen guiToDisplay = ThemeRegistry.INSTANCE.getGui(PresetGUIs.HOME, GArgsNone.NONE);
+                    if (BQ_Settings.useBookmark && BQ_Settings.skipHome)
+                        guiToDisplay = new GuiQuestLines(guiToDisplay);
+                    mc.displayGuiScreen(guiToDisplay);
 				}
 			}
 		}
