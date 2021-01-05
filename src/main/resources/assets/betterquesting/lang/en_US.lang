@@ -71,14 +71,18 @@ betterquesting.gui.remaining_lives=Remaining Lives: %s
 betterquesting.gui.full_lives=Lives Full
 betterquesting.gui.closing_warning=Are you sure you want to close this editor?
 betterquesting.gui.closing_confirm=Changes may be lost!
+betterquesting.gui.claim_all_warning=Are you sure you want to claim all rewards?
+betterquesting.gui.claim_all_confirm=There may be a lot of items that will drop to the ground if your inventory is full!
 betterquesting.gui.key=Key Name
 betterquesting.gui.no_key=No Key
 betterquesting.gui.duplicate_key=Duplicate Key
+betterquesting.gui.yes_always=Yes, always
 
 betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE
 betterquesting.tooltip.incomplete=INCOMPLETE
 betterquesting.tooltip.rewards_pending=Unclaimed rewards
+betterquesting.tooltip.repeatable=Can be repeated
 betterquesting.tooltip.requires=Requires:
 betterquesting.tooltip.shift_advanced=Hold SHIFT for advanced info
 betterquesting.tooltip.reset_time=Cooldown: %s
@@ -90,6 +94,7 @@ betterquesting.tooltip.quest_logic=Quest Logic: %s
 betterquesting.tooltip.simultaneous=Simultaneous Tasks: %s
 betterquesting.tooltip.auto_claim=Auto Claim: %s
 betterquesting.tooltip.repeat=Cooldown: %s
+betterquesting.tooltip.repeat_with_edit_mode=Edit mode enabled, repeatable quests won't reset
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
 
 betterquesting.notice.complete=Quest Complete

@@ -7,6 +7,7 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
 {
-	EnumQuestState getState(UUID uuid);
+	EnumQuestState getState(EntityPlayer player);
 	
 	@Nullable
 	NBTTagCompound getCompletionInfo(UUID uuid);
@@ -31,8 +32,16 @@ public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTa
 	
 	boolean isComplete(UUID uuid);
 	void setComplete(UUID uuid, long timeStamp);
-	
+
+	/**
+	 * Can claim now. (Basically includes info from rewards (is choice reward chosen, for example))
+	 */
 	boolean canClaim(EntityPlayer player);
+
+	/**
+	 * Can we claim reward at all. (If reward available but we can't claim cuz a rewards not ready (choice reward not chosen, for example))
+	 */
+	boolean canClaimBasically(EntityPlayer player);
 	boolean hasClaimed(UUID uuid);
 	void claimReward(EntityPlayer player);
 	void setClaimed(UUID uuid, long timestamp);

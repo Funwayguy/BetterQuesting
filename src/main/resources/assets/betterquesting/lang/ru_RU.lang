@@ -68,14 +68,18 @@ betterquesting.gui.remaining_lives=Осталось жизней: %s
 betterquesting.gui.full_lives=Всего жизней
 betterquesting.gui.closing_warning=Вы уверены, что хотите закрыть этот редактор?
 betterquesting.gui.closing_confirm=Ваши изменения могут быть утеряны!
+betterquesting.gui.claim_all_warning=Вы уверены, что хотите получить все награды?
+betterquesting.gui.claim_all_confirm=Здесь может быть много предметов, которые выпадут на землю, если инвентарь будет заполнен!
 betterquesting.gui.key=Название ключа
 betterquesting.gui.no_key=Без ключа
 betterquesting.gui.duplicate_key=Дубль ключа
+betterquesting.gui.yes_always=Да, всегда
 
 betterquesting.tooltip.tasks_complete=%s/%s заданий завершено
 betterquesting.tooltip.complete=ЗАВЕРШЕНО
 betterquesting.tooltip.incomplete=ОТКРЫТО
 betterquesting.tooltip.rewards_pending=Незапрошенные награды
+betterquesting.tooltip.repeatable=Можно повторить
 betterquesting.tooltip.requires=Условия:
 betterquesting.tooltip.shift_advanced=Удерживать SHIFT для получения доп.информации
 betterquesting.tooltip.reset_time=Откат: %s
@@ -86,6 +90,7 @@ betterquesting.tooltip.task_logic=Логика задания: %s
 betterquesting.tooltip.simultaneous=Одновременные задания: %s
 betterquesting.tooltip.auto_claim=Авто-запрос: %s
 betterquesting.tooltip.repeat=Повторяется: %s
+betterquesting.tooltip.repeat_with_edit_mode=Включен режим редактирования, повторающиеся квесты не будут сбрасываться
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
 
 betterquesting.notice.complete=Квест завершён

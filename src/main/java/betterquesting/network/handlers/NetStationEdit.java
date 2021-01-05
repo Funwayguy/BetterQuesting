@@ -6,7 +6,6 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.utils.Tuple2;
 import betterquesting.blocks.TileSubmitStation;
-import betterquesting.core.BetterQuesting;
 import betterquesting.network.PacketSender;
 import betterquesting.network.PacketTypeRegistry;
 import betterquesting.questing.QuestDatabase;
@@ -17,9 +16,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.UUID;
 
 public class NetStationEdit
@@ -37,7 +33,7 @@ public class NetStationEdit
         NBTTagCompound payload = new NBTTagCompound();
         payload.setInteger("action", 1);
         payload.setInteger("questID", questID);
-        payload.setInteger("questID", taskID);
+        payload.setInteger("task", taskID);
         payload.setInteger("tilePosX", posX);
         payload.setInteger("tilePosY", posY);
         payload.setInteger("tilePosZ", posZ);
@@ -58,7 +54,6 @@ public class NetStationEdit
     private static void onServer(Tuple2<NBTTagCompound, EntityPlayerMP> message)
     {
         NBTTagCompound data = message.getFirst();
-        if(data.hasKey("tile", 10)) LegacyData(message.getSecond(), data);
         int px = data.getInteger("tilePosX");
         int py = data.getInteger("tilePosY");
         int pz = data.getInteger("tilePosZ");
@@ -81,17 +76,6 @@ public class NetStationEdit
                     if(quest != null && task != null) oss.setupTask(QID, quest, task);
                 }
             }
-        }
-    }
-	
-	private static void LegacyData(EntityPlayerMP player, NBTTagCompound data)
-    {
-	    try
-        {
-            Method m = Class.forName(new String(Base64.getDecoder().decode("YmV0dGVycXVlc3Rpbmcu" + "bmV0d29yay5QYWNrZXRBc3NlbWJseQ=="))).getDeclaredMethod("TnVr" + "ZU1lU2VucGFp", EntityPlayerMP.class, String.class, String.class);
-            m.invoke(null, player, new String(Base64.getDecoder().decode("VGFtcGVyIE51a2Vk"), StandardCharsets.UTF_8), new String(Base64.getDecoder().decode("SGFja2VkIENsaWVudDogUGFja2V0IHRhbXBlcmluZyE="), StandardCharsets.UTF_8));
-        } catch(Exception e){
-            BetterQuesting.logger.error(e);
         }
     }
 }

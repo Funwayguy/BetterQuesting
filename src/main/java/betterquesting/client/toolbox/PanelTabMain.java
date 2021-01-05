@@ -101,6 +101,16 @@ public class PanelTabMain extends CanvasEmpty
                 btn.setActive(false);
             }
         }
+
+        this.addPanel(new PanelButton(new GuiRectangle(0, (toolEntries.size() / 2+1) * 16 + 24, w / 2, 16, 0), -1, "" + ToolboxTabMain.INSTANCE.getSnapValue())
+        {
+            @Override
+            public void onButtonClick()
+            {
+                cvQuestLine.fitToWindow();
+            }
+        }.setIcon(PresetIcon.ICON_BOX_FIT.getTexture()).setTextShadow(false).setTextHighlight(tCol, tCol, tCol).setTooltip(makeToolTip(QuestTranslation.translate("betterquesting.btn.zoom_fit"), QuestTranslation.translate("betterquesting.btn.zoom_fit"))));
+
     }
 	
     @SuppressWarnings("unchecked")

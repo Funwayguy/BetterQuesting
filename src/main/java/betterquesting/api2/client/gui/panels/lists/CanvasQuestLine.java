@@ -36,11 +36,12 @@ public class CanvasQuestLine extends CanvasScrolling
     
     private final int buttonId;
     private IQuestLine lastQL;
+    private int zoomToFitMargin = 24;
     
     public CanvasQuestLine(IGuiRect rect, int buttonId)
     {
         super(rect);
-        this.setupAdvanceScroll(true, true, 24);
+        this.setupAdvanceScroll(true, true, 3000);
         this.enableBlocking(false);
         this.buttonId = buttonId;
     }
@@ -125,7 +126,7 @@ public class CanvasQuestLine extends CanvasScrolling
             if(reqList.size() <= 0) continue;
             
             boolean main = quest.getValue().getProperty(NativeProps.MAIN);
-            EnumQuestState qState = quest.getValue().getState(pid);
+            EnumQuestState qState = quest.getValue().getState(player);
             IGuiLine lineRender = null;
             IGuiColor txLineCol = null;
             
@@ -146,6 +147,10 @@ public class CanvasQuestLine extends CanvasScrolling
                 case COMPLETED:
                     lineRender = PresetLine.QUEST_COMPLETE.getLine();
                     txLineCol = PresetColor.QUEST_LINE_COMPLETE.getColor();
+                    break;
+                case REPEATABLE:
+                    lineRender = PresetLine.QUEST_REPEATABLE.getLine();
+                    txLineCol = PresetColor.QUEST_LINE_REPEATABLE.getColor();
                     break;
             }
             
@@ -193,10 +198,10 @@ public class CanvasQuestLine extends CanvasScrolling
             }
         }
         
-        minX -= margin;
-        minY -= margin;
-        maxX += margin;
-        maxY += margin;
+        minX -= zoomToFitMargin;
+        minY -= zoomToFitMargin;
+        maxX += zoomToFitMargin;
+        maxY += zoomToFitMargin;
         
         this.setZoom(Math.min(getTransform().getWidth()/(float)(maxX - minX), getTransform().getHeight()/(float)(maxY - minY)));
         this.refreshScrollBounds();

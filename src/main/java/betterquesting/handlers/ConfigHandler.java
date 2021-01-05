@@ -25,9 +25,18 @@ public class ConfigHandler
 		BQ_Settings.guiWidth = config.getInt("Max GUI Width", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI width (-1 to disable)");
 		BQ_Settings.guiHeight = config.getInt("Max GUI Height", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI height (-1 to disable)");
 		
-		BQ_Settings.tamperNuke = config.getBoolean("Tamper Nuke", Configuration.CATEGORY_GENERAL, true, "Bans and erases the data of known hacking clients");
-
 		BQ_Settings.scrollMultiplier = config.getFloat("Scroll multiplier", Configuration.CATEGORY_GENERAL, 1F, 0F, 10F, "Scrolling multiplier");
+
+		BQ_Settings.zoomSpeed = config.getFloat("Zoom Speed", Configuration.CATEGORY_GENERAL, 1.25F, 1.05F, 3F, "Zoom Speed");
+
+		BQ_Settings.zoomTimeInMs = config.getFloat("Zoom smoothness in ms", Configuration.CATEGORY_GENERAL, 100F, 0F, 2000F, "Zoom smoothness in ms");
+
+		BQ_Settings.zoomInToCursor = config.getBoolean("Zoom in on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom in on cursor. If false, zooms in on center of screen.");
+		BQ_Settings.zoomOutToCursor = config.getBoolean("Zoom out on cursor", Configuration.CATEGORY_GENERAL, true, "Zoom out on cursor. If false, zooms out on center of screen.");
+
+		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
+
+		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start");
 		config.save();
 	}
 }
