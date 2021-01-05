@@ -74,7 +74,7 @@ public class GuiHome extends GuiScreenCanvas implements IPEventListener
 		if (BQ_Settings.skipHome){
 			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip home", false).set(false);
 			ConfigHandler.config.save();
-			ConfigHandler.initConfigs();
+			BQ_Settings.skipHome = false;
 		}
 		
 		PEventBroadcaster.INSTANCE.register(this, PEventButton.class);

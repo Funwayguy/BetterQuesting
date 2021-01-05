@@ -106,7 +106,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         if (!BQ_Settings.skipHome){
             ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip home", false).set(true);
             ConfigHandler.config.save();
-            ConfigHandler.initConfigs();
+            BQ_Settings.skipHome = true;
         }
         
         if(selectedLineId >= 0)
