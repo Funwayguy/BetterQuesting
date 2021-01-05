@@ -106,7 +106,7 @@ public class QuestCommandReset extends QuestCommandBase
 			if(uuid != null)
 			{
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_all", pName));
-				if(player != null) NetQuestSync.sendSync(player, null, false, true);
+				if(player != null) NetQuestSync.sendSync(player, null, false, true, true);
 			} else
 			{
 				sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.all_all"));
@@ -123,7 +123,7 @@ public class QuestCommandReset extends QuestCommandBase
 				{
 					quest.resetUser(uuid, true); // Clear progress and state
 					sender.addChatMessage(new ChatComponentTranslation("betterquesting.cmd.reset.player_single", new ChatComponentTranslation(quest.getProperty(NativeProps.NAME)), pName));
-					if(player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true);
+					if(player != null) NetQuestSync.sendSync(player, new int[]{id}, false, true, true);
 				} else
 				{
 					quest.resetUser(null, true);
