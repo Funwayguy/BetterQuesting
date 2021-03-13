@@ -43,6 +43,9 @@ class ArrayCacheLookupLogic<T> extends LookupLogic<T>
         List<DBEntry<T>> list = new ArrayList<>(keys.length);
         for(int k : keys)
         {
+            if (k - offset >= cache.length)
+                // catch array out of bounds
+                continue;
             final DBEntry<T> element = cache[k - offset];
             if(element != null)
             {
