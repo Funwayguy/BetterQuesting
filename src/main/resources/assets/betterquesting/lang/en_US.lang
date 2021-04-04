@@ -170,6 +170,10 @@ betterquesting.toolbox.tool.raw.desc=Opens up the raw quest line JSON for editin
 betterquesting.toolbox.tool.frame.name=Edit Icon Frame
 betterquesting.toolbox.tool.frame.desc=Changes the quest icons frame style
 
+betterquesting.cmd.check_all=All quests completed by %s:
+betterquesting.cmd.check_all.line=%d %s
+betterquesting.cmd.check.true=%s has completed %s
+betterquesting.cmd.check.false=%s has not completed %s
 betterquesting.cmd.complete=Completed quest %s for %s
 betterquesting.cmd.default.save=Quest database saved as default
 betterquesting.cmd.default.save2=Quest database saved to %s
