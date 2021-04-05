@@ -27,7 +27,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.message.Message;
 
 import java.util.List;
 import java.util.UUID;
@@ -185,11 +184,7 @@ public class NetQuestEdit
                 }
             }
             if (player != null)
-                log(String.format("%s %s quest %d",
-                        player.getDisplayName(),
-                        "completed",
-                        entry.getID()
-                ));
+                BetterQuesting.logger.info("{} ({}) completed quest {}", player.getDisplayName(), targetID, entry.getID());
         }
         
         SaveLoadHandler.INSTANCE.markDirty();
