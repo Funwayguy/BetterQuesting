@@ -139,7 +139,19 @@ public class NetQuestEdit
     public static void setQuestStates(int[] questIDs, boolean state, UUID targetID)
     {
         List<DBEntry<IQuest>> questList = QuestDatabase.INSTANCE.bulkLookup(questIDs);
-        
+
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+
+        if(server == null) return;
+        EntityPlayerMP player = null;
+        for(Object o : server.getConfigurationManager().playerEntityList)
+        {
+            if(((EntityPlayerMP)o).getGameProfile().getId().equals(targetID))
+            {
+                player = (EntityPlayerMP)o;
+            }
+        }
+
         for(DBEntry<IQuest> entry : questList)
         {
             if(!state)
@@ -171,20 +183,11 @@ public class NetQuestEdit
                     }
                 }
             }
+            if (player != null)
+                BetterQuesting.logger.info("{} ({}) completed quest {}", player.getDisplayName(), targetID, entry.getID());
         }
         
         SaveLoadHandler.INSTANCE.markDirty();
-        
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        if(server == null) return;
-        EntityPlayerMP player = null;
-        for(Object o : server.getConfigurationManager().playerEntityList)
-        {
-            if(((EntityPlayerMP)o).getGameProfile().getId().equals(targetID))
-            {
-                player = (EntityPlayerMP)o;
-            }
-        }
         
         if(player == null) return;
         NetQuestSync.sendSync(player, questIDs, false, true);
@@ -226,4 +229,10 @@ public class NetQuestEdit
 		    MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Update(DBType.CHAPTER));
         }
     }
+
+    public static void log(String msg) {
+        // I don't like this but it's all I can think of
+        BetterQuesting.logger.log(Level.INFO, msg);
+    }
+
 }
