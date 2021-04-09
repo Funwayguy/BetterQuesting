@@ -57,12 +57,16 @@ public class NetQuestSync
             
             for(Object player : server.getConfigurationManager().playerEntityList)
             {
-                sendSync((EntityPlayerMP)player, IDs, false, true); // Progression only this pass
+                sendSync((EntityPlayerMP)player, IDs, false, true, true); // Progression only this pass
             }
         }
     }
     
-    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress)
+    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress){
+        sendSync(player, questIDs, config, progress, false);
+    }
+
+    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress, boolean resetCompletion)
     {
         if((!config && !progress) || (questIDs != null && questIDs.length <= 0)) return;
         
@@ -84,6 +88,7 @@ public class NetQuestSync
             
             NBTTagCompound payload = new NBTTagCompound();
             payload.setBoolean("merge", !config || questIDs != null);
+            payload.setBoolean("resetCompletion", resetCompletion);
             payload.setTag("data", dataList);
             
             if(player == null)
@@ -119,6 +124,7 @@ public class NetQuestSync
     {
         NBTTagList data = message.getTagList("data", 10);
         boolean merge = message.getBoolean("merge");
+        boolean resetCompletion = message.getBoolean("resetCompletion");
         if(!merge) QuestDatabase.INSTANCE.reset();
         
         for(int i = 0; i < data.tagCount(); i++)
@@ -139,7 +145,7 @@ public class NetQuestSync
             {
                 // TODO: Fix this properly
                 // If there we're not running the LAN server off this client then we overwrite always
-                quest.readProgressFromNBT(tag.getCompoundTag("progress"), merge || Minecraft.getMinecraft().isIntegratedServerRunning());
+                quest.readProgressFromNBT(tag.getCompoundTag("progress"), !resetCompletion && (merge || Minecraft.getMinecraft().isIntegratedServerRunning()));
             }
         }
         

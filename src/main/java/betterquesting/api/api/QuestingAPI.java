@@ -1,10 +1,13 @@
 package betterquesting.api.api;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -71,5 +74,11 @@ public class QuestingAPI
 		}
 		
 		return logger;
+	}
+
+	public static EntityPlayerMP getPlayer(UUID uuid){
+		Optional onlinePlayer = MinecraftServer.getServer().getConfigurationManager().playerEntityList.stream().filter(i -> i instanceof EntityPlayerMP)
+				.filter(o -> getQuestingUUID((EntityPlayer) o) == uuid).findFirst();
+		return onlinePlayer.isPresent() ? (EntityPlayerMP) onlinePlayer.get() : null;
 	}
 }
