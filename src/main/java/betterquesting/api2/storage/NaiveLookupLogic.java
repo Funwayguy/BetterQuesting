@@ -16,6 +16,7 @@ class NaiveLookupLogic<T> extends LookupLogic<T>
 
     @Override
     public void onDataChange() {
+        super.onDataChange();
         backingMap = null;
     }
 
