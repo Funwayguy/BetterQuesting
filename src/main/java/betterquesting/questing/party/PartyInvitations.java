@@ -185,7 +185,7 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID>
                 NBTTagCompound invEntry = invList.getCompoundTagAt(n);
                 int partyID = invEntry.hasKey("partyID", 99) ? invEntry.getInteger("partyID") : -1;
                 long timestamp = invEntry.hasKey("expiry", 99) ? invEntry.getLong("expiry") : -1;
-                if(partyID < 0/* || timestamp < System.currentTimeMillis()*/) continue;
+                if(partyID < 0) continue;
                 map.put(partyID, timestamp);
             }
         }

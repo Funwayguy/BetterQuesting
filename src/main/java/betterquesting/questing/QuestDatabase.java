@@ -13,8 +13,7 @@ import java.util.UUID;
 
 public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQuestDatabase
 {
-	public static final QuestDatabase INSTANCE = new QuestDatabase(); // TODO: Redirect all server side operations here.
-	//public static final QuestDatabase CLIENT = new QuestDatabase(); // TODO: Redirect all client side operations here.
+	public static final QuestDatabase INSTANCE = new QuestDatabase();
 	
 	@Override
 	public synchronized IQuest createNew(int id)

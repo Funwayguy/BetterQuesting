@@ -6,6 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 
 public interface IQuestSettings extends IPropertyContainer
 {
-	boolean canUserEdit(EntityPlayer player); // TODO: Is it necessary to even have this interface just for this one method?
+	boolean canUserEdit(EntityPlayer player);
     void reset();
 }

@@ -62,7 +62,13 @@ public class NetQuestSync
         }
     }
     
+    @Deprecated
     public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, boolean config, boolean progress)
+    {
+        sendSync(player, questIDs, null, config, progress);
+    }
+    
+    public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, @Nullable int[] resetIDs, boolean config, boolean progress)
     {
         if((!config && !progress) || (questIDs != null && questIDs.length <= 0)) return;
         
@@ -78,6 +84,7 @@ public class NetQuestSync
                 
                 if(config) tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound()));
                 if(progress) tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), pidList));
+                if(resetIDs != null) tag.setIntArray("resets", resetIDs);
                 tag.setInteger("questID", entry.getID());
                 dataList.appendTag(tag);
             }

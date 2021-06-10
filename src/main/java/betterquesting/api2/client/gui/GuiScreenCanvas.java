@@ -43,24 +43,6 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	{
 		this.parent = parent;
 	}
-	
-	/*@Override
-    public IGuiRect getRootTransform()
-    {
-        return this.rootTransform;
-    }
-    
-    @Override
-    public void forceFocus(@Nonnull IGuiPanel panel)
-    {
-    
-    }
-    
-    @Override
-    public void resetFocus()
-    {
-    
-    }*/
     
     @Override
     public void openPopup(@Nonnull IGuiPanel panel)
@@ -464,7 +446,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         RenderUtils.drawHoveringText(textLines, x, y, width, height, -1, font);
     }
 	
-	public void confirmClose(int id)
+	private void confirmClose(int id)
     {
         if(id == 0)
         {

@@ -1,8 +1,8 @@
 package betterquesting.api2.client.gui.resources.textures;
 
+import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import net.minecraft.util.ResourceLocation;
-import betterquesting.api2.client.gui.misc.IGuiRect;
 
 import javax.annotation.Nullable;
 
@@ -20,6 +20,8 @@ public class SlideShowTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick)
 	{
+	    if(width <= 0 || height <= 0 || slides.length <= 0) return;
+	    
 	    IGuiTexture tex = getCurrentFrame();
 		if(tex != null) tex.drawTexture(x, y, width, height, zLevel, partialTick);
 	}
@@ -27,7 +29,7 @@ public class SlideShowTexture implements IGuiTexture
 	@Override
 	public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color)
 	{
-	    if(width <= 0 || height <= 0) return;
+	    if(width <= 0 || height <= 0 || slides.length <= 0) return;
 	    
 	    IGuiTexture tex = getCurrentFrame();
 		if(tex != null) tex.drawTexture(x, y, width, height, zDepth, partialTick, color);

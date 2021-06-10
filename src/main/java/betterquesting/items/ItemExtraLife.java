@@ -19,6 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 public class ItemExtraLife extends Item
 {
@@ -48,7 +49,8 @@ public class ItemExtraLife extends Item
     			stack.grow(-1);
     		}
     		
-            int lives = LifeDatabase.INSTANCE.getLives(QuestingAPI.getQuestingUUID(player));
+    		UUID uuid = QuestingAPI.getQuestingUUID(player);
+            int lives = LifeDatabase.INSTANCE.getLives(uuid);
     		
     		if(lives >= QuestSettings.INSTANCE.getProperty(NativeProps.LIVES_MAX))
     		{
@@ -64,7 +66,7 @@ public class ItemExtraLife extends Item
     		
     		if(!world.isRemote)
     		{
-                LifeDatabase.INSTANCE.setLives(QuestingAPI.getQuestingUUID(player), lives + 1);
+                LifeDatabase.INSTANCE.setLives(uuid, lives + 1);
     			
     			player.sendStatusMessage(new TextComponentTranslation("betterquesting.gui.remaining_lives", TextFormatting.YELLOW.toString() + (lives + 1)), true);
     		}

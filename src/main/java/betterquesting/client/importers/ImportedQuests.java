@@ -59,7 +59,7 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 	@Override
 	public void readFromNBT(NBTTagList nbt, boolean merge)
 	{
-		this.reset();
+		if(!merge) this.reset();
 		
 		for(int i = 0; i < nbt.tagCount(); i++)
 		{

@@ -27,7 +27,8 @@ public class OreDictTexture extends SlideShowTexture
         return list;
     }
     
-    private static Collection<BigItemStack> splitVariants(BigItemStack stack)
+    // TODO: Put this somewhere useful
+    /*private static Collection<BigItemStack> splitVariants(BigItemStack stack)
     {
         Set<BigItemStack> list = new HashSet<>();
         
@@ -69,7 +70,7 @@ public class OreDictTexture extends SlideShowTexture
         }
         
         return list;
-    }
+    }*/
     
     private static List<ItemTexture> splitOreTextures(BigItemStack stack, boolean showCount, boolean keepAspect)
     {

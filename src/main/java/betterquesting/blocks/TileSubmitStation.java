@@ -61,33 +61,23 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	
 	public DBEntry<IQuest> getQuest()
 	{
-		if(questID < 0)
-		{
-			return null;
-		} else
-		{
-		    if(qCached == null)
-            {
-                IQuest tmp = QuestDatabase.INSTANCE.getValue(questID);
-                if(tmp != null) qCached = new DBEntry<>(questID, QuestDatabase.INSTANCE.getValue(questID));
-            }
-		    
-			return qCached;
-		}
+		if(questID < 0) return null;
+		
+        if(qCached == null)
+        {
+            IQuest tmp = QuestDatabase.INSTANCE.getValue(questID);
+            if(tmp != null) qCached = new DBEntry<>(questID, tmp);
+        }
+        
+        return qCached;
 	}
 	
 	@SuppressWarnings("WeakerAccess")
     public ITask getRawTask()
 	{
 		DBEntry<IQuest> q = getQuest();
-		
-		if(q == null || taskID < 0)
-		{
-			return null;
-		} else
-		{
-			return q.getValue().getTasks().getValue(taskID);
-		}
+		if(q == null || taskID < 0) return null;
+		return q.getValue().getTasks().getValue(taskID);
 	}
 	
 	@SuppressWarnings("WeakerAccess")
@@ -117,10 +107,9 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		if(idx < 0 || idx >= itemStack.size())
 		{
 			return ItemStack.EMPTY;
-		} else
-		{
-			return itemStack.get(idx);
 		}
+		
+		return itemStack.get(idx);
 	}
 
 	@Override
@@ -133,11 +122,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public void setInventorySlotContents(int idx, @Nonnull ItemStack stack)
 	{
-		if(idx < 0 || idx >= itemStack.size())
-		{
-			return;
-		}
-		
+		if(idx < 0 || idx >= itemStack.size()) return;
 		itemStack.set(idx, stack);
 	}
 
@@ -164,7 +149,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	public boolean isUsableByPlayer(@Nonnull EntityPlayer player)
 	{
         return (owner == null || player.getUniqueID().equals(owner)) && player.getDistanceSq(this.pos) < 256;
-        
     }
 
 	@Override

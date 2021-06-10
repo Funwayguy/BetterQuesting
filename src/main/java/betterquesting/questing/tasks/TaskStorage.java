@@ -22,8 +22,8 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
+		    if(subset != null && !subset.contains(entry.getID())) continue;
 			ResourceLocation taskID = entry.getValue().getFactoryID();
-			
 			NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
 			qJson.setString("taskID", taskID.toString());
 			qJson.setInteger("index", entry.getID());
@@ -35,7 +35,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
-	    reset();
+	    if(!merge) reset();
 		List<ITask> unassigned = new ArrayList<>();
 		
 		for(int i = 0; i < json.tagCount(); i++)

@@ -339,6 +339,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             i++;
         }
     }
+    
 	private void SendChanges(DBEntry<IQuestLine> chapter)
 	{
 	    NBTTagCompound payload = new NBTTagCompound();

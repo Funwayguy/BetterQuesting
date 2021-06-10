@@ -241,11 +241,6 @@ public class GuiPartyManage extends GuiScreenCanvas implements IPEventListener, 
 			payload.setInteger("partyID", partyID);
 			payload.setString("username", id);
             NetPartyAction.sendAction(payload);
-			
-			if(id.equals(mc.player.getGameProfile().getName()))
-            {
-                //mc.displayGuiScreen(new GuiPartyCreate(parent));
-            }
         } else if(btn.getButtonID() == 4) // Change name
         {
             party.getProperties().setProperty(NativeProps.NAME, flName.getRawText());

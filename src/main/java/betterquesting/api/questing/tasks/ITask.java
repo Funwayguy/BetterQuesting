@@ -16,7 +16,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-// TODO: Make functionally independent of IQuest. Make `detect` return boolean representing dirty state
 public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
 {
 	String getUnlocalisedName();

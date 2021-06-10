@@ -56,7 +56,6 @@ public class QuestCommandPurge extends QuestCommandBase
         NetQuestEdit.deleteQuests(bulkIDs);
         
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));
-        
     }
 	
 	@Override
