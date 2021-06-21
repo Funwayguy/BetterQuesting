@@ -77,7 +77,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item>
     @Override
     public boolean addResult(ItemStack stack, int index, int cachedWidth)
     {
-        if(stack == null) return false;
+        if(stack == null || stack.getItem() == null) return false;
         
         int x = (index % (cachedWidth / 18)) * 18;
         int y = (index / (cachedWidth / 18)) * 18;
