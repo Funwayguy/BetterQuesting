@@ -71,18 +71,18 @@ betterquesting.gui.remaining_lives=剩余生命: %s
 betterquesting.gui.full_lives=生命已满
 betterquesting.gui.closing_warning=你确定要关闭任务编辑菜单？
 betterquesting.gui.closing_confirm=本次修改的数据可能会丢失！
-betterquesting.gui.claim_all_warning=您确定要索取所有奖励吗？
-betterquesting.gui.claim_all_confirm=如果库存已满，这里可能有很多物品会掉到地上！
+betterquesting.gui.claim_all_warning=你确定要领取所有奖励吗？
+betterquesting.gui.claim_all_confirm=如果你的物品栏已满，可能会有很多物品掉到地上!
 betterquesting.gui.key=键位名称
 betterquesting.gui.no_key=无效键位
 betterquesting.gui.duplicate_key=键位冲突
-betterquesting.gui.yes_always=是的，总是
+betterquesting.gui.yes_always=总是
 
 betterquesting.tooltip.tasks_complete=%s/%s 已达成
 betterquesting.tooltip.complete=已达成
 betterquesting.tooltip.incomplete=未达成
 betterquesting.tooltip.rewards_pending=未领取奖励
-betterquesting.tooltip.repeatable=可以重复
+betterquesting.tooltip.repeatable=可重复
 betterquesting.tooltip.requires=前置任务:
 betterquesting.tooltip.shift_advanced=按住shift显示信息
 betterquesting.tooltip.reset_time=重置冷却: %s
@@ -94,7 +94,7 @@ betterquesting.tooltip.quest_logic=任务逻辑: %s
 betterquesting.tooltip.simultaneous=同步任务: %s
 betterquesting.tooltip.auto_claim=自动领取: %s
 betterquesting.tooltip.repeat=重置任务: %s
-betterquesting.tooltip.repeat_with_edit_mode=启用编辑模式，可重复的任务不会重置
+betterquesting.tooltip.repeat_with_edit_mode=编辑模式已启用，可重复任务不会重置
 betterquesting.tooltip.update_quests=更新可用!%n§7新任务线版本可用.%n单击此处可安装并迁移进度.
 
 betterquesting.notice.complete=任务完成
@@ -170,6 +170,10 @@ betterquesting.toolbox.tool.raw.desc=打开任务书原文件JSON进行编辑.�
 betterquesting.toolbox.tool.frame.name=编辑任务图标框
 betterquesting.toolbox.tool.frame.desc=更改任务图标框样式
 
+betterquesting.cmd.check_all=由 %s 完成的所有任务:
+betterquesting.cmd.check_all.line=%d %s
+betterquesting.cmd.check.true=%s 已完成 %s
+betterquesting.cmd.check.false=%s 未完成 %s
 betterquesting.cmd.complete=完成任务 %s 给 %s
 betterquesting.cmd.default.save=任务数据保存为默认
 betterquesting.cmd.default.save2=任务数据保存到 %s
@@ -210,3 +214,4 @@ jdoc.betterquesting.quest.properties.desc=定义任务外观和功能的属性
 
 jdoc.betterquesting.quest.properties.betterquesting.name=更好的任务(BetterQuesting)
 jdoc.betterquesting.quest.properties.betterquesting.desc=属性
+
