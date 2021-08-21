@@ -5,6 +5,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.network.handlers.NetCacheSync;
 import betterquesting.questing.QuestDatabase;
@@ -246,7 +247,10 @@ public class QuestCache implements IExtendedEntityProperties
         
         EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
         
-        if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || vis == EnumQuestVisibility.ALWAYS) // Always shown or in edit mode
+        if(
+            QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player)
+            || BQ_Settings.viewMode
+            || vis == EnumQuestVisibility.ALWAYS) // Always shown or in edit mode
         {
             return true;
         } else if(vis == EnumQuestVisibility.HIDDEN)

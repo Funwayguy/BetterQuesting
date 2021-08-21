@@ -52,6 +52,7 @@ betterquesting.btn.icon=Icon
 betterquesting.btn.claim_all=Claim All
 betterquesting.btn.zoom_fit=Zoom to Fit
 betterquesting.btn.lock_tray=Lock Tray
+betterquesting.btn.view_mode=View Mode
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests

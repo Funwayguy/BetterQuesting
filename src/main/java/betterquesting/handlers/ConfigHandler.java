@@ -40,6 +40,7 @@ public class ConfigHandler
 		BQ_Settings.skipHome = config.getBoolean("Skip home", Configuration.CATEGORY_GENERAL, false, "If true will skip home gui and open quests at startup. This property will be changed by the mod itself.");
     
 		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start");
+		BQ_Settings.viewMode = config.getBoolean("View mode", Configuration.CATEGORY_GENERAL, false, "If view mode enabled, User can view all quests");
 
 		config.save();
 	}

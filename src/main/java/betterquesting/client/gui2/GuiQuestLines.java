@@ -81,6 +81,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private PanelButton claimAll;
     
     private static boolean trayLock;
+    private static boolean viewMode;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
@@ -88,6 +89,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     {
         super(parent);
         trayLock = BQ_Settings.lockTray;
+        viewMode = BQ_Settings.viewMode;
     }
     
     @Override
@@ -287,6 +289,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         btnTrayLock.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.lock_tray")));
         cvBackground.addPanel(btnTrayLock);
+
+        // View Mode Button
+        PanelButton btnViewMode = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 104, 32, 16, -2), -1, "").setIcon(viewMode ? PresetIcon.ICON_VIEW_MODE_ON.getTexture() : PresetIcon.ICON_VIEW_MODE_OFF.getTexture());
+        btnViewMode.setClickAction((b) -> {
+            viewMode = !viewMode;
+            b.setIcon(viewMode ? PresetIcon.ICON_VIEW_MODE_ON.getTexture() : PresetIcon.ICON_VIEW_MODE_OFF.getTexture());
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "View mode", false).set(viewMode);
+            ConfigHandler.config.save();
+            ConfigHandler.initConfigs();
+            refreshGui();
+        });
+        btnViewMode.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.view_mode")));
+        cvBackground.addPanel(btnViewMode);
         
         // === CHAPTER VIEWPORT ===
         
@@ -388,6 +403,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 show = true;
                 unlocked = true;
                 complete = true;
+            }
+
+            if(BQ_Settings.viewMode)
+            {
+                show = true;
             }
 
             for(DBEntry<IQuestLineEntry> qID : ql.getEntries())
