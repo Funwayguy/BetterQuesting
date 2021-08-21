@@ -52,6 +52,7 @@ betterquesting.btn.icon=图标
 betterquesting.btn.claim_all=领取所有奖励
 betterquesting.btn.zoom_fit=缩放至适应屏幕
 betterquesting.btn.lock_tray=锁定弹出栏
+betterquesting.btn.view_mode=View Mode
 
 betterquesting.home.exit=退出
 betterquesting.home.quests=任务
