@@ -49,6 +49,11 @@ betterquesting.btn.party_join=Присоединиться
 betterquesting.btn.party_share_lives=Поделиться жизнями
 betterquesting.btn.party_share_loot=Одна награда на всех
 betterquesting.btn.icon=Картинка
+betterquesting.btn.claim_all=Claim All
+betterquesting.btn.zoom_fit=Zoom to Fit
+betterquesting.btn.lock_tray=Lock Tray
+betterquesting.btn.view_mode=View Mode
+betterquesting.btn.view_mode_btn=View Mode Button
 
 betterquesting.home.exit=Выход
 betterquesting.home.quests=Квесты
@@ -174,6 +179,7 @@ betterquesting.cmd.default.none=База данных квестов не най
 betterquesting.cmd.delete.single=Квест %s удалён
 betterquesting.cmd.delete.all=Удалены все квесты
 betterquesting.cmd.edit=Режим редактирования: %s
+betterquesting.cmd.view=View mode button %s
 betterquesting.cmd.hardcore=Режим повышенной сложности: %s
 
 betterquesting.cmd.lives.add_player=Добавлено %s жизней к %s (Всего: %s)

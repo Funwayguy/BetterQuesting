@@ -3,6 +3,7 @@ package betterquesting.commands;
 import betterquesting.commands.user.QuestCommandHelp;
 import betterquesting.commands.user.QuestCommandRefresh;
 import betterquesting.commands.user.QuestCommandSPHardcore;
+import betterquesting.commands.user.QuestCommandView;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -23,6 +24,7 @@ public class BQ_CommandUser extends CommandBase
 		coms.add(new QuestCommandHelp());
 		coms.add(new QuestCommandRefresh());
 		coms.add(new QuestCommandSPHardcore());
+		coms.add(new QuestCommandView());
 	}
 	
     @Nonnull
