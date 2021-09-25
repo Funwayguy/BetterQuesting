@@ -13,10 +13,10 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
 {
@@ -54,7 +54,11 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack>
         {
             Minecraft mc = Minecraft.getMinecraft();
             this.setIcon(oreDict || value.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE ? new OreDictTexture(1F, value, showCount, true) : new ItemTexture(value, showCount, true), 1);
-            this.setTooltip(value.getBaseStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips));
+            try {
+                this.setTooltip(value.getBaseStack().getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips));
+            } catch (NullPointerException ignored) {
+                this.setTooltip(Collections.singletonList("" + EnumChatFormatting.RED + EnumChatFormatting.BOLD + EnumChatFormatting.ITALIC + "Broken tooltip. Please REPORT TO DEV."));
+            }
         } else
         {
             this.setIcon(null);
