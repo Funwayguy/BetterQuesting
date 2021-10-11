@@ -53,6 +53,7 @@ betterquesting.btn.claim_all=Claim All
 betterquesting.btn.zoom_fit=Zoom to Fit
 betterquesting.btn.lock_tray=Lock Tray
 betterquesting.btn.view_mode=View Mode
+betterquesting.btn.view_mode_btn=View Mode Button
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
@@ -185,6 +186,7 @@ betterquesting.cmd.default.none=Quest database not found
 betterquesting.cmd.delete.single=Deleted quest %s
 betterquesting.cmd.delete.all=Deleted all quests
 betterquesting.cmd.edit=Edit mode %s
+betterquesting.cmd.view=View mode button %s
 betterquesting.cmd.hardcore=Hardcore mode %s
 betterquesting.cmd.purge_hidden=Deleted %s hidden quest(s)
 
