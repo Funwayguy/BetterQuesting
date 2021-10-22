@@ -249,13 +249,18 @@ public class QuestCache implements IExtendedEntityProperties
         
         if(
             QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player)
-            || BQ_Settings.viewMode
             || vis == EnumQuestVisibility.ALWAYS) // Always shown or in edit mode
         {
             return true;
         } else if(vis == EnumQuestVisibility.HIDDEN)
         {
             return false;
+        } else if(vis == EnumQuestVisibility.SECRET)
+        {
+            return quest.isComplete(uuid) || quest.isUnlocked(uuid);
+        } else if(BQ_Settings.viewMode)
+        {
+            return true;
         } else if(vis == EnumQuestVisibility.UNLOCKED)
         {
             return quest.isComplete(uuid) || quest.isUnlocked(uuid);
