@@ -224,8 +224,8 @@ jars/
 classes/
 out/
 *.bat
-Better Questing.iml
-Better Questing.ipr
-Better Questing.iws
+*.iml
+*.ipr
+*.iws
 libs/
 /run/
