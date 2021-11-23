@@ -1,15 +1,23 @@
 package betterquesting.api2.utils;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class BQThreadedIO
 {
     public static final BQThreadedIO INSTANCE = new BQThreadedIO();
-    
-    private ExecutorService exService;
+    public static final BQThreadedIO DISK_IO = new BQThreadedIO()
+    {
+        @Override
+        public void init()
+        {
+            if(exService == null || exService.isShutdown())
+            {
+                exService = Executors.newFixedThreadPool(4);
+            }
+        }
+    };
+
+    ExecutorService exService;
     
     public BQThreadedIO()
     {

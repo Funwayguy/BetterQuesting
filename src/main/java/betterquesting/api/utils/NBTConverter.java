@@ -5,9 +5,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.stream.JsonWriter;
 import net.minecraft.nbt.*;
+import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import org.apache.logging.log4j.Level;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +21,67 @@ import java.util.Set;
 public class NBTConverter
 {
     private static Field f_tagList;
+	/**
+	 * Convert NBT tags to a JSON object
+	 */
+	private static void NBTtoJSON_Base(NBTBase value, boolean format, JsonWriter out) throws IOException {
+		if (value == null || value.getId() == 0) out.beginObject().endObject();
+		else if (value instanceof NBTPrimitive) out.value(NBTConverter.getNumber(value));
+		else if (value instanceof NBTTagString) out.value(((NBTTagString) value).func_150285_a_());
+		else if (value instanceof NBTTagByteArray) {
+			out.beginArray();
+			for (byte b : ((NBTTagByteArray) value).func_150292_c()) {
+				out.value(b);
+			}
+			out.endArray();
+		} else if (value instanceof NBTTagIntArray) {
+			out.beginArray();
+			for (int b : ((NBTTagIntArray) value).func_150302_c()) {
+				out.value(b);
+			}
+			out.endArray();
+		} else if (value instanceof NBTTagList) {
+			List<NBTBase> tagList = getTagList((NBTTagList) value);
+			if (format) {
+				out.beginObject();
+				for (int i = 0; i < tagList.size(); i++) {
+					NBTBase tag = tagList.get(i);
+					out.name(i + ":" + tag.getId());
+					NBTtoJSON_Base(tag, true, out);
+				}
+				out.endObject();
+			} else {
+				out.beginArray();
+				for (NBTBase tag : tagList) {
+					NBTtoJSON_Base(tag, false, out);
+				}
+			}
+		} else if (value instanceof NBTTagCompound) {
+			NBTtoJSON_Compound((NBTTagCompound) value, out, format);
+		} else {
+			// idk man what is this
+			out.beginObject().endObject();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void NBTtoJSON_Compound(NBTTagCompound parent, JsonWriter out, boolean format) throws IOException {
+		out.beginObject();
+
+		if (parent != null)
+			for (String key : (Set<String>) parent.func_150296_c()) {
+				NBTBase tag = parent.getTag(key);
+
+				if (format) {
+					out.name(key + ":" + tag.getId());
+					NBTtoJSON_Base(tag, true, out);
+				} else {
+					out.name(key);
+					NBTtoJSON_Base(tag, false, out);
+				}
+			}
+		out.endObject();
+	}
 	/**
 	 * Convert NBT tags to a JSON object
 	 */
