@@ -5,6 +5,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuest.RequirementType;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api2.cache.QuestCache;
@@ -13,6 +14,7 @@ import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
+import betterquesting.api2.client.gui.panels.content.PanelLine.ShouldDrawPredicate;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
@@ -160,8 +162,20 @@ public class CanvasQuestLine extends CanvasScrolling
                 
                 if(parBtn != null)
                 {
-                    PanelLine prLine = new PanelLine(parBtn.getTransform(), entry.getValue().getTransform(), lineRender, main? 8 : 4, txLineCol, 1);
-                    this.addPanel(prLine);
+                    RequirementType type = quest.getValue().getRequirementType(req.getID());
+                    ShouldDrawPredicate predicate;
+                    switch (type) {
+                        case NORMAL:
+                            predicate = null;
+                            break;
+                        case IMPLICIT:
+                            predicate = (mx, my, partialTicks) -> questBtns.get(req.getID()).rect.contains(mx, my) || questBtns.get(quest.getID()).rect.contains(mx, my);
+                            break;
+                        default:
+                            // bail early
+                            continue;
+                    }
+                    this.addPanel(new PanelLine(parBtn.getTransform(), entry.getValue().getTransform(), lineRender, main ? 8 : 4, txLineCol, 1, predicate));
                 }
             }
         }

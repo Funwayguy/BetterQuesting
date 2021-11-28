@@ -81,6 +81,10 @@ public enum PresetIcon
     
     // === OPTIONS ===
     
+    ICON_VISIBILITY_HIDDEN("icon_visibility_hidden"),
+    ICON_VISIBILITY_NORMAL("icon_visibility_normal"),
+    ICON_VISIBILITY_IMPLICIT("icon_visibility_implicit"),
+
     ICON_LOCKED("icon_locked"),
     ICON_UNLOCKED("icon_unlocked"),
 
@@ -184,6 +188,10 @@ public enum PresetIcon
 		reg.setDefaultTexture(ICON_SAVE.key, new SimpleTexture(TX_ICONS, new GuiRectangle(0, 80, 16, 16)).maintainAspect(true));
 		
 		// === OPTIONS ===
+        reg.setDefaultTexture(ICON_VISIBILITY_NORMAL.key, new SimpleTexture(TX_ICONS, new GuiRectangle(192, 80, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_VISIBILITY_IMPLICIT.key, new SimpleTexture(TX_ICONS, new GuiRectangle(208, 80, 16, 16)).maintainAspect(true));
+        reg.setDefaultTexture(ICON_VISIBILITY_HIDDEN.key, new SimpleTexture(TX_ICONS, new GuiRectangle(224, 80, 16, 16)).maintainAspect(true));
+
         reg.setDefaultTexture(ICON_LOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(80, 48, 16, 16)).maintainAspect(true));
         reg.setDefaultTexture(ICON_UNLOCKED.key, new SimpleTexture(TX_ICONS, new GuiRectangle(96, 48, 16, 16)).maintainAspect(true));
 

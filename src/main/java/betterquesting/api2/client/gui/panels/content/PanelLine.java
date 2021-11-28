@@ -15,6 +15,7 @@ public class PanelLine implements IGuiPanel
 	 * Bounds aren't used in the drawing of the line, merely for determining draw order
 	 */
 	private final IGuiRect bounds;
+	private final ShouldDrawPredicate shouldDraw;
 	private final IGuiLine line;
 	private final IGuiRect start;
 	private final IGuiRect end;
@@ -22,8 +23,12 @@ public class PanelLine implements IGuiPanel
 	private final int width;
 	
 	private boolean enabled = true;
-	
-	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder)
+
+	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder) {
+		this(start, end, line, width, color, drawOrder, null);
+	}
+
+	public PanelLine(IGuiRect start, IGuiRect end, IGuiLine line, int width, IGuiColor color, int drawOrder, ShouldDrawPredicate shouldDraw)
 	{
 		this.start = start;
 		this.end = end;
@@ -31,6 +36,7 @@ public class PanelLine implements IGuiPanel
 		this.width = width;
 		this.color = color;
 		this.bounds = new GuiRectangle(0, 0, 0, 0, drawOrder);
+		this.shouldDraw = shouldDraw;
 		this.bounds.setParent(start);
 	}
 	
@@ -60,9 +66,11 @@ public class PanelLine implements IGuiPanel
 	@Override
 	public void drawPanel(int mx, int my, float partialTick)
 	{
-        GL11.glPushMatrix();
-		line.drawLine(start, end, width, color, partialTick);
-		GL11.glPopMatrix();
+		if (shouldDraw == null || shouldDraw.shouldDraw(mx, my, partialTick)) {
+			GL11.glPushMatrix();
+			line.drawLine(start, end, width, color, partialTick);
+			GL11.glPopMatrix();
+		}
 	}
 	
 	@Override
@@ -93,5 +101,9 @@ public class PanelLine implements IGuiPanel
 	public List<String> getTooltip(int mx, int my)
 	{
 		return null;
+	}
+
+	public interface ShouldDrawPredicate {
+		boolean shouldDraw(int mx_mc, int my_mc, float partialTicks);
 	}
 }

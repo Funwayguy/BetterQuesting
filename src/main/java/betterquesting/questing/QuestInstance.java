@@ -20,21 +20,19 @@ import betterquesting.questing.rewards.RewardStorage;
 import betterquesting.questing.tasks.TaskStorage;
 import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.*;
 import net.minecraft.nbt.NBTBase.NBTPrimitive;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants.NBT;
 import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 public class QuestInstance implements IQuest
 {
@@ -43,6 +41,7 @@ public class QuestInstance implements IQuest
 
 	private final HashMap<UUID, NBTTagCompound> completeUsers = new HashMap<>();
     private int[] preRequisites = new int[0];
+    private TIntObjectMap<RequirementType> prereqTypes = new TIntObjectHashMap<>();
 
 	private final PropertyContainer qInfo = new PropertyContainer();
 
@@ -438,17 +437,38 @@ public class QuestInstance implements IQuest
 
     public void setRequirements(@Nonnull int[] req)
     {
+        Arrays.sort(req);
+        prereqTypes.retainEntries((a, b) -> Arrays.binarySearch(req, a) >= 0);
         this.preRequisites = req;
     }
 
-	@Override
+    @Nonnull
+    @Override
+    public RequirementType getRequirementType(int req) {
+        RequirementType type = prereqTypes.get(req);
+        return type == null ? RequirementType.NORMAL : type;
+    }
+
+    @Override
+    public void setRequirementType(int req, @Nonnull RequirementType kind) {
+        if (kind == RequirementType.NORMAL)
+            prereqTypes.remove(req);
+        else
+            prereqTypes.put(req, kind);
+    }
+
+    @Override
 	public NBTTagCompound writeToNBT(NBTTagCompound jObj)
 	{
 		jObj.setTag("properties", qInfo.writeToNBT(new NBTTagCompound()));
 		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("preRequisites", new NBTTagIntArray(getRequirements()));
-
+        byte[] types = new byte[preRequisites.length];
+        int[] req = this.preRequisites;
+        for (int i = 0, requirementsLength = req.length; i < requirementsLength; i++)
+            types[i] = getRequirementType(req[i]).id();
+		jObj.setTag("preRequisiteTypes", new NBTTagByteArray(types));
 		return jObj;
 	}
 
@@ -459,7 +479,7 @@ public class QuestInstance implements IQuest
 		this.tasks.readFromNBT(jObj.getTagList("tasks", 10), false);
 		this.rewards.readFromNBT(jObj.getTagList("rewards", 10), false);
 
-		if(jObj.func_150299_b("preRequisites") == 11) // Native NBT
+		if(jObj.func_150299_b("preRequisites") == NBT.TAG_INT_ARRAY) // Native NBT
 		{
 		    setRequirements(jObj.getIntArray("preRequisites"));
 		} else // Probably an NBTTagList
@@ -473,6 +493,13 @@ public class QuestInstance implements IQuest
 			}
 			setRequirements(req);
 		}
+
+        if (jObj.func_150299_b("preRequisiteTypes") == NBT.TAG_BYTE_ARRAY) {
+            int[] reqs = getRequirements();
+            byte[] byteArray = jObj.getByteArray("preRequisiteTypes");
+            for (int i = 0, byteArrayLength = byteArray.length; i < byteArrayLength && i < reqs.length; i++)
+                setRequirementType(reqs[i], RequirementType.from(byteArray[i]));
+        }
 
 		this.setupProps();
 	}
