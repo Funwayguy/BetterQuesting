@@ -464,11 +464,13 @@ public class QuestInstance implements IQuest
 		jObj.setTag("tasks", tasks.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("rewards", rewards.writeToNBT(new NBTTagList(), null));
 		jObj.setTag("preRequisites", new NBTTagIntArray(getRequirements()));
-        byte[] types = new byte[preRequisites.length];
-        int[] req = this.preRequisites;
-        for (int i = 0, requirementsLength = req.length; i < requirementsLength; i++)
-            types[i] = getRequirementType(req[i]).id();
-		jObj.setTag("preRequisiteTypes", new NBTTagByteArray(types));
+        if (!prereqTypes.isEmpty()) {
+            byte[] types = new byte[preRequisites.length];
+            int[] req = this.preRequisites;
+            for (int i = 0, requirementsLength = req.length; i < requirementsLength; i++)
+                types[i] = getRequirementType(req[i]).id();
+            jObj.setTag("preRequisiteTypes", new NBTTagByteArray(types));
+        }
 		return jObj;
 	}
 
@@ -499,6 +501,8 @@ public class QuestInstance implements IQuest
             byte[] byteArray = jObj.getByteArray("preRequisiteTypes");
             for (int i = 0, byteArrayLength = byteArray.length; i < byteArrayLength && i < reqs.length; i++)
                 setRequirementType(reqs[i], RequirementType.from(byteArray[i]));
+        } else {
+            prereqTypes.clear();
         }
 
 		this.setupProps();
