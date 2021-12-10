@@ -1,10 +1,10 @@
 [
 {
-  "modid": "betterquesting",
-  "name": "Better Questing",
+  "modid": "${modId}",
+  "name": "${modName}",
   "description": "A new and improved questing mod for Minecraft pack creators",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
+  "version": "${modVersion}",
+  "mcversion": "${minecraftVersion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["Funwayguy"],
