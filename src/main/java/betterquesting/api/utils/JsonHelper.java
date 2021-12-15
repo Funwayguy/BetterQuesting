@@ -26,7 +26,6 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 /**
  * Used to read JSON data with pre-made checks for null entries and casting.
@@ -36,7 +35,7 @@ import java.util.function.Consumer;
  */
 public class JsonHelper
 {
-	private static Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	
 	public static JsonArray GetArray(JsonObject json, String id)
 	{
@@ -230,7 +229,7 @@ public class JsonHelper
                 tmp.createNewFile();
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Directory setup):", e);
 				return null;
 			}
 			
@@ -242,7 +241,7 @@ public class JsonHelper
 				fw.flush();
 			} catch(Exception e)
 			{
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (File write):", e);
 				return null;
 			}
 			
@@ -253,7 +252,7 @@ public class JsonHelper
                 GSON.fromJson(fr, JsonObject.class);
             } catch(Exception e)
             {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Validation check):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Validation check):", e);
 				return null;
             }
 			
@@ -262,7 +261,7 @@ public class JsonHelper
                 Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch(Exception e)
             {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Temp copy):", e);
             }
 			return null;
 		});
@@ -281,15 +280,19 @@ public class JsonHelper
 
 				tmp.createNewFile();
 			} catch (Exception e) {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Directory setup):", e);
 				return null;
 			}
 
 			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
-			try (FileOutputStream fos = new FileOutputStream(tmp); OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-				jObj.accept(new JsonWriter(fw));
+			try (FileOutputStream fos = new FileOutputStream(tmp);
+				 OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+				 Writer buffer = new BufferedWriter(fw);
+				 JsonWriter json = new JsonWriter(buffer)) {
+				json.setIndent("\t");
+				jObj.accept(json);
 			} catch (Exception e) {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (File write):", e);
 				return null;
 			}
 
@@ -299,10 +302,10 @@ public class JsonHelper
 				try {
 					Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 				} catch (Exception e) {
-					QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+					QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Temp copy):", e);
 				}
 			} catch (Exception e) {
-				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (Temp copy):", e);
 			}
 			return null;
 		});
