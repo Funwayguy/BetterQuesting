@@ -26,7 +26,6 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 
 /**
  * Used to read JSON data with pre-made checks for null entries and casting.
@@ -286,8 +285,12 @@ public class JsonHelper
 			}
 
 			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
-			try (FileOutputStream fos = new FileOutputStream(tmp); OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-				jObj.accept(new JsonWriter(fw));
+			try (FileOutputStream fos = new FileOutputStream(tmp);
+				 OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+				 Writer buffer = new BufferedWriter(fw);
+				 JsonWriter json = new JsonWriter(buffer)) {
+				json.setIndent("\t");
+				jObj.accept(json);
 			} catch (Exception e) {
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
 				return null;
