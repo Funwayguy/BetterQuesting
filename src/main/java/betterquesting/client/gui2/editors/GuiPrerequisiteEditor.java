@@ -4,6 +4,7 @@ import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.client.gui.misc.IVolatileScreen;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
+import betterquesting.api.questing.IQuest.RequirementType;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
 import betterquesting.api2.client.gui.controls.PanelButton;
@@ -37,6 +38,7 @@ import net.minecraft.nbt.NBTTagList;
 import org.lwjgl.input.Keyboard;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventListener, IVolatileScreen, INeedsRefresh
@@ -169,7 +171,9 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             canvasPreReq.addPanel(btnEdit);
 
             PanelButtonStorage<DBEntry<IQuest>> btnType = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), 6, "", arrReq.get(i));
-            btnType.setIcon(quest.getRequirementType(arrReq.get(i).getID()).getIcon().getTexture());
+            RequirementType requirementType = quest.getRequirementType(arrReq.get(i).getID());
+            btnType.setIcon(requirementType.getIcon().getTexture());
+            btnType.setTooltip(Collections.singletonList(requirementType.getButtonTooltip()));
             canvasPreReq.addPanel(btnType);
 
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));
