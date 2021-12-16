@@ -39,9 +39,10 @@ public class ConfigHandler
 
 		BQ_Settings.skipHome = config.getBoolean("Skip home", Configuration.CATEGORY_GENERAL, false, "If true will skip home gui and open quests at startup. This property will be changed by the mod itself.");
     
-		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start");
-		BQ_Settings.viewMode = config.getBoolean("View mode", Configuration.CATEGORY_GENERAL, false, "If true, user can view most quests (not hidden or secret)");
-		BQ_Settings.viewModeBtn = config.getBoolean("View mode button", Configuration.CATEGORY_GENERAL, false, "If true, show view mode button");
+		BQ_Settings.lockTray = config.getBoolean("Lock tray", Configuration.CATEGORY_GENERAL, false, "Is quest chapters list locked and opened on start.");
+		BQ_Settings.viewMode = config.getBoolean("View mode", Configuration.CATEGORY_GENERAL, false, "If true, user can view not-yet-unlocked quests that are not hidden or secret. This property can be changed by the GUI.");
+		BQ_Settings.viewModeBtn = config.getBoolean("View mode button", Configuration.CATEGORY_GENERAL, false, "If true, show view mode button.");
+		BQ_Settings.alwaysDrawImplicit = config.getBoolean("Always draw implicit dependency", Configuration.CATEGORY_GENERAL, false, "If true, always draw implicit dependency. This property can be changed by the GUI");
 
 		config.save();
 	}

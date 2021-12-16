@@ -55,6 +55,8 @@ import org.lwjgl.util.vector.Vector4f;
 
 import java.util.*;
 
+import static betterquesting.api.storage.BQ_Settings.alwaysDrawImplicit;
+
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     private IQuestLine selectedLine = null;
@@ -82,7 +84,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
     private static boolean trayLock;
     private static boolean viewMode;
-    private static boolean viewModeBtn;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
@@ -91,7 +92,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         super(parent);
         trayLock = BQ_Settings.lockTray;
         viewMode = BQ_Settings.viewMode;
-        viewModeBtn = BQ_Settings.viewModeBtn;
     }
     
     @Override
@@ -232,8 +232,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         cvDescTray.getCanvasOpen().addPanel(scDesc);
         
         // === LEFT SIDEBAR ===
-        
-        PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 24, 32, 16, 0), -1, "");
+        int yOff = 24;
+        PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, 0), -1, "");
         btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture(), selectedLineId < 0 && !chapterTrayOpened ? new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F) : new GuiColorStatic(0xFFFFFFFF), 0);
         btnTrayToggle.setClickAction((b) -> {
             cvFrame.setTrayState(cvChapterTray.isTrayOpen(), 200);
@@ -242,24 +242,18 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         btnTrayToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.title.quest_lines")));
         cvBackground.addPanel(btnTrayToggle);
+        yOff += 16;
         
-        PanelButton btnDescToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 40, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_DESC.getTexture());
+        PanelButton btnDescToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, 0), -1, "").setIcon(PresetIcon.ICON_DESC.getTexture());
         btnDescToggle.setClickAction((b) -> {
             cvFrame.setTrayState(cvDescTray.isTrayOpen(), 200);
             cvDescTray.setTrayState(!cvDescTray.isTrayOpen(), 200);
         });
         btnDescToggle.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.description")));
         cvBackground.addPanel(btnDescToggle);
-        
-        PanelButton fitView = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 72, 32, 16, -2), 5, "");
-        fitView.setIcon(PresetIcon.ICON_BOX_FIT.getTexture());
-        fitView.setClickAction((b) -> {
-            if(cvQuest.getQuestLine() != null) cvQuest.fitToWindow();
-        });
-        fitView.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.zoom_fit")));
-        cvBackground.addPanel(fitView);
-        
-        claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 56, 32, 16, -2), -1, "");
+        yOff += 16;
+
+        claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, -2), -1, "");
         claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture());
         claimAll.setClickAction((b) -> {
             if (BQ_Settings.claimAllConfirmation) {
@@ -279,9 +273,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         claimAll.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.claim_all")));
         cvBackground.addPanel(claimAll);
+        yOff += 16;
+        
+        PanelButton fitView = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, -2), 5, "");
+        fitView.setIcon(PresetIcon.ICON_BOX_FIT.getTexture());
+        fitView.setClickAction((b) -> {
+            if(cvQuest.getQuestLine() != null) cvQuest.fitToWindow();
+        });
+        fitView.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.zoom_fit")));
+        cvBackground.addPanel(fitView);
+        yOff += 16;
         
         // The Jester1147 button
-        PanelButton btnTrayLock = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 88, 32, 16, -2), -1, "").setIcon(trayLock ? PresetIcon.ICON_LOCKED.getTexture() : PresetIcon.ICON_UNLOCKED.getTexture());
+        PanelButton btnTrayLock = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, -2), -1, "").setIcon(trayLock ? PresetIcon.ICON_LOCKED.getTexture() : PresetIcon.ICON_UNLOCKED.getTexture());
         btnTrayLock.setClickAction((b) -> {
             trayLock = !trayLock;
             b.setIcon(trayLock ? PresetIcon.ICON_LOCKED.getTexture() : PresetIcon.ICON_UNLOCKED.getTexture());
@@ -291,10 +295,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         });
         btnTrayLock.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.lock_tray")));
         cvBackground.addPanel(btnTrayLock);
+        yOff += 16;
 
         // View Mode Button
         if (BQ_Settings.viewModeBtn) {
-            PanelButton btnViewMode = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 104, 32, 16, -2), -1, "").setIcon(viewMode ? PresetIcon.ICON_VIEW_MODE_ON.getTexture() : PresetIcon.ICON_VIEW_MODE_OFF.getTexture());
+            PanelButton btnViewMode = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, -2), -1, "").setIcon(viewMode ? PresetIcon.ICON_VIEW_MODE_ON.getTexture() : PresetIcon.ICON_VIEW_MODE_OFF.getTexture());
             btnViewMode.setClickAction((b) -> {
                 viewMode = !viewMode;
                 b.setIcon(viewMode ? PresetIcon.ICON_VIEW_MODE_ON.getTexture() : PresetIcon.ICON_VIEW_MODE_OFF.getTexture());
@@ -305,7 +310,21 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             });
             btnViewMode.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.view_mode")));
             cvBackground.addPanel(btnViewMode);
+            yOff += 16;
         }
+
+        PanelButton btnViewMode = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, yOff, 32, 16, -2), -1, "").setIcon(alwaysDrawImplicit ? PresetIcon.ICON_VISIBILITY_IMPLICIT.getTexture() : PresetIcon.ICON_VISIBILITY_NORMAL.getTexture());
+        btnViewMode.setClickAction((b) -> {
+            alwaysDrawImplicit = !alwaysDrawImplicit;
+            b.setIcon(alwaysDrawImplicit ? PresetIcon.ICON_VISIBILITY_IMPLICIT.getTexture() : PresetIcon.ICON_VISIBILITY_NORMAL.getTexture());
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Always draw implicit dependency", false, "If true, always draw implicit dependency. This property can be changed by the GUI").set(alwaysDrawImplicit);
+            ConfigHandler.config.save();
+            btnViewMode.setTooltip(Arrays.asList(QuestTranslation.translate("betterquesting.btn.always_draw_implicit"), QuestTranslation.translate("betterquesting.tooltip.cycle." + alwaysDrawImplicit)));
+            ConfigHandler.initConfigs();
+            refreshGui();
+        });
+        btnViewMode.setTooltip(Arrays.asList(QuestTranslation.translate("betterquesting.btn.always_draw_implicit"), QuestTranslation.translate("betterquesting.tooltip.cycle." + alwaysDrawImplicit)));
+        cvBackground.addPanel(btnViewMode);
         
         // === CHAPTER VIEWPORT ===
         

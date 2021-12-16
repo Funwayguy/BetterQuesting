@@ -8,6 +8,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuest.RequirementType;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
@@ -15,6 +16,7 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelLine;
 import betterquesting.api2.client.gui.panels.content.PanelLine.ShouldDrawPredicate;
+import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.lines.IGuiLine;
 import betterquesting.api2.client.gui.resources.textures.SimpleTexture;
@@ -25,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
+import org.lwjgl.input.Keyboard;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -163,13 +166,15 @@ public class CanvasQuestLine extends CanvasScrolling
                 if(parBtn != null)
                 {
                     RequirementType type = quest.getValue().getRequirementType(req.getID());
-                    ShouldDrawPredicate predicate;
+                    ShouldDrawPredicate predicate = null;
                     switch (type) {
                         case NORMAL:
-                            predicate = null;
                             break;
                         case IMPLICIT:
-                            predicate = (mx, my, partialTicks) -> questBtns.get(req.getID()).rect.contains(mx, my) || questBtns.get(quest.getID()).rect.contains(mx, my);
+                            if (BQ_Settings.alwaysDrawImplicit)
+                                break;
+                            predicate = (mx, my, partialTicks) -> questBtns.get(req.getID()).rect.contains(mx, my) || questBtns.get(quest.getID()).rect.contains(mx, my) || Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                            txLineCol = new GuiColorPulse(txLineCol, PresetColor.QUEST_LINE_IMPLICIT_MIXIN.getColor(), 2F, 0F);
                             break;
                         default:
                             // bail early
