@@ -41,11 +41,12 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = BetterQuesting.MODID, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
+@Mod(modid = BetterQuesting.MODID, name = BetterQuesting.NAME, version = BetterQuesting.VERSION, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
 public class BetterQuesting
 {
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
+	public static final String VERSION = "GRADLETOKEN_VERSION";
     public static final String PROXY = "betterquesting.core.proxies";
     public static final String CHANNEL = "BQ_NET_CHAN";
     public static final String FORMAT = "2.0.0";
