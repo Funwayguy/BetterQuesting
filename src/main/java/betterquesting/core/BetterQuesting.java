@@ -17,6 +17,7 @@ import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -84,20 +85,21 @@ public class BetterQuesting
     }
     
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-    	FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
-    	
-    	GameRegistry.registerItem(ItemPlaceholder.placeholder, "placeholder");
-    	GameRegistry.registerItem(extraLife, "extra_life");
-    	GameRegistry.registerItem(guideBook, "guide_book");
-    	
-    	GameRegistry.registerBlock(submitStation, "submit_station");
-    	
-    	GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.glass), new ItemStack(Blocks.chest));
-    	
+    public void init(FMLInitializationEvent event) {
+		FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
+
+		GameRegistry.registerItem(ItemPlaceholder.placeholder, "placeholder");
+		GameRegistry.registerItem(extraLife, "extra_life");
+		GameRegistry.registerItem(guideBook, "guide_book");
+
+		GameRegistry.registerBlock(submitStation, "submit_station");
+
+		GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
+		if (!Loader.isModLoaded("dreamcraft")){
+			GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.glass), new ItemStack(Blocks.chest));
+			GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.chest), new ItemStack(Blocks.glass));
+		}
+		
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 1));
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 1));
@@ -106,8 +108,7 @@ public class BetterQuesting
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 1), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));
     	
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 2, 2), new ItemStack(extraLife, 1, 1));
-    	
-    	GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.chest), new ItemStack(Blocks.glass));
+
     	
     	EntityRegistry.registerModEntity(EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     	
