@@ -26,6 +26,7 @@ public class BQ_CommandAdmin extends CommandBase
 		coms.add(new QuestCommandPurge());
 		coms.add(new QuestCommandCheckCompletion());
 		coms.add(new QuestCommandReportAllProgress());
+		coms.add(new QuestCommandCleanupQuestLine());
 	}
 	
 	@Override

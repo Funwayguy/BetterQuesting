@@ -115,5 +115,14 @@ public class QuestLineEntry implements IQuestLineEntry
 		posX = json.getInteger("x");
 		posY = json.getInteger("y");
 	}
-	
+
+	@Override
+	public String toString() {
+		return "QuestLineEntry{" +
+				"sizeX=" + sizeX +
+				", sizeY=" + sizeY +
+				", posX=" + posX +
+				", posY=" + posY +
+				'}';
+	}
 }
