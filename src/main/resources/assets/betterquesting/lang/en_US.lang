@@ -280,3 +280,7 @@ bq_standard.tooltip.fixed_loot=Loot Set: %s
 bq_standard.tooltip.fixed_loot_size=Contains %s items
 bq_standard.tooltip.loot_table=Loot Table: %s
 bq_standard.tooltip.loot_chest=Rarity: %s
+
+betterquesting.notification.enabled=Quest Notifications: On
+betterquesting.notification.disabled=Quest Notifications: Off
+betterquesting.notification.tooltip=Toggle Quest Notifications

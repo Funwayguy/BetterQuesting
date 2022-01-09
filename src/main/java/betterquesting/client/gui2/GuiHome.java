@@ -44,6 +44,7 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -101,6 +102,21 @@ public class GuiHome extends GuiScreenCanvas
 		inCan.addPanel(btnParty);
 		PanelButton btnTheme = new PanelButton(new GuiTransform(new Vector4f(0.75F, 1F, 1F, 1F), new GuiPadding(0, -32, 0, 0), 0), 3, QuestTranslation.translate("betterquesting.home.theme"));
 		inCan.addPanel(btnTheme);
+
+        PanelButton btnNotif = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_RIGHT, -140, -52, 136, 16, 0), 420, (BQ_Settings.questNotices ? QuestTranslation.translate("betterquesting.notification.enabled") : QuestTranslation.translate("betterquesting.notification.disabled")))
+        {
+            @Override
+            public void onButtonClick(){
+                BQ_Settings.questNotices = !BQ_Settings.questNotices;
+                if(betterquesting.handlers.ConfigHandler.config != null) {
+                    betterquesting.handlers.ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Quest Notices", true).set(BQ_Settings.questNotices);
+                    betterquesting.handlers.ConfigHandler.config.save();
+                }
+                this.setText(BQ_Settings.questNotices ? QuestTranslation.translate("betterquesting.notification.enabled") : QuestTranslation.translate("betterquesting.notification.disabled"));
+            }
+        };
+        btnNotif.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.notification.tooltip")));
+        inCan.addPanel(btnNotif);
 		
 		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
 		{
