@@ -9,6 +9,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
 import betterquesting.api.storage.BQ_Settings;
+import betterquesting.api.utils.RenderUtils;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -23,6 +24,7 @@ import betterquesting.api2.client.gui.misc.GuiAlign;
 import betterquesting.api2.client.gui.misc.GuiPadding;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.misc.GuiTransform;
+import betterquesting.api2.client.gui.panels.CanvasEmpty;
 import betterquesting.api2.client.gui.panels.CanvasTextured;
 import betterquesting.api2.client.gui.panels.bars.PanelVScrollBar;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
@@ -31,6 +33,7 @@ import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
 import betterquesting.api2.client.gui.popups.PopChoice;
+import betterquesting.api2.client.gui.popups.PopContextMenu;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
@@ -40,6 +43,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.client.gui2.editors.GuiQuestEditor;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
 import betterquesting.handlers.ConfigHandler;
@@ -65,7 +69,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private final List<Tuple<DBEntry<IQuestLine>, Integer>> visChapters = new ArrayList<>();
     
     private CanvasQuestLine cvQuest;
-    
+
     // Keep these separate for now
     private static CanvasHoverTray cvChapterTray;
     private static CanvasHoverTray cvDescTray;
@@ -81,6 +85,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private PanelTextBox txDesc;
     
     private PanelButton claimAll;
+
+    private PanelButton btnDesign;
     
     private static boolean trayLock;
     
@@ -136,13 +142,12 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
             btnEdit.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.edit")));
             cvBackground.addPanel(btnEdit);
-            
-            PanelButton btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 24, -40, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
-            btnDesign.setClickAction((b) -> {
-                if(selectedLine != null) mc.displayGuiScreen(new GuiDesigner(this, selectedLine));
-            });
+
+            btnDesign = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_SORT.getTexture());
+            btnDesign.setClickAction($ -> mc.displayGuiScreen(new GuiDesigner(this, selectedLine)));
             btnDesign.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.designer")));
             cvBackground.addPanel(btnDesign);
+            btnDesign.setActive(selectedLine != null);
         }
         
         txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
@@ -154,12 +159,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
         cvFrame = new CanvasHoverTray(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(40 + 150 + 24, 24, 8, 8), 0), new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(40, 24, 8, 8), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvFrame.setManualOpen(true);
-        //CanvasTextured cvFrame = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(40, 24, 8, 8), 0), PresetTexture.AUX_FRAME_0.getTexture());
         cvBackground.addPanel(cvFrame);
         cvFrame.setTrayState(!preOpen, 1);
-        // These would probably be more annoying than useful if you just wanted to check a tray but not lose your position
-        //cvFrame.setOpenAction(() -> cvQuest.fitToWindow());
-        //cvFrame.setCloseAction(() -> cvQuest.fitToWindow());
 
         // === TRAY STATE ===
 
@@ -282,7 +283,29 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         CanvasQuestLine oldCvQuest = cvQuest;
         cvQuest = new CanvasQuestLine(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), 2);
+        CanvasEmpty cvQuestPopup = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0)) {
+            @Override
+            public boolean onMouseClick(int mx, int my, int click) {
+                if (cvQuest.getQuestLine() == null || !this.getTransform().contains(mx, my)) return false;
+                if (canEdit && click == 1) {
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, RenderUtils.getStringWidth(QuestTranslation.translate("betterquesting.btn.designer"), Minecraft.getMinecraft().fontRenderer) + 12, cvQuest.getButtonAt(mx, my) != null ? 32 : 16), true);
+
+                    if (cvQuest.getButtonAt(mx, my) != null) {
+                        GuiQuestEditor editor = new GuiQuestEditor(new GuiQuestLines(parent), cvQuest.getButtonAt(mx, my).getStoredValue().getID());
+                        Runnable actionEditor = () -> mc.displayGuiScreen(editor);
+                        popup.addButton(QuestTranslation.translate("betterquesting.btn.edit"), null, actionEditor);
+                    }
+
+                    GuiDesigner designer = new GuiDesigner(new GuiQuestLines(parent), cvQuest.getQuestLine());
+                    Runnable actionDesigner = () -> mc.displayGuiScreen(designer);
+                    popup.addButton(QuestTranslation.translate("betterquesting.btn.designer"), null, actionDesigner);
+                    openPopup(popup);
+                    return true;
+                } else return false;
+            }
+        };
         cvFrame.addPanel(cvQuest);
+        cvFrame.addPanel(cvQuestPopup);
     
         if(selectedLine != null)
         {
@@ -308,6 +331,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         refreshChapterVisibility();
         refreshClaimAll();
+        refreshDesigner();
     }
 
 
@@ -453,6 +477,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                     cvQuest.fitToWindow();
                 }
                 refreshClaimAll();
+                refreshDesigner();
             });
             cvLines.addPanel(btnLine);
             btnListRef.add(btnLine);
@@ -476,7 +501,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         float zoom = cvQuest.getZoom();
         int sx = cvQuest.getScrollX();
         int sy = cvQuest.getScrollY();
-        /*if(cvQuest.getQuestLine() != selectedLine)*/ cvQuest.setQuestLine(selectedLine);
+        cvQuest.setQuestLine(selectedLine);
         cvQuest.setZoom(zoom);
         cvQuest.setScrollX(sx);
         cvQuest.setScrollY(sy);
@@ -494,6 +519,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
         
         refreshClaimAll();
+        refreshDesigner();
     }
     
     private void refreshClaimAll()
@@ -517,5 +543,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
         claimAll.setActive(false);
+    }
+
+    private void refreshDesigner() {
+        if (btnDesign != null) {
+            btnDesign.setActive(selectedLine != null);
+        }
     }
 }
