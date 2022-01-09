@@ -8,6 +8,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.GuiScreenCanvas;
 import betterquesting.api2.client.gui.controls.IPanelButton;
@@ -40,12 +41,14 @@ import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.GuiQuestLinesEditor;
 import betterquesting.client.gui2.editors.designer.GuiDesigner;
+import betterquesting.handlers.ConfigHandler;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
@@ -78,13 +81,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     
     private PanelButton claimAll;
     
-    private static boolean trayLock = false;
+    private static boolean trayLock;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
     
     public GuiQuestLines(GuiScreen parent)
     {
         super(parent);
+        trayLock = BQ_Settings.lockTray;
     }
     
     @Override
@@ -110,7 +114,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         boolean canEdit = QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player);
         boolean preOpen = false;
-        if(trayLock && cvChapterTray != null && cvChapterTray.isTrayOpen()) preOpen = true;
+        if(trayLock && cvChapterTray == null && cvDescTray == null) {
+            preOpen = true;
+        }
         if(trayLock && cvDescTray != null && cvDescTray.isTrayOpen()) preOpen = true;
         
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
@@ -153,10 +159,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         // These would probably be more annoying than useful if you just wanted to check a tray but not lose your position
         //cvFrame.setOpenAction(() -> cvQuest.fitToWindow());
         //cvFrame.setCloseAction(() -> cvQuest.fitToWindow());
-        
+
+        // === TRAY STATE ===
+
+        boolean chapterTrayOpened = trayLock && cvChapterTray != null && cvChapterTray.isTrayOpen();
+        boolean descTrayOpened = trayLock && cvDescTray != null && cvDescTray.isTrayOpen();
+        if (preOpen && !chapterTrayOpened && !descTrayOpened) {
+            chapterTrayOpened = true;
+        }
+
         // === CHAPTER TRAY ===
         
-        boolean oldState1 = trayLock && cvChapterTray != null && cvChapterTray.isTrayOpen();
         cvChapterTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -40 - 150 - 24, 8), -1), PresetTexture.PANEL_INNER.getTexture());
         cvChapterTray.setManualOpen(true);
         cvChapterTray.setOpenAction(() -> {
@@ -175,7 +188,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         // === DESCRIPTION TRAY ===
         
-        boolean oldState2 = trayLock && cvDescTray != null && cvDescTray.isTrayOpen();
         cvDescTray = new CanvasHoverTray(new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -24, 8), -1), new GuiTransform(GuiAlign.LEFT_EDGE, new GuiPadding(40, 24, -40 - 150 - 24, 8), -1), PresetTexture.PANEL_INNER.getTexture());
         cvDescTray.setManualOpen(true);
         cvDescTray.setOpenAction(() -> {
@@ -206,7 +218,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         // === LEFT SIDEBAR ===
         
         PanelButton btnTrayToggle = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 24, 32, 16, 0), -1, "");
-        btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture(), selectedLineId < 0 ? new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F) : new GuiColorStatic(0xFFFFFFFF), 0);
+        btnTrayToggle.setIcon(PresetIcon.ICON_BOOKMARK.getTexture(), selectedLineId < 0 && !chapterTrayOpened ? new GuiColorPulse(0xFFFFFFFF, 0xFF444444, 2F, 0F) : new GuiColorStatic(0xFFFFFFFF), 0);
         btnTrayToggle.setClickAction((b) -> {
             cvFrame.setTrayState(cvChapterTray.isTrayOpen(), 200);
             cvChapterTray.setTrayState(!cvChapterTray.isTrayOpen(), 200);
@@ -259,6 +271,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnTrayLock.setClickAction((b) -> {
             trayLock = !trayLock;
             b.setIcon(trayLock ? PresetIcon.ICON_LOCKED.getTexture() : PresetIcon.ICON_UNLOCKED.getTexture());
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Lock tray", false).set(trayLock);
+            ConfigHandler.config.save();
+            ConfigHandler.initConfigs();
         });
         btnTrayLock.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.lock_tray")));
         cvBackground.addPanel(btnTrayLock);
@@ -288,8 +303,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         // === MISC ===
         
-        cvChapterTray.setTrayState(oldState1, 1);
-        cvDescTray.setTrayState(oldState2, 1);
+        cvChapterTray.setTrayState(chapterTrayOpened, 1);
+        cvDescTray.setTrayState(descTrayOpened, 1);
         
         refreshChapterVisibility();
         refreshClaimAll();

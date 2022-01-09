@@ -18,4 +18,5 @@ public class BQ_Settings
 	public static int guiWidth = -1;
 	public static int guiHeight = -1;
 	public static boolean questNotices = true;
+	public static boolean lockTray = true;
 }
