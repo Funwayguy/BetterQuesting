@@ -287,3 +287,5 @@ bq_standard.tooltip.loot_chest=Rarity: %s
 betterquesting.notification.enabled=Quest Notifications: On
 betterquesting.notification.disabled=Quest Notifications: Off
 betterquesting.notification.tooltip=Toggle Quest Notifications
+
+betterquesting.context.add_task=Add Task
