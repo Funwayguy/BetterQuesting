@@ -25,6 +25,7 @@ public class ConfigHandler
 		BQ_Settings.guiWidth = config.getInt("Max GUI Width", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI width (-1 to disable)");
 		BQ_Settings.guiHeight = config.getInt("Max GUI Height", Configuration.CATEGORY_GENERAL, -1, -1, Integer.MAX_VALUE, "Clamps the max UI height (-1 to disable)");
 
+		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
 		BQ_Settings.lockTray = config.getBoolean("Lock Tray", Configuration.CATEGORY_GENERAL, false, "If true, locks the quest chapter list and opens it initially");
 		config.save();
 	}

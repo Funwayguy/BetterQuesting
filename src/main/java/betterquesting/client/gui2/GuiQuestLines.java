@@ -30,6 +30,7 @@ import betterquesting.api2.client.gui.panels.content.PanelTextBox;
 import betterquesting.api2.client.gui.panels.lists.CanvasHoverTray;
 import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.panels.lists.CanvasScrolling;
+import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.resources.colors.GuiColorPulse;
 import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
 import betterquesting.api2.client.gui.resources.textures.GuiTextureColored;
@@ -246,22 +247,21 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         claimAll = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 8, 56, 32, 16, -2), -1, "");
         claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture());
         claimAll.setClickAction((b) -> {
-            if(cvQuest.getQuestButtons().size() <= 0) return;
-            List<Integer> claimIdList = new ArrayList<>();
-            for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons())
-            {
-                IQuest q = pbQuest.getStoredValue().getValue();
-                if(q.getRewards().size() > 0 && q.canClaim(mc.player)) claimIdList.add(pbQuest.getStoredValue().getID());
+            if (BQ_Settings.claimAllConfirmation) {
+                openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.claim_all_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.claim_all_confirm"), PresetIcon.ICON_CHEST_ALL.getTexture(), integer -> {
+                    if (integer == 1){
+                        ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Claim all requires confirmation", true).set(false);
+                        ConfigHandler.config.save();
+                        ConfigHandler.initConfigs();
+                    }
+                    if(integer <= 1){
+                        claimAll();
+                    }
+                }, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("betterquesting.gui.yes_always"), QuestTranslation.translate("gui.no")));
             }
-            
-            int[] cIDs = new int[claimIdList.size()];
-            for(int i = 0; i < cIDs.length; i++)
-            {
-                cIDs[i] = claimIdList.get(i);
+            else {
+                claimAll();
             }
-    
-            NetQuestAction.requestClaim(cIDs);
-            claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
         });
         claimAll.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.claim_all")));
         cvBackground.addPanel(claimAll);
@@ -308,6 +308,28 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         refreshChapterVisibility();
         refreshClaimAll();
+    }
+
+
+    private void claimAll() {
+        if(cvQuest.getQuestButtons().isEmpty()) {
+            return;
+        }
+        List<Integer> claimIdList = new ArrayList<>();
+        for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons()) {
+            IQuest q = pbQuest.getStoredValue().getValue();
+            if(q.getRewards().size() > 0 && q.canClaim(mc.player)) {
+                claimIdList.add(pbQuest.getStoredValue().getID());
+            }
+        }
+
+        int[] cIDs = new int[claimIdList.size()];
+        for(int i = 0; i < cIDs.length; i++) {
+            cIDs[i] = claimIdList.get(i);
+        }
+
+        NetQuestAction.requestClaim(cIDs);
+        claimAll.setIcon(PresetIcon.ICON_CHEST_ALL.getTexture(), new GuiColorStatic(0xFF444444), 0);
     }
     
     @Override
