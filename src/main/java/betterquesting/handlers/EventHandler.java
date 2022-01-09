@@ -79,7 +79,7 @@ public class EventHandler
 		
 		if(mc.currentScreen == null && BQ_Keybindings.openQuests.isPressed())
 		{
-			if(mc.player.isSneaking() && mc.player.getName().equalsIgnoreCase("Funwayguy"))
+			if(mc.player.isSneaking()) // TODO DONT LEAVE THIS!!
 			{
 				mc.displayGuiScreen(new GuiScreenTest(mc.currentScreen));
 			} else
@@ -148,6 +148,16 @@ public class EventHandler
                     
                     com.add(quest.getID());
                     if(!quest.getValue().getProperty(NativeProps.SILENT)) postPresetNotice(quest.getValue(), player, 2);
+
+                    DBEntry<IParty> partyEntry = PartyManager.INSTANCE.getParty(uuid);
+                    if (partyEntry != null && player.getServer() != null) {
+                        for (UUID memID : partyEntry.getValue().getMembers()) {
+                            EntityPlayerMP memPlayer = player.getServer().getPlayerList().getPlayerByUsername(NameCache.INSTANCE.getName(memID));
+                            if (memPlayer != null) {
+                                quest.getValue().detect(memPlayer);
+                            }
+                        }
+                    }
                 }
             }
             
