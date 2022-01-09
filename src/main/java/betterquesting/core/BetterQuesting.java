@@ -14,8 +14,12 @@ import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
+import betterquesting.items.ItemLootChest;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
+import betterquesting.commands.bqs.BQS_Commands;
+import betterquesting.commands.bqs.BqsComDumpAdvancements;
+import betterquesting.handlers.LootSaveLoad;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
@@ -26,6 +30,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -45,6 +50,11 @@ public class BetterQuesting
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
     public static final String FORMAT = "2.0.0";
+
+    // Used for some legacy compat
+    public static final String MODID_STD = "bq_standard";
+
+    public static boolean hasJEI = false;
     
     // TODO: Possibly make use of this in future
     private static final String MCL_API = "Yo1nkbXn7uVptLoL3GpkAaT7HsU8QFGJ";
@@ -61,6 +71,7 @@ public class BetterQuesting
 	
 	public static Item extraLife = new ItemExtraLife();
 	public static Item guideBook = new ItemGuideBook();
+    public static Item lootChest = new ItemLootChest();
 	
 	public static Block submitStation = new BlockSubmitStation();
     
@@ -96,6 +107,8 @@ public class BetterQuesting
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+        hasJEI = Loader.isModLoaded("jei");
+        proxy.registerExpansion();
     }
 	
 	@EventHandler
@@ -107,15 +120,19 @@ public class BetterQuesting
 		
 		manager.registerCommand(new BQ_CommandAdmin());
 		manager.registerCommand(new BQ_CommandUser());
+        manager.registerCommand(new BQS_Commands());
+        manager.registerCommand(new BqsComDumpAdvancements());
   
 		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) manager.registerCommand(new BQ_CommandDebug());
 		
 		SaveLoadHandler.INSTANCE.loadDatabases(server);
+        LootSaveLoad.INSTANCE.LoadLoot(event.getServer());
 	}
 	
 	@EventHandler
 	public void serverStop(FMLServerStoppedEvent event)
 	{
 		SaveLoadHandler.INSTANCE.unloadDatabases();
+        LootSaveLoad.INSTANCE.UnloadLoot();
 	}
 }

@@ -1,6 +1,7 @@
 package betterquesting.handlers;
 
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.gui2.editors.GuiEditLootGroup;
 import betterquesting.client.gui2.inventory.ContainerSubmitStation;
 import betterquesting.client.gui2.GuiQuestHelp;
 import betterquesting.client.gui2.inventory.GuiSubmitStation;
@@ -36,7 +37,9 @@ public class GuiHandler implements IGuiHandler
 		} else if(ID == 1)
 		{
 			return new GuiQuestHelp(null);
-		}
+		} else if (ID == 2) {
+		    return new GuiEditLootGroup(null);
+        }
 		
 		return null;
 	}
