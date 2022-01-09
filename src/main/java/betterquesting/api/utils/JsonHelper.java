@@ -167,11 +167,11 @@ public class JsonHelper
 	}
 	
 	@SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void WriteToFile(File file, JsonObject jObj)
+    public static Future<Void> WriteToFile(File file, JsonObject jObj)
 	{
 	    final File tmp = new File(file.getAbsolutePath() + ".tmp");
 	    
-		BQThreadedIO.INSTANCE.enqueue(() -> {
+		return BQThreadedIO.INSTANCE.enqueue(() -> {
 			try
 			{
 	            if(tmp.exists())
@@ -186,7 +186,7 @@ public class JsonHelper
 			} catch(Exception e)
 			{
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
-				return;
+				return null;
 			}
 			
 			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
@@ -198,7 +198,7 @@ public class JsonHelper
 			} catch(Exception e)
 			{
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
-				return;
+				return null;
 			}
 			
 			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
@@ -209,7 +209,7 @@ public class JsonHelper
             } catch(Exception e)
             {
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Validation check):", e);
-				return;
+				return null;
             }
 			
 			try
@@ -219,6 +219,7 @@ public class JsonHelper
             } catch(Exception e)
             {
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+				return null;
             }
 		});
 	}

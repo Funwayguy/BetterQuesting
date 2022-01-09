@@ -27,6 +27,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class SaveLoadHandler
 {
@@ -208,6 +212,7 @@ public class SaveLoadHandler
     
     public void saveDatabases()
     {
+        List<Future<Void>> allFutures = new ArrayList<>();
         // === CONFIG ===
         
         if(isDirty || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE))
@@ -221,7 +226,7 @@ public class SaveLoadHandler
             jsonCon.setString("format", BetterQuesting.FORMAT);
             jsonCon.setString("build", Loader.instance().getIndexedModList().get(BetterQuesting.MODID).getVersion());
     
-            JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true));
+            allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true)));
         }
         
         // === PROGRESS ===
@@ -230,7 +235,7 @@ public class SaveLoadHandler
         
         jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
-        JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true)));
         
         // === PARTIES ===
         
@@ -238,7 +243,7 @@ public class SaveLoadHandler
         
         jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), null));
         
-        JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true)));
         
         // === NAMES ===
         
@@ -246,7 +251,7 @@ public class SaveLoadHandler
         
         jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), null));
         
-        JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true)));
         
         // === LIVES ===
         
@@ -254,9 +259,19 @@ public class SaveLoadHandler
         
         jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), null));
         
-        JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true)));
         
         MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save(DBType.ALL));
+
+        for (Future<Void> future : allFutures) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                BetterQuesting.logger.warn("Saving interrupted!", e);
+            } catch (ExecutionException e) {
+                BetterQuesting.logger.warn("Saving failed!", e.getCause());
+            }
+        }
         
         isDirty = false;
     }
