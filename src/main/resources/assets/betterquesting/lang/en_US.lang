@@ -198,6 +198,9 @@ betterquesting.cmd.reset.all_single=Reset quest '%s' for everyone
 betterquesting.cmd.reset.all_all=Reset all quests for everyone
 betterquesting.cmd.refresh=Refreshing local database...
 
+betterquesting.cmd.cleanup_questline.confirm=This is a dangerous operation. Please confirm you have made a backup before doing this. Type this command again to actually start cleanup.
+betterquesting.cmd.cleanup_questline.completed=Removed %d entries
+
 json.betterquesting.quest.name=Quest Data
 jdoc.betterquesting.quest.rewards.name=Rewards
 jdoc.betterquesting.quest.rewards.desc=List of configurable rewards types
