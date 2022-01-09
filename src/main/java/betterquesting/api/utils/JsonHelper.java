@@ -219,8 +219,8 @@ public class JsonHelper
             } catch(Exception e)
             {
 				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
-				return null;
             }
+			return null;
 		});
 	}
 	
