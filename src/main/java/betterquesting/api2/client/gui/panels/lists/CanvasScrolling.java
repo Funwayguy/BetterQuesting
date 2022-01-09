@@ -18,32 +18,32 @@ import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CanvasScrolling implements IGuiCanvas {
-    private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
-    private final IGuiRect transform;
-    private boolean enabled = true;
-
-    // Scrolling bounds
-    protected final GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
-    private final GuiRectangle scrollWindow = new GuiRectangle(0, 0, 0, 0);
-    protected boolean extendedScroll = false;
-    protected boolean zoomMode = false;
-    protected int margin = 0;
-    // Scroll and zoom drivers
-    protected IValueIO<Float> scrollX;
-    protected IValueIO<Float> scrollY;
-    protected IValueIO<Float> zoomScale;
-
-    private boolean isDragging = false; // Mouse buttons held for dragging
-    private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
-    protected int scrollSpeed = 12;
-
-    // Starting drag scroll values
-    private float dragSX = 0;
-    private float dragSY = 0;
-    // Starting drag mouse positions
-    private int dragMX = 0;
-    private int dragMY = 0;
-    // Last known scroll position (unscaled)
+	private final List<IGuiPanel> guiPanels = new CopyOnWriteArrayList<>();
+	private final IGuiRect transform;
+	private boolean enabled = true;
+	
+	// Scrolling bounds
+	protected final GuiRectangle scrollBounds = new GuiRectangle(0, 0, 0, 0);
+	private final GuiRectangle scrollWindow = new GuiRectangle(0, 0, 0, 0);
+	protected boolean extendedScroll = false;
+	protected boolean zoomMode = false;
+	protected int margin = 0;
+	// Scroll and zoom drivers
+	protected IValueIO<Float> scrollX;
+	protected IValueIO<Float> scrollY;
+	protected IValueIO<Float> zoomScale;
+	
+	private boolean isDragging = false; // Mouse buttons held for dragging
+	private boolean hasDragged = false; // Dragging used. Don't fire onMouseRelease
+	protected int scrollSpeed = (int) (12 * BQ_Settings.scrollMultiplier);
+	
+	// Starting drag scroll values
+	private float dragSX = 0;
+	private float dragSY = 0;
+	// Starting drag mouse positions
+	private int dragMX = 0;
+	private int dragMY = 0;
+	// Last known scroll position (unscaled)
     protected float lsz = 1F;
     protected int lsx = 0;
     protected int lsy = 0;

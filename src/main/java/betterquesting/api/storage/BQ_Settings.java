@@ -19,6 +19,8 @@ public class BQ_Settings
 	public static int guiHeight = -1;
 	public static boolean questNotices = true;
 
+	public static float scrollMultiplier = 0.1F;
+
 	public static float zoomSpeed = 1.25F;
 	public static float zoomTimeInMs = 100F;
 
