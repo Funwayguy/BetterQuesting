@@ -9,6 +9,7 @@ import betterquesting.api2.client.gui.popups.PopChoice;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.BQ_Keybindings;
+import betterquesting.client.gui2.GuiQuestSearch;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -236,11 +237,13 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
         if (keyCode == 14) { // BACKSPACE
             if (this.mc.currentScreen instanceof GuiScreenCanvas) {
                 GuiScreenCanvas canvas = (GuiScreenCanvas) mc.currentScreen;
-                if (canvas.parent != null) {
-                    mc.displayGuiScreen(canvas.parent);
+                if (!(canvas instanceof GuiQuestSearch) || !((GuiQuestSearch) canvas).isSearchFocused()) {
+                    if (canvas.parent != null) {
+                        mc.displayGuiScreen(canvas.parent);
+                        return;
+                    }
                 }
             }
-            return;
         }
         
         this.onKeyTyped(c, keyCode);

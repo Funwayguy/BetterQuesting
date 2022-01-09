@@ -34,6 +34,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 {
     public final GuiRectangle rect;
     public final EntityPlayer player;
+    public final IGuiTexture txFrame;
     
     public PanelButtonQuest(GuiRectangle rect, int id, String txt, DBEntry<IQuest> value)
     {
@@ -42,7 +43,6 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         
         player = Minecraft.getMinecraft().player;
         EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(player);
-        IGuiTexture txFrame = null;
         IGuiColor txIconCol = null;
         boolean main = value == null ? false : value.getValue().getProperty(NativeProps.MAIN);
         boolean lock = false;
@@ -70,12 +70,13 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 				txFrame = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
 				txIconCol = PresetColor.QUEST_ICON_REPEATABLE.getColor();
 				break;
+            default:
+                txFrame = null;
         }
         
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
         setTextures(btnTx, btnTx, btnTx);
         setIcon(new OreDictTexture(1F, value == null ? new BigItemStack(Items.NETHER_STAR) : value.getValue().getProperty(NativeProps.ICON), false, true), 4);
-        //setTooltip(value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID()));
         setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
     }
     
