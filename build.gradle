@@ -35,9 +35,15 @@ minecraft {
 
 repositories {
   mavenCentral()
+    maven { //JEI
+        name = "Progwml6 maven"
+        setUrl("http://dvs1.progwml6.com/files/maven/")
+    }
 }
 
 dependencies {
+
+    "deobfCompile"("mezz.jei:jei_1.12.2:4.16.1.302")
 }
 
 processResources {
