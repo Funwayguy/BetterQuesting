@@ -220,7 +220,7 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 	@Override
     public void keyTyped(char c, int keyCode)
     {
-        if (keyCode == 1)
+        if (keyCode == 1) // ESCAPE
         {
         	if(this.isVolatile || this instanceof IVolatileScreen)
         	{
@@ -232,6 +232,15 @@ public class GuiScreenCanvas extends GuiScreen implements IScene
 			}
 			
 			return;
+        }
+        if (keyCode == 14) { // BACKSPACE
+            if (this.mc.currentScreen instanceof GuiScreenCanvas) {
+                GuiScreenCanvas canvas = (GuiScreenCanvas) mc.currentScreen;
+                if (canvas.parent != null) {
+                    mc.displayGuiScreen(canvas.parent);
+                }
+            }
+            return;
         }
         
         this.onKeyTyped(c, keyCode);
