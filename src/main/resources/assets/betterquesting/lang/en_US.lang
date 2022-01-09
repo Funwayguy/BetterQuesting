@@ -227,3 +227,7 @@ jdoc.betterquesting.quest.properties.desc=Properties defining the quest's appear
 
 jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
 jdoc.betterquesting.quest.properties.betterquesting.desc=BetterQuesting properties
+
+betterquesting.notification.enabled=Quest Notifications: On
+betterquesting.notification.disabled=Quest Notifications: Off
+betterquesting.notification.tooltip=Toggle Quest Notifications
