@@ -120,14 +120,17 @@ public class GuiThemes extends GuiScreenCanvas
 				new GuiTextureColored(PresetTexture.QUEST_NORM_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_NORM_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_NORM_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_NORM_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_MAIN_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_MAIN_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_MAIN_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_MAIN_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_MAIN_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_AUX_0.getTexture(), PresetColor.QUEST_ICON_LOCKED.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_AUX_1.getTexture(), PresetColor.QUEST_ICON_UNLOCKED.getColor()),
 				new GuiTextureColored(PresetTexture.QUEST_AUX_2.getTexture(), PresetColor.QUEST_ICON_PENDING.getColor()),
-				new GuiTextureColored(PresetTexture.QUEST_AUX_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()));
+				new GuiTextureColored(PresetTexture.QUEST_AUX_3.getTexture(), PresetColor.QUEST_ICON_COMPLETE.getColor()),
+				new GuiTextureColored(PresetTexture.QUEST_AUX_4.getTexture(), PresetColor.QUEST_ICON_REPEATABLE.getColor()));
 		PanelGeneric pqp = new PanelGeneric(new GuiTransform(new Vector4f(0.25F, 0.5F, 0.25F, 0.5F), -12, -12, 24, 24, 0), icoSlides);
 		preCanIn2.addPanel(pqp);
 		

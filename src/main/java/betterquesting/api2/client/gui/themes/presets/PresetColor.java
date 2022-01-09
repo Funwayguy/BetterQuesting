@@ -35,12 +35,15 @@ public enum PresetColor
 	QUEST_LINE_UNLOCKED("quest_line_unlocked"),
 	QUEST_LINE_PENDING("quest_line_pending"),
 	QUEST_LINE_COMPLETE("quest_line_complete"),
-	
+	QUEST_LINE_REPEATABLE("quest_line_repeatable"),
+
+
 	QUEST_ICON_LOCKED("quest_icon_locked"),
 	QUEST_ICON_UNLOCKED("quest_icon_unlocked"),
 	QUEST_ICON_PENDING("quest_icon_pending"),
-	QUEST_ICON_COMPLETE("quest_icon_complete");
-	
+	QUEST_ICON_COMPLETE("quest_icon_complete"),
+	QUEST_ICON_REPEATABLE("quest_icon_repeatable");
+
 	private final ResourceLocation key;
 	
 	PresetColor(String key)
@@ -89,6 +92,7 @@ public enum PresetColor
 		reg.setDefaultColor(QUEST_ICON_UNLOCKED.key, new GuiColorPulse(quickMix(192, 0, 0, 255), quickMix(96, 0, 0, 255), 1F, 0F));
 		reg.setDefaultColor(QUEST_ICON_PENDING.key, new GuiColorPulse(quickMix(0, 255, 255, 255), quickMix(0, 128, 128, 255), 1F, 0F));
 		reg.setDefaultColor(QUEST_ICON_COMPLETE.key, new GuiColorStatic(0, 255, 0, 255));
+		reg.setDefaultColor(QUEST_ICON_REPEATABLE.key, new GuiColorPulse(quickMix(255, 69, 0, 255), quickMix(255, 96, 0, 255), 1F, 0F));
 	}
 	
 	/**

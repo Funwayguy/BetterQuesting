@@ -41,7 +41,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         this.rect = rect;
         
         player = Minecraft.getMinecraft().player;
-        EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(QuestingAPI.getQuestingUUID(player));
+        EnumQuestState qState = value == null ? EnumQuestState.LOCKED : value.getValue().getState(player);
         IGuiTexture txFrame = null;
         IGuiColor txIconCol = null;
         boolean main = value == null ? false : value.getValue().getProperty(NativeProps.MAIN);
@@ -66,6 +66,10 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
                 txFrame = main ? PresetTexture.QUEST_MAIN_3.getTexture() : PresetTexture.QUEST_NORM_3.getTexture();
                 txIconCol = PresetColor.QUEST_ICON_COMPLETE.getColor();
                 break;
+			case REPEATABLE:
+				txFrame = main ? PresetTexture.QUEST_MAIN_4.getTexture() : PresetTexture.QUEST_NORM_4.getTexture();
+				txIconCol = PresetColor.QUEST_ICON_REPEATABLE.getColor();
+				break;
         }
         
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
@@ -108,15 +112,24 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 		if(quest.isComplete(playerID))
 		{
 			list.add(TextFormatting.GREEN + QuestTranslation.translate("betterquesting.tooltip.complete"));
-			
-			if(!quest.hasClaimed(playerID))
+
+			if(quest.canClaimBasically(player))
 			{
 				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.rewards_pending"));
-			} else if(quest.getProperty(NativeProps.REPEAT_TIME) > 0)
+			}
+			else if(!quest.hasClaimed(playerID)) {
+				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeatable"));
+			}
+			else if(quest.getProperty(NativeProps.REPEAT_TIME) > 0)
 			{
 				long time = getRepeatSeconds(quest, player);
 				DecimalFormat df = new DecimalFormat("00");
 				String timeTxt = "";
+
+				if (time < 0) {
+					timeTxt += "-";
+					time = time * -1;
+				}
 				
 				if(time >= 3600)
 				{
@@ -129,6 +142,9 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
 				timeTxt += df.format(time%60) + "s";
 				
 				list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.repeat", timeTxt));
+				if(QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
+					list.add(TextFormatting.RED + QuestTranslation.translate("betterquesting.tooltip.repeat_with_edit_mode"));
+				}
 			}
 		} else if(!quest.isUnlocked(playerID))
 		{

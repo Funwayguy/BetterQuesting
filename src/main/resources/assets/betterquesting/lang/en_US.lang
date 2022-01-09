@@ -79,6 +79,7 @@ betterquesting.tooltip.tasks_complete=%s/%s Tasks Complete
 betterquesting.tooltip.complete=COMPLETE
 betterquesting.tooltip.incomplete=INCOMPLETE
 betterquesting.tooltip.rewards_pending=Unclaimed rewards
+betterquesting.tooltip.repeatable=Can be repeated
 betterquesting.tooltip.requires=Requires:
 betterquesting.tooltip.shift_advanced=Hold SHIFT for advanced info
 betterquesting.tooltip.reset_time=Cooldown: %s
@@ -90,6 +91,7 @@ betterquesting.tooltip.quest_logic=Quest Logic: %s
 betterquesting.tooltip.simultaneous=Simultaneous Tasks: %s
 betterquesting.tooltip.auto_claim=Auto Claim: %s
 betterquesting.tooltip.repeat=Cooldown: %s
+betterquesting.tooltip.repeat_with_edit_mode=Edit mode enabled, repeatable quests won't reset
 betterquesting.tooltip.update_quests=Update Available!%n§7A new quest line version is available.%nClick to install and migrate progress.
 
 betterquesting.notice.complete=Quest Complete

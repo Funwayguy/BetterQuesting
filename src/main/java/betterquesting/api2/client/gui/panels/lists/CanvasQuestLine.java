@@ -125,7 +125,7 @@ public class CanvasQuestLine extends CanvasScrolling
             if(reqList.size() <= 0) continue;
             
             boolean main = quest.getValue().getProperty(NativeProps.MAIN);
-            EnumQuestState qState = quest.getValue().getState(pid);
+            EnumQuestState qState = quest.getValue().getState(player);
             IGuiLine lineRender = null;
             IGuiColor txLineCol = null;
             
@@ -146,6 +146,10 @@ public class CanvasQuestLine extends CanvasScrolling
                 case COMPLETED:
                     lineRender = PresetLine.QUEST_COMPLETE.getLine();
                     txLineCol = PresetColor.QUEST_LINE_COMPLETE.getColor();
+                    break;
+                case REPEATABLE:
+                    lineRender = PresetLine.QUEST_REPEATABLE.getLine();
+                    txLineCol = PresetColor.QUEST_LINE_REPEATABLE.getColor();
                     break;
             }
             

@@ -17,7 +17,8 @@ public enum PresetLine
 	QUEST_LOCKED("quest_locked"),
 	QUEST_UNLOCKED("quest_unlocked"),
 	QUEST_PENDING("quest_pending"),
-	QUEST_COMPLETE("quest_complete");
+	QUEST_COMPLETE("quest_complete"),
+	QUEST_REPEATABLE("quest_repeatable");
 	
 	private final ResourceLocation key;
 	
@@ -47,5 +48,6 @@ public enum PresetLine
 		reg.setDefaultLine(QUEST_UNLOCKED.key, new SimpleLine());
 		reg.setDefaultLine(QUEST_PENDING.key, new SimpleLine());
 		reg.setDefaultLine(QUEST_COMPLETE.key, new SimpleLine());
+		reg.setDefaultLine(QUEST_REPEATABLE.key, new SimpleLine());
 	}
 }

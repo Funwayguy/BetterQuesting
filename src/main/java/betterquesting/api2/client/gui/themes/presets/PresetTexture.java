@@ -56,18 +56,21 @@ public enum PresetTexture
 	QUEST_NORM_1("quest_norm_1"),
 	QUEST_NORM_2("quest_norm_2"),
 	QUEST_NORM_3("quest_norm_3"),
+	QUEST_NORM_4("quest_norm_4"),
 	
 	// Main quest frame
 	QUEST_MAIN_0("quest_main_0"),
 	QUEST_MAIN_1("quest_main_1"),
 	QUEST_MAIN_2("quest_main_2"),
 	QUEST_MAIN_3("quest_main_3"),
+	QUEST_MAIN_4("quest_main_4"),
 	
 	// Auxiliary quest frame (not normally used)
 	QUEST_AUX_0("quest_aux_0"),
 	QUEST_AUX_1("quest_aux_1"),
 	QUEST_AUX_2("quest_aux_2"),
 	QUEST_AUX_3("quest_aux_3"),
+	QUEST_AUX_4("quest_aux_4"),
 	
 	TEXT_BOX_0("text_box_0"),
 	TEXT_BOX_1("text_box_1"),
@@ -141,17 +144,20 @@ public enum PresetTexture
 		reg.setDefaultTexture(QUEST_NORM_1.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 24, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_NORM_2.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 48, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_NORM_3.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
-		
+		reg.setDefaultTexture(QUEST_NORM_4.key, new SlicedTexture(TX_QUEST, new GuiRectangle(0, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
+
 		reg.setDefaultTexture(QUEST_MAIN_0.key, new SlicedTexture(TX_QUEST, new GuiRectangle(24, 0, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.STRETCH));
 		reg.setDefaultTexture(QUEST_MAIN_1.key, new SlicedTexture(TX_QUEST, new GuiRectangle(24, 24, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.STRETCH));
 		reg.setDefaultTexture(QUEST_MAIN_2.key, new SlicedTexture(TX_QUEST, new GuiRectangle(24, 48, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.STRETCH));
 		reg.setDefaultTexture(QUEST_MAIN_3.key, new SlicedTexture(TX_QUEST, new GuiRectangle(24, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.STRETCH));
-		
+		reg.setDefaultTexture(QUEST_MAIN_4.key, new SlicedTexture(TX_QUEST, new GuiRectangle(24, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.STRETCH));
+
 		reg.setDefaultTexture(QUEST_AUX_0.key, new SlicedTexture(TX_QUEST, new GuiRectangle(48, 0, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_AUX_1.key, new SlicedTexture(TX_QUEST, new GuiRectangle(48, 24, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_AUX_2.key, new SlicedTexture(TX_QUEST, new GuiRectangle(48, 48, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(QUEST_AUX_3.key, new SlicedTexture(TX_QUEST, new GuiRectangle(48, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
-		
+		reg.setDefaultTexture(QUEST_AUX_4.key, new SlicedTexture(TX_QUEST, new GuiRectangle(48, 72, 24, 24), new GuiPadding(8, 8, 8, 8)).setSliceMode(SliceMode.SLICED_STRETCH));
+
 		reg.setDefaultTexture(TEXT_BOX_0.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(0, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(TEXT_BOX_1.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(8, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
 		reg.setDefaultTexture(TEXT_BOX_2.key, new SlicedTexture(TX_SIMPLE, new GuiRectangle(16, 28, 8, 8), new GuiPadding(1, 1, 1, 1)).setSliceMode(SliceMode.SLICED_STRETCH));
