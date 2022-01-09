@@ -25,43 +25,36 @@ import net.minecraft.util.text.TextFormatting;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PanelTabMain extends CanvasEmpty
-{
+public class PanelTabMain extends CanvasEmpty {
     private final CanvasQuestLine cvQuestLine;
     private final PanelToolController toolController;
-    
+
     private static final List<ToolEntry> toolEntries = new ArrayList<>();
-    
-    public PanelTabMain(IGuiRect rect, CanvasQuestLine cvQuestLine, PanelToolController toolController)
-    {
+
+    public PanelTabMain(IGuiRect rect, CanvasQuestLine cvQuestLine, PanelToolController toolController) {
         super(rect);
         this.cvQuestLine = cvQuestLine;
         this.toolController = toolController;
     }
-    
+
     @Override
-    public void initPanel()
-    {
+    public void initPanel() {
         super.initPanel();
-        
+
         int w = getTransform().getWidth();
-    
+
         IGuiColor tCol = new GuiColorStatic(0xFF000000);
-        this.addPanel(new PanelButton(new GuiRectangle(0, 0, w / 2, 16, 0), -1, "" + ToolboxTabMain.INSTANCE.getSnapValue())
-        {
+        this.addPanel(new PanelButton(new GuiRectangle(0, 0, w / 2, 16, 0), -1, "" + ToolboxTabMain.INSTANCE.getSnapValue()) {
             @Override
-            public void onButtonClick()
-            {
+            public void onButtonClick() {
                 ToolboxTabMain.INSTANCE.toggleSnap();
                 this.setText("" + ToolboxTabMain.INSTANCE.getSnapValue());
             }
         }.setIcon(PresetIcon.ICON_GRID.getTexture()).setTextShadow(false).setTextHighlight(tCol, tCol, tCol).setTooltip(makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.snap.name"), QuestTranslation.translate("betterquesting.toolbox.tool.snap.desc"))));
-        
-        this.addPanel(new PanelButton(new GuiRectangle(w / 2, 0, w / 2, 16, 0), -1, "")
-        {
+
+        this.addPanel(new PanelButton(new GuiRectangle(w / 2, 0, w / 2, 16, 0), -1, "") {
             @Override
-            public void onButtonClick()
-            {
+            public void onButtonClick() {
                 Minecraft mc = Minecraft.getMinecraft();
                 mc.displayGuiScreen(new GuiNbtEditor(mc.currentScreen, cvQuestLine.getQuestLine().writeToNBT(new NBTTagCompound(), null), value -> {
                     NBTTagCompound payload = new NBTTagCompound();
@@ -76,11 +69,10 @@ public class PanelTabMain extends CanvasEmpty
                 }));
             }
         }.setIcon(PresetIcon.ICON_PROPS.getTexture()).setTooltip(makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.raw.name"), QuestTranslation.translate("betterquesting.toolbox.tool.raw.desc"))));
-        
+
         final List<PanelButtonStorage<IToolboxTool>> toolBtns = new ArrayList<>();
-        
-        for(int i = 0; i < toolEntries.size(); i++)
-        {
+
+        for (int i = 0; i < toolEntries.size(); i++) {
             ToolEntry entry = toolEntries.get(i);
             int x = (i % 2) * (w / 2);
             int y = (i / 2) * 16 + 24;
@@ -94,39 +86,42 @@ public class PanelTabMain extends CanvasEmpty
             });
             toolBtns.add(btn);
             this.addPanel(btn);
-            
-            if(entry.tool instanceof ToolboxToolOpen && toolController.getActiveTool() == null)
-            {
+
+            if (entry.tool instanceof ToolboxToolOpen && toolController.getActiveTool() == null) {
                 toolController.setActiveTool(entry.tool);
                 btn.setActive(false);
             }
         }
+
+        this.addPanel(new PanelButton(new GuiRectangle(0, (toolEntries.size() / 2 + 1) * 16 + 24, w / 2, 16, 0), -1, "") {
+            @Override
+            public void onButtonClick() {
+                cvQuestLine.fitToWindow();
+            }
+        }.setIcon(PresetIcon.ICON_BOX_FIT.getTexture()).setTextShadow(false).setTextHighlight(tCol, tCol, tCol)
+                .setTooltip(makeToolTip(QuestTranslation.translate("betterquesting.btn.zoom_fit"), QuestTranslation.translate("betterquesting.btn.zoom_fit"))));
     }
-	
-	private static List<String> makeToolTip(String title, String desc)
-	{
-		List<String> list = new ArrayList<>();
-		list.add(title);
-		list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
-		return list;
-	}
-    
-    private static class ToolEntry
-    {
+
+    private static List<String> makeToolTip(String title, String desc) {
+        List<String> list = new ArrayList<>();
+        list.add(title);
+        list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(TextFormatting.GRAY + desc, 128));
+        return list;
+    }
+
+    private static class ToolEntry {
         private final IToolboxTool tool;
         private final IGuiTexture tex;
         private final List<String> tt;
-        
-        private ToolEntry(IToolboxTool tool, IGuiTexture tex, List<String> tt)
-        {
+
+        private ToolEntry(IToolboxTool tool, IGuiTexture tex, List<String> tt) {
             this.tool = tool;
             this.tex = tex;
             this.tt = tt;
         }
     }
-    
-    static
-    {
+
+    static {
         toolEntries.add(new ToolEntry(new ToolboxToolOpen(), PresetIcon.ICON_CURSOR.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.open.name"), QuestTranslation.translate("betterquesting.toolbox.tool.open.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolNew(), PresetIcon.ICON_NEW.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.new.name"), QuestTranslation.translate("betterquesting.toolbox.tool.new.desc"))));
         toolEntries.add(new ToolEntry(new ToolboxToolGrab(), PresetIcon.ICON_GRAB.getTexture(), makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.grab.name"), QuestTranslation.translate("betterquesting.toolbox.tool.grab.desc"))));

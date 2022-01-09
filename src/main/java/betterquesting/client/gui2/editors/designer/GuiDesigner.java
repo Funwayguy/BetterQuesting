@@ -18,12 +18,12 @@ import betterquesting.api2.client.gui.panels.IGuiCanvas;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.client.gui.panels.content.PanelGeneric;
 import betterquesting.api2.client.gui.panels.content.PanelTextBox;
+import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.client.toolbox.IToolTab;
 import betterquesting.api2.utils.QuestTranslation;
-import betterquesting.api2.client.gui.panels.lists.CanvasQuestLine;
 import betterquesting.client.toolbox.ToolboxRegistry;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.gui.GuiScreen;
@@ -142,6 +142,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
             cvBackground.addPanel(toolController);
             cvQuest.setScrollDriverX(toolController.getScrollX());
             cvQuest.setScrollDriverY(toolController.getScrollY());
+            cvQuest.fitToWindow();
         }
         
         refreshToolTab();
