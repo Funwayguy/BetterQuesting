@@ -1,5 +1,6 @@
 package betterquesting.api.properties;
 
+import betterquesting.api.storage.BQ_Settings;
 import net.minecraft.init.Items;
 import net.minecraft.util.ResourceLocation;
 import betterquesting.api.enums.EnumLogic;
@@ -30,7 +31,7 @@ public class NativeProps
 	public static final IPropertyType<Boolean> LOCKED_PROGRESS =			new PropertyTypeBoolean(new ResourceLocation("betterquesting:lockedProgress"), false);
 	public static final IPropertyType<Boolean> SIMULTANEOUS =				new PropertyTypeBoolean(new ResourceLocation("betterquesting:simultaneous"), false);
 	
-	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<>(new ResourceLocation("betterquesting:visibility"), EnumQuestVisibility.NORMAL);
+	public static final IPropertyType<EnumQuestVisibility> VISIBILITY =		new PropertyTypeEnum<>(new ResourceLocation("betterquesting:visibility"), findVisibility());
 	public static final IPropertyType<EnumLogic> LOGIC_TASK =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:taskLogic"), EnumLogic.AND);
 	public static final IPropertyType<EnumLogic> LOGIC_QUEST =				new PropertyTypeEnum<>(new ResourceLocation("betterquesting:questLogic"), EnumLogic.AND);
 	
@@ -63,4 +64,15 @@ public class NativeProps
 	
 	public static final IPropertyType<Integer> PACK_VER =					new PropertyTypeInteger(new ResourceLocation("betterquesting:pack_version"), 0);
 	public static final IPropertyType<String> PACK_NAME =					new PropertyTypeString(new ResourceLocation("betterquesting:pack_name"), "");
+
+	private static EnumQuestVisibility findVisibility() {
+		String visibility = BQ_Settings.defaultVisibility;
+		for(EnumQuestVisibility enumVisibility : EnumQuestVisibility.values()) {
+			if(enumVisibility.toString().equals(visibility)) {
+				return enumVisibility;
+			}
+		}
+
+		return EnumQuestVisibility.NORMAL;
+	}
 }

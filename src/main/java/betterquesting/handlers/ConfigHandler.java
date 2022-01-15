@@ -36,6 +36,7 @@ public class ConfigHandler
 
 		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
 		BQ_Settings.lockTray = config.getBoolean("Lock Tray", Configuration.CATEGORY_GENERAL, false, "If true, locks the quest chapter list and opens it initially");
+		BQ_Settings.defaultVisibility = config.getString("Default Quest Visibility", Configuration.CATEGORY_GENERAL, "NORMAL", "The default visibility value used when creating quests");
 		config.save();
 	}
 }

@@ -1,6 +1,5 @@
 package betterquesting.questing;
 
-import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.IPropertyType;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuestLine;
@@ -30,7 +29,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
 		this.setupValue(NativeProps.NAME, "New Quest Line");
 		this.setupValue(NativeProps.DESC, "No Description");
 		this.setupValue(NativeProps.ICON, new BigItemStack(Items.BOOK));
-		this.setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
+		this.setupValue(NativeProps.VISIBILITY, NativeProps.VISIBILITY.getDefault());
 		this.setupValue(NativeProps.BG_IMAGE);
 		this.setupValue(NativeProps.BG_SIZE);
 	}

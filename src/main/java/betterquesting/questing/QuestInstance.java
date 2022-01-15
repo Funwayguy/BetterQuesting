@@ -70,7 +70,7 @@ public class QuestInstance implements IQuest
 		setupValue(NativeProps.MAIN, false);
 		setupValue(NativeProps.GLOBAL_SHARE, false);
 		setupValue(NativeProps.SIMULTANEOUS, false);
-		setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
+		setupValue(NativeProps.VISIBILITY, NativeProps.VISIBILITY.getDefault());
 	}
 	
 	private <T> void setupValue(IPropertyType<T> prop)

@@ -7,5 +7,5 @@ public enum EnumQuestVisibility
 	NORMAL,
 	COMPLETED,
 	CHAIN,
-	ALWAYS;
+	ALWAYS
 }
