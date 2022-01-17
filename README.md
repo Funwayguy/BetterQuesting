@@ -13,4 +13,4 @@ As such, this mod integrates the various addon packs into one main mod, to provi
 
 Credits to:
 - @fonnymunkey for various feature from BQTweaker, now integrated to provide a better experience.
-- The Gregtech New Horizons developement team for their work on their 1.7.10 fork of Better Questing, whose improvements have been integrated into this fork.
+- The Gregtech New Horizons development team for their work on their 1.7.10 fork of Better Questing, whose improvements have been integrated into this fork.
