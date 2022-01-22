@@ -40,7 +40,7 @@ public class TaskRetrieval implements ITaskInventory, IItemTask
 	private final TreeMap<UUID, int[]> userProgress = new TreeMap<>();
 	public boolean partialMatch = true;
 	public boolean ignoreNBT = false;
-	public boolean consume = true;
+	public boolean consume = false;
 	public boolean groupDetect = false;
 	public boolean autoConsume = false;
 	
