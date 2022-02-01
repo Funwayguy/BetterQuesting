@@ -6,8 +6,8 @@ import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
-import betterquesting.core.BetterQuesting;
 import betterquesting.client.gui2.tasks.PanelTaskCheckbox;
+import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.factory.FactoryTaskCheckbox;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
@@ -123,5 +123,10 @@ public class TaskCheckbox implements ITask
 	public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest)
 	{
 		return null;
+	}
+
+	@Override
+	public boolean displaysCenteredAlone() {
+		return true;
 	}
 }

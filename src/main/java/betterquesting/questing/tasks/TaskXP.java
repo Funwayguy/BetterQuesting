@@ -1,13 +1,13 @@
 package betterquesting.questing.tasks;
 
+import betterquesting.XPHelper;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.IGuiPanel;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
-import betterquesting.core.BetterQuesting;
-import betterquesting.XPHelper;
 import betterquesting.client.gui2.tasks.PanelTaskXP;
+import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.factory.FactoryTaskXP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
@@ -237,5 +237,10 @@ public class TaskXP implements ITaskTickable
 	{
         Long n = userProgress.get(uuid);
         return n == null? 0 : n;
+	}
+
+	@Override
+	public boolean displaysCenteredAlone() {
+		return true;
 	}
 }

@@ -35,4 +35,8 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 	@Nullable
 	@SideOnly(Side.CLIENT)
 	GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest);
+
+	default boolean displaysCenteredAlone() {
+		return false;
+	}
 }
