@@ -317,6 +317,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         }
 
         csReward.setScrollY(scrollPosition.getRewardScrollY());
+        csReward.updatePanelScroll();
 
         updateButtons();
     }
@@ -363,6 +364,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             yOffset += 8;
         }
         csTask.setScrollY(scrollPosition.getTaskScrollY());
+        csTask.updatePanelScroll();
 
         updateButtons();
     }
