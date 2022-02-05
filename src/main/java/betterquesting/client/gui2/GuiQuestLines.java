@@ -59,6 +59,24 @@ import static betterquesting.api.storage.BQ_Settings.alwaysDrawImplicit;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
+    private ScrollPosition scrollPosition;
+
+    public static class ScrollPosition{
+        public ScrollPosition(int chapterScrollY) {
+            this.chapterScrollY = chapterScrollY;
+        }
+
+        private int chapterScrollY;
+
+        public int getChapterScrollY() {
+            return chapterScrollY;
+        }
+
+        public void setChapterScrollY(int chapterScrollY) {
+            this.chapterScrollY = chapterScrollY;
+        }
+    }
+
     private IQuestLine selectedLine = null;
     private static int selectedLineId = -1;
     
@@ -92,6 +110,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         super(parent);
         trayLock = BQ_Settings.lockTray;
         viewMode = BQ_Settings.viewMode;
+
+        if (scrollPosition == null) {
+            scrollPosition = new ScrollPosition(0);
+        }
     }
     
     @Override
@@ -356,6 +378,20 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         
         refreshChapterVisibility();
         refreshClaimAll();
+
+        cvLines.setScrollY(scrollPosition.getChapterScrollY());
+        cvLines.updatePanelScroll();
+    }
+
+    @Override
+    public boolean onMouseScroll(int mx, int my, int scroll) {
+        try {
+            return super.onMouseScroll(mx, my, scroll);
+        } finally {
+            if (cvLines != null) {
+                scrollPosition.setChapterScrollY(cvLines.getScrollY());
+            }
+        }
     }
 
     private void claimAll() {
