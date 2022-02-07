@@ -212,6 +212,25 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     }
 
     @Override
+    public boolean onMouseRelease(int mx, int my, int click) {
+        try {
+            return super.onMouseRelease(mx, my, click);
+        } finally {
+            if(csReward != null){
+                scrollPosition.setRewardScrollY(csReward.getScrollY());
+            }
+
+            if (csTask != null){
+                scrollPosition.setTaskScrollY(csTask.getScrollY());
+            }
+
+            if (csDesc != null){
+                scrollPosition.setDescScrollY(csDesc.getScrollY());
+            }
+        }
+    }
+
+    @Override
     public boolean onMouseScroll(int mx, int my, int scroll)
     {
         try {

@@ -384,6 +384,17 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     }
 
     @Override
+    public boolean onMouseRelease(int mx, int my, int click) {
+        try {
+            return super.onMouseRelease(mx, my, click);
+        } finally {
+            if (cvLines != null) {
+                scrollPosition.setChapterScrollY(cvLines.getScrollY());
+            }
+        }
+    }
+
+    @Override
     public boolean onMouseScroll(int mx, int my, int scroll) {
         try {
             return super.onMouseScroll(mx, my, scroll);
