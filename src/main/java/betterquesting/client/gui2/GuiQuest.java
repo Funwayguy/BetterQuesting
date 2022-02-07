@@ -40,15 +40,21 @@ import java.util.Map;
 public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeedsRefresh
 {
     /*
-     *  Map which contains scrolls positions. <questId, Pair<taskScroll, rewardScroll>>
+     *  Map which contains scrolls positions. <questId, Triple<taskScroll, rewardScroll, descScroll>>
      */
-    private static Map<Integer, ScrollPosition> scrollsPositions = new HashMap<>();
+    private static final Map<Integer, ScrollPosition> scrollsPositions = new HashMap<>();
     private ScrollPosition scrollPosition;
 
     public static class ScrollPosition{
-        public ScrollPosition(int taskScrollY, int rewardScrollY) {
+        public ScrollPosition(int taskScrollY, int rewardScrollY, int descScrollY) {
             this.taskScrollY = taskScrollY;
             this.rewardScrollY = rewardScrollY;
+            this.descScrollY = descScrollY;
+        }
+
+        @Deprecated
+        public ScrollPosition(int taskScrollY, int rewardScrollY) {
+            this(taskScrollY, rewardScrollY, 0);
         }
 
         private int taskScrollY;
@@ -70,6 +76,16 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         public void setRewardScrollY(int rewardScrollY) {
             this.rewardScrollY = rewardScrollY;
         }
+
+        private int descScrollY;
+
+        public int getDescScrollY() {
+            return descScrollY;
+        }
+
+        public void setDescScrollY(int descScrollY) {
+            this.descScrollY = descScrollY;
+        }
     }
 
     private final int questID;
@@ -90,13 +106,15 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     private CanvasEmpty pnTask;
     private CanvasScrolling csTask;
 
+    private CanvasScrolling csDesc;
+
     public GuiQuest(GuiScreen parent, int questID)
     {
         super(parent);
         this.questID = questID;
         scrollPosition = scrollsPositions.get(questID);
         if (scrollPosition == null){
-            scrollPosition = new ScrollPosition(0, 0);
+            scrollPosition = new ScrollPosition(0, 0, 0);
             scrollsPositions.put(questID, scrollPosition);
         }
     }
@@ -138,16 +156,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
         if(quest.getRewards().size() > 0)
         {
-            CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
-            cvInner.addPanel(cvDesc);
-            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getProperty(NativeProps.DESC)), true);
-            paDesc.setColor(PresetColor.TEXT_MAIN.getColor());//.setFontSize(10);
-            cvDesc.addCulledPanel(paDesc, false);
-
-            PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.MID_CENTER), new GuiPadding(-16, 0, 8, 16), 0));
-            cvInner.addPanel(paDescScroll);
-            cvDesc.setScrollDriverY(paDescScroll);
-            paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
+            refreshDescPanel(true);
 
             btnClaim = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.5F, 1F), new GuiPadding(0, -16, 8, 0), 0), 6, QuestTranslation.translate("betterquesting.btn.claim"));
             btnClaim.setActive(false);
@@ -159,16 +168,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             refreshRewardPanel();
         } else
         {
-            CanvasScrolling cvDesc = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 16, 0), 0));
-            cvInner.addPanel(cvDesc);
-            PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, cvDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getProperty(NativeProps.DESC)), true);
-            paDesc.setColor(PresetColor.TEXT_MAIN.getColor());//.setFontSize(10);
-            cvDesc.addCulledPanel(paDesc, false);
-
-            PanelVScrollBar paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.BOTTOM_CENTER), new GuiPadding(-16, 0, 8, 0), 0));
-            cvInner.addPanel(paDescScroll);
-            cvDesc.setScrollDriverY(paDescScroll);
-            paDescScroll.setEnabled(cvDesc.getScrollBounds().getHeight() > 0);
+            refreshDescPanel(false);
         }
 
         //if(quest.getTasks().size() > 0)
@@ -212,6 +212,25 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     }
 
     @Override
+    public boolean onMouseRelease(int mx, int my, int click) {
+        try {
+            return super.onMouseRelease(mx, my, click);
+        } finally {
+            if(csReward != null){
+                scrollPosition.setRewardScrollY(csReward.getScrollY());
+            }
+
+            if (csTask != null){
+                scrollPosition.setTaskScrollY(csTask.getScrollY());
+            }
+
+            if (csDesc != null){
+                scrollPosition.setDescScrollY(csDesc.getScrollY());
+            }
+        }
+    }
+
+    @Override
     public boolean onMouseScroll(int mx, int my, int scroll)
     {
         try {
@@ -222,13 +241,17 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             }
 
             return false;
-        }finally {
+        } finally {
             if(csReward != null){
                 scrollPosition.setRewardScrollY(csReward.getScrollY());
             }
 
             if (csTask != null){
                 scrollPosition.setTaskScrollY(csTask.getScrollY());
+            }
+
+            if (csDesc != null){
+                scrollPosition.setDescScrollY(csDesc.getScrollY());
             }
         }
     }
@@ -352,7 +375,9 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             yOffset += 10;
 
             IGuiPanel taskGui = tsk.getTaskGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectTask.getWidth(), rectTask.getHeight(), 0), new DBEntry<>(questID, quest));
-            taskGui.initPanel();
+            if (taskGui != null) {
+                taskGui.initPanel();
+            }
             // Wrapping into canvas allow avoid empty space at end
             CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectTask.getWidth(), taskGui.getTransform().getHeight() - taskGui.getTransform().getY(), 1));
             csTask.addPanel(tempCanvas);
@@ -367,6 +392,31 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         csTask.updatePanelScroll();
 
         updateButtons();
+    }
+
+    private void refreshDescPanel(boolean hasReward) {
+        if (hasReward) {
+            csDesc = new CanvasScrolling(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0.5F), new GuiPadding(0, 0, 16, 16), 0));
+        } else {
+            csDesc = new CanvasScrolling(new GuiTransform(GuiAlign.HALF_LEFT, new GuiPadding(0, 0, 16, 0), 0));
+        }
+        cvInner.addPanel(csDesc);
+        PanelTextBox paDesc = new PanelTextBox(new GuiRectangle(0, 0, csDesc.getTransform().getWidth(), 0), QuestTranslation.translate(quest.getProperty(NativeProps.DESC)), true);
+        paDesc.setColor(PresetColor.TEXT_MAIN.getColor());//.setFontSize(10);
+        csDesc.addCulledPanel(paDesc, false);
+
+        PanelVScrollBar paDescScroll;
+        if (hasReward) {
+            paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.MID_CENTER), new GuiPadding(-16, 0, 8, 16), 0));
+        } else {
+            paDescScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.quickAnchor(GuiAlign.TOP_CENTER, GuiAlign.BOTTOM_CENTER), new GuiPadding(-16, 0, 8, 0), 0));
+        }
+        cvInner.addPanel(paDescScroll);
+        csDesc.setScrollDriverY(paDescScroll);
+        paDescScroll.setEnabled(csDesc.getScrollBounds().getHeight() > 0);
+
+        csDesc.setScrollY(scrollPosition.getDescScrollY());
+        csDesc.updatePanelScroll();
     }
 
     private void updateButtons()
