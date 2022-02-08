@@ -94,7 +94,7 @@ public class QuestInstance implements IQuest
 
         for(DBEntry<ITask> entry : tasks.getEntries())
         {
-            if(entry.getValue().isComplete(playerID))
+            if(entry.getValue().isComplete(playerID) || entry.getValue().ignored(playerID))
             {
                 done++;
             }
@@ -138,11 +138,11 @@ public class QuestInstance implements IQuest
 
 			for(DBEntry<ITask> entry : tasks.getEntries())
 			{
-				if(!entry.getValue().isComplete(playerID))
+				if(!entry.getValue().isComplete(playerID) || !entry.getValue().ignored(playerID))
 				{
 					entry.getValue().detect(partInfo, dbe);
 
-					if(entry.getValue().isComplete(playerID))
+					if(entry.getValue().isComplete(playerID) || entry.getValue().ignored(playerID))
 					{
 						done++;
 						update = true;
@@ -265,7 +265,7 @@ public class QuestInstance implements IQuest
 
                 for(DBEntry<ITask> tsk : tasks.getEntries())
                 {
-                    if(tsk.getValue().isComplete(playerID))
+                    if(tsk.getValue().isComplete(playerID) || tsk.getValue().ignored(playerID))
                     {
                         done += 1;
                     }
