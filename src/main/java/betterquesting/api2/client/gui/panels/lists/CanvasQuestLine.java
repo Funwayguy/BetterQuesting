@@ -148,8 +148,20 @@ public class CanvasQuestLine extends CanvasScrolling {
                 PanelButtonQuest parBtn = questBtns.get(req.getID());
 
                 if (parBtn != null) {
-                    PanelLine prLine = new PanelLine(parBtn.getTransform(), entry.getValue().getTransform(), lineRender, main ? 8 : 4, txLineCol, 1);
-                    this.addPanel(prLine);
+                    IQuest.RequirementType type = quest.getValue().getRequirementType(req.getID());
+                    PanelLine.ShouldDrawPredicate predicate;
+                    switch (type) {
+                        case NORMAL:
+                            predicate = null;
+                            break;
+                        case IMPLICIT:
+                            predicate = (mx, my, partialTicks) -> questBtns.get(req.getID()).rect.contains(mx, my) || questBtns.get(quest.getID()).rect.contains(mx, my);
+                            break;
+                        default:
+                            // bail early
+                            continue;
+                    }
+                    this.addPanel(new PanelLine(parBtn.getTransform(), entry.getValue().getTransform(), lineRender, main ? 8 : 4, txLineCol, 1, predicate));
                 }
             }
         }

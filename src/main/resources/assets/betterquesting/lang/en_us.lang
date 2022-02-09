@@ -52,6 +52,9 @@ betterquesting.btn.icon=Icon
 betterquesting.btn.claim_all=Claim All
 betterquesting.btn.zoom_fit=Zoom to Fit
 betterquesting.btn.lock_tray=Lock Tray
+betterquesting.btn.visible_hidden=Always hide dependency line
+betterquesting.btn.visible_always=Always show dependency line
+betterquesting.btn.visible_implicit=Hover to show dependency line
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests
