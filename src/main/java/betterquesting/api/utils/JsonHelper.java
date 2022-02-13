@@ -5,6 +5,7 @@ import betterquesting.api.placeholders.ItemPlaceholder;
 import betterquesting.api.placeholders.PlaceholderConverter;
 import betterquesting.api2.utils.BQThreadedIO;
 import com.google.gson.*;
+import com.google.gson.stream.JsonWriter;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
@@ -21,6 +22,7 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -171,7 +173,7 @@ public class JsonHelper
 	{
 	    final File tmp = new File(file.getAbsolutePath() + ".tmp");
 	    
-		return BQThreadedIO.INSTANCE.enqueue(() -> {
+		return BQThreadedIO.DISK_IO.enqueue(() -> {
 			try
 			{
 	            if(tmp.exists())
@@ -223,6 +225,46 @@ public class JsonHelper
 			return null;
 		});
 	}
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static Future<Void> WriteToFile(File file, IOConsumer<JsonWriter> jObj) {
+        final File tmp = new File(file.getAbsolutePath() + ".tmp");
+
+        return BQThreadedIO.DISK_IO.enqueue(() -> {
+            try {
+                if (tmp.exists())
+                    tmp.delete();
+                else if (tmp.getParentFile() != null)
+                    tmp.getParentFile().mkdirs();
+
+                tmp.createNewFile();
+            } catch (Exception e) {
+                QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
+                return null;
+            }
+
+            // NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+            try (FileOutputStream fos = new FileOutputStream(tmp); OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+                jObj.accept(new JsonWriter(fw));
+            } catch (Exception e) {
+                QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
+                return null;
+            }
+
+            try {
+                Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException ignored) {
+                try {
+                    Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+                }
+            } catch (Exception e) {
+                QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+            }
+            return null;
+        });
+    }
 	
 	@SuppressWarnings("ResultOfMethodCallIgnored")
     public static void CopyPaste(File fileIn, File fileOut)
@@ -340,4 +382,9 @@ public class JsonHelper
 		json.merge(tags);
 		return json;
 	}
+
+    @FunctionalInterface
+    public interface IOConsumer<T> {
+        void accept(T arg) throws IOException;
+    }
 }

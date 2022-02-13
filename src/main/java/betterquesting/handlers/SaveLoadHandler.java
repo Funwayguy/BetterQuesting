@@ -226,7 +226,7 @@ public class SaveLoadHandler
             jsonCon.setString("format", BetterQuesting.FORMAT);
             jsonCon.setString("build", Loader.instance().getIndexedModList().get(BetterQuesting.MODID).getVersion());
     
-            allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonCon, new JsonObject(), true)));
+            allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestDatabase.json"), out -> NBTConverter.NBTtoJSON_Compound(jsonCon, out, true)));
         }
         
         // === PROGRESS ===
@@ -235,7 +235,7 @@ public class SaveLoadHandler
         
         jsonProg.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null));
         
-        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), NBTConverter.NBTtoJSON_Compound(jsonProg, new JsonObject(), true)));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestProgress.json"), out -> NBTConverter.NBTtoJSON_Compound(jsonProg, out, true)));
         
         // === PARTIES ===
         
@@ -243,7 +243,7 @@ public class SaveLoadHandler
         
         jsonP.setTag("parties", PartyManager.INSTANCE.writeToNBT(new NBTTagList(), null));
         
-        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), NBTConverter.NBTtoJSON_Compound(jsonP, new JsonObject(), true)));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "QuestingParties.json"), out -> NBTConverter.NBTtoJSON_Compound(jsonP, out, true)));
         
         // === NAMES ===
         
@@ -251,7 +251,7 @@ public class SaveLoadHandler
         
         jsonN.setTag("nameCache", NameCache.INSTANCE.writeToNBT(new NBTTagList(), null));
         
-        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), NBTConverter.NBTtoJSON_Compound(jsonN, new JsonObject(), true)));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "NameCache.json"), out -> NBTConverter.NBTtoJSON_Compound(jsonN, out, true)));
         
         // === LIVES ===
         
@@ -259,7 +259,7 @@ public class SaveLoadHandler
         
         jsonL.setTag("lifeDatabase", LifeDatabase.INSTANCE.writeToNBT(new NBTTagCompound(), null));
         
-        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), NBTConverter.NBTtoJSON_Compound(jsonL, new JsonObject(), true)));
+        allFutures.add(JsonHelper.WriteToFile(new File(BQ_Settings.curWorldDir, "LifeDatabase.json"), out -> NBTConverter.NBTtoJSON_Compound(jsonL, out, true)));
         
         MinecraftForge.EVENT_BUS.post(new DatabaseEvent.Save(DBType.ALL));
 
