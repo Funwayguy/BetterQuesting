@@ -16,11 +16,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer {
-    /**
-     * Deprecated, use the player version and then fetch UUID from the QuestingAPI
-     */
-    EnumQuestState getState(UUID uuid);
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
+{
 
     EnumQuestState getState(EntityPlayer player);
 

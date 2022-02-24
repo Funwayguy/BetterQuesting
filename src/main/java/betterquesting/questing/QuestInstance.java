@@ -308,11 +308,6 @@ public class QuestInstance implements IQuest {
     }
 
     @Override
-    public EnumQuestState getState(UUID uuid) {
-        return getState(Minecraft.getMinecraft().player);
-    }
-
-    @Override
     public NBTTagCompound getCompletionInfo(UUID uuid) {
         synchronized (completeUsers) {
             return completeUsers.get(uuid);
