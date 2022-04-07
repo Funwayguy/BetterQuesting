@@ -22,10 +22,7 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -65,7 +62,11 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
 
     @Override
     protected void queryMatches(QuestSearchEntry entry, String query, ArrayDeque<QuestSearchEntry> results) {
-        if (String.valueOf(entry.getQuest().getID()).contains(query)) {
+        if ("@complete".startsWith(query) && 1 < query.length()) {
+            if (entry.getQuest().getValue().isComplete(questingUUID) && entry.getQuest().getValue().canClaim(player)) {
+                results.add(entry);
+            }
+        } else if (String.valueOf(entry.getQuest().getID()).contains(query)) {
             results.add(entry);
         } else if (entry.getQuest().getValue().getProperty(NativeProps.NAME).toLowerCase().contains(query)) {
             results.add(entry);
