@@ -133,35 +133,36 @@ public class CanvasQuestLine extends CanvasScrolling
             boolean main = quest.getValue().getProperty(NativeProps.MAIN);
             EnumQuestState qState = quest.getValue().getState(player);
             IGuiLine lineRender = null;
-            IGuiColor txLineCol = null;
+            IGuiColor defaultTxLineCol = null;
             
             switch(qState)
             {
                 case LOCKED:
                     lineRender = PresetLine.QUEST_LOCKED.getLine();
-                    txLineCol = PresetColor.QUEST_LINE_LOCKED.getColor();
+                    defaultTxLineCol = PresetColor.QUEST_LINE_LOCKED.getColor();
                     break;
                 case UNLOCKED:
                     lineRender = PresetLine.QUEST_UNLOCKED.getLine();
-                    txLineCol = PresetColor.QUEST_LINE_UNLOCKED.getColor();
+                    defaultTxLineCol = PresetColor.QUEST_LINE_UNLOCKED.getColor();
                     break;
                 case UNCLAIMED:
                     lineRender = PresetLine.QUEST_PENDING.getLine();
-                    txLineCol = PresetColor.QUEST_LINE_PENDING.getColor();
+                    defaultTxLineCol = PresetColor.QUEST_LINE_PENDING.getColor();
                     break;
                 case COMPLETED:
                     lineRender = PresetLine.QUEST_COMPLETE.getLine();
-                    txLineCol = PresetColor.QUEST_LINE_COMPLETE.getColor();
+                    defaultTxLineCol = PresetColor.QUEST_LINE_COMPLETE.getColor();
                     break;
                 case REPEATABLE:
                     lineRender = PresetLine.QUEST_REPEATABLE.getLine();
-                    txLineCol = PresetColor.QUEST_LINE_REPEATABLE.getColor();
+                    defaultTxLineCol = PresetColor.QUEST_LINE_REPEATABLE.getColor();
                     break;
             }
             
             for(DBEntry<IQuest> req : reqList)
             {
                 PanelButtonQuest parBtn = questBtns.get(req.getID());
+                IGuiColor txLineCol = defaultTxLineCol;
                 
                 if(parBtn != null)
                 {
