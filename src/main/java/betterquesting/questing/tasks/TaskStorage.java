@@ -31,33 +31,33 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 		}
 		return json;
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagList json, boolean merge)
 	{
 		if(!merge) reset();
 		List<ITask> unassigned = new ArrayList<>();
-		
+
 		for(int i = 0; i < json.tagCount(); i++)
 		{
 			NBTTagCompound jsonTask = json.getCompoundTagAt(i);
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ITask task = TaskRegistry.INSTANCE.createNew(loc);
-			
+
 			if(task instanceof TaskPlaceholder)
 			{
 				NBTTagCompound jt2 = jsonTask.getCompoundTag("orig_data");
 				ResourceLocation loc2 = new ResourceLocation(jt2.getString("taskID"));
 				ITask t2 = TaskRegistry.INSTANCE.createNew(loc2);
-				
+
 				if(t2 != null) // Restored original task
 				{
 					jsonTask = jt2;
 					task = t2;
 				}
 			}
-			
+
 			if(task != null)
 			{
 				task.readFromNBT(jsonTask);
@@ -66,7 +66,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 				task = new TaskPlaceholder();
                 ((TaskPlaceholder)task).setTaskConfigData(jsonTask);
 			}
-				
+
             if(index >= 0)
             {
                 add(index, task);
@@ -75,17 +75,17 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
                 unassigned.add(task);
             }
 		}
-		
+
 		for(ITask t : unassigned) add(nextID(), t);
 	}
-	
+
 	@Override
 	public NBTTagList writeProgressToNBT(NBTTagList json, List<UUID> users)
 	{
 		for(DBEntry<ITask> entry : getEntries())
 		{
 			ResourceLocation taskID = entry.getValue().getFactoryID();
-			
+
 			NBTTagCompound qJson = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
 			qJson.setString("taskID", taskID.toString());
 			qJson.setInteger("index", entry.getID());
@@ -93,7 +93,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 		}
 		return json;
 	}
-	
+
 	@Override
 	public void readProgressFromNBT(NBTTagList json, boolean merge)
 	{
@@ -103,7 +103,7 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 			int index = jsonTask.hasKey("index", 99) ? jsonTask.getInteger("index") : -1;
 			ResourceLocation loc = new ResourceLocation(jsonTask.getString("taskID"));
 			ITask task = getValue(index);
-			
+
 			if(task instanceof TaskPlaceholder)
 			{
 				if(!task.getFactoryID().equals(loc))
@@ -111,16 +111,16 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 					((TaskPlaceholder)task).setTaskProgressData(jsonTask);
 				} else
 				{
-					task.readProgressFromNBT(jsonTask, false);
+					task.readProgressFromNBT(jsonTask, merge);
 				}
 			} else if(task != null)
 			{
 				if(task.getFactoryID().equals(loc))
 				{
-					task.readProgressFromNBT(jsonTask, false);
+					task.readProgressFromNBT(jsonTask, merge);
 				} else if(FactoryTaskPlaceholder.INSTANCE.getRegistryName().equals(loc)) // Restored placeholder progress
 				{
-					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), false);
+					task.readProgressFromNBT(jsonTask.getCompoundTag("orig_prog"), merge);
 				}
 			}
 		}

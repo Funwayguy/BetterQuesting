@@ -4,6 +4,7 @@ import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.BQLivingUpdateEvent;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.MarkDirtyPlayerEvent;
 import betterquesting.api.events.QuestEvent;
 import betterquesting.api.events.QuestEvent.Type;
 import betterquesting.api.placeholders.FluidPlaceholder;
@@ -297,7 +298,7 @@ public class EventHandler
         if (party != null)
             PartyManager.SyncPartyQuests(party.getValue(), false);
 	}
-	
+
 	@SubscribeEvent
 	public void onPlayerRespawn(PlayerRespawnEvent event)
 	{
@@ -474,5 +475,10 @@ public class EventHandler
         {
             MinecraftForge.EVENT_BUS.post(new BQLivingUpdateEvent(player));
         }
+    }
+
+    @SubscribeEvent
+    public void onMarkDirtyPlayer(MarkDirtyPlayerEvent event) {
+        SaveLoadHandler.INSTANCE.addDirtyPlayers(event.getDirtyPlayerIDs());
     }
 }
