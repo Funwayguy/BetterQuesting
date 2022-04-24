@@ -30,6 +30,7 @@ import betterquesting.client.gui2.editors.nbt.GuiNbtEditor;
 import betterquesting.client.gui2.party.GuiPartyCreate;
 import betterquesting.client.gui2.party.GuiPartyManage;
 import betterquesting.client.gui3.GuiStatus;
+import betterquesting.handlers.ConfigHandler;
 import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.network.handlers.NetChapterSync;
 import betterquesting.network.handlers.NetQuestSync;
@@ -65,12 +66,18 @@ public class GuiHome extends GuiScreenCanvas
 	}
 	
 	@Override
-	public void initPanel()
-	{
+	public void initPanel() {
 		super.initPanel();
-		
+
+		// If we come to home gui - we set skip home to false
+		if (BQ_Settings.skipHome) {
+			ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(false);
+			ConfigHandler.config.save();
+			BQ_Settings.skipHome = false;
+		}
+
 		PEventBroadcaster.INSTANCE.register((Consumer<PanelEvent>)this::onButtonPress, PEventButton.class);
-		
+
 		ResourceLocation homeGui = new ResourceLocation(QuestSettings.INSTANCE.getProperty(NativeProps.HOME_IMAGE));
 		IGuiTexture homeSplashBG = new SimpleTexture(homeGui, new GuiRectangle(0, 0, 256, 128));
 		IGuiTexture homeSplashTitle = new SimpleTexture(homeGui, new GuiRectangle(0, 128, 256, 128)).maintainAspect(true);
@@ -78,23 +85,23 @@ public class GuiHome extends GuiScreenCanvas
 		float ancY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_ANC_Y);
 		int offX = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_X);
 		int offY = QuestSettings.INSTANCE.getProperty(NativeProps.HOME_OFF_Y);
-		
+
 		// Background panel
 		CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
 		this.addPanel(bgCan);
-		
+
 		// Inner canvas bounds
 		CanvasEmpty inCan = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0));
 		bgCan.addPanel(inCan);
-		
+
 		CanvasTextured splashCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 32), 0), homeSplashBG);
 		inCan.addPanel(splashCan);
 		CanvasTextured splashTitle = new CanvasTextured(new GuiTransform(new Vector4f(ancX, ancY, ancX, ancY), new GuiPadding(offX, offY, -256 - offX, -128 - offY), 0), homeSplashTitle);
 		splashCan.addPanel(splashTitle);
-		
+
 		PanelButton btnExit = new PanelButton(new GuiTransform(new Vector4f(0F, 1F, 0.25F, 1F), new GuiPadding(0, -32, 0, 0), 0), 0, QuestTranslation.translate("betterquesting.home.exit"));
 		inCan.addPanel(btnExit);
-		
+
 		PanelButton btnQuests = new PanelButton(new GuiTransform(new Vector4f(0.25F, 1F, 0.5F, 1F), new GuiPadding(0, -32, 0, 0), 0), 1, QuestTranslation.translate("betterquesting.home.quests"));
 		inCan.addPanel(btnQuests);
 		PanelButton btnParty = new PanelButton(new GuiTransform(new Vector4f(0.5F, 1F, 0.75F, 1F), new GuiPadding(0, -32, 0, 0), 0), 2, QuestTranslation.translate("betterquesting.home.party"));
@@ -117,101 +124,96 @@ public class GuiHome extends GuiScreenCanvas
         };
         btnNotif.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.notification.tooltip")));
         inCan.addPanel(btnNotif);
-		
-		if(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
+
+		if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player))
 		{
 			PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, new GuiPadding(0, 0, -16, -16), 0), 4, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
 			inCan.addPanel(btnEdit);
 		}
-		
-		if(Minecraft.getMinecraft().isIntegratedServerRunning() && SaveLoadHandler.INSTANCE.hasUpdate())
+
+		if (Minecraft.getMinecraft().isIntegratedServerRunning() && SaveLoadHandler.INSTANCE.hasUpdate())
 		{
 			PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -16, 0, 16, 16, 0), 5, "");
 			tstBtn.setIcon(PresetIcon.ICON_NOTICE.getTexture(), PresetColor.UPDATE_NOTICE.getColor(), 0);
 			tstBtn.setTooltip(Collections.singletonList(QuestTranslation.translateTrimmed("betterquesting.tooltip.update_quests", true)));
 			inCan.addPanel(tstBtn);
 		}
-		
-		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+
+		if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment"))
         {
 		    PanelButton tstBtn = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -2, "?")
             {
                 @Override
-                public void onButtonClick()
-                {
+                public void onButtonClick() {
                     mc.displayGuiScreen(new GuiStatus(GuiHome.this));
                     //mc.displayGuiScreen(new GuiBuilderMain(GuiHome.this));
                 }
             }; // Test screen
-		    inCan.addPanel(tstBtn);
+            inCan.addPanel(tstBtn);
         }
-	}
-	
-	private void onButtonPress(PanelEvent event)
-	{
-	    if(!(event instanceof PEventButton)) return;
-	    
-		Minecraft mc = Minecraft.getMinecraft();
-		IPanelButton btn = ((PEventButton)event).getButton();
-		
-		if(btn.getButtonID() == 0) // Exit
-		{
-			mc.displayGuiScreen(this.parent);
-		} else if(btn.getButtonID() == 1) // Quests
-		{
-			mc.displayGuiScreen(new GuiQuestLines(this));
-		} else if(btn.getButtonID() == 2) // Party
-		{
-			DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(mc.player));
-			
-			if(party != null)
-			{
-				mc.displayGuiScreen(new GuiPartyManage(this));
-			} else
-			{
-				mc.displayGuiScreen(new GuiPartyCreate(this));
-			}
-		} else if(btn.getButtonID() == 3) // Theme
-		{
-			mc.displayGuiScreen(new GuiThemes(this));
-		} else if(btn.getButtonID() == 4) // Editor
-		{
-			mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (value) ->
-			{
-				QuestSettings.INSTANCE.readFromNBT(value);
+    }
+
+    private void onButtonPress(PanelEvent event) {
+        if (!(event instanceof PEventButton)) return;
+
+        Minecraft mc = Minecraft.getMinecraft();
+        IPanelButton btn = ((PEventButton) event).getButton();
+
+        if (btn.getButtonID() == 0) // Exit
+        {
+            mc.displayGuiScreen(this.parent);
+        } else if (btn.getButtonID() == 1) // Quests
+        {
+            mc.displayGuiScreen(new GuiQuestLines(this));
+        } else if (btn.getButtonID() == 2) // Party
+        {
+            DBEntry<IParty> party = PartyManager.INSTANCE.getParty(QuestingAPI.getQuestingUUID(mc.player));
+
+            if (party != null) {
+                mc.displayGuiScreen(new GuiPartyManage(this));
+            } else {
+                mc.displayGuiScreen(new GuiPartyCreate(this));
+            }
+        } else if (btn.getButtonID() == 3) // Theme
+        {
+            mc.displayGuiScreen(new GuiThemes(this));
+        } else if (btn.getButtonID() == 4) // Editor
+        {
+            mc.displayGuiScreen(new GuiNbtEditor(this, QuestSettings.INSTANCE.writeToNBT(new NBTTagCompound()), (value) ->
+            {
+                QuestSettings.INSTANCE.readFromNBT(value);
                 NetSettingSync.requestEdit();
-			}));
-		} else if(btn.getButtonID() == 5) // Update me
-		{
-			final File qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
-			
-			if(qFile.exists())
-			{
-				FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-					boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
-					boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
-					
-					NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
-					NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
-					QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
-					QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
-					QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
-					QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
-					
-					QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
-					QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
-					
-					NetSettingSync.sendSync(null);
+            }));
+        } else if (btn.getButtonID() == 5) // Update me
+        {
+            final File qFile = new File(BQ_Settings.defaultDir, "DefaultQuests.json");
+
+            if (qFile.exists()) {
+                FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
+                    boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
+                    boolean hardMode = QuestSettings.INSTANCE.getProperty(NativeProps.HARDCORE);
+
+                    NBTTagList jsonP = QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), null);
+                    NBTTagCompound j1 = NBTConverter.JSONtoNBT_Object(JsonHelper.ReadFromFile(qFile), new NBTTagCompound(), true);
+                    QuestSettings.INSTANCE.readFromNBT(j1.getCompoundTag("questSettings"));
+                    QuestDatabase.INSTANCE.readFromNBT(j1.getTagList("questDatabase", 10), false);
+                    QuestLineDatabase.INSTANCE.readFromNBT(j1.getTagList("questLines", 10), false);
+                    QuestDatabase.INSTANCE.readProgressFromNBT(jsonP, false);
+
+                    QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, editMode);
+                    QuestSettings.INSTANCE.setProperty(NativeProps.HARDCORE, hardMode);
+
+                    NetSettingSync.sendSync(null);
                     NetQuestSync.quickSync(-1, true, true);
                     NetChapterSync.sendSync(null, null);
-					
-					SaveLoadHandler.INSTANCE.resetUpdate();
-					SaveLoadHandler.INSTANCE.markDirty();
-				});
-				
-				//this.initGui(); // Reset the whole thing
-				mc.displayGuiScreen(null);
-			}
-		}
-	}
+
+                    SaveLoadHandler.INSTANCE.resetUpdate();
+                    SaveLoadHandler.INSTANCE.markDirty();
+                });
+
+                //this.initGui(); // Reset the whole thing
+                mc.displayGuiScreen(null);
+            }
+        }
+    }
 }

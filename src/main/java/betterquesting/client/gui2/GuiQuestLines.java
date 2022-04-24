@@ -85,7 +85,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private PanelButton claimAll;
 
     private PanelButton btnDesign;
-    
+
     private static boolean trayLock;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
@@ -104,6 +104,14 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     @Override
     public void initPanel() {
         super.initPanel();
+
+        GuiHome.bookmark = this;
+        // If we move to quest gui - we set skip home to true
+        if (!BQ_Settings.skipHome) {
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Skip Home", false).set(true);
+            ConfigHandler.config.save();
+            BQ_Settings.skipHome = true;
+        }
 
         if (selectedLineId >= 0) {
             selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);
@@ -135,8 +143,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnSearch.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.search")));
         cvBackground.addPanel(btnSearch);
         
-        if(canEdit)
-        {
+        if (canEdit) {
             PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
             btnEdit.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.edit")));
@@ -320,10 +327,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         }
 
         // === MISC ===
-        
+
         cvChapterTray.setTrayState(chapterTrayOpened, 1);
         cvDescTray.setTrayState(descTrayOpened, 1);
-        
+
         refreshChapterVisibility();
         refreshClaimAll();
         refreshDesigner();
@@ -398,7 +405,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             for (DBEntry<IQuestLineEntry> qID : ql.getEntries()) {
                 IQuest q = QuestDatabase.INSTANCE.getValue(qID.getID());
                 if (q == null) continue;
-
                 if (allComplete && !isQuestCompletedForQuestline(playerID, q)) allComplete = false;
                 if (!pendingClaim && q.canClaimBasically(mc.player)) pendingClaim = true;
                 if (!unlocked && q.isUnlocked(playerID)) unlocked = true;
@@ -458,7 +464,24 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             PanelButtonStorage<DBEntry<IQuestLine>> btnLine = new PanelButtonStorage<>(new GuiRectangle(16, n * 16, listW - 16, 16, 0), 1, QuestTranslation.translate(entry.getValue().getUnlocalisedName()), entry);
             btnLine.setTextAlignment(0);
             btnLine.setActive((vis & 4) == 0 && entry.getID() != selectedLineId);
-            btnLine.setCallback(this::openQuestLine);
+            btnLine.setCallback((q) -> {
+                btnListRef.forEach((b) -> {
+                    if (b.getStoredValue().getID() == selectedLineId) b.setActive(true);
+                });
+                btnLine.setActive(false);
+                selectedLine = q.getValue();
+                selectedLineId = q.getID();
+                cvQuest.setQuestLine(q.getValue());
+                icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
+                txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
+                if (!trayLock) {
+                    cvFrame.setTrayState(true, 200);
+                    cvChapterTray.setTrayState(false, 200);
+                    cvQuest.fitToWindow();
+                }
+                refreshClaimAll();
+                refreshDesigner();
+            });
             cvLines.addPanel(btnLine);
             btnListRef.add(btnLine);
         }
@@ -487,10 +510,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         refreshDesigner();
     }
     
-    private void refreshContent()
-    {
-        if(selectedLineId >= 0)
-        {
+    private void refreshContent() {
+        if (selectedLineId >= 0) {
             selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);
             if (selectedLine == null) selectedLineId = -1;
         } else {
