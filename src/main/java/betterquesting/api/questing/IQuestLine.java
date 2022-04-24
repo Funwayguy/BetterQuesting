@@ -11,6 +11,7 @@ public interface IQuestLine extends IDatabase<IQuestLineEntry>, INBTPartial<NBTT
     IQuestLineEntry createNew(int id);
     
 	String getUnlocalisedName();
+
 	String getUnlocalisedDescription();
 	
 	DBEntry<IQuestLineEntry> getEntryAt(int x, int y);

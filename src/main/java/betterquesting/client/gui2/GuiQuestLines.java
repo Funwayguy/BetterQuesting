@@ -53,6 +53,7 @@ import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.common.config.Configuration;
 import org.lwjgl.util.vector.Vector4f;
@@ -81,6 +82,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private PanelGeneric icoChapter;
     private PanelTextBox txTitle;
     private PanelTextBox txDesc;
+    private PanelTextBox completionText;
 
     private PanelButton claimAll;
 
@@ -88,6 +90,8 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
     private static boolean trayLock;
     private static boolean viewMode;
+    private int questsCompleted = 0;
+    private int totalQuests = 0;
     
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
@@ -161,6 +165,11 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         txTitle = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(60, 12, 0, -24), 0), "");
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
+
+        completionText = new PanelTextBox(new GuiTransform(new Vector4f(0F, 0F, 0.5F, 0F), new GuiPadding(214, 12, 0, -24), 0), "");
+        completionText.setColor(PresetColor.TEXT_HEADER.getColor());
+        cvBackground.addPanel(completionText);
+
 
         icoChapter = new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, 40, 8, 16, 16, 0), null);
         cvBackground.addPanel(icoChapter);
@@ -337,7 +346,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 cvQuest.updatePanelScroll();
             }
 
+            refreshQuestCompletion();
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
+            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         }
 
@@ -509,6 +520,33 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         scLines.setEnabled(cvLines.getScrollBounds().getHeight() > 0);
     }
 
+    private void refreshQuestCompletion() {
+        EntityPlayer player = mc.player;
+        UUID playerUUId = QuestingAPI.getQuestingUUID(player);
+
+        if(selectedLine == null) {
+            return;
+        }
+
+        questsCompleted = 0;
+        totalQuests = 0;
+
+        for(DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
+            IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(entry.getID());
+
+            if(quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
+                // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
+                totalQuests = totalQuests - Math.max(0, quest.getRequirements().length - 1);
+            }
+
+            totalQuests++;
+
+            if(quest.isComplete(playerUUId)) {
+                questsCompleted++;
+            }
+        }
+    }
+
     private void openQuestLine(DBEntry<IQuestLine> q) {
         selectedLine = q.getValue();
         selectedLineId = q.getID();
@@ -519,6 +557,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         cvQuest.setQuestLine(q.getValue());
         icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
         txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
+        refreshQuestCompletion();
+        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
+
         if(!trayLock)
         {
             cvFrame.setTrayState(true, 200);
@@ -548,6 +589,9 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         cvQuest.updatePanelScroll();
 
         if (selectedLine != null) {
+
+            refreshQuestCompletion();
+            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         } else {
