@@ -7,7 +7,6 @@ import betterquesting.api2.utils.ParticipantInfo;
 
 import javax.annotation.Nonnull;
 
-public interface ITaskTickable extends ITask
-{
+public interface ITaskTickable extends ITask {
     void tickTask(@Nonnull ParticipantInfo pInfo, DBEntry<IQuest> quest);
 }

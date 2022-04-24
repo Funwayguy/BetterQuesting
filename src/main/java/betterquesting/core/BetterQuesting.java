@@ -45,8 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = BetterQuesting.MODID, version = BetterQuesting.VERSION, name = BetterQuesting.NAME, guiFactory = "betterquesting.handlers.ConfigGuiFactory")
-public class BetterQuesting
-{
+public class BetterQuesting {
     public static final String VERSION = "@VERSION@";
     public static final String MODID = "betterquesting";
     public static final String NAME = "BetterQuesting";
@@ -56,86 +55,82 @@ public class BetterQuesting
     public static final String MODID_STD = "bq_standard";
 
     public static boolean hasJEI = false;
-    
+
     // TODO: Possibly make use of this in future
     private static final String MCL_API = "Yo1nkbXn7uVptLoL3GpkAaT7HsU8QFGJ";
-	
-	@Instance(MODID)
-	public static BetterQuesting instance;
-	
-	@SidedProxy(clientSide = "betterquesting.core.proxies.ClientProxy", serverSide = "betterquesting.core.proxies.CommonProxy")
-	public static CommonProxy proxy;
-	public SimpleNetworkWrapper network;
-	public static Logger logger;
-	
-	public static CreativeTabs tabQuesting = new CreativeTabQuesting();
-	
-	public static Item extraLife = new ItemExtraLife();
-	public static Item guideBook = new ItemGuideBook();
+
+    @Instance(MODID)
+    public static BetterQuesting instance;
+
+    @SidedProxy(clientSide = "betterquesting.core.proxies.ClientProxy", serverSide = "betterquesting.core.proxies.CommonProxy")
+    public static CommonProxy proxy;
+    public SimpleNetworkWrapper network;
+    public static Logger logger;
+
+    public static CreativeTabs tabQuesting = new CreativeTabQuesting();
+
+    public static Item extraLife = new ItemExtraLife();
+    public static Item guideBook = new ItemGuideBook();
     public static Item lootChest = new ItemLootChest();
-	
-	public static Block submitStation = new BlockSubmitStation();
-    
+
+    public static Block submitStation = new BlockSubmitStation();
+
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event)
-    {
-    	logger = event.getModLog();
-    	network = NetworkRegistry.INSTANCE.newSimpleChannel("BQ_NET_CHAN");
-    	
-    	ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
-    	ConfigHandler.initConfigs();
-    	
-    	proxy.registerHandlers();
-    	
-    	PacketTypeRegistry.INSTANCE.init();
-    	
-    	network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
-    	network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
-    
+    public void preInit(FMLPreInitializationEvent event) {
+        logger = event.getModLog();
+        network = NetworkRegistry.INSTANCE.newSimpleChannel("BQ_NET_CHAN");
+
+        ConfigHandler.config = new Configuration(event.getSuggestedConfigurationFile(), true);
+        ConfigHandler.initConfigs();
+
+        proxy.registerHandlers();
+
+        PacketTypeRegistry.INSTANCE.init();
+
+        network.registerMessage(PacketQuesting.HandleClient.class, PacketQuesting.class, 0, Side.CLIENT);
+        network.registerMessage(PacketQuesting.HandleServer.class, PacketQuesting.class, 0, Side.SERVER);
+
         CapabilityProviderQuestCache.register();
     }
-    
+
     @EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-    	FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
-    	
-    	GameRegistry.registerTileEntity(TileSubmitStation.class, new ResourceLocation(MODID + ":submit_station"));
-    	
-    	EntityRegistry.registerModEntity(new ResourceLocation(MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
+    public void init(FMLInitializationEvent event) {
+        FluidRegistry.registerFluid(FluidPlaceholder.fluidPlaceholder);
+
+        GameRegistry.registerTileEntity(TileSubmitStation.class, new ResourceLocation(MODID + ":submit_station"));
+
+        EntityRegistry.registerModEntity(new ResourceLocation(MODID + ":placeholder"), EntityPlaceholder.class, "placeholder", 0, this, 16, 1, false);
     }
-    
+
     @EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
+    public void postInit(FMLPostInitializationEvent event) {
         hasJEI = Loader.isModLoaded("jei");
         proxy.registerExpansion();
     }
-	
-	@EventHandler
-	public void serverStart(FMLServerStartingEvent event)
-	{
-		MinecraftServer server = event.getServer();
-		ICommandManager command = server.getCommandManager();
-		ServerCommandManager manager = (ServerCommandManager) command;
 
-		manager.registerCommand(new BQ_CommandAdmin());
-		manager.registerCommand(new BQ_CommandUser());
-		manager.registerCommand(new BQ_CopyProgress());
-    
-		manager.registerCommand(new BQS_Commands());
-		manager.registerCommand(new BqsComDumpAdvancements());
+    @EventHandler
+    public void serverStart(FMLServerStartingEvent event) {
+        MinecraftServer server = event.getServer();
+        ICommandManager command = server.getCommandManager();
+        ServerCommandManager manager = (ServerCommandManager) command;
 
-		if((Boolean)Launch.blackboard.get("fml.deobfuscatedEnvironment")) manager.registerCommand(new BQ_CommandDebug());
-		
-		SaveLoadHandler.INSTANCE.loadDatabases(server);
+        manager.registerCommand(new BQ_CommandAdmin());
+        manager.registerCommand(new BQ_CommandUser());
+        manager.registerCommand(new BQ_CopyProgress());
+
+        manager.registerCommand(new BQS_Commands());
+        manager.registerCommand(new BqsComDumpAdvancements());
+
+        if ((Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+            manager.registerCommand(new BQ_CommandDebug());
+
+        SaveLoadHandler.INSTANCE.loadDatabases(server);
         LootSaveLoad.INSTANCE.LoadLoot(event.getServer());
-	}
-	
-	@EventHandler
-	public void serverStop(FMLServerStoppedEvent event)
-	{
-		SaveLoadHandler.INSTANCE.unloadDatabases();
+    }
+
+    @EventHandler
+    public void serverStop(FMLServerStoppedEvent event) {
+        SaveLoadHandler.INSTANCE.unloadDatabases();
         LootSaveLoad.INSTANCE.UnloadLoot();
-	}
+    }
 }

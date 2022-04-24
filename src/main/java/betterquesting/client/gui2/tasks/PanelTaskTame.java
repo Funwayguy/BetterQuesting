@@ -17,38 +17,34 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.util.ResourceLocation;
 
-public class PanelTaskTame extends CanvasEmpty
-{
+public class PanelTaskTame extends CanvasEmpty {
     private final TaskTame task;
-    
-    public PanelTaskTame(IGuiRect rect, TaskTame task)
-    {
+
+    public PanelTaskTame(IGuiRect rect, TaskTame task) {
         super(rect);
         this.task = task;
     }
-    
+
     @Override
-    public void initPanel()
-    {
+    public void initPanel() {
         super.initPanel();
-    
+
         ResourceLocation targetRes = new ResourceLocation(task.idName);
         Entity target;
-        
-        if(EntityList.isRegistered(targetRes))
-        {
+
+        if (EntityList.isRegistered(targetRes)) {
             target = EntityList.createEntityByIDFromName(targetRes, Minecraft.getMinecraft().world);
-            if(target != null) target.readFromNBT(task.targetTags);
-        } else
-        {
+            if (target != null) target.readFromNBT(task.targetTags);
+        } else {
             target = null;
         }
-        
+
         int progress = task.getUsersProgress(QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player));
-		String tnm = target != null? target.getName() : task.idName;
-        
+        String tnm = target != null ? target.getName() : task.idName;
+
         this.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 0, 0, -16), 0), QuestTranslation.translate("bq_standard.gui.tame", tnm) + " " + progress + "/" + task.required).setAlignment(1).setColor(PresetColor.TEXT_MAIN.getColor()));
-        
-        if(target != null) this.addPanel(new PanelEntityPreview(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 0, 0), 0), target).setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float)(Minecraft.getSystemTime()%30000L / 30000D * 360D))));
+
+        if (target != null)
+            this.addPanel(new PanelEntityPreview(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 16, 0, 0), 0), target).setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float) (Minecraft.getSystemTime() % 30000L / 30000D * 360D))));
     }
 }

@@ -22,16 +22,16 @@ class NaiveLookupLogic<T> extends LookupLogic<T> {
 
     @Override
     public List<DBEntry<T>> bulkLookup(int[] keys) {
-        if(backingMap == null) {
+        if (backingMap == null) {
             backingMap = new TIntObjectHashMap<>(simpleDatabase.mapDB.size());
             for (DBEntry<T> entry : getRefCache()) {
                 backingMap.put(entry.getID(), entry);
             }
         }
         List<DBEntry<T>> list = new ArrayList<>(keys.length);
-        for(int k : keys) {
+        for (int k : keys) {
             final DBEntry<T> element = backingMap.get(k);
-            if(element != null) {
+            if (element != null) {
                 list.add(element);
             }
         }

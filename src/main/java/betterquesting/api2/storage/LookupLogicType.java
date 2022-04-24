@@ -3,7 +3,8 @@ package betterquesting.api2.storage;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static betterquesting.api2.storage.SimpleDatabase.*;
+import static betterquesting.api2.storage.SimpleDatabase.CACHE_MAX_SIZE;
+import static betterquesting.api2.storage.SimpleDatabase.SPARSE_RATIO;
 
 enum LookupLogicType {
 
@@ -19,8 +20,8 @@ enum LookupLogicType {
     }
 
     static LookupLogicType determine(SimpleDatabase<?> db) {
-        for(LookupLogicType type : values()) {
-            if(type.shouldUse.test(db))
+        for (LookupLogicType type : values()) {
+            if (type.shouldUse.test(db))
                 return type;
         }
         return Naive;

@@ -16,58 +16,53 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class ComponentRegistry
-{
+public class ComponentRegistry {
     public static final ComponentRegistry INSTANCE = new ComponentRegistry();
-    
-    private final HashMap<ResourceLocation, BiFunction<IGuiRect,NBTTagCompound,IGuiPanel>> REG_MAP = new HashMap<>();
+
+    private final HashMap<ResourceLocation, BiFunction<IGuiRect, NBTTagCompound, IGuiPanel>> REG_MAP = new HashMap<>();
     private final HashMap<ResourceLocation, NBTTagCompound> TEMPLATE_TAGS = new HashMap<>();
-    
-    public ComponentRegistry()
-    {
+
+    public ComponentRegistry() {
         init();
     }
-    
-    public void register(@Nonnull ResourceLocation idname, @Nonnull BiFunction<IGuiRect,NBTTagCompound,IGuiPanel> factory, @Nonnull NBTTagCompound template)
-    {
-        if(REG_MAP.containsKey(idname))
-        {
+
+    public void register(@Nonnull ResourceLocation idname, @Nonnull BiFunction<IGuiRect, NBTTagCompound, IGuiPanel> factory, @Nonnull NBTTagCompound template) {
+        if (REG_MAP.containsKey(idname)) {
             throw new IllegalArgumentException("Tried to register duplicate GUI component ID");
         }
-        
+
         REG_MAP.put(idname, factory);
         TEMPLATE_TAGS.put(idname, template);
     }
-    
+
     @Nonnull
-    public IGuiPanel createNew(@Nonnull ResourceLocation idName, @Nonnull IGuiRect rect, @Nullable NBTTagCompound tag)
-    {
-        BiFunction<IGuiRect,NBTTagCompound,IGuiPanel> factory = REG_MAP.get(idName);
-        if(factory == null) return new CanvasTextured(rect, ThemeRegistry.INSTANCE.getTexture(null)); // TODO: Return placeholder panel
+    public IGuiPanel createNew(@Nonnull ResourceLocation idName, @Nonnull IGuiRect rect, @Nullable NBTTagCompound tag) {
+        BiFunction<IGuiRect, NBTTagCompound, IGuiPanel> factory = REG_MAP.get(idName);
+        if (factory == null)
+            return new CanvasTextured(rect, ThemeRegistry.INSTANCE.getTexture(null)); // TODO: Return placeholder panel
         IGuiPanel pan = factory.apply(rect, tag);
         //if(tag != null) pan.readFromNBT(tag);
         return pan;
     }
-    
+
     @Nonnull
-    public NBTTagCompound getTemplateTag(@Nonnull ResourceLocation idName)
-    {
+    public NBTTagCompound getTemplateTag(@Nonnull ResourceLocation idName) {
         NBTTagCompound tag = TEMPLATE_TAGS.get(idName);
         return tag == null ? new NBTTagCompound() : tag.copy();
     }
-    
-    public List<ResourceLocation> getRegisteredIDs()
-    {
+
+    public List<ResourceLocation> getRegisteredIDs() {
         return new ArrayList<>(REG_MAP.keySet());
     }
-    
-    private void init()
-    {
+
+    private void init() {
         //register(new ResourceLocation("betterquesting", "canvas_empty"), CanvasEmpty::new, new NBTTagCompound());
-        
+
         NBTTagCompound refTag = new NBTTagCompound();
         //refTag.setString("texture", PresetTexture.PANEL_MAIN.getKey().toString());
         register(new ResourceLocation("betterquesting", "canvas_textured"), (rect, tag) -> new CanvasTextured(rect, PresetTexture.PANEL_MAIN.getTexture()), refTag);
-        register(new ResourceLocation("betterquesting", "panel_button"), (rect, tag) -> {return new PanelButton(rect, -1, "New Button");}, refTag);
+        register(new ResourceLocation("betterquesting", "panel_button"), (rect, tag) -> {
+            return new PanelButton(rect, -1, "New Button");
+        }, refTag);
     }
 }

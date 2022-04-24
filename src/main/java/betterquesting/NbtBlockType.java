@@ -15,28 +15,24 @@ public class NbtBlockType // TODO: Make a version of this for the base mod and g
     public int n = 1;
     public String oreDict = "";
     public NBTTagCompound tags = new NBTTagCompound();
-    
-    public NbtBlockType()
-    {
+
+    public NbtBlockType() {
     }
-    
-    public NbtBlockType(Block block)
-    {
+
+    public NbtBlockType(Block block) {
         this.b = block;
         this.oreDict = "";
         this.tags = new NBTTagCompound();
     }
-    
-    public NbtBlockType(IBlockState state)
-    {
+
+    public NbtBlockType(IBlockState state) {
         this.b = state.getBlock();
         this.m = b.getMetaFromState(state);
         this.oreDict = "";
         this.tags = new NBTTagCompound();
     }
-    
-    public NBTTagCompound writeToNBT(NBTTagCompound json)
-    {
+
+    public NBTTagCompound writeToNBT(NBTTagCompound json) {
         json.setString("blockID", b.getRegistryName().toString());
         json.setInteger("meta", m);
         json.setTag("nbt", tags);
@@ -44,29 +40,25 @@ public class NbtBlockType // TODO: Make a version of this for the base mod and g
         json.setString("oreDict", oreDict);
         return json;
     }
-    
-    public void readFromNBT(NBTTagCompound json)
-    {
+
+    public void readFromNBT(NBTTagCompound json) {
         b = Block.REGISTRY.getObject(new ResourceLocation(json.getString("blockID")));
         m = json.getInteger("meta");
         tags = json.getCompoundTag("nbt");
         n = json.getInteger("amount");
         oreDict = json.getString("oreDict");
     }
-    
-    public BigItemStack getItemStack()
-    {
+
+    public BigItemStack getItemStack() {
         BigItemStack stack;
-        
-        if(b == null)
-        {
+
+        if (b == null) {
             stack = new BigItemStack(ItemPlaceholder.placeholder, n, 0);
             stack.getBaseStack().setStackDisplayName("NULL");
-        } else
-        {
+        } else {
             stack = new BigItemStack(b, n, m);
         }
-        
+
         stack.setOreDict(oreDict);
         return stack;
     }

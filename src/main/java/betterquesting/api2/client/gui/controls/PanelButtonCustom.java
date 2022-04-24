@@ -46,15 +46,15 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
     @Override
     public void drawPanel(int mx, int my, float partialTick) {
         IGuiRect bounds = this.getTransform();
-        int curState = !isActive()? 0 : (bounds.contains(mx, my)? 2 : 1);
+        int curState = !isActive() ? 0 : (bounds.contains(mx, my) ? 2 : 1);
 
-        if(curState == 2 && pendingRelease && Mouse.isButtonDown(0)) {
+        if (curState == 2 && pendingRelease && Mouse.isButtonDown(0)) {
             curState = 0;
         }
 
         IGuiTexture t = texStates[curState];
 
-        if(t != null) { // Support for text or icon only buttons in one or more states.
+        if (t != null) { // Support for text or icon only buttons in one or more states.
             t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
         }
         super.drawPanel(mx, my, partialTick);
@@ -62,7 +62,7 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
 
     @Override
     public void onButtonClick() {
-        if(callback != null) callback.accept(this);
+        if (callback != null) callback.accept(this);
     }
 
     @Override
@@ -103,8 +103,7 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
         this.callback = callback;
     }
 
-    public PanelButtonCustom setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover)
-    {
+    public PanelButtonCustom setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover) {
         this.texStates[0] = disabled;
         this.texStates[1] = idle;
         this.texStates[2] = hover;

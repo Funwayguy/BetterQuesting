@@ -6,8 +6,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.UUID;
 
-public interface IFluidTask extends ITask
-{
-	boolean canAcceptFluid(UUID owner, DBEntry<IQuest> quest, FluidStack fluid);
-	FluidStack submitFluid(UUID owner, DBEntry<IQuest> quest, FluidStack fluid);
+public interface IFluidTask extends ITask {
+    boolean canAcceptFluid(UUID owner, DBEntry<IQuest> quest, FluidStack fluid);
+
+    FluidStack submitFluid(UUID owner, DBEntry<IQuest> quest, FluidStack fluid);
 }

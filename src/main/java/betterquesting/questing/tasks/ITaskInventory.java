@@ -7,7 +7,6 @@ import betterquesting.api2.utils.ParticipantInfo;
 
 import javax.annotation.Nonnull;
 
-public interface ITaskInventory extends ITask
-{
+public interface ITaskInventory extends ITask {
     void onInventoryChange(@Nonnull DBEntry<IQuest> quest, @Nonnull ParticipantInfo pInfo);
 }

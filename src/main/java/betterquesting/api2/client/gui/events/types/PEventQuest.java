@@ -8,28 +8,23 @@ import java.util.Set;
 import java.util.TreeSet;
 
 // Use whenever one or more quests change
-public class PEventQuest extends PanelEvent
-{
+public class PEventQuest extends PanelEvent {
     private final Set<Integer> questIDs;
-    
-    public PEventQuest(int questID)
-    {
+
+    public PEventQuest(int questID) {
         this.questIDs = Collections.singleton(questID);
     }
-    
-    public PEventQuest(Collection<Integer> questIDs)
-    {
+
+    public PEventQuest(Collection<Integer> questIDs) {
         this.questIDs = Collections.unmodifiableSet(new TreeSet<>(questIDs));
     }
-    
-    public Set<Integer> getQuestID()
-    {
+
+    public Set<Integer> getQuestID() {
         return this.questIDs;
     }
-    
+
     @Override
-    public boolean canCancel()
-    {
+    public boolean canCancel() {
         return false;
     }
 }

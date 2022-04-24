@@ -92,7 +92,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     private static boolean viewMode;
     private int questsCompleted = 0;
     private int totalQuests = 0;
-    
+
     private final List<PanelButtonStorage<DBEntry<IQuestLine>>> btnListRef = new ArrayList<>();
 
     public GuiQuestLines(GuiScreen parent) {
@@ -148,7 +148,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnSearch.setClickAction(this::openSearch);
         btnSearch.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.search")));
         cvBackground.addPanel(btnSearch);
-        
+
         if (canEdit) {
             PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
             btnEdit.setClickAction((b) -> mc.displayGuiScreen(new GuiQuestLinesEditor(this)));
@@ -265,17 +265,16 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         claimAll.setClickAction((b) -> {
             if (BQ_Settings.claimAllConfirmation) {
                 openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.claim_all_warning") + "\n\n" + QuestTranslation.translate("betterquesting.gui.claim_all_confirm"), PresetIcon.ICON_CHEST_ALL.getTexture(), integer -> {
-                    if (integer == 1){
+                    if (integer == 1) {
                         ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Claim all requires confirmation", true).set(false);
                         ConfigHandler.config.save();
                         ConfigHandler.initConfigs();
                     }
-                    if(integer <= 1){
+                    if (integer <= 1) {
                         claimAll();
                     }
                 }, QuestTranslation.translate("gui.yes"), QuestTranslation.translate("betterquesting.gui.yes_always"), QuestTranslation.translate("gui.no")));
-            }
-            else {
+            } else {
                 claimAll();
             }
         });
@@ -363,19 +362,19 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
     }
 
     private void claimAll() {
-        if(cvQuest.getQuestButtons().isEmpty()) {
+        if (cvQuest.getQuestButtons().isEmpty()) {
             return;
         }
         List<Integer> claimIdList = new ArrayList<>();
-        for(PanelButtonQuest pbQuest : cvQuest.getQuestButtons()) {
+        for (PanelButtonQuest pbQuest : cvQuest.getQuestButtons()) {
             IQuest q = pbQuest.getStoredValue().getValue();
-            if(q.getRewards().size() > 0 && q.canClaim(mc.player)) {
+            if (q.getRewards().size() > 0 && q.canClaim(mc.player)) {
                 claimIdList.add(pbQuest.getStoredValue().getID());
             }
         }
 
         int[] cIDs = new int[claimIdList.size()];
-        for(int i = 0; i < cIDs.length; i++) {
+        for (int i = 0; i < cIDs.length; i++) {
             cIDs[i] = claimIdList.get(i);
         }
 
@@ -428,7 +427,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 complete = true;
             }
 
-            if(viewMode) {
+            if (viewMode) {
                 show = true;
             }
 
@@ -524,24 +523,24 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         EntityPlayer player = mc.player;
         UUID playerUUId = QuestingAPI.getQuestingUUID(player);
 
-        if(selectedLine == null) {
+        if (selectedLine == null) {
             return;
         }
 
         questsCompleted = 0;
         totalQuests = 0;
 
-        for(DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
+        for (DBEntry<IQuestLineEntry> entry : selectedLine.getEntries()) {
             IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(entry.getID());
 
-            if(quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
+            if (quest.getProperty(NativeProps.LOGIC_QUEST) == EnumLogic.XOR) {
                 // Subtract the number of requirements - 1 to simulate only doing 1 task for XOR requirements
                 totalQuests = totalQuests - Math.max(0, quest.getRequirements().length - 1);
             }
 
             totalQuests++;
 
-            if(quest.isComplete(playerUUId)) {
+            if (quest.isComplete(playerUUId)) {
                 questsCompleted++;
             }
         }
@@ -560,8 +559,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         refreshQuestCompletion();
         completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
 
-        if(!trayLock)
-        {
+        if (!trayLock) {
             cvFrame.setTrayState(true, 200);
             cvChapterTray.setTrayState(false, 200);
             cvQuest.fitToWindow();
@@ -569,7 +567,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         refreshClaimAll();
         refreshDesigner();
     }
-    
+
     private void refreshContent() {
         if (selectedLineId >= 0) {
             selectedLine = QuestLineDatabase.INSTANCE.getValue(selectedLineId);

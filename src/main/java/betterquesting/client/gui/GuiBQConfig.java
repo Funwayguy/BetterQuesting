@@ -14,17 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
-public class GuiBQConfig extends GuiConfig
-{
-	public GuiBQConfig(GuiScreen parent)
-	{
-		super(parent, getCategories(ConfigHandler.config), BetterQuesting.MODID, false, false, BetterQuesting.NAME);
-	}
-	
-	private static List<IConfigElement> getCategories(Configuration config)
-	{
-		List<IConfigElement> cats = new ArrayList<>();
-		config.getCategoryNames().forEach((s) -> cats.add(new ConfigElement(config.getCategory(s))));
-		return cats;
-	}
+public class GuiBQConfig extends GuiConfig {
+    public GuiBQConfig(GuiScreen parent) {
+        super(parent, getCategories(ConfigHandler.config), BetterQuesting.MODID, false, false, BetterQuesting.NAME);
+    }
+
+    private static List<IConfigElement> getCategories(Configuration config) {
+        List<IConfigElement> cats = new ArrayList<>();
+        config.getCategoryNames().forEach((s) -> cats.add(new ConfigElement(config.getCategory(s))));
+        return cats;
+    }
 }

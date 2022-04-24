@@ -17,48 +17,41 @@ import net.minecraft.util.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FactorySlideShowTexture implements IFactoryData<IGuiTexture, JsonObject>
-{
+public class FactorySlideShowTexture implements IFactoryData<IGuiTexture, JsonObject> {
     public static final FactorySlideShowTexture INSTANCE = new FactorySlideShowTexture();
-    
+
     private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_slides");
     private static final IGuiTexture NULL_TX = new SimpleTexture(PresetTexture.TX_NULL, new GuiRectangle(0, 0, 16, 16)).maintainAspect(false);
-    
+
     @Override
-    public SlideShowTexture loadFromData(JsonObject data)
-    {
+    public SlideShowTexture loadFromData(JsonObject data) {
         List<IGuiTexture> layers = new ArrayList<>();
-        
+
         float interval = JsonHelper.GetNumber(data, "interval", 1F).floatValue();
-        
+
         JsonArray jAry = JsonHelper.GetArray(data, "slides");
-        for(JsonElement je : jAry)
-        {
-            if(!je.isJsonObject()) continue;
+        for (JsonElement je : jAry) {
+            if (!je.isJsonObject()) continue;
             JsonObject jo = je.getAsJsonObject();
-            
-            try
-            {
+
+            try {
                 IGuiTexture tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getTexReg().createNew(new ResourceLocation(JsonHelper.GetString(jo, "textureType", "null")), jo);
                 layers.add(tFact);
-            } catch(Exception ignored)
-            {
+            } catch (Exception ignored) {
                 layers.add(NULL_TX);
             }
         }
-        
+
         return new SlideShowTexture(interval, layers.toArray(new IGuiTexture[0]));
     }
-    
+
     @Override
-    public ResourceLocation getRegistryName()
-    {
+    public ResourceLocation getRegistryName() {
         return RES_ID;
     }
-    
+
     @Override
-    public SlideShowTexture createNew()
-    {
+    public SlideShowTexture createNew() {
         return new SlideShowTexture(1F);
     }
 }

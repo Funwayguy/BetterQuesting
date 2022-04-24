@@ -7,12 +7,10 @@ import net.minecraft.nbt.NBTBase;
 
 import javax.annotation.Nullable;
 
-public class GArgsNBT<T extends NBTBase> extends GArgsCallback<T>
-{
+public class GArgsNBT<T extends NBTBase> extends GArgsCallback<T> {
     public final INbtDoc doc;
-    
-    public GArgsNBT(@Nullable GuiScreen parent, T nbt, ICallback<T> callback, INbtDoc doc)
-    {
+
+    public GArgsNBT(@Nullable GuiScreen parent, T nbt, ICallback<T> callback, INbtDoc doc) {
         super(parent, nbt, callback);
         this.doc = doc;
     }

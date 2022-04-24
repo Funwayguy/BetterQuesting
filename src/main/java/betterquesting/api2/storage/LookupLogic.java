@@ -28,7 +28,7 @@ abstract class LookupLogic<T> {
 
     protected void computeRefCache() {
         List<DBEntry<T>> temp = new ArrayList<>();
-        for(Map.Entry<Integer, T> entry : simpleDatabase.mapDB.entrySet()) {
+        for (Map.Entry<Integer, T> entry : simpleDatabase.mapDB.entrySet()) {
             temp.add(new DBEntry<>(entry.getKey(), entry.getValue()));
         }
         refCache = Collections.unmodifiableList(temp);

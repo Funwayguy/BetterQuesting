@@ -18,30 +18,25 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
-public class CommonProxy
-{
-	public boolean isClient()
-	{
-		return false;
-	}
-	
-	public void registerHandlers()
-	{
-		ExpansionLoader.INSTANCE.initCommonAPIs();
-		
-		MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
-        MinecraftForge.EVENT_BUS.register(new LootRegistry());
-		MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler.INSTANCE);
-		
-		NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
-	}
-	
-	public void registerRenderers()
-	{
-	}
+public class CommonProxy {
+    public boolean isClient() {
+        return false;
+    }
 
-    public void registerExpansion()
-    {
+    public void registerHandlers() {
+        ExpansionLoader.INSTANCE.initCommonAPIs();
+
+        MinecraftForge.EVENT_BUS.register(EventHandler.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(new LootRegistry());
+        MinecraftForge.TERRAIN_GEN_BUS.register(EventHandler.INSTANCE);
+
+        NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
+    }
+
+    public void registerRenderers() {
+    }
+
+    public void registerExpansion() {
         IRegistry<IFactoryData<ITask, NBTTagCompound>, ITask> taskReg = QuestingAPI.getAPI(ApiReference.TASK_REG);
         taskReg.register(FactoryTaskBlockBreak.INSTANCE);
         taskReg.register(FactoryTaskCheckbox.INSTANCE);

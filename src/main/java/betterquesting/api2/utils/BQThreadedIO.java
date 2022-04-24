@@ -1,6 +1,9 @@
 package betterquesting.api2.utils;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class BQThreadedIO {
 
@@ -14,41 +17,34 @@ public class BQThreadedIO {
     }
 
     public void init(int threads) {
-        if(exService == null || exService.isShutdown()) {
+        if (exService == null || exService.isShutdown()) {
             exService = threads == 1
                     ? Executors.newSingleThreadExecutor()
                     : Executors.newFixedThreadPool(threads);
         }
     }
 
-    public void shutdown()
-    {
+    public void shutdown() {
         exService.shutdownNow();
     }
-    
-    public void enqueue(Runnable job)
-    {
-        if(exService == null || exService.isShutdown())
-        {
+
+    public void enqueue(Runnable job) {
+        if (exService == null || exService.isShutdown()) {
             throw new RuntimeException("Attempted to schedule task before service was initialised!");
-        } else if(job == null)
-        {
+        } else if (job == null) {
             throw new NullPointerException("Attempted to schedule null job!");
         }
-        
+
         exService.submit(job);
     }
-    
-    public <T> Future<T> enqueue(Callable<T> job)
-    {
-        if(exService == null || exService.isShutdown())
-        {
+
+    public <T> Future<T> enqueue(Callable<T> job) {
+        if (exService == null || exService.isShutdown()) {
             throw new RuntimeException("Attempted to schedule task before service was initialised!");
-        } else if(job == null)
-        {
+        } else if (job == null) {
             throw new NullPointerException("Attempted to schedule null job!");
         }
-        
+
         return exService.submit(job);
     }
 }

@@ -168,7 +168,8 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
                 btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_always")));
             else if (quest.getRequirementType(arrReqID) == IQuest.RequirementType.IMPLICIT)
                 btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_implicit")));
-            else btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_hidden")));
+            else
+                btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_hidden")));
             canvasPreReq.addPanel(btnType);
 
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));

@@ -16,65 +16,56 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
-public class RewardRecipe implements IReward
-{
+public class RewardRecipe implements IReward {
     public String recipeNames = "minecraft:crafting_table\nminecraft:chest";
-    
+
     @Override
-    public String getUnlocalisedName()
-    {
+    public String getUnlocalisedName() {
         return "bq_standard.reward.recipe";
     }
-    
+
     @Override
-    public ResourceLocation getFactoryID()
-    {
+    public ResourceLocation getFactoryID() {
         return FactoryRewardRecipe.INSTANCE.getRegistryName();
     }
-    
+
     @Override
-    public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest)
-    {
+    public boolean canClaim(EntityPlayer player, DBEntry<IQuest> quest) {
         return true;
     }
-    
+
     @Override
-    public void claimReward(EntityPlayer player, DBEntry<IQuest> quest)
-    {
+    public void claimReward(EntityPlayer player, DBEntry<IQuest> quest) {
         String[] recSplit = recipeNames.split("\n");
         ResourceLocation[] loc = new ResourceLocation[recSplit.length];
-        
-        for(int i = 0; i < recSplit.length; i++) loc[i] = new ResourceLocation(recSplit[i]);
-        
+
+        for (int i = 0; i < recSplit.length; i++) loc[i] = new ResourceLocation(recSplit[i]);
+
         player.unlockRecipes(loc);
     }
-    
+
     @Nullable
     @Override
     @SideOnly(Side.CLIENT)
-    public IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest)
-    {
+    public IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest) {
         return new PanelRewardRecipe(rect, this);
     }
-    
+
     @Nullable
     @Override
     @SideOnly(Side.CLIENT)
-    public GuiScreen getRewardEditor(GuiScreen parent, DBEntry<IQuest> quest)
-    {
+    public GuiScreen getRewardEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return null;
     }
-    
+
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
-    {
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         nbt.setString("recipes", recipeNames);
         return nbt;
     }
-    
+
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
+    public void readFromNBT(NBTTagCompound nbt) {
         recipeNames = nbt.getString("recipes");
     }
 }

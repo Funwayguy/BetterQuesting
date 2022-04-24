@@ -1,16 +1,18 @@
 [
-{
-  "modid": "betterquesting",
-  "name": "Better Questing",
-  "description": "A new and improved questing mod for Minecraft pack creators",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["Funwayguy"],
-  "credits": "Thank you Patreons for all your support <3",
-  "logoFile": "title.png",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "betterquesting",
+    "name": "Better Questing",
+    "description": "A new and improved questing mod for Minecraft pack creators",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Funwayguy"
+    ],
+    "credits": "Thank you Patreons for all your support <3",
+    "logoFile": "title.png",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]

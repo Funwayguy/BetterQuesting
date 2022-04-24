@@ -71,7 +71,7 @@ public class GuiQuestSearch extends GuiScreenCanvas {
         canvasQuestSearch.setScrollDriverY(scDb);
     }
 
-    private CanvasQuestSearch createSearchCanvas(){
+    private CanvasQuestSearch createSearchCanvas() {
 
         CanvasQuestSearch canvasQuestSearch = new CanvasQuestSearch(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 32, 8, 24), 0), mc.player);
         canvasQuestSearch.setQuestOpenCallback(questSearchEntry -> {
@@ -92,7 +92,7 @@ public class GuiQuestSearch extends GuiScreenCanvas {
         this.callback = callback;
     }
 
-    private void acceptCallback(QuestSearchEntry questSearchEntry){
+    private void acceptCallback(QuestSearchEntry questSearchEntry) {
         if (callback != null) callback.accept(questSearchEntry);
     }
 

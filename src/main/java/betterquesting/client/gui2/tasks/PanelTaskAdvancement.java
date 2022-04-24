@@ -17,40 +17,36 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextFormatting;
 
-public class PanelTaskAdvancement extends CanvasEmpty
-{
+public class PanelTaskAdvancement extends CanvasEmpty {
     private final TaskAdvancement task;
-    
-    public PanelTaskAdvancement(IGuiRect rect, TaskAdvancement task)
-    {
+
+    public PanelTaskAdvancement(IGuiRect rect, TaskAdvancement task) {
         super(rect);
         this.task = task;
     }
-    
+
     @Override
-    public void initPanel()
-    {
+    public void initPanel() {
         super.initPanel();
-        
+
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         boolean isComplete = task.isComplete(QuestingAPI.getQuestingUUID(player));
-        
+
         String title = "" + task.advID;
         String desc = "?";
         BigItemStack icon = new BigItemStack(ItemPlaceholder.placeholder);
-        
+
         Advancement adv = task.advID == null ? null : player.connection.getAdvancementManager().getAdvancementList().getAdvancement(task.advID);
-        
-        if(adv != null && adv.getDisplay() != null)
-        {
+
+        if (adv != null && adv.getDisplay() != null) {
             title = adv.getDisplay().getTitle().getFormattedText();
             desc = adv.getDisplay().getDescription().getFormattedText();
             icon = new BigItemStack(adv.getDisplay().getIcon());
         }
-        
+
         this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, 24, 24, 0), PresetTexture.ITEM_FRAME.getTexture()));
         this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, 24, 24, -1), new ItemTexture(icon)));
-        
+
         this.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(28, 2, 0, -12), 0), title).setColor(PresetColor.TEXT_MAIN.getColor()));
         String s = isComplete ? (TextFormatting.GREEN.toString() + QuestTranslation.translate("betterquesting.tooltip.complete")) : (TextFormatting.RED.toString() + QuestTranslation.translate("betterquesting.tooltip.incomplete"));
         this.addPanel(new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(28, 14, 0, -24), 0), s).setColor(PresetColor.TEXT_MAIN.getColor()));

@@ -1,7 +1,9 @@
 package betterquesting.api2.storage;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeMap;
 
 public class SimpleDatabase<T> implements IDatabase<T> {
 
@@ -50,12 +52,12 @@ public class SimpleDatabase<T> implements IDatabase<T> {
 
     @Override
     public synchronized DBEntry<T> add(int id, T value) {
-        if(value == null) {
+        if (value == null) {
             throw new NullPointerException("Value cannot be null");
-        } else if(id < 0) {
+        } else if (id < 0) {
             throw new IllegalArgumentException("ID cannot be negative");
         } else {
-            if(mapDB.putIfAbsent(id, value) == null) {
+            if (mapDB.putIfAbsent(id, value) == null) {
                 idMap.set(id);
                 updateLookupLogic();
                 return new DBEntry<>(id, value);
@@ -67,38 +69,35 @@ public class SimpleDatabase<T> implements IDatabase<T> {
 
     @Override
     public synchronized boolean removeID(int key) {
-        if(key < 0) return false;
+        if (key < 0) return false;
 
-        if(mapDB.remove(key) != null) {
+        if (mapDB.remove(key) != null) {
             idMap.clear(key);
             updateLookupLogic();
             return true;
         }
         return false;
     }
-    
+
     @Override
-    public synchronized boolean removeValue(T value)
-    {
+    public synchronized boolean removeValue(T value) {
         return value != null && removeID(getID(value));
     }
-    
+
     @Override
-    public synchronized int getID(T value)
-    {
-        if(value == null) return -1;
-        
-        for(DBEntry<T> entry : getEntries())
-        {
-            if(entry.getValue() == value) return entry.getID();
+    public synchronized int getID(T value) {
+        if (value == null) return -1;
+
+        for (DBEntry<T> entry : getEntries()) {
+            if (entry.getValue() == value) return entry.getID();
         }
-        
+
         return -1;
     }
 
     @Override
     public synchronized T getValue(int id) {
-        if(id < 0 || mapDB.size() <= 0) return null;
+        if (id < 0 || mapDB.size() <= 0) return null;
         return mapDB.get(id);
     }
 

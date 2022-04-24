@@ -21,7 +21,6 @@ import betterquesting.storage.PropertyContainer;
 import betterquesting.storage.QuestSettings;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.nbt.*;

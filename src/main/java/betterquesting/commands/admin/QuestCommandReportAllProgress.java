@@ -77,7 +77,7 @@ public class QuestCommandReportAllProgress extends QuestCommandBase {
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check_all", NameCache.INSTANCE.getName(uuid)));
 
         for (DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) {
-            if(entry.getValue().isComplete(uuid)) {
+            if (entry.getValue().isComplete(uuid)) {
                 sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.check_all.line", entry.getID(), entry.getValue().getProperty(NativeProps.NAME)));
             }
         }

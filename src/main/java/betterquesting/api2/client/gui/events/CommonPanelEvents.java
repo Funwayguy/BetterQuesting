@@ -8,12 +8,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @EventBusSubscriber
-public class CommonPanelEvents
-{
+public class CommonPanelEvents {
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public static void OnQuestCompleted(QuestEvent event)
-    {
+    public static void OnQuestCompleted(QuestEvent event) {
         PEventBroadcaster.INSTANCE.postEvent(new PEventQuest(event.getQuestIDs()));
     }
 }

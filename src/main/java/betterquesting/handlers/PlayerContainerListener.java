@@ -18,64 +18,57 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class PlayerContainerListener implements IContainerListener
-{
+public class PlayerContainerListener implements IContainerListener {
     private static final HashMap<UUID, PlayerContainerListener> LISTEN_MAP = new HashMap<>();
-    
-    public static void refreshListener(@Nonnull EntityPlayer player)
-    {
+
+    public static void refreshListener(@Nonnull EntityPlayer player) {
         UUID uuid = QuestingAPI.getQuestingUUID(player);
         PlayerContainerListener listener = LISTEN_MAP.get(uuid);
-        if(listener != null)
-        {
+        if (listener != null) {
             listener.player = player;
-        } else
-        {
+        } else {
             listener = new PlayerContainerListener(player);
             LISTEN_MAP.put(uuid, listener);
         }
-        
-        try
-        {
+
+        try {
             player.inventoryContainer.addListener(listener);
-        } catch(Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
-    
+
     private EntityPlayer player;
-    
-    private PlayerContainerListener(@Nonnull EntityPlayer player)
-    {
+
+    private PlayerContainerListener(@Nonnull EntityPlayer player) {
         this.player = player;
     }
-    
+
     @Override
-    public void sendAllContents(@Nonnull Container container, @Nonnull NonNullList<ItemStack> nonNullList)
-    {
+    public void sendAllContents(@Nonnull Container container, @Nonnull NonNullList<ItemStack> nonNullList) {
         updateTasks();
     }
-    
+
     @Override
-    public void sendSlotContents(@Nonnull Container container, int i, @Nonnull ItemStack itemStack)
-    {
+    public void sendSlotContents(@Nonnull Container container, int i, @Nonnull ItemStack itemStack) {
         updateTasks();
     }
-    
+
     @Override
-    public void sendWindowProperty(@Nonnull Container container, int i, int i1){}
-    
+    public void sendWindowProperty(@Nonnull Container container, int i, int i1) {
+    }
+
     @Override
-    public void sendAllWindowProperties(@Nonnull Container container, @Nonnull IInventory iInventory){}
-    
-    private void updateTasks()
-    {
+    public void sendAllWindowProperties(@Nonnull Container container, @Nonnull IInventory iInventory) {
+    }
+
+    private void updateTasks() {
         ParticipantInfo pInfo = new ParticipantInfo(player);
-		
-        for(DBEntry<IQuest> entry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests()))
-		{
-		    for(DBEntry<ITask> task : entry.getValue().getTasks().getEntries())
-            {
-                if(task.getValue() instanceof ITaskInventory) ((ITaskInventory)task.getValue()).onInventoryChange(entry, pInfo);
+
+        for (DBEntry<IQuest> entry : QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(pInfo.getSharedQuests())) {
+            for (DBEntry<ITask> task : entry.getValue().getTasks().getEntries()) {
+                if (task.getValue() instanceof ITaskInventory)
+                    ((ITaskInventory) task.getValue()).onInventoryChange(entry, pInfo);
             }
-		}
+        }
     }
 }

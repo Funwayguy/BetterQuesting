@@ -22,10 +22,9 @@ class ArrayCacheLookupLogic<T> extends LookupLogic<T> {
     @Override
     public List<DBEntry<T>> getRefCache() {
         if (refCache != null) return refCache;
-        if(cache == null) {
+        if (cache == null) {
             return super.getRefCache();
-        }
-        else {
+        } else {
             refCache = Arrays.stream(cache).filter(Objects::nonNull).collect(Collectors.toList());
             return refCache;
         }
@@ -35,10 +34,10 @@ class ArrayCacheLookupLogic<T> extends LookupLogic<T> {
     public List<DBEntry<T>> bulkLookup(int[] keys) {
         computeCache();
         List<DBEntry<T>> list = new ArrayList<>(keys.length);
-        for(int k : keys) {
+        for (int k : keys) {
             if (k - offset >= cache.length) continue;
             final DBEntry<T> element = cache[k - offset];
-            if(element != null) {
+            if (element != null) {
                 // it shouldn't place too much allocation/gc pressure since there aren't too many keys to look up anyway
                 list.add(element);
             }
@@ -51,12 +50,12 @@ class ArrayCacheLookupLogic<T> extends LookupLogic<T> {
         if (cache != null) return;
         cache = new DBEntry[simpleDatabase.mapDB.lastKey() - simpleDatabase.mapDB.firstKey() + 1];
         offset = simpleDatabase.mapDB.firstKey();
-        if(refCache == null) {
-            for(Map.Entry<Integer, T> entry : simpleDatabase.mapDB.entrySet()) {
+        if (refCache == null) {
+            for (Map.Entry<Integer, T> entry : simpleDatabase.mapDB.entrySet()) {
                 cache[entry.getKey() - offset] = new DBEntry<>(entry.getKey(), entry.getValue());
             }
         } else {
-            for(DBEntry<T> entry : refCache) {
+            for (DBEntry<T> entry : refCache) {
                 cache[entry.getID() - offset] = entry;
             }
         }

@@ -1,6 +1,6 @@
 {
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "betterquesting:items/heart_full"
-    }
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "betterquesting:items/heart_full"
+  }
 }

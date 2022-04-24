@@ -55,7 +55,7 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
                 )).collect(Collectors.toList());
     }
 
-    private QuestSearchEntry createQuestSearchEntry(DBEntry<IQuestLineEntry> iQuestLineEntryDBEntry, DBEntry<IQuestLine> iQuestLineDBEntry){
+    private QuestSearchEntry createQuestSearchEntry(DBEntry<IQuestLineEntry> iQuestLineEntryDBEntry, DBEntry<IQuestLine> iQuestLineDBEntry) {
         int questId = iQuestLineEntryDBEntry.getID();
         DBEntry<IQuest> quest = new DBEntry<>(questId, QuestDatabase.INSTANCE.getValue(questId));
         return new QuestSearchEntry(quest, iQuestLineDBEntry);
@@ -82,7 +82,7 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
         return true;
     }
 
-    private PanelButtonCustom createContainerButton(QuestSearchEntry entry, int index, int cachedWidth){
+    private PanelButtonCustom createContainerButton(QuestSearchEntry entry, int index, int cachedWidth) {
         PanelButtonCustom buttonContainer = new PanelButtonCustom(new GuiRectangle(0, index * 32, cachedWidth, 32, 0), 2);
         buttonContainer.setCallback(panelButtonCustom -> {
             if (!buttonContainer.isActive())
@@ -106,7 +106,7 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
         return buttonContainer;
     }
 
-    private PanelButtonQuest createQuestPanelButton(QuestSearchEntry entry){
+    private PanelButtonQuest createQuestPanelButton(QuestSearchEntry entry) {
         PanelButtonQuest questButton = new PanelButtonQuest(
                 new GuiRectangle(2, 2, 28, 28),
                 0,

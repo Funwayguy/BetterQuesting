@@ -6,8 +6,8 @@ import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
 
-public interface IItemTask extends ITask
-{
-	boolean canAcceptItem(UUID owner, DBEntry<IQuest> quest, ItemStack stack);
-	ItemStack submitItem(UUID owner, DBEntry<IQuest> quest, ItemStack stack);
+public interface IItemTask extends ITask {
+    boolean canAcceptItem(UUID owner, DBEntry<IQuest> quest, ItemStack stack);
+
+    ItemStack submitItem(UUID owner, DBEntry<IQuest> quest, ItemStack stack);
 }

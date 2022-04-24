@@ -9,31 +9,26 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber
-public class SceneController
-{
+public class SceneController {
     private static IScene curScene = null;
-    
+
     @Nullable
-    public static IScene getActiveScene()
-    {
+    public static IScene getActiveScene() {
         return curScene;
     }
-    
-    public static void setActiveScene(@Nullable IScene scene)
-    {
+
+    public static void setActiveScene(@Nullable IScene scene) {
         curScene = scene;
     }
-    
+
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
-    public static void onGuiOpened(GuiOpenEvent event)
-    {
-        if(event.getGui() instanceof IScene)
-        {
+    public static void onGuiOpened(GuiOpenEvent event) {
+        if (event.getGui() instanceof IScene) {
             // TODO: Review the following
             // Does this need to be cleared if the GUI isn't compatible?
             // Would this interfere with an overlay canvas?
-            curScene = (IScene)event.getGui();
+            curScene = (IScene) event.getGui();
         }
     }
 }
