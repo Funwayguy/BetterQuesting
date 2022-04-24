@@ -18,6 +18,7 @@ betterquesting.title.party_invite=Invite Users
 betterquesting.title.select_theme=Select Theme
 betterquesting.title.importers=Importers
 betterquesting.title.submit_station=Submit Station
+betterquesting.title.completion=Completion: %d/%d
 
 betterquesting.btn.rewards=Rewards
 betterquesting.btn.tasks=Tasks
