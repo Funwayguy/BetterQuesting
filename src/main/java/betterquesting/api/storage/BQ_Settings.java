@@ -31,5 +31,6 @@ public class BQ_Settings
 
 	public static boolean claimAllConfirmation = true;
 	public static boolean lockTray = true;
+	public static boolean viewMode = false;
 	public static String defaultVisibility = "NORMAL";
 }

@@ -55,6 +55,7 @@ betterquesting.btn.lock_tray=Lock Tray
 betterquesting.btn.visible_hidden=Always hide dependency line
 betterquesting.btn.visible_always=Always show dependency line
 betterquesting.btn.visible_implicit=Hover to show dependency line
+betterquesting.btn.view_mode=View Mode
 
 betterquesting.home.exit=Exit
 betterquesting.home.quests=Quests

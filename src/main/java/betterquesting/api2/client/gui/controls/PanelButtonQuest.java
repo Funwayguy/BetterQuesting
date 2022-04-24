@@ -6,6 +6,7 @@ import betterquesting.api.enums.EnumQuestState;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.tasks.ITask;
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api.utils.BigItemStack;
 import betterquesting.api2.client.gui.misc.GuiRectangle;
 import betterquesting.api2.client.gui.resources.colors.IGuiColor;
@@ -77,7 +78,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>>
         IGuiTexture btnTx = new GuiTextureColored(txFrame, txIconCol);
         setTextures(btnTx, btnTx, btnTx);
         setIcon(new OreDictTexture(1F, value == null ? new BigItemStack(Items.NETHER_STAR) : value.getValue().getProperty(NativeProps.ICON), false, true), 4);
-        setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock);
+        setActive(QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || !lock || BQ_Settings.viewMode);
     }
     
     @Override

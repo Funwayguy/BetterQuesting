@@ -37,6 +37,7 @@ public class ConfigHandler
 		BQ_Settings.claimAllConfirmation = config.getBoolean("Claim all requires confirmation", Configuration.CATEGORY_GENERAL, true, "If true, then when you click on Claim all, a warning dialog will be displayed");
 		BQ_Settings.lockTray = config.getBoolean("Lock Tray", Configuration.CATEGORY_GENERAL, false, "If true, locks the quest chapter list and opens it initially");
 		BQ_Settings.skipHome = config.getBoolean("Skip Home", Configuration.CATEGORY_GENERAL, false, "If true, skip the home GUI and open quests at startup. This property will be changed by the mod itself.");
+		BQ_Settings.viewMode = config.getBoolean("View mode", Configuration.CATEGORY_GENERAL, false, "If view mode enabled, User can view all quests");
 
 		BQ_Settings.defaultVisibility = config.getString("Default Quest Visibility", Configuration.CATEGORY_GENERAL, "NORMAL", "The default visibility value used when creating quests");
 		config.save();
