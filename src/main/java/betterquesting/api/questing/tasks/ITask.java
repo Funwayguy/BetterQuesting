@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
 public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>
@@ -41,5 +42,9 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
 	 */
 	default boolean ignored(UUID uuid) {
 		return false;
+	}
+
+	default List<String> getTextsForSearch() {
+		return null;
 	}
 }

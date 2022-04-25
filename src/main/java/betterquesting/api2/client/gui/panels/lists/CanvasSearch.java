@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.concurrent.TimeUnit;
 
 public abstract class CanvasSearch<T, E> extends CanvasScrolling
@@ -14,11 +15,18 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
     private final Stopwatch searchTime = Stopwatch.createStarted();
     private int resultWidth = 256; // Used for organising ongoing search results even if the size changes midway
     private int searchIdx = 0; // Where are we in the ongoing search?
-    private final ArrayDeque<T> pendingResults = new ArrayDeque<>();
+    private ArrayDeque<T> pendingResults = new ArrayDeque<>();
+    private final boolean deduplicate;
+
+    public CanvasSearch(IGuiRect rect, boolean deduplicate)
+    {
+        super(rect);
+        this.deduplicate = deduplicate;
+    }
     
     public CanvasSearch(IGuiRect rect)
     {
-        super(rect);
+        this(rect, false);
     }
     
     public void setSearchFilter(String text)
@@ -76,6 +84,10 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling
         }
         
         searchTime.stop();
+
+        if (deduplicate) {
+            pendingResults = new ArrayDeque<>(new LinkedHashSet<>(pendingResults));
+        }
     }
     
     private void updateResults()
