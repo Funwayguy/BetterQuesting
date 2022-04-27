@@ -19,27 +19,31 @@ public class ItemComparison
     /**
      * Check whether two stacks match with optional NBT and Ore Dictionary checks
      */
-    public static boolean StackMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
-    {
-    	// Some quick checks
-    	if(stack1 == stack2)
-    	{
-    		return true;
-    	} else if(stack1 == null || stack2 == null)
-    	{
-    		return false;
-    	}
-    	
-    	if(nbtCheck)
-    	{
-    		if(!CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT))
-    		{
-    			return false;
-    		}
-    	}
-    	
-    	return stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItem().isDamageable() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE);
-    }
+	public static boolean StackMatch(ItemStack stack1, ItemStack stack2, boolean nbtCheck, boolean partialNBT)
+	{
+		// Some quick checks
+		if(stack1 == stack2)
+		{
+			return true;
+		}
+		else if(stack1 == null || stack2 == null)
+		{
+			return false;
+		}
+		if (stack1.getItem() != stack2.getItem())
+		{
+			return false;
+		}
+		if (!(stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItem().isDamageable() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE))
+		{
+			return false;
+		}
+		if(nbtCheck)
+		{
+			return CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT);
+		}
+		return true;
+	}
     
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial)
     {
@@ -89,7 +93,7 @@ public class ItemComparison
     			return false; // Sample is missing requested tags or is not exact
     		}
     		
-    		List<Integer> usedIdxs = new ArrayList<>(); // Duplicate control
+    		List<Integer> usedIdxs = new ArrayList<>(list2.func_150302_c().length); // Duplicate control
     		
     		topLoop:
     		for(int i = 0; i < list1.func_150302_c().length; i++)
