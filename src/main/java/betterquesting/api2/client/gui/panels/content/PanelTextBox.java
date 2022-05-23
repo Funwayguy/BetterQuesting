@@ -12,6 +12,8 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
+import static betterquesting.api.storage.BQ_Settings.textWidthCorrection;
+
 public class PanelTextBox implements IGuiPanel
 {
 	private final GuiRectText transform;
@@ -102,7 +104,7 @@ public class PanelTextBox implements IGuiPanel
 			return;
 		}
 		
-		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale));
+		List<String> sl = fr.listFormattedStringToWidth(text, (int)Math.floor(bounds.getWidth() / scale / textWidthCorrection));
 		lines = sl.size() - 1;
 		
 		this.transform.h = (int)Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
@@ -128,7 +130,7 @@ public class PanelTextBox implements IGuiPanel
 		
 		float s = fontScale / 12F;
 		int w = (int)Math.ceil(RenderUtils.getStringWidth(text, fr) * s);
-		int bw = (int)Math.floor(bounds.getWidth() / s);
+		int bw = (int)Math.floor(bounds.getWidth() / s / textWidthCorrection);
 		
 		if(bw <= 0) return;
         

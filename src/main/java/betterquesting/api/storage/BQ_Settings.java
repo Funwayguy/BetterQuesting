@@ -18,6 +18,7 @@ public class BQ_Settings
 	public static String curTheme = "betterquesting:light";
 	public static int guiWidth = -1;
 	public static int guiHeight = -1;
+	public static float textWidthCorrection = 1.0f;
 	public static boolean questNotices = true;
 	public static boolean dirtyMode = true;
 	public static float scrollMultiplier = 0.1F;
