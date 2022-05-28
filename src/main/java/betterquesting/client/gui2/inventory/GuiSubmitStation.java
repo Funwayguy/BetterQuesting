@@ -156,8 +156,10 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
             @Override
             public void onButtonClick()
             {
-                tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quests.get(selQuest).getValue(), tasks.get(selTask).getValue());
-                NetStationEdit.setupStation(tile.xCoord, tile.yCoord, tile.zCoord, selQuest, selTask);
+                final IQuest quest = quests.get(selQuest).getValue();
+                final ITask task = tasks.get(selTask).getValue();
+                tile.setupTask(QuestingAPI.getQuestingUUID(mc.thePlayer), quest, task);
+                NetStationEdit.setupStation(tile.xCoord, tile.yCoord, tile.zCoord, QuestDatabase.INSTANCE.getID(quest), quest.getTasks().getID(task));
                 refreshTaskPanel();
             }
         };
