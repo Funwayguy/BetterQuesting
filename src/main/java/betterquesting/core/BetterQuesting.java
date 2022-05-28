@@ -3,7 +3,9 @@ package betterquesting.core;
 import betterquesting.api.placeholders.EntityPlaceholder;
 import betterquesting.api.placeholders.FluidPlaceholder;
 import betterquesting.api.placeholders.ItemPlaceholder;
+import betterquesting.blocks.BlockObservationStation;
 import betterquesting.blocks.BlockSubmitStation;
+import betterquesting.blocks.TileObservationStation;
 import betterquesting.blocks.TileSubmitStation;
 import betterquesting.client.CreativeTabQuesting;
 import betterquesting.commands.BQ_CommandAdmin;
@@ -66,7 +68,8 @@ public class BetterQuesting
 	public static Item guideBook = new ItemGuideBook();
 	
 	public static Block submitStation = new BlockSubmitStation();
-    
+    public static Block observationStation = new BlockObservationStation();
+        
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
@@ -95,9 +98,14 @@ public class BetterQuesting
 		GameRegistry.registerBlock(submitStation, "submit_station");
 
 		GameRegistry.registerTileEntity(TileSubmitStation.class, "submit_station");
+        
+        GameRegistry.registerBlock(observationStation, "observation_station");
+        
+        GameRegistry.registerTileEntity(TileObservationStation.class, "observation_station");
 		if (!Loader.isModLoaded("dreamcraft")){
 			GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.glass), new ItemStack(Blocks.chest));
 			GameRegistry.addShapelessRecipe(new ItemStack(submitStation), new ItemStack(Items.book), new ItemStack(Blocks.chest), new ItemStack(Blocks.glass));
+            GameRegistry.addShapelessRecipe(new ItemStack(observationStation), new ItemStack(submitStation), new ItemStack((Items.comparator)));
 		}
 		
     	GameRegistry.addShapelessRecipe(new ItemStack(extraLife, 1, 0), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2), new ItemStack(extraLife, 1, 2));

@@ -126,6 +126,7 @@ item.betterquesting.extra_life.quarter.name=Quarter Heart
 item.betterquesting.guide.name=Better Questing Starter Guide
 
 tile.betterquesting.submit_station.name=Object Submission Station (OSS)
+tile.betterquesting.observation_station.name=Object Observation Station (OOS)
 
 betterquesting.btn.help1=Navigation
 betterquesting.btn.help2=OSS Block
