@@ -32,7 +32,11 @@ import java.util.UUID;
 
 public class TileSubmitStation extends TileEntity implements IFluidHandler, ISidedInventory
 {
-	private ItemStack[] itemStack = new ItemStack[2];
+    private final static int SLOT_INPUT = 0;
+    private final static int SLOT_OUTPUT = 1;
+    private final static int SIZE_INVENTORY = 2;
+    private final static int[] SLOTS_FOR_FACE = new int[]{SLOT_INPUT, SLOT_OUTPUT};
+    private final ItemStack[] itemStack = new ItemStack[SIZE_INVENTORY];
 	private boolean needsUpdate = false;
 	public UUID owner = null;
 	public int questID = -1;
@@ -80,29 +84,27 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		ITask t = getRawTask();
 		return t == null? null : (t instanceof IFluidTask? (IFluidTask)t : null);
 	}
-	
-	@Override
-	public int getSizeInventory()
-	{
-		return 2;
-	}
 
-	@Override
-	public ItemStack getStackInSlot(int idx)
-	{
-		if(idx < 0 || idx >= itemStack.length)
-		{
-			return null;
-		} else
-		{
-			return itemStack[idx];
-		}
-	}
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isValidSlot(int slot) {
+        return 0 <= slot && slot < SIZE_INVENTORY;
+    }
+
+    @Override
+    public int getSizeInventory() {
+        return SIZE_INVENTORY;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int idx) {
+        if (!isValidSlot(idx)) return null;
+        return itemStack[idx];
+    }
 
 	@Override
 	public ItemStack decrStackSize(int idx, int amount)
 	{
-		if(idx < 0 || idx >= itemStack.length || itemStack[idx] == null)
+		if(!isValidSlot(idx) || itemStack[idx] == null)
 		{
 			return null;
 		}
@@ -131,11 +133,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public void setInventorySlotContents(int idx, ItemStack stack)
 	{
-		if(idx < 0 || idx >= itemStack.length)
-		{
-			return;
-		}
-		
+		if(!isValidSlot(idx)) return;
 		itemStack[idx] = stack;
 	}
     
@@ -152,11 +150,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		return false;
 	}
 
-	@Override
-	public int getInventoryStackLimit()
-	{
-		return 64;
-	}
+    @Override
+    public int getInventoryStackLimit() {
+        if (!isSetup()) return 0;
+        // When submitting items for fluid task, they should be submitted one by one
+        if (getFluidTask() != null) return 1;
+        if (getItemTask() != null) return 64;
+        return 0;
+    }
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player)
@@ -177,7 +178,7 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean isItemValidForSlot(int idx, ItemStack stack)
 	{
-		if(idx != 0)
+		if(idx != SLOT_INPUT)
 		{
 			return false;
 		}
@@ -265,14 +266,14 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
             EntityPlayerMP player = getPlayerByUUID(owner);
             QuestCache qc = player == null ? null : (QuestCache)player.getExtendedProperties(QuestCache.LOC_QUEST_CACHE.toString());
             
-			if(q != null && t != null && itemStack[0] != null && itemStack[1] == null)
+			if(q != null && t != null && itemStack[SLOT_INPUT] != null && itemStack[SLOT_OUTPUT] == null)
 			{
-				ItemStack inStack = itemStack[0].copy();
-				ItemStack beforeStack = itemStack[0].copy();
+				ItemStack inStack = itemStack[SLOT_INPUT].copy();
+				ItemStack beforeStack = itemStack[SLOT_INPUT].copy();
 				
 				if(t.canAcceptItem(owner, getQuest(), inStack))
 				{
-					itemStack[0] = t.submitItem(owner, getQuest(), inStack); // Even if this returns an invalid item for submission it will be moved next pass
+					itemStack[SLOT_INPUT] = t.submitItem(owner, getQuest(), inStack); // Even if this returns an invalid item for submission it will be moved next pass
 					
 					if(t.isComplete(owner))
 					{
@@ -281,12 +282,12 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 						if(server != null) server.getConfigurationManager().sendToAllNearExcept(null, xCoord, yCoord, zCoord, 128, worldObj.provider.dimensionId, getDescriptionPacket());
 					} else
 					{
-						if(itemStack[0] == null || !itemStack[0].equals(beforeStack)) needsUpdate = true;
+						if(itemStack[SLOT_INPUT] == null || !itemStack[SLOT_INPUT].equals(beforeStack)) needsUpdate = true;
 					}
 				} else
 				{
-					itemStack[1] = inStack;
-					itemStack[0] = null;
+					itemStack[SLOT_OUTPUT] = inStack;
+					itemStack[SLOT_INPUT] = null;
 				}
 			}
 			
@@ -389,8 +390,8 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	{
 		super.readFromNBT(tags);
 		
-		itemStack[0] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("input"));
-		itemStack[1] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("output"));
+		itemStack[SLOT_INPUT] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("input"));
+		itemStack[SLOT_OUTPUT] = ItemStack.loadItemStackFromNBT(tags.getCompoundTag("output"));
 		
 		try
 		{
@@ -418,17 +419,16 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 		tags.setString("owner", owner != null? owner.toString() : "");
 		tags.setInteger("questID", questID);
 		tags.setInteger("task", taskID);
-		tags.setTag("input", itemStack[0] != null? itemStack[0].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
-		tags.setTag("output", itemStack[1] != null? itemStack[1].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
+		tags.setTag("input", itemStack[SLOT_INPUT] != null? itemStack[SLOT_INPUT].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
+		tags.setTag("output", itemStack[SLOT_OUTPUT] != null? itemStack[SLOT_OUTPUT].writeToNBT(new NBTTagCompound()) : new NBTTagCompound());
 	}
 
-	private static final int[] slotsForFace = new int[]{0, 1};
  
 	@Override
     @Nonnull
 	public int[] getAccessibleSlotsFromSide(int side)
 	{
-		return slotsForFace;
+		return SLOTS_FOR_FACE;
 	}
 
 	@Override
@@ -440,6 +440,6 @@ public class TileSubmitStation extends TileEntity implements IFluidHandler, ISid
 	@Override
 	public boolean canExtractItem(int slot, ItemStack stack, int side)
 	{
-		return slot == 1;
+		return slot == SLOT_OUTPUT;
 	}
 }
