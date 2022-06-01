@@ -24,16 +24,20 @@ public class ItemComparison {
         } else if (stack1 == null || stack2 == null) {
             return false;
         }
+        if (stack1.getItem() != stack2.getItem()) {
+            return false;
+        }
+        if (!(stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItem().isDamageable() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE)) {
+            return false;
+        }
 
         if (nbtCheck) {
             if (!partialNBT && !stack1.areCapsCompatible(stack2)) {
                 return false;
-            } else if (!CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT)) {
-                return false;
             }
+            return CompareNBTTag(stack1.getTagCompound(), stack2.getTagCompound(), partialNBT);
         }
-
-        return stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItem().isDamageable() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE);
+        return true;
     }
 
     public static boolean CompareNBTTag(NBTBase tag1, NBTBase tag2, boolean partial) {
