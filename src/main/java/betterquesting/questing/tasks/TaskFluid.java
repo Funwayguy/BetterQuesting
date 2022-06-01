@@ -457,4 +457,14 @@ public class TaskFluid implements ITaskInventory, IFluidTask, IItemTask {
     private void setBulkProgress(@Nonnull List<Tuple<UUID, int[]>> list) {
         list.forEach((entry) -> setUserProgress(entry.getFirst(), entry.getSecond()));
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        for (FluidStack fluid : requiredFluids) {
+            texts.add(fluid.getLocalizedName());
+            texts.add(fluid.getUnlocalizedName());
+        }
+        return texts;
+    }
 }

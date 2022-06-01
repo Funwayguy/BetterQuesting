@@ -191,4 +191,9 @@ public class TaskLocation implements ITaskTickable {
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return null;
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(name);
+    }
 }

@@ -34,10 +34,7 @@ import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 public class TaskTrigger implements ITask {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -200,5 +197,10 @@ public class TaskTrigger implements ITask {
         this.desc = nbt.getString("description");
         this.setTriggerID(nbt.getString("trigger"));
         this.setCriteriaJson(nbt.getString("conditions"));
+    }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(triggerID);
     }
 }

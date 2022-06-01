@@ -127,4 +127,9 @@ public class TaskAdvancement implements ITask {
         String id = nbt.getString("advancement_id");
         advID = StringUtils.isNullOrEmpty(id) ? null : new ResourceLocation(id);
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(advID.toString());
+    }
 }

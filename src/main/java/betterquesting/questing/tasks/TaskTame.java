@@ -225,4 +225,9 @@ public class TaskTame implements ITask {
         uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
         return list;
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(idName);
+    }
 }

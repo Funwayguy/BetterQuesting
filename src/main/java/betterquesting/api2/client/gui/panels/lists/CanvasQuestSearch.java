@@ -5,6 +5,7 @@ import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.IQuestLine;
 import betterquesting.api.questing.IQuestLineEntry;
+import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.client.gui.controls.PanelButtonCustom;
 import betterquesting.api2.client.gui.controls.PanelButtonQuest;
@@ -19,6 +20,7 @@ import betterquesting.misc.QuestSearchEntry;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.QuestLineDatabase;
 import net.minecraft.entity.player.EntityPlayer;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -63,12 +65,35 @@ public class CanvasQuestSearch extends CanvasSearch<QuestSearchEntry, QuestSearc
 
     @Override
     protected void queryMatches(QuestSearchEntry entry, String query, ArrayDeque<QuestSearchEntry> results) {
-        if (String.valueOf(entry.getQuest().getID()).contains(query)) {
+        IQuest value = entry.getQuest().getValue();
+        // show currently claimable quests with "@complete"
+        if ("@complete".startsWith(query) && 1 < query.length()) {
+            if (value.isComplete(questingUUID) && value.canClaim(player)) {
+                results.add(entry);
+            }
+        } else if (
+                // quest id
+                StringUtils.containsIgnoreCase(String.valueOf(entry.getQuest().getID()), query)
+
+                // quest title
+                || StringUtils.containsIgnoreCase(value.getProperty(NativeProps.NAME), query)
+                || StringUtils.containsIgnoreCase(QuestTranslation.translate(value.getProperty(NativeProps.NAME)), query)
+
+                // quest description
+                || StringUtils.containsIgnoreCase(value.getProperty(NativeProps.DESC), query)
+                || StringUtils.containsIgnoreCase(QuestTranslation.translate(value.getProperty(NativeProps.DESC)), query)) {
+
             results.add(entry);
-        } else if (entry.getQuest().getValue().getProperty(NativeProps.NAME).toLowerCase().contains(query)) {
-            results.add(entry);
-        } else if (QuestTranslation.translate(entry.getQuest().getValue().getProperty(NativeProps.NAME)).toLowerCase().contains(query)) {
-            results.add(entry);
+        } else {
+            // task-specific search text
+            for (DBEntry<ITask> task : entry.getQuest().getValue().getTasks().getEntries()) {
+                if (task.getValue().getTextForSearch() == null) continue;
+                for (String text : task.getValue().getTextForSearch()) {
+                    if (StringUtils.containsIgnoreCase(text, query)) {
+                        results.add(entry);
+                    }
+                }
+            }
         }
     }
 

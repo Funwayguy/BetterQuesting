@@ -207,4 +207,12 @@ public class TaskScoreboard implements ITaskTickable {
     public GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest) {
         return new GuiEditTaskScoreboard(parent, quest, this);
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        texts.add(scoreName);
+        texts.add(scoreDisp);
+        return texts;
+    }
 }

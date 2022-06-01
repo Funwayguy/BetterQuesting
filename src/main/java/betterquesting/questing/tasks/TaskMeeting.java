@@ -174,4 +174,9 @@ public class TaskMeeting implements ITaskTickable {
     public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest) {
         return new PanelTaskMeeting(rect, this);
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        return Collections.singletonList(idName);
+    }
 }

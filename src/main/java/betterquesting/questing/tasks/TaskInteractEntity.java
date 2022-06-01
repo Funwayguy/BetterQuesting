@@ -258,4 +258,14 @@ public class TaskInteractEntity implements ITask {
         uuids.forEach((key) -> list.add(new Tuple<>(key, getUsersProgress(key))));
         return list;
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        texts.add(entityID);
+        if (targetItem != null) {
+            texts.add(targetItem.getBaseStack().getDisplayName());
+        }
+        return texts;
+    }
 }

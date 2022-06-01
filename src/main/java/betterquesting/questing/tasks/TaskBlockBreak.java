@@ -262,4 +262,15 @@ public class TaskBlockBreak implements ITask {
     private void setBulkProgress(@Nonnull List<Tuple<UUID, int[]>> list) {
         list.forEach((entry) -> setUserProgress(entry.getFirst(), entry.getSecond()));
     }
+
+    @Override
+    public List<String> getTextForSearch() {
+        List<String> texts = new ArrayList<>();
+        for (NbtBlockType block : blockTypes) {
+            if (block.getItemStack() != null) {
+                texts.add(block.getItemStack().getBaseStack().getDisplayName());
+            }
+        }
+        return texts;
+    }
 }
