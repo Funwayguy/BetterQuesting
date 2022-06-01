@@ -151,39 +151,46 @@ public class JsonHelper {
                 }
 
                 tmp.createNewFile();
-            } catch (Exception e) {
-                QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
-                return null;
-            }
-
-            // NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
-            try (FileOutputStream fos = new FileOutputStream(tmp); OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
-                // Attempt writing
-                GSON.toJson(jObj, fw);
-                fw.flush();
-            } catch (Exception e) {
-                QuestingAPI.getLogger().error("An error occured while saving JSON to file (File write):", e);
-                return null;
-            }
-
-            // NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
-            try (FileInputStream fis = new FileInputStream(tmp); InputStreamReader fr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
-                // Readback what we wrote to validate it
+			} catch(Exception e)
+			{
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Directory setup):", e);
+				return null;
+			}
+			
+			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+			try (FileOutputStream fos = new FileOutputStream(tmp);
+				 OutputStreamWriter fw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+				 Writer buffer = new BufferedWriter(fw);
+				 JsonWriter json = new JsonWriter(buffer)) {
+				json.setIndent("  "); //two space indents
+				GSON.toJson(jObj, json);
+			} catch (Exception e) {
+				QuestingAPI.getLogger().error("An error occurred while saving JSON to file (File write):", e);
+				return null;
+			}
+			
+			// NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
+			try(FileInputStream fis = new FileInputStream(tmp); InputStreamReader fr = new InputStreamReader(fis, StandardCharsets.UTF_8))
+            {
+				// Readback what we wrote to validate it
                 GSON.fromJson(fr, JsonObject.class);
-            } catch (Exception e) {
-                QuestingAPI.getLogger().error("An error occured while saving JSON to file (Validation check):", e);
-                return null;
+            } catch(Exception e)
+            {
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Validation check):", e);
+				return null;
             }
-
-            try {
-                if (file.exists()) file.delete();
+			
+			try
+            {
+                if(file.exists()) file.delete();
                 tmp.renameTo(file);
-            } catch (Exception e) {
-                QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
+            } catch(Exception e)
+            {
+				QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
             }
-            return null;
-        });
-    }
+			return null;
+		});
+	}
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static Future<Void> WriteToFile(File file, IOConsumer<JsonWriter> jObj) {
