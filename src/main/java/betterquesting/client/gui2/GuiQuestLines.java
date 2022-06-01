@@ -286,7 +286,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnTrayLock.setClickAction((b) -> {
             trayLock = !trayLock;
             b.setIcon(trayLock ? PresetIcon.ICON_LOCKED.getTexture() : PresetIcon.ICON_UNLOCKED.getTexture());
-            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Lock tray", false).set(trayLock);
+            ConfigHandler.config.get(Configuration.CATEGORY_GENERAL, "Lock Tray", false).set(trayLock);
             ConfigHandler.config.save();
             ConfigHandler.initConfigs();
         });
