@@ -16,17 +16,11 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.client.themes.BQSTextures;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskInteractEntity;
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IFocus.Mode;
-import mezz.jei.gui.Focus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.Optional.Method;
 
 import java.util.UUID;
 
@@ -46,7 +40,6 @@ public class PanelTaskInteractEntity extends CanvasMinimum {
         super.initPanel();
 
         PanelItemSlot itemSlot = new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, 0, 0, 32, 32, 0), -1, task.targetItem, false, true);
-        if (BetterQuesting.hasJEI) itemSlot.setCallback(value -> lookupRecipe(value.getBaseStack()));
         this.addPanel(itemSlot);
 
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, 32, 8, 16, 16, 0), PresetIcon.ICON_RIGHT.getTexture()));
@@ -82,11 +75,5 @@ public class PanelTaskInteractEntity extends CanvasMinimum {
         if (target != null)
             this.addPanel(new PanelEntityPreview(new GuiTransform(GuiAlign.TOP_LEFT, 48, 0, initialRect.getWidth() - 48, 96, 0), target).setRotationDriven(new ValueFuncIO<>(() -> 15F), new ValueFuncIO<>(() -> (float) (Minecraft.getSystemTime() % 30000L / 30000D * 360D))));
         recalculateSizes();
-    }
-
-    @Method(modid = "jei")
-    private void lookupRecipe(ItemStack stack) {
-        if (stack == null || stack.isEmpty() || Internal.getRuntime() == null) return;
-        Internal.getRuntime().getRecipesGui().show(new Focus<>(Mode.OUTPUT, stack));
     }
 }

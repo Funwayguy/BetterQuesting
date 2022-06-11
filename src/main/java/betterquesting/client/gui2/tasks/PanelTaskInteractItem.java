@@ -14,14 +14,8 @@ import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetIcon;
 import betterquesting.client.themes.BQSTextures;
-import betterquesting.core.BetterQuesting;
 import betterquesting.questing.tasks.TaskInteractItem;
-import mezz.jei.Internal;
-import mezz.jei.api.recipe.IFocus.Mode;
-import mezz.jei.gui.Focus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Optional.Method;
 
 import java.util.UUID;
 
@@ -48,11 +42,6 @@ public class PanelTaskInteractItem extends CanvasMinimum {
         PanelItemSlot targetSlot = new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 16, 0, 32, 32, 0), -1, task.targetBlock.getItemStack(), false, true);
         this.addPanel(targetSlot);
 
-        if (BetterQuesting.hasJEI) {
-            itemSlot.setCallback(value -> lookupRecipe(value.getBaseStack()));
-            targetSlot.setCallback(value -> lookupRecipe(value.getBaseStack()));
-        }
-
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth - 8, 0, 16, 16, 0), PresetIcon.ICON_RIGHT.getTexture()));
         UUID playerID = QuestingAPI.getQuestingUUID(Minecraft.getMinecraft().player);
         int prog = task.getUsersProgress(playerID);
@@ -71,11 +60,5 @@ public class PanelTaskInteractItem extends CanvasMinimum {
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 16, 56, 8, 8, 0), task.onHit ? txTick : txCross));
         this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, centerWidth + 40, 56, 8, 8, 0), task.onInteract ? txTick : txCross));
         recalculateSizes();
-    }
-
-    @Method(modid = "jei")
-    private void lookupRecipe(ItemStack stack) {
-        if (stack == null || stack.isEmpty() || Internal.getRuntime() == null) return;
-        Internal.getRuntime().getRecipesGui().show(new Focus<>(Mode.OUTPUT, stack));
     }
 }

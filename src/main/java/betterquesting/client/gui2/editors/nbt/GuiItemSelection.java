@@ -160,7 +160,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             ItemStack tmp = inventory.getStackInSlot(i + 9);
             BigItemStack invoStack = tmp.isEmpty() ? bigEmpty : new BigItemStack(tmp);
 
-            cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, y, slotSize, slotSize, 0), 1, invoStack, true));
+            cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, y, slotSize, slotSize, 0), 1, invoStack, true).setCallback(c -> {}));
 
         }
 
@@ -171,7 +171,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
             ItemStack tmp = inventory.getStackInSlot(i);
             BigItemStack invoStack = tmp.isEmpty() ? bigEmpty : new BigItemStack(tmp);
 
-            cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, 20 + (3 * slotSize), slotSize, slotSize, 0), 1, invoStack, true));
+            cvBottomLeft.addPanel(new PanelItemSlot(new GuiTransform(GuiAlign.TOP_LEFT, x, 20 + (3 * slotSize), slotSize, slotSize, 0), 1, invoStack, true).setCallback(c -> {}));
         }
 
         // === DIVIDERS ===

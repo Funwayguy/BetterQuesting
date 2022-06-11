@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTagCompound> {
     private final IGuiRect transform;
     private boolean enabled = true;
+    private boolean hovered = false;
 
     private final IGuiTexture[] texStates = new IGuiTexture[3];
     private IGuiColor[] colStates = new IGuiColor[]{new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255), new GuiColorStatic(16777120)};
@@ -134,6 +135,14 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
         this.enabled = state;
     }
 
+    public boolean isHovered() {
+        return this.hovered;
+    }
+
+    public void setHovered(boolean state) {
+        this.hovered = state;
+    }
+
     @Override
     public IGuiRect getTransform() {
         return transform;
@@ -148,7 +157,8 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
         IGuiRect bounds = this.getTransform();
         GlStateManager.pushMatrix();
         GlStateManager.color(1F, 1F, 1F, 1F);
-        int curState = !isActive() ? 0 : (bounds.contains(mx, my) ? 2 : 1);
+        this.setHovered(bounds.contains(mx, my));
+        int curState = !isActive() ? 0 : (isHovered() ? 2 : 1);
 
         if (curState == 2 && pendingRelease && Mouse.isButtonDown(0)) {
             curState = 0;
@@ -198,10 +208,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
     @Override
     public boolean onMouseClick(int mx, int my, int click) {
-        boolean contains = this.getTransform().contains(mx, my);
-        pendingRelease = isActive() && click == 0 && contains;
+        pendingRelease = isActive() && (click == 0 || click == 1) && isHovered();
 
-        return (click == 0 || click == 1) && contains;
+        return (click == 0 || click == 1) && isHovered();
     }
 
     @Override
@@ -212,12 +221,12 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
         pendingRelease = false;
 
-        IGuiRect bounds = this.getTransform();
-        boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+        boolean clicked = isActive() && isHovered() && (click == 1 || (click == 0 && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this))));
 
         if (clicked) {
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            onButtonClick();
+            if (click == 0) onButtonClick();
+            else if (click == 1) onRightButtonClick();
         }
 
         return clicked;
@@ -235,7 +244,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
     @Override
     public List<String> getTooltip(int mx, int my) {
-        if (this.getTransform().contains(mx, my)) {
+        if (isHovered()) {
             return tooltip;
         }
 
@@ -245,6 +254,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
     @Override
     public void onButtonClick() {
         if (clickAction != null) clickAction.accept(this);
+    }
+
+    public void onRightButtonClick() {
     }
 
     @Override

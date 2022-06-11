@@ -84,7 +84,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item> {
         int x = (index % (cachedWidth / 18)) * 18;
         int y = (index / (cachedWidth / 18)) * 18;
 
-        this.addPanel(new PanelItemSlot(new GuiRectangle(x, y, 18, 18, 0), btnId, new BigItemStack(stack)));
+        this.addPanel(new PanelItemSlot(new GuiRectangle(x, y, 18, 18, 0), btnId, new BigItemStack(stack)).setCallback(c -> {}));
 
         return true;
     }
