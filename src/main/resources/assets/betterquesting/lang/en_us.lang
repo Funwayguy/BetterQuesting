@@ -227,6 +227,7 @@ jdoc.betterquesting.quest.properties.betterquesting.name=BetterQuesting
 jdoc.betterquesting.quest.properties.betterquesting.desc=BetterQuesting properties
 
 bq_standard.task.retrieval=Retrieval Task
+bq_standard.task.optional_retrieval=Optional Retrieval Task
 bq_standard.task.crafting=Crafting Task
 bq_standard.task.hunt=Mob Hunt Task
 bq_standard.task.scoreboard=Scoreboard Task

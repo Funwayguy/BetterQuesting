@@ -38,6 +38,13 @@ public interface ITask extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTag
     @SideOnly(Side.CLIENT)
     GuiScreen getTaskEditor(GuiScreen parent, DBEntry<IQuest> quest);
 
+    /**
+     * Tasks that set this to true will be ignored by quest completion logic.
+     */
+    default boolean ignored(UUID uuid) {
+        return false;
+    }
+
     default boolean displaysCenteredAlone() {
         return false;
     }
