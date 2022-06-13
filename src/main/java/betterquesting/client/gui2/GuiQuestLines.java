@@ -62,6 +62,9 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, INeedsRefresh {
+
+    private ScrollPosition scrollPosition;
+
     private IQuestLine selectedLine = null;
     private static int selectedLineId = -1;
 
@@ -99,6 +102,10 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         super(parent);
         trayLock = BQ_Settings.lockTray;
         viewMode = BQ_Settings.viewMode;
+
+        if (scrollPosition == null) {
+            scrollPosition = new ScrollPosition(0);
+        }
     }
 
     @Override
@@ -359,6 +366,31 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         refreshChapterVisibility();
         refreshClaimAll();
         refreshDesigner();
+
+        cvLines.setScrollY(scrollPosition.getChapterScrollY());
+        cvLines.updatePanelScroll();
+    }
+
+    @Override
+    public boolean onMouseRelease(int mx, int my, int click) {
+        try {
+            return super.onMouseRelease(mx, my, click);
+        } finally {
+            if (cvLines != null) {
+                scrollPosition.setChapterScrollY(cvLines.getScrollY());
+            }
+        }
+    }
+
+    @Override
+    public boolean onMouseScroll(int mx, int my, int scroll) {
+        try {
+            return super.onMouseScroll(mx, my, scroll);
+        } finally {
+            if (cvLines != null) {
+                scrollPosition.setChapterScrollY(cvLines.getScrollY());
+            }
+        }
     }
 
     private void claimAll() {
@@ -643,5 +675,21 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
             });
         });
         mc.displayGuiScreen(guiQuestSearch);
+    }
+
+    public static class ScrollPosition{
+        public ScrollPosition(int chapterScrollY) {
+            this.chapterScrollY = chapterScrollY;
+        }
+
+        private int chapterScrollY;
+
+        public int getChapterScrollY() {
+            return chapterScrollY;
+        }
+
+        public void setChapterScrollY(int chapterScrollY) {
+            this.chapterScrollY = chapterScrollY;
+        }
     }
 }
