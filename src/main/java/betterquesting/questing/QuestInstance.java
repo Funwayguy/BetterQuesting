@@ -13,6 +13,7 @@ import betterquesting.api2.cache.CapabilityProviderQuestCache;
 import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.storage.IDatabaseNBT;
+import betterquesting.api2.utils.DirtyPlayerMarker;
 import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.core.BetterQuesting;
 import betterquesting.questing.rewards.RewardStorage;
@@ -29,11 +30,8 @@ import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 public class QuestInstance implements IQuest {
     private final TaskStorage tasks = new TaskStorage();
@@ -212,6 +210,7 @@ public class QuestInstance implements IQuest {
 
             entry.setBoolean("claimed", true);
             entry.setLong("timestamp", System.currentTimeMillis());
+            DirtyPlayerMarker.markDirty(pID);
         }
 
         if (qc != null) qc.markQuestDirty(questID);
@@ -274,6 +273,7 @@ public class QuestInstance implements IQuest {
 
             entry.setBoolean("claimed", false);
             entry.setLong("timestamp", timestamp);
+            DirtyPlayerMarker.markDirty(uuid);
         }
     }
 
@@ -323,6 +323,7 @@ public class QuestInstance implements IQuest {
             } else {
                 completeUsers.put(uuid, nbt);
             }
+            DirtyPlayerMarker.markDirty(uuid);
         }
     }
 
@@ -332,6 +333,13 @@ public class QuestInstance implements IQuest {
     @Override
     public void resetUser(@Nullable UUID uuid, boolean fullReset) {
         synchronized (completeUsers) {
+            HashSet<UUID> dirtyPlayers = new HashSet<>();
+            if (uuid == null) {
+                dirtyPlayers.addAll(completeUsers.keySet());
+            } else {
+                dirtyPlayers.add(uuid);
+            }
+
             if (fullReset) {
                 if (uuid == null) {
                     completeUsers.clear();
@@ -353,6 +361,7 @@ public class QuestInstance implements IQuest {
                 }
             }
 
+            DirtyPlayerMarker.markDirty(dirtyPlayers);
             tasks.getEntries().forEach((value) -> value.getValue().resetUser(uuid));
         }
     }
@@ -448,6 +457,7 @@ public class QuestInstance implements IQuest {
         synchronized (completeUsers) {
             NBTTagList comJson = new NBTTagList();
             for (Entry<UUID, NBTTagCompound> entry : completeUsers.entrySet()) {
+                if (entry.getValue() == null || entry.getKey() == null) continue;
                 if (users != null && !users.contains(entry.getKey())) continue;
                 NBTTagCompound tags = entry.getValue().copy();
                 tags.setString("uuid", entry.getKey().toString());
@@ -496,6 +506,7 @@ public class QuestInstance implements IQuest {
                 entry.setLong("timestamp", timestamp);
                 completeUsers.put(uuid, entry);
             }
+            DirtyPlayerMarker.markDirty(uuid);
         }
     }
 

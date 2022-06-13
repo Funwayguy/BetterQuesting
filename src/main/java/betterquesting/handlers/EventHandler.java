@@ -5,6 +5,7 @@ import betterquesting.api.api.ApiReference;
 import betterquesting.api.api.QuestingAPI;
 import betterquesting.api.client.gui.misc.INeedsRefresh;
 import betterquesting.api.events.DatabaseEvent;
+import betterquesting.api.events.MarkDirtyPlayerEvent;
 import betterquesting.api.events.QuestEvent;
 import betterquesting.api.events.QuestEvent.Type;
 import betterquesting.api.placeholders.FluidPlaceholder;
@@ -619,5 +620,10 @@ public class EventHandler {
         if (!(event.getEntity() instanceof EntityPlayer) || event.getEntity().world.isRemote) return;
 
         PlayerContainerListener.refreshListener((EntityPlayer) event.getEntity());
+    }
+
+    @SubscribeEvent
+    public void onMarkDirtyPlayer(MarkDirtyPlayerEvent event) {
+        SaveLoadHandler.INSTANCE.addDirtyPlayers(event.getDirtyPlayerIDs());
     }
 }
