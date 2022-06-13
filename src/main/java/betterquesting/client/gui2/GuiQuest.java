@@ -30,6 +30,7 @@ import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.client.gui2.editors.GuiQuestEditor;
+import betterquesting.client.gui2.editors.GuiRewardEditor;
 import betterquesting.client.gui2.editors.GuiTaskEditor;
 import betterquesting.network.handlers.NetQuestAction;
 import betterquesting.questing.QuestDatabase;
@@ -141,16 +142,24 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             @Override
             public boolean onMouseClick(int mx, int my, int click) {
                 if (click != 1) return false;
-                if (!(rectTask.getX() < mx && rectTask.getX() + rectTask.getWidth() > mx && rectTask.getY() < my && rectTask.getY() + rectTask.getHeight() > my))
-                    return false;
-                if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
+                if (rectTask.getX() < mx && rectTask.getX() + rectTask.getWidth() > mx && rectTask.getY() < my && rectTask.getY() + rectTask.getHeight() > my &&
+                        QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
                     PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 64, 16), true);
                     GuiTaskEditor editor = new GuiTaskEditor(new GuiQuest(parent, questID), quest);
                     Runnable action = () -> mc.displayGuiScreen(editor);
                     popup.addButton(QuestTranslation.translate("betterquesting.context.add_task"), null, action);
                     openPopup(popup);
                     return true;
-                } else return false;
+                }
+                else if(rectReward.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
+                    GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
+                    Runnable action = () -> mc.displayGuiScreen(editor);
+                    popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
+                    openPopup(popup);
+                    return true;
+                }
+                else return false;
             }
         };
         cvInner.addPanel(cvTaskPopup);

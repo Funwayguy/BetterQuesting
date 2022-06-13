@@ -305,3 +305,4 @@ betterquesting.notification.disabled=Quest Notifications: Off
 betterquesting.notification.tooltip=Toggle Quest Notifications
 
 betterquesting.context.add_task=Add Task
+betterquesting.context.add_reward=Add Reward
