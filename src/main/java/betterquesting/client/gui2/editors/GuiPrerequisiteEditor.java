@@ -157,11 +157,11 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
         List<DBEntry<IQuest>> arrReq = QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements());
         for (int i = 0; i < arrReq.size(); i++) {
-            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 32, 16, 0), 1,
+            PanelButtonStorage<DBEntry<IQuest>> btnEdit = new PanelButtonStorage<>(new GuiRectangle(0, i * 16, width - 48, 16, 0), 1,
                     QuestTranslation.translate(arrReq.get(i).getValue().getProperty(NativeProps.NAME)), arrReq.get(i));
             canvasPreReq.addPanel(btnEdit);
 
-            PanelButtonStorage<DBEntry<IQuest>> btnType = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), 6, "", arrReq.get(i));
+            PanelButtonStorage<DBEntry<IQuest>> btnType = new PanelButtonStorage<>(new GuiRectangle(width - 48, i * 16, 16, 16, 0), 6, "", arrReq.get(i));
             int arrReqID = arrReq.get(i).getID();
             btnType.setIcon(quest.getRequirementType(arrReqID).getIcon().getTexture());
             if (quest.getRequirementType(arrReqID) == IQuest.RequirementType.NORMAL)
@@ -171,6 +171,11 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             else
                 btnType.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.btn.visible_hidden")));
             canvasPreReq.addPanel(btnType);
+
+            PanelButtonStorage<DBEntry<IQuest>> btnUp = new PanelButtonStorage<>(new GuiRectangle(width - 32, i * 16, 16, 16, 0), 7, "", arrReq.get(i));
+            btnUp.setIcon(PresetIcon.ICON_UP.getTexture());
+            btnUp.setActive(arrReq.size() > 1);
+            canvasPreReq.addPanel(btnUp);
 
             PanelButtonStorage<DBEntry<IQuest>> btnRem = new PanelButtonStorage<>(new GuiRectangle(width - 16, i * 16, 16, 16, 0), 3, "", arrReq.get(i));
             btnRem.setIcon(PresetIcon.ICON_NEGATIVE.getTexture());
@@ -220,12 +225,36 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>) btn).getStoredValue();
             quest.setRequirementType(entry.getID(), quest.getRequirementType(entry.getID()).next());
             SendChanges();
+        } else if (btn.getButtonID() == 7) { // Reorder
+            DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>) btn).getStoredValue();
+            reorderReq(quest, entry.getID());
+            SendChanges();
         }
     }
 
     private boolean containsReq(IQuest quest, int id) {
         for (int reqID : quest.getRequirements()) if (id == reqID) return true;
         return false;
+    }
+
+    private void reorderReq(IQuest quest, int id) {
+        int[] orig = quest.getRequirements();
+
+        int indexToShift = -1;
+        for (int i = 0; i < orig.length; i++) {
+            if (orig[i] == id) {
+                indexToShift = i;
+                break;
+            }
+        }
+        if (indexToShift < 0) return;
+
+        int indexFrom = (indexToShift - 1 + orig.length) % orig.length;
+        int tmp = orig[indexToShift];
+        orig[indexToShift] = orig[indexFrom];
+        orig[indexFrom] = tmp;
+
+        quest.setRequirements(orig);
     }
 
     private void removeReq(IQuest quest, int id) {

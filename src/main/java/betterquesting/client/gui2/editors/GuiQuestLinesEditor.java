@@ -309,7 +309,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             lineList.addPanel(tmp);
             lineList.addPanel(new PanelButtonStorage<>(new GuiRectangle(w - 32, i * 16, 16, 16, 0), 6, "", entry).setIcon(PresetIcon.ICON_TRASH.getTexture()));
             PanelButton btnUp = new PanelButtonStorage<>(new GuiRectangle(w - 16, i * 16, 16, 16, 0), 7, "", entry).setIcon(PresetIcon.ICON_UP.getTexture());
-            btnUp.setActive(i > 0);
+            btnUp.setActive(QuestLineDatabase.INSTANCE.getSortedEntries().size() > 1);
             lineList.addPanel(btnUp);
             i++;
         }
@@ -328,7 +328,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     }
 
     private void SendReorder(int indexToShift) {
-        if (indexToShift <= 0) return;
+        if (indexToShift < 0) return;
         List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
         if (indexToShift >= entries.size()) return;
         int[] chapterIDs = new int[entries.size()];
@@ -336,9 +336,10 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
             chapterIDs[i] = entries.get(i).getID();
         }
 
+        int indexFrom = (indexToShift - 1 + chapterIDs.length) % chapterIDs.length;
         int tmp = chapterIDs[indexToShift];
-        chapterIDs[indexToShift] = chapterIDs[indexToShift - 1];
-        chapterIDs[indexToShift - 1] = tmp;
+        chapterIDs[indexToShift] = chapterIDs[indexFrom];
+        chapterIDs[indexFrom] = tmp;
 
         NBTTagCompound payload = new NBTTagCompound();
         payload.setIntArray("chapterIDs", chapterIDs);

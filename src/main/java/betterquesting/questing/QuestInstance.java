@@ -383,8 +383,7 @@ public class QuestInstance implements IQuest {
     }
 
     public void setRequirements(@Nonnull int[] req) {
-        Arrays.sort(req);
-        prereqTypes.retainEntries((a, b) -> Arrays.binarySearch(req, a) >= 0);
+        prereqTypes.retainEntries((a, b) -> Arrays.stream(req).anyMatch(i -> i == a));
         this.preRequisites = req;
     }
 
