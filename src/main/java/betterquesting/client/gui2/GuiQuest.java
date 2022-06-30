@@ -98,7 +98,46 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
 
         // Background panel
-        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture()) {
+            @Override
+            public boolean onMouseClick(int mx, int my, int click) {
+                if(click != 1) {
+                    return super.onMouseClick(mx, my, click);
+                }
+
+                // There are no current rewards, so create the pane
+                if(rectReward == null && !rectTask.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
+                    rectReward = new GuiTransform(new Vector4f(0F, 0.5F, 0.5F, 1F), new GuiPadding(0, 0, 8, 16), 0);
+                    rectReward.setParent(cvInner.getTransform());
+
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
+                    GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
+                    Runnable action = () -> mc.displayGuiScreen(editor);
+                    popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
+                    openPopup(popup);
+
+                    // Try to make sure that players have added rewards via the popup, instead of opening the popup, and then clicking off
+                    if(quest.getRewards().size() > 0) {
+                        refreshDescPanel(true);
+                        refreshRewardPanel();
+                    }
+                    return true;
+
+                }
+                // There are rewards, so just show the popup
+                else if(rectReward != null && rectReward.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
+                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
+                    GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
+                    Runnable action = () -> mc.displayGuiScreen(editor);
+                    popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
+                    openPopup(popup);
+                    return true;
+                }
+                else {
+                    return super.onMouseClick(mx, my, click);
+                }
+            }
+        };
         this.addPanel(cvBackground);
 
         PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate(quest.getProperty(NativeProps.NAME))).setAlignment(1);
@@ -150,14 +189,6 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
                     GuiTaskEditor editor = new GuiTaskEditor(new GuiQuest(parent, questID), quest);
                     Runnable action = () -> mc.displayGuiScreen(editor);
                     popup.addButton(QuestTranslation.translate("betterquesting.context.add_task"), null, action);
-                    openPopup(popup);
-                    return true;
-                }
-                else if(rectReward.contains(mx, my) && QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(mc.player)) {
-                    PopContextMenu popup = new PopContextMenu(new GuiRectangle(mx, my, 76, 16), true);
-                    GuiRewardEditor editor = new GuiRewardEditor(new GuiQuest(parent, questID), quest);
-                    Runnable action = () -> mc.displayGuiScreen(editor);
-                    popup.addButton(QuestTranslation.translate("betterquesting.context.add_reward"), null, action);
                     openPopup(popup);
                     return true;
                 }
