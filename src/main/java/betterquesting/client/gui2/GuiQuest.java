@@ -331,12 +331,14 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             yOffset += 12;
 
             IGuiPanel rewardGui = rew.getRewardGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectReward.getWidth(), rectReward.getHeight(), 111), new DBEntry<>(questID, quest));
-            rewardGui.initPanel();
-            // Wrapping into canvas allow avoid empty space at end
-            CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectReward.getWidth(), rewardGui.getTransform().getHeight() - rewardGui.getTransform().getY(), 1));
-            csReward.addPanel(tempCanvas);
-            tempCanvas.addPanel(rewardGui);
-            yOffset += tempCanvas.getTransform().getHeight();
+            if (rewardGui != null) {
+                rewardGui.initPanel();
+                // Wrapping into canvas allow avoid empty space at end
+                CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectReward.getWidth(), rewardGui.getTransform().getHeight() - rewardGui.getTransform().getY(), 1));
+                csReward.addPanel(tempCanvas);
+                tempCanvas.addPanel(rewardGui);
+                yOffset += tempCanvas.getTransform().getHeight();
+            }
         }
 
         csReward.setScrollY(scrollPosition.getRewardScrollY());
@@ -377,14 +379,14 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
             IGuiPanel taskGui = tsk.getTaskGui(new GuiTransform(GuiAlign.FULL_BOX, 0, 0, rectTask.getWidth(), rectTask.getHeight(), 0), new DBEntry<>(questID, quest));
             if (taskGui != null) {
                 taskGui.initPanel();
-            }
-            // Wrapping into canvas allow avoid empty space at end
-            CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectTask.getWidth(), taskGui.getTransform().getHeight() - taskGui.getTransform().getY(), 1));
-            csTask.addPanel(tempCanvas);
-            tempCanvas.addPanel(taskGui);
-            int guiHeight = tempCanvas.getTransform().getHeight();
-            yOffset += guiHeight;
+                // Wrapping into canvas allow avoid empty space at end
+                CanvasEmpty tempCanvas = new CanvasEmpty(new GuiTransform(GuiAlign.TOP_LEFT, 0, yOffset, rectTask.getWidth(), taskGui.getTransform().getHeight() - taskGui.getTransform().getY(), 1));
+                csTask.addPanel(tempCanvas);
+                tempCanvas.addPanel(taskGui);
+                int guiHeight = tempCanvas.getTransform().getHeight();
+                yOffset += guiHeight;
 
+            }
             //Indent from the previous
             yOffset += 8;
         }
