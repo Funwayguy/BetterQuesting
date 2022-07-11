@@ -90,6 +90,7 @@ public class ClientProxy extends CommonProxy {
         registerItemModel(BetterQuesting.extraLife, 2, BetterQuesting.MODID + ":heart_quarter");
         registerItemModel(BetterQuesting.guideBook);
         registerItemModelSubtypes(BetterQuesting.lootChest, 0, 104, BetterQuesting.lootChest.getRegistryName().toString());
+        registerItemModel(BetterQuesting.questBook);
 
         ThemeRegistry.INSTANCE.loadResourceThemes();
     }

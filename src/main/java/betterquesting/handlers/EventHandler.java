@@ -25,6 +25,7 @@ import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestLines;
 import betterquesting.client.themes.ThemeRegistry;
 import betterquesting.core.BetterQuesting;
+import betterquesting.items.ItemQuestBook;
 import betterquesting.network.handlers.*;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.questing.party.PartyInvitations;
@@ -41,6 +42,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.EnumHand;
@@ -72,6 +74,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -83,6 +86,8 @@ import java.util.UUID;
  */
 public class EventHandler {
     public static final EventHandler INSTANCE = new EventHandler();
+
+    private static final String SPAWN_WITH_QUEST_BOOK = BetterQuesting.MODID + ".questbook";
 
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
@@ -264,6 +269,19 @@ public class EventHandler {
 
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+
+        if(BQ_Settings.spawnWithQuestBook) {
+            NBTTagCompound playerData = event.player.getEntityData();
+            NBTTagCompound data = playerData.hasKey(EntityPlayer.PERSISTED_NBT_TAG) ? playerData.getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG) : new NBTTagCompound();
+
+            if (!data.getBoolean(SPAWN_WITH_QUEST_BOOK)) {
+                ItemStack questBook = new ItemStack(BetterQuesting.questBook);
+                ItemHandlerHelper.giveItemToPlayer(event.player, questBook);
+                data.setBoolean(SPAWN_WITH_QUEST_BOOK, true);
+                playerData.setTag(EntityPlayer.PERSISTED_NBT_TAG, data);
+            }
+        }
+
         if (!event.player.world.isRemote && event.player instanceof EntityPlayerMP) {
             NetLootSync.sendSync((EntityPlayerMP) event.player);
         }

@@ -19,6 +19,7 @@ import betterquesting.handlers.SaveLoadHandler;
 import betterquesting.items.ItemExtraLife;
 import betterquesting.items.ItemGuideBook;
 import betterquesting.items.ItemLootChest;
+import betterquesting.items.ItemQuestBook;
 import betterquesting.network.PacketQuesting;
 import betterquesting.network.PacketTypeRegistry;
 import net.minecraft.block.Block;
@@ -72,6 +73,7 @@ public class BetterQuesting {
     public static Item extraLife = new ItemExtraLife();
     public static Item guideBook = new ItemGuideBook();
     public static Item lootChest = new ItemLootChest();
+    public static Item questBook = new ItemQuestBook();
 
     public static Block submitStation = new BlockSubmitStation();
 

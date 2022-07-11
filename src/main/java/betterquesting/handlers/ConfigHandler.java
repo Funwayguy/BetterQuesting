@@ -37,6 +37,8 @@ public class ConfigHandler {
         BQ_Settings.viewMode = config.getBoolean("View mode", Configuration.CATEGORY_GENERAL, false, "If view mode enabled, User can view all quests");
 
         BQ_Settings.defaultVisibility = config.getString("Default Quest Visibility", Configuration.CATEGORY_GENERAL, "NORMAL", "The default visibility value used when creating quests");
+
+        BQ_Settings.spawnWithQuestBook = config.getBoolean("Spawn with Quest Book", Configuration.CATEGORY_GENERAL, true, "If true, then the player will spawn with a Quest Book when they first join the world");
         config.save();
     }
 }

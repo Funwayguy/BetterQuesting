@@ -65,6 +65,7 @@ public class RegEventHandler {
         ALL_ITEMS.add(BetterQuesting.extraLife.setRegistryName(BetterQuesting.MODID, "extra_life"));
         ALL_ITEMS.add(BetterQuesting.guideBook.setRegistryName(BetterQuesting.MODID, "guide_book"));
         ALL_ITEMS.add(BetterQuesting.lootChest.setRegistryName(BetterQuesting.MODID_STD, "loot_chest"));
+        ALL_ITEMS.add(BetterQuesting.questBook.setRegistryName(BetterQuesting.MODID, "quest_book"));
     }
 
     public static void addShapelessRecipe(String name, String group, ItemStack stack, Object... ing) {

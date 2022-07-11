@@ -121,6 +121,7 @@ item.betterquesting.extra_life.full.name=Extra Life
 item.betterquesting.extra_life.half.name=Half Heart
 item.betterquesting.extra_life.quarter.name=Quarter Heart
 item.betterquesting.guide.name=Better Questing Starter Guide
+item.betterquesting.quest_book.name=Quest Book
 
 tile.betterquesting.submit_station.name=Object Submission Station (OSS)
 
