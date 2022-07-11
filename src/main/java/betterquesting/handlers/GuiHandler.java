@@ -1,6 +1,8 @@
 package betterquesting.handlers;
 
+import betterquesting.api.storage.BQ_Settings;
 import betterquesting.blocks.TileSubmitStation;
+import betterquesting.client.gui2.GuiHome;
 import betterquesting.client.gui2.GuiQuestHelp;
 import betterquesting.client.gui2.editors.GuiEditLootGroup;
 import betterquesting.client.gui2.inventory.ContainerSubmitStation;
@@ -33,6 +35,14 @@ public class GuiHandler implements IGuiHandler {
             return new GuiQuestHelp(null);
         } else if (ID == 2) {
             return new GuiEditLootGroup(null);
+        }
+        else if(ID == 3) {
+            if(BQ_Settings.useBookmark && GuiHome.bookmark != null) {
+                return GuiHome.bookmark;
+            }
+            else {
+                return new GuiHome(null);
+            }
         }
 
         return null;
