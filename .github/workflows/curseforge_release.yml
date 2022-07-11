@@ -1,0 +1,66 @@
+# Requires a Release on GitHub of the current version
+name: Release to CurseForge
+
+# manually run, or automatically after the GitHub release is done
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release to GitHub"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Use Cached Gradle Packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties*') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew build
+
+      - name: Get Mod Version
+        id: get_version
+        run: echo ::set-output name=version::$(sed -n 's/^modVersion = \(.*\)/\1/p' < gradle.properties*)
+
+      - name: Get Mod Name
+        id: get_mod_name
+        run: echo ::set-output name=version::$(sed -n 's/^modBaseName = \(.*\)/\1/p' < gradle.properties*)
+
+      - name: Retrieve Release Notes from Release Tag
+        id: get_release_tag
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag: v${{ steps.get_version.outputs.version }}
+
+      - name: Create CurseForge Release
+        uses: itsmeow/curseforge-upload@v3
+        with:
+          game_versions: "Minecraft 1.12:1.12.2,Java 8,Forge"
+          game_endpoint: "minecraft"
+          release_type: "release"
+          changelog: "Changelog is available [here](${{ steps.get_release_tag.outputs.url }})."
+          changelog_type: "markdown"
+          relations: "better-questing:incompatible,better-questing-standard-expansion:incompatible,bqtweaker:incompatible"
+          file_path: build/libs/{{ steps.get_mod_name.outputs.name }}-{{ steps.get_version.outputs.version }}.jar
+          project_id: "${{ secrets.CURSEFORGE_PROJECT_ID }}"
+          token: "${{ secrets.CURSEFORGE_API_KEY }}"

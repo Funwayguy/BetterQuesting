@@ -1,0 +1,26 @@
+# This file must be named 'release.yml' for release configuration to work
+changelog:
+
+  exclude:
+    labels:
+      - ignore-for-release
+
+  categories:
+    - title: Breaking Changes
+      labels:
+        - breaking-change
+
+    - title: Features
+      labels:
+        - enhancement
+        - feature
+        - feat
+
+    - title: Bug Fixes
+      labels:
+        - bugfix
+        - fix
+
+    - title: Other Changes
+      labels:
+        - "*"
