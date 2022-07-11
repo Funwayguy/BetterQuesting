@@ -42,7 +42,7 @@ jobs:
 
       - name: Get Mod Name
         id: get_mod_name
-        run: echo ::set-output name=version::$(sed -n 's/^modBaseName = \(.*\)/\1/p' < gradle.properties*)
+        run: echo ::set-output name=mod_name::$(sed -n 's/^modBaseName = \(.*\)/\1/p' < gradle.properties*)
 
       - name: Retrieve Release Notes from Release Tag
         id: get_release_tag
@@ -61,6 +61,6 @@ jobs:
           changelog: "Changelog is available [here](${{ steps.get_release_tag.outputs.url }})."
           changelog_type: "markdown"
           relations: "better-questing:incompatible,better-questing-standard-expansion:incompatible,bqtweaker:incompatible"
-          file_path: build/libs/${{ steps.get_mod_name.outputs.name }}-${{ steps.get_version.outputs.version }}.jar
+          file_path: build/libs/${{ steps.get_mod_name.outputs.mod_name }}-${{ steps.get_version.outputs.version }}.jar
           project_id: "${{ secrets.CURSEFORGE_PROJECT_ID }}"
           token: "${{ secrets.CURSEFORGE_API_KEY }}"
