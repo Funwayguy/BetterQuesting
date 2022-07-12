@@ -16,26 +16,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v2
-        with:
-          java-version: '8'
-          distribution: 'adopt'
-
-      - name: Use Cached Gradle Packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties*') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Build with Gradle
-        run: |
-          chmod +x gradlew
-          ./gradlew build
-
       - name: Get Mod Version
         id: get_version
         run: echo ::set-output name=version::$(sed -n 's/^modVersion = \(.*\)/\1/p' < gradle.properties*)
@@ -44,13 +24,13 @@ jobs:
         id: get_mod_name
         run: echo ::set-output name=mod_name::$(sed -n 's/^modBaseName = \(.*\)/\1/p' < gradle.properties*)
 
-      - name: Retrieve Release Notes from Release Tag
-        id: get_release_tag
-        uses: cardinalby/git-get-release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Retrieve Jar from Latest Release
+        uses: dsaltares/fetch-gh-release-asset@master
         with:
-          tag: v${{ steps.get_version.outputs.version }}
+          repo: "${{ github.repository }}"
+          version: "tags/v${{ steps.get_version.outputs.version }}"
+          file: "${{ steps.get_mod_name.outputs.mod_name }}-${{ steps.get_version.outputs.version }}.jar"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create CurseForge Release
         uses: itsmeow/curseforge-upload@v3
@@ -58,9 +38,9 @@ jobs:
           game_versions: "Minecraft 1.12:1.12.2,Java 8,Forge"
           game_endpoint: "minecraft"
           release_type: "release"
-          changelog: "Changelog is available [here](${{ steps.get_release_tag.outputs.url }})."
+          changelog: "Changelog is available [here](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.get_version.outputs.version }})."
           changelog_type: "markdown"
           relations: "better-questing:incompatible,better-questing-standard-expansion:incompatible,bqtweaker:incompatible"
-          file_path: build/libs/${{ steps.get_mod_name.outputs.mod_name }}-${{ steps.get_version.outputs.version }}.jar
+          file_path: "${{ steps.get_mod_name.outputs.mod_name }}-${{ steps.get_version.outputs.version }}.jar"
           project_id: "${{ secrets.CURSEFORGE_PROJECT_ID }}"
           token: "${{ secrets.CURSEFORGE_API_KEY }}"

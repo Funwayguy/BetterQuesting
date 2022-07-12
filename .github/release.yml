@@ -3,7 +3,7 @@ changelog:
 
   exclude:
     labels:
-      - ignore-for-release
+      - skip-changelog
 
   categories:
     - title: Breaking Changes
@@ -18,6 +18,7 @@ changelog:
 
     - title: Bug Fixes
       labels:
+        - bug
         - bugfix
         - fix
 
