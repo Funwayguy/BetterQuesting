@@ -29,129 +29,139 @@ import betterquesting.api2.utils.QuestTranslation;
 import betterquesting.network.handlers.NetPartyAction;
 import betterquesting.questing.party.PartyManager;
 import betterquesting.storage.NameCache;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.client.gui.GuiPlayerInfo;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.input.Keyboard;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener
-{
+public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener {
     private IParty party;
     private int partyID;
     private PanelTextField<String> flName;
-    
-    public GuiPartyInvite(GuiScreen parent)
-    {
+
+    public GuiPartyInvite(GuiScreen parent) {
         super(parent);
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
-    public void initPanel()
-    {
+    public void initPanel() {
         super.initPanel();
-        
+
         UUID playerID = QuestingAPI.getQuestingUUID(mc.thePlayer);
         DBEntry<IParty> tmp = PartyManager.INSTANCE.getParty(playerID);
-        
-        if(tmp == null)
-        {
+
+        if (tmp == null) {
             mc.displayGuiScreen(parent);
             return;
         }
-        
+
         party = tmp.getValue();
         partyID = tmp.getID();
-        
+
         PEventBroadcaster.INSTANCE.register(this, PEventButton.class);
         Keyboard.enableRepeatEvents(true);
-    
+
         // Background panel
-        CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0), PresetTexture.PANEL_MAIN.getTexture());
+        CanvasTextured cvBackground = new CanvasTextured(
+                new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
+                PresetTexture.PANEL_MAIN.getTexture());
         this.addPanel(cvBackground);
-    
-        cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0, QuestTranslation.translate("gui.back")));
-    
-        PanelTextBox txTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0), QuestTranslation.translate("betterquesting.title.party_invite", party.getProperties().getProperty(NativeProps.NAME))).setAlignment(1);
+
+        cvBackground.addPanel(new PanelButton(
+                new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0),
+                0,
+                QuestTranslation.translate("gui.back")));
+
+        PanelTextBox txTitle = new PanelTextBox(
+                        new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
+                        QuestTranslation.translate(
+                                "betterquesting.title.party_invite",
+                                party.getProperties().getProperty(NativeProps.NAME)))
+                .setAlignment(1);
         txTitle.setColor(PresetColor.TEXT_HEADER.getColor());
         cvBackground.addPanel(txTitle);
-        
-        flName = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(32, 32, 72, -48), 0), "", FieldFilterString.INSTANCE);
+
+        flName = new PanelTextField<>(
+                new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(32, 32, 72, -48), 0),
+                "",
+                FieldFilterString.INSTANCE);
         flName.setMaxLength(16);
         flName.setWatermark("Username");
         cvBackground.addPanel(flName);
-        
-        PanelButton btnInvite = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-72, 32, 32, -48), 0), 1, QuestTranslation.translate("betterquesting.btn.party_invite"));
+
+        PanelButton btnInvite = new PanelButton(
+                new GuiTransform(GuiAlign.TOP_RIGHT, new GuiPadding(-72, 32, 32, -48), 0),
+                1,
+                QuestTranslation.translate("betterquesting.btn.party_invite"));
         cvBackground.addPanel(btnInvite);
-    
-        CanvasScrolling cvNameList = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(32, 64, 40, 32), 0));
+
+        CanvasScrolling cvNameList =
+                new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(32, 64, 40, 32), 0));
         cvBackground.addPanel(cvNameList);
-        
-        PanelVScrollBar scNameScroll = new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
+
+        PanelVScrollBar scNameScroll =
+                new PanelVScrollBar(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(0, 0, -8, 0), 0));
         cvBackground.addPanel(scNameScroll);
         scNameScroll.getTransform().setParent(cvNameList.getTransform());
         cvNameList.setScrollDriverY(scNameScroll);
-        
+
         int listWidth = cvBackground.getTransform().getWidth() - 64;
         int nameSize = RenderUtils.getStringWidth("________________", fontRendererObj);
-        int columnNum = listWidth/nameSize;
-        
+        int columnNum = listWidth / nameSize;
+
         List<String> nameList = new ArrayList<>();
-        ((List<GuiPlayerInfo>)mc.thePlayer.sendQueue.playerInfoList).forEach((info) -> nameList.add(info.name));
-        
+        ((List<GuiPlayerInfo>) mc.thePlayer.sendQueue.playerInfoList).forEach((info) -> nameList.add(info.name));
+
         nameList.removeIf((entry) -> {
-           UUID memID = NameCache.INSTANCE.getUUID(entry);
-           return memID != null && party.getStatus(memID) != null;
+            UUID memID = NameCache.INSTANCE.getUUID(entry);
+            return memID != null && party.getStatus(memID) != null;
         });
-        
-        for(int i = 0; i < nameList.size(); i++)
-        {
+
+        for (int i = 0; i < nameList.size(); i++) {
             int x1 = i % columnNum;
             int y1 = i / columnNum;
             String name = nameList.get(i);
-            PanelButtonStorage<String> btnName = new PanelButtonStorage<>(new GuiRectangle(x1 * nameSize, y1 * 16, nameSize, 16), 2, name, name);
+            PanelButtonStorage<String> btnName =
+                    new PanelButtonStorage<>(new GuiRectangle(x1 * nameSize, y1 * 16, nameSize, 16), 2, name, name);
             cvNameList.addPanel(btnName);
         }
-        
+
         scNameScroll.setActive(cvNameList.getScrollBounds().getHeight() > 0);
     }
-    
+
     @Override
-    public void onPanelEvent(PanelEvent event)
-    {
-        if(event instanceof PEventButton)
-        {
-            onButtonPress((PEventButton)event);
+    public void onPanelEvent(PanelEvent event) {
+        if (event instanceof PEventButton) {
+            onButtonPress((PEventButton) event);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
-    private void onButtonPress(PEventButton event)
-    {
+    private void onButtonPress(PEventButton event) {
         IPanelButton btn = event.getButton();
-    
-        if(btn.getButtonID() == 0) // Exit
+
+        if (btn.getButtonID() == 0) // Exit
         {
             mc.displayGuiScreen(this.parent);
-        } else if(btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
-        {
-			NBTTagCompound payload = new NBTTagCompound();
-			payload.setInteger("action", 3);
-			payload.setInteger("partyID", partyID);
-			payload.setString("username", flName.getRawText());
-			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
-            NetPartyAction.sendAction(payload);
-        } else if(btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
+        } else if (btn.getButtonID() == 1 && flName.getRawText().length() > 0) // Manual Invite
         {
             NBTTagCompound payload = new NBTTagCompound();
             payload.setInteger("action", 3);
             payload.setInteger("partyID", partyID);
-            payload.setString("username", ((PanelButtonStorage<String>)btn).getStoredValue());
-			payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
+            payload.setString("username", flName.getRawText());
+            payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
+            NetPartyAction.sendAction(payload);
+        } else if (btn.getButtonID() == 2 && btn instanceof PanelButtonStorage) // Invite
+        {
+            NBTTagCompound payload = new NBTTagCompound();
+            payload.setInteger("action", 3);
+            payload.setInteger("partyID", partyID);
+            payload.setString("username", ((PanelButtonStorage<String>) btn).getStoredValue());
+            payload.setLong("expiry", 300000L); // 5 minutes in milliseconds
             NetPartyAction.sendAction(payload);
         }
     }

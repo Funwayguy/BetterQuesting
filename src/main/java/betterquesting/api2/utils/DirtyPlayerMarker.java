@@ -1,10 +1,9 @@
 package betterquesting.api2.utils;
 
 import betterquesting.api.events.MarkDirtyPlayerEvent;
-import net.minecraftforge.common.MinecraftForge;
-
 import java.util.Collection;
 import java.util.UUID;
+import net.minecraftforge.common.MinecraftForge;
 
 public class DirtyPlayerMarker {
     public static void markDirty(Collection<UUID> players) {

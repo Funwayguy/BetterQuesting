@@ -20,11 +20,6 @@ import betterquesting.storage.QuestSettings;
 import com.google.gson.JsonObject;
 import cpw.mods.fml.common.Loader;
 import io.netty.util.internal.ConcurrentSet;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +31,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.MinecraftForge;
 
 public class SaveLoadHandler {
     public static SaveLoadHandler INSTANCE = new SaveLoadHandler();
@@ -43,8 +42,7 @@ public class SaveLoadHandler {
     private boolean hasUpdate = false;
     private boolean isDirty = false;
 
-    private File
-            fileDatabase = null,
+    private File fileDatabase = null,
             fileProgress = null,
             dirProgress = null,
             fileParties = null,
@@ -163,7 +161,7 @@ public class SaveLoadHandler {
         LifeDatabase.INSTANCE.reset();
         NameCache.INSTANCE.reset();
 
-        //QuestCache.INSTANCE.reset();
+        // QuestCache.INSTANCE.reset();
 
         if (BetterQuesting.proxy.isClient()) {
             GuiHome.bookmark = null;
@@ -189,7 +187,8 @@ public class SaveLoadHandler {
         } else {
             JsonObject defTmp = JsonHelper.ReadFromFile(fileDefaultDatabase);
             QuestSettings tmpSettings = new QuestSettings();
-            tmpSettings.readFromNBT(NBTConverter.JSONtoNBT_Object(defTmp, new NBTTagCompound(), true).getCompoundTag("questSettings"));
+            tmpSettings.readFromNBT(NBTConverter.JSONtoNBT_Object(defTmp, new NBTTagCompound(), true)
+                    .getCompoundTag("questSettings"));
             packVer = tmpSettings.getProperty(NativeProps.PACK_VER);
             packName = tmpSettings.getProperty(NativeProps.PACK_NAME);
         }
@@ -208,13 +207,25 @@ public class SaveLoadHandler {
 
             if (fsVer.length() <= 0) fsVer = "pre-251";
 
-            BetterQuesting.logger.warn("BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + currVer + "\"! Creating backups...");
+            BetterQuesting.logger.warn("BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + currVer
+                    + "\"! Creating backups...");
 
-            JsonHelper.CopyPaste(fileDatabase, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestDatabase_backup_" + fsVer + ".json"));
-            JsonHelper.CopyPaste(fileProgress, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestProgress_backup_" + fsVer + ".json"));
-            JsonHelper.CopyPaste(fileParties, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestingParties_backup_" + fsVer + ".json"));
-            JsonHelper.CopyPaste(fileNames, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "NameCache_backup_" + fsVer + ".json"));
-            JsonHelper.CopyPaste(fileLives, new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "LifeDatabase_backup_" + fsVer + ".json"));
+            JsonHelper.CopyPaste(
+                    fileDatabase,
+                    new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestDatabase_backup_" + fsVer + ".json"));
+            JsonHelper.CopyPaste(
+                    fileProgress,
+                    new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestProgress_backup_" + fsVer + ".json"));
+            JsonHelper.CopyPaste(
+                    fileParties,
+                    new File(
+                            BQ_Settings.curWorldDir + "/backup/" + fsVer, "QuestingParties_backup_" + fsVer + ".json"));
+            JsonHelper.CopyPaste(
+                    fileNames,
+                    new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "NameCache_backup_" + fsVer + ".json"));
+            JsonHelper.CopyPaste(
+                    fileLives,
+                    new File(BQ_Settings.curWorldDir + "/backup/" + fsVer, "LifeDatabase_backup_" + fsVer + ".json"));
         }
 
         legacyLoader = LegacyLoaderRegistry.getLoader(formatVer);
@@ -228,7 +239,8 @@ public class SaveLoadHandler {
         }
 
         if (useDef) QuestSettings.INSTANCE.setProperty(NativeProps.EDIT_MODE, false); // Force edit off
-        hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME)) && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
+        hasUpdate = packName.equals(QuestSettings.INSTANCE.getProperty(NativeProps.PACK_NAME))
+                && packVer > QuestSettings.INSTANCE.getProperty(NativeProps.PACK_VER);
     }
 
     private void loadProgress() {
@@ -310,7 +322,8 @@ public class SaveLoadHandler {
     }
 
     private List<Future<Void>> saveProgress() {
-        final List<Future<Void>> futures = dirtyPlayers.stream().map(this::savePlayerProgress).collect(Collectors.toList());
+        final List<Future<Void>> futures =
+                dirtyPlayers.stream().map(this::savePlayerProgress).collect(Collectors.toList());
         dirtyPlayers.clear();
         return futures;
     }
@@ -342,9 +355,13 @@ public class SaveLoadHandler {
     public Future<Void> savePlayerProgress(UUID player) {
         NBTTagCompound json = new NBTTagCompound();
 
-        json.setTag("questProgress", QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), Collections.singletonList(player)));
+        json.setTag(
+                "questProgress",
+                QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), Collections.singletonList(player)));
 
-        return JsonHelper.WriteToFile2(new File(dirProgress, player.toString() + ".json"), out -> NBTConverter.NBTtoJSON_Compound(json, out, true));
+        return JsonHelper.WriteToFile2(
+                new File(dirProgress, player.toString() + ".json"),
+                out -> NBTConverter.NBTtoJSON_Compound(json, out, true));
     }
 
     private List<File> getPlayerProgressFiles() {
@@ -354,5 +371,4 @@ public class SaveLoadHandler {
         }
         return Arrays.stream(files).filter(f -> f.getName().endsWith(".json")).collect(Collectors.toList());
     }
-
 }

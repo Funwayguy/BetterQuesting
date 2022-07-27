@@ -4,8 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class EmptyLookupLogic<T> extends LookupLogic<T> {
-    public EmptyLookupLogic(SimpleDatabase<T> simpleDatabase)
-    {
+    public EmptyLookupLogic(SimpleDatabase<T> simpleDatabase) {
         super(simpleDatabase);
     }
 

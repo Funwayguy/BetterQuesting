@@ -1,7 +1,6 @@
 package betterquesting.api.events;
 
 import cpw.mods.fml.common.eventhandler.Event;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeSet;

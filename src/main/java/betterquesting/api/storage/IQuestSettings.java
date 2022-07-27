@@ -1,11 +1,10 @@
 package betterquesting.api.storage;
 
-import net.minecraft.entity.player.EntityPlayer;
 import betterquesting.api.properties.IPropertyContainer;
+import net.minecraft.entity.player.EntityPlayer;
 
+public interface IQuestSettings extends IPropertyContainer {
+    boolean canUserEdit(EntityPlayer player);
 
-public interface IQuestSettings extends IPropertyContainer
-{
-	boolean canUserEdit(EntityPlayer player);
     void reset();
 }
