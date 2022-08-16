@@ -171,7 +171,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         btnSearch.setClickAction(this::openSearch);
         btnSearch.setTooltip(Collections.singletonList(QuestTranslation.translate("betterquesting.gui.search")));
         cvBackground.addPanel(btnSearch);
-        
+
         if(canEdit)
         {
             PanelButton btnEdit = new PanelButton(new GuiTransform(GuiAlign.BOTTOM_LEFT, 8, -56, 16, 16, 0), -1, "").setIcon(PresetIcon.ICON_GEAR.getTexture());
@@ -377,7 +377,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
             refreshQuestCompletion();
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
-            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         }
 
@@ -596,6 +595,7 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
                 questsCompleted++;
             }
         }
+        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
     }
 
     private void openQuestLine(DBEntry<IQuestLine> q) {
@@ -609,7 +609,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
         icoChapter.setTexture(new OreDictTexture(1F, q.getValue().getProperty(NativeProps.ICON), false, true), null);
         txTitle.setText(QuestTranslation.translate(q.getValue().getUnlocalisedName()));
         refreshQuestCompletion();
-        completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
 
         if(!trayLock)
         {
@@ -643,7 +642,6 @@ public class GuiQuestLines extends GuiScreenCanvas implements IPEventListener, I
 
         if (selectedLine != null) {
             refreshQuestCompletion();
-            completionText.setText(QuestTranslation.translate("betterquesting.title.completion", questsCompleted, totalQuests));
             txTitle.setText(QuestTranslation.translate(selectedLine.getUnlocalisedName()));
             icoChapter.setTexture(new OreDictTexture(1F, selectedLine.getProperty(NativeProps.ICON), false, true), null);
         } else
