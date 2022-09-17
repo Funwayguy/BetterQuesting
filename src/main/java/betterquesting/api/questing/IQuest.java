@@ -9,99 +9,91 @@ import betterquesting.api2.storage.IDatabaseNBT;
 import betterquesting.api2.storage.INBTProgress;
 import betterquesting.api2.storage.INBTSaveLoad;
 import betterquesting.api2.utils.QuestTranslation;
-import java.util.Locale;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
-public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer {
-    EnumQuestState getState(EntityPlayer player);
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Locale;
+import java.util.UUID;
 
-    @Nullable
-    NBTTagCompound getCompletionInfo(UUID uuid);
+public interface IQuest extends INBTSaveLoad<NBTTagCompound>, INBTProgress<NBTTagCompound>, IPropertyContainer
+{
+	EnumQuestState getState(EntityPlayer player);
+	
+	@Nullable
+	NBTTagCompound getCompletionInfo(UUID uuid);
+	void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
+	
+	void update(EntityPlayer player);
+	void detect(EntityPlayer player);
+	
+	boolean isUnlocked(UUID uuid);
+	boolean canSubmit(EntityPlayer player);
+	
+	boolean isComplete(UUID uuid);
+	void setComplete(UUID uuid, long timeStamp);
 
-    void setCompletionInfo(UUID uuid, @Nullable NBTTagCompound nbt);
+	/**
+	 * Can claim now. (Basically includes info from rewards (is choice reward chosen, for example))
+	 */
+	boolean canClaim(EntityPlayer player);
 
-    void update(EntityPlayer player);
+	/**
+	 * Can we claim reward at all. (If reward available but we can't claim cuz a rewards not ready (choice reward not chosen, for example))
+	 */
+	boolean canClaimBasically(EntityPlayer player);
+	boolean hasClaimed(UUID uuid);
+	void claimReward(EntityPlayer player);
+	void setClaimed(UUID uuid, long timestamp);
+	
+	void resetUser(@Nullable UUID uuid, boolean fullReset);
+	
+	IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
+	IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
+	
+	@Nonnull
+	int[] getRequirements();
+	void setRequirements(@Nonnull int[] req);
 
-    void detect(EntityPlayer player);
+	@Nonnull
+	RequirementType getRequirementType(int req);
+	void setRequirementType(int req, @Nonnull RequirementType kind);
 
-    boolean isUnlocked(UUID uuid);
+	enum RequirementType {
+		NORMAL(PresetIcon.ICON_VISIBILITY_NORMAL),
+		IMPLICIT(PresetIcon.ICON_VISIBILITY_IMPLICIT),
+		HIDDEN(PresetIcon.ICON_VISIBILITY_HIDDEN);
 
-    boolean canSubmit(EntityPlayer player);
+		private final PresetIcon icon;
+		private final String buttonTooltip;
 
-    boolean isComplete(UUID uuid);
+		private static final RequirementType[] VALUES = values();
 
-    void setComplete(UUID uuid, long timeStamp);
+		RequirementType(PresetIcon icon) {
+			this.icon = icon;
+			buttonTooltip = "betterquesting.btn.prereq_visbility." + name().toLowerCase(Locale.ROOT);
+		}
 
-    /**
-     * Can claim now. (Basically includes info from rewards (is choice reward chosen, for example))
-     */
-    boolean canClaim(EntityPlayer player);
+		public byte id() {
+			return (byte) ordinal();
+		}
 
-    /**
-     * Can we claim reward at all. (If reward available but we can't claim cuz a rewards not ready (choice reward not chosen, for example))
-     */
-    boolean canClaimBasically(EntityPlayer player);
+		public PresetIcon getIcon() {
+			return icon;
+		}
 
-    boolean hasClaimed(UUID uuid);
+		public String getButtonTooltip() {
+			return QuestTranslation.translate(buttonTooltip);
+		}
 
-    void claimReward(EntityPlayer player);
+		public RequirementType next() {
+			return VALUES[(ordinal()+1) % VALUES.length];
+		}
 
-    void setClaimed(UUID uuid, long timestamp);
-
-    void resetUser(@Nullable UUID uuid, boolean fullReset);
-
-    IDatabaseNBT<ITask, NBTTagList, NBTTagList> getTasks();
-
-    IDatabaseNBT<IReward, NBTTagList, NBTTagList> getRewards();
-
-    @Nonnull
-    int[] getRequirements();
-
-    void setRequirements(@Nonnull int[] req);
-
-    @Nonnull
-    RequirementType getRequirementType(int req);
-
-    void setRequirementType(int req, @Nonnull RequirementType kind);
-
-    enum RequirementType {
-        NORMAL(PresetIcon.ICON_VISIBILITY_NORMAL),
-        IMPLICIT(PresetIcon.ICON_VISIBILITY_IMPLICIT),
-        HIDDEN(PresetIcon.ICON_VISIBILITY_HIDDEN);
-
-        private final PresetIcon icon;
-        private final String buttonTooltip;
-
-        private static final RequirementType[] VALUES = values();
-
-        RequirementType(PresetIcon icon) {
-            this.icon = icon;
-            buttonTooltip = "betterquesting.btn.prereq_visbility." + name().toLowerCase(Locale.ROOT);
-        }
-
-        public byte id() {
-            return (byte) ordinal();
-        }
-
-        public PresetIcon getIcon() {
-            return icon;
-        }
-
-        public String getButtonTooltip() {
-            return QuestTranslation.translate(buttonTooltip);
-        }
-
-        public RequirementType next() {
-            return VALUES[(ordinal() + 1) % VALUES.length];
-        }
-
-        public static RequirementType from(byte id) {
-            return id >= 0 && id < VALUES.length ? VALUES[id] : NORMAL;
-        }
-    }
+		public static RequirementType from(byte id) {
+			return id >=0 && id < VALUES.length ? VALUES[id] : NORMAL;
+		}
+	}
 }

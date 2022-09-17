@@ -1,34 +1,37 @@
 package betterquesting.api2.storage;
 
-import static betterquesting.api2.storage.SimpleDatabase.*;
-
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-enum LookupLogicType {
-    Empty(db -> db.mapDB.isEmpty(), EmptyLookupLogic::new),
-    ArrayCache(
-            db -> db.mapDB.size() < CACHE_MAX_SIZE
-                    && db.mapDB.size() > SPARSE_RATIO * (db.mapDB.lastKey() - db.mapDB.firstKey()),
-            ArrayCacheLookupLogic::new),
-    Naive(db -> true, NaiveLookupLogic::new);
-    private final Predicate<SimpleDatabase<?>> shouldUse;
-    private final Function<SimpleDatabase<?>, LookupLogic<?>> factory;
+import static betterquesting.api2.storage.SimpleDatabase.*;
 
-    LookupLogicType(Predicate<SimpleDatabase<?>> shouldUse, Function<SimpleDatabase<?>, LookupLogic<?>> factory) {
-        this.shouldUse = shouldUse;
-        this.factory = factory;
-    }
+enum LookupLogicType
+{
+	Empty(db -> db.mapDB.isEmpty(), EmptyLookupLogic::new),
+	ArrayCache(db -> db.mapDB.size() < CACHE_MAX_SIZE && db.mapDB.size() > SPARSE_RATIO * (db.mapDB.lastKey() - db.mapDB.firstKey()), ArrayCacheLookupLogic::new),
+	Naive(db -> true, NaiveLookupLogic::new);
+	private final Predicate<SimpleDatabase<?>> shouldUse;
+	private final Function<SimpleDatabase<?>, LookupLogic<?>> factory;
 
-    static LookupLogicType determine(SimpleDatabase<?> db) {
-        for (LookupLogicType type : values()) {
-            if (type.shouldUse.test(db)) return type;
-        }
-        return Naive;
-    }
+	LookupLogicType(Predicate<SimpleDatabase<?>> shouldUse, Function<SimpleDatabase<?>, LookupLogic<?>> factory)
+	{
+		this.shouldUse = shouldUse;
+		this.factory = factory;
+	}
 
-    @SuppressWarnings("unchecked")
-    <T> LookupLogic<T> get(SimpleDatabase<T> db) {
-        return (LookupLogic<T>) factory.apply(db);
-    }
+	static LookupLogicType determine(SimpleDatabase<?> db)
+	{
+		for(LookupLogicType type : values())
+		{
+			if(type.shouldUse.test(db))
+				return type;
+		}
+		return Naive;
+	}
+
+	@SuppressWarnings("unchecked")
+	<T> LookupLogic<T> get(SimpleDatabase<T> db)
+	{
+		return (LookupLogic<T>) factory.apply(db);
+	}
 }

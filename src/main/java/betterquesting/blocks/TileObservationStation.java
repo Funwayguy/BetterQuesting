@@ -11,11 +11,6 @@ import betterquesting.api.questing.tasks.ITask;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.ParticipantInfo;
 import betterquesting.storage.QuestSettings;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -29,6 +24,12 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 public class TileObservationStation extends TileEntity {
     public UUID owner = null;
     private static final String NBT_KEY_OWNER = "owner";
@@ -36,10 +37,12 @@ public class TileObservationStation extends TileEntity {
     @Override
     public void updateEntity() {
         if (this.owner == null
-                || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)
-                || this.worldObj == null
-                || this.worldObj.isRemote
-                || this.worldObj.getTotalWorldTime() % 20 != 0) return;
+            || QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)
+            || this.worldObj == null
+            || this.worldObj.isRemote
+            || this.worldObj.getTotalWorldTime() % 20 != 0
+        )
+            return;
 
         final EntityPlayerMP player = getPlayerByUUID(this.owner);
         if (player == null) return;
@@ -50,7 +53,10 @@ public class TileObservationStation extends TileEntity {
         List<FluidStack> fluids = new ArrayList<>();
         for (ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
             TileEntity tile = this.worldObj.getTileEntity(
-                    this.xCoord + side.offsetX, this.yCoord + side.offsetY, this.zCoord + side.offsetZ);
+                this.xCoord + side.offsetX,
+                this.yCoord + side.offsetY,
+                this.zCoord + side.offsetZ
+            );
             if (tile instanceof IInventory) {
                 IInventory inventory = (IInventory) tile;
                 for (int i = 0; i < inventory.getSizeInventory(); i++) {

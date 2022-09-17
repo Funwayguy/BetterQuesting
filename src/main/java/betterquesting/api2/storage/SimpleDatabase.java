@@ -2,7 +2,8 @@ package betterquesting.api2.storage;
 
 import java.util.*;
 
-public abstract class SimpleDatabase<T> implements IDatabase<T> {
+public abstract class SimpleDatabase<T> implements IDatabase<T>
+{
     /**
      * If the cache size would somehow exceed 24MB (on 64bit machines) we stop.
      */
@@ -21,7 +22,8 @@ public abstract class SimpleDatabase<T> implements IDatabase<T> {
     private LookupLogicType type = null;
     private LookupLogic<T> logic = null;
 
-    private LookupLogic<T> getLookupLogic() {
+    private LookupLogic<T> getLookupLogic()
+    {
         if (type != null) return logic;
         LookupLogicType newType = LookupLogicType.determine(this);
         type = newType;
@@ -29,81 +31,100 @@ public abstract class SimpleDatabase<T> implements IDatabase<T> {
         return logic;
     }
 
-    private void updateLookupLogic() {
-        if (type == null) return;
+    private void updateLookupLogic()
+    {
+        if(type == null) return;
         LookupLogicType newType = LookupLogicType.determine(this);
-        if (newType != type) {
+        if(newType != type)
+        {
             type = null;
             logic = null;
-        } else {
+        }
+        else
+        {
             logic.onDataChange();
         }
     }
 
     @Override
-    public synchronized int nextID() {
+    public synchronized int nextID()
+    {
         return idMap.nextClearBit(0);
     }
 
     @Override
-    public synchronized DBEntry<T> add(int id, T value) {
-        if (value == null) {
+    public synchronized DBEntry<T> add(int id, T value)
+    {
+        if(value == null)
+        {
             throw new NullPointerException("Value cannot be null");
-        } else if (id < 0) {
+        } else if(id < 0)
+        {
             throw new IllegalArgumentException("ID cannot be negative");
-        } else {
-            if (mapDB.putIfAbsent(id, value) == null) {
+        } else
+        {
+            if(mapDB.putIfAbsent(id, value) == null)
+            {
                 idMap.set(id);
                 updateLookupLogic();
                 return new DBEntry<>(id, value);
-            } else {
+            } else
+            {
                 throw new IllegalArgumentException("ID or value is already contained within database");
             }
         }
     }
 
     @Override
-    public synchronized boolean removeID(int key) {
-        if (key < 0) return false;
-
-        if (mapDB.remove(key) != null) {
+    public synchronized boolean removeID(int key)
+    {
+        if(key < 0) return false;
+        
+        if(mapDB.remove(key) != null)
+        {
             idMap.clear(key);
             updateLookupLogic();
             return true;
         }
-
+        
         return false;
     }
-
+    
     @Override
-    public synchronized boolean removeValue(T value) {
+    public synchronized boolean removeValue(T value)
+    {
         return value != null && removeID(getID(value));
     }
-
+    
     @Override
-    public synchronized int getID(T value) {
-        if (value == null) return -1;
-
-        for (DBEntry<T> entry : getEntries()) {
-            if (entry.getValue() == value) return entry.getID();
+    public synchronized int getID(T value)
+    {
+        if(value == null) return -1;
+        
+        for(DBEntry<T> entry : getEntries())
+        {
+            if(entry.getValue() == value) return entry.getID();
         }
-
+        
         return -1;
     }
-
+    
     @Override
-    public synchronized T getValue(int id) {
-        if (id < 0 || mapDB.size() <= 0) return null;
+    public synchronized T getValue(int id)
+    {
+        if(id < 0 || mapDB.size() <= 0) return null;
         return mapDB.get(id);
     }
-
+    
     @Override
-    public synchronized int size() {
+    public synchronized int size()
+    {
         return mapDB.size();
     }
-
+    
     @Override
-    public synchronized void reset() {
+    public synchronized void reset()
+    {
         mapDB.clear();
         idMap.clear();
         type = null;
@@ -111,7 +132,8 @@ public abstract class SimpleDatabase<T> implements IDatabase<T> {
     }
 
     @Override
-    public synchronized List<DBEntry<T>> getEntries() {
+    public synchronized List<DBEntry<T>> getEntries()
+    {
         return mapDB.isEmpty() ? Collections.emptyList() : getLookupLogic().getRefCache();
     }
 
@@ -121,9 +143,8 @@ public abstract class SimpleDatabase<T> implements IDatabase<T> {
      * Otherwise look up each key separately via {@link TreeMap#get(Object)}.
      */
     @Override
-    public synchronized List<DBEntry<T>> bulkLookup(int... keys) {
-        return mapDB.isEmpty() || keys.length == 0
-                ? Collections.emptyList()
-                : getLookupLogic().bulkLookup(keys);
+    public synchronized List<DBEntry<T>> bulkLookup(int... keys)
+    {
+        return mapDB.isEmpty() || keys.length == 0 ? Collections.emptyList() : getLookupLogic().bulkLookup(keys);
     }
 }

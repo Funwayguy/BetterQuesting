@@ -8,39 +8,49 @@ import cpw.mods.fml.common.eventhandler.Event;
  */
 // TODO: Replace with a better system. Stop using this for updating screens too
 @Deprecated
-public abstract class DatabaseEvent extends Event {
+public abstract class DatabaseEvent extends Event
+{
     private final DBType TYPE;
-
-    public DatabaseEvent(DBType type) {
+    
+    public DatabaseEvent(DBType type)
+    {
         this.TYPE = type;
     }
-
-    public DBType getType() {
+    
+    public DBType getType()
+    {
         return this.TYPE;
     }
-
+    
     @Deprecated
-    public static class Update extends DatabaseEvent {
-        public Update(DBType type) {
+	public static class Update extends DatabaseEvent
+	{
+	    public Update(DBType type)
+        {
             super(type);
         }
-    }
-
-    @Deprecated
-    public static class Load extends DatabaseEvent {
-        public Load(DBType type) {
+	}
+	
+	@Deprecated
+	public static class Load extends DatabaseEvent
+	{
+	    public Load(DBType type)
+        {
             super(type);
         }
-    }
-
-    @Deprecated
-    public static class Save extends DatabaseEvent {
-        public Save(DBType type) {
+	}
+	
+	@Deprecated
+	public static class Save extends DatabaseEvent
+	{
+	    public Save(DBType type)
+        {
             super(type);
         }
-    }
-
-    public enum DBType {
+	}
+	
+	public enum DBType
+    {
         QUEST,
         CHAPTER,
         PARTY,

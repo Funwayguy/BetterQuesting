@@ -4,13 +4,16 @@ import betterquesting.api2.client.gui.events.PEventBroadcaster;
 import betterquesting.api2.client.gui.events.types.PEventButton;
 import betterquesting.api2.client.gui.misc.IGuiRect;
 import betterquesting.api2.client.gui.panels.CanvasEmpty;
+import betterquesting.api2.client.gui.resources.colors.GuiColorStatic;
+import betterquesting.api2.client.gui.resources.colors.IGuiColor;
 import betterquesting.api2.client.gui.resources.textures.IGuiTexture;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
-import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
+
+import java.util.function.Consumer;
 
 public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
     private static final ResourceLocation CLICK_SND = new ResourceLocation("gui.button.press");
@@ -24,10 +27,7 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
     public PanelButtonCustom(IGuiRect transform, int buttonId) {
         super(transform);
         this.buttonId = buttonId;
-        this.setTextures(
-                PresetTexture.BTN_NORMAL_0.getTexture(),
-                PresetTexture.BTN_NORMAL_1.getTexture(),
-                PresetTexture.BTN_NORMAL_2.getTexture());
+        this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(), PresetTexture.BTN_NORMAL_2.getTexture());
     }
 
     @Override
@@ -48,15 +48,16 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
     @Override
     public void drawPanel(int mx, int my, float partialTick) {
         IGuiRect bounds = this.getTransform();
-        int curState = !isActive() ? 0 : (bounds.contains(mx, my) ? 2 : 1);
+        int curState = !isActive()? 0 : (bounds.contains(mx, my)? 2 : 1);
 
-        if (curState == 2 && pendingRelease && Mouse.isButtonDown(0)) {
+        if(curState == 2 && pendingRelease && Mouse.isButtonDown(0))
+        {
             curState = 0;
         }
 
         IGuiTexture t = texStates[curState];
 
-        if (t != null) // Support for text or icon only buttons in one or more states.
+        if(t != null) // Support for text or icon only buttons in one or more states.
         {
             t.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);
         }
@@ -65,7 +66,7 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
 
     @Override
     public void onButtonClick() {
-        if (callback != null) callback.accept(this);
+        if(callback != null) callback.accept(this);
     }
 
     @Override
@@ -88,10 +89,7 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
         pendingRelease = false;
 
         IGuiRect bounds = this.getTransform();
-        boolean clicked = isActive()
-                && click == 0
-                && bounds.contains(mx, my)
-                && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
+        boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) && !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 
         if (clicked) {
             Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(CLICK_SND, 1.0F));
@@ -109,7 +107,8 @@ public class PanelButtonCustom extends CanvasEmpty implements IPanelButton {
         this.callback = callback;
     }
 
-    public PanelButtonCustom setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover) {
+    public PanelButtonCustom setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover)
+    {
         this.texStates[0] = disabled;
         this.texStates[1] = idle;
         this.texStates[2] = hover;

@@ -12,83 +12,85 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 // Wrapper to allow embedding items into panels as IGuiTextures
-public class ItemTexture implements IGuiTexture {
+public class ItemTexture implements IGuiTexture
+{
     private static final IGuiColor defColor = new GuiColorStatic(255, 255, 255, 255);
-
+    
     private final BigItemStack stack;
     private final boolean showCount;
     private final boolean keepAspect;
-
+    
     private float zDepth = 16F;
-
+    
     // Dummy value
     private final IGuiRect bounds = new GuiRectangle(0, 0, 16, 16);
-
-    public ItemTexture(BigItemStack stack) {
+    
+    public ItemTexture(BigItemStack stack)
+    {
         this(stack, false, true);
     }
-
-    public ItemTexture(BigItemStack stack, boolean showCount, boolean keepAspect) {
+    
+    public ItemTexture(BigItemStack stack, boolean showCount, boolean keepAspect)
+    {
         this.stack = stack;
         this.showCount = showCount;
         this.keepAspect = keepAspect;
     }
-
-    public ItemTexture setDepth(float z) {
+    
+    public ItemTexture setDepth(float z)
+    {
         this.zDepth = z;
         return this;
     }
-
+    
     @Override
-    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick) {
+    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick)
+    {
         drawTexture(x, y, width, height, zLevel, partialTick, defColor);
     }
-
+    
     @Override
-    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color) {
-        if (width <= 0 || height <= 0) return;
-
-        float sx = width / 16F;
-        float sy = height / 16F;
-
+    public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color)
+    {
+	    if(width <= 0 || height <= 0) return;
+	    
+        float sx = width/16F;
+        float sy = height/16F;
+        
         double dx = 0;
         double dy = 0;
-
-        if (keepAspect) {
+        
+        if(keepAspect)
+        {
             float sa = Math.min(sx, sy);
-
+    
             dx = Math.floor((sx - sa) * 8F);
             dy = Math.floor((sy - sa) * 8F);
-
+            
             sx = sa;
             sy = sa;
         }
-
+    
         GL11.glPushMatrix();
-
+    
         GL11.glTranslated(x + dx, y + dy, 0);
         GL11.glScalef(sx, sy, 1F);
         color.applyGlColor();
-
-        RenderUtils.RenderItemStack(
-                Minecraft.getMinecraft(),
-                stack.getBaseStack(),
-                0,
-                0,
-                zDepth,
-                (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "",
-                0xFFFFFFFF);
-
+        
+        RenderUtils.RenderItemStack(Minecraft.getMinecraft(), stack.getBaseStack(), 0, 0, zDepth, (showCount && stack.stackSize > 1) ? ("" + stack.stackSize) : "", 0xFFFFFFFF);
+    
         GL11.glPopMatrix();
     }
-
+    
     @Override
-    public ResourceLocation getTexture() {
+    public ResourceLocation getTexture()
+    {
         return PresetTexture.TX_NULL;
     }
-
+    
     @Override
-    public IGuiRect getBounds() {
+    public IGuiRect getBounds()
+    {
         return bounds;
     }
 }
