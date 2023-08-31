@@ -1,11 +1,10 @@
 package betterquesting.api.enums;
 
-public enum EnumQuestVisibility
-{
-	HIDDEN,
-	UNLOCKED,
-	NORMAL,
-	COMPLETED,
-	CHAIN,
-	ALWAYS;
+public enum EnumQuestVisibility {
+  HIDDEN,
+  UNLOCKED,
+  NORMAL,
+  COMPLETED,
+  CHAIN,
+  ALWAYS
 }

@@ -5,32 +5,26 @@ import net.minecraft.nbt.NBTPrimitive;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.util.ResourceLocation;
 
-public class PropertyTypeFloat extends PropertyTypeBase<Float>
-{
-	public PropertyTypeFloat(ResourceLocation key, Float def)
-	{
-		super(key, def);
-	}
+public class PropertyTypeFloat extends PropertyTypeBase<Float> {
+  public PropertyTypeFloat(ResourceLocation key, Float def) {
+    super(key, def);
+  }
 
-	@Override
-	public Float readValue(NBTBase nbt)
-	{
-		if(nbt == null || !(nbt instanceof NBTPrimitive))
-		{
-			return this.getDefault();
-		}
-		
-		return ((NBTPrimitive)nbt).getFloat();
-	}
+  @Override
+  public Float readValue(NBTBase nbt) {
+    if (!(nbt instanceof NBTPrimitive)) {
+      return this.getDefault();
+    }
 
-	@Override
-	public NBTBase writeValue(Float value)
-	{
-		if(value == null)
-		{
-			return new NBTTagFloat(this.getDefault());
-		}
-		
-		return new NBTTagFloat(value);
-	}
+    return ((NBTPrimitive) nbt).getFloat();
+  }
+
+  @Override
+  public NBTBase writeValue(Float value) {
+    if (value == null) {
+      return new NBTTagFloat(this.getDefault());
+    }
+
+    return new NBTTagFloat(value);
+  }
 }

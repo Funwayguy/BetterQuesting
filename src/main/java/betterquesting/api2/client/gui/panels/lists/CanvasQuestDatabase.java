@@ -11,25 +11,22 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 
 @SuppressWarnings("WeakerAccess")
-public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, DBEntry<IQuest>>
-{
-    public CanvasQuestDatabase(IGuiRect rect)
-    {
-        super(rect);
+public abstract class CanvasQuestDatabase extends CanvasSearch<DBEntry<IQuest>, DBEntry<IQuest>> {
+  public CanvasQuestDatabase(IGuiRect rect) {
+    super(rect);
+  }
+
+  @Override
+  protected Iterator<DBEntry<IQuest>> getIterator() {
+    return QuestDatabase.INSTANCE.getEntries().iterator();
+  }
+
+  @Override
+  protected void queryMatches(DBEntry<IQuest> entry, String query, final ArrayDeque<DBEntry<IQuest>> results) {
+    if (("" + entry.getID()).contains(query) ||
+        entry.getValue().getProperty(NativeProps.NAME).toLowerCase().contains(query) ||
+        QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)).toLowerCase().contains(query)) {
+      results.add(entry);
     }
-    
-    @Override
-    protected Iterator<DBEntry<IQuest>> getIterator()
-    {
-        return QuestDatabase.INSTANCE.getEntries().iterator();
-    }
-    
-    @Override
-    protected void queryMatches(DBEntry<IQuest> entry, String query, final ArrayDeque<DBEntry<IQuest>> results)
-    {
-        if(("" + entry.getID()).contains(query) || entry.getValue().getProperty(NativeProps.NAME).toLowerCase().contains(query) || QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)).toLowerCase().contains(query))
-        {
-            results.add(entry);
-        }
-    }
+  }
 }

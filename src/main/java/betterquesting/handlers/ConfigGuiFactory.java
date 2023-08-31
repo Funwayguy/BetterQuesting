@@ -1,33 +1,28 @@
 package betterquesting.handlers;
 
-import java.util.Set;
+import betterquesting.client.gui.GuiBQConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.IModGuiFactory;
-import betterquesting.client.gui.GuiBQConfig;
 
-public class ConfigGuiFactory implements IModGuiFactory
-{
-	@Override
-	public void initialize(Minecraft minecraftInstance)
-	{
-	}
+import java.util.Set;
 
-	@Override
-	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
-	{
-		return null;
-	}
+public class ConfigGuiFactory implements IModGuiFactory {
+  @Override
+  public void initialize(Minecraft minecraftInstance) { }
 
-	@Override
-	public boolean hasConfigGui()
-	{
-		return true;
-	}
+  @Override
+  public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
+    return null;
+  }
 
-	@Override
-	public GuiScreen createConfigGui(GuiScreen parentScreen)
-	{
-		return new GuiBQConfig(parentScreen);
-	}
+  @Override
+  public boolean hasConfigGui() {
+    return true;
+  }
+
+  @Override
+  public GuiScreen createConfigGui(GuiScreen parentScreen) {
+    return new GuiBQConfig(parentScreen);
+  }
 }
