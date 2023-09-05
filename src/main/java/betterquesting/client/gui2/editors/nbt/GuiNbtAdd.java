@@ -118,7 +118,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
                                          QuestTranslation.translate("betterquesting.btn.item"),
                                          JsonHelper.ItemStackToJson(new BigItemStack(Blocks.STONE),
                                                                     new NBTTagCompound())));
-    options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 100, 0, 92, 16, 0), 2,
+    options.add(new PanelButtonStorage<>(new GuiTransform(GuiAlign.MID_CENTER, 100, n++ * 16, 92, 16, 0), 2,
                                          QuestTranslation.translate("betterquesting.btn.fluid"),
                                          JsonHelper.FluidStackToJson(new FluidStack(FluidRegistry.WATER, 1000),
                                                                      new NBTTagCompound())));
