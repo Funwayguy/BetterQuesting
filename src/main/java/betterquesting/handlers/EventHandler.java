@@ -11,6 +11,7 @@ import betterquesting.api.questing.IQuest;
 import betterquesting.api.questing.party.IParty;
 import betterquesting.api.storage.BQ_Settings;
 import betterquesting.api2.cache.CapabilityProviderQuestCache;
+import betterquesting.api2.cache.QuestCache;
 import betterquesting.api2.cache.QuestCache.QResetTime;
 import betterquesting.api2.client.gui.GuiScreenTest;
 import betterquesting.api2.client.gui.themes.gui_args.GArgsNone;
@@ -45,7 +46,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.Clone;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -54,6 +54,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -96,28 +97,27 @@ public class EventHandler {
 
   @SubscribeEvent
   public void onPlayerClone(Clone event) {
-    betterquesting.api2.cache.QuestCache oCache =
+    QuestCache oCache =
         event.getOriginal().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-    betterquesting.api2.cache.QuestCache nCache =
+    QuestCache nCache =
         event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 
     if (oCache != null && nCache != null) { nCache.deserializeNBT(oCache.serializeNBT()); }
   }
 
   @SubscribeEvent
-  public void onLivingUpdate(LivingUpdateEvent event) {
-    if (event.getEntityLiving().world.isRemote) { return; }
-    if (!(event.getEntityLiving() instanceof EntityPlayerMP)) { return; }
-    if (event.getEntityLiving().ticksExisted % 20 != 0) {
-      return; // Only triggers once per second
+  public void onLivingUpdate(TickEvent.PlayerTickEvent event) {
+    if (event.side.isClient() || event.player.ticksExisted % 20 != 0) {
+      return;
     }
 
-    EntityPlayerMP player = (EntityPlayerMP) event.getEntityLiving();
-    betterquesting.api2.cache.QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+    EntityPlayerMP player = (EntityPlayerMP) event.player;
+    QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
+    if (qc == null) {
+      return;
+    }
+
     boolean editMode = QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE);
-
-    if (qc == null) { return; }
-
     List<DBEntry<IQuest>> activeQuests = QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests());
     List<DBEntry<IQuest>> pendingAutoClaims = QuestDatabase.INSTANCE.bulkLookup(qc.getPendingAutoClaims());
     QResetTime[] pendingResets = qc.getScheduledResets();
@@ -134,7 +134,9 @@ public class EventHandler {
           continue; // Although it IS active, it cannot be completed yet
         }
 
-        if (quest.getValue().canSubmit(player)) { quest.getValue().update(player); }
+        if (quest.getValue().canSubmit(player)) {
+          quest.getValue().update(player);
+        }
 
         if (quest.getValue().isComplete(uuid) && !quest.getValue().canSubmit(player)) {
           refreshCache = true;
@@ -188,12 +190,14 @@ public class EventHandler {
       }
     }
 
-    if (refreshCache || player.ticksExisted % 200 == 0) // Refresh the cache if something changed or every 10 seconds
-    {
+    // Refresh the cache if something changed or every 10 seconds
+    if (refreshCache || player.ticksExisted % 200 == 0) {
       qc.updateCache(player);
     }
 
-    if (qc.getDirtyQuests().length > 0) { NetQuestSync.sendSync(player, qc.getDirtyQuests(), false, true); }
+    if (qc.getDirtyQuests().length > 0) {
+      NetQuestSync.sendSync(player, qc.getDirtyQuests(), false, true);
+    }
     qc.cleanAllQuests();
   }
 

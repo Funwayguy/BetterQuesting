@@ -89,8 +89,7 @@ public class QuestLineEntry implements IQuestLineEntry {
   @Override
   public void readFromNBT(NBTTagCompound json) {
     if (json.hasKey("size", 99)) {
-      sizeX = json.getInteger("size");
-      sizeY = sizeX;
+      sizeY = sizeX = json.getInteger("size");
     } else {
       sizeX = json.getInteger("sizeX");
       sizeY = json.getInteger("sizeY");
@@ -98,5 +97,4 @@ public class QuestLineEntry implements IQuestLineEntry {
     posX = json.getInteger("x");
     posY = json.getInteger("y");
   }
-
 }

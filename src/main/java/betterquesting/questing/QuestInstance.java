@@ -36,7 +36,7 @@ public class QuestInstance implements IQuest {
   private final TaskStorage tasks = new TaskStorage();
   private final RewardStorage rewards = new RewardStorage();
 
-  private final HashMap<UUID, NBTTagCompound> completeUsers = new HashMap<>();
+  private final HashMap<UUID, CompletionInfo> completeUsers = new HashMap<>();
   private int[] preRequisites = new int[0];
 
   private final PropertyContainer qInfo = new PropertyContainer();
@@ -105,7 +105,9 @@ public class QuestInstance implements IQuest {
   public void detect(EntityPlayer player) {
     UUID playerID = QuestingAPI.getQuestingUUID(player);
     QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-    if (qc == null) { return; }
+    if (qc == null) {
+      return;
+    }
     int questID = QuestDatabase.INSTANCE.getID(this);
 
     if (isComplete(playerID) && (qInfo.getProperty(NativeProps.REPEAT_TIME) < 0 || rewards.size() <= 0)) {
@@ -135,7 +137,7 @@ public class QuestInstance implements IQuest {
       }
       // Note: Tasks can mark the quest dirty themselves if progress changed but hasn't fully completed.
       if (tasks.size() <= 0 || qInfo.getProperty(NativeProps.LOGIC_TASK).getResult(done, tasks.size())) {
-        // State won't be auto updated in edit mode so we force change it here and mark it for re-sync
+        // State won't be auto updated in edit mode, so we force change it here and mark it for re-sync
         if (QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
           setComplete(playerID, System.currentTimeMillis());
         }
@@ -151,39 +153,40 @@ public class QuestInstance implements IQuest {
 
   @Override
   public boolean hasClaimed(UUID uuid) {
-    if (rewards.size() <= 0) { return true; }
+    if (rewards.size() <= 0) {
+      return true;
+    }
 
     synchronized (completeUsers) {
       if (qInfo.getProperty(NativeProps.GLOBAL) && !qInfo.getProperty(NativeProps.GLOBAL_SHARE)) {
         // TODO: Figure out some replacement to track participation
-        for (NBTTagCompound entry : completeUsers.values()) {
-          if (entry.getBoolean("claimed")) { return true; }
+        for (CompletionInfo entry : completeUsers.values()) {
+          if (entry.isClaimed()) {
+            return true;
+          }
         }
 
         return false;
       }
 
-      NBTTagCompound entry = getCompletionInfo(uuid);
-      return entry != null && entry.getBoolean("claimed");
+      CompletionInfo entry = getCompletionInfo(uuid);
+      return entry != null && entry.isClaimed();
     }
   }
 
   @Override
   public boolean canClaim(EntityPlayer player) {
     UUID pID = QuestingAPI.getQuestingUUID(player);
-    NBTTagCompound entry = getCompletionInfo(pID);
 
-    if (entry == null || hasClaimed(pID) || canSubmit(player)) {
+    if (getCompletionInfo(pID) == null || hasClaimed(pID) || canSubmit(player)) {
       return false;
-    } else {
-      DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
-      for (DBEntry<IReward> rew : rewards.getEntries()) {
-        if (!rew.getValue().canClaim(player, dbe)) {
-          return false;
-        }
+    }
+    DBEntry<IQuest> dbe = new DBEntry<>(QuestDatabase.INSTANCE.getID(this), this);
+    for (DBEntry<IReward> rew : rewards.getEntries()) {
+      if (!rew.getValue().canClaim(player, dbe)) {
+        return false;
       }
     }
-
     return true;
   }
 
@@ -199,18 +202,20 @@ public class QuestInstance implements IQuest {
     QuestCache qc = player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 
     synchronized (completeUsers) {
-      NBTTagCompound entry = getCompletionInfo(pID);
+      CompletionInfo entry = getCompletionInfo(pID);
 
       if (entry == null) {
-        entry = new NBTTagCompound();
+        entry = new CompletionInfo(System.currentTimeMillis(), true);
         this.completeUsers.put(pID, entry);
+      } else {
+        entry.setClaimed(true);
+        entry.setTimestamp(System.currentTimeMillis());
       }
-
-      entry.setBoolean("claimed", true);
-      entry.setLong("timestamp", System.currentTimeMillis());
     }
 
-    if (qc != null) { qc.markQuestDirty(questID); }
+    if (qc != null) {
+      qc.markQuestDirty(questID);
+    }
   }
 
   @Override
@@ -218,10 +223,12 @@ public class QuestInstance implements IQuest {
     UUID playerID = QuestingAPI.getQuestingUUID(player);
 
     synchronized (completeUsers) {
-      NBTTagCompound entry = this.getCompletionInfo(playerID);
-      if (entry == null) { return true; }
+      CompletionInfo entry = this.getCompletionInfo(playerID);
+      if (entry == null) {
+        return true;
+      }
 
-      if (!entry.getBoolean("claimed") && getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
+      if (!entry.isClaimed() && getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
       {
         if (tasks.size() <= 0) { return true; }
 
@@ -242,7 +249,9 @@ public class QuestInstance implements IQuest {
 
   @Override
   public boolean isUnlocked(UUID uuid) {
-    if (preRequisites.length == 0) { return true; }
+    if (preRequisites.length == 0) {
+      return true;
+    }
 
     int A = 0;
     int B = preRequisites.length;
@@ -258,18 +267,20 @@ public class QuestInstance implements IQuest {
 
   @Override
   public void setComplete(UUID uuid, long timestamp) {
-    if (uuid == null) { return; }
+    if (uuid == null) {
+      return;
+    }
 
     synchronized (completeUsers) {
-      NBTTagCompound entry = this.getCompletionInfo(uuid);
+      CompletionInfo entry = this.getCompletionInfo(uuid);
 
       if (entry == null) {
-        entry = new NBTTagCompound();
+        entry = new CompletionInfo(timestamp, false);
         completeUsers.put(uuid, entry);
+      } else {
+        entry.setTimestamp(timestamp);
+        entry.setClaimed(false);
       }
-
-      entry.setBoolean("claimed", false);
-      entry.setLong("timestamp", timestamp);
     }
   }
 
@@ -301,21 +312,23 @@ public class QuestInstance implements IQuest {
   }
 
   @Override
-  public NBTTagCompound getCompletionInfo(UUID uuid) {
+  public CompletionInfo getCompletionInfo(UUID uuid) {
     synchronized (completeUsers) {
       return completeUsers.get(uuid);
     }
   }
 
   @Override
-  public void setCompletionInfo(UUID uuid, NBTTagCompound nbt) {
-    if (uuid == null) { return; }
+  public void setCompletionInfo(UUID uuid, CompletionInfo completionInfo) {
+    if (uuid == null) {
+      return;
+    }
 
     synchronized (completeUsers) {
-      if (nbt == null) {
+      if (completionInfo == null) {
         completeUsers.remove(uuid);
       } else {
-        completeUsers.put(uuid, nbt);
+        completeUsers.put(uuid, completionInfo);
       }
     }
   }
@@ -335,14 +348,14 @@ public class QuestInstance implements IQuest {
       } else {
         if (uuid == null) {
           completeUsers.forEach((key, value) -> {
-            value.setBoolean("claimed", false);
-            value.setLong("timestamp", 0);
+            value.setClaimed(false);
+            value.setTimestamp(0);
           });
         } else {
-          NBTTagCompound entry = getCompletionInfo(uuid);
+          CompletionInfo entry = getCompletionInfo(uuid);
           if (entry != null) {
-            entry.setBoolean("claimed", false);
-            entry.setLong("timestamp", 0);
+            entry.setTimestamp(0);
+            entry.setClaimed(false);
           }
         }
       }
@@ -408,11 +421,23 @@ public class QuestInstance implements IQuest {
   public NBTTagCompound writeProgressToNBT(NBTTagCompound json, @Nullable List<UUID> users) {
     synchronized (completeUsers) {
       NBTTagList comJson = new NBTTagList();
-      for (Entry<UUID, NBTTagCompound> entry : completeUsers.entrySet()) {
-        if (users != null && !users.contains(entry.getKey())) { continue; }
-        NBTTagCompound tags = entry.getValue().copy();
-        tags.setString("uuid", entry.getKey().toString());
-        comJson.appendTag(tags);
+      if (users == null) {
+        for (Entry<UUID, CompletionInfo> entry : completeUsers.entrySet()) {
+          NBTTagCompound tags = new NBTTagCompound();
+          tags.setLong("timestamp", entry.getValue().getTimestamp());
+          tags.setBoolean("claimed", entry.getValue().isClaimed());
+          tags.setString("uuid", entry.getKey().toString());
+          comJson.appendTag(tags);
+        }
+      } else {
+        for (UUID key : users) {
+          CompletionInfo value = completeUsers.get(key);
+          NBTTagCompound tags = new NBTTagCompound();
+          tags.setLong("timestamp", value.getTimestamp());
+          tags.setBoolean("claimed", value.isClaimed());
+          tags.setString("uuid", value.toString());
+          comJson.appendTag(tags);
+        }
       }
       json.setTag("completed", comJson);
 
@@ -426,14 +451,16 @@ public class QuestInstance implements IQuest {
   @Override
   public void readProgressFromNBT(NBTTagCompound json, boolean merge) {
     synchronized (completeUsers) {
-      if (!merge) { completeUsers.clear(); }
+      if (!merge) {
+        completeUsers.clear();
+      }
       NBTTagList comList = json.getTagList("completed", 10);
       for (int i = 0; i < comList.tagCount(); i++) {
         NBTTagCompound entry = comList.getCompoundTagAt(i).copy();
 
         try {
           UUID uuid = UUID.fromString(entry.getString("uuid"));
-          completeUsers.put(uuid, entry);
+          completeUsers.put(uuid, new CompletionInfo(entry.getLong("timestamp"), entry.getBoolean("claimed")));
         } catch (Exception e) {
           BetterQuesting.logger.log(Level.ERROR, "Unable to load UUID for quest", e);
         }
@@ -446,16 +473,12 @@ public class QuestInstance implements IQuest {
   @Override
   public void setClaimed(UUID uuid, long timestamp) {
     synchronized (completeUsers) {
-      NBTTagCompound entry = this.getCompletionInfo(uuid);
-
-      if (entry != null) {
-        entry.setBoolean("claimed", true);
-        entry.setLong("timestamp", timestamp);
+      CompletionInfo entry = getCompletionInfo(uuid);
+      if (entry == null) {
+        completeUsers.put(uuid, new CompletionInfo(timestamp, true));
       } else {
-        entry = new NBTTagCompound();
-        entry.setBoolean("claimed", true);
-        entry.setLong("timestamp", timestamp);
-        completeUsers.put(uuid, entry);
+        entry.setClaimed(true);
+        entry.setTimestamp(timestamp);
       }
     }
   }

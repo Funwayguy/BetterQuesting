@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SimpleDatabase<T> implements IDatabase<T> {
   private final Int2ObjectMap<T> map = new Int2ObjectOpenHashMap<>();
@@ -15,12 +16,15 @@ public class SimpleDatabase<T> implements IDatabase<T> {
     inverseMap.defaultReturnValue(-1);
   }
 
-  private final BitSet idMap = new BitSet();
   private List<DBEntry<T>> refCache = null;
 
   @Override
   public synchronized int nextID() {
-    return idMap.nextClearBit(0);
+    int nextID;
+    do {
+      nextID = ThreadLocalRandom.current().nextInt() & Integer.MAX_VALUE;
+    } while (map.containsKey(nextID));
+    return nextID;
   }
 
   @Override
@@ -30,7 +34,6 @@ public class SimpleDatabase<T> implements IDatabase<T> {
       throw new IllegalArgumentException("ID cannot be negative");
     }
     if (map.putIfAbsent(id, value) == null && inverseMap.putIfAbsent(value, id) == null) {
-      idMap.set(id);
       refCache = null;
       return new DBEntry<>(id, value);
     } else {
@@ -48,7 +51,6 @@ public class SimpleDatabase<T> implements IDatabase<T> {
       return false;
     }
     inverseMap.removeInt(removed);
-    idMap.clear(key);
     refCache = null;
     return true;
   }
@@ -63,7 +65,6 @@ public class SimpleDatabase<T> implements IDatabase<T> {
       return false;
     }
     map.remove(removed);
-    idMap.clear(removed);
     refCache = null;
     return true;
   }
@@ -86,7 +87,7 @@ public class SimpleDatabase<T> implements IDatabase<T> {
   @Override
   public synchronized void reset() {
     map.clear();
-    idMap.clear();
+    inverseMap.clear();
     refCache = Collections.emptyList();
   }
 

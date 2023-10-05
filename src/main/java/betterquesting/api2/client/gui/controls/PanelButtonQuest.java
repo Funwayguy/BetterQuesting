@@ -16,12 +16,12 @@ import betterquesting.api2.client.gui.themes.presets.PresetColor;
 import betterquesting.api2.client.gui.themes.presets.PresetTexture;
 import betterquesting.api2.storage.DBEntry;
 import betterquesting.api2.utils.QuestTranslation;
+import betterquesting.questing.CompletionInfo;
 import betterquesting.questing.QuestDatabase;
 import betterquesting.storage.QuestSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextFormatting;
 
 import java.text.DecimalFormat;
@@ -153,19 +153,13 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
   private List<String> getAdvancedTooltip(IQuest quest, EntityPlayer player, int qID) {
     List<String> list = new ArrayList<>();
 
-    list.add(TextFormatting.GRAY +
-             QuestTranslation.translate("betterquesting.tooltip.global_quest", quest.getProperty(NativeProps.GLOBAL)));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", quest.getProperty(NativeProps.GLOBAL)));
     if (quest.getProperty(NativeProps.GLOBAL)) {
-      list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share",
-                                                                quest.getProperty(NativeProps.GLOBAL_SHARE)));
+      list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share", quest.getProperty(NativeProps.GLOBAL_SHARE)));
     }
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.quest_logic",
-                                                              quest.getProperty(NativeProps.LOGIC_QUEST).toString()
-                                                                   .toUpperCase()));
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous",
-                                                              quest.getProperty(NativeProps.SIMULTANEOUS)));
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim",
-                                                              quest.getProperty(NativeProps.AUTO_CLAIM)));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.quest_logic", quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous", quest.getProperty(NativeProps.SIMULTANEOUS)));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", quest.getProperty(NativeProps.AUTO_CLAIM)));
     if (quest.getProperty(NativeProps.REPEAT_TIME) >= 0) {
       long time = quest.getProperty(NativeProps.REPEAT_TIME) / 20;
       DecimalFormat df = new DecimalFormat("00");
@@ -188,13 +182,14 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
   }
 
   private long getRepeatSeconds(IQuest quest, EntityPlayer player) {
-    if (quest.getProperty(NativeProps.REPEAT_TIME) < 0) { return -1; }
+    if (quest.getProperty(NativeProps.REPEAT_TIME) < 0) {
+      return -1;
+    }
 
-    NBTTagCompound ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
-    if (ue == null) { return 0; }
-
-    return
-        ((quest.getProperty(NativeProps.REPEAT_TIME) * 50L) - (System.currentTimeMillis() - ue.getLong("timestamp"))) /
-        1000L;
+    CompletionInfo ue = quest.getCompletionInfo(QuestingAPI.getQuestingUUID(player));
+    if (ue == null) {
+      return 0;
+    }
+    return (ue.getTimestamp() + quest.getProperty(NativeProps.REPEAT_TIME) * 50L - System.currentTimeMillis()) / 1000L;
   }
 }

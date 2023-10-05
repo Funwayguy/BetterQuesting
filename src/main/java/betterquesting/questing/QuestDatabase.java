@@ -17,14 +17,20 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
   @Override
   public synchronized IQuest createNew(int id) {
     IQuest quest = new QuestInstance();
-    if (id >= 0) { this.add(id, quest); }
+    if (id >= 0) {
+      this.add(id, quest);
+    }
     return quest;
   }
 
   @Override
   public synchronized boolean removeID(int id) {
     boolean success = super.removeID(id);
-    if (success) { for (DBEntry<IQuest> entry : getEntries()) { removeReq(entry.getValue(), id); } }
+    if (success) {
+      for (DBEntry<IQuest> entry : getEntries()) {
+        removeReq(entry.getValue(), id);
+      }
+    }
     return success;
   }
 

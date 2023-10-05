@@ -6,7 +6,9 @@ import betterquesting.api.enums.EnumQuestVisibility;
 import betterquesting.api.properties.NativeProps;
 import betterquesting.api.questing.IQuest;
 import betterquesting.api2.storage.DBEntry;
+import betterquesting.misc.Util;
 import betterquesting.network.handlers.NetCacheSync;
+import betterquesting.questing.CompletionInfo;
 import betterquesting.questing.QuestDatabase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,49 +17,35 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.List;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 
 public class QuestCache implements INBTSerializable<NBTTagCompound> {
   // Quests that are visible to the player
-  private final TreeSet<Integer> visibleQuests = new TreeSet<>();
+  private final Set<Integer> visibleQuests = new HashSet<>();
 
   // Quests that are currently being undertaken. NOTE: Quests can be locked but still processing data if configured to do so
-  private final TreeSet<Integer> activeQuests = new TreeSet<>();
+  private final Set<Integer> activeQuests = new HashSet<>();
 
   // Quests and their scheduled time of being reset
-  private final TreeSet<QResetTime> resetSchedule =
-      new TreeSet<>((o1, o2) -> o1.questID == o2.questID ? 0 : Long.compare(o1.time, o2.time));
+  private final Set<QResetTime> resetSchedule =
+      new TreeSet<>((a, b) -> a.questID == b.questID ? 0 : Long.compare(a.time, b.time));
 
   // Quests with pending auto claims (usually should be empty unless a condition needs to be met)
-  private final TreeSet<Integer> autoClaims = new TreeSet<>();
+  private final Set<Integer> autoClaims = new HashSet<>();
 
   // Quests that need to be sent to the client to update progression (NOT for edits. Handle that elsewhere)
-  private final TreeSet<Integer> markedDirty = new TreeSet<>();
+  private final Set<Integer> markedDirty = new HashSet<>();
 
   public synchronized int[] getActiveQuests() {
-    // Probably a better way of doing this but this will do for now
-    int i = 0;
-    int[] aryAct = new int[activeQuests.size()];
-    for (Integer q : activeQuests) { aryAct[i++] = q; }
-    return aryAct;
+    return Util.toIntArray(activeQuests);
   }
 
   public synchronized int[] getVisibleQuests() {
-    // Probably a better way of doing this but this will do for now
-    int i = 0;
-    int[] aryVis = new int[visibleQuests.size()];
-    for (Integer q : visibleQuests) { aryVis[i++] = q; }
-    return aryVis;
+    return Util.toIntArray(visibleQuests);
   }
 
   public synchronized int[] getPendingAutoClaims() {
-    // Probably a better way of doing this but this will do for now
-    int i = 0;
-    int[] aryAC = new int[autoClaims.size()];
-    for (Integer q : autoClaims) { aryAC[i++] = q; }
-    return aryAC;
+    return Util.toIntArray(autoClaims);
   }
 
   public synchronized QResetTime[] getScheduledResets() // Already sorted by time
@@ -66,13 +54,10 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
   }
 
   public synchronized void markQuestDirty(int questID) {
-    if (questID < 0) { return; }
+    if (questID < 0) {
+      return;
+    }
     markedDirty.add(questID);
-  }
-
-  public synchronized void markQuestClean(int questID) {
-    if (questID < 0) { return; }
-    markedDirty.remove(questID);
   }
 
   public synchronized void cleanAllQuests() {
@@ -83,14 +68,18 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
     // Probably a better way of doing this but this will do for now
     int i = 0;
     int[] aryMD = new int[markedDirty.size()];
-    for (Integer q : markedDirty) { aryMD[i++] = q; }
+    for (Integer q : markedDirty) {
+      aryMD[i++] = q;
+    }
     return aryMD;
   }
 
   // TODO: Ensure this is thread safe because we're likely going to run this in the background
   // NOTE: Only run this when the quests completion and claim states change. Use markQuestDirty() for progression changes that need syncing
   public synchronized void updateCache(EntityPlayer player) {
-    if (player == null) { return; }
+    if (player == null) {
+      return;
+    }
 
     UUID uuid = QuestingAPI.getQuestingUUID(player);
     List<DBEntry<IQuest>> questDB = QuestingAPI.getAPI(ApiReference.QUEST_DB).getEntries();
@@ -101,32 +90,35 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
     NonNullList<Integer> tmpAutoClaim = NonNullList.create();
 
     for (DBEntry<IQuest> entry : questDB) {
-      if (entry.getValue().isUnlocked(uuid) || entry.getValue().isComplete(uuid) ||
-          entry.getValue().getProperty(NativeProps.LOCKED_PROGRESS)) // Unlocked or actively processing progression data
-      {
-        int repeat = entry.getValue().getProperty(NativeProps.REPEAT_TIME);
-        NBTTagCompound ue = entry.getValue().getCompletionInfo(uuid);
+      IQuest quest = entry.getValue();
+      int id = entry.getID();
+      // Unlocked or actively processing progression data
+      if (quest.isUnlocked(uuid) || quest.isComplete(uuid) || quest.getProperty(NativeProps.LOCKED_PROGRESS)) {
+        int repeat = quest.getProperty(NativeProps.REPEAT_TIME);
+        CompletionInfo ue = quest.getCompletionInfo(uuid);
 
-        if ((ue == null && entry.getValue().getTasks().size() <= 0) || entry.getValue().canSubmit(
-            player)) // Can be active without completion in the case of locked progress. Also account for taskless quests
-        {
-          tmpActive.add(entry.getID());
-        } else if (ue != null) // These conditions only trigger after first completion
-        {
-          if (repeat >= 0 && entry.getValue().hasClaimed(uuid)) {
-            long altTime = ue.getLong("timestamp");
-            if (repeat > 1 && !entry.getValue().getProperty(NativeProps.REPEAT_REL)) { altTime -= (altTime % repeat); }
-            tmpReset.add(new QResetTime(entry.getID(), altTime + (repeat * 50L)));
+        // Can be active without completion in the case of locked progress. Also account for taskless quests
+        if ((ue == null && quest.getTasks().size() <= 0) || quest.canSubmit(player)) {
+          tmpActive.add(id);
+        }
+        // These conditions only trigger after first completion
+        else if (ue != null) {
+          if (repeat >= 0 && quest.hasClaimed(uuid)) {
+            long altTime = ue.getTimestamp();
+            if (repeat > 1 && !quest.getProperty(NativeProps.REPEAT_REL)) {
+              altTime -= (altTime % repeat);
+            }
+            tmpReset.add(new QResetTime(id, altTime + (repeat * 50L)));
           }
 
-          if (!entry.getValue().hasClaimed(uuid) && entry.getValue().getProperty(NativeProps.AUTO_CLAIM)) {
-            tmpAutoClaim.add(entry.getID());
+          if (!quest.hasClaimed(uuid) && quest.getProperty(NativeProps.AUTO_CLAIM)) {
+            tmpAutoClaim.add(id);
           }
         }
       }
 
-      if (isQuestShown(entry.getValue(), uuid, player)) {
-        tmpVisible.add(entry.getID());
+      if (isQuestShown(quest, uuid, player)) {
+        tmpVisible.add(id);
       }
     }
 
@@ -142,7 +134,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
     autoClaims.clear();
     autoClaims.addAll(tmpAutoClaim);
 
-    if (player instanceof EntityPlayerMP) { NetCacheSync.sendSync((EntityPlayerMP) player); }
+    if (player instanceof EntityPlayerMP) {
+      NetCacheSync.sendSync((EntityPlayerMP) player);
+    }
   }
 
   @Override
@@ -174,10 +168,18 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
     autoClaims.clear();
     markedDirty.clear();
 
-    for (int i : nbt.getIntArray("visibleQuests")) { visibleQuests.add(i); }
-    for (int i : nbt.getIntArray("activeQuests")) { activeQuests.add(i); }
-    for (int i : nbt.getIntArray("autoClaims")) { autoClaims.add(i); }
-    for (int i : nbt.getIntArray("markedDirty")) { markedDirty.add(i); }
+    for (int i : nbt.getIntArray("visibleQuests")) {
+      visibleQuests.add(i);
+    }
+    for (int i : nbt.getIntArray("activeQuests")) {
+      activeQuests.add(i);
+    }
+    for (int i : nbt.getIntArray("autoClaims")) {
+      autoClaims.add(i);
+    }
+    for (int i : nbt.getIntArray("markedDirty")) {
+      markedDirty.add(i);
+    }
 
     NBTTagList tagList = nbt.getTagList("resetSchedule", 10);
     for (int i = 0; i < tagList.tagCount(); i++) {
@@ -218,46 +220,37 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
 
     EnumQuestVisibility vis = quest.getProperty(NativeProps.VISIBILITY);
 
-    if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) ||
-        vis == EnumQuestVisibility.ALWAYS) // Always shown or in edit mode
-    {
+    // Always shown or in edit mode
+    if (QuestingAPI.getAPI(ApiReference.SETTINGS).canUserEdit(player) || vis == EnumQuestVisibility.ALWAYS) {
       return true;
-    } else if (vis == EnumQuestVisibility.HIDDEN) {
-      return false;
-    } else if (vis == EnumQuestVisibility.UNLOCKED) {
-      return quest.isComplete(uuid) || quest.isUnlocked(uuid);
-    } else if (vis == EnumQuestVisibility.NORMAL) {
-      if (quest.isComplete(uuid) || quest.isUnlocked(uuid)) // Complete or pending
-      {
-        return true;
-      }
-
-      // Previous quest is underway and this one is visible but still locked (foreshadowing)
-      for (DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements())) {
-        if (!q.getValue().isUnlocked(uuid)) {
-          return false;
-        }
-      }
-
-      return true;
-    } else if (vis == EnumQuestVisibility.COMPLETED) {
-      return quest.isComplete(uuid);
-    } else if (vis == EnumQuestVisibility.CHAIN) {
-      if (quest.getRequirements().length == 0) {
-        return true;
-      }
-
-      for (DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements())) {
-        if (q == null) { return true; }
-
-        if (isQuestShown(q.getValue(), uuid, player)) {
+    }
+    switch (vis) {
+      case HIDDEN:
+        return false;
+      case UNLOCKED:
+        return quest.isComplete(uuid) || quest.isUnlocked(uuid);
+      case NORMAL:
+        // Complete or pending
+        if (quest.isComplete(uuid) || quest.isUnlocked(uuid)) {
           return true;
         }
-      }
-
-      return false;
+        // Previous quest is underway and this one is visible but still locked (foreshadowing)
+        for (DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements())) {
+          if (!q.getValue().isUnlocked(uuid)) {
+            return false;
+          }
+        }
+        return true;
+      case COMPLETED:
+        return quest.isComplete(uuid);
+      case CHAIN:
+        for (DBEntry<IQuest> q : QuestDatabase.INSTANCE.bulkLookup(quest.getRequirements())) {
+          if (isQuestShown(q.getValue(), uuid, player)) {
+            return true;
+          }
+        }
+        return false;
     }
-
     return true;
   }
 }

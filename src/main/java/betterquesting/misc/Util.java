@@ -1,5 +1,6 @@
 package betterquesting.misc;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -36,5 +37,14 @@ public class Util {
         return curr++;
       }
     };
+  }
+
+  public static int[] toIntArray(Collection<Integer> collection) {
+    int i = 0;
+    int[] aryAct = new int[collection.size()];
+    for (Integer q : collection) {
+      aryAct[i++] = q;
+    }
+    return aryAct;
   }
 }

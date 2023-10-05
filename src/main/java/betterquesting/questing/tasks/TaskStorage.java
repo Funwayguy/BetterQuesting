@@ -19,7 +19,9 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
   @Override
   public NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset) {
     for (DBEntry<ITask> entry : getEntries()) {
-      if (subset != null && !subset.contains(entry.getID())) { continue; }
+      if (subset != null && !subset.contains(entry.getID())) {
+        continue;
+      }
       ResourceLocation taskID = entry.getValue().getFactoryID();
       NBTTagCompound qJson = entry.getValue().writeToNBT(new NBTTagCompound());
       qJson.setString("taskID", taskID.toString());
@@ -31,7 +33,9 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
 
   @Override
   public void readFromNBT(NBTTagList json, boolean merge) {
-    if (!merge) { reset(); }
+    if (!merge) {
+      reset();
+    }
     List<ITask> unassigned = new ArrayList<>();
 
     for (int i = 0; i < json.tagCount(); i++) {
