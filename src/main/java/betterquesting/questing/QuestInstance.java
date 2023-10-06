@@ -432,6 +432,9 @@ public class QuestInstance implements IQuest {
       } else {
         for (UUID key : users) {
           CompletionInfo value = completeUsers.get(key);
+          if (value == null) {
+            continue;
+          }
           NBTTagCompound tags = new NBTTagCompound();
           tags.setLong("timestamp", value.getTimestamp());
           tags.setBoolean("claimed", value.isClaimed());
