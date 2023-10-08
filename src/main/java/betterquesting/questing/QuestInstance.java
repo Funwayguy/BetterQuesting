@@ -438,7 +438,7 @@ public class QuestInstance implements IQuest {
           NBTTagCompound tags = new NBTTagCompound();
           tags.setLong("timestamp", value.getTimestamp());
           tags.setBoolean("claimed", value.isClaimed());
-          tags.setString("uuid", value.toString());
+          tags.setString("uuid", key.toString());
           comJson.appendTag(tags);
         }
       }
@@ -459,7 +459,7 @@ public class QuestInstance implements IQuest {
       }
       NBTTagList comList = json.getTagList("completed", 10);
       for (int i = 0; i < comList.tagCount(); i++) {
-        NBTTagCompound entry = comList.getCompoundTagAt(i).copy();
+        NBTTagCompound entry = comList.getCompoundTagAt(i);
 
         try {
           UUID uuid = UUID.fromString(entry.getString("uuid"));
