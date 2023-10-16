@@ -50,7 +50,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
 
   public GuiEntitySelection(GuiScreen parent, Entity entity, ICallback<Entity> callback) {
     super(parent);
-    this.selEntity = entity;
+    selEntity = entity;
     this.callback = callback;
   }
 
@@ -63,7 +63,7 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.done")));
@@ -128,15 +128,17 @@ public class GuiEntitySelection extends GuiScreenCanvas implements IPEventListen
     if (btn.getButtonID() == 0) // Exit
     {
       try {
-        if (callback != null) { callback.setValue(selEntity); }
+        if (callback != null) {
+          callback.setValue(selEntity);
+        }
       } catch (Exception e) {
         QuestingAPI.getLogger().error("Unable to return entity selection!", e);
       }
 
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) {
       Entity e = EntityList.newEntity(((PanelButtonStorage<EntityEntry>) btn).getStoredValue().getEntityClass(),
-                                      this.mc.world);
+                                      mc.world);
 
       if (e != null) {
         selEntity = e;

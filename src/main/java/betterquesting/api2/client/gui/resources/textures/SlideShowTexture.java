@@ -17,18 +17,26 @@ public class SlideShowTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick) {
-    if (width <= 0 || height <= 0 || slides.length == 0) { return; }
+    if (width <= 0 || height <= 0 || slides.length == 0) {
+      return;
+    }
 
     IGuiTexture tex = getCurrentFrame();
-    if (tex != null) { tex.drawTexture(x, y, width, height, zLevel, partialTick); }
+    if (tex != null) {
+      tex.drawTexture(x, y, width, height, zLevel, partialTick);
+    }
   }
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0 || slides.length == 0) { return; }
+    if (width <= 0 || height <= 0 || slides.length == 0) {
+      return;
+    }
 
     IGuiTexture tex = getCurrentFrame();
-    if (tex != null) { tex.drawTexture(x, y, width, height, zDepth, partialTick, color); }
+    if (tex != null) {
+      tex.drawTexture(x, y, width, height, zDepth, partialTick, color);
+    }
   }
 
   @Override
@@ -47,7 +55,9 @@ public class SlideShowTexture implements IGuiTexture {
 
   @Nullable
   public IGuiTexture getCurrentFrame() {
-    if (slides.length == 0) { return null; }
+    if (slides.length == 0) {
+      return null;
+    }
     return slides[(int) Math.floor((System.currentTimeMillis() / 1000D) % (slides.length * interval) / interval)];
   }
 

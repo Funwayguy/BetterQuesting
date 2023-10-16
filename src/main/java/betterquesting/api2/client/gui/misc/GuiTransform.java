@@ -29,7 +29,7 @@ public final class GuiTransform implements IGuiRect {
   public GuiTransform(Vector4f anchor, GuiPadding padding, int depth) {
     this.anchor = anchor;
     this.padding = padding;
-    this.drawOrder = depth;
+    drawOrder = depth;
 
     float l = Math.min(anchor.x, anchor.z);
     float r = Math.max(anchor.x, anchor.z);
@@ -44,49 +44,49 @@ public final class GuiTransform implements IGuiRect {
 
   public GuiTransform copy() {
     GuiTransform trans = new GuiTransform(new Vector4f(anchor), padding.copy(), drawOrder);
-    trans.setParent(this.parent);
+    trans.setParent(parent);
     return trans;
   }
 
   public GuiPadding getPadding() {
-    return this.padding;
+    return padding;
   }
 
   public Vector4f getAnchor() {
-    return this.anchor;
+    return anchor;
   }
 
   public void setDrawDepth(int order) {
-    this.drawOrder = order;
+    drawOrder = order;
   }
 
   @Override
   public int getX() {
-    int i = parent == null ? 0 : (parent.getX() + (int) Math.ceil(parent.getWidth() * this.anchor.x));
+    int i = parent == null ? 0 : (parent.getX() + (int) Math.ceil(parent.getWidth() * anchor.x));
     return i + padding.getLeft();
   }
 
   @Override
   public int getY() {
-    int i = parent == null ? 0 : (parent.getY() + (int) Math.ceil(parent.getHeight() * this.anchor.y));
+    int i = parent == null ? 0 : (parent.getY() + (int) Math.ceil(parent.getHeight() * anchor.y));
     return i + padding.getTop();
   }
 
   @Override
   public int getWidth() {
-    int i = parent == null ? 0 : (int) Math.ceil(parent.getWidth() * (this.anchor.z - this.anchor.x));
+    int i = parent == null ? 0 : (int) Math.ceil(parent.getWidth() * (anchor.z - anchor.x));
     return i - (padding.getRight() + padding.getLeft());
   }
 
   @Override
   public int getHeight() {
-    int i = parent == null ? 0 : (int) Math.ceil(parent.getHeight() * (this.anchor.w - this.anchor.y));
+    int i = parent == null ? 0 : (int) Math.ceil(parent.getHeight() * (anchor.w - anchor.y));
     return i - (padding.getBottom() + padding.getTop());
   }
 
   @Override
   public int getDepth() {
-    return this.drawOrder;
+    return drawOrder;
   }
 
   @Override
@@ -96,7 +96,7 @@ public final class GuiTransform implements IGuiRect {
 
   @Override
   public void setParent(IGuiRect rect) {
-    this.parent = rect;
+    parent = rect;
   }
 
   @Override

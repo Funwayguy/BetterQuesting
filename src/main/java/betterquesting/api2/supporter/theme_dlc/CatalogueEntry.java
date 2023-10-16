@@ -28,7 +28,7 @@ public class CatalogueEntry {
 
   public CatalogueEntry(String author, String themeName, String themeID, String downloadLink, String subLink) {
     this.author = author;
-    this.name = themeName;
+    name = themeName;
     this.themeID = new ResourceLocation(themeID);
     this.downloadLink = downloadLink;
     this.subLink = subLink;
@@ -38,28 +38,32 @@ public class CatalogueEntry {
                                        @Nonnull String subLink) {
     this.token = token;
     this.service = service;
-    this.subTier = amount;
+    subTier = amount;
     this.subLink = subLink;
     return this;
   }
 
   public CatalogueEntry(@Nonnull JsonObject json) {
-    this.author = JsonHelper.GetString(json, "author", "Unknown");
-    this.name = JsonHelper.GetString(json, "themeName", "Untitled");
-    this.themeID = new ResourceLocation(JsonHelper.GetString(json, "themeID", "minecraft:untitled"));
-    this.downloadLink = JsonHelper.GetString(json, "themeID", "127.0.0.1");
+    author = JsonHelper.GetString(json, "author", "Unknown");
+    name = JsonHelper.GetString(json, "themeName", "Untitled");
+    themeID = new ResourceLocation(JsonHelper.GetString(json, "themeID", "minecraft:untitled"));
+    downloadLink = JsonHelper.GetString(json, "themeID", "127.0.0.1");
 
     reqMods.clear();
     JsonArray aryMods = JsonHelper.GetArray(json, "reqMods");
     for (JsonElement je : aryMods) {
-      if (!je.isJsonPrimitive() || !je.getAsJsonPrimitive().isString()) { continue; }
+      if (!je.isJsonPrimitive() || !je.getAsJsonPrimitive().isString()) {
+        continue;
+      }
       reqMods.add(je.getAsString());
     }
 
     reqMods.clear();
     JsonArray aryThms = JsonHelper.GetArray(json, "reqThemes");
     for (JsonElement je : aryThms) {
-      if (!je.isJsonPrimitive() || !je.getAsJsonPrimitive().isString()) { continue; }
+      if (!je.isJsonPrimitive() || !je.getAsJsonPrimitive().isString()) {
+        continue;
+      }
       reqThemes.add(je.getAsString());
     }
   }

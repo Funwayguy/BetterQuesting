@@ -21,20 +21,16 @@ public class ToolboxToolDelete implements IToolboxTool {
   }
 
   @Override
-  public void disableTool() {
-  }
+  public void disableTool() { }
 
   @Override
-  public void refresh(CanvasQuestLine gui) {
-  }
+  public void refresh(CanvasQuestLine gui) { }
 
   @Override
-  public void drawCanvas(int mx, int my, float partialTick) {
-  }
+  public void drawCanvas(int mx, int my, float partialTick) { }
 
   @Override
-  public void drawOverlay(int mx, int my, float partialTick) {
-  }
+  public void drawOverlay(int mx, int my, float partialTick) { }
 
   @Override
   public List<String> getTooltip(int mx, int my) {
@@ -84,7 +80,9 @@ public class ToolboxToolDelete implements IToolboxTool {
 
   @Override
   public boolean onKeyPressed(char c, int key) {
-    if (PanelToolController.selected.isEmpty() || key != Keyboard.KEY_RETURN) { return false; }
+    if (PanelToolController.selected.isEmpty() || key != Keyboard.KEY_RETURN) {
+      return false;
+    }
 
     List<PanelButtonQuest> btnList = PanelToolController.selected;
     int[] questIDs = new int[btnList.size()];
@@ -107,8 +105,7 @@ public class ToolboxToolDelete implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {

@@ -10,6 +10,6 @@ public enum McLinkEndpoint {
   public final String URL;
 
   McLinkEndpoint(@Nonnull String url) {
-    this.URL = url;
+    URL = url;
   }
 }

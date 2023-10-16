@@ -10,21 +10,21 @@ public class QuestEvent extends Event {
   private final Set<Integer> questIDs;
 
   public Set<Integer> getQuestIDs() {
-    return this.questIDs;
+    return questIDs;
   }
 
   public UUID getPlayerID() {
-    return this.playerID;
+    return playerID;
   }
 
   public Type getType() {
-    return this.type;
+    return type;
   }
 
   public QuestEvent(Type type, UUID playerID, int questID) {
     this.type = type;
     this.playerID = playerID;
-    this.questIDs = Collections.singleton(questID);
+    questIDs = Collections.singleton(questID);
   }
 
   public QuestEvent(Type type, UUID playerID, Collection<Integer> questIDs) {

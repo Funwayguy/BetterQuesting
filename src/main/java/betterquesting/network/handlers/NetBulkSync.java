@@ -66,7 +66,9 @@ public class NetBulkSync // Clears local data and negotiates a full resync with 
       for (int i = 0; i < invites.size(); i++) {
         pids[i] = invites.get(i).getKey();
       }
-      if (party != null) { pids[partyCount - 1] = party.getID(); }
+      if (party != null) {
+        pids[partyCount - 1] = party.getID();
+      }
       NetPartySync.sendSync(new EntityPlayerMP[] { player }, pids);
     }
     if (party != null) {

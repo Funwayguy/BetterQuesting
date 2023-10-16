@@ -55,7 +55,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
   public GuiItemSelection(GuiScreen parent, BigItemStack stack, ICallback<BigItemStack> callback) {
     super(parent);
     this.callback = callback;
-    this.itemStack = stack;
+    itemStack = stack;
   }
 
   public void initPanel() {
@@ -67,7 +67,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.done")));
@@ -120,7 +120,11 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
     fieldSize = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 16, 0, -32), 0),
                                      itemStack == null ? "1" : ("" + itemStack.stackSize), FieldFilterNumber.INT);
     cvTopLeft.addPanel(fieldSize);
-    fieldSize.setCallback(value -> { if (itemStack != null) { itemStack.stackSize = value; } });
+    fieldSize.setCallback(value -> {
+      if (itemStack != null) {
+        itemStack.stackSize = value;
+      }
+    });
 
     String oreName = "NONE";
     int oreIdx = -1;
@@ -220,7 +224,7 @@ public class GuiItemSelection extends GuiScreenCanvas implements IPEventListener
         callback.setValue(itemStack);
       }
 
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) {
       BigItemStack tmp = ((PanelButtonStorage<BigItemStack>) btn).getStoredValue();
 

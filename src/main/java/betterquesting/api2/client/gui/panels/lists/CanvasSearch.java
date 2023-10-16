@@ -20,7 +20,7 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling {
   }
 
   public void setSearchFilter(String text) {
-    this.searchTerm = text.toLowerCase();
+    searchTerm = text.toLowerCase();
     refreshSearch();
   }
 
@@ -39,12 +39,12 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling {
   }
 
   public void refreshSearch() {
-    this.resetCanvas();
-    this.searchIdx = 0;
-    this.searching = getIterator();
-    this.resultWidth = this.getTransform().getWidth();
-    this.pendingResults.clear();
-    this.savedResults.clear();
+    resetCanvas();
+    searchIdx = 0;
+    searching = getIterator();
+    resultWidth = getTransform().getWidth();
+    pendingResults.clear();
+    savedResults.clear();
   }
 
   private void updateSearch() {
@@ -80,7 +80,9 @@ public abstract class CanvasSearch<T, E> extends CanvasScrolling {
     searchTime.reset().start();
 
     while (!pendingResults.isEmpty() && searchTime.elapsed(TimeUnit.MILLISECONDS) < 100) {
-      if (addResult(pendingResults.poll(), searchIdx, resultWidth)) { searchIdx++; }
+      if (addResult(pendingResults.poll(), searchIdx, resultWidth)) {
+        searchIdx++;
+      }
     }
 
     searchTime.stop();

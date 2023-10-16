@@ -29,7 +29,9 @@ public class BqFontRenderer extends FontRenderer {
   }
 
   public int drawStringScaled(String text, float x, float y, int color, boolean shadow, float scale) {
-    if (scale <= 0F) { return 0; }
+    if (scale <= 0F) {
+      return 0;
+    }
 
     Minecraft mc = Minecraft.getMinecraft();
 
@@ -53,19 +55,19 @@ public class BqFontRenderer extends FontRenderer {
 
   @Override
   protected float renderUnicodeChar(char ch, boolean italic) {
-    int i = this.glyphWidth[ch] & 255;
+    int i = glyphWidth[ch] & 255;
 
     if (i == 0) {
       return 0.0F;
     } else {
       int j = ch / 256;
-      this.loadGlyphTexture(j);
+      loadGlyphTexture(j);
       int k = i >>> 4;
       int l = i & 15;
       double f = k;
       double f1 = l + 1;
       double f2 = (double) (ch % 16 * 16) + f;
-      double f3 = (ch & 255) / 16 * 16;
+      double f3 = ((ch & 255) >> 4) * 16;
       double f4 = f1 - f - 0.02D;
       double f5 = italic ? 1.0D : 0.0D;
       double ys = 7.99D;
@@ -86,13 +88,13 @@ public class BqFontRenderer extends FontRenderer {
 
       GlStateManager.glBegin(GL11.GL_TRIANGLE_STRIP);
       GL11.glTexCoord2d(f2 / 256.0D, f3 / 256.0D);
-      GL11.glVertex3d(this.posX + f5, this.posY, 0.0D);
+      GL11.glVertex3d(posX + f5, posY, 0.0D);
       GL11.glTexCoord2d(f2 / 256.0D, (f3 + 15.98D) / 256.0D);
-      GL11.glVertex3d(this.posX - f5, this.posY + ys, 0.0D);
+      GL11.glVertex3d(posX - f5, posY + ys, 0.0D);
       GL11.glTexCoord2d((f2 + f4) / 256.0D, f3 / 256.0D);
-      GL11.glVertex3d(this.posX + f4 / 2.0D + f5, this.posY, 0.0D);
+      GL11.glVertex3d(posX + f4 / 2.0D + f5, posY, 0.0D);
       GL11.glTexCoord2d((f2 + f4) / 256.0D, (f3 + 15.98D) / 256.0D);
-      GL11.glVertex3d(this.posX + f4 / 2.0D - f5, this.posY + ys, 0.0D);
+      GL11.glVertex3d(posX + f4 / 2.0D - f5, posY + ys, 0.0D);
       GlStateManager.glEnd();
 
       if (isSmall) {
@@ -109,8 +111,8 @@ public class BqFontRenderer extends FontRenderer {
     int i = ch % 16 * 8;
     int j = ch / 16 * 8;
     int k = italic ? 1 : 0;
-    bindTexture(this.locationFontTexture);
-    int l = this.charWidth[ch];
+    bindTexture(locationFontTexture);
+    int l = charWidth[ch];
     float f = (float) l - 0.01F;
 
     if (isSmall) {
@@ -120,13 +122,13 @@ public class BqFontRenderer extends FontRenderer {
 
     GlStateManager.glBegin(GL11.GL_TRIANGLE_STRIP);
     GlStateManager.glTexCoord2f((float) i / 128.0F, (float) j / 128.0F);
-    GlStateManager.glVertex3f(this.posX + (float) k, this.posY, 0.0F);
+    GlStateManager.glVertex3f(posX + (float) k, posY, 0.0F);
     GlStateManager.glTexCoord2f((float) i / 128.0F, ((float) j + 7.99F) / 128.0F);
-    GlStateManager.glVertex3f(this.posX - (float) k, this.posY + 7.99F, 0.0F);
+    GlStateManager.glVertex3f(posX - (float) k, posY + 7.99F, 0.0F);
     GlStateManager.glTexCoord2f(((float) i + f - 1.0F) / 128.0F, (float) j / 128.0F);
-    GlStateManager.glVertex3f(this.posX + f - 1.0F + (float) k, this.posY, 0.0F);
+    GlStateManager.glVertex3f(posX + f - 1.0F + (float) k, posY, 0.0F);
     GlStateManager.glTexCoord2f(((float) i + f - 1.0F) / 128.0F, ((float) j + 7.99F) / 128.0F);
-    GlStateManager.glVertex3f(this.posX + f - 1.0F - (float) k, this.posY + 7.99F, 0.0F);
+    GlStateManager.glVertex3f(posX + f - 1.0F - (float) k, posY + 7.99F, 0.0F);
     GlStateManager.glEnd();
 
     if (isSmall) {
@@ -146,7 +148,7 @@ public class BqFontRenderer extends FontRenderer {
   }
 
   private void loadGlyphTexture(int page) {
-    bindTexture(this.getUnicodePageLocation(page));
+    bindTexture(getUnicodePageLocation(page));
   }
 
   // Fixed version of vanilla
@@ -162,7 +164,7 @@ public class BqFontRenderer extends FontRenderer {
 
     for (int l = j; l >= 0 && l < text.length() && i < width; l += k) {
       char c0 = text.charAt(l);
-      int i1 = this.getCharWidth(c0);
+      int i1 = getCharWidth(c0);
 
       if (flag) {
         flag = false;
@@ -205,7 +207,7 @@ public class BqFontRenderer extends FontRenderer {
 
     for (int j = 0; j < text.length(); ++j) {
       char c0 = text.charAt(j);
-      int k = this.getCharWidth(c0);
+      int k = getCharWidth(c0);
 
       if (k < 0 && j < text.length() - 1) {
         ++j;

@@ -13,20 +13,20 @@ public class PropertyTypeBoolean extends PropertyTypeBase<Boolean> {
   @Override
   public Boolean readValue(NBTBase nbt) {
     if (nbt == null || nbt.getId() < 1 || nbt.getId() > 6) {
-      return this.getDefault();
+      return getDefault();
     }
 
     try {
       return ((NBTPrimitive) nbt).getByte() > 0;
     } catch (Exception e) {
-      return this.getDefault();
+      return getDefault();
     }
   }
 
   @Override
   public NBTBase writeValue(Boolean value) {
     if (value == null) {
-      return new NBTTagByte(this.getDefault() ? (byte) 1 : (byte) 0);
+      return new NBTTagByte(getDefault() ? (byte) 1 : (byte) 0);
     }
 
     return new NBTTagByte(value ? (byte) 1 : (byte) 0);

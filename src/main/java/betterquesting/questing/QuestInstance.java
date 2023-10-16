@@ -42,7 +42,7 @@ public class QuestInstance implements IQuest {
   private final PropertyContainer qInfo = new PropertyContainer();
 
   public QuestInstance() {
-    this.setupProps();
+    setupProps();
   }
 
   private void setupProps() {
@@ -70,7 +70,7 @@ public class QuestInstance implements IQuest {
   }
 
   private <T> void setupValue(IPropertyType<T> prop) {
-    this.setupValue(prop, prop.getDefault());
+    setupValue(prop, prop.getDefault());
   }
 
   private <T> void setupValue(IPropertyType<T> prop, T def) {
@@ -206,7 +206,7 @@ public class QuestInstance implements IQuest {
 
       if (entry == null) {
         entry = new CompletionInfo(System.currentTimeMillis(), true);
-        this.completeUsers.put(pID, entry);
+        completeUsers.put(pID, entry);
       } else {
         entry.setClaimed(true);
         entry.setTimestamp(System.currentTimeMillis());
@@ -223,14 +223,16 @@ public class QuestInstance implements IQuest {
     UUID playerID = QuestingAPI.getQuestingUUID(player);
 
     synchronized (completeUsers) {
-      CompletionInfo entry = this.getCompletionInfo(playerID);
+      CompletionInfo entry = getCompletionInfo(playerID);
       if (entry == null) {
         return true;
       }
 
       if (!entry.isClaimed() && getProperty(NativeProps.REPEAT_TIME) >= 0) // Complete but repeatable
       {
-        if (tasks.size() <= 0) { return true; }
+        if (tasks.size() <= 0) {
+          return true;
+        }
 
         int done = 0;
 
@@ -272,7 +274,7 @@ public class QuestInstance implements IQuest {
     }
 
     synchronized (completeUsers) {
-      CompletionInfo entry = this.getCompletionInfo(uuid);
+      CompletionInfo entry = getCompletionInfo(uuid);
 
       if (entry == null) {
         entry = new CompletionInfo(timestamp, false);
@@ -298,13 +300,13 @@ public class QuestInstance implements IQuest {
 
   @Override
   public EnumQuestState getState(UUID uuid) {
-    if (this.isComplete(uuid)) {
-      if (this.hasClaimed(uuid)) {
+    if (isComplete(uuid)) {
+      if (hasClaimed(uuid)) {
         return EnumQuestState.COMPLETED;
       } else {
         return EnumQuestState.UNCLAIMED;
       }
-    } else if (this.isUnlocked(uuid)) {
+    } else if (isUnlocked(uuid)) {
       return EnumQuestState.UNLOCKED;
     }
 
@@ -377,11 +379,11 @@ public class QuestInstance implements IQuest {
   @Nonnull
   @Override
   public int[] getRequirements() {
-    return this.preRequisites;
+    return preRequisites;
   }
 
   public void setRequirements(@Nonnull int[] req) {
-    this.preRequisites = req;
+    preRequisites = req;
   }
 
   @Override
@@ -396,9 +398,9 @@ public class QuestInstance implements IQuest {
 
   @Override
   public void readFromNBT(NBTTagCompound jObj) {
-    this.qInfo.readFromNBT(jObj.getCompoundTag("properties"));
-    this.tasks.readFromNBT(jObj.getTagList("tasks", 10), false);
-    this.rewards.readFromNBT(jObj.getTagList("rewards", 10), false);
+    qInfo.readFromNBT(jObj.getCompoundTag("properties"));
+    tasks.readFromNBT(jObj.getTagList("tasks", 10), false);
+    rewards.readFromNBT(jObj.getTagList("rewards", 10), false);
 
     if (jObj.getTagId("preRequisites") == 11) // Native NBT
     {
@@ -414,7 +416,7 @@ public class QuestInstance implements IQuest {
       setRequirements(req);
     }
 
-    this.setupProps();
+    setupProps();
   }
 
   @Override

@@ -22,6 +22,5 @@ public class CommonProxy {
     NetworkRegistry.INSTANCE.registerGuiHandler(BetterQuesting.instance, new GuiHandler());
   }
 
-  public void registerRenderers() {
-  }
+  public void registerRenderers() { }
 }

@@ -13,26 +13,28 @@ public class GuiRectLerp implements IGuiRect {
   private final ProxyRect pxRect;
 
   public GuiRectLerp(@Nonnull IGuiRect start) {
-    this.startRect = start;
-    this.targetRect = start;
-    this.pxRect = new ProxyRect(start);
-    this.et = System.currentTimeMillis();
+    startRect = start;
+    targetRect = start;
+    pxRect = new ProxyRect(start);
+    et = System.currentTimeMillis();
   }
 
   public void lerpTo(@Nonnull IGuiRect target, long time) {
-    if (time <= 0) { return; }
+    if (time <= 0) {
+      return;
+    }
 
-    this.targetRect = target;
-    this.duration = time;
-    this.et = System.currentTimeMillis();
-    this.pxRect.changeReference(target);
+    targetRect = target;
+    duration = time;
+    et = System.currentTimeMillis();
+    pxRect.changeReference(target);
   }
 
   public void snapTo(@Nonnull IGuiRect target) {
-    this.startRect = target;
-    this.targetRect = target;
-    this.et = System.currentTimeMillis();
-    this.pxRect.changeReference(target);
+    startRect = target;
+    targetRect = target;
+    et = System.currentTimeMillis();
+    pxRect.changeReference(target);
   }
 
   // Allows other transforms to snap to new destinations even if the targetRect variable changes instance
@@ -41,9 +43,11 @@ public class GuiRectLerp implements IGuiRect {
   }
 
   public boolean isIdle() {
-    if (startRect == targetRect) { return true; }
+    if (startRect == targetRect) {
+      return true;
+    }
     if (System.currentTimeMillis() - et >= duration) {
-      this.startRect = this.targetRect;
+      startRect = targetRect;
       return true;
     }
     return false;

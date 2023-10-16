@@ -39,11 +39,11 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     this.showCount = showCount;
     this.oreDict = oreDict;
 
-    this.setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(),
-                     new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(),
-                                        new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(),
-                                                         new GuiPadding(1, 1, 1, 1))));
-    this.setStoredValue(value); // Need to run this again because of the instatiation order of showCount
+    setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(),
+                new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(),
+                                   new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(),
+                                                    new GuiPadding(1, 1, 1, 1))));
+    setStoredValue(value); // Need to run this again because of the instatiation order of showCount
   }
 
   @Override
@@ -52,7 +52,7 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
 
     if (value != null) {
       Minecraft mc = Minecraft.getMinecraft();
-      this.setIcon(
+      setIcon(
           oreDict || value.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE ? new OreDictTexture(1F,
                                                                                                                value,
                                                                                                                showCount,
@@ -60,12 +60,12 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
                                                                                           : new ItemTexture(value,
                                                                                                             showCount,
                                                                                                             true), 1);
-      this.setTooltip(value.getBaseStack().getTooltip(mc.player,
-                                                      mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
-                                                                                           : TooltipFlags.NORMAL));
+      setTooltip(value.getBaseStack().getTooltip(mc.player,
+                                                 mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
+                                                                                      : TooltipFlags.NORMAL));
     } else {
-      this.setIcon(null);
-      this.setTooltip(null);
+      setIcon(null);
+      setTooltip(null);
     }
 
     updateOreStacks();
@@ -99,7 +99,9 @@ public class PanelItemSlot extends PanelButtonStorage<BigItemStack> {
     oreVariants.clear();
 
     BigItemStack stack = getStoredValue();
-    if (stack == null) { return; }
+    if (stack == null) {
+      return;
+    }
 
     if (!stack.hasOreDict()) {
       if (stack.getBaseStack().getItemDamage() == OreDictionary.WILDCARD_VALUE) {

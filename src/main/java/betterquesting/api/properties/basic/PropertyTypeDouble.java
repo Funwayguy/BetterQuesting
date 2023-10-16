@@ -13,7 +13,7 @@ public class PropertyTypeDouble extends PropertyTypeBase<Double> {
   @Override
   public Double readValue(NBTBase nbt) {
     if (!(nbt instanceof NBTPrimitive)) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return ((NBTPrimitive) nbt).getDouble();
@@ -22,7 +22,7 @@ public class PropertyTypeDouble extends PropertyTypeBase<Double> {
   @Override
   public NBTBase writeValue(Double value) {
     if (value == null) {
-      return new NBTTagDouble(this.getDefault());
+      return new NBTTagDouble(getDefault());
     }
 
     return new NBTTagDouble(value);

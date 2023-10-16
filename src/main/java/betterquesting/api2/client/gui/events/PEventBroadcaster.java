@@ -46,7 +46,9 @@ public class PEventBroadcaster {
   public boolean postEvent(@Nonnull PanelEvent event) {
     // We cycle over all entries incase we need to fire events for parent class types
     for (Entry<Class<? extends PanelEvent>, PEventEntry<? extends PanelEvent>> e : entryList.entrySet()) {
-      if (!e.getKey().isAssignableFrom(event.getClass())) { continue; }
+      if (!e.getKey().isAssignableFrom(event.getClass())) {
+        continue;
+      }
       e.getValue().fire(event);
     }
 

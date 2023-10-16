@@ -12,11 +12,11 @@ public abstract class DatabaseEvent extends Event {
   private final DBType TYPE;
 
   public DatabaseEvent(DBType type) {
-    this.TYPE = type;
+    TYPE = type;
   }
 
   public DBType getType() {
-    return this.TYPE;
+    return TYPE;
   }
 
   @Deprecated

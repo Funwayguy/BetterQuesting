@@ -94,7 +94,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable {
           String s1 = arraylist.get(1);
 
           if (!s1.equals(s1.toLowerCase())) {
-            this.logNameNotLowercase(s1, zipfile.getName());
+            logNameNotLowercase(s1, zipfile.getName());
           } else {
             hashset.add(s1);
           }
@@ -113,7 +113,9 @@ public class QuestResourcesFile implements IResourcePack, Closeable {
   @Nonnull
   @Override
   public BufferedImage getPackImage() {
-    if (bufferedImage != null) { return bufferedImage; }
+    if (bufferedImage != null) {
+      return bufferedImage;
+    }
 
     try {
       bufferedImage = TextureUtil.readBufferedImage(
@@ -132,14 +134,18 @@ public class QuestResourcesFile implements IResourcePack, Closeable {
   }
 
   private List<ZipFile> getZipFiles() {
-    if (zipList != null) { return zipList; }
+    if (zipList != null) {
+      return zipList;
+    }
 
     if (!rootFolder.exists() && !rootFolder.mkdirs()) {
       return Collections.emptyList();
     }
 
     File[] files = rootFolder.listFiles();
-    if (files == null || files.length == 0) { return Collections.emptyList(); }
+    if (files == null || files.length == 0) {
+      return Collections.emptyList();
+    }
 
     zipList = new ArrayList<>();
 
@@ -165,7 +171,7 @@ public class QuestResourcesFile implements IResourcePack, Closeable {
 
   @Override
   protected void finalize() throws Throwable {
-    this.close();
+    close();
     super.finalize();
   }
 

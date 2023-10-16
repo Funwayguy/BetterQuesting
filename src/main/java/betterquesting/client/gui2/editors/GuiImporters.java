@@ -52,7 +52,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate("betterquesting.title.importers")).setAlignment(
@@ -135,7 +135,7 @@ public class GuiImporters extends GuiScreenCanvas implements IPEventListener, IC
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1) // Select
     {
       IImporter imp = ((PanelButtonStorage<IImporter>) btn).getStoredValue();

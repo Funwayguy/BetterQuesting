@@ -8,11 +8,11 @@ public class GuiColorStatic implements IGuiColor {
   private final int argb;
 
   public GuiColorStatic(int color) {
-    this.argb = color;
+    argb = color;
   }
 
   public GuiColorStatic(int red, int green, int blue, int alpha) {
-    this.argb = ((alpha & 255) << 24) | ((red & 255) << 16) | ((green & 255) << 8) | (blue & 255);
+    argb = ((alpha & 255) << 24) | ((red & 255) << 16) | ((green & 255) << 8) | (blue & 255);
   }
 
   public GuiColorStatic(float red, float green, float blue, float alpha) {

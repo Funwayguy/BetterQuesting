@@ -21,8 +21,7 @@ public class PacketQuesting implements IMessage {
 
   @SuppressWarnings("unused")
   public PacketQuesting() // For use only by forge
-  {
-  }
+  { }
 
   public PacketQuesting(NBTTagCompound tags) // Use PacketDataTypes to instantiate new packets
   {

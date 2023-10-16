@@ -23,7 +23,7 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item> {
   public CanvasItemDatabase(IGuiRect rect, int buttonId) {
     super(rect);
 
-    this.btnId = buttonId;
+    btnId = buttonId;
   }
 
   @Override
@@ -86,12 +86,14 @@ public class CanvasItemDatabase extends CanvasSearch<ItemStack, Item> {
 
   @Override
   public boolean addResult(ItemStack stack, int index, int cachedWidth) {
-    if (stack == null) { return false; }
+    if (stack == null) {
+      return false;
+    }
 
     int x = (index % (cachedWidth / 18)) * 18;
     int y = (index / (cachedWidth / 18)) * 18;
 
-    this.addPanel(new PanelItemSlot(new GuiRectangle(x, y, 18, 18, 0), btnId, new BigItemStack(stack)));
+    addPanel(new PanelItemSlot(new GuiRectangle(x, y, 18, 18, 0), btnId, new BigItemStack(stack)));
 
     return true;
   }

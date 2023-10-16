@@ -49,7 +49,9 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
   @Override
   public NBTTagList writeToNBT(NBTTagList json, List<Integer> subset) {
     for (DBEntry<IQuestLine> entry : getEntries()) {
-      if (subset != null && !subset.contains(entry.getID())) { continue; }
+      if (subset != null && !subset.contains(entry.getID())) {
+        continue;
+      }
       NBTTagCompound jObj = entry.getValue().writeToNBT(new NBTTagCompound(), null);
       jObj.setInteger("lineID", entry.getID());
       jObj.setInteger("order", getOrderIndex(entry.getID()));
@@ -61,7 +63,9 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
 
   @Override
   public void readFromNBT(NBTTagList json, boolean merge) {
-    if (!merge) { reset(); }
+    if (!merge) {
+      reset();
+    }
 
     List<IQuestLine> unassigned = new ArrayList<>();
     HashMap<Integer, Integer> orderMap = new HashMap<>();
@@ -86,14 +90,18 @@ public class ImportedQuestLines extends SimpleDatabase<IQuestLine> implements IQ
     }
 
     // Legacy support ONLY
-    for (IQuestLine q : unassigned) { add(nextID(), q); }
+    for (IQuestLine q : unassigned) {
+      add(nextID(), q);
+    }
 
     List<Integer> orderKeys = new ArrayList<>(orderMap.keySet());
     Collections.sort(orderKeys);
 
     synchronized (lineOrder) {
       lineOrder.clear();
-      for (int o : orderKeys) { lineOrder.add(orderMap.get(o)); }
+      for (int o : orderKeys) {
+        lineOrder.add(orderMap.get(o));
+      }
     }
   }
 

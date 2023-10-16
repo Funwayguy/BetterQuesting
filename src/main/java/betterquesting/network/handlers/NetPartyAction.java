@@ -58,17 +58,23 @@ public class NetPartyAction {
         break;
       }
       case 1: {
-        if (permission < 3) { break; }
+        if (permission < 3) {
+          break;
+        }
         deleteParty(partyID);
         break;
       }
       case 2: {
-        if (permission < 2) { break; }
+        if (permission < 2) {
+          break;
+        }
         editParty(partyID, party, message.getFirst().getCompoundTag("data"));
         break;
       }
       case 3: {
-        if (permission < 2) { break; }
+        if (permission < 2) {
+          break;
+        }
         inviteUser(partyID, message.getFirst().getString("username"), message.getFirst().getLong("expiry"));
         break;
       }
@@ -89,7 +95,9 @@ public class NetPartyAction {
 
   private static void createParty(EntityPlayerMP sender, String name) {
     UUID playerID = QuestingAPI.getQuestingUUID(sender);
-    if (PartyManager.INSTANCE.getParty(playerID) != null) { return; }
+    if (PartyManager.INSTANCE.getParty(playerID) != null) {
+      return;
+    }
 
     int partyID = PartyManager.INSTANCE.nextID();
     IParty party = PartyManager.INSTANCE.createNew(partyID);
@@ -117,8 +125,12 @@ public class NetPartyAction {
     UUID uuid = null;
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
     EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
-    if (player != null) { uuid = QuestingAPI.getQuestingUUID(player); }
-    if (uuid == null) { uuid = NameCache.INSTANCE.getUUID(username); }
+    if (player != null) {
+      uuid = QuestingAPI.getQuestingUUID(player);
+    }
+    if (uuid == null) {
+      uuid = NameCache.INSTANCE.getUUID(username);
+    }
     if (uuid != null) {
       PartyInvitations.INSTANCE.postInvite(uuid, partyID, expiry);
       if (player != null) {
@@ -134,7 +146,9 @@ public class NetPartyAction {
   private static void acceptInvite(int partyID, EntityPlayerMP sender) {
     UUID playerID = QuestingAPI.getQuestingUUID(sender);
     DBEntry<IParty> party = PartyManager.INSTANCE.getParty(playerID);
-    if (party != null) { return; }
+    if (party != null) {
+      return;
+    }
     if (PartyInvitations.INSTANCE.acceptInvite(playerID, partyID)) {
       NetPartySync.quickSync(partyID);
       NetNameSync.quickSync(sender, partyID);
@@ -155,8 +169,12 @@ public class NetPartyAction {
     UUID uuid = null;
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
     EntityPlayerMP player = server.getPlayerList().getPlayerByUsername(username);
-    if (player != null) { uuid = QuestingAPI.getQuestingUUID(player); }
-    if (uuid == null) { uuid = NameCache.INSTANCE.getUUID(username); }
+    if (player != null) {
+      uuid = QuestingAPI.getQuestingUUID(player);
+    }
+    if (uuid == null) {
+      uuid = NameCache.INSTANCE.getUUID(username);
+    }
     if (uuid == null) {
       BetterQuesting.logger.error("Unable to identify " + username + " to remove them from party " + partyID);
       return; // No idea who this is
@@ -166,7 +184,9 @@ public class NetPartyAction {
                                                             permission) // For future reference, this is checking the target has a permission lower than the sender
     {
       // Even if the kick isn't confirmed we still need to tell the clients incase of desync
-      if (party.getStatus(uuid) != null) { party.kickUser(uuid); }
+      if (party.getStatus(uuid) != null) {
+        party.kickUser(uuid);
+      }
 
       if (!party.getMembers().isEmpty()) {
         NetPartySync.quickSync(partyID);

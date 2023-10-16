@@ -23,9 +23,9 @@ import java.util.UUID;
 
 public class ItemExtraLife extends Item {
   public ItemExtraLife() {
-    this.setTranslationKey("betterquesting.extra_life");
-    this.setCreativeTab(BetterQuesting.tabQuesting);
-    this.setHasSubtypes(true);
+    setTranslationKey("betterquesting.extra_life");
+    setCreativeTab(BetterQuesting.tabQuesting);
+    setHasSubtypes(true);
   }
 
   /**
@@ -80,11 +80,11 @@ public class ItemExtraLife extends Item {
   public String getTranslationKey(ItemStack stack) {
     switch (stack.getItemDamage() % 3) {
       case 2:
-        return this.getTranslationKey() + ".quarter";
+        return getTranslationKey() + ".quarter";
       case 1:
-        return this.getTranslationKey() + ".half";
+        return getTranslationKey() + ".half";
       default:
-        return this.getTranslationKey() + ".full";
+        return getTranslationKey() + ".full";
     }
   }
 
@@ -100,7 +100,7 @@ public class ItemExtraLife extends Item {
   @Override
   @SideOnly(Side.CLIENT)
   public void getSubItems(@Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> list) {
-    if (this.isInCreativeTab(tab)) {
+    if (isInCreativeTab(tab)) {
       list.add(new ItemStack(this, 1, 0));
       list.add(new ItemStack(this, 1, 1));
       list.add(new ItemStack(this, 1, 2));

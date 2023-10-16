@@ -10,7 +10,7 @@ public class QuestLineEntry implements IQuestLineEntry {
   private int posY = 0;
 
   public QuestLineEntry(NBTTagCompound json) {
-    this.readFromNBT(json);
+    readFromNBT(json);
   }
 
   public QuestLineEntry(int x, int y) {
@@ -19,17 +19,17 @@ public class QuestLineEntry implements IQuestLineEntry {
 
   @Deprecated
   public QuestLineEntry(int x, int y, int size) {
-    this.sizeX = size;
-    this.sizeY = size;
-    this.posX = x;
-    this.posY = y;
+    sizeX = size;
+    sizeY = size;
+    posX = x;
+    posY = y;
   }
 
   public QuestLineEntry(int x, int y, int sizeX, int sizeY) {
     this.sizeX = sizeX;
     this.sizeY = sizeY;
-    this.posX = x;
-    this.posY = y;
+    posX = x;
+    posY = y;
   }
 
   @Override
@@ -40,12 +40,12 @@ public class QuestLineEntry implements IQuestLineEntry {
 
   @Override
   public int getSizeX() {
-    return this.sizeX;
+    return sizeX;
   }
 
   @Override
   public int getSizeY() {
-    return this.sizeY;
+    return sizeY;
   }
 
   @Override
@@ -67,8 +67,8 @@ public class QuestLineEntry implements IQuestLineEntry {
   @Override
   @Deprecated
   public void setSize(int size) {
-    this.sizeX = size;
-    this.sizeY = size;
+    sizeX = size;
+    sizeY = size;
   }
 
   @Override

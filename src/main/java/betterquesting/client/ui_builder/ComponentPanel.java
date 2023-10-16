@@ -65,7 +65,7 @@ public class ComponentPanel implements INBTSaveLoad<NBTTagCompound> {
   }
 
   public void setPanelData(@Nonnull NBTTagCompound tag) {
-    this.panelData = tag;
+    panelData = tag;
   }
 
   public IGuiPanel build() {

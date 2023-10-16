@@ -11,16 +11,16 @@ public class CallbackNBTPrimitive<T extends Number> implements ICallback<T> {
 
   public CallbackNBTPrimitive(NBTTagCompound tag, String key, Class<T> c) {
     this.tag = tag;
-    this.sKey = key;
-    this.iKey = -1;
-    this.tagID = getTagID(c);
+    sKey = key;
+    iKey = -1;
+    tagID = getTagID(c);
   }
 
   public CallbackNBTPrimitive(NBTTagList tag, int key, Class<T> c) {
     this.tag = tag;
-    this.sKey = null;
-    this.iKey = key;
-    this.tagID = getTagID(c);
+    sKey = null;
+    iKey = key;
+    tagID = getTagID(c);
   }
 
   @Override

@@ -23,7 +23,9 @@ public class FactoryColorTexture implements IFactoryData<IGuiTexture, JsonObject
     int[] bounds = new int[] { 0, 0, 0, 0 };
     JsonArray jAry = JsonHelper.GetArray(data, "padding");
     for (int i = 0; i < jAry.size() && i < bounds.length; i++) {
-      if (!(jAry.get(i).isJsonPrimitive())) { continue; }
+      if (!(jAry.get(i).isJsonPrimitive())) {
+        continue;
+      }
       try {
         bounds[i] = jAry.get(i).getAsInt();
       } catch (Exception ignored) { }
@@ -34,7 +36,9 @@ public class FactoryColorTexture implements IFactoryData<IGuiTexture, JsonObject
     try {
       color = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg()
                          .createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
-      if (color == null) { color = new GuiColorStatic(0xFFFFFFFF); }
+      if (color == null) {
+        color = new GuiColorStatic(0xFFFFFFFF);
+      }
     } catch (Exception ignored) {
       color = new GuiColorStatic(0xFFFFFFFF);
     }

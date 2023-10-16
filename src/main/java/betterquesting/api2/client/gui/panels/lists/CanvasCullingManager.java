@@ -144,10 +144,10 @@ public class CanvasCullingManager {
 
     private boolean enabled = false; // Starts disabled so that the cache can be populated on initial checks
     private final GuiRectangle rect;
-        // Needs to be updated with the min-max bounds (doesn't actually conform to any grid)
+    // Needs to be updated with the min-max bounds (doesn't actually conform to any grid)
 
     private RegionInfo(int blockX, int blockY, int gridSize) {
-      this.rect = new GuiRectangle(blockX * gridSize, blockY * gridSize, gridSize, gridSize);
+      rect = new GuiRectangle(blockX * gridSize, blockY * gridSize, gridSize, gridSize);
     }
 
     private void refreshBounds() {

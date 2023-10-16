@@ -23,7 +23,7 @@ public class GuiScreenTest extends GuiScreenCanvas {
     super.initPanel();
 
     CanvasTextured cvt1 = new CanvasTextured(new GuiTransform(), PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvt1);
+    addPanel(cvt1);
 
     PanelHBarFill phf = new PanelHBarFill(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(72, 16, 72, -32), 0));
     phf.setFillColor(
@@ -54,7 +54,7 @@ public class GuiScreenTest extends GuiScreenCanvas {
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    this.drawDefaultBackground();
+    drawDefaultBackground();
 
     super.drawPanel(mx, my, partialTick);
   }

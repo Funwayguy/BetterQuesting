@@ -28,9 +28,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   private boolean enabled = true;
 
   private final IGuiTexture[] texStates = new IGuiTexture[3];
-  private final IGuiColor[] colStates =
-      new IGuiColor[] { new GuiColorStatic(128, 128, 128, 255), new GuiColorStatic(255, 255, 255, 255),
-                        new GuiColorStatic(16777120) };
+  private final IGuiColor[] colStates = new IGuiColor[] { new GuiColorStatic(128, 128, 128, 255),
+                                                          new GuiColorStatic(255, 255, 255, 255),
+                                                          new GuiColorStatic(16777120) };
   private IGuiTexture texIcon = null;
   private IGuiColor colIcon = null;
   private int icoPadding = 0;
@@ -46,47 +46,47 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   private Consumer<PanelButton> clickAction = null;
 
   public PanelButton(IGuiRect rect, int id, String txt) {
-    this.transform = rect;
-    this.btnText = txt;
-    this.btnID = id;
+    transform = rect;
+    btnText = txt;
+    btnID = id;
 
-    this.setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(),
-                     PresetTexture.BTN_NORMAL_2.getTexture());
-    this.setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(),
-                          PresetColor.BTN_HOVER.getColor());
+    setTextures(PresetTexture.BTN_NORMAL_0.getTexture(), PresetTexture.BTN_NORMAL_1.getTexture(),
+                PresetTexture.BTN_NORMAL_2.getTexture());
+    setTextHighlight(PresetColor.BTN_DISABLED.getColor(), PresetColor.BTN_IDLE.getColor(),
+                     PresetColor.BTN_HOVER.getColor());
   }
 
   public PanelButton setClickAction(Consumer<PanelButton> action) {
-    this.clickAction = action;
+    clickAction = action;
     return this;
   }
 
   public PanelButton setTextHighlight(IGuiColor disabled, IGuiColor idle, IGuiColor hover) {
-    this.colStates[0] = disabled;
-    this.colStates[1] = idle;
-    this.colStates[2] = hover;
+    colStates[0] = disabled;
+    colStates[1] = idle;
+    colStates[2] = hover;
     return this;
   }
 
   public PanelButton setTextShadow(boolean enabled) {
-    this.txtShadow = enabled;
+    txtShadow = enabled;
     return this;
   }
 
   public PanelButton setTextAlignment(int align) {
-    this.textAlign = MathHelper.clamp(align, 0, 2);
+    textAlign = MathHelper.clamp(align, 0, 2);
     return this;
   }
 
   public PanelButton setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture hover) {
-    this.texStates[0] = disabled;
-    this.texStates[1] = idle;
-    this.texStates[2] = hover;
+    texStates[0] = disabled;
+    texStates[1] = idle;
+    texStates[2] = hover;
     return this;
   }
 
   public PanelButton setIcon(IGuiTexture icon) {
-    return this.setIcon(icon, 0);
+    return setIcon(icon, 0);
   }
 
   public PanelButton setIcon(IGuiTexture icon, int padding) {
@@ -94,9 +94,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   }
 
   public PanelButton setIcon(IGuiTexture icon, IGuiColor color, int padding) {
-    this.texIcon = icon;
-    this.colIcon = color;
-    this.icoPadding = padding * 2;
+    texIcon = icon;
+    colIcon = color;
+    icoPadding = padding * 2;
     return this;
   }
 
@@ -106,36 +106,36 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   }
 
   public void setText(String text) {
-    this.btnText = text;
+    btnText = text;
   }
 
   public String getText() {
-    return this.btnText;
+    return btnText;
   }
 
   @Override
   public int getButtonID() {
-    return this.btnID;
+    return btnID;
   }
 
   @Override
   public boolean isActive() {
-    return this.isActive;
+    return isActive;
   }
 
   @Override
   public void setActive(boolean state) {
-    this.isActive = state;
+    isActive = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
@@ -144,12 +144,11 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     GlStateManager.pushMatrix();
     GlStateManager.color(1F, 1F, 1F, 1F);
     int curState = !isActive() ? 0 : (bounds.contains(mx, my) ? 2 : 1);
@@ -208,7 +207,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
-    boolean contains = this.getTransform().contains(mx, my);
+    boolean contains = getTransform().contains(mx, my);
     pendingRelease = isActive() && click == 0 && contains;
 
     return (click == 0 || click == 1) && contains;
@@ -222,7 +221,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
     pendingRelease = false;
 
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     boolean clicked = isActive() && click == 0 && bounds.contains(mx, my) &&
                       !PEventBroadcaster.INSTANCE.postEvent(new PEventButton(this));
 
@@ -247,7 +246,7 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
   @Override
   public List<String> getTooltip(int mx, int my) {
-    if (this.getTransform().contains(mx, my)) {
+    if (getTransform().contains(mx, my)) {
       return tooltip;
     }
 
@@ -256,7 +255,9 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
 
   @Override
   public void onButtonClick() {
-    if (clickAction != null) { clickAction.accept(this); }
+    if (clickAction != null) {
+      clickAction.accept(this);
+    }
   }
 
   @Override
@@ -266,7 +267,5 @@ public class PanelButton implements IPanelButton, IGuiPanel, INBTSaveLoad<NBTTag
   }
 
   @Override
-  public void readFromNBT(NBTTagCompound nbt) {
-
-  }
+  public void readFromNBT(NBTTagCompound nbt) { }
 }

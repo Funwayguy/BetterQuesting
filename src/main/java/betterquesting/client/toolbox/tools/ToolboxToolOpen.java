@@ -17,12 +17,10 @@ public class ToolboxToolOpen implements IToolboxTool {
   }
 
   @Override
-  public void disableTool() {
-  }
+  public void disableTool() { }
 
   @Override
-  public void refresh(CanvasQuestLine gui) {
-  }
+  public void refresh(CanvasQuestLine gui) { }
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
@@ -49,12 +47,10 @@ public class ToolboxToolOpen implements IToolboxTool {
   }
 
   @Override
-  public void drawCanvas(int mx, int my, float partialTick) {
-  }
+  public void drawCanvas(int mx, int my, float partialTick) { }
 
   @Override
-  public void drawOverlay(int mx, int my, float partialTick) {
-  }
+  public void drawOverlay(int mx, int my, float partialTick) { }
 
   @Override
   public List<String> getTooltip(int mx, int my) {
@@ -77,8 +73,7 @@ public class ToolboxToolOpen implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {

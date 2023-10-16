@@ -38,12 +38,14 @@ public class FluidTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick) {
-    this.drawTexture(x, y, width, height, zDepth, partialTick, defColor);
+    drawTexture(x, y, width, height, zDepth, partialTick, defColor);
   }
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0) { return; }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
 
     float sx = width / 16F;
     float sy = height / 16F;
@@ -85,7 +87,7 @@ public class FluidTexture implements IGuiTexture {
     Minecraft mc = Minecraft.getMinecraft();
     mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     TextureAtlasSprite fluidTx = mc.getTextureMapBlocks().getAtlasSprite(fluid.getFluid().getStill().toString());
-    this.drawTexturedModalRect(0, 0, 0, fluidTx, 16, 16);
+    drawTexturedModalRect(0, 0, 0, fluidTx, 16, 16);
 
     GlStateManager.popMatrix();
   }

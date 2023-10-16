@@ -19,7 +19,7 @@ public class ThemeRepository {
   }
 
   public String getAddress() {
-    return this.repoAddress;
+    return repoAddress;
   }
 
   public List<CatalogueEntry> getEntries() {

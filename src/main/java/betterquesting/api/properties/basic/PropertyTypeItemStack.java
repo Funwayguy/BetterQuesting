@@ -14,7 +14,7 @@ public class PropertyTypeItemStack extends PropertyTypeBase<BigItemStack> {
   @Override
   public BigItemStack readValue(NBTBase nbt) {
     if (nbt == null || nbt.getId() != 10) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return JsonHelper.JsonToItemStack((NBTTagCompound) nbt);

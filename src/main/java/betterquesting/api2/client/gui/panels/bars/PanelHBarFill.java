@@ -24,21 +24,21 @@ public class PanelHBarFill implements IBarFill {
   private IGuiColor color = new GuiColorStatic(0xFFFFFFFF);
 
   public PanelHBarFill(IGuiRect rect) {
-    this.texBack = PresetTexture.METER_H_0.getTexture();
-    this.texFill = PresetTexture.METER_H_1.getTexture();
+    texBack = PresetTexture.METER_H_0.getTexture();
+    texFill = PresetTexture.METER_H_1.getTexture();
 
-    this.transform = rect;
+    transform = rect;
   }
 
   @Override
   public PanelHBarFill setFillDriver(IValueIO<Float> driver) {
-    this.fillDriver = driver;
+    fillDriver = driver;
     return this;
   }
 
   @Override
   public PanelHBarFill setFlipped(boolean flipped) {
-    this.flipBar = flipped;
+    flipBar = flipped;
     return this;
   }
 
@@ -50,23 +50,22 @@ public class PanelHBarFill implements IBarFill {
 
   @Override
   public PanelHBarFill setBarTexture(IGuiTexture back, IGuiTexture front) {
-    this.texBack = back;
-    this.texFill = front;
+    texBack = back;
+    texFill = front;
     return this;
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -76,7 +75,7 @@ public class PanelHBarFill implements IBarFill {
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     GlStateManager.pushMatrix();
 
     GlStateManager.color(1F, 1F, 1F, 1F);
@@ -87,7 +86,7 @@ public class PanelHBarFill implements IBarFill {
 
     float f = MathHelper.clamp(fillDriver.readValue(), 0F, 1F);
 
-    if (this.flipBar) {
+    if (flipBar) {
       RenderUtils.startScissor(
           new GuiRectangle(bounds.getX() + (int) (bounds.getWidth() - (bounds.getWidth() * f)), bounds.getY(),
                            (int) (bounds.getWidth() * f), bounds.getHeight(), 0));

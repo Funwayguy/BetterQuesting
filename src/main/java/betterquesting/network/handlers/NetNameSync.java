@@ -46,7 +46,9 @@ public class NetNameSync {
     if (uuids != null) {
       NBTTagList uList = new NBTTagList();
       for (UUID id : uuids) {
-        if (id == null) { continue; }
+        if (id == null) {
+          continue;
+        }
         uList.appendTag(new NBTTagString(id.toString()));
       }
       payload.setTag("uuids", uList);
@@ -54,7 +56,9 @@ public class NetNameSync {
     if (names != null) {
       NBTTagList nList = new NBTTagList();
       for (String s : names) {
-        if (StringUtils.isNullOrEmpty(s)) { continue; }
+        if (StringUtils.isNullOrEmpty(s)) {
+          continue;
+        }
         nList.appendTag(new NBTTagString(s));
       }
       payload.setTag("names", nList);
@@ -64,7 +68,9 @@ public class NetNameSync {
 
   public static void quickSync(@Nullable EntityPlayerMP player, int partyID) {
     IParty party = PartyManager.INSTANCE.getValue(partyID);
-    if (party == null) { return; }
+    if (party == null) {
+      return;
+    }
 
     NBTTagCompound payload = new NBTTagCompound();
     payload.setTag("data", NameCache.INSTANCE.writeToNBT(new NBTTagList(), party.getMembers()));
@@ -78,7 +84,9 @@ public class NetNameSync {
       for (UUID playerID : party.getMembers()) {
         EntityPlayerMP p = server.getPlayerList().getPlayerByUUID(playerID);
         //noinspection ConstantConditions
-        if (p != null) { playerList.add(p); }
+        if (p != null) {
+          playerList.add(p);
+        }
       }
       PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload),
                                           playerList.toArray(new EntityPlayerMP[0]));
@@ -87,11 +95,15 @@ public class NetNameSync {
 
   public static void sendNames(@Nullable EntityPlayerMP[] players, @Nullable UUID[] uuids, @Nullable String[] names) {
     List<UUID> idList = (uuids == null && names == null) ? null : new ArrayList<>();
-    if (uuids != null) { idList.addAll(Arrays.asList(uuids)); }
+    if (uuids != null) {
+      idList.addAll(Arrays.asList(uuids));
+    }
     if (names != null) {
       for (String s : names) {
         UUID id = NameCache.INSTANCE.getUUID(s);
-        if (id != null) { idList.add(id); }
+        if (id != null) {
+          idList.add(id);
+        }
       }
     }
 

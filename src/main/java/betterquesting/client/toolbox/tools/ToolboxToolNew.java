@@ -31,8 +31,7 @@ public class ToolboxToolNew implements IToolboxTool {
   }
 
   @Override
-  public void refresh(CanvasQuestLine gui) {
-  }
+  public void refresh(CanvasQuestLine gui) { }
 
   @Override
   public void drawCanvas(int mx, int my, float partialTick) {
@@ -63,7 +62,9 @@ public class ToolboxToolNew implements IToolboxTool {
 
   @Override
   public void disableTool() {
-    if (nQuest != null) { nQuest = null; }
+    if (nQuest != null) {
+      nQuest = null;
+    }
   }
 
   @Override
@@ -132,8 +133,7 @@ public class ToolboxToolNew implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {

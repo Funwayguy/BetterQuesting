@@ -54,7 +54,7 @@ public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListene
   public GuiFluidSelection(GuiScreen parent, FluidStack stack, ICallback<FluidStack> callback) {
     super(parent);
     this.callback = callback;
-    this.itemStack = stack;
+    itemStack = stack;
   }
 
   public void initPanel() {
@@ -66,7 +66,7 @@ public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListene
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.done")));
@@ -119,7 +119,11 @@ public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListene
     fieldSize = new PanelTextField<>(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(52, 16, 0, -32), 0),
                                      itemStack == null ? "1" : ("" + itemStack.amount), FieldFilterNumber.INT);
     cvTopLeft.addPanel(fieldSize);
-    fieldSize.setCallback(value -> { if (itemStack != null) { itemStack.amount = value; } });
+    fieldSize.setCallback(value -> {
+      if (itemStack != null) {
+        itemStack.amount = value;
+      }
+    });
 
     // === BOTTOM LEFT PANEL ===
 
@@ -191,7 +195,7 @@ public class GuiFluidSelection extends GuiScreenCanvas implements IPEventListene
         callback.setValue(itemStack);
       }
 
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) {
       FluidStack fluid = ((PanelButtonStorage<FluidStack>) btn).getStoredValue();
 

@@ -66,7 +66,9 @@ public final class NameCache implements INameCache {
   @Override
   public synchronized NBTTagList writeToNBT(NBTTagList nbt, @Nullable List<UUID> users) {
     for (Entry<UUID, NBTTagCompound> entry : cache.entrySet()) {
-      if (users != null && !users.contains(entry.getKey())) { continue; }
+      if (users != null && !users.contains(entry.getKey())) {
+        continue;
+      }
       NBTTagCompound jn = new NBTTagCompound();
       jn.setString("uuid", entry.getKey().toString());
       jn.setString("name", entry.getValue().getString("name"));
@@ -79,7 +81,9 @@ public final class NameCache implements INameCache {
 
   @Override
   public synchronized void readFromNBT(NBTTagList nbt, boolean merge) {
-    if (!merge) { cache.clear(); }
+    if (!merge) {
+      cache.clear();
+    }
     for (int i = 0; i < nbt.tagCount(); i++) {
       NBTTagCompound jn = nbt.getCompoundTagAt(i);
 
@@ -106,7 +110,9 @@ public final class NameCache implements INameCache {
 
   @Override
   public synchronized List<String> getAllNames() {
-    if (nameCache != null) { return nameCache; }
+    if (nameCache != null) {
+      return nameCache;
+    }
 
     nameCache = new ArrayList<>();
 

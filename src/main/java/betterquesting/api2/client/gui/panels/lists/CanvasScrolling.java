@@ -53,7 +53,7 @@ public class CanvasScrolling implements IGuiCanvas {
   private final GuiRectangle refRect = new GuiRectangle(0, 0, 0, 0);
 
   public CanvasScrolling(IGuiRect rect) {
-    this.transform = rect;
+    transform = rect;
 
     // Dummy value drivers
 
@@ -63,39 +63,39 @@ public class CanvasScrolling implements IGuiCanvas {
   }
 
   public CanvasScrolling setScrollDriverX(IValueIO<Float> driver) {
-    this.scrollX = driver;
+    scrollX = driver;
     return this;
   }
 
   public CanvasScrolling setScrollDriverY(IValueIO<Float> driver) {
-    this.scrollY = driver;
+    scrollY = driver;
     return this;
   }
 
   public CanvasScrolling setZoomDriver(IValueIO<Float> driver) {
-    this.zoomScale = driver;
+    zoomScale = driver;
     return this;
   }
 
   public CanvasScrolling setScrollSpeed(int dx) {
-    this.scrollSpeed = dx;
+    scrollSpeed = dx;
     return this;
   }
 
   public CanvasScrolling setupAdvanceScroll(boolean scrollToZoom, boolean extendedScroll, int scrollMargin) {
-    this.zoomMode = scrollToZoom;
+    zoomMode = scrollToZoom;
     this.extendedScroll = extendedScroll;
-    this.margin = scrollMargin;
+    margin = scrollMargin;
     return this;
   }
 
   public CanvasScrolling enableBlocking(boolean state) {
-    this.useBlocking = state;
+    useBlocking = state;
     return this;
   }
 
   public IGuiRect getScrollBounds() {
-    return this.scrollBounds;
+    return scrollBounds;
   }
 
   public int getScrollX() {
@@ -111,37 +111,41 @@ public class CanvasScrolling implements IGuiCanvas {
   }
 
   public void setScrollX(int sx) {
-    if (scrollBounds.getWidth() <= 0) { return; }
+    if (scrollBounds.getWidth() <= 0) {
+      return;
+    }
     scrollX.writeValueRaw((sx - scrollBounds.getX()) / (float) scrollBounds.getWidth());
-    lsx = this.getScrollX();
+    lsx = getScrollX();
   }
 
   public void setScrollY(int sy) {
-    if (scrollBounds.getHeight() <= 0) { return; }
+    if (scrollBounds.getHeight() <= 0) {
+      return;
+    }
     scrollY.writeValueRaw((sy - scrollBounds.getY()) / (float) scrollBounds.getHeight());
-    lsy = this.getScrollY();
+    lsy = getScrollY();
   }
 
   public void setZoom(float z) {
     zoomScale.writeValueRaw(z);
     lsz = zoomScale.readValue();
-    this.refreshScrollBounds();
+    refreshScrollBounds();
   }
 
   @Override
   public void initPanel() {
-    this.guiPanels.clear();
-    this.cullingManager.reset();
+    guiPanels.clear();
+    cullingManager.reset();
   }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -152,12 +156,14 @@ public class CanvasScrolling implements IGuiCanvas {
   @Nonnull
   @Override
   public List<IGuiPanel> getChildren() {
-    return this.guiPanels;
+    return guiPanels;
   }
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    if (!isRectEqual(refRect, transform)) { refreshScrollBounds(); }
+    if (!isRectEqual(refRect, transform)) {
+      refreshScrollBounds();
+    }
 
     float zs = zoomScale.readValue();
 
@@ -203,7 +209,7 @@ public class CanvasScrolling implements IGuiCanvas {
       swcx -= swcx / change;
       swcy -= swcy / change;
 
-      this.refreshScrollBounds(); // NOTE: This runs updatePanelPcroll() too. Hence why the math above is done first before the scroll bounds are changed
+      refreshScrollBounds(); // NOTE: This runs updatePanelPcroll() too. Hence why the math above is done first before the scroll bounds are changed
 
       if (scrollBounds.getWidth() > 0) {
         scrollX.writeValue(((csx + swcx) - scrollBounds.getX()) / (float) scrollBounds.getWidth());
@@ -216,7 +222,7 @@ public class CanvasScrolling implements IGuiCanvas {
       lsz = zs;
     } else if (lsx != getScrollX() || lsy != getScrollY()) // We can skip this if the above case ran
     {
-      this.updatePanelScroll();
+      updatePanelScroll();
     }
 
     GlStateManager.pushMatrix();
@@ -281,7 +287,9 @@ public class CanvasScrolling implements IGuiCanvas {
     boolean used = false;
 
     if (!hasDragged) {
-      if (!transform.contains(mx, my)) { return false; }
+      if (!transform.contains(mx, my)) {
+        return false;
+      }
 
       float zs = zoomScale.readValue();
       int tx = transform.getX();
@@ -300,7 +308,9 @@ public class CanvasScrolling implements IGuiCanvas {
     }
 
     if (isDragging) {
-      if (!Mouse.isButtonDown(0) && !Mouse.isButtonDown(2)) { isDragging = false; }
+      if (!Mouse.isButtonDown(0) && !Mouse.isButtonDown(2)) {
+        isDragging = false;
+      }
       return true;
     }
 
@@ -309,7 +319,9 @@ public class CanvasScrolling implements IGuiCanvas {
 
   @Override
   public boolean onMouseScroll(int mx, int my, int scroll) {
-    if (scroll == 0 || !transform.contains(mx, my)) { return false; }
+    if (scroll == 0 || !transform.contains(mx, my)) {
+      return false;
+    }
 
     float zs = zoomScale.readValue();
     int tx = transform.getX();
@@ -344,7 +356,7 @@ public class CanvasScrolling implements IGuiCanvas {
 
         if (!((dy < 0F && cs <= 0F) || (dy > 0F && cs >= 1F))) {
           scrollY.writeValue(cs + dy);
-          this.updatePanelScroll();
+          updatePanelScroll();
           used = true;
         }
       } else if (scrollBounds.getWidth() > 0) // H scroll
@@ -354,7 +366,7 @@ public class CanvasScrolling implements IGuiCanvas {
 
         if (!((dy < 0F && cs <= 0F) || (dy > 0F && cs >= 1F))) {
           scrollX.writeValue(cs + dy);
-          this.updatePanelScroll();
+          updatePanelScroll();
           used = true;
         }
       }
@@ -389,7 +401,9 @@ public class CanvasScrolling implements IGuiCanvas {
 
   @Override
   public List<String> getTooltip(int mx, int my) {
-    if (!transform.contains(mx, my) || isDragging) { return null; }
+    if (!transform.contains(mx, my) || isDragging) {
+      return null;
+    }
 
     float zs = zoomScale.readValue();
     int tx = transform.getX();
@@ -424,7 +438,9 @@ public class CanvasScrolling implements IGuiCanvas {
   }
 
   public void addCulledPanel(IGuiPanel panel, boolean useCulling) {
-    if (panel == null || guiPanels.contains(panel)) { return; }
+    if (panel == null || guiPanels.contains(panel)) {
+      return;
+    }
 
     guiPanels.add(panel);
     guiPanels.sort(ComparatorGuiDepth.INSTANCE);
@@ -433,7 +449,7 @@ public class CanvasScrolling implements IGuiCanvas {
 
     panel.initPanel();
 
-    this.refreshScrollBounds();
+    refreshScrollBounds();
   }
 
   @Override
@@ -442,7 +458,7 @@ public class CanvasScrolling implements IGuiCanvas {
 
     if (b) {
       cullingManager.removePanel(panel);
-      this.refreshScrollBounds();
+      refreshScrollBounds();
     }
 
     return b;
@@ -477,8 +493,8 @@ public class CanvasScrolling implements IGuiCanvas {
     top -= margin;
     bottom += margin;
 
-    right -= (int) Math.ceil(this.getTransform().getWidth() / zs);
-    bottom -= (int) Math.ceil(this.getTransform().getHeight() / zs);
+    right -= (int) Math.ceil(getTransform().getWidth() / zs);
+    bottom -= (int) Math.ceil(getTransform().getHeight() / zs);
 
     if (extendedScroll) {
       scrollBounds.x = Math.min(left, right);
@@ -501,8 +517,8 @@ public class CanvasScrolling implements IGuiCanvas {
   }
 
   public void updatePanelScroll() {
-    lsx = this.getScrollX();
-    lsy = this.getScrollY();
+    lsx = getScrollX();
+    lsy = getScrollY();
 
     float zs = zoomScale.readValue();
 

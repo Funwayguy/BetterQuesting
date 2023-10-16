@@ -17,19 +17,23 @@ import java.util.UUID;
 public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestDatabase {
   @Override
   public IQuest createNew(int id) {
-    return this.add(id, new QuestInstance()).getValue();
+    return add(id, new QuestInstance()).getValue();
   }
 
   @Override
   public List<DBEntry<IQuest>> bulkLookup(int... ids) {
-    if (ids == null || ids.length == 0) { return Collections.emptyList(); }
+    if (ids == null || ids.length == 0) {
+      return Collections.emptyList();
+    }
 
     List<DBEntry<IQuest>> values = new ArrayList<>();
 
     synchronized (this) {
       for (int i : ids) {
         IQuest v = getValue(i);
-        if (v != null) { values.add(new DBEntry<>(i, v)); }
+        if (v != null) {
+          values.add(new DBEntry<>(i, v));
+        }
       }
     }
 
@@ -38,8 +42,10 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 
   @Override
   public NBTTagList writeToNBT(NBTTagList nbt, List<Integer> subset) {
-    for (DBEntry<IQuest> entry : this.getEntries()) {
-      if (subset != null && !subset.contains(entry.getID())) { continue; }
+    for (DBEntry<IQuest> entry : getEntries()) {
+      if (subset != null && !subset.contains(entry.getID())) {
+        continue;
+      }
       NBTTagCompound jq = new NBTTagCompound();
       entry.getValue().writeToNBT(jq);
       jq.setInteger("questID", entry.getID());
@@ -51,16 +57,20 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
 
   @Override
   public void readFromNBT(NBTTagList nbt, boolean merge) {
-    if (!merge) { this.reset(); }
+    if (!merge) {
+      reset();
+    }
 
     for (int i = 0; i < nbt.tagCount(); i++) {
       NBTTagCompound qTag = nbt.getCompoundTagAt(i);
 
       int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
-      if (qID < 0) { continue; }
+      if (qID < 0) {
+        continue;
+      }
 
       IQuest quest = getValue(qID);
-      quest = quest != null ? quest : this.createNew(qID);
+      quest = quest != null ? quest : createNew(qID);
       quest.readFromNBT(qTag);
     }
   }
@@ -71,6 +81,5 @@ public class ImportedQuests extends SimpleDatabase<IQuest> implements IQuestData
   }
 
   @Override
-  public void readProgressFromNBT(NBTTagList nbt, boolean merge) {
-  }
+  public void readProgressFromNBT(NBTTagList nbt, boolean merge) { }
 }

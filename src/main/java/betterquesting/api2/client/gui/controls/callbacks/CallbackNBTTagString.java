@@ -13,14 +13,14 @@ public class CallbackNBTTagString implements ICallback<String> {
 
   public CallbackNBTTagString(NBTTagCompound tag, String key) {
     this.tag = tag;
-    this.sKey = key;
-    this.iKey = -1;
+    sKey = key;
+    iKey = -1;
   }
 
   public CallbackNBTTagString(NBTTagList tag, int key) {
     this.tag = tag;
-    this.sKey = null;
-    this.iKey = key;
+    sKey = null;
+    iKey = key;
   }
 
   @Override

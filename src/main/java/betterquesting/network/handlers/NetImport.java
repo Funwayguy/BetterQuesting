@@ -43,7 +43,9 @@ public class NetImport {
 
   private static void onServer(Tuple<NBTTagCompound, EntityPlayerMP> message) {
     EntityPlayerMP sender = message.getSecond();
-    if (sender.getServer() == null) { return; }
+    if (sender.getServer() == null) {
+      return;
+    }
 
     boolean isOP = sender.getServer().getPlayerList().canSendCommands(sender.getGameProfile());
 
@@ -125,7 +127,9 @@ public class NetImport {
     int[] nxtIDs = new int[num];
 
     if (listDB.isEmpty() || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1) {
-      for (int i = 0; i < num; i++) { nxtIDs[i] = listDB.size() + i; }
+      for (int i = 0; i < num; i++) {
+        nxtIDs[i] = listDB.size() + i;
+      }
       return nxtIDs;
     }
 

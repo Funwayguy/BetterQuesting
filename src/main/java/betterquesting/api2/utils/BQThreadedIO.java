@@ -11,7 +11,7 @@ public class BQThreadedIO {
   private ExecutorService exService;
 
   public BQThreadedIO() {
-    this.init();
+    init();
   }
 
   public void init() {

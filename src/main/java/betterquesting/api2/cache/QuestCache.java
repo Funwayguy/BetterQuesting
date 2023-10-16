@@ -206,7 +206,9 @@ public class QuestCache implements INBTSerializable<NBTTagCompound> {
 
     @Override
     public boolean equals(Object o) {
-      if (!(o instanceof QResetTime)) { return false; }
+      if (!(o instanceof QResetTime)) {
+        return false;
+      }
       return ((QResetTime) o).questID == questID;
     }
   }

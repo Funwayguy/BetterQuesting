@@ -21,7 +21,9 @@ public class HelpRegistry {
   }
 
   public boolean registerTopic(HelpTopic topic) {
-    if (topicList.contains(topic)) { return false; }
+    if (topicList.contains(topic)) {
+      return false;
+    }
     return topicList.add(topic);
   }
 

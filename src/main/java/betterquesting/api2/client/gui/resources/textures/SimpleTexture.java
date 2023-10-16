@@ -18,11 +18,11 @@ public class SimpleTexture implements IGuiTexture {
 
   public SimpleTexture(ResourceLocation texture, IGuiRect bounds) {
     this.texture = texture;
-    this.texBounds = bounds;
+    texBounds = bounds;
   }
 
   public SimpleTexture maintainAspect(boolean enable) {
-    this.maintainAspect = enable;
+    maintainAspect = enable;
     return this;
   }
 
@@ -33,7 +33,9 @@ public class SimpleTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0) { return; }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
 
     GlStateManager.pushMatrix();
 
@@ -66,11 +68,11 @@ public class SimpleTexture implements IGuiTexture {
 
   @Override
   public ResourceLocation getTexture() {
-    return this.texture;
+    return texture;
   }
 
   @Override
   public IGuiRect getBounds() {
-    return this.texBounds;
+    return texBounds;
   }
 }

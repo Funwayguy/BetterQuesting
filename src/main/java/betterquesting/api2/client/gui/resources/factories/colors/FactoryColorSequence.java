@@ -29,7 +29,9 @@ public class FactoryColorSequence implements IFactoryData<IGuiColor, JsonObject>
 
     JsonArray jAry = JsonHelper.GetArray(data, "colors");
     for (JsonElement je : jAry) {
-      if (!je.isJsonObject()) { continue; }
+      if (!je.isJsonObject()) {
+        continue;
+      }
       JsonObject jo = je.getAsJsonObject();
 
       try {

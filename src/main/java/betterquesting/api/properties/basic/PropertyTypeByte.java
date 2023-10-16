@@ -13,7 +13,7 @@ public class PropertyTypeByte extends PropertyTypeBase<Byte> {
   @Override
   public Byte readValue(NBTBase nbt) {
     if (!(nbt instanceof NBTPrimitive)) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return ((NBTPrimitive) nbt).getByte();
@@ -22,7 +22,7 @@ public class PropertyTypeByte extends PropertyTypeBase<Byte> {
   @Override
   public NBTBase writeValue(Byte value) {
     if (value == null) {
-      return new NBTTagByte(this.getDefault());
+      return new NBTTagByte(getDefault());
     }
 
     return new NBTTagByte(value);

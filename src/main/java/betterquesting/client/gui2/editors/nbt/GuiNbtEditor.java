@@ -35,17 +35,17 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
   public GuiNbtEditor(GuiScreen parent, NBTTagCompound tag, ICallback<NBTTagCompound> callback) {
     super(parent);
 
-    this.nbt = tag;
-    this.comCallback = callback;
-    this.lstCallback = null;
+    nbt = tag;
+    comCallback = callback;
+    lstCallback = null;
   }
 
   public GuiNbtEditor(GuiScreen parent, NBTTagList tag, ICallback<NBTTagList> callback) {
     super(parent);
 
-    this.nbt = tag;
-    this.comCallback = null;
-    this.lstCallback = callback;
+    nbt = tag;
+    comCallback = null;
+    lstCallback = callback;
   }
 
   public void initPanel() {
@@ -57,7 +57,7 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.back")));
@@ -115,7 +115,7 @@ public class GuiNbtEditor extends GuiScreenCanvas implements IPEventListener, IV
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
 
       if (nbt.getId() == 10 && comCallback != null) {
         comCallback.setValue((NBTTagCompound) nbt);

@@ -67,7 +67,8 @@ public class TileSubmitStation extends TileEntity implements IInventory {
   private void syncBlockState() {
     if (world.getMinecraftServer() != null) {
       IBlockState state = blockType.getStateFromMeta(getBlockMetadata());
-      world.notifyBlockUpdate(pos, state, state, 2); //Per Forge documentation this is the proper way to cause block update.
+      world.notifyBlockUpdate(pos, state, state,
+                              2); //Per Forge documentation this is the proper way to cause block update.
     }
   }
 
@@ -79,7 +80,7 @@ public class TileSubmitStation extends TileEntity implements IInventory {
     this.questID = questID;
     this.taskID = taskID;
     this.owner = owner;
-    this.markDirty();
+    markDirty();
   }
 
   public boolean isSetup() {
@@ -90,7 +91,7 @@ public class TileSubmitStation extends TileEntity implements IInventory {
     owner = null;
     questID = -1;
     taskID = -1;
-    this.markDirty();
+    markDirty();
   }
 
   @Nonnull
@@ -117,7 +118,7 @@ public class TileSubmitStation extends TileEntity implements IInventory {
     try {
       owner = UUID.fromString(tags.getString("owner"));
     } catch (Exception e) {
-      this.reset();
+      reset();
       return;
     }
 
@@ -128,7 +129,7 @@ public class TileSubmitStation extends TileEntity implements IInventory {
 
     // All data must be present for this to run correctly
     if (!isSetup()) {
-      this.reset();
+      reset();
     }
   }
 
@@ -223,7 +224,7 @@ public class TileSubmitStation extends TileEntity implements IInventory {
 
   @Override
   public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
-    return (owner == null || player.getUniqueID().equals(owner)) && player.getDistanceSq(this.pos) < 256;
+    return (owner == null || player.getUniqueID().equals(owner)) && player.getDistanceSq(pos) < 256;
   }
 
   @Override

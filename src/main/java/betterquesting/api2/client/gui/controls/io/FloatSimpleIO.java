@@ -21,21 +21,21 @@ public class FloatSimpleIO implements IValueIO<Float> {
   }
 
   public FloatSimpleIO(float startVal, float min, float max) {
-    this.v = startVal;
-    this.s = startVal;
+    v = startVal;
+    s = startVal;
     this.min = min;
     this.max = max;
-    this.t = System.currentTimeMillis(); // Added precaution for lerp math
+    t = System.currentTimeMillis(); // Added precaution for lerp math
   }
 
   public FloatSimpleIO setClamp(boolean enable) {
-    this.clamp = enable;
+    clamp = enable;
     return this;
   }
 
   public FloatSimpleIO setLerp(boolean enable, float speed) {
-    this.lerp = enable;
-    this.lerpSpd = speed;
+    lerp = enable;
+    lerpSpd = speed;
     return this;
   }
 
@@ -60,18 +60,20 @@ public class FloatSimpleIO implements IValueIO<Float> {
 
   @Override
   public void writeValue(Float value) {
-    if (s == v) { t = System.currentTimeMillis(); }
-    this.v = clamp ? MathHelper.clamp(value, min, max) : value;
+    if (s == v) {
+      t = System.currentTimeMillis();
+    }
+    v = clamp ? MathHelper.clamp(value, min, max) : value;
   }
 
   @Override
   public Float readValueRaw() {
-    return this.v;
+    return v;
   }
 
   @Override
   public void writeValueRaw(Float value) {
-    this.v = clamp ? MathHelper.clamp(value, min, max) : value;
-    this.s = v;
+    v = clamp ? MathHelper.clamp(value, min, max) : value;
+    s = v;
   }
 }

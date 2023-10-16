@@ -23,7 +23,7 @@ public abstract class QuestCommandBase {
   }
 
   public QuestCommandBase() {
-    this.registerPermission();
+    registerPermission();
   }
 
   public abstract String getPermissionNode();
@@ -33,7 +33,7 @@ public abstract class QuestCommandBase {
   public abstract String getPermissionDescription();
 
   private void registerPermission() {
-    PermissionAPI.registerNode(this.getPermissionNode(), this.getPermissionLevel(), this.getPermissionDescription());
+    PermissionAPI.registerNode(getPermissionNode(), getPermissionLevel(), getPermissionDescription());
   }
 
   /**

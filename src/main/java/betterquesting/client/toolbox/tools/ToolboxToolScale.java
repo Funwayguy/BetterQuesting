@@ -233,8 +233,7 @@ public class ToolboxToolScale implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {
@@ -250,8 +249,8 @@ public class ToolboxToolScale implements IToolboxTool {
     private GrabEntry(PanelButtonQuest btn, Vector4f anchor) {
       this.btn = btn;
       this.anchor = anchor;
-      this.sx = btn.rect.x + btn.rect.w / 2;
-      this.sy = btn.rect.y + btn.rect.h / 2;
+      sx = btn.rect.x + btn.rect.w / 2;
+      sy = btn.rect.y + btn.rect.h / 2;
     }
   }
 }

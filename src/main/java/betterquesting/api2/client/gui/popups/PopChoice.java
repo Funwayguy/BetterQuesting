@@ -43,19 +43,19 @@ public class PopChoice extends CanvasEmpty {
   public void initPanel() {
     super.initPanel();
 
-    this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1),
-                                   new ColorTexture(new GuiColorStatic(0x80000000))));
+    addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1),
+                              new ColorTexture(new GuiColorStatic(0x80000000))));
 
     CanvasResizeable cvBox = new CanvasResizeable(new GuiTransform(new Vector4f(0.5F, 0.45F, 0.5F, 0.45F)),
                                                   PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBox);
+    addPanel(cvBox);
     cvBox.lerpToRect(new GuiTransform(new Vector4f(0.2F, 0.3F, 0.8F, 0.6F)), 200L, true);
 
     if (icon != null) {
       CanvasTextured icoFrame =
           new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0.3F, 0.5F, 0.3F), -16, -40, 32, 32, 0),
                              PresetTexture.PANEL_MAIN.getTexture());
-      this.addPanel(icoFrame);
+      addPanel(icoFrame);
 
       icoFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), icon));
     }
@@ -75,9 +75,11 @@ public class PopChoice extends CanvasEmpty {
           options[i]);
       btn.setClickAction((b) -> {
         callback.accept(index);
-        if (SceneController.getActiveScene() != null) { SceneController.getActiveScene().closePopup(); }
+        if (SceneController.getActiveScene() != null) {
+          SceneController.getActiveScene().closePopup();
+        }
       });
-      this.addPanel(btn);
+      addPanel(btn);
     }
   }
 

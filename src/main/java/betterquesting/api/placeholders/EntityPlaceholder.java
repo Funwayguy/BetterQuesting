@@ -17,12 +17,12 @@ public class EntityPlaceholder extends Entity {
   }
 
   public EntityPlaceholder SetOriginalTags(NBTTagCompound tags) {
-    this.original = tags;
+    original = tags;
     return this;
   }
 
   public NBTTagCompound GetOriginalTags() {
-    return this.original;
+    return original;
   }
 
   public EntityItem GetItemEntity() {
@@ -30,8 +30,7 @@ public class EntityPlaceholder extends Entity {
   }
 
   @Override
-  protected void entityInit() {
-  }
+  protected void entityInit() { }
 
   @Override
   protected void readEntityFromNBT(NBTTagCompound tags) {
@@ -40,6 +39,6 @@ public class EntityPlaceholder extends Entity {
 
   @Override
   protected void writeEntityToNBT(NBTTagCompound tags) {
-    tags.setTag("original", this.original);
+    tags.setTag("original", original);
   }
 }

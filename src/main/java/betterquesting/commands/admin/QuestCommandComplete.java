@@ -56,22 +56,26 @@ public class QuestCommandComplete extends QuestCommandBase {
     UUID uuid;
 
     if (args.length >= 3) {
-      uuid = this.findPlayerID(server, sender, args[2]);
+      uuid = findPlayerID(server, sender, args[2]);
 
       if (uuid == null) {
-        throw this.getException(command);
+        throw getException(command);
       }
     } else {
-      uuid = this.findPlayerID(server, sender, sender.getName());
+      uuid = findPlayerID(server, sender, sender.getName());
     }
 
-    if (uuid == null) { return; }
+    if (uuid == null) {
+      return;
+    }
 
     String pName = NameCache.INSTANCE.getName(uuid);
 
     int id = Integer.parseInt(args[1].trim());
     IQuest quest = QuestDatabase.INSTANCE.getValue(id);
-    if (quest == null) { throw getException(command); }
+    if (quest == null) {
+      throw getException(command);
+    }
     NetQuestEdit.setQuestStates(new int[] { id }, true, uuid);
     sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.complete",
                                                     new TextComponentTranslation(quest.getProperty(NativeProps.NAME)),

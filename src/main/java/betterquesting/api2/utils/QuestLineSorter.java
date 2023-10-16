@@ -10,7 +10,7 @@ public class QuestLineSorter implements Comparator<DBEntry<IQuestLine>> {
   private final IQuestLineDatabase QL_DB;
 
   public QuestLineSorter(IQuestLineDatabase database) {
-    this.QL_DB = database;
+    QL_DB = database;
   }
 
   @Override

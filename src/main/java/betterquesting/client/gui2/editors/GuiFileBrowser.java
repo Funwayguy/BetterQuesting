@@ -49,7 +49,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
   public GuiFileBrowser(GuiScreen parent, ICallback<File[]> callback, File directory, @Nullable FileFilter filter) {
     super(parent);
     this.callback = callback;
-    this.curDirectory = directory == null ? null : directory.getAbsoluteFile();
+    curDirectory = directory == null ? null : directory.getAbsoluteFile();
     this.filter = filter;
   }
 
@@ -68,7 +68,7 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                 curDirectory == null ? "*" : curDirectory.getAbsolutePath()).setAlignment(1);
@@ -123,16 +123,18 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
               btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
               btnAdd.setActive(!selList.contains(entry));
               btnAdd.setCallback(value -> {
-                if (!multiSelect) { selList.clear(); }
+                if (!multiSelect) {
+                  selList.clear();
+                }
                 selList.add(value);
                 refreshSelected();
                 refreshSearch();
               });
-              this.addPanel(btnAdd);
+              addPanel(btnAdd);
             } else {
               // Keeps the scrolling region's left side from auto-cropping when no files are present to select.
               PanelGeneric pnDummy = new PanelGeneric(new GuiRectangle(0, index * 16, 16, 16, 0), null);
-              this.addPanel(pnDummy);
+              addPanel(pnDummy);
             }
 
             PanelButtonStorage<File> btnEdit =
@@ -141,15 +143,15 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
             btnEdit.setActive(entry.isDirectory());
             btnEdit.setCallback(value -> {
               curDirectory = value;
-              this.setCurDirectory(curDirectory);
+              setCurDirectory(curDirectory);
               txtTitle.setText(curDirectory == null ? "*" : curDirectory.getAbsolutePath());
             });
-            this.addPanel(btnEdit);
+            addPanel(btnEdit);
 
             PanelGeneric pnIco = new PanelGeneric(new GuiRectangle(width - 16, index * 16, 16, 16, 0),
                                                   entry.isDirectory() ? PresetIcon.ICON_FOLDER_OPEN.getTexture()
                                                                       : PresetIcon.ICON_FILE.getTexture());
-            this.addPanel(pnIco);
+            addPanel(pnIco);
 
             return true;
           }
@@ -159,7 +161,9 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
     PanelButton selAll = new PanelButton(new GuiTransform(GuiAlign.TOP_RIGHT, -24, 16, 16, 16, 0), -1, "") {
       @Override
       public void onButtonClick() {
-        if (!multiSelect) { return; }
+        if (!multiSelect) {
+          return;
+        }
         boolean changed = false;
 
         for (File file : cvDirectory.getResults()) {
@@ -189,7 +193,9 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
     PanelButton btnNew = new PanelButton(new GuiTransform(GuiAlign.TOP_LEFT, 0, 16, 16, 16, 0), -1, "") {
       @Override
       public void onButtonClick() {
-        if (curDirectory == null) { return; }
+        if (curDirectory == null) {
+          return;
+        }
         curDirectory = curDirectory.getParentFile();
         cvDirectory.setCurDirectory(curDirectory);
         txtTitle.setText(curDirectory == null ? "*" : curDirectory.getAbsolutePath());
@@ -222,8 +228,10 @@ public class GuiFileBrowser extends GuiScreenCanvas implements IPEventListener {
 
     if (btn.getButtonID() == 0) // Exit
     {
-      if (callback != null) { callback.setValue(selList.toArray(new File[0])); }
-      mc.displayGuiScreen(this.parent);
+      if (callback != null) {
+        callback.setValue(selList.toArray(new File[0]));
+      }
+      mc.displayGuiScreen(parent);
     }
   }
 

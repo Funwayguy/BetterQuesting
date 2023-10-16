@@ -27,7 +27,9 @@ public class NetQuestAction {
 
   @SideOnly(Side.CLIENT)
   public static void requestClaim(@Nonnull int[] questIDs) {
-    if (questIDs.length == 0) { return; }
+    if (questIDs.length == 0) {
+      return;
+    }
     NBTTagCompound payload = new NBTTagCompound();
     payload.setInteger("action", 0);
     payload.setIntArray("questIDs", questIDs);
@@ -36,7 +38,9 @@ public class NetQuestAction {
 
   @SideOnly(Side.CLIENT)
   public static void requestDetect(@Nonnull int[] questIDs) {
-    if (questIDs.length == 0) { return; }
+    if (questIDs.length == 0) {
+      return;
+    }
     NBTTagCompound payload = new NBTTagCompound();
     payload.setInteger("action", 1);
     payload.setIntArray("questIDs", questIDs);
@@ -66,7 +70,9 @@ public class NetQuestAction {
     List<DBEntry<IQuest>> qLists = QuestDatabase.INSTANCE.bulkLookup(questIDs);
 
     for (DBEntry<IQuest> entry : qLists) {
-      if (!entry.getValue().canClaim(player)) { continue; }
+      if (!entry.getValue().canClaim(player)) {
+        continue;
+      }
       entry.getValue().claimReward(player);
     }
   }

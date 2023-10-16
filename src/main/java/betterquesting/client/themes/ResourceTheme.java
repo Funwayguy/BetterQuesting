@@ -30,7 +30,7 @@ public class ResourceTheme implements IGuiTheme {
   private final HashMap<ResourceLocation, IGuiLine> LINE_MAP = new HashMap<>();
 
   public ResourceTheme(ResourceLocation parentID, ResourceLocation id, String dispName) {
-    this.ID = id;
+    ID = id;
     this.dispName = dispName;
     this.parentID = parentID;
   }
@@ -38,7 +38,9 @@ public class ResourceTheme implements IGuiTheme {
   public void loadFromJson(JsonObject jThm) {
     JsonObject jsonTextureRoot = JsonHelper.GetObject(jThm, "textures");
     for (Entry<String, JsonElement> entry : jsonTextureRoot.entrySet()) {
-      if (!entry.getValue().isJsonObject()) { continue; }
+      if (!entry.getValue().isJsonObject()) {
+        continue;
+      }
       JsonObject joTex = entry.getValue().getAsJsonObject();
 
       ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joTex, "textureType", ""));
@@ -49,12 +51,14 @@ public class ResourceTheme implements IGuiTheme {
         continue;
       }
 
-      this.setTexture(new ResourceLocation(entry.getKey()), gTex);
+      setTexture(new ResourceLocation(entry.getKey()), gTex);
     }
 
     JsonObject jsonColourRoot = JsonHelper.GetObject(jThm, "colors");
     for (Entry<String, JsonElement> entry : jsonColourRoot.entrySet()) {
-      if (!(entry.getValue() instanceof JsonObject)) { continue; }
+      if (!(entry.getValue() instanceof JsonObject)) {
+        continue;
+      }
       JsonObject joCol = entry.getValue().getAsJsonObject();
 
       ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joCol, "colorType", ""));
@@ -65,12 +69,14 @@ public class ResourceTheme implements IGuiTheme {
         continue;
       }
 
-      this.setColor(new ResourceLocation(entry.getKey()), gCol);
+      setColor(new ResourceLocation(entry.getKey()), gCol);
     }
 
     JsonObject jsonLinesRoot = JsonHelper.GetObject(jThm, "lines");
     for (Entry<String, JsonElement> entry : jsonLinesRoot.entrySet()) {
-      if (!(entry.getValue() instanceof JsonObject)) { continue; }
+      if (!(entry.getValue() instanceof JsonObject)) {
+        continue;
+      }
       JsonObject joLine = entry.getValue().getAsJsonObject();
 
       ResourceLocation typeID = new ResourceLocation(JsonHelper.GetString(joLine, "lineType", ""));
@@ -81,12 +87,14 @@ public class ResourceTheme implements IGuiTheme {
         continue;
       }
 
-      this.setLine(new ResourceLocation(entry.getKey()), gLine);
+      setLine(new ResourceLocation(entry.getKey()), gLine);
     }
   }
 
   private IGuiTheme getParent() {
-    if (cached) { return parentTheme; }
+    if (cached) {
+      return parentTheme;
+    }
 
     IGuiTheme parent = ThemeRegistry.INSTANCE.getTheme(parentID);
     IGuiTheme checking = parent;
@@ -94,7 +102,7 @@ public class ResourceTheme implements IGuiTheme {
       if (checking instanceof ResourceTheme) {
         if (((ResourceTheme) checking).parentTheme == this) {
           BetterQuesting.logger.error("Circular reference in resource theme " + ID);
-          this.parentTheme = null;
+          parentTheme = null;
           cached = true;
           return null;
         }
@@ -104,24 +112,30 @@ public class ResourceTheme implements IGuiTheme {
       break;
     }
 
-    this.parentTheme = parent;
+    parentTheme = parent;
     cached = true;
 
-    return this.parentTheme;
+    return parentTheme;
   }
 
   public void setTexture(ResourceLocation key, IGuiTexture texture) {
-    if (key == null) { return; }
+    if (key == null) {
+      return;
+    }
     TEX_MAP.put(key, texture); // Could actually use null here to override the parent
   }
 
   public void setColor(ResourceLocation key, IGuiColor color) {
-    if (key == null) { return; }
+    if (key == null) {
+      return;
+    }
     COLOR_MAP.put(key, color); // Could actually use null here to override the parent
   }
 
   public void setLine(ResourceLocation key, IGuiLine line) {
-    if (key == null) { return; }
+    if (key == null) {
+      return;
+    }
     LINE_MAP.put(key, line); // Could actually use null here to override the parent
   }
 
@@ -138,24 +152,36 @@ public class ResourceTheme implements IGuiTheme {
   @Override
   public IGuiTexture getTexture(ResourceLocation key) {
     IGuiTexture value = TEX_MAP.get(key);
-    if (value != null) { return value; }
-    if (getParent() != null) { return getParent().getTexture(key); }
+    if (value != null) {
+      return value;
+    }
+    if (getParent() != null) {
+      return getParent().getTexture(key);
+    }
     return null;
   }
 
   @Override
   public IGuiLine getLine(ResourceLocation key) {
     IGuiLine value = LINE_MAP.get(key);
-    if (value != null) { return value; }
-    if (getParent() != null) { return getParent().getLine(key); }
+    if (value != null) {
+      return value;
+    }
+    if (getParent() != null) {
+      return getParent().getLine(key);
+    }
     return null;
   }
 
   @Override
   public IGuiColor getColor(ResourceLocation key) {
     IGuiColor value = COLOR_MAP.get(key);
-    if (value != null) { return value; }
-    if (getParent() != null) { return getParent().getColor(key); }
+    if (value != null) {
+      return value;
+    }
+    if (getParent() != null) {
+      return getParent().getColor(key);
+    }
     return null;
   }
 

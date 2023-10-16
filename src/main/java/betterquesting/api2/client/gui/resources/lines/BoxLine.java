@@ -14,8 +14,8 @@ public class BoxLine implements IGuiLine {
   }
 
   public BoxLine(int stippleScale, short stipplePattern) {
-    this.pattern = stipplePattern;
-    this.scale = stippleScale;
+    pattern = stipplePattern;
+    scale = stippleScale;
   }
 
   @Override

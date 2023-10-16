@@ -49,7 +49,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
   public GuiPrerequisiteEditor(GuiScreen parent, IQuest quest) {
     super(parent);
     this.quest = quest;
-    this.questID = QuestDatabase.INSTANCE.getID(quest);
+    questID = QuestDatabase.INSTANCE.getID(quest);
   }
 
   @Override
@@ -75,7 +75,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate(
@@ -110,17 +110,17 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
             new PanelButtonStorage<>(new GuiRectangle(0, index * 16, 16, 16, 0), 2, "", entry);
         btnAdd.setIcon(PresetIcon.ICON_POSITIVE.getTexture());
         btnAdd.setActive(!containsReq(quest, entry.getID()));
-        this.addPanel(btnAdd);
+        addPanel(btnAdd);
 
         PanelButtonStorage<DBEntry<IQuest>> btnEdit =
             new PanelButtonStorage<>(new GuiRectangle(16, index * 16, width - 32, 16, 0), 1,
                                      QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)), entry);
-        this.addPanel(btnEdit);
+        addPanel(btnEdit);
 
         PanelButtonStorage<DBEntry<IQuest>> btnDel =
             new PanelButtonStorage<>(new GuiRectangle(width - 16, index * 16, 16, 16, 0), 4, "", entry);
         btnDel.setIcon(PresetIcon.ICON_TRASH.getTexture());
-        this.addPanel(btnDel);
+        addPanel(btnDel);
 
         return true;
       }
@@ -200,7 +200,7 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) // Edit Quest
     {
       DBEntry<IQuest> entry = ((PanelButtonStorage<DBEntry<IQuest>>) btn).getStoredValue();
@@ -235,29 +235,41 @@ public class GuiPrerequisiteEditor extends GuiScreenCanvas implements IPEventLis
   }
 
   private boolean containsReq(IQuest quest, int id) {
-    for (int reqID : quest.getRequirements()) { if (id == reqID) { return true; } }
+    for (int reqID : quest.getRequirements()) {
+      if (id == reqID) {
+        return true;
+      }
+    }
     return false;
   }
 
   private void removeReq(IQuest quest, int id) {
     int[] orig = quest.getRequirements();
-    if (orig.length == 0) { return; }
+    if (orig.length == 0) {
+      return;
+    }
     boolean hasRemoved = false;
     int[] rem = new int[orig.length - 1];
     for (int i = 0; i < orig.length; i++) {
       if (!hasRemoved && orig[i] == id) {
         hasRemoved = true;
         continue;
-      } else if (!hasRemoved && i >= rem.length) { break; }
+      } else if (!hasRemoved && i >= rem.length) {
+        break;
+      }
 
       rem[!hasRemoved ? i : (i - 1)] = orig[i];
     }
 
-    if (hasRemoved) { quest.setRequirements(rem); }
+    if (hasRemoved) {
+      quest.setRequirements(rem);
+    }
   }
 
   private void addReq(IQuest quest, int id) {
-    if (containsReq(quest, id)) { return; }
+    if (containsReq(quest, id)) {
+      return;
+    }
     int[] orig = quest.getRequirements();
     int[] added = Arrays.copyOf(orig, orig.length + 1);
     added[orig.length] = id;

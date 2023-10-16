@@ -18,7 +18,7 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
   public synchronized IQuest createNew(int id) {
     IQuest quest = new QuestInstance();
     if (id >= 0) {
-      this.add(id, quest);
+      add(id, quest);
     }
     return quest;
   }
@@ -36,36 +36,52 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 
   @Override
   public synchronized boolean removeValue(IQuest value) {
-    int id = this.getID(value);
-    if (id < 0) { return false; }
-    boolean success = this.removeValue(value);
-    if (success) { for (DBEntry<IQuest> entry : getEntries()) { removeReq(entry.getValue(), id); } }
+    int id = getID(value);
+    if (id < 0) {
+      return false;
+    }
+    boolean success = removeValue(value);
+    if (success) {
+      for (DBEntry<IQuest> entry : getEntries()) {
+        removeReq(entry.getValue(), id);
+      }
+    }
     return success;
   }
 
   private void removeReq(IQuest quest, int id) {
     int[] orig = quest.getRequirements();
-    if (orig.length == 0) { return; }
+    if (orig.length == 0) {
+      return;
+    }
     boolean hasRemoved = false;
     int[] rem = new int[orig.length - 1];
     for (int i = 0; i < orig.length; i++) {
       if (!hasRemoved && orig[i] == id) {
         hasRemoved = true;
         continue;
-      } else if (!hasRemoved && i >= rem.length) { break; }
+      } else if (!hasRemoved && i >= rem.length) {
+        break;
+      }
 
       rem[!hasRemoved ? i : (i - 1)] = orig[i];
     }
 
-    if (hasRemoved) { quest.setRequirements(rem); }
+    if (hasRemoved) {
+      quest.setRequirements(rem);
+    }
   }
 
   @Override
   public synchronized NBTTagList writeToNBT(NBTTagList json, @Nullable List<Integer> subset) {
-    for (DBEntry<IQuest> entry : this.getEntries()) {
-      if (subset != null && !subset.contains(entry.getID())) { continue; }
+    for (DBEntry<IQuest> entry : getEntries()) {
+      if (subset != null && !subset.contains(entry.getID())) {
+        continue;
+      }
       NBTTagCompound jq = entry.getValue().writeToNBT(new NBTTagCompound());
-      if (subset != null && jq.isEmpty()) { continue; }
+      if (subset != null && jq.isEmpty()) {
+        continue;
+      }
       jq.setInteger("questID", entry.getID());
       json.appendTag(jq);
     }
@@ -75,23 +91,29 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
 
   @Override
   public synchronized void readFromNBT(NBTTagList nbt, boolean merge) {
-    if (!merge) { this.reset(); }
+    if (!merge) {
+      reset();
+    }
 
     for (int i = 0; i < nbt.tagCount(); i++) {
       NBTTagCompound qTag = nbt.getCompoundTagAt(i);
 
       int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
-      if (qID < 0) { continue; }
+      if (qID < 0) {
+        continue;
+      }
 
       IQuest quest = getValue(qID);
-      if (quest == null) { quest = this.createNew(qID); }
+      if (quest == null) {
+        quest = createNew(qID);
+      }
       quest.readFromNBT(qTag);
     }
   }
 
   @Override
   public synchronized NBTTagList writeProgressToNBT(NBTTagList json, @Nullable List<UUID> users) {
-    for (DBEntry<IQuest> entry : this.getEntries()) {
+    for (DBEntry<IQuest> entry : getEntries()) {
       NBTTagCompound jq = entry.getValue().writeProgressToNBT(new NBTTagCompound(), users);
       jq.setInteger("questID", entry.getID());
       json.appendTag(jq);
@@ -106,10 +128,14 @@ public final class QuestDatabase extends SimpleDatabase<IQuest> implements IQues
       NBTTagCompound qTag = json.getCompoundTagAt(i);
 
       int qID = qTag.hasKey("questID", 99) ? qTag.getInteger("questID") : -1;
-      if (qID < 0) { continue; }
+      if (qID < 0) {
+        continue;
+      }
 
       IQuest quest = getValue(qID);
-      if (quest != null) { quest.readProgressFromNBT(qTag, merge); }
+      if (quest != null) {
+        quest.readProgressFromNBT(qTag, merge);
+      }
     }
   }
 }

@@ -40,7 +40,9 @@ public class NetQuestSync {
   }
 
   public static void quickSync(int questID, boolean config, boolean progress) {
-    if (!config && !progress) { return; }
+    if (!config && !progress) {
+      return;
+    }
 
     int[] IDs = questID < 0 ? null : new int[] { questID };
 
@@ -51,7 +53,9 @@ public class NetQuestSync {
     if (progress) // Send everyone's individual progression
     {
       MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-      if (server == null) { return; }
+      if (server == null) {
+        return;
+      }
 
       for (EntityPlayerMP player : server.getPlayerList().getPlayers()) {
         sendSync(player, IDs, false, true); // Progression only this pass
@@ -67,7 +71,9 @@ public class NetQuestSync {
 
   public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] questIDs, @Nullable int[] resetIDs,
                               boolean config, boolean progress) {
-    if ((!config && !progress) || (questIDs != null && questIDs.length == 0)) { return; }
+    if ((!config && !progress) || (questIDs != null && questIDs.length == 0)) {
+      return;
+    }
 
     // Offload this to another thread as it could take a while to build
     BQThreadedIO.INSTANCE.enqueue(() -> {
@@ -79,9 +85,15 @@ public class NetQuestSync {
       for (DBEntry<IQuest> entry : questSubset) {
         NBTTagCompound tag = new NBTTagCompound();
 
-        if (config) { tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound())); }
-        if (progress) { tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), pidList)); }
-        if (resetIDs != null) { tag.setIntArray("resets", resetIDs); }
+        if (config) {
+          tag.setTag("config", entry.getValue().writeToNBT(new NBTTagCompound()));
+        }
+        if (progress) {
+          tag.setTag("progress", entry.getValue().writeProgressToNBT(new NBTTagCompound(), pidList));
+        }
+        if (resetIDs != null) {
+          tag.setIntArray("resets", resetIDs);
+        }
         tag.setInteger("questID", entry.getID());
         dataList.appendTag(tag);
       }
@@ -102,7 +114,9 @@ public class NetQuestSync {
   @SideOnly(Side.CLIENT)
   public static void requestSync(@Nullable int[] questIDs, boolean configs, boolean progress) {
     NBTTagCompound payload = new NBTTagCompound();
-    if (questIDs != null) { payload.setIntArray("requestIDs", questIDs); }
+    if (questIDs != null) {
+      payload.setIntArray("requestIDs", questIDs);
+    }
     payload.setBoolean("getConfig", configs);
     payload.setBoolean("getProgress", progress);
     PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
@@ -118,17 +132,23 @@ public class NetQuestSync {
   private static void onClient(NBTTagCompound message) {
     NBTTagList data = message.getTagList("data", 10);
     boolean merge = message.getBoolean("merge");
-    if (!merge) { QuestDatabase.INSTANCE.reset(); }
+    if (!merge) {
+      QuestDatabase.INSTANCE.reset();
+    }
 
     for (int i = 0; i < data.tagCount(); i++) {
       NBTTagCompound tag = data.getCompoundTagAt(i);
-      if (!tag.hasKey("questID", 99)) { continue; }
+      if (!tag.hasKey("questID", 99)) {
+        continue;
+      }
       int questID = tag.getInteger("questID");
 
       IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
 
       if (tag.hasKey("config", 10)) {
-        if (quest == null) { quest = QuestDatabase.INSTANCE.createNew(questID); }
+        if (quest == null) {
+          quest = QuestDatabase.INSTANCE.createNew(questID);
+        }
         quest.readFromNBT(tag.getCompoundTag("config"));
       }
 

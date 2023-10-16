@@ -64,15 +64,17 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
 
   public GuiSubmitStation(GuiScreen parent, InventoryPlayer playerInvo, TileSubmitStation submitStation) {
     super(parent, new ContainerSubmitStation(playerInvo, submitStation));
-    this.ssContainer = (ContainerSubmitStation) this.inventorySlots;
-    this.tile = submitStation;
+    ssContainer = (ContainerSubmitStation) inventorySlots;
+    tile = submitStation;
   }
 
   @Override
   public void refreshGui() {
     quests.clear();
     QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-    if (qc != null) { quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests())); }
+    if (qc != null) {
+      quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+    }
     filterQuests();
 
     refreshTaskPanel();
@@ -87,13 +89,15 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
     quests.clear();
     taskPanel = null;
     QuestCache qc = mc.player.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-    if (qc != null) { quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests())); }
+    if (qc != null) {
+      quests.addAll(QuestDatabase.INSTANCE.bulkLookup(qc.getActiveQuests()));
+    }
     filterQuests();
 
     // Background panel
     cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                       PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox txtTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                              QuestTranslation.translate(
@@ -196,18 +200,20 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
     for (int i = 0; i < 36; i++) {
       int j = i % 9 * 18;
       int k = i / 9 * 18;
-      if (i >= 27) { k += 4; }
+      if (i >= 27) {
+        k += 4;
+      }
 
-      this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + j, y + k + 22, 18, 18, -1),
-                                     PresetTexture.ITEM_FRAME.getTexture()));
+      addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + j, y + k + 22, 18, 18, -1),
+                                PresetTexture.ITEM_FRAME.getTexture()));
     }
 
-    this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 54, y, 18, 18, -1),
-                                   PresetTexture.ITEM_FRAME.getTexture()));
-    this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 72, y, 18, 18, -1),
-                                   PresetIcon.ICON_RIGHT.getTexture()));
-    this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 90, y, 18, 18, -1),
-                                   PresetTexture.ITEM_FRAME.getTexture()));
+    addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 54, y, 18, 18, -1),
+                              PresetTexture.ITEM_FRAME.getTexture()));
+    addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 72, y, 18, 18, -1),
+                              PresetIcon.ICON_RIGHT.getTexture()));
+    addPanel(new PanelGeneric(new GuiTransform(GuiAlign.TOP_LEFT, x + 90, y, 18, 18, -1),
+                              PresetTexture.ITEM_FRAME.getTexture()));
   }
 
   private void filterQuests() {
@@ -228,7 +234,9 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
   }
 
   private void refreshTaskPanel() {
-    if (taskPanel != null) { cvBackground.removePanel(taskPanel); }
+    if (taskPanel != null) {
+      cvBackground.removePanel(taskPanel);
+    }
 
     if (tile.isSetup()) {
       DBEntry<IQuest> qdbe = null;
@@ -275,7 +283,9 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
       txtQstTitle.setText("");
       txtTskTitle.setText("");
       return;
-    } else { selQuest = lazyPosMod(selQuest, quests.size()); }
+    } else {
+      selQuest = lazyPosMod(selQuest, quests.size());
+    }
 
     DBEntry<IQuest> entry = quests.get(selQuest);
     txtQstTitle.setText(QuestTranslation.translate(entry.getValue().getProperty(NativeProps.NAME)));
@@ -298,7 +308,9 @@ public class GuiSubmitStation extends GuiContainerCanvas implements INeedsRefres
                                          curTask instanceof IEnergyTask));
 
     taskPanel = curTask.getTaskGui(new GuiTransform(GuiAlign.HALF_RIGHT, new GuiPadding(8, 88, 16, 24), 0), entry);
-    if (taskPanel != null) { cvBackground.addPanel(taskPanel); }
+    if (taskPanel != null) {
+      cvBackground.addPanel(taskPanel);
+    }
   }
 
   private int lazyPosMod(int a, int b) {

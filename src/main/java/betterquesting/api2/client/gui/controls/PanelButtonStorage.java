@@ -9,11 +9,11 @@ public class PanelButtonStorage<T> extends PanelButton {
 
   public PanelButtonStorage(IGuiRect rect, int id, String txt, T value) {
     super(rect, id, txt);
-    this.setStoredValue(value);
+    setStoredValue(value);
   }
 
   public PanelButtonStorage<T> setStoredValue(T value) {
-    this.stored = value;
+    stored = value;
     return this;
   }
 
@@ -27,11 +27,13 @@ public class PanelButtonStorage<T> extends PanelButton {
   }
 
   public ICallback<T> getCallback() {
-    return this.callback;
+    return callback;
   }
 
   @Override
   public void onButtonClick() {
-    if (callback != null) { this.callback.setValue(this.getStoredValue()); }
+    if (callback != null) {
+      callback.setValue(getStoredValue());
+    }
   }
 }

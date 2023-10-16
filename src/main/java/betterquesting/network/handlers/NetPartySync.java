@@ -41,21 +41,29 @@ public class NetPartySync {
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
     IParty party = PartyManager.INSTANCE.getValue(partyID);
 
-    if (server == null || party == null) { return; }
+    if (server == null || party == null) {
+      return;
+    }
 
     List<EntityPlayerMP> players = new ArrayList<>();
     for (UUID uuid : party.getMembers()) {
       EntityPlayerMP p = server.getPlayerList().getPlayerByUUID(uuid);
       //noinspection ConstantConditions
-      if (p != null) { players.add(p); }
+      if (p != null) {
+        players.add(p);
+      }
     }
 
     sendSync(players.toArray(new EntityPlayerMP[0]), new int[] { partyID });
   }
 
   public static void sendSync(@Nullable EntityPlayerMP[] players, @Nullable int[] partyIDs) {
-    if (partyIDs != null && partyIDs.length == 0) { return; }
-    if (players != null && players.length == 0) { return; }
+    if (partyIDs != null && partyIDs.length == 0) {
+      return;
+    }
+    if (players != null && players.length == 0) {
+      return;
+    }
 
     NBTTagList dataList = new NBTTagList();
     final List<DBEntry<IParty>> partySubset =
@@ -81,7 +89,9 @@ public class NetPartySync {
   @SideOnly(Side.CLIENT)
   public static void requestSync(@Nullable int[] partyIDs) {
     NBTTagCompound payload = new NBTTagCompound();
-    if (partyIDs != null) { payload.setIntArray("partyIDs", partyIDs); }
+    if (partyIDs != null) {
+      payload.setIntArray("partyIDs", partyIDs);
+    }
     PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
   }
 
@@ -94,15 +104,21 @@ public class NetPartySync {
   @SideOnly(Side.CLIENT)
   private static void onClient(NBTTagCompound message) {
     NBTTagList data = message.getTagList("data", 10);
-    if (!message.getBoolean("merge")) { PartyManager.INSTANCE.reset(); }
+    if (!message.getBoolean("merge")) {
+      PartyManager.INSTANCE.reset();
+    }
 
     for (int i = 0; i < data.tagCount(); i++) {
       NBTTagCompound tag = data.getCompoundTagAt(i);
-      if (!tag.hasKey("partyID", 99)) { continue; }
+      if (!tag.hasKey("partyID", 99)) {
+        continue;
+      }
       int partyID = tag.getInteger("partyID");
 
       IParty party = PartyManager.INSTANCE.getValue(partyID); // TODO: Send to client side database
-      if (party == null) { party = PartyManager.INSTANCE.createNew(partyID); }
+      if (party == null) {
+        party = PartyManager.INSTANCE.createNew(partyID);
+      }
 
       party.readFromNBT(tag.getCompoundTag("config"));
     }

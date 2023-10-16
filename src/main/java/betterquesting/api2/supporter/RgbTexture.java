@@ -7,7 +7,6 @@ import net.minecraft.client.resources.IResourceManager;
 import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.IOException;
 
 public class RgbTexture extends AbstractTexture {
   private final int[] rgbAry;
@@ -23,11 +22,11 @@ public class RgbTexture extends AbstractTexture {
 
   @Override
   public void loadTexture(@Nonnull IResourceManager resourceManager) {
-    this.deleteGlTexture();
+    deleteGlTexture();
 
     BufferedImage bufImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     final int[] imgData = ((DataBufferInt) bufImg.getRaster().getDataBuffer()).getData();
     System.arraycopy(rgbAry, 0, imgData, 0, imgData.length);
-    TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufImg, false, false);
+    TextureUtil.uploadTextureImageAllocate(getGlTextureId(), bufImg, false, false);
   }
 }

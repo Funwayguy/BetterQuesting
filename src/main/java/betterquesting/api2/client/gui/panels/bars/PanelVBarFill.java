@@ -23,21 +23,21 @@ public class PanelVBarFill implements IBarFill {
   private IGuiColor color;
 
   public PanelVBarFill(IGuiRect rect) {
-    this.texBack = PresetTexture.METER_V_0.getTexture();
-    this.texFill = PresetTexture.METER_V_1.getTexture();
+    texBack = PresetTexture.METER_V_0.getTexture();
+    texFill = PresetTexture.METER_V_1.getTexture();
 
-    this.transform = rect;
+    transform = rect;
   }
 
   @Override
   public PanelVBarFill setFillDriver(IValueIO<Float> driver) {
-    this.fillDriver = driver;
+    fillDriver = driver;
     return this;
   }
 
   @Override
   public PanelVBarFill setFlipped(boolean flipped) {
-    this.flipBar = flipped;
+    flipBar = flipped;
     return this;
   }
 
@@ -49,23 +49,22 @@ public class PanelVBarFill implements IBarFill {
 
   @Override
   public PanelVBarFill setBarTexture(IGuiTexture back, IGuiTexture front) {
-    this.texBack = back;
-    this.texFill = front;
+    texBack = back;
+    texFill = front;
     return this;
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -75,7 +74,7 @@ public class PanelVBarFill implements IBarFill {
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     GlStateManager.pushMatrix();
 
     GlStateManager.color(1F, 1F, 1F, 1F);
@@ -86,7 +85,7 @@ public class PanelVBarFill implements IBarFill {
 
     float f = MathHelper.clamp(fillDriver.readValue(), 0F, 1F);
 
-    if (this.flipBar) {
+    if (flipBar) {
       RenderUtils.startScissor(
           new GuiRectangle(bounds.getX(), bounds.getY(), bounds.getWidth(), (int) (bounds.getHeight() * f), 0));
     } else {

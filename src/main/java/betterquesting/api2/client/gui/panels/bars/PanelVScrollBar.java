@@ -24,14 +24,14 @@ public class PanelVScrollBar implements IScrollBar {
   private boolean isDragging = false;
 
   public PanelVScrollBar(IGuiRect rect) {
-    this.transform = rect;
-    this.setBarTexture(PresetTexture.SCROLL_V_BG.getTexture(), PresetTexture.SCROLL_V_0.getTexture(),
-                       PresetTexture.SCROLL_V_1.getTexture(), PresetTexture.SCROLL_V_2.getTexture());
+    transform = rect;
+    setBarTexture(PresetTexture.SCROLL_V_BG.getTexture(), PresetTexture.SCROLL_V_0.getTexture(),
+                  PresetTexture.SCROLL_V_1.getTexture(), PresetTexture.SCROLL_V_2.getTexture());
   }
 
   @Override
   public PanelVScrollBar setHandleSize(int size, int inset) {
-    this.hSize = size;
+    hSize = size;
     this.inset = inset;
     return this;
   }
@@ -39,40 +39,39 @@ public class PanelVScrollBar implements IScrollBar {
   @Override
   public PanelVScrollBar setBarTexture(IGuiTexture back, IGuiTexture handleDisabled, IGuiTexture handleIdle,
                                        IGuiTexture handleHover) {
-    this.texBack = back;
-    this.texHandleState[0] = handleDisabled;
-    this.texHandleState[1] = handleIdle;
-    this.texHandleState[2] = handleHover;
+    texBack = back;
+    texHandleState[0] = handleDisabled;
+    texHandleState[1] = handleIdle;
+    texHandleState[2] = handleHover;
     return this;
   }
 
   public PanelVScrollBar setScrollSpeed(float f) {
-    this.speed = f;
+    speed = f;
     return this;
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
   public void setActive(boolean state) {
-    this.active = state;
+    active = state;
   }
 
   @Override
   public boolean isActive() {
-    return this.active;
+    return active;
   }
 
   @Override
@@ -82,13 +81,13 @@ public class PanelVScrollBar implements IScrollBar {
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
 
     if (active && isDragging && (Mouse.isButtonDown(0) || Mouse.isButtonDown(2))) {
       float cy = (float) (my - (bounds.getY() + hSize / 2)) / (float) (bounds.getHeight() - hSize);
-      this.writeValue(cy);
+      writeValue(cy);
     } else if (isDragging) {
-      this.isDragging = false;
+      isDragging = false;
     }
 
     GlStateManager.pushMatrix();
@@ -112,7 +111,7 @@ public class PanelVScrollBar implements IScrollBar {
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     if (!active || !bounds.contains(mx, my)) {
       return false;
     }
@@ -132,7 +131,7 @@ public class PanelVScrollBar implements IScrollBar {
 
   @Override
   public boolean onMouseScroll(int mx, int my, int sdx) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     if (!active || sdx == 0 || !bounds.contains(mx, my)) {
       return false;
     }
@@ -142,7 +141,7 @@ public class PanelVScrollBar implements IScrollBar {
     if ((dy < 0F && scroll <= 0F) || (dy > 0F && scroll >= 1F)) {
       return false;
     } else {
-      this.writeValue(dy + scroll);
+      writeValue(dy + scroll);
       return true;
     }
   }
@@ -159,12 +158,12 @@ public class PanelVScrollBar implements IScrollBar {
 
   @Override
   public Float readValue() {
-    return this.scroll;
+    return scroll;
   }
 
   @Override
   public void writeValue(Float value) {
-    this.scroll = MathHelper.clamp(value, 0F, 1F);
+    scroll = MathHelper.clamp(value, 0F, 1F);
   }
 
   @Override
@@ -174,6 +173,6 @@ public class PanelVScrollBar implements IScrollBar {
 
   @Override
   public void writeValueRaw(Float value) {
-    this.scroll = value;
+    scroll = value;
   }
 }

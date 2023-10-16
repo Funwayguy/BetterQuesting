@@ -13,7 +13,7 @@ public class PropertyTypeFloat extends PropertyTypeBase<Float> {
   @Override
   public Float readValue(NBTBase nbt) {
     if (!(nbt instanceof NBTPrimitive)) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return ((NBTPrimitive) nbt).getFloat();
@@ -22,7 +22,7 @@ public class PropertyTypeFloat extends PropertyTypeBase<Float> {
   @Override
   public NBTBase writeValue(Float value) {
     if (value == null) {
-      return new NBTTagFloat(this.getDefault());
+      return new NBTTagFloat(getDefault());
     }
 
     return new NBTTagFloat(value);

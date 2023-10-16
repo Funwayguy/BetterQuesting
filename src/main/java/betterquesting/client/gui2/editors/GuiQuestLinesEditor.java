@@ -74,8 +74,12 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         btnVis.setActive(true);
         btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " +
                        selected.getProperty(NativeProps.VISIBILITY));
-        if (!tfName.isFocused()) { tfName.setText(selected.getUnlocalisedName()); }
-        if (!tfDesc.isFocused()) { tfDesc.setText(selected.getUnlocalisedDescription()); }
+        if (!tfName.isFocused()) {
+          tfName.setText(selected.getUnlocalisedName());
+        }
+        if (!tfDesc.isFocused()) {
+          tfDesc.setText(selected.getUnlocalisedDescription());
+        }
       }
     }
 
@@ -92,7 +96,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate("betterquesting.title.edit_line1")).setAlignment(
@@ -151,7 +155,9 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                               QuestTranslation.translate("betterquesting.btn.icon")) {
       @Override
       public void onButtonClick() {
-        if (selected == null) { return; }
+        if (selected == null) {
+          return;
+        }
         mc.displayGuiScreen(
             new GuiItemSelection(GuiQuestLinesEditor.this, selected.getProperty(NativeProps.ICON), value -> {
               selected.setProperty(NativeProps.ICON, value);
@@ -168,12 +174,14 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
                                                : selected.getProperty(NativeProps.VISIBILITY))) {
       @Override
       public void onButtonClick() {
-        if (selected == null) { return; }
+        if (selected == null) {
+          return;
+        }
         EnumQuestVisibility[] visList = EnumQuestVisibility.values();
         EnumQuestVisibility vis = selected.getProperty(NativeProps.VISIBILITY);
         vis = visList[(vis.ordinal() + 1) % visList.length];
         selected.setProperty(NativeProps.VISIBILITY, vis);
-        this.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
+        setText(QuestTranslation.translate("betterquesting.btn.show") + ": " + vis);
       }
     };
     btnVis.setActive(selected != null);
@@ -218,8 +226,12 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
         btnVis.setActive(true);
         btnVis.setText(QuestTranslation.translate("betterquesting.btn.show") + ": " +
                        selected.getProperty(NativeProps.VISIBILITY));
-        if (!tfName.isFocused()) { tfName.setText(selected.getUnlocalisedName()); }
-        if (!tfDesc.isFocused()) { tfDesc.setText(selected.getUnlocalisedDescription()); }
+        if (!tfName.isFocused()) {
+          tfName.setText(selected.getUnlocalisedName());
+        }
+        if (!tfDesc.isFocused()) {
+          tfDesc.setText(selected.getUnlocalisedDescription());
+        }
       }
     }
 
@@ -262,7 +274,7 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1) // New Quest Line
     {
       NBTTagCompound payload = new NBTTagCompound();
@@ -308,7 +320,9 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
     {
       DBEntry<IQuestLine> entry = ((PanelButtonStorage<DBEntry<IQuestLine>>) btn).getStoredValue();
       int order = QuestLineDatabase.INSTANCE.getOrderIndex(entry.getID());
-      if (order > 0) { SendReorder(order); }
+      if (order > 0) {
+        SendReorder(order);
+      }
     } else if (btn.getButtonID() == 8) // Big Description Editor
     {
       mc.displayGuiScreen(new GuiTextEditor(this, tfDesc.getRawText(), value -> {
@@ -357,9 +371,13 @@ public class GuiQuestLinesEditor extends GuiScreenCanvas implements IPEventListe
   }
 
   private void SendReorder(int indexToShift) {
-    if (indexToShift <= 0) { return; }
+    if (indexToShift <= 0) {
+      return;
+    }
     List<DBEntry<IQuestLine>> entries = QuestLineDatabase.INSTANCE.getSortedEntries();
-    if (indexToShift >= entries.size()) { return; }
+    if (indexToShift >= entries.size()) {
+      return;
+    }
     int[] chapterIDs = new int[entries.size()];
     for (int i = 0; i < entries.size(); i++) {
       chapterIDs[i] = entries.get(i).getID();

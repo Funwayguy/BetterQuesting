@@ -26,7 +26,9 @@ public class FunctionRegistry<T, E> {
   @Nullable
   public T createNew(@Nonnull ResourceLocation idName) {
     E arg = def_args.get(idName);
-    if (arg != null) { return createNew(idName, arg); }
+    if (arg != null) {
+      return createNew(idName, arg);
+    }
 
     BetterQuesting.logger.error("Registry failed to instantiate new object with ID: " + idName);
     return null;

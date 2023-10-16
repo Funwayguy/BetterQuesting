@@ -28,7 +28,7 @@ public class GuiStatus extends GuiScreenCanvas {
     // === BACKGROUND PANEL ===
     CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                               PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(bgCan);
+    addPanel(bgCan);
 
     CanvasHoverTray cvHover = new CanvasHoverTray(new GuiTransform(GuiAlign.MID_CENTER, 16, 16, 16, 16, 0),
                                                   new GuiTransform(GuiAlign.MID_CENTER, 16, 16, 64, 64, 5),

@@ -25,11 +25,11 @@ public class PanelFluidSlot extends PanelButtonStorage<FluidStack> {
     super(rect, id, "", value);
     this.showCount = showCount;
 
-    this.setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(),
-                     new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(),
-                                        new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(),
-                                                         new GuiPadding(1, 1, 1, 1))));
-    this.setStoredValue(value); // Need to run this again because of the instatiation order of showCount
+    setTextures(PresetTexture.ITEM_FRAME.getTexture(), PresetTexture.ITEM_FRAME.getTexture(),
+                new LayeredTexture(PresetTexture.ITEM_FRAME.getTexture(),
+                                   new ColorTexture(PresetColor.ITEM_HIGHLIGHT.getColor(),
+                                                    new GuiPadding(1, 1, 1, 1))));
+    setStoredValue(value); // Need to run this again because of the instatiation order of showCount
 
   }
 
@@ -38,14 +38,14 @@ public class PanelFluidSlot extends PanelButtonStorage<FluidStack> {
     super.setStoredValue(value);
 
     if (value != null) {
-      this.setIcon(new FluidTexture(value, showCount, true), 1);
+      setIcon(new FluidTexture(value, showCount, true), 1);
       List<String> tooltip = new ArrayList<>();
       tooltip.add(value.getLocalizedName());
       tooltip.add(TextFormatting.GRAY.toString() + value.amount + "mB");
-      this.setTooltip(tooltip);
+      setTooltip(tooltip);
     } else {
-      this.setIcon(null);
-      this.setTooltip(null);
+      setIcon(null);
+      setTooltip(null);
     }
 
     return this;

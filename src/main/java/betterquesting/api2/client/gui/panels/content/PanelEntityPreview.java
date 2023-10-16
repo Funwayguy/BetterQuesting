@@ -26,32 +26,32 @@ public class PanelEntityPreview implements IGuiPanel {
   private float zDepth = 100F;
 
   public PanelEntityPreview(IGuiRect rect, Entity entity) {
-    this.transform = rect;
+    transform = rect;
     this.entity = entity;
 
-    this.basePitch = new ValueFuncIO<>(() -> 15F);
-    this.pitchDriver = basePitch;
+    basePitch = new ValueFuncIO<>(() -> 15F);
+    pitchDriver = basePitch;
 
-    this.baseYaw = new ValueFuncIO<>(() -> -30F);
-    this.yawDriver = baseYaw;
+    baseYaw = new ValueFuncIO<>(() -> -30F);
+    yawDriver = baseYaw;
   }
 
   public PanelEntityPreview setRotationFixed(float pitch, float yaw) {
-    this.pitchDriver = basePitch;
-    this.yawDriver = baseYaw;
+    pitchDriver = basePitch;
+    yawDriver = baseYaw;
     basePitch.writeValue(pitch);
     baseYaw.writeValue(yaw);
     return this;
   }
 
   public PanelEntityPreview setRotationDriven(IValueIO<Float> pitch, IValueIO<Float> yaw) {
-    this.pitchDriver = pitch == null ? basePitch : pitch;
-    this.yawDriver = yaw == null ? baseYaw : yaw;
+    pitchDriver = pitch == null ? basePitch : pitch;
+    yawDriver = yaw == null ? baseYaw : yaw;
     return this;
   }
 
   public PanelEntityPreview setDepth(float z) {
-    this.zDepth = z;
+    zDepth = z;
     return this;
   }
 
@@ -60,17 +60,16 @@ public class PanelEntityPreview implements IGuiPanel {
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -84,7 +83,7 @@ public class PanelEntityPreview implements IGuiPanel {
       return;
     }
 
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     GlStateManager.pushMatrix();
     RenderUtils.startScissor(new GuiRectangle(bounds));
 

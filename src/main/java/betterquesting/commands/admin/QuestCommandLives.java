@@ -60,7 +60,7 @@ public class QuestCommandLives extends QuestCommandBase {
     }
 
     if (args.length >= 4) {
-      playerID = this.findPlayerID(server, sender, args[3]);
+      playerID = findPlayerID(server, sender, args[3]);
 
       if (playerID == null) {
         throw getException(command);
@@ -76,7 +76,9 @@ public class QuestCommandLives extends QuestCommandBase {
         LifeDatabase.INSTANCE.setLives(playerID, value);
         EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
         //noinspection ConstantConditions
-        if (target != null) { NetLifeSync.sendSync(new EntityPlayerMP[] { target }, new UUID[] { playerID }); }
+        if (target != null) {
+          NetLifeSync.sendSync(new EntityPlayerMP[] { target }, new UUID[] { playerID });
+        }
         sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.set_player", pName, value));
       } else {
         for (EntityPlayerMP p : server.getPlayerList().getPlayers()) // TODO: Make this work for offline players
@@ -94,7 +96,9 @@ public class QuestCommandLives extends QuestCommandBase {
         LifeDatabase.INSTANCE.setLives(playerID, lives);
         EntityPlayerMP target = server.getPlayerList().getPlayerByUUID(playerID);
         //noinspection ConstantConditions
-        if (target != null) { NetLifeSync.sendSync(new EntityPlayerMP[] { target }, new UUID[] { playerID }); }
+        if (target != null) {
+          NetLifeSync.sendSync(new EntityPlayerMP[] { target }, new UUID[] { playerID });
+        }
 
         if (value >= 0) {
           sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.lives.add_player", value, pName, lives));

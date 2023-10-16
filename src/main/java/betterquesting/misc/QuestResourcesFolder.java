@@ -34,7 +34,8 @@ public class QuestResourcesFolder implements IResourcePack {
     }
 
     // TODO: Figure out if we can fix UTF8 encoding from here
-    return Files.newInputStream(new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath()).toPath());
+    return Files.newInputStream(
+        new File(rootFolder.getPath() + "/" + location.getNamespace(), location.getPath()).toPath());
   }
 
   @Override
@@ -51,7 +52,9 @@ public class QuestResourcesFolder implements IResourcePack {
     }
 
     String[] content = rootFolder.list();
-    if (content == null || content.length == 0) { return Collections.emptySet(); }
+    if (content == null || content.length == 0) {
+      return Collections.emptySet();
+    }
 
     HashSet<String> folders = new HashSet<>();
     for (String s : content) {
@@ -77,7 +80,9 @@ public class QuestResourcesFolder implements IResourcePack {
   @Nonnull
   @Override
   public BufferedImage getPackImage() {
-    if (bufferedImage != null) { return bufferedImage; }
+    if (bufferedImage != null) {
+      return bufferedImage;
+    }
 
     try {
       bufferedImage = TextureUtil.readBufferedImage(

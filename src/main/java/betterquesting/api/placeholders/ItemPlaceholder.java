@@ -20,7 +20,7 @@ public class ItemPlaceholder extends Item {
 
   // Used solely for retaining info to missing items
   public ItemPlaceholder() {
-    this.setTranslationKey("betterquesting.placeholder");
+    setTranslationKey("betterquesting.placeholder");
   }
 
   /**

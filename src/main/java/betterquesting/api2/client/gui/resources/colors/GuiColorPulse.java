@@ -18,8 +18,8 @@ public class GuiColorPulse implements IGuiColor {
   }
 
   public GuiColorPulse(IGuiColor color1, IGuiColor color2, double period, float phase) {
-    this.c1 = color1;
-    this.c2 = color2;
+    c1 = color1;
+    c2 = color2;
 
     this.period = period;
     this.phase = phase;

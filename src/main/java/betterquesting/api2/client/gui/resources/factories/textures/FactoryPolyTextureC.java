@@ -22,7 +22,9 @@ public class FactoryPolyTextureC implements IFactoryData<IGuiTexture, JsonObject
     JsonArray jAry = JsonHelper.GetArray(data, "verts");
     double[] verts = new double[jAry.size()];
     for (int i = 0; i < jAry.size() && i < verts.length; i++) {
-      if (!(jAry.get(i).isJsonPrimitive())) { continue; }
+      if (!(jAry.get(i).isJsonPrimitive())) {
+        continue;
+      }
       try {
         verts[i] = jAry.get(i).getAsDouble();
       } catch (Exception ignored) { }
@@ -35,7 +37,9 @@ public class FactoryPolyTextureC implements IFactoryData<IGuiTexture, JsonObject
     try {
       color = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg()
                          .createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
-      if (color == null) { color = new GuiColorStatic(0xFFFFFFFF); }
+      if (color == null) {
+        color = new GuiColorStatic(0xFFFFFFFF);
+      }
     } catch (Exception ignored) {
       color = new GuiColorStatic(0xFFFFFFFF);
     }
@@ -46,7 +50,9 @@ public class FactoryPolyTextureC implements IFactoryData<IGuiTexture, JsonObject
     try {
       borColor = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg()
                             .createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
-      if (borColor == null) { borColor = new GuiColorStatic(0xFFFFFFFF); }
+      if (borColor == null) {
+        borColor = new GuiColorStatic(0xFFFFFFFF);
+      }
     } catch (Exception ignored) {
       borColor = new GuiColorStatic(0xFFFFFFFF);
     }

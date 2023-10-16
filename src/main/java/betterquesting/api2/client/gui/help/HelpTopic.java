@@ -23,10 +23,12 @@ public class HelpTopic {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof HelpTopic)) { return false; }
+    if (!(o instanceof HelpTopic)) {
+      return false;
+    }
 
     HelpTopic ht = (HelpTopic) o;
 
-    return ht.title.equals(this.title) && ht.description.equals(this.description);
+    return ht.title.equals(title) && ht.description.equals(description);
   }
 }

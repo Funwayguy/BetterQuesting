@@ -24,16 +24,16 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
   }
 
   private void setupProps() {
-    this.setupValue(NativeProps.NAME, "New Quest Line");
-    this.setupValue(NativeProps.DESC, "No Description");
-    this.setupValue(NativeProps.ICON, new BigItemStack(Items.BOOK));
-    this.setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
-    this.setupValue(NativeProps.BG_IMAGE);
-    this.setupValue(NativeProps.BG_SIZE);
+    setupValue(NativeProps.NAME, "New Quest Line");
+    setupValue(NativeProps.DESC, "No Description");
+    setupValue(NativeProps.ICON, new BigItemStack(Items.BOOK));
+    setupValue(NativeProps.VISIBILITY, EnumQuestVisibility.NORMAL);
+    setupValue(NativeProps.BG_IMAGE);
+    setupValue(NativeProps.BG_SIZE);
   }
 
   private <T> void setupValue(IPropertyType<T> prop) {
-    this.setupValue(prop, prop.getDefault());
+    setupValue(prop, prop.getDefault());
   }
 
   private <T> void setupValue(IPropertyType<T> prop, T def) {
@@ -43,7 +43,7 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
   @Override
   public IQuestLineEntry createNew(int id) {
     IQuestLineEntry qle = new QuestLineEntry(0, 0, 24, 24);
-    this.add(id, qle);
+    add(id, qle);
     return qle;
   }
 
@@ -94,7 +94,9 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
     NBTTagList jArr = new NBTTagList();
 
     for (DBEntry<IQuestLineEntry> entry : getEntries()) {
-      if (subset != null && !subset.contains(entry.getID())) { continue; }
+      if (subset != null && !subset.contains(entry.getID())) {
+        continue;
+      }
       NBTTagCompound qle = entry.getValue().writeToNBT(new NBTTagCompound());
       qle.setInteger("id", entry.getID());
       jArr.appendTag(qle);
@@ -108,19 +110,23 @@ public class QuestLine extends SimpleDatabase<IQuestLineEntry> implements IQuest
   public void readFromNBT(NBTTagCompound json, boolean merge) {
     info.readFromNBT(json.getCompoundTag("properties"));
 
-    if (!merge) { reset(); }
+    if (!merge) {
+      reset();
+    }
 
     NBTTagList qList = json.getTagList("quests", 10);
     for (int i = 0; i < qList.tagCount(); i++) {
       NBTTagCompound qTag = qList.getCompoundTagAt(i);
 
       int id = qTag.hasKey("id", 99) ? qTag.getInteger("id") : -1;
-      if (id < 0) { continue; }
+      if (id < 0) {
+        continue;
+      }
 
       add(id, new QuestLineEntry(qTag));
     }
 
-    this.setupProps();
+    setupProps();
   }
 
   @Override

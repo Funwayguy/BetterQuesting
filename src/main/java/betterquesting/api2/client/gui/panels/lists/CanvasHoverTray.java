@@ -28,7 +28,7 @@ public class CanvasHoverTray extends CanvasResizeable {
     this.rectOpen = rectOpen;
 
     GuiTransform trans = new GuiTransform(GuiAlign.FULL_BOX);
-    trans.setParent(this.getRectLerp());
+    trans.setParent(getRectLerp());
     cvOpen = new CanvasEmpty(trans);
     cvClosed = new CanvasEmpty(trans);
   }
@@ -46,31 +46,35 @@ public class CanvasHoverTray extends CanvasResizeable {
   }
 
   public CanvasHoverTray setManualOpen(boolean state) {
-    this.manualOpen = state;
+    manualOpen = state;
     return this;
   }
 
   public CanvasHoverTray setCloseAction(Runnable action) {
-    this.actionClose = action;
+    actionClose = action;
     return this;
   }
 
   public CanvasHoverTray setOpenAction(Runnable action) {
-    this.actionOpen = action;
+    actionOpen = action;
     return this;
   }
 
   public void setTrayState(boolean open, long time) {
     if (!open && isTrayOpen()) {
-      this.lerpToRect(rectClosed, time, true);
+      lerpToRect(rectClosed, time, true);
       cvOpen.setEnabled(false);
       cvClosed.setEnabled(true);
-      if (actionClose != null) { actionClose.run(); }
+      if (actionClose != null) {
+        actionClose.run();
+      }
     } else if (open && !isTrayOpen()) {
-      this.lerpToRect(rectOpen, time, true);
+      lerpToRect(rectOpen, time, true);
       cvOpen.setEnabled(true);
       cvClosed.setEnabled(false);
-      if (actionOpen != null) { actionOpen.run(); }
+      if (actionOpen != null) {
+        actionOpen.run();
+      }
     }
   }
 
@@ -94,8 +98,8 @@ public class CanvasHoverTray extends CanvasResizeable {
     cvOpen.resetCanvas();
     cvClosed.resetCanvas();
 
-    this.addPanel(cvOpen);
-    this.addPanel(cvClosed);
+    addPanel(cvOpen);
+    addPanel(cvClosed);
     cvOpen.setEnabled(false);
     cvClosed.setEnabled(true);
   }
@@ -104,8 +108,8 @@ public class CanvasHoverTray extends CanvasResizeable {
   public void initPanel() {
     super.initPanel();
 
-    this.addPanel(cvOpen);
-    this.addPanel(cvClosed);
+    addPanel(cvOpen);
+    addPanel(cvClosed);
     cvOpen.setEnabled(false);
     cvClosed.setEnabled(true);
 

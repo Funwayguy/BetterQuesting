@@ -20,7 +20,7 @@ public class NbtDocEvent extends Event {
   }
 
   public void setNewDoc(INbtDoc jdoc) {
-    this.outJdoc = jdoc;
+    outJdoc = jdoc;
   }
 
   public INbtDoc getNbtDocResult() {

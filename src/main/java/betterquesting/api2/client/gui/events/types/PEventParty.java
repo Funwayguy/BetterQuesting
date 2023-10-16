@@ -12,7 +12,7 @@ public class PEventParty extends PanelEvent {
   private final Set<Integer> partyIDs;
 
   public PEventParty(int partyID) {
-    this.partyIDs = Collections.singleton(partyID);
+    partyIDs = Collections.singleton(partyID);
   }
 
   public PEventParty(Collection<Integer> partyIDs) {
@@ -20,7 +20,7 @@ public class PEventParty extends PanelEvent {
   }
 
   public Set<Integer> getPartyIDs() {
-    return this.partyIDs;
+    return partyIDs;
   }
 
   @Override

@@ -24,7 +24,9 @@ public class FactorySimpleTexture implements IFactoryData<IGuiTexture, JsonObjec
     int[] bounds = new int[] { 0, 0, 16, 16 };
     JsonArray jAry = JsonHelper.GetArray(data, "bounds");
     for (int i = 0; i < jAry.size() && i < bounds.length; i++) {
-      if (!(jAry.get(i).isJsonPrimitive())) { continue; }
+      if (!(jAry.get(i).isJsonPrimitive())) {
+        continue;
+      }
       try {
         bounds[i] = jAry.get(i).getAsInt();
       } catch (Exception ignored) { }

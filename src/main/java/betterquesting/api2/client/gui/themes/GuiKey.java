@@ -9,12 +9,12 @@ public class GuiKey<T> {
   private final ResourceLocation ID;
 
   public GuiKey(@Nonnull ResourceLocation id) {
-    this.ID = id;
+    ID = id;
   }
 
   @Nonnull
   public ResourceLocation getID() {
-    return this.ID;
+    return ID;
   }
 
   @Override

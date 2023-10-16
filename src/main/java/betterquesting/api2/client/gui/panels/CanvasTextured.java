@@ -12,17 +12,17 @@ public class CanvasTextured extends CanvasEmpty {
   public CanvasTextured(IGuiRect rect, IGuiTexture texture) {
     super(rect);
 
-    this.bgTexture = texture;
+    bgTexture = texture;
   }
 
   public void changeBG(@Nullable IGuiTexture texture) {
-    this.bgTexture = texture;
+    bgTexture = texture;
   }
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
     if (bgTexture != null) {
-      IGuiRect bounds = this.getTransform();
+      IGuiRect bounds = getTransform();
       GlStateManager.pushMatrix();
       GlStateManager.color(1F, 1F, 1F, 1F);
       bgTexture.drawTexture(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(), 0F, partialTick);

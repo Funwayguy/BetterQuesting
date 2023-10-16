@@ -25,7 +25,7 @@ public class PanelGeneric implements IGuiPanel {
   }
 
   public PanelGeneric(IGuiRect rect, IGuiTexture texture, IGuiColor color) {
-    this.transform = rect;
+    transform = rect;
     this.texture = texture;
     this.color = color;
   }
@@ -45,17 +45,16 @@ public class PanelGeneric implements IGuiPanel {
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override

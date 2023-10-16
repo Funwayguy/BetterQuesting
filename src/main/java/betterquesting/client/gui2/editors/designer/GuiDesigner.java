@@ -50,14 +50,14 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
 
   public GuiDesigner(GuiScreen parent, IQuestLine line) {
     super(parent);
-    this.questLine = line;
-    this.lineID = QuestLineDatabase.INSTANCE.getID(line);
-    this.tabList.addAll(ToolboxRegistry.INSTANCE.getAllTabs());
+    questLine = line;
+    lineID = QuestLineDatabase.INSTANCE.getID(line);
+    tabList.addAll(ToolboxRegistry.INSTANCE.getAllTabs());
   }
 
   @Override
   public void refreshGui() {
-    this.questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
+    questLine = QuestLineDatabase.INSTANCE.getValue(lineID);
 
     if (questLine == null) {
       mc.displayGuiScreen(parent);
@@ -86,11 +86,11 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
     CanvasTextured cvBackground =
         new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 96, 0), 0),
                            PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvTray = new CanvasTextured(new GuiTransform(GuiAlign.RIGHT_EDGE, new GuiPadding(-96, 0, 0, 0), 0),
                                 PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvTray);
+    addPanel(cvTray);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.done")));
@@ -148,10 +148,18 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
   }
 
   private void refreshToolTab() {
-    if (lastTabPanel != null) { cvTray.removePanel(lastTabPanel); }
+    if (lastTabPanel != null) {
+      cvTray.removePanel(lastTabPanel);
+    }
 
-    if (tabList.isEmpty()) { return; }
-    if (tabIdx < 0) { while (tabIdx < 0) { tabIdx += tabList.size(); } }
+    if (tabList.isEmpty()) {
+      return;
+    }
+    if (tabIdx < 0) {
+      while (tabIdx < 0) {
+        tabIdx += tabList.size();
+      }
+    }
     tabIdx %= tabList.size();
 
     lastTabPanel = tabList.get(tabIdx)
@@ -159,7 +167,9 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
                                      toolController);
     tabTitle.setText(QuestTranslation.translate(tabList.get(tabIdx).getUnlocalisedName()));
 
-    if (lastTabPanel != null) { cvTray.addPanel(lastTabPanel); }
+    if (lastTabPanel != null) {
+      cvTray.addPanel(lastTabPanel);
+    }
   }
 
   @Override
@@ -174,7 +184,7 @@ public class GuiDesigner extends GuiScreenCanvas implements IVolatileScreen, INe
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     }
   }
 }

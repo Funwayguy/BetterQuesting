@@ -76,9 +76,11 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
 
   @Override
   public List<String> getTooltip(int mx, int my) {
-    if (!this.getTransform().contains(mx, my)) { return null; }
+    if (!getTransform().contains(mx, my)) {
+      return null;
+    }
 
-    DBEntry<IQuest> value = this.getStoredValue();
+    DBEntry<IQuest> value = getStoredValue();
     return value == null ? Collections.emptyList() : getQuestTooltip(value.getValue(), player, value.getID());
   }
 
@@ -88,7 +90,7 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
     if (Minecraft.getMinecraft().gameSettings.advancedItemTooltips &&
         QuestSettings.INSTANCE.getProperty(NativeProps.EDIT_MODE)) {
       tooltip.add("");
-      tooltip.addAll(this.getAdvancedTooltip(quest, player, qID));
+      tooltip.addAll(getAdvancedTooltip(quest, player, qID));
     }
 
     return tooltip;
@@ -153,13 +155,19 @@ public class PanelButtonQuest extends PanelButtonStorage<DBEntry<IQuest>> {
   private List<String> getAdvancedTooltip(IQuest quest, EntityPlayer player, int qID) {
     List<String> list = new ArrayList<>();
 
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_quest", quest.getProperty(NativeProps.GLOBAL)));
+    list.add(TextFormatting.GRAY +
+             QuestTranslation.translate("betterquesting.tooltip.global_quest", quest.getProperty(NativeProps.GLOBAL)));
     if (quest.getProperty(NativeProps.GLOBAL)) {
-      list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share", quest.getProperty(NativeProps.GLOBAL_SHARE)));
+      list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.global_share",
+                                                                quest.getProperty(NativeProps.GLOBAL_SHARE)));
     }
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.quest_logic", quest.getProperty(NativeProps.LOGIC_QUEST).toString().toUpperCase()));
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous", quest.getProperty(NativeProps.SIMULTANEOUS)));
-    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim", quest.getProperty(NativeProps.AUTO_CLAIM)));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.quest_logic",
+                                                              quest.getProperty(NativeProps.LOGIC_QUEST).toString()
+                                                                   .toUpperCase()));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.simultaneous",
+                                                              quest.getProperty(NativeProps.SIMULTANEOUS)));
+    list.add(TextFormatting.GRAY + QuestTranslation.translate("betterquesting.tooltip.auto_claim",
+                                                              quest.getProperty(NativeProps.AUTO_CLAIM)));
     if (quest.getProperty(NativeProps.REPEAT_TIME) >= 0) {
       long time = quest.getProperty(NativeProps.REPEAT_TIME) / 20;
       DecimalFormat df = new DecimalFormat("00");

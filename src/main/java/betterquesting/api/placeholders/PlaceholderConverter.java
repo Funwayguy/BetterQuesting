@@ -36,7 +36,9 @@ public class PlaceholderConverter {
       stack.SetTagCompound(new NBTTagCompound());
       stack.GetTagCompound().setString("orig_id", name);
       stack.GetTagCompound().setInteger("orig_meta", damage);
-      if (nbt != null) { stack.GetTagCompound().setTag("orig_tag", nbt); }
+      if (nbt != null) {
+        stack.GetTagCompound().setTag("orig_tag", nbt);
+      }
       return stack;
     } else if (item == ItemPlaceholder.placeholder) {
       if (nbt != null) {
@@ -45,7 +47,9 @@ public class PlaceholderConverter {
         if (restored != null) {
           BigItemStack stack = new BigItemStack(restored, count, nbt.hasKey("orig_meta") ? nbt.getInteger("orig_meta")
                                                                                          : damage).setOreDict(oreDict);
-          if (nbt.hasKey("orig_tag")) { stack.SetTagCompound(nbt.getCompoundTag("orig_tag")); }
+          if (nbt.hasKey("orig_tag")) {
+            stack.SetTagCompound(nbt.getCompoundTag("orig_tag"));
+          }
 
           return stack;
         } else if (damage > 0 && !nbt.hasKey("orig_meta")) {
@@ -56,7 +60,9 @@ public class PlaceholderConverter {
     }
 
     BigItemStack stack = new BigItemStack(item, count, damage).setOreDict(oreDict);
-    if (nbt != null) { stack.SetTagCompound(nbt); }
+    if (nbt != null) {
+      stack.SetTagCompound(nbt);
+    }
 
     return stack;
   }
@@ -66,7 +72,9 @@ public class PlaceholderConverter {
       FluidStack stack = new FluidStack(FluidPlaceholder.fluidPlaceholder, amount);
       NBTTagCompound orig = new NBTTagCompound();
       orig.setString("orig_id", name);
-      if (nbt != null) { orig.setTag("orig_tag", nbt); }
+      if (nbt != null) {
+        orig.setTag("orig_tag", nbt);
+      }
       stack.tag = orig;
       return stack;
     } else if (fluid == FluidPlaceholder.fluidPlaceholder && nbt != null) {
@@ -74,13 +82,17 @@ public class PlaceholderConverter {
 
       if (restored != null) {
         FluidStack stack = new FluidStack(restored, amount);
-        if (nbt.hasKey("orig_tag")) { stack.tag = nbt.getCompoundTag("orig_tag"); }
+        if (nbt.hasKey("orig_tag")) {
+          stack.tag = nbt.getCompoundTag("orig_tag");
+        }
         return stack;
       }
     }
 
     FluidStack stack = new FluidStack(fluid, amount);
-    if (nbt != null) { stack.tag = nbt; }
+    if (nbt != null) {
+      stack.tag = nbt;
+    }
 
     return stack;
   }

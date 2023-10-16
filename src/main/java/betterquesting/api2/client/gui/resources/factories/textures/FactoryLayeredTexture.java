@@ -30,7 +30,9 @@ public class FactoryLayeredTexture implements IFactoryData<IGuiTexture, JsonObje
 
     JsonArray jAry = JsonHelper.GetArray(data, "layers");
     for (JsonElement je : jAry) {
-      if (!je.isJsonObject()) { continue; }
+      if (!je.isJsonObject()) {
+        continue;
+      }
       JsonObject jo = je.getAsJsonObject();
 
       try {

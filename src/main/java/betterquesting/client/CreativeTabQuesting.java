@@ -17,7 +17,7 @@ public class CreativeTabQuesting extends CreativeTabs {
   @Override
   public ItemStack createIcon() {
     if (tabStack == null) {
-      this.tabStack = new ItemStack(BetterQuesting.extraLife);
+      tabStack = new ItemStack(BetterQuesting.extraLife);
     }
 
     return tabStack;

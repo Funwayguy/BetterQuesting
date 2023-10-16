@@ -54,7 +54,9 @@ public class MCLinkAPI {
   }
 
   private static JsonElement sendJsonPost(String endpoint, JsonElement json) throws IOException {
-    if (userAgent == null) { setupMetadata(); }
+    if (userAgent == null) {
+      setupMetadata();
+    }
 
     URL url = new URL(endpoint);
     String redirect = url.toString();
@@ -84,7 +86,9 @@ public class MCLinkAPI {
 
     //TODO: Flag the JSON response as an error when necessary so it can be handled as such
     InputStream is = con.getErrorStream();
-    if (is == null) { is = con.getInputStream(); }
+    if (is == null) {
+      is = con.getInputStream();
+    }
 
     try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
       JsonElement jsonOut = JsonHelper.GSON.fromJson(isr, JsonElement.class);

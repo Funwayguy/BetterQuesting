@@ -34,7 +34,9 @@ public class NetChapterSync {
   }
 
   public static void sendSync(@Nullable EntityPlayerMP player, @Nullable int[] chapterIDs) {
-    if (chapterIDs != null && chapterIDs.length == 0) { return; }
+    if (chapterIDs != null && chapterIDs.length == 0) {
+      return;
+    }
 
     BQThreadedIO.INSTANCE.enqueue(() -> {
       NBTTagList data = new NBTTagList();
@@ -72,7 +74,9 @@ public class NetChapterSync {
   @SideOnly(Side.CLIENT)
   public static void requestSync(@Nullable int[] chapterIDs) {
     NBTTagCompound payload = new NBTTagCompound();
-    if (chapterIDs != null) { payload.setIntArray("requestIDs", chapterIDs); }
+    if (chapterIDs != null) {
+      payload.setIntArray("requestIDs", chapterIDs);
+    }
     PacketSender.INSTANCE.sendToServer(new QuestingPacket(ID_NAME, payload));
   }
 
@@ -85,16 +89,22 @@ public class NetChapterSync {
   @SideOnly(Side.CLIENT)
   private static void onClient(NBTTagCompound message) {
     NBTTagList data = message.getTagList("data", 10);
-    if (!message.getBoolean("merge")) { QuestLineDatabase.INSTANCE.reset(); }
+    if (!message.getBoolean("merge")) {
+      QuestLineDatabase.INSTANCE.reset();
+    }
 
     for (int i = 0; i < data.tagCount(); i++) {
       NBTTagCompound tag = data.getCompoundTagAt(i);
-      if (!tag.hasKey("chapterID", 99)) { continue; }
+      if (!tag.hasKey("chapterID", 99)) {
+        continue;
+      }
       int chapterID = tag.getInteger("chapterID");
       //int order = tag.getInteger("order");
 
       IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID); // TODO: Send to client side database
-      if (chapter == null) { chapter = QuestLineDatabase.INSTANCE.createNew(chapterID); }
+      if (chapter == null) {
+        chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
+      }
 
       //QuestLineDatabase.INSTANCE.setOrderIndex(chapterID, order);
       chapter.readFromNBT(tag.getCompoundTag("config"),

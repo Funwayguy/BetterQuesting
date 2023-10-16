@@ -80,7 +80,9 @@ public class NBTConverter {
   // The fact that this is necessary is so dumb
   @SuppressWarnings("WeakerAccess")
   public static long[] readLongArray(NBTTagLongArray tag) {
-    if (tag == null) { return new long[0]; }
+    if (tag == null) {
+      return new long[0];
+    }
 
     String[] entry = tag.toString().replaceAll("[\\[\\]L;]", "")
                         .split(","); // Cut off square braces and "L;" before splitting elements

@@ -12,7 +12,7 @@ public class PEventButton extends PanelEvent {
   }
 
   public IPanelButton getButton() {
-    return this.btn;
+    return btn;
   }
 
   @Override

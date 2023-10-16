@@ -71,10 +71,10 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
   public void initPanel() {
     super.initPanel();
 
-    this.quest = QuestDatabase.INSTANCE.getValue(questID);
+    quest = QuestDatabase.INSTANCE.getValue(questID);
 
     if (quest == null) {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
       return;
     }
 
@@ -83,7 +83,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate(
@@ -203,15 +203,15 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
   @Override
   public void refreshGui() {
-    this.refreshTaskPanel();
-    this.refreshRewardPanel();
-    this.updateButtons();
+    refreshTaskPanel();
+    refreshRewardPanel();
+    updateButtons();
   }
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
     if (super.onMouseClick(mx, my, click)) {
-      this.updateButtons();
+      updateButtons();
       return true;
     }
 
@@ -221,7 +221,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
   @Override
   public boolean onMouseScroll(int mx, int my, int scroll) {
     if (super.onMouseScroll(mx, my, scroll)) {
-      this.updateButtons();
+      updateButtons();
       return true;
     }
 
@@ -231,7 +231,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
   @Override
   public boolean onKeyTyped(char c, int keycode) {
     if (super.onKeyTyped(c, keycode)) {
-      this.updateButtons();
+      updateButtons();
       return true;
     }
 
@@ -250,7 +250,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1) // Edit
     {
       mc.displayGuiScreen(new GuiQuestEditor(this, questID));
@@ -293,7 +293,7 @@ public class GuiQuest extends GuiScreenCanvas implements IPEventListener, INeeds
 
       return;
     } else if (rectReward == null) {
-      this.initPanel();
+      initPanel();
       return;
     }
 

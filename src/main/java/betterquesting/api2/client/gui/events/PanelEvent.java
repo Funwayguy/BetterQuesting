@@ -6,14 +6,14 @@ public abstract class PanelEvent {
   public abstract boolean canCancel();
 
   public boolean isCancelled() {
-    return this.cancelled;
+    return cancelled;
   }
 
   public void setCancelled(boolean state) {
-    if (!this.canCancel()) {
+    if (!canCancel()) {
       throw new IllegalStateException("Attempted to cancel a non cancellable panel event");
     }
 
-    this.cancelled = state;
+    cancelled = state;
   }
 }

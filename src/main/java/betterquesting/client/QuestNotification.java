@@ -27,7 +27,9 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class QuestNotification {
   public static void ScheduleNotice(String mainTxt, String subTxt, ItemStack icon, String sound) {
-    if (BQ_Settings.questNotices) { notices.add(new QuestNotice(mainTxt, subTxt, icon, sound)); }
+    if (BQ_Settings.questNotices) {
+      notices.add(new QuestNotice(mainTxt, subTxt, icon, sound));
+    }
   }
 
   private static final List<QuestNotice> notices = new ArrayList<>();
@@ -38,8 +40,12 @@ public class QuestNotification {
 
   @SubscribeEvent
   public void onDrawScreen(RenderGameOverlayEvent.Post event) {
-    if (event.getType() != ElementType.ALL) { return; }
-    if (notices.isEmpty()) { return; }
+    if (event.getType() != ElementType.ALL) {
+      return;
+    }
+    if (notices.isEmpty()) {
+      return;
+    }
 
     if (notices.size() >= 20 || !BQ_Settings.questNotices) {
       notices.clear();
@@ -110,7 +116,7 @@ public class QuestNotification {
     private final String sound;
 
     public QuestNotice(String mainTxt, String subTxt, ItemStack icon, String sound) {
-      this.startTime = Minecraft.getSystemTime();
+      startTime = Minecraft.getSystemTime();
       this.mainTxt = mainTxt;
       this.subTxt = subTxt;
       this.icon = icon;

@@ -23,37 +23,34 @@ public class ToolboxToolFrame implements IToolboxTool {
   }
 
   @Override
-  public void refresh(CanvasQuestLine gui) {
-
-  }
+  public void refresh(CanvasQuestLine gui) { }
 
   @Override
-  public void disableTool() {
-
-  }
+  public void disableTool() { }
 
   @Override
-  public void drawCanvas(int mx, int my, float partialTick) {
-
-  }
+  public void drawCanvas(int mx, int my, float partialTick) { }
 
   @Override
-  public void drawOverlay(int mx, int my, float partialTick) {
-
-  }
+  public void drawOverlay(int mx, int my, float partialTick) { }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
-    if (click != 0 || !gui.getTransform().contains(mx, my)) { return false; }
+    if (click != 0 || !gui.getTransform().contains(mx, my)) {
+      return false;
+    }
 
     PanelButtonQuest btn = gui.getButtonAt(mx, my);
 
-    if (btn == null) { return false; }
-    if (!PanelToolController.selected.isEmpty() && !PanelToolController.selected.contains(btn)) { return false; }
+    if (btn == null) {
+      return false;
+    }
+    if (!PanelToolController.selected.isEmpty() && !PanelToolController.selected.contains(btn)) {
+      return false;
+    }
 
     List<PanelButtonQuest> btnList = PanelToolController.selected.isEmpty() ? Collections.singletonList(btn)
                                                                             : PanelToolController.selected;
@@ -92,7 +89,9 @@ public class ToolboxToolFrame implements IToolboxTool {
 
   @Override
   public boolean onKeyPressed(char c, int key) {
-    if (PanelToolController.selected.isEmpty() || key != Keyboard.KEY_RETURN) { return false; }
+    if (PanelToolController.selected.isEmpty() || key != Keyboard.KEY_RETURN) {
+      return false;
+    }
 
     changeFrame(PanelToolController.selected);
     return true;

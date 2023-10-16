@@ -29,12 +29,12 @@ public class ContainerSubmitStation extends Container {
 
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 9; ++j) {
-        this.addSlotToContainer(new Slot(player, j + i * 9 + 9, j * 18, i * 18));
+        addSlotToContainer(new Slot(player, j + i * 9 + 9, j * 18, i * 18));
       }
     }
 
     for (int i = 0; i < 9; ++i) {
-      this.addSlotToContainer(new Slot(player, i, i * 18, 58));
+      addSlotToContainer(new Slot(player, i, i * 18, 58));
     }
   }
 
@@ -77,7 +77,7 @@ public class ContainerSubmitStation extends Container {
 
     if (stack.isStackable()) {
       for (int i : range) {
-        Slot slot = this.inventorySlots.get(i);
+        Slot slot = inventorySlots.get(i);
         ItemStack slotStack = slot.getStack();
 
         if (ItemHandlerHelper.canItemStacksStack(stack, slotStack)) {
@@ -99,7 +99,7 @@ public class ContainerSubmitStation extends Container {
     }
 
     for (int i : range) {
-      Slot slot = this.inventorySlots.get(i);
+      Slot slot = inventorySlots.get(i);
       ItemStack slotStack = slot.getStack();
 
       if (slotStack.isEmpty() && slot.isItemValid(stack)) {
@@ -125,31 +125,31 @@ public class ContainerSubmitStation extends Container {
     }
 
     ItemStack itemstack = ItemStack.EMPTY;
-    Slot slot = this.inventorySlots.get(idx);
+    Slot slot = inventorySlots.get(idx);
 
     if (slot != null && slot.getHasStack()) {
       ItemStack itemstack1 = slot.getStack();
       itemstack = itemstack1.copy();
 
       if (idx == 0) {
-        if (!this.mergeItemStack(itemstack1, 1, 37, true)) {
+        if (!mergeItemStack(itemstack1, 1, 37, true)) {
           return ItemStack.EMPTY;
         }
 
         slot.onSlotChange(itemstack1, itemstack);
       } else if (slot.isItemValid(itemstack1)) {
-        if (!this.mergeItemStack(itemstack1, 0, 1, false)) {
+        if (!mergeItemStack(itemstack1, 0, 1, false)) {
           return ItemStack.EMPTY;
         }
       } else if (idx < 28) {
-        if (!this.mergeItemStack(itemstack1, 28, 37, false)) {
+        if (!mergeItemStack(itemstack1, 28, 37, false)) {
           return ItemStack.EMPTY;
         }
       } else if (idx < 37) {
-        if (!this.mergeItemStack(itemstack1, 1, 28, false)) {
+        if (!mergeItemStack(itemstack1, 1, 28, false)) {
           return ItemStack.EMPTY;
         }
-      } else if (!this.mergeItemStack(itemstack1, 1, 37, false)) {
+      } else if (!mergeItemStack(itemstack1, 1, 37, false)) {
         return ItemStack.EMPTY;
       }
 

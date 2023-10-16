@@ -9,8 +9,7 @@ public class FactoryTaskPlaceholder implements IFactoryData<TaskPlaceholder, NBT
 
   private final ResourceLocation ID = new ResourceLocation("betterquesting:placeholder");
 
-  private FactoryTaskPlaceholder() {
-  }
+  private FactoryTaskPlaceholder() { }
 
   @Override
   public ResourceLocation getRegistryName() {

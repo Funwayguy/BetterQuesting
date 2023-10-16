@@ -48,7 +48,9 @@ public class CapabilityProviderQuestCache implements ICapabilityProvider, ICapab
 
       @Override
       public void readNBT(Capability<QuestCache> capability, QuestCache instance, EnumFacing side, NBTBase nbt) {
-        if (nbt instanceof NBTTagCompound) { instance.deserializeNBT((NBTTagCompound) nbt); }
+        if (nbt instanceof NBTTagCompound) {
+          instance.deserializeNBT((NBTTagCompound) nbt);
+        }
       }
     }, QuestCache::new);
   }

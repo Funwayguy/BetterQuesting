@@ -23,12 +23,10 @@ public class ToolboxToolRemove implements IToolboxTool {
   }
 
   @Override
-  public void disableTool() {
-  }
+  public void disableTool() { }
 
   @Override
-  public void refresh(CanvasQuestLine gui) {
-  }
+  public void refresh(CanvasQuestLine gui) { }
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
@@ -41,8 +39,12 @@ public class ToolboxToolRemove implements IToolboxTool {
 
     if (line != null && btn != null) {
       if (!PanelToolController.selected.isEmpty()) {
-        if (!PanelToolController.selected.contains(btn)) { return false; }
-        for (PanelButtonQuest b : PanelToolController.selected) { line.removeID(b.getStoredValue().getID()); }
+        if (!PanelToolController.selected.contains(btn)) {
+          return false;
+        }
+        for (PanelButtonQuest b : PanelToolController.selected) {
+          line.removeID(b.getStoredValue().getID());
+        }
       } else {
         int qID = btn.getStoredValue().getID();
         line.removeID(qID);
@@ -70,12 +72,10 @@ public class ToolboxToolRemove implements IToolboxTool {
   }
 
   @Override
-  public void drawCanvas(int mx, int my, float partialTick) {
-  }
+  public void drawCanvas(int mx, int my, float partialTick) { }
 
   @Override
-  public void drawOverlay(int mx, int my, float partialTick) {
-  }
+  public void drawOverlay(int mx, int my, float partialTick) { }
 
   @Override
   public List<String> getTooltip(int mx, int my) {
@@ -91,7 +91,9 @@ public class ToolboxToolRemove implements IToolboxTool {
   public boolean onKeyPressed(char c, int key) {
     if (!PanelToolController.selected.isEmpty() && key == Keyboard.KEY_RETURN) {
       IQuestLine line = gui.getQuestLine();
-      for (PanelButtonQuest b : PanelToolController.selected) { line.removeID(b.getStoredValue().getID()); }
+      for (PanelButtonQuest b : PanelToolController.selected) {
+        line.removeID(b.getStoredValue().getID());
+      }
 
       // Sync Line
       NBTTagCompound chPayload = new NBTTagCompound();
@@ -115,8 +117,7 @@ public class ToolboxToolRemove implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {

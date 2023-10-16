@@ -66,7 +66,8 @@ public class PacketSetupStation implements IMessage {
           return;
         }
         ContainerSubmitStation containerSS = (ContainerSubmitStation) container;
-        if (containerSS.tile != oss || containerSS.windowId != sync) { //If Vanilla checks windowId then there is some point in it, right?
+        //If Vanilla checks windowId then there is some point in it, right?
+        if (containerSS.tile != oss || containerSS.windowId != sync) {
           return;
         }
         oss.setupTask(player.getUniqueID(), questId, taskId);

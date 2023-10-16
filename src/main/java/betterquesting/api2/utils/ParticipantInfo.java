@@ -25,9 +25,9 @@ public class ParticipantInfo {
   public final DBEntry<IParty> PARTY_INSTANCE;
 
   public ParticipantInfo(@Nonnull EntityPlayer player) {
-    this.PLAYER = player;
-    this.UUID = QuestingAPI.getQuestingUUID(player);
-    this.PARTY_INSTANCE = PartyManager.INSTANCE.getParty(this.UUID);
+    PLAYER = player;
+    UUID = QuestingAPI.getQuestingUUID(player);
+    PARTY_INSTANCE = PartyManager.INSTANCE.getParty(UUID);
 
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 
@@ -53,24 +53,30 @@ public class ParticipantInfo {
     }
 
     // Really shouldn't be modifying these lists anyway but just for safety
-    this.ACTIVE_PLAYERS = Collections.unmodifiableList(actPl);
-    this.ACTIVE_UUIDS = Collections.unmodifiableList(actID);
-    this.ALL_UUIDS = Collections.unmodifiableList(allID);
+    ACTIVE_PLAYERS = Collections.unmodifiableList(actPl);
+    ACTIVE_UUIDS = Collections.unmodifiableList(actID);
+    ALL_UUIDS = Collections.unmodifiableList(allID);
   }
 
   public void markDirty(
       @Nonnull List<Integer> questIDs) // Only marks quests dirty for the immediate participating player
   {
     QuestCache qc = PLAYER.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-    if (qc != null) { questIDs.forEach(qc::markQuestDirty); }
+    if (qc != null) {
+      questIDs.forEach(qc::markQuestDirty);
+    }
   }
 
   public void markDirtyParty(@Nonnull List<Integer> questIDs) // Marks quests as dirty for the entire (active) party
   {
-    if (ACTIVE_PLAYERS.isEmpty() || questIDs.isEmpty()) { return; }
+    if (ACTIVE_PLAYERS.isEmpty() || questIDs.isEmpty()) {
+      return;
+    }
     ACTIVE_PLAYERS.forEach((value) -> {
       QuestCache qc = value.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-      if (qc != null) { questIDs.forEach(qc::markQuestDirty); }
+      if (qc != null) {
+        questIDs.forEach(qc::markQuestDirty);
+      }
     });
   }
 
@@ -80,12 +86,18 @@ public class ParticipantInfo {
     TreeSet<Integer> active = new TreeSet<>();
     ACTIVE_PLAYERS.forEach((p) -> {
       QuestCache qc = p.getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
-      if (qc != null) { for (int value : qc.getActiveQuests()) { active.add(value); } }
+      if (qc != null) {
+        for (int value : qc.getActiveQuests()) {
+          active.add(value);
+        }
+      }
     });
 
     int[] shared = new int[active.size()];
     int i = 0;
-    for (int value : active) { shared[i++] = value; }
+    for (int value : active) {
+      shared[i++] = value;
+    }
     return shared;
   }
 }

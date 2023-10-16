@@ -13,7 +13,7 @@ public class PropertyTypeLong extends PropertyTypeBase<Long> {
   @Override
   public Long readValue(NBTBase nbt) {
     if (!(nbt instanceof NBTPrimitive)) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return ((NBTPrimitive) nbt).getLong();
@@ -22,7 +22,7 @@ public class PropertyTypeLong extends PropertyTypeBase<Long> {
   @Override
   public NBTBase writeValue(Long value) {
     if (value == null) {
-      return new NBTTagLong(this.getDefault());
+      return new NBTTagLong(getDefault());
     }
 
     return new NBTTagLong(value);

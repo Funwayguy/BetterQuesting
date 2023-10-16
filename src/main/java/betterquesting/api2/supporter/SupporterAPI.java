@@ -17,7 +17,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -33,7 +36,9 @@ public class SupporterAPI {
   public static JsonObject readManifest(File loc) {
     try (DataInputStream dis = new DataInputStream(new GZIPInputStream(Files.newInputStream(loc.toPath())))) {
       return GSON.fromJson(new String(Base64.getDecoder().decode(dis.readUTF())), JsonObject.class);
-    } catch (Exception ignored) { return null; }
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 
   public static ResourceTheme readCompressedFile(File loc) {
@@ -139,7 +144,9 @@ public class SupporterAPI {
 
   private static byte[] flipBytes(@Nonnull byte[] input, @Nonnull byte[] key) {
     byte[] output = new byte[input.length];
-    for (int i = 0; i < input.length; i++) { output[i] = (byte) (input[i] ^ key[i % key.length]); }
+    for (int i = 0; i < input.length; i++) {
+      output[i] = (byte) (input[i] ^ key[i % key.length]);
+    }
     return output;
   }
 
@@ -156,7 +163,9 @@ public class SupporterAPI {
     list.add(new Tuple<>(true, token));
     for (int i = 0; i < salts; i++) {
       StringBuilder sb = new StringBuilder();
-      for (int j = rand.nextInt(9) + 16; j >= 0; j--) { sb.append(charSet.charAt(rand.nextInt(charSet.length()))); }
+      for (int j = rand.nextInt(9) + 16; j >= 0; j--) {
+        sb.append(charSet.charAt(rand.nextInt(charSet.length())));
+      }
       list.add(new Tuple<>(false, sb.toString()));
     }
     Collections.shuffle(list, rand);
@@ -170,9 +179,13 @@ public class SupporterAPI {
     Set<byte[]> l = new HashSet<>();
     for (Tuple<Boolean, String> t : tokens) {
       byte[] b = t.getFirst() ? t.getSecond().getBytes(StandardCharsets.UTF_8) : new byte[16];
-      if (!t.getFirst()) { new Random(t.getSecond().hashCode()).nextBytes(b); }
+      if (!t.getFirst()) {
+        new Random(t.getSecond().hashCode()).nextBytes(b);
+      }
       l.add(b);
-      if (s < b.length) { s = b.length; }
+      if (s < b.length) {
+        s = b.length;
+      }
       dos.writeUTF(Base64.getEncoder().encodeToString(t.getSecond().getBytes(StandardCharsets.UTF_8)));
     }
 
@@ -180,7 +193,11 @@ public class SupporterAPI {
     dos.writeInt(threshold);
 
     byte[] k = new byte[s];
-    for (int i = 0; i < s; i++) { for (byte[] e : l) { k[i] ^= e[i % e.length]; } }
+    for (int i = 0; i < s; i++) {
+      for (byte[] e : l) {
+        k[i] ^= e[i % e.length];
+      }
+    }
     return k;
   }
 
@@ -204,14 +221,18 @@ public class SupporterAPI {
       long seed = dis.readLong();
       new Random(seed).nextBytes(b);
       return b;
-    } catch (Exception ignored) { return new byte[] { 127 }; }
+    } catch (Exception ignored) {
+      return new byte[] { 127 };
+    }
   }
 
   @SideOnly(Side.CLIENT)
   private static byte[] readFormat_1(@Nonnull DataInputStream dis) {
     try {
       String[] tokens = new String[dis.readInt()];
-      for (int n = 0; n < tokens.length; n++) { tokens[n] = new String(Base64.getDecoder().decode(dis.readUTF())); }
+      for (int n = 0; n < tokens.length; n++) {
+        tokens[n] = new String(Base64.getDecoder().decode(dis.readUTF()));
+      }
       String service = new String(Base64.getDecoder().decode(dis.readUTF()));
       int threshold = dis.readInt();
 
@@ -224,14 +245,24 @@ public class SupporterAPI {
         boolean c = entry != null && entry.getServices(k).entrySet().stream()
                                           .anyMatch((v) -> v.getKey().equals(service) && v.getValue() >= threshold);
         byte[] b = c ? k.getBytes(StandardCharsets.UTF_8) : new byte[16];
-        if (c) { new Random(k.hashCode()).nextBytes(b); }
+        if (c) {
+          new Random(k.hashCode()).nextBytes(b);
+        }
         encoded.add(b);
-        if (b.length > m) { m = b.length; }
+        if (b.length > m) {
+          m = b.length;
+        }
       }
 
       byte[] merged = new byte[m];
-      for (int i = 0; i < m; i++) { for (byte[] e : encoded) { merged[i] ^= e[i % e.length]; } }
+      for (int i = 0; i < m; i++) {
+        for (byte[] e : encoded) {
+          merged[i] ^= e[i % e.length];
+        }
+      }
       return merged;
-    } catch (Exception ignored) { return new byte[] { 127 }; }
+    } catch (Exception ignored) {
+      return new byte[] { 127 };
+    }
   }
 }

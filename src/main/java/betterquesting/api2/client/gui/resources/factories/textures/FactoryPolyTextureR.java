@@ -27,7 +27,9 @@ public class FactoryPolyTextureR implements IFactoryData<IGuiTexture, JsonObject
     try {
       color = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg()
                          .createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
-      if (color == null) { color = new GuiColorStatic(0xFFFFFFFF); }
+      if (color == null) {
+        color = new GuiColorStatic(0xFFFFFFFF);
+      }
     } catch (Exception ignored) {
       color = new GuiColorStatic(0xFFFFFFFF);
     }
@@ -38,7 +40,9 @@ public class FactoryPolyTextureR implements IFactoryData<IGuiTexture, JsonObject
     try {
       borColor = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getColorReg()
                             .createNew(new ResourceLocation(JsonHelper.GetString(jCol, "colorType", "null")), jCol);
-      if (borColor == null) { borColor = new GuiColorStatic(0xFFFFFFFF); }
+      if (borColor == null) {
+        borColor = new GuiColorStatic(0xFFFFFFFF);
+      }
     } catch (Exception ignored) {
       borColor = new GuiColorStatic(0xFFFFFFFF);
     }

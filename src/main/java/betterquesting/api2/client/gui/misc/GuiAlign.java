@@ -50,7 +50,7 @@ public class GuiAlign {
     private final ReadableVector4f v4f;
 
     public ImmutableVec4f(float x, float y, float z, float w) {
-      this.v4f = new Vector4f(x, y, z, w);
+      v4f = new Vector4f(x, y, z, w);
     }
 
     @Override

@@ -28,8 +28,8 @@ public class PanelLine implements IGuiPanel {
     this.line = line;
     this.width = width;
     this.color = color;
-    this.bounds = new GuiRectangle(0, 0, 0, 0, drawOrder);
-    this.bounds.setParent(start);
+    bounds = new GuiRectangle(0, 0, 0, 0, drawOrder);
+    bounds.setParent(start);
   }
 
   @Override
@@ -38,17 +38,16 @@ public class PanelLine implements IGuiPanel {
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override

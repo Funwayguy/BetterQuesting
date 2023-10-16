@@ -38,7 +38,9 @@ public class ToolboxToolCopy implements IToolboxTool {
 
   @Override
   public void refresh(CanvasQuestLine gui) {
-    if (grabList.isEmpty()) { return; }
+    if (grabList.isEmpty()) {
+      return;
+    }
 
     List<GrabEntry> tmp = new ArrayList<>();
 
@@ -57,7 +59,9 @@ public class ToolboxToolCopy implements IToolboxTool {
 
   @Override
   public void drawCanvas(int mx, int my, float partialTick) {
-    if (grabList.isEmpty()) { return; }
+    if (grabList.isEmpty()) {
+      return;
+    }
 
     int snap = Math.max(1, ToolboxTabMain.INSTANCE.getSnapValue());
     int dx = mx;
@@ -76,7 +80,9 @@ public class ToolboxToolCopy implements IToolboxTool {
 
   @Override
   public void drawOverlay(int mx, int my, float partialTick) {
-    if (!grabList.isEmpty()) { ToolboxTabMain.INSTANCE.drawGrid(gui); }
+    if (!grabList.isEmpty()) {
+      ToolboxTabMain.INSTANCE.drawGrid(gui);
+    }
   }
 
   @Override
@@ -99,7 +105,9 @@ public class ToolboxToolCopy implements IToolboxTool {
       if (btnClicked != null) // Pickup the group or the single one if none are selected
       {
         if (!PanelToolController.selected.isEmpty()) {
-          if (!PanelToolController.selected.contains(btnClicked)) { return false; }
+          if (!PanelToolController.selected.contains(btnClicked)) {
+            return false;
+          }
 
           for (PanelButtonQuest btn : PanelToolController.selected) {
             GuiRectangle rect = new GuiRectangle(btn.rect);
@@ -186,7 +194,9 @@ public class ToolboxToolCopy implements IToolboxTool {
     int[] nxtIDs = new int[num];
 
     if (listDB.isEmpty() || listDB.get(listDB.size() - 1).getID() == listDB.size() - 1) {
-      for (int i = 0; i < num; i++) { nxtIDs[i] = listDB.size() + i; }
+      for (int i = 0; i < num; i++) {
+        nxtIDs[i] = listDB.size() + i;
+      }
       return nxtIDs;
     }
 
@@ -225,8 +235,7 @@ public class ToolboxToolCopy implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean useSelection() {

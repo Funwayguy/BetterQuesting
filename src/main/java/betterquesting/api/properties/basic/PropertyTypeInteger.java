@@ -13,7 +13,7 @@ public class PropertyTypeInteger extends PropertyTypeBase<Integer> {
   @Override
   public Integer readValue(NBTBase nbt) {
     if (!(nbt instanceof NBTPrimitive)) {
-      return this.getDefault();
+      return getDefault();
     }
 
     return ((NBTPrimitive) nbt).getInt();
@@ -22,7 +22,7 @@ public class PropertyTypeInteger extends PropertyTypeBase<Integer> {
   @Override
   public NBTBase writeValue(Integer value) {
     if (value == null) {
-      return new NBTTagInt(this.getDefault());
+      return new NBTTagInt(getDefault());
     }
 
     return new NBTTagInt(value);

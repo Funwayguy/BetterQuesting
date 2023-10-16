@@ -32,7 +32,7 @@ public class PopContextMenu extends CanvasEmpty {
   }
 
   public ContextCategory getRootCategory() {
-    return this.catRoot;
+    return catRoot;
   }
 
   public void addButton(@Nonnull String text, @Nullable IGuiTexture icon, @Nullable Runnable action) {
@@ -44,7 +44,7 @@ public class PopContextMenu extends CanvasEmpty {
   }
 
   public void openCategory(@Nonnull ContextCategory category) {
-    this.resetCanvas();
+    resetCanvas();
 
     int listH = Math.min(category.entries.size() * 16, rect.getHeight());
 
@@ -57,14 +57,14 @@ public class PopContextMenu extends CanvasEmpty {
 
     CanvasResizeable cvBG =
         new CanvasResizeable(new GuiRectangle(0, 0, 0, 0, 0), PresetTexture.PANEL_INNER.getTexture());
-    this.addPanel(cvBG);
+    addPanel(cvBG);
     cvBG.lerpToRect(new GuiRectangle(0, 0, rect.w - 8, listH, 0), 100, true);
 
     CanvasScrolling cvScroll = new CanvasScrolling(new GuiTransform(GuiAlign.FULL_BOX));
     cvBG.addPanel(cvScroll);
 
     PanelVScrollBar scrollBar = new PanelVScrollBar(new GuiRectangle(rect.w - 8, 0, 8, listH, 0));
-    this.addPanel(scrollBar);
+    addPanel(scrollBar);
     cvScroll.setScrollDriverY(scrollBar);
 
     for (int i = 0; i < category.entries.size(); i++) {
@@ -122,7 +122,9 @@ public class PopContextMenu extends CanvasEmpty {
       this.parent = parent;
       this.name = name;
 
-      if (this.parent != null) { addButton("<", null, () -> openCategory(this.parent)); }
+      if (this.parent != null) {
+        addButton("<", null, () -> openCategory(this.parent));
+      }
     }
 
     public void addButton(@Nonnull String text, @Nullable IGuiTexture icon, @Nullable Runnable action) {

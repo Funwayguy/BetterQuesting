@@ -53,12 +53,16 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     quest = QuestDatabase.INSTANCE.getValue(questID);
 
     if (quest == null) {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else {
       pnTitle.setText(QuestTranslation.translate("betterquesting.title.edit_quest",
                                                  QuestTranslation.translate(quest.getProperty(NativeProps.NAME))));
-      if (!flName.isFocused()) { flName.setText(quest.getProperty(NativeProps.NAME)); }
-      if (!flDesc.isFocused()) { flDesc.setText(quest.getProperty(NativeProps.DESC)); }
+      if (!flName.isFocused()) {
+        flName.setText(quest.getProperty(NativeProps.NAME));
+      }
+      if (!flDesc.isFocused()) {
+        flDesc.setText(quest.getProperty(NativeProps.DESC));
+      }
       btnLogic.setText(
           QuestTranslation.translate("betterquesting.btn.logic") + ": " + quest.getProperty(NativeProps.LOGIC_QUEST));
       btnVis.setText(
@@ -73,7 +77,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     quest = QuestDatabase.INSTANCE.getValue(questID);
 
     if (quest == null) {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
       return;
     }
 
@@ -83,7 +87,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     pnTitle = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                QuestTranslation.translate("betterquesting.title.edit_quest", QuestTranslation.translate(
@@ -188,7 +192,7 @@ public class GuiQuestEditor extends GuiScreenCanvas implements IPEventListener, 
     switch (btn.getButtonID()) {
       case 0: // Exit
       {
-        mc.displayGuiScreen(this.parent);
+        mc.displayGuiScreen(parent);
         break;
       }
       case 1: // Edit tasks

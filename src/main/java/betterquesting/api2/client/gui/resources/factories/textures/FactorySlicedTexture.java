@@ -28,7 +28,9 @@ public class FactorySlicedTexture implements IFactoryData<IGuiTexture, JsonObjec
     int[] bounds = new int[] { 0, 0, 16, 16 };
     JsonArray jAry = JsonHelper.GetArray(data, "bounds");
     for (int i = 0; i < jAry.size() && i < bounds.length; i++) {
-      if (!(jAry.get(i).isJsonPrimitive())) { continue; }
+      if (!(jAry.get(i).isJsonPrimitive())) {
+        continue;
+      }
       try {
         bounds[i] = jAry.get(i).getAsInt();
       } catch (Exception ignored) { }
@@ -37,7 +39,9 @@ public class FactorySlicedTexture implements IFactoryData<IGuiTexture, JsonObjec
     int[] padding = new int[] { 0, 0, 16, 16 };
     JsonArray jAry2 = JsonHelper.GetArray(data, "padding");
     for (int i = 0; i < jAry.size() && i < padding.length; i++) {
-      if (!(jAry2.get(i).isJsonPrimitive())) { continue; }
+      if (!(jAry2.get(i).isJsonPrimitive())) {
+        continue;
+      }
       try {
         padding[i] = jAry2.get(i).getAsInt();
       } catch (Exception ignored) { }

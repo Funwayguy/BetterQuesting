@@ -22,9 +22,9 @@ public class SlicedTexture implements IGuiTexture {
   private SliceMode sliceMode = SliceMode.SLICED_TILE;
 
   public SlicedTexture(ResourceLocation tex, IGuiRect bounds, GuiPadding border) {
-    this.texture = tex;
-    this.texBounds = bounds;
-    this.texBorder = border;
+    texture = tex;
+    texBounds = bounds;
+    texBorder = border;
   }
 
   @Override
@@ -34,7 +34,9 @@ public class SlicedTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zLevel, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0) { return; }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
 
     int w = Math.max(width, texBorder.getLeft() + texBorder.getRight());
     int h = Math.max(height, texBorder.getTop() + texBorder.getBottom());
@@ -155,23 +157,23 @@ public class SlicedTexture implements IGuiTexture {
 
   @Override
   public ResourceLocation getTexture() {
-    return this.texture;
+    return texture;
   }
 
   @Override
   public IGuiRect getBounds() {
-    return this.texBounds;
+    return texBounds;
   }
 
   public GuiPadding getBorder() {
-    return this.texBorder;
+    return texBorder;
   }
 
   /**
    * Enables texture slicing. Will stretch to fit if disabled
    */
   public SlicedTexture setSliceMode(SliceMode mode) {
-    this.sliceMode = mode;
+    sliceMode = mode;
     return this;
   }
 
@@ -206,7 +208,9 @@ public class SlicedTexture implements IGuiTexture {
 
     int fillerWidth = textureWidth - leftBorder - rightBorder;
     int fillerHeight = textureHeight - topBorder - bottomBorder;
-    if (fillerWidth <= 0 || fillerHeight <= 0) { return; }
+    if (fillerWidth <= 0 || fillerHeight <= 0) {
+      return;
+    }
     int canvasWidth = width - leftBorder - rightBorder;
     int canvasHeight = height - topBorder - bottomBorder;
     int xPasses = canvasWidth / fillerWidth;

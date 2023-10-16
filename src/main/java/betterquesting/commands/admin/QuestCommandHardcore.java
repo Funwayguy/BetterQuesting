@@ -52,7 +52,7 @@ public class QuestCommandHardcore extends QuestCommandBase {
           flag = Boolean.parseBoolean(args[1]);
         }
       } catch (Exception e) {
-        throw this.getException(command);
+        throw getException(command);
       }
     }
 

@@ -21,9 +21,9 @@ import javax.annotation.Nonnull;
 public class BlockSubmitStation extends BlockContainer {
   public BlockSubmitStation() {
     super(Material.WOOD);
-    this.setHardness(1);
-    this.setTranslationKey("betterquesting.submit_station");
-    this.setCreativeTab(BetterQuesting.tabQuesting);
+    setHardness(1);
+    setTranslationKey("betterquesting.submit_station");
+    setCreativeTab(BetterQuesting.tabQuesting);
   }
 
   @Override

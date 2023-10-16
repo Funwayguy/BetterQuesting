@@ -30,8 +30,7 @@ import java.util.List;
 public final class LegacyLoader_v0 implements ILegacyLoader {
   public static final LegacyLoader_v0 INSTANCE = new LegacyLoader_v0();
 
-  private LegacyLoader_v0() {
-  }
+  private LegacyLoader_v0() { }
 
   @Override
   public void readFromJson(JsonElement rawJson) {
@@ -78,7 +77,9 @@ public final class LegacyLoader_v0 implements ILegacyLoader {
 
   @Override
   public void readProgressFromJson(JsonElement json) {
-    if (!json.isJsonObject()) { return; }
+    if (!json.isJsonObject()) {
+      return;
+    }
     QuestDatabase.INSTANCE.readProgressFromNBT(
         NBTConverter.JSONtoNBT_Object(json.getAsJsonObject(), new NBTTagCompound(), true)
                     .getTagList("questProgress", 10), false);

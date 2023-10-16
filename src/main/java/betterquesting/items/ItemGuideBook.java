@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 
 public class ItemGuideBook extends Item {
   public ItemGuideBook() {
-    this.setTranslationKey("betterquesting.guide");
-    this.setCreativeTab(BetterQuesting.tabQuesting);
+    setTranslationKey("betterquesting.guide");
+    setCreativeTab(BetterQuesting.tabQuesting);
   }
 
   /**

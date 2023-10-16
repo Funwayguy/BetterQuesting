@@ -14,7 +14,7 @@ public class CompletionInfo {
   }
 
   public void setTimestamp(long time) {
-    this.timestamp = time;
+    timestamp = time;
   }
 
   public boolean isClaimed() {

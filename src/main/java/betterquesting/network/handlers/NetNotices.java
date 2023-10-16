@@ -28,9 +28,15 @@ public class NetNotices {
                                 String sound) {
     NBTTagCompound payload = new NBTTagCompound();
     payload.setTag("icon", (icon != null ? icon : ItemStack.EMPTY).writeToNBT(new NBTTagCompound()));
-    if (mainText != null) { payload.setString("mainText", mainText); }
-    if (subText != null) { payload.setString("subText", subText); }
-    if (sound != null) { payload.setString("sound", sound); }
+    if (mainText != null) {
+      payload.setString("mainText", mainText);
+    }
+    if (subText != null) {
+      payload.setString("subText", subText);
+    }
+    if (sound != null) {
+      payload.setString("sound", sound);
+    }
 
     if (players != null) {
       PacketSender.INSTANCE.sendToPlayers(new QuestingPacket(ID_NAME, payload), players);

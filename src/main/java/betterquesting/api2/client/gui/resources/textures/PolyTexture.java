@@ -21,10 +21,12 @@ public class PolyTexture implements IGuiTexture {
   private IGuiColor borColor = new GuiColorStatic(0xFFFFFFFF);
 
   public PolyTexture(int points, double rotation, boolean shadow, @Nonnull IGuiColor color) {
-    this.defColor = color;
+    defColor = color;
     this.shadow = shadow;
 
-    if (points <= 0) { points = 32; }
+    if (points <= 0) {
+      points = 32;
+    }
     verts = new double[points * 2]; // XY positions of all outer verticies
     double min = 0.0001D;
 
@@ -48,15 +50,15 @@ public class PolyTexture implements IGuiTexture {
   }
 
   public PolyTexture(@Nonnull double[] verts, boolean shadow, IGuiColor color) {
-    this.defColor = color;
+    defColor = color;
     this.shadow = shadow;
     this.verts = new double[verts.length];
     System.arraycopy(verts, 0, this.verts, 0, verts.length);
   }
 
   public IGuiTexture setBorder(int size, IGuiColor color) {
-    this.borderSize = size;
-    this.borColor = color;
+    borderSize = size;
+    borColor = color;
     return this;
   }
 
@@ -67,7 +69,9 @@ public class PolyTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0) { return; }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
 
     GlStateManager.pushMatrix();
 

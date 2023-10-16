@@ -14,8 +14,8 @@ public class SimpleLine implements IGuiLine {
   }
 
   public SimpleLine(int stippleScale, short stipplePattern) {
-    this.pattern = stipplePattern;
-    this.scale = stippleScale;
+    pattern = stipplePattern;
+    scale = stippleScale;
   }
 
   @Override

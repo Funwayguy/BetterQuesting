@@ -94,7 +94,9 @@ public class NetChapterEdit {
       ids[i] = chapterID;
 
       IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
-      if (chapter != null) { chapter.readFromNBT(entry.getCompoundTag("config"), false); }
+      if (chapter != null) {
+        chapter.readFromNBT(entry.getCompoundTag("config"), false);
+      }
     }
 
     SaveLoadHandler.INSTANCE.markDirty();
@@ -133,12 +135,18 @@ public class NetChapterEdit {
     for (int i = 0; i < data.tagCount(); i++) {
       NBTTagCompound entry = data.getCompoundTagAt(i);
       int chapterID = entry.hasKey("chapterID", 99) ? entry.getInteger("chapterID") : -1;
-      if (chapterID < 0) { chapterID = QuestLineDatabase.INSTANCE.nextID(); }
+      if (chapterID < 0) {
+        chapterID = QuestLineDatabase.INSTANCE.nextID();
+      }
       ids[i] = chapterID;
 
       IQuestLine chapter = QuestLineDatabase.INSTANCE.getValue(chapterID);
-      if (chapter == null) { chapter = QuestLineDatabase.INSTANCE.createNew(chapterID); }
-      if (entry.hasKey("config", 10)) { chapter.readFromNBT(entry.getCompoundTag("config"), false); }
+      if (chapter == null) {
+        chapter = QuestLineDatabase.INSTANCE.createNew(chapterID);
+      }
+      if (entry.hasKey("config", 10)) {
+        chapter.readFromNBT(entry.getCompoundTag("config"), false);
+      }
     }
 
     SaveLoadHandler.INSTANCE.markDirty();

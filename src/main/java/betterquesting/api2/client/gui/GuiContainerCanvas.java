@@ -49,12 +49,12 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
   @Override
   public void openPopup(@Nonnull IGuiPanel panel) {
-    this.popup = panel;
+    popup = panel;
   }
 
   @Override
   public void closePopup() {
-    this.popup = null;
+    popup = null;
   }
 
   @Override
@@ -65,21 +65,21 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
   @Nonnull
   @Override
   public List<IGuiPanel> getChildren() {
-    return this.guiPanels;
+    return guiPanels;
   }
 
   public GuiContainerCanvas useMargins(boolean enable) {
-    this.useMargins = enable;
+    useMargins = enable;
     return this;
   }
 
   public GuiContainerCanvas useDefaultBG(boolean enable) {
-    this.useDefaultBG = enable;
+    useDefaultBG = enable;
     return this;
   }
 
   public GuiContainerCanvas setVolatile(boolean state) {
-    this.isVolatile = state;
+    isVolatile = state;
     return this;
   }
 
@@ -91,10 +91,10 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
     super.initGui();
 
     // Make the container somewhat behave using the root transform bounds
-    this.guiLeft = 0;
-    this.guiTop = 0;
-    this.xSize = width;
-    this.ySize = height;
+    guiLeft = 0;
+    guiTop = 0;
+    xSize = width;
+    ySize = height;
 
     initPanel();
   }
@@ -108,41 +108,43 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
   @Override
   public void initPanel() {
-    rootTransform.w = this.width;
-    rootTransform.h = this.height;
+    rootTransform.w = width;
+    rootTransform.h = height;
     transform.setParent(rootTransform);
 
     if (useMargins) {
-      int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (this.width - BQ_Settings.guiWidth) / 2);
-      int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (this.height - BQ_Settings.guiHeight) / 2);
+      int marginX = BQ_Settings.guiWidth <= 0 ? 16 : Math.max(16, (width - BQ_Settings.guiWidth) / 2);
+      int marginY = BQ_Settings.guiHeight <= 0 ? 16 : Math.max(16, (height - BQ_Settings.guiHeight) / 2);
       transform.getPadding().setPadding(marginX, marginY, marginX, marginY);
     } else {
       transform.getPadding().setPadding(0, 0, 0, 0);
     }
 
-    this.guiPanels.clear();
+    guiPanels.clear();
   }
 
   @Override
   public void setEnabled(boolean state) {
     // Technically supported if you wanted something like a multiscreen where this isn't actually the root screen
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
   protected void drawGuiContainerBackgroundLayer(float partialTick, int mx, int my) {
-    if (useDefaultBG) { this.drawDefaultBackground(); }
+    if (useDefaultBG) {
+      drawDefaultBackground();
+    }
 
     GlStateManager.pushMatrix();
     GlStateManager.color(1F, 1F, 1F, 1F);
     GlStateManager.disableDepth();
 
-    this.drawPanel(mx, my, partialTick);
+    drawPanel(mx, my, partialTick);
 
     GlStateManager.enableDepth();
     GlStateManager.popMatrix();
@@ -152,8 +154,10 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
   public void drawScreen(int mx, int my, float partialTick) {
     super.drawScreen(mx, my, partialTick);
 
-    List<String> tt = this.getTooltip(mx, my);
-    if (tt != null && !tt.isEmpty()) { this.drawHoveringText(tt, mx, my); }
+    List<String> tt = getTooltip(mx, my);
+    if (tt != null && !tt.isEmpty()) {
+      drawHoveringText(tt, mx, my);
+    }
   }
 
   /**
@@ -178,35 +182,37 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
     if (k >= 0 && k < 3 && mBtnState[k] != flag) {
       if (flag) {
-        this.onMouseClick(i, j, k);
+        onMouseClick(i, j, k);
       } else {
-        this.onMouseRelease(i, j, k);
+        onMouseRelease(i, j, k);
       }
       mBtnState[k] = flag;
     }
 
     if (SDX != 0) {
-      this.onMouseScroll(i, j, SDX);
+      onMouseScroll(i, j, SDX);
     }
   }
 
   @Override
   public void keyTyped(char c, int keyCode) {
     if (keyCode == 1) {
-      if (this.isVolatile || this instanceof IVolatileScreen) {
+      if (isVolatile || this instanceof IVolatileScreen) {
         openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" +
                                 QuestTranslation.translate("betterquesting.gui.closing_confirm"),
                                 PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose,
                                 QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
       } else {
-        this.mc.displayGuiScreen(null);
-        if (this.mc.currentScreen == null) { this.mc.setIngameFocus(); }
+        mc.displayGuiScreen(null);
+        if (mc.currentScreen == null) {
+          mc.setIngameFocus();
+        }
       }
 
       return;
     }
 
-    this.onKeyTyped(c, keyCode);
+    onKeyTyped(c, keyCode);
   }
 
   @Override
@@ -317,14 +323,16 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
     if (!used && (BQ_Keybindings.openQuests.getKeyCode() == keycode ||
                   mc.gameSettings.keyBindInventory.getKeyCode() == keycode)) {
-      if (this.isVolatile || this instanceof IVolatileScreen) {
+      if (isVolatile || this instanceof IVolatileScreen) {
         openPopup(new PopChoice(QuestTranslation.translate("betterquesting.gui.closing_warning") + "\n\n" +
                                 QuestTranslation.translate("betterquesting.gui.closing_confirm"),
                                 PresetIcon.ICON_NOTICE.getTexture(), this::confirmClose,
                                 QuestTranslation.translate("gui.yes"), QuestTranslation.translate("gui.no")));
       } else {
-        this.mc.displayGuiScreen(null);
-        if (this.mc.currentScreen == null) { this.mc.setIngameFocus(); }
+        mc.displayGuiScreen(null);
+        if (mc.currentScreen == null) {
+          mc.setIngameFocus();
+        }
       }
     }
 
@@ -338,19 +346,25 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
     if (popup != null && popup.isEnabled()) {
       tt = popup.getTooltip(mx, my);
-      if (tt != null) { return tt; }
+      if (tt != null) {
+        return tt;
+      }
     }
 
     while (pnIter.hasPrevious()) {
       IGuiPanel entry = pnIter.previous();
-      if (!entry.isEnabled()) { continue; }
+      if (!entry.isEnabled()) {
+        continue;
+      }
 
       tt = entry.getTooltip(mx, my);
-      if (tt != null && !tt.isEmpty()) { return tt; }
+      if (tt != null && !tt.isEmpty()) {
+        return tt;
+      }
     }
 
     if (tt == null) {
-      for (Slot slot : this.inventorySlots.inventorySlots) {
+      for (Slot slot : inventorySlots.inventorySlots) {
         if (slot.isEnabled() && slot.getHasStack() && isPointInRegion(slot.xPos, slot.yPos, 16, 16, mx, my)) {
           tt = slot.getStack().getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED
                                                                                           : TooltipFlags.NORMAL);
@@ -402,7 +416,7 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
   @Override
   protected void renderToolTip(ItemStack stack, int x, int y) {
     FontRenderer font = stack.getItem().getFontRenderer(stack);
-    RenderUtils.drawHoveringText(stack, this.getItemToolTip(stack), x, y, width, height, -1,
+    RenderUtils.drawHoveringText(stack, getItemToolTip(stack), x, y, width, height, -1,
                                  (font == null ? fontRenderer : font));
   }
 
@@ -413,8 +427,10 @@ public class GuiContainerCanvas extends GuiContainer implements IScene {
 
   public void confirmClose(int id) {
     if (id == 0) {
-      this.mc.displayGuiScreen(null);
-      if (this.mc.currentScreen == null) { this.mc.setIngameFocus(); }
+      mc.displayGuiScreen(null);
+      if (mc.currentScreen == null) {
+        mc.setIngameFocus();
+      }
     }
   }
 }

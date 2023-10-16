@@ -40,7 +40,9 @@ public class ToolboxTabMain implements IToolTab {
   }
 
   public void drawGrid(CanvasQuestLine ui) {
-    if (getSnapValue() <= 1) { return; }
+    if (getSnapValue() <= 1) {
+      return;
+    }
 
     float zs = ui.getZoom();
     int snap = getSnapValue();

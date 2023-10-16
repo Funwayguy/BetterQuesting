@@ -15,15 +15,17 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File> {
   public CanvasFileDirectory(IGuiRect rect, File dirStart, FileFilter filter) {
     super(rect);
     this.filter = filter;
-    this.curDir = dirStart;
+    curDir = dirStart;
 
-    if (curDir != null && !curDir.isDirectory()) { curDir = curDir.getParentFile(); }
+    if (curDir != null && !curDir.isDirectory()) {
+      curDir = curDir.getParentFile();
+    }
   }
 
   public void setCurDirectory(File file) {
     curDir = file;
-    this.refreshSearch();
-    this.scrollY.writeValue(0F);
+    refreshSearch();
+    scrollY.writeValue(0F);
   }
 
   @Override
@@ -34,7 +36,9 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File> {
     } else {
       files = !curDir.isDirectory() ? new File[0] : curDir.listFiles(filter);
     }
-    if (files == null) { files = new File[0]; }
+    if (files == null) {
+      files = new File[0];
+    }
     List<File> fList = Arrays.asList(files);
     fList.sort(sorter);
     return fList.iterator();
@@ -42,7 +46,9 @@ public abstract class CanvasFileDirectory extends CanvasSearch<File, File> {
 
   @Override
   protected void queryMatches(File value, String query, ArrayDeque<File> results) {
-    if (value.getName().toLowerCase().contains(query.toLowerCase())) { results.add(value); }
+    if (value.getName().toLowerCase().contains(query.toLowerCase())) {
+      results.add(value);
+    }
   }
 
   private static class FileSort implements Comparator<File> {

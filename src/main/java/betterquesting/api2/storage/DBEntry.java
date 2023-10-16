@@ -17,7 +17,7 @@ public final class DBEntry<T> implements Comparable<DBEntry<T>> {
   }
 
   public int getID() {
-    return this.id;
+    return id;
   }
 
   @Nonnull
@@ -38,6 +38,6 @@ public final class DBEntry<T> implements Comparable<DBEntry<T>> {
 
     DBEntry<?> entry = (DBEntry<?>) obj;
 
-    return this.getID() == entry.getID() && this.getValue().equals(entry.getValue());
+    return getID() == entry.getID() && getValue().equals(entry.getValue());
   }
 }

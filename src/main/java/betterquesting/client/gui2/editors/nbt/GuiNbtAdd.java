@@ -48,13 +48,13 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
 
   public GuiNbtAdd(GuiScreen parent, NBTTagCompound compoundTag) {
     super(parent);
-    this.nbt = compoundTag;
-    this.index = -1;
+    nbt = compoundTag;
+    index = -1;
   }
 
   public GuiNbtAdd(GuiScreen parent, NBTTagList list, int index) {
     super(parent);
-    this.nbt = list;
+    nbt = list;
     this.index = index;
   }
 
@@ -68,7 +68,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 100, 16, 0), 0,
                                           QuestTranslation.translate("gui.cancel")));
@@ -180,7 +180,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
     switch (btn.getButtonID()) {
       case 0: // Cancel
       {
-        mc.displayGuiScreen(this.parent);
+        mc.displayGuiScreen(parent);
         break;
       }
       case 1: // Confirm
@@ -204,7 +204,7 @@ public class GuiNbtAdd extends GuiScreenCanvas implements IPEventListener, IVola
           }
         }
 
-        mc.displayGuiScreen(this.parent);
+        mc.displayGuiScreen(parent);
         break;
       }
       case 2: // Select this

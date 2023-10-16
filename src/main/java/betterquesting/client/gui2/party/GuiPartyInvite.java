@@ -68,7 +68,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener {
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     cvBackground.addPanel(new PanelButton(new GuiTransform(GuiAlign.BOTTOM_CENTER, -100, -16, 200, 16, 0), 0,
                                           QuestTranslation.translate("gui.back")));
@@ -138,7 +138,7 @@ public class GuiPartyInvite extends GuiScreenCanvas implements IPEventListener {
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && !flName.getRawText().isEmpty()) // Manual Invite
     {
       NBTTagCompound payload = new NBTTagCompound();

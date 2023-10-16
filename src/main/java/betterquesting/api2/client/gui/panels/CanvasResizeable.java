@@ -27,13 +27,13 @@ public class CanvasResizeable implements IGuiCanvas {
   }
 
   public CanvasResizeable(IGuiRect rect, IGuiTexture texture, boolean crop) {
-    this.bgTexture = texture;
-    this.rectLerp = new GuiRectLerp(rect);
+    bgTexture = texture;
+    rectLerp = new GuiRectLerp(rect);
     this.crop = crop;
   }
 
   public void changeBG(@Nullable IGuiTexture texture) {
-    this.bgTexture = texture;
+    bgTexture = texture;
   }
 
   @Override
@@ -42,43 +42,49 @@ public class CanvasResizeable implements IGuiCanvas {
   }
 
   public GuiRectLerp getRectLerp() {
-    return this.rectLerp;
+    return rectLerp;
   }
 
   @Nonnull
   @Override
   public List<IGuiPanel> getChildren() {
-    return this.guiPanels;
+    return guiPanels;
   }
 
   @Override
   public void initPanel() {
-    this.guiPanels.clear();
+    guiPanels.clear();
   }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   public void lerpToRect(@Nonnull IGuiRect rect, long time, boolean inheritParent) {
-    if (inheritParent) { rect.setParent(rectLerp.getParent()); }
+    if (inheritParent) {
+      rect.setParent(rectLerp.getParent());
+    }
     rectLerp.lerpTo(rect, time);
   }
 
   public void snapToRect(@Nonnull IGuiRect rect, boolean inheritParent) {
-    if (inheritParent) { rect.setParent(rectLerp.getParent()); }
+    if (inheritParent) {
+      rect.setParent(rectLerp.getParent());
+    }
     rectLerp.snapTo(rect);
   }
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    if (crop) { RenderUtils.startScissor(rectLerp); }
+    if (crop) {
+      RenderUtils.startScissor(rectLerp);
+    }
 
     if (bgTexture != null) {
       IGuiRect bounds = rectLerp;
@@ -89,10 +95,14 @@ public class CanvasResizeable implements IGuiCanvas {
     }
 
     for (IGuiPanel entry : guiPanels) {
-      if (entry.isEnabled()) { entry.drawPanel(mx, my, partialTick); }
+      if (entry.isEnabled()) {
+        entry.drawPanel(mx, my, partialTick);
+      }
     }
 
-    if (crop) { RenderUtils.endScissor(); }
+    if (crop) {
+      RenderUtils.endScissor();
+    }
   }
 
   @Override

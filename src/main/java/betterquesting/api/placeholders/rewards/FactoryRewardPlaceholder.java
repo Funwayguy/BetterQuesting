@@ -9,8 +9,7 @@ public class FactoryRewardPlaceholder implements IFactoryData<RewardPlaceholder,
 
   private final ResourceLocation ID = new ResourceLocation("betterquesting:placeholder");
 
-  private FactoryRewardPlaceholder() {
-  }
+  private FactoryRewardPlaceholder() { }
 
   @Override
   public ResourceLocation getRegistryName() {

@@ -16,7 +16,7 @@ public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
 
   public CanvasEntityDatabase(IGuiRect rect, int buttonId) {
     super(rect);
-    this.btnId = buttonId;
+    btnId = buttonId;
   }
 
   @Override
@@ -28,7 +28,9 @@ public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
 
   @Override
   protected void queryMatches(EntityEntry ee, String query, final ArrayDeque<EntityEntry> results) {
-    if (ee == null || ee.getRegistryName() == null) { return; }
+    if (ee == null || ee.getRegistryName() == null) {
+      return;
+    }
 
     String qlc = query.toLowerCase();
 
@@ -43,7 +45,7 @@ public class CanvasEntityDatabase extends CanvasSearch<EntityEntry, EntityEntry>
       return false;
     }
 
-    this.addPanel(
+    addPanel(
         new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), btnId, ee.getName(), ee));
 
     return true;

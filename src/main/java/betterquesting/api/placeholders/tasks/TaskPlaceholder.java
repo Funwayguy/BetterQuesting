@@ -66,8 +66,7 @@ public class TaskPlaceholder implements ITask {
   }
 
   @Override
-  public void detect(ParticipantInfo participant, DBEntry<IQuest> quest) {
-  }
+  public void detect(ParticipantInfo participant, DBEntry<IQuest> quest) { }
 
   @Override
   public boolean isComplete(UUID uuid) {
@@ -75,12 +74,10 @@ public class TaskPlaceholder implements ITask {
   }
 
   @Override
-  public void setComplete(UUID uuid) {
-  }
+  public void setComplete(UUID uuid) { }
 
   @Override
-  public void resetUser(UUID uuid) {
-  }
+  public void resetUser(UUID uuid) { }
 
   @Override
   public IGuiPanel getTaskGui(IGuiRect rect, DBEntry<IQuest> quest) {

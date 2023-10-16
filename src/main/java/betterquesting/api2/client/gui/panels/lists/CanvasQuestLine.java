@@ -38,13 +38,13 @@ public class CanvasQuestLine extends CanvasScrolling {
 
   public CanvasQuestLine(IGuiRect rect, int buttonId) {
     super(rect);
-    this.setupAdvanceScroll(true, true, 24);
-    this.enableBlocking(false);
+    setupAdvanceScroll(true, true, 24);
+    enableBlocking(false);
     this.buttonId = buttonId;
   }
 
   public Collection<PanelButtonQuest> getQuestButtons() {
-    return Collections.unmodifiableCollection(this.btnList);
+    return Collections.unmodifiableCollection(btnList);
   }
 
   public PanelButtonQuest getButtonAt(int mx, int my) {
@@ -55,7 +55,9 @@ public class CanvasQuestLine extends CanvasScrolling {
     int smy = (int) ((my - ty) / zs) + lsy;
 
     for (PanelButtonQuest btn : btnList) {
-      if (btn.rect.contains(smx, smy)) { return btn; }
+      if (btn.rect.contains(smx, smy)) {
+        return btn;
+      }
     }
 
     return null;
@@ -76,11 +78,13 @@ public class CanvasQuestLine extends CanvasScrolling {
    */
   public void setQuestLine(IQuestLine line) {
     // Rest contents
-    this.resetCanvas();
-    this.btnList.clear();
+    resetCanvas();
+    btnList.clear();
     lastQL = line;
 
-    if (line == null) { return; }
+    if (line == null) {
+      return;
+    }
 
     EntityPlayer player = Minecraft.getMinecraft().player;
     UUID pid = QuestingAPI.getQuestingUUID(player);
@@ -89,9 +93,9 @@ public class CanvasQuestLine extends CanvasScrolling {
 
     if (!StringUtils.isNullOrEmpty(bgString)) {
       int bgSize = line.getProperty(NativeProps.BG_SIZE);
-      this.addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize, 1),
-                                     new SimpleTexture(new ResourceLocation(bgString),
-                                                       new GuiRectangle(0, 0, 256, 256))));
+      addPanel(new PanelGeneric(new GuiRectangle(0, 0, bgSize, bgSize, 1),
+                                new SimpleTexture(new ResourceLocation(bgString),
+                                                  new GuiRectangle(0, 0, 256, 256))));
     }
 
     HashMap<Integer, PanelButtonQuest> questBtns = new HashMap<>();
@@ -99,15 +103,17 @@ public class CanvasQuestLine extends CanvasScrolling {
     for (DBEntry<IQuestLineEntry> qle : line.getEntries()) {
       IQuest quest = QuestingAPI.getAPI(ApiReference.QUEST_DB).getValue(qle.getID());
 
-      if (!QuestCache.isQuestShown(quest, pid, player)) { continue; }
+      if (!QuestCache.isQuestShown(quest, pid, player)) {
+        continue;
+      }
 
       GuiRectangle rect =
           new GuiRectangle(qle.getValue().getPosX(), qle.getValue().getPosY(), qle.getValue().getSizeX(),
                            qle.getValue().getSizeY());
       PanelButtonQuest paBtn = new PanelButtonQuest(rect, buttonId, "", new DBEntry<>(qle.getID(), quest));
 
-      this.addPanel(paBtn);
-      this.btnList.add(paBtn);
+      addPanel(paBtn);
+      btnList.add(paBtn);
       questBtns.put(qle.getID(), paBtn);
     }
 
@@ -117,7 +123,9 @@ public class CanvasQuestLine extends CanvasScrolling {
       List<DBEntry<IQuest>> reqList =
           QuestingAPI.getAPI(ApiReference.QUEST_DB).bulkLookup(quest.getValue().getRequirements());
 
-      if (reqList.isEmpty()) { continue; }
+      if (reqList.isEmpty()) {
+        continue;
+      }
 
       boolean main = quest.getValue().getProperty(NativeProps.MAIN);
       EnumQuestState qState = quest.getValue().getState(pid);
@@ -150,7 +158,7 @@ public class CanvasQuestLine extends CanvasScrolling {
           PanelLine prLine =
               new PanelLine(parBtn.getTransform(), entry.getValue().getTransform(), lineRender, main ? 8 : 4, txLineCol,
                             1);
-          this.addPanel(prLine);
+          addPanel(prLine);
         }
       }
     }
@@ -188,13 +196,13 @@ public class CanvasQuestLine extends CanvasScrolling {
     maxX += margin;
     maxY += margin;
 
-    this.setZoom(Math.min(getTransform().getWidth() / (float) (maxX - minX),
-                          getTransform().getHeight() / (float) (maxY - minY)));
-    this.refreshScrollBounds();
+    setZoom(Math.min(getTransform().getWidth() / (float) (maxX - minX),
+                     getTransform().getHeight() / (float) (maxY - minY)));
+    refreshScrollBounds();
 
     IGuiRect bounds = getScrollBounds();
-    this.setScrollX(bounds.getX() + bounds.getWidth() / 2);
-    this.setScrollY(bounds.getY() + bounds.getHeight() / 2);
-    this.updatePanelScroll();
+    setScrollX(bounds.getX() + bounds.getWidth() / 2);
+    setScrollY(bounds.getY() + bounds.getHeight() / 2);
+    updatePanelScroll();
   }
 }

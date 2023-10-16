@@ -12,7 +12,7 @@ public class PEventQuest extends PanelEvent {
   private final Set<Integer> questIDs;
 
   public PEventQuest(int questID) {
-    this.questIDs = Collections.singleton(questID);
+    questIDs = Collections.singleton(questID);
   }
 
   public PEventQuest(Collection<Integer> questIDs) {
@@ -20,7 +20,7 @@ public class PEventQuest extends PanelEvent {
   }
 
   public Set<Integer> getQuestID() {
-    return this.questIDs;
+    return questIDs;
   }
 
   @Override

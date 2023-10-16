@@ -8,12 +8,8 @@ public class ThemeCatalogue {
 
 
   // Download database of DLC themes
-  public static void refreshCatalogue() {
-
-  }
+  public static void refreshCatalogue() { }
 
   // Update the refresh the local DLC themes
-  public static void refreshManifests() {
-
-  }
+  public static void refreshManifests() { }
 }

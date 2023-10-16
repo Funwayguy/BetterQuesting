@@ -105,7 +105,9 @@ public class NetQuestEdit {
       ids[i] = questID;
 
       IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
-      if (quest != null) { quest.readFromNBT(entry.getCompoundTag("config")); }
+      if (quest != null) {
+        quest.readFromNBT(entry.getCompoundTag("config"));
+      }
     }
 
     SaveLoadHandler.INSTANCE.markDirty();
@@ -163,10 +165,14 @@ public class NetQuestEdit {
     SaveLoadHandler.INSTANCE.markDirty();
 
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-    if (server == null) { return; }
+    if (server == null) {
+      return;
+    }
     EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(targetID);
     //noinspection ConstantConditions
-    if (player == null) { return; }
+    if (player == null) {
+      return;
+    }
     NetQuestSync.sendSync(player, questIDs, false, true);
   }
 
@@ -176,12 +182,18 @@ public class NetQuestEdit {
     for (int i = 0; i < data.tagCount(); i++) {
       NBTTagCompound entry = data.getCompoundTagAt(i);
       int questID = entry.hasKey("questID", 99) ? entry.getInteger("questID") : -1;
-      if (questID < 0) { questID = QuestDatabase.INSTANCE.nextID(); }
+      if (questID < 0) {
+        questID = QuestDatabase.INSTANCE.nextID();
+      }
       ids[i] = questID;
 
       IQuest quest = QuestDatabase.INSTANCE.getValue(questID);
-      if (quest == null) { quest = QuestDatabase.INSTANCE.createNew(questID); }
-      if (entry.hasKey("config", 10)) { quest.readFromNBT(entry.getCompoundTag("config")); }
+      if (quest == null) {
+        quest = QuestDatabase.INSTANCE.createNew(questID);
+      }
+      if (entry.hasKey("config", 10)) {
+        quest.readFromNBT(entry.getCompoundTag("config"));
+      }
     }
 
     SaveLoadHandler.INSTANCE.markDirty();

@@ -52,7 +52,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     super(parent);
 
     this.quest = quest;
-    this.qID = QuestDatabase.INSTANCE.getID(quest);
+    qID = QuestDatabase.INSTANCE.getID(quest);
   }
 
   @Override
@@ -60,7 +60,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     quest = QuestDatabase.INSTANCE.getValue(qID);
 
     if (quest == null) {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
       return;
     }
 
@@ -72,7 +72,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     super.initPanel();
 
     if (qID < 0) {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
       return;
     }
 
@@ -81,7 +81,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate(
@@ -105,13 +105,15 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
           @Override
           protected void queryMatches(IFactoryData<IReward, NBTTagCompound> value, String query,
                                       ArrayDeque<IFactoryData<IReward, NBTTagCompound>> results) {
-            if (value.getRegistryName().toString().toLowerCase().contains(query.toLowerCase())) { results.add(value); }
+            if (value.getRegistryName().toString().toLowerCase().contains(query.toLowerCase())) {
+              results.add(value);
+            }
           }
 
           @Override
           protected boolean addResult(IFactoryData<IReward, NBTTagCompound> entry, int index, int cachedWidth) {
-            this.addPanel(new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), 1,
-                                                   entry.getRegistryName().toString(), entry));
+            addPanel(new PanelButtonStorage<>(new GuiRectangle(0, index * 16, cachedWidth, 16, 0), 1,
+                                              entry.getRegistryName().toString(), entry));
             return true;
           }
         };
@@ -163,7 +165,7 @@ public class GuiRewardEditor extends GuiScreenCanvas implements IPEventListener,
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1 && btn instanceof PanelButtonStorage) // Add
     {
       IFactoryData<IReward, NBTTagCompound> fact =

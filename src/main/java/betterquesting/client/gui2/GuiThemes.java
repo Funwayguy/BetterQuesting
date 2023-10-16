@@ -50,7 +50,7 @@ public class GuiThemes extends GuiScreenCanvas {
     // Background panel
     CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                               PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(bgCan);
+    addPanel(bgCan);
 
     // Inner canvas bounds
     CanvasEmpty inCan = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0));
@@ -85,7 +85,7 @@ public class GuiThemes extends GuiScreenCanvas {
       pbs.setCallback((res) -> {
         float scroll = scrollPanel.readValueRaw();
         ThemeRegistry.INSTANCE.setTheme(res);
-        this.initGui();
+        initGui();
         scrollPanel.writeValueRaw(scroll);
       });
       canScroll.addPanel(pbs);

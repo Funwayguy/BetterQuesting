@@ -16,20 +16,20 @@ public class PropertyTypeEnum<E extends Enum<E>> extends PropertyTypeBase<E> {
   @Override
   public E readValue(NBTBase nbt) {
     if (nbt == null || nbt.getId() != 8) {
-      return this.getDefault();
+      return getDefault();
     }
 
     try {
       return Enum.valueOf(eClazz, ((NBTTagString) nbt).getString());
     } catch (Exception e) {
-      return this.getDefault();
+      return getDefault();
     }
   }
 
   @Override
   public NBTBase writeValue(E value) {
     if (value == null) {
-      return new NBTTagString(this.getDefault().toString());
+      return new NBTTagString(getDefault().toString());
     }
 
     return new NBTTagString(value.toString());

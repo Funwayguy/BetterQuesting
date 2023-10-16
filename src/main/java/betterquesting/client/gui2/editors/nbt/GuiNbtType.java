@@ -39,7 +39,7 @@ public class GuiNbtType extends GuiScreenCanvas implements IPEventListener, IVol
     // Background panel
     CanvasTextured cvBackground = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                                      PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBackground);
+    addPanel(cvBackground);
 
     PanelTextBox panTxt = new PanelTextBox(new GuiTransform(GuiAlign.TOP_EDGE, new GuiPadding(0, 16, 0, -32), 0),
                                            QuestTranslation.translate("betterquesting.title.json_object")).setAlignment(
@@ -73,27 +73,27 @@ public class GuiNbtType extends GuiScreenCanvas implements IPEventListener, IVol
     switch (btn.getButtonID()) {
       case 0: // Back
       {
-        mc.displayGuiScreen(this.parent);
+        mc.displayGuiScreen(parent);
         break;
       }
       case 1: // Raw NBT
       {
-        mc.displayGuiScreen(new GuiNbtEditor(this.parent, tagCompound, null));
+        mc.displayGuiScreen(new GuiNbtEditor(parent, tagCompound, null));
         break;
       }
       case 2: // Item
       {
-        mc.displayGuiScreen(new GuiItemSelection(this.parent, tagCompound, new NbtItemCallback(tagCompound)));
+        mc.displayGuiScreen(new GuiItemSelection(parent, tagCompound, new NbtItemCallback(tagCompound)));
         break;
       }
       case 3: // Fluid
       {
-        mc.displayGuiScreen(new GuiFluidSelection(this.parent, tagCompound, new NbtFluidCallback(tagCompound)));
+        mc.displayGuiScreen(new GuiFluidSelection(parent, tagCompound, new NbtFluidCallback(tagCompound)));
         break;
       }
       case 4: // Entity
       {
-        mc.displayGuiScreen(new GuiEntitySelection(this.parent, tagCompound, new NbtEntityCallback(tagCompound)));
+        mc.displayGuiScreen(new GuiEntitySelection(parent, tagCompound, new NbtEntityCallback(tagCompound)));
         break;
       }
     }

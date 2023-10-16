@@ -195,7 +195,9 @@ public class ItemComparison {
   @Deprecated
   public static boolean OreDictionaryMatch(String name, NBTTagCompound tags, ItemStack stack, boolean nbtCheck,
                                            boolean partialNBT) {
-    if (!nbtCheck) { return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack); }
+    if (!nbtCheck) {
+      return stack != null && !StringUtils.isNullOrEmpty(name) && new OreIngredient(name).apply(stack);
+    }
     return OreDictionaryMatch(new OreIngredient(name), tags, stack, true, partialNBT);
   }
 
@@ -204,7 +206,9 @@ public class ItemComparison {
    */
   public static boolean OreDictionaryMatch(OreIngredient ore, NBTTagCompound tags, ItemStack stack, boolean nbtCheck,
                                            boolean partialNBT) {
-    if (stack == null || ore == null) { return false; }
+    if (stack == null || ore == null) {
+      return false;
+    }
     return ore.apply(stack) && (!nbtCheck || CompareNBTTagCompound(stack.getTagCompound(), tags, partialNBT));
   }
 

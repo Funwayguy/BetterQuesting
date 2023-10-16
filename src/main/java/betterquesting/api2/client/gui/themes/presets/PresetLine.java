@@ -25,11 +25,11 @@ public enum PresetLine {
   }
 
   public IGuiLine getLine() {
-    return ThemeRegistry.INSTANCE.getLine(this.key);
+    return ThemeRegistry.INSTANCE.getLine(key);
   }
 
   public ResourceLocation getKey() {
-    return this.key;
+    return key;
   }
 
   public static void registerLines(IThemeRegistry reg) {

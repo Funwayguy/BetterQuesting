@@ -10,11 +10,13 @@ public class PEventEntry<T extends PanelEvent> {
   private final Class<T> cType;
 
   public PEventEntry(Class<T> type) {
-    this.cType = type;
+    cType = type;
   }
 
   public void registerListener(@Nonnull Consumer<PanelEvent> consumer) {
-    if (listeners.contains(consumer)) { return; }
+    if (listeners.contains(consumer)) {
+      return;
+    }
     listeners.add(consumer);
   }
 
@@ -23,7 +25,9 @@ public class PEventEntry<T extends PanelEvent> {
   }
 
   public void fire(@Nonnull PanelEvent event) {
-    if (!cType.isAssignableFrom(event.getClass())) { return; }
+    if (!cType.isAssignableFrom(event.getClass())) {
+      return;
+    }
     listeners.forEach((l) -> l.accept(event));
   }
 }

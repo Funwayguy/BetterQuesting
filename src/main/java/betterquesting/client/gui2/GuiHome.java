@@ -78,7 +78,7 @@ public class GuiHome extends GuiScreenCanvas {
     // Background panel
     CanvasTextured bgCan = new CanvasTextured(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 0),
                                               PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(bgCan);
+    addPanel(bgCan);
 
     // Inner canvas bounds
     CanvasEmpty inCan = new CanvasEmpty(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(16, 16, 16, 16), 0));
@@ -139,14 +139,16 @@ public class GuiHome extends GuiScreenCanvas {
   }
 
   private void onButtonPress(PanelEvent event) {
-    if (!(event instanceof PEventButton)) { return; }
+    if (!(event instanceof PEventButton)) {
+      return;
+    }
 
     Minecraft mc = Minecraft.getMinecraft();
     IPanelButton btn = ((PEventButton) event).getButton();
 
     if (btn.getButtonID() == 0) // Exit
     {
-      mc.displayGuiScreen(this.parent);
+      mc.displayGuiScreen(parent);
     } else if (btn.getButtonID() == 1) // Quests
     {
       mc.displayGuiScreen(new GuiQuestLines(this));

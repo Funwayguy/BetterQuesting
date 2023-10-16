@@ -74,7 +74,8 @@ public class BQ_CommandUser extends CommandBase {
    */
   @Nonnull
   @Override
-  public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, String[] strings, BlockPos pos) {
+  public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender,
+                                        String[] strings, BlockPos pos) {
     if (strings.length == 1) {
       List<String> base = new ArrayList<>();
       for (QuestCommandBase c : coms) {
@@ -99,9 +100,10 @@ public class BQ_CommandUser extends CommandBase {
   }
 
   @Override
-  public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, String[] args) throws CommandException {
+  public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, String[] args)
+      throws CommandException {
     if (args.length < 1) {
-      throw new WrongUsageException(this.getUsage(sender));
+      throw new WrongUsageException(getUsage(sender));
     }
 
     for (QuestCommandBase c : coms) {
@@ -123,7 +125,7 @@ public class BQ_CommandUser extends CommandBase {
       }
     }
 
-    throw new WrongUsageException(this.getUsage(sender));
+    throw new WrongUsageException(getUsage(sender));
   }
 
   /**

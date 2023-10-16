@@ -14,7 +14,7 @@ public class CanvasEmpty implements IGuiCanvas {
   private boolean enabled = true;
 
   public CanvasEmpty(IGuiRect rect) {
-    this.transform = rect;
+    transform = rect;
   }
 
   @Override
@@ -25,22 +25,22 @@ public class CanvasEmpty implements IGuiCanvas {
   @Nonnull
   @Override
   public List<IGuiPanel> getChildren() {
-    return this.guiPanels;
+    return guiPanels;
   }
 
   @Override
   public void initPanel() {
-    this.guiPanels.clear();
+    guiPanels.clear();
   }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override

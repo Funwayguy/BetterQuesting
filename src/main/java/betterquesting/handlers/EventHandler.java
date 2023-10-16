@@ -91,7 +91,9 @@ public class EventHandler {
 
   @SubscribeEvent
   public void onCapabilityPlayer(AttachCapabilitiesEvent<Entity> event) {
-    if (!(event.getObject() instanceof EntityPlayer)) { return; }
+    if (!(event.getObject() instanceof EntityPlayer)) {
+      return;
+    }
     event.addCapability(CapabilityProviderQuestCache.LOC_QUEST_CACHE, new CapabilityProviderQuestCache());
   }
 
@@ -102,7 +104,9 @@ public class EventHandler {
     QuestCache nCache =
         event.getEntityPlayer().getCapability(CapabilityProviderQuestCache.CAP_QUEST_CACHE, null);
 
-    if (oCache != null && nCache != null) { nCache.deserializeNBT(oCache.serializeNBT()); }
+    if (oCache != null && nCache != null) {
+      nCache.deserializeNBT(oCache.serializeNBT());
+    }
   }
 
   @SubscribeEvent
@@ -143,7 +147,9 @@ public class EventHandler {
           qc.markQuestDirty(quest.getID());
 
           com.add(quest.getID());
-          if (!quest.getValue().getProperty(NativeProps.SILENT)) { postPresetNotice(quest.getValue(), player, 2); }
+          if (!quest.getValue().getProperty(NativeProps.SILENT)) {
+            postPresetNotice(quest.getValue(), player, 2);
+          }
         }
       }
 
@@ -169,7 +175,9 @@ public class EventHandler {
           refreshCache = true;
           qc.markQuestDirty(rTime.questID);
           res.add(rTime.questID);
-          if (!entry.getProperty(NativeProps.SILENT)) { postPresetNotice(entry, player, 1); }
+          if (!entry.getProperty(NativeProps.SILENT)) {
+            postPresetNotice(entry, player, 1);
+          }
         } else {
           break; // Entries are sorted by time so we fail fast and skip checking the others
         }
@@ -203,7 +211,9 @@ public class EventHandler {
 
   // TODO: Create a new message inbox system for these things. On screen popups aren't ideal in combat
   private static void postPresetNotice(IQuest quest, EntityPlayer player, int preset) {
-    if (!(player instanceof EntityPlayerMP)) { return; }
+    if (!(player instanceof EntityPlayerMP)) {
+      return;
+    }
     ItemStack icon = quest.getProperty(NativeProps.ICON).getBaseStack();
     String mainText = "";
     String subText = quest.getProperty(NativeProps.NAME);
@@ -275,7 +285,9 @@ public class EventHandler {
 
       if (lives <= 0) {
         MinecraftServer server = mpPlayer.getServer();
-        if (server == null) { return; }
+        if (server == null) {
+          return;
+        }
 
         mpPlayer.setGameType(GameType.SPECTATOR);
         if (!server.isDedicatedServer()) {
@@ -341,14 +353,18 @@ public class EventHandler {
 
   @SubscribeEvent
   public void onServerTick(ServerTickEvent event) {
-    if (event.phase != Phase.END) { return; }
+    if (event.phase != Phase.END) {
+      return;
+    }
 
     MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 
     if (!server.isDedicatedServer()) {
       boolean tmp = openToLAN;
       openToLAN = server instanceof IntegratedServer && ((IntegratedServer) server).getPublic();
-      if (openToLAN && !tmp) { opQueue.addAll(server.getPlayerList().getPlayers()); }
+      if (openToLAN && !tmp) {
+        opQueue.addAll(server.getPlayerList().getPlayers());
+      }
     } else if (!openToLAN) {
       openToLAN = true;
     }
@@ -366,6 +382,8 @@ public class EventHandler {
       }
     }
 
-    if (server.getTickCounter() % 60 == 0) { PartyInvitations.INSTANCE.cleanExpired(); }
+    if (server.getTickCounter() % 60 == 0) {
+      PartyInvitations.INSTANCE.cleanExpired();
+    }
   }
 }

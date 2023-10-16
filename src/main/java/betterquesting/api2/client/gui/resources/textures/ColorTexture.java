@@ -23,7 +23,7 @@ public class ColorTexture implements IGuiTexture {
   // Really only used for item slot highlighting but could be used elsewhere
   public ColorTexture(IGuiColor baseColor, GuiPadding padding) {
     this.baseColor = baseColor;
-    this.pad = padding;
+    pad = padding;
   }
 
   @Override
@@ -33,7 +33,9 @@ public class ColorTexture implements IGuiTexture {
 
   @Override
   public void drawTexture(int x, int y, int width, int height, float zDepth, float partialTick, IGuiColor color) {
-    if (width <= 0 || height <= 0) { return; }
+    if (width <= 0 || height <= 0) {
+      return;
+    }
 
     GlStateManager.pushMatrix();
 

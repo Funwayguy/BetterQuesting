@@ -35,8 +35,8 @@ public class PanelTextBox implements IGuiPanel {
   }
 
   public PanelTextBox(IGuiRect rect, String text, boolean autoFit) {
-    this.transform = new GuiRectText(rect, autoFit);
-    this.setText(text);
+    transform = new GuiRectText(rect, autoFit);
+    setText(text);
     this.autoFit = autoFit;
   }
 
@@ -59,17 +59,17 @@ public class PanelTextBox implements IGuiPanel {
   }
 
   public PanelTextBox setFontSize(int size) {
-    this.fontScale = size;
+    fontScale = size;
     return this;
   }
 
   public PanelTextBox enableShadow(boolean enable) {
-    this.shadow = enable;
+    shadow = enable;
     return this;
   }
 
   private void refreshText() {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
     float scale = fontScale / relScale;
 
@@ -82,7 +82,7 @@ public class PanelTextBox implements IGuiPanel {
     List<String> sl = w > 8 ? fr.listFormattedStringToWidth(text, w) : Collections.emptyList();
     lines = sl.size() - 1;
 
-    this.transform.h = (int) Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
+    transform.h = (int) Math.floor(fr.FONT_HEIGHT * sl.size() * scale);
 
     refRect.x = bounds.getX();
     refRect.y = bounds.getY();
@@ -102,12 +102,12 @@ public class PanelTextBox implements IGuiPanel {
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -115,9 +115,11 @@ public class PanelTextBox implements IGuiPanel {
     if (!isRectEqual(refRect, getTransform())) {
       refreshText(); // Makes this panel work with resizable canvases without having to update every frame
     }
-    if (lines < 0) { return; }
+    if (lines < 0) {
+      return;
+    }
 
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
     //FontRenderer fr = BqFontRenderer.FONT_UNICODE;
     //FontRenderer fr = BqFontRenderer.FONT_STANDARD;
@@ -126,12 +128,18 @@ public class PanelTextBox implements IGuiPanel {
     int bw = (int) Math.ceil(bounds.getWidth() / s);
     double w = Math.min(bw, RenderUtils.getStringWidth(text, fr) * s);
 
-    if (bw <= 0) { return; }
+    if (bw <= 0) {
+      return;
+    }
 
     GlStateManager.pushMatrix();
     GlStateManager.translate(bounds.getX(), bounds.getY(), 1);
-    if (align == 1) { GlStateManager.translate(bounds.getWidth() / 2D - w / 2D, 0D, 0D); }
-    if (align == 2) { GlStateManager.translate(bounds.getWidth() - w, 0D, 0D); }
+    if (align == 1) {
+      GlStateManager.translate(bounds.getWidth() / 2D - w / 2D, 0D, 0D);
+    }
+    if (align == 2) {
+      GlStateManager.translate(bounds.getWidth() - w, 0D, 0D);
+    }
     GlStateManager.scale(s, s, 1D);
 
     if (align == 2) {
@@ -217,10 +225,10 @@ public class PanelTextBox implements IGuiPanel {
 
     @Override
     public boolean contains(int x, int y) {
-      int x1 = this.getX();
-      int x2 = x1 + this.getWidth();
-      int y1 = this.getY();
-      int y2 = y1 + this.getHeight();
+      int x1 = getX();
+      int x2 = x1 + getWidth();
+      int y1 = getY();
+      int y2 = y1 + getHeight();
       return x >= x1 && x < x2 && y >= y1 && y < y2;
     }
 

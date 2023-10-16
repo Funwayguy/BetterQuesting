@@ -44,7 +44,9 @@ public class ToolboxToolGrab implements IToolboxTool {
 
   @Override
   public void refresh(CanvasQuestLine gui) {
-    if (grabList.isEmpty()) { return; }
+    if (grabList.isEmpty()) {
+      return;
+    }
 
     List<GrabEntry> tmp = new ArrayList<>();
 
@@ -63,7 +65,9 @@ public class ToolboxToolGrab implements IToolboxTool {
 
   @Override
   public void drawCanvas(int mx, int my, float partialTick) {
-    if (grabList.isEmpty()) { return; }
+    if (grabList.isEmpty()) {
+      return;
+    }
 
     int snap = Math.max(1, ToolboxTabMain.INSTANCE.getSnapValue());
     int dx = mx;
@@ -86,7 +90,9 @@ public class ToolboxToolGrab implements IToolboxTool {
 
   @Override
   public List<String> getTooltip(int mx, int my) {
-    if (grabList.isEmpty()) { return null; }
+    if (grabList.isEmpty()) {
+      return null;
+    }
 
     for (GrabEntry grab : grabList) {
       if (grab.offX == 0 && grab.offY == 0) {
@@ -101,8 +107,7 @@ public class ToolboxToolGrab implements IToolboxTool {
   }
 
   @Override
-  public void onSelection(NonNullList<PanelButtonQuest> buttons) {
-  }
+  public void onSelection(NonNullList<PanelButtonQuest> buttons) { }
 
   @Override
   public boolean onMouseClick(int mx, int my, int click) {
@@ -130,7 +135,9 @@ public class ToolboxToolGrab implements IToolboxTool {
       int lID = QuestLineDatabase.INSTANCE.getID(qLine);
       for (GrabEntry grab : grabList) {
         IQuestLineEntry qle = gui.getQuestLine().getValue(grab.btn.getStoredValue().getID());
-        if (qle != null) { qle.setPosition(grab.btn.rect.x, grab.btn.rect.y); }
+        if (qle != null) {
+          qle.setPosition(grab.btn.rect.x, grab.btn.rect.y);
+        }
       }
 
       // Send quest line edits
@@ -153,7 +160,9 @@ public class ToolboxToolGrab implements IToolboxTool {
     if (btnClicked != null) // Pickup the group or the single one if none are selected
     {
       if (!PanelToolController.selected.isEmpty()) {
-        if (!PanelToolController.selected.contains(btnClicked)) { return false; }
+        if (!PanelToolController.selected.contains(btnClicked)) {
+          return false;
+        }
 
         for (PanelButtonQuest btn : PanelToolController.selected) {
           grabList.add(new GrabEntry(btn, btn.rect.x - btnClicked.rect.x, btn.rect.y - btnClicked.rect.y));

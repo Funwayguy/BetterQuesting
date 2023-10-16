@@ -47,11 +47,11 @@ public enum PresetColor {
   }
 
   public IGuiColor getColor() {
-    return ThemeRegistry.INSTANCE.getColor(this.key);
+    return ThemeRegistry.INSTANCE.getColor(key);
   }
 
   public ResourceLocation getKey() {
-    return this.key;
+    return key;
   }
 
   public static void registerColors(IThemeRegistry reg) {

@@ -62,10 +62,10 @@ public class QuestCommandReset extends QuestCommandBase {
     UUID uuid = null;
 
     if (args.length == 3) {
-      uuid = this.findPlayerID(server, sender, args[2]);
+      uuid = findPlayerID(server, sender, args[2]);
 
       if (uuid == null) {
-        throw this.getException(command);
+        throw getException(command);
       }
     }
 

@@ -37,18 +37,18 @@ public class PopMessage extends CanvasEmpty {
   public void initPanel() {
     super.initPanel();
 
-    this.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1),
-                                   new ColorTexture(new GuiColorStatic(0x80000000))));
+    addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(0, 0, 0, 0), 1),
+                              new ColorTexture(new GuiColorStatic(0x80000000))));
 
     CanvasTextured cvBox = new CanvasTextured(new GuiTransform(new Vector4f(0.2F, 0.3F, 0.8F, 0.6F)),
                                               PresetTexture.PANEL_MAIN.getTexture());
-    this.addPanel(cvBox);
+    addPanel(cvBox);
 
     if (icon != null) {
       CanvasTextured icoFrame =
           new CanvasTextured(new GuiTransform(new Vector4f(0.5F, 0.3F, 0.5F, 0.3F), -16, -40, 32, 32, 0),
                              PresetTexture.PANEL_MAIN.getTexture());
-      this.addPanel(icoFrame);
+      addPanel(icoFrame);
 
       icoFrame.addPanel(new PanelGeneric(new GuiTransform(GuiAlign.FULL_BOX, new GuiPadding(8, 8, 8, 8), 0), icon));
     }
@@ -58,9 +58,11 @@ public class PopMessage extends CanvasEmpty {
     PanelButton btn = new PanelButton(new GuiTransform(new Vector4f(0.5F, 0.6F, 0.5F, 0.6F), -48, 8, 96, 16, 0), -1,
                                       QuestTranslation.translate("gui.back"));
     btn.setClickAction((b) -> {
-      if (SceneController.getActiveScene() != null) { SceneController.getActiveScene().closePopup(); }
+      if (SceneController.getActiveScene() != null) {
+        SceneController.getActiveScene().closePopup();
+      }
     });
-    this.addPanel(btn);
+    addPanel(btn);
   }
 
   // == TRAP ALL UI USAGE UNTIL CLOSED ===

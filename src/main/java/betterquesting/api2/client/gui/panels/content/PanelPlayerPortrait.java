@@ -34,7 +34,7 @@ public class PanelPlayerPortrait implements IGuiPanel {
   }
 
   public PanelPlayerPortrait(IGuiRect rect, AbstractClientPlayer player) {
-    this.transform = rect;
+    transform = rect;
     this.player = new EntityPlayerPreview(player.world, player.getGameProfile());
     this.player.limbSwing = 0F;
     this.player.limbSwingAmount = 0F;
@@ -44,44 +44,43 @@ public class PanelPlayerPortrait implements IGuiPanel {
 
     Minecraft.getMinecraft().getTextureManager().getTexture(resource);
 
-    this.basePitch = new ValueFuncIO<>(() -> 15F);
-    this.pitchDriver = basePitch;
+    basePitch = new ValueFuncIO<>(() -> 15F);
+    pitchDriver = basePitch;
 
-    this.baseYaw = new ValueFuncIO<>(() -> -30F);
-    this.yawDriver = baseYaw;
+    baseYaw = new ValueFuncIO<>(() -> -30F);
+    yawDriver = baseYaw;
   }
 
   public PanelPlayerPortrait setRotationFixed(float pitch, float yaw) {
-    this.pitchDriver = basePitch;
-    this.yawDriver = baseYaw;
+    pitchDriver = basePitch;
+    yawDriver = baseYaw;
     basePitch.writeValue(pitch);
     baseYaw.writeValue(yaw);
     return this;
   }
 
   public PanelPlayerPortrait setRotationDriven(IValueIO<Float> pitch, IValueIO<Float> yaw) {
-    this.pitchDriver = pitch == null ? basePitch : pitch;
-    this.yawDriver = yaw == null ? baseYaw : yaw;
+    pitchDriver = pitch == null ? basePitch : pitch;
+    yawDriver = yaw == null ? baseYaw : yaw;
     return this;
   }
 
   public PanelPlayerPortrait setDepth(float z) {
-    this.zDepth = z;
+    zDepth = z;
     return this;
   }
 
   @Override
-  public void initPanel() {
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -91,7 +90,7 @@ public class PanelPlayerPortrait implements IGuiPanel {
 
   @Override
   public void drawPanel(int mx, int my, float partialTick) {
-    IGuiRect bounds = this.getTransform();
+    IGuiRect bounds = getTransform();
     GlStateManager.pushMatrix();
     RenderUtils.startScissor(new GuiRectangle(bounds));
 

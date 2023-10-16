@@ -54,20 +54,20 @@ public class GuiRectangle implements IGuiRect {
 
   @Override
   public IGuiRect getParent() {
-    return this.parent;
+    return parent;
   }
 
   @Override
   public void setParent(IGuiRect rect) {
-    this.parent = rect;
+    parent = rect;
   }
 
   @Override
   public boolean contains(int x, int y) {
-    int x1 = this.getX();
-    int x2 = x1 + this.getWidth();
-    int y1 = this.getY();
-    int y2 = y1 + this.getHeight();
+    int x1 = getX();
+    int x2 = x1 + getWidth();
+    int y1 = getY();
+    int y2 = y1 + getHeight();
     return x >= x1 && x < x2 && y >= y1 && y < y2;
   }
 	

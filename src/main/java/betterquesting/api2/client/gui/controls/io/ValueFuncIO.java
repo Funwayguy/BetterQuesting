@@ -9,7 +9,7 @@ public class ValueFuncIO<T> implements IValueIO<T> {
   private final Callable<T> v;
 
   public ValueFuncIO(Callable<T> value) {
-    this.v = value;
+    v = value;
   }
 
   @Override

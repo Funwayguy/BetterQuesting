@@ -65,7 +65,9 @@ public class RenderUtils {
     itemRender.zLevel = -150F; // Counters internal Z depth change so that GL translation makes sense
 
     FontRenderer font = stack.getItem().getFontRenderer(stack);
-    if (font == null) { font = mc.fontRenderer; }
+    if (font == null) {
+      font = mc.fontRenderer;
+    }
 
     try {
       itemRender.renderItemAndEffectIntoGUI(stack, x, y);
@@ -678,11 +680,15 @@ public class RenderUtils {
    */
   public static void drawHoveringText(@Nonnull final ItemStack stack, List<String> textLines, int mouseX, int mouseY,
                                       int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font) {
-    if (textLines == null || textLines.isEmpty()) { return; }
+    if (textLines == null || textLines.isEmpty()) {
+      return;
+    }
 
     RenderTooltipEvent.Pre event =
         new RenderTooltipEvent.Pre(stack, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
-    if (MinecraftForge.EVENT_BUS.post(event)) { return; }
+    if (MinecraftForge.EVENT_BUS.post(event)) {
+      return;
+    }
 
     mouseX = event.getX();
     mouseY = event.getY();

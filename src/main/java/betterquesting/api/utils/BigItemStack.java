@@ -25,7 +25,7 @@ public class BigItemStack {
 
   public BigItemStack(ItemStack stack) {
     baseStack = stack.copy();
-    this.stackSize = baseStack.getCount();
+    stackSize = baseStack.getCount();
     baseStack.setCount(1);
   }
 
@@ -51,7 +51,7 @@ public class BigItemStack {
 
   public BigItemStack(@Nonnull Item item, int amount, int damage) {
     baseStack = new ItemStack(item, 1, damage);
-    this.stackSize = amount;
+    stackSize = amount;
   }
 
   /**
@@ -62,22 +62,22 @@ public class BigItemStack {
   }
 
   public boolean hasOreDict() {
-    return !StringUtils.isNullOrEmpty(this.oreDict) && this.oreIng.getMatchingStacks().length > 0;
+    return !StringUtils.isNullOrEmpty(oreDict) && oreIng.getMatchingStacks().length > 0;
   }
 
   @Nonnull
   public String getOreDict() {
-    return this.oreDict;
+    return oreDict;
   }
 
   @Nonnull
   public OreIngredient getOreIngredient() {
-    return this.oreIng;
+    return oreIng;
   }
 
   public BigItemStack setOreDict(@Nonnull String ore) {
-    this.oreDict = ore;
-    this.oreIng = ore.isEmpty() ? NO_ORE : new OreIngredient(ore);
+    oreDict = ore;
+    oreIng = ore.isEmpty() ? NO_ORE : new OreIngredient(ore);
     return this;
   }
 
@@ -122,9 +122,9 @@ public class BigItemStack {
 
   public BigItemStack copy() {
     BigItemStack stack = new BigItemStack(baseStack.copy());
-    stack.stackSize = this.stackSize;
-    stack.oreDict = this.oreDict;
-    stack.oreIng = this.oreIng;
+    stack.stackSize = stackSize;
+    stack.oreDict = oreDict;
+    stack.oreIng = oreIng;
     return stack;
   }
 
@@ -144,10 +144,12 @@ public class BigItemStack {
     if (tags.hasKey("id", 99)) {
       itemNBT.setString("id", "" + tags.getShort("id"));
     }
-    this.stackSize = tags.getInteger("Count");
-    this.setOreDict(tags.getString("OreDict"));
-    this.baseStack = new ItemStack(itemNBT); // Minecraft does the ID conversions for me
-    if (tags.getShort("Damage") < 0) { this.baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE); }
+    stackSize = tags.getInteger("Count");
+    setOreDict(tags.getString("OreDict"));
+    baseStack = new ItemStack(itemNBT); // Minecraft does the ID conversions for me
+    if (tags.getShort("Damage") < 0) {
+      baseStack.setItemDamage(OreDictionary.WILDCARD_VALUE);
+    }
   }
 
   public NBTTagCompound writeToNBT(NBTTagCompound tags) {

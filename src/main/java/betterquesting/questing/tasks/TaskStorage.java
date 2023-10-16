@@ -70,7 +70,9 @@ public class TaskStorage extends SimpleDatabase<ITask> implements IDatabaseNBT<I
       }
     }
 
-    for (ITask t : unassigned) { add(nextID(), t); }
+    for (ITask t : unassigned) {
+      add(nextID(), t);
+    }
   }
 
   @Override

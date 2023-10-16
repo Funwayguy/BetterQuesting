@@ -44,18 +44,18 @@ public class PanelTabMain extends CanvasEmpty {
     int w = getTransform().getWidth();
 
     IGuiColor tCol = new GuiColorStatic(0xFF000000);
-    this.addPanel(
+    addPanel(
         new PanelButton(new GuiRectangle(0, 0, w / 2, 16, 0), -1, "" + ToolboxTabMain.INSTANCE.getSnapValue()) {
           @Override
           public void onButtonClick() {
             ToolboxTabMain.INSTANCE.toggleSnap();
-            this.setText("" + ToolboxTabMain.INSTANCE.getSnapValue());
+            setText("" + ToolboxTabMain.INSTANCE.getSnapValue());
           }
         }.setIcon(PresetIcon.ICON_GRID.getTexture()).setTextShadow(false).setTextHighlight(tCol, tCol, tCol).setTooltip(
             makeToolTip(QuestTranslation.translate("betterquesting.toolbox.tool.snap.name"),
                         QuestTranslation.translate("betterquesting.toolbox.tool.snap.desc"))));
 
-    this.addPanel(new PanelButton(new GuiRectangle(w / 2, 0, w / 2, 16, 0), -1, "") {
+    addPanel(new PanelButton(new GuiRectangle(w / 2, 0, w / 2, 16, 0), -1, "") {
       @Override
       public void onButtonClick() {
         Minecraft mc = Minecraft.getMinecraft();
@@ -94,7 +94,7 @@ public class PanelTabMain extends CanvasEmpty {
         btn.setActive(false);
       });
       toolBtns.add(btn);
-      this.addPanel(btn);
+      addPanel(btn);
 
       if (entry.tool instanceof ToolboxToolOpen && toolController.getActiveTool() == null) {
         toolController.setActiveTool(entry.tool);

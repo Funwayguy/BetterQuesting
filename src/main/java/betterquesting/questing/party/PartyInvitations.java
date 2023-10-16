@@ -39,30 +39,44 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID> {
 
   public synchronized boolean acceptInvite(@Nonnull UUID uuid, int id) {
     HashMap<Integer, Long> userInvites = invites.get(uuid);
-    if (userInvites == null || userInvites.isEmpty()) { return false; }
+    if (userInvites == null || userInvites.isEmpty()) {
+      return false;
+    }
 
     long timestamp = userInvites.get(id);
     IParty party = PartyManager.INSTANCE.getValue(id);
     boolean valid = timestamp > System.currentTimeMillis();
 
-    if (valid && party != null) { party.setStatus(uuid, EnumPartyStatus.MEMBER); }
+    if (valid && party != null) {
+      party.setStatus(uuid, EnumPartyStatus.MEMBER);
+    }
 
     userInvites.remove(id); // We still remove it regardless of validity
-    if (userInvites.isEmpty()) { invites.remove(uuid); }
+    if (userInvites.isEmpty()) {
+      invites.remove(uuid);
+    }
 
     return valid;
   }
 
   public synchronized void revokeInvites(@Nonnull UUID uuid, int... ids) {
     HashMap<Integer, Long> userInvites = invites.get(uuid);
-    if (userInvites == null || userInvites.isEmpty()) { return; }
-    for (int i : ids) { userInvites.remove(i); }
-    if (userInvites.isEmpty()) { invites.remove(uuid); }
+    if (userInvites == null || userInvites.isEmpty()) {
+      return;
+    }
+    for (int i : ids) {
+      userInvites.remove(i);
+    }
+    if (userInvites.isEmpty()) {
+      invites.remove(uuid);
+    }
   }
 
   public synchronized List<Entry<Integer, Long>> getPartyInvites(@Nonnull UUID uuid) {
     HashMap<Integer, Long> userInvites = invites.get(uuid);
-    if (userInvites == null || userInvites.isEmpty()) { return Collections.emptyList(); }
+    if (userInvites == null || userInvites.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     List<Entry<Integer, Long>> list = new ArrayList<>(userInvites.entrySet());
     list.sort(Entry.comparingByValue()); // Sort by expiry time
@@ -93,10 +107,14 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID> {
       //noinspection ConstantConditions
       if (player != null && revoked.size() >= 0) {
         int[] revAry = new int[revoked.size()];
-        for (int i = 0; i < revoked.size(); i++) { revAry[i] = revoked.get(i); }
+        for (int i = 0; i < revoked.size(); i++) {
+          revAry[i] = revoked.get(i);
+        }
         NetInviteSync.sendRevoked(player, revAry); // Normally I avoid including networking calls into the database...
       }
-      if (userInvites.getValue().isEmpty()) { iterA.remove(); }
+      if (userInvites.getValue().isEmpty()) {
+        iterA.remove();
+      }
     }
   }
 
@@ -114,7 +132,9 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID> {
         userTag.setString("uuid", uuid.toString());
 
         Map<Integer, Long> userMap = invites.get(uuid);
-        if (userMap == null) { userMap = Collections.emptyMap(); }
+        if (userMap == null) {
+          userMap = Collections.emptyMap();
+        }
         NBTTagList invList = new NBTTagList();
 
         for (Entry<Integer, Long> invEntry : userMap.entrySet()) {
@@ -148,7 +168,9 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID> {
 
   @Override
   public synchronized void readFromNBT(NBTTagList nbt, boolean merge) {
-    if (!merge) { invites.clear(); }
+    if (!merge) {
+      invites.clear();
+    }
     for (int i = 0; i < nbt.tagCount(); i++) {
       NBTTagCompound userEntry = nbt.getCompoundTagAt(i);
       UUID uuid;
@@ -164,7 +186,9 @@ public class PartyInvitations implements INBTPartial<NBTTagList, UUID> {
         NBTTagCompound invEntry = invList.getCompoundTagAt(n);
         int partyID = invEntry.hasKey("partyID", 99) ? invEntry.getInteger("partyID") : -1;
         long timestamp = invEntry.hasKey("expiry", 99) ? invEntry.getLong("expiry") : -1;
-        if (partyID < 0) { continue; }
+        if (partyID < 0) {
+          continue;
+        }
         map.put(partyID, timestamp);
       }
     }

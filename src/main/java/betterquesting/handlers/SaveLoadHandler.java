@@ -35,15 +35,15 @@ public class SaveLoadHandler {
   private boolean isDirty = false;
 
   public boolean hasUpdate() {
-    return this.hasUpdate;
+    return hasUpdate;
   }
 
   public void resetUpdate() {
-    this.hasUpdate = false;
+    hasUpdate = false;
   }
 
   public void markDirty() {
-    this.isDirty = true;
+    isDirty = true;
   }
 
   public void loadDatabases(MinecraftServer server) {
@@ -129,7 +129,9 @@ public class SaveLoadHandler {
     {
       String fsVer = JsonHelper.makeFileNameSafe(bVer);
 
-      if (fsVer.isEmpty()) { fsVer = "pre-251"; }
+      if (fsVer.isEmpty()) {
+        fsVer = "pre-251";
+      }
 
       BetterQuesting.logger.warn(
           "BetterQuesting has been updated to from \"" + fsVer + "\" to \"" + cVer + "\"! Creating back ups...");

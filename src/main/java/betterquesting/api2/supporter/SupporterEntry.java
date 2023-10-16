@@ -11,7 +11,7 @@ public class SupporterEntry implements INBTSaveLoad<NBTTagCompound> {
 
   @Nonnull
   public HashMap<String, Integer> getServices(@Nonnull String token) {
-    return this.services.computeIfAbsent(token, (t) -> new HashMap<>());
+    return services.computeIfAbsent(token, (t) -> new HashMap<>());
   }
 
   @Override
@@ -20,7 +20,5 @@ public class SupporterEntry implements INBTSaveLoad<NBTTagCompound> {
   }
 
   @Override
-  public void readFromNBT(NBTTagCompound nbt) {
-
-  }
+  public void readFromNBT(NBTTagCompound nbt) { }
 }

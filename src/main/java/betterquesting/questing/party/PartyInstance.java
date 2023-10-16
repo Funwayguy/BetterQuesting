@@ -21,7 +21,7 @@ public class PartyInstance implements IParty {
   private final PropertyContainer pInfo = new PropertyContainer();
 
   public PartyInstance() {
-    this.setupProps();
+    setupProps();
   }
 
   private void setupProps() {
@@ -29,7 +29,7 @@ public class PartyInstance implements IParty {
   }
 
   private <T> void setupValue(IPropertyType<T> prop) {
-    this.setupValue(prop, prop.getDefault());
+    setupValue(prop, prop.getDefault());
   }
 
   private <T> void setupValue(IPropertyType<T> prop, T def) {
@@ -47,19 +47,25 @@ public class PartyInstance implements IParty {
 
   @Override
   public void kickUser(@Nonnull UUID uuid) {
-    if (!members.containsKey(uuid)) { return; }
+    if (!members.containsKey(uuid)) {
+      return;
+    }
 
     EnumPartyStatus old = members.get(uuid);
     members.remove(uuid);
 
-    if (old == EnumPartyStatus.OWNER && !members.isEmpty()) { hostMigrate(); }
+    if (old == EnumPartyStatus.OWNER && !members.isEmpty()) {
+      hostMigrate();
+    }
     refreshCache();
   }
 
   @Override
   public void setStatus(@Nonnull UUID uuid, @Nonnull EnumPartyStatus priv) {
     EnumPartyStatus old = members.get(uuid);
-    if (old == priv) { return; }
+    if (old == priv) {
+      return;
+    }
 
     members.put(uuid, priv);
 
@@ -75,7 +81,9 @@ public class PartyInstance implements IParty {
 
       // Find new owner
       for (UUID mem : getMembers()) {
-        if (mem == uuid) { continue; }
+        if (mem == uuid) {
+          continue;
+        }
 
         if (members.get(mem) == EnumPartyStatus.ADMIN) {
           migrate = mem;
@@ -104,7 +112,9 @@ public class PartyInstance implements IParty {
 
   @Override
   public List<UUID> getMembers() {
-    if (memCache == null) { refreshCache(); }
+    if (memCache == null) {
+      refreshCache();
+    }
     return memCache;
   }
 
@@ -133,7 +143,7 @@ public class PartyInstance implements IParty {
       members.put(migrate, EnumPartyStatus.OWNER);
     } else {
       BetterQuesting.logger.error(
-          "Failed to find suitable host to migrate party " + this.pInfo.getProperty(NativeProps.NAME));
+          "Failed to find suitable host to migrate party " + pInfo.getProperty(NativeProps.NAME));
     }
   }
 
@@ -168,7 +178,9 @@ public class PartyInstance implements IParty {
     for (int i = 0; i < memList.tagCount(); i++) {
       try {
         NBTTagCompound jMem = memList.getCompoundTagAt(i);
-        if (!jMem.hasKey("uuid", 8) || !jMem.hasKey("status")) { continue; }
+        if (!jMem.hasKey("uuid", 8) || !jMem.hasKey("status")) {
+          continue;
+        }
         UUID uuid = UUID.fromString(jMem.getString("uuid"));
         EnumPartyStatus priv = EnumPartyStatus.valueOf(jMem.getString("status"));
         members.put(uuid, priv);
@@ -176,7 +188,7 @@ public class PartyInstance implements IParty {
     }
 
     refreshCache();
-    this.setupProps();
+    setupProps();
   }
 
   @Override

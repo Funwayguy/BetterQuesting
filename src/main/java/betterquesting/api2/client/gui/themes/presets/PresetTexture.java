@@ -88,11 +88,11 @@ public enum PresetTexture {
   }
 
   public IGuiTexture getTexture() {
-    return ThemeRegistry.INSTANCE.getTexture(this.key);
+    return ThemeRegistry.INSTANCE.getTexture(key);
   }
 
   public ResourceLocation getKey() {
-    return this.key;
+    return key;
   }
 
   public static void registerTextures(IThemeRegistry reg) {

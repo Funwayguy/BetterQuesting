@@ -40,13 +40,19 @@ public class QuestCommandPurge extends QuestCommandBase {
     int n = -1;
 
     for (DBEntry<IQuest> entry : QuestDatabase.INSTANCE.getEntries()) {
-      while (n < entry.getID() && keyIterator.hasNext()) { n = keyIterator.next(); }
-      if (n != entry.getID()) { removeQueue.add(entry.getID()); }
+      while (n < entry.getID() && keyIterator.hasNext()) {
+        n = keyIterator.next();
+      }
+      if (n != entry.getID()) {
+        removeQueue.add(entry.getID());
+      }
     }
 
     int removed = removeQueue.size();
     int[] bulkIDs = new int[removeQueue.size()];
-    for (n = 0; n < bulkIDs.length; n++) { bulkIDs[n] = removeQueue.get(n); }
+    for (n = 0; n < bulkIDs.length; n++) {
+      bulkIDs[n] = removeQueue.get(n);
+    }
     NetQuestEdit.deleteQuests(bulkIDs);
 
     sender.sendMessage(new TextComponentTranslation("betterquesting.cmd.purge_hidden", removed));

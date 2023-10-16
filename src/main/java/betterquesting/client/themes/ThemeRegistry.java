@@ -160,12 +160,14 @@ public class ThemeRegistry implements IThemeRegistry {
 
   @Override
   public IGuiTheme getTheme(ResourceLocation key) {
-    if (key == null) { return null; }
+    if (key == null) {
+      return null;
+    }
     return themes.get(key);
   }
 
   private void setTheme(IGuiTheme theme, ResourceLocation id) {
-    this.activeTheme = theme;
+    activeTheme = theme;
 
     BQ_Settings.curTheme = id == null ? "" : id.toString();
 
@@ -179,12 +181,12 @@ public class ThemeRegistry implements IThemeRegistry {
 
   @Override
   public IGuiTheme getCurrentTheme() {
-    if (!setup && this.activeTheme == null) {
-      this.activeTheme = this.getTheme(new ResourceLocation(BQ_Settings.curTheme));
+    if (!setup && activeTheme == null) {
+      activeTheme = getTheme(new ResourceLocation(BQ_Settings.curTheme));
       setup = true;
     }
 
-    return this.activeTheme;
+    return activeTheme;
   }
 
   @Override
@@ -200,7 +202,9 @@ public class ThemeRegistry implements IThemeRegistry {
 
       try {
         list = resManager.getAllResources(res);
-      } catch (Exception e) { continue; } // Not going to log errors everytime the file isn't found
+      } catch (Exception e) {
+        continue;
+      } // Not going to log errors everytime the file isn't found
 
       for (IResource iresource : list) {
         try (InputStreamReader isr = new InputStreamReader(iresource.getInputStream(), StandardCharsets.UTF_8)) {
@@ -230,11 +234,15 @@ public class ThemeRegistry implements IThemeRegistry {
             String themeName = JsonHelper.GetString(jThm, "themeName", "Unnamed Theme");
             String idRaw = JsonHelper.GetString(jThm, "themeID", themeName);
             idRaw = idRaw.toLowerCase().trim().replaceAll(" ", "_");
-            if (!idRaw.contains(":")) { idRaw = domain + ":" + idRaw; }
+            if (!idRaw.contains(":")) {
+              idRaw = domain + ":" + idRaw;
+            }
             ResourceLocation themeId = new ResourceLocation(idRaw);
 
             int n = 0;
-            while (themes.containsKey(themeId)) { themeId = new ResourceLocation(domain, idRaw + n++); }
+            while (themes.containsKey(themeId)) {
+              themeId = new ResourceLocation(domain, idRaw + n++);
+            }
 
             ResourceTheme resTheme;
 
@@ -259,46 +267,70 @@ public class ThemeRegistry implements IThemeRegistry {
 
   @Override
   public IGuiTexture getTexture(ResourceLocation key) {
-    if (key == null) { return NULL_TEXTURE; }
+    if (key == null) {
+      return NULL_TEXTURE;
+    }
 
     IGuiTexture tex = null;
 
-    if (getCurrentTheme() != null) { tex = activeTheme.getTexture(key); }
-    if (tex == null) { tex = defTextures.get(key); }
+    if (getCurrentTheme() != null) {
+      tex = activeTheme.getTexture(key);
+    }
+    if (tex == null) {
+      tex = defTextures.get(key);
+    }
     return tex == null ? NULL_TEXTURE : tex;
   }
 
   @Override
   public IGuiLine getLine(ResourceLocation key) {
-    if (key == null) { return NULL_LINE; }
+    if (key == null) {
+      return NULL_LINE;
+    }
 
     IGuiLine line = null;
 
-    if (getCurrentTheme() != null) { line = activeTheme.getLine(key); }
-    if (line == null) { line = defLines.get(key); }
+    if (getCurrentTheme() != null) {
+      line = activeTheme.getLine(key);
+    }
+    if (line == null) {
+      line = defLines.get(key);
+    }
     return line == null ? NULL_LINE : line;
   }
 
   @Override
   public IGuiColor getColor(ResourceLocation key) {
-    if (key == null) { return NULL_COLOR; }
+    if (key == null) {
+      return NULL_COLOR;
+    }
 
     IGuiColor color = null;
 
-    if (getCurrentTheme() != null) { color = activeTheme.getColor(key); }
-    if (color == null) { color = defColors.get(key); }
+    if (getCurrentTheme() != null) {
+      color = activeTheme.getColor(key);
+    }
+    if (color == null) {
+      color = defColors.get(key);
+    }
     return color == null ? NULL_COLOR : color;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> GuiScreen getGui(GuiKey<T> key, T args) {
-    if (key == null) { return null; }
+    if (key == null) {
+      return null;
+    }
 
     Function<T, GuiScreen> func = null;
 
-    if (getCurrentTheme() != null) { func = activeTheme.getGui(key); }
-    if (func == null) { func = (Function<T, GuiScreen>) defGuis.get(key); }
+    if (getCurrentTheme() != null) {
+      func = activeTheme.getGui(key);
+    }
+    if (func == null) {
+      func = (Function<T, GuiScreen>) defGuis.get(key);
+    }
 
     return func == null ? null : func.apply(args);
   }

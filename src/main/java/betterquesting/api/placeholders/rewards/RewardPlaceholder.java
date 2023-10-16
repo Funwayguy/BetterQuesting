@@ -49,8 +49,7 @@ public class RewardPlaceholder implements IReward {
   }
 
   @Override
-  public void claimReward(EntityPlayer player, DBEntry<IQuest> quest) {
-  }
+  public void claimReward(EntityPlayer player, DBEntry<IQuest> quest) { }
 
   @Override
   public IGuiPanel getRewardGui(IGuiRect rect, DBEntry<IQuest> quest) {

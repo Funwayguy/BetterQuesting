@@ -18,7 +18,7 @@ public class GuiColorTransition implements IGuiColor {
   }
 
   public GuiColorTransition setupBlending(boolean enable, float threshold) {
-    this.useLerp = enable;
+    useLerp = enable;
     this.threshold = threshold;
     return this;
   }

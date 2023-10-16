@@ -53,22 +53,22 @@ public class PanelTextField<T> implements IGuiPanel {
   private ICallback<T> callback;
 
   public PanelTextField(IGuiRect rect, String text, IFieldFilter<T> filter) {
-    this.transform = rect;
-    cursorLine.setParent(this.transform);
+    transform = rect;
+    cursorLine.setParent(transform);
     this.filter = filter;
 
-    this.setTextures(PresetTexture.TEXT_BOX_0.getTexture(), PresetTexture.TEXT_BOX_1.getTexture(),
-                     PresetTexture.TEXT_BOX_2.getTexture());
-    this.setMainColors(PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor(),
-                       PresetColor.TEXT_AUX_0.getColor());
-    this.setAuxColors(PresetColor.TEXT_WATERMARK.getColor(), PresetColor.TEXT_HIGHLIGHT.getColor());
+    setTextures(PresetTexture.TEXT_BOX_0.getTexture(), PresetTexture.TEXT_BOX_1.getTexture(),
+                PresetTexture.TEXT_BOX_2.getTexture());
+    setMainColors(PresetColor.TEXT_AUX_0.getColor(), PresetColor.TEXT_AUX_0.getColor(),
+                  PresetColor.TEXT_AUX_0.getColor());
+    setAuxColors(PresetColor.TEXT_WATERMARK.getColor(), PresetColor.TEXT_HIGHLIGHT.getColor());
 
     // Dummy value drivers
 
     scrollX = new FloatSimpleIO();
     scrollY = new FloatSimpleIO();
 
-    this.setText(text);
+    setText(text);
   }
 
   public PanelTextField<T> setCallback(ICallback<T> callback) {
@@ -77,27 +77,27 @@ public class PanelTextField<T> implements IGuiPanel {
   }
 
   public PanelTextField<T> setTextures(IGuiTexture disabled, IGuiTexture idle, IGuiTexture focused) {
-    this.texState[0] = disabled;
-    this.texState[1] = idle;
-    this.texState[2] = focused;
+    texState[0] = disabled;
+    texState[1] = idle;
+    texState[2] = focused;
     return this;
   }
 
   public PanelTextField<T> setMainColors(IGuiColor disabled, IGuiColor idle, IGuiColor focused) {
-    this.colStates[0] = disabled;
-    this.colStates[1] = idle;
-    this.colStates[2] = focused;
+    colStates[0] = disabled;
+    colStates[1] = idle;
+    colStates[2] = focused;
     return this;
   }
 
   public PanelTextField<T> setAuxColors(IGuiColor watermark, IGuiColor highlight) {
-    this.colWatermark = watermark;
-    this.colHighlight = highlight;
+    colWatermark = watermark;
+    colHighlight = highlight;
     return this;
   }
 
   public PanelTextField<T> setMaxLength(int size) {
-    this.maxLength = size;
+    maxLength = size;
     return this;
   }
 
@@ -105,26 +105,26 @@ public class PanelTextField<T> implements IGuiPanel {
    * Enables text wrapping for multi-line editing
    */
   public PanelTextField<T> enableWrapping(boolean state) {
-    this.canWrap = state;
+    canWrap = state;
     updateScrollBounds();
     return this;
   }
 
   public void lockFocus(boolean state) {
-    this.lockFocus = state;
+    lockFocus = state;
 
     if (state) {
-      this.isFocused = true;
+      isFocused = true;
     }
   }
 
   public PanelTextField<T> setScrollDriverX(IValueIO<Float> driver) {
-    this.scrollX = driver;
+    scrollX = driver;
     return this;
   }
 
   public PanelTextField<T> setScrollDriverY(IValueIO<Float> driver) {
-    this.scrollY = driver;
+    scrollY = driver;
     return this;
   }
 
@@ -163,19 +163,19 @@ public class PanelTextField<T> implements IGuiPanel {
   }
 
   public void setActive(boolean state) {
-    this.isActive = state;
+    isActive = state;
   }
 
   public boolean isActive() {
-    return this.isActive;
+    return isActive;
   }
 
   public boolean isFocused() {
-    return this.isFocused;
+    return isFocused;
   }
 
   public PanelTextField<T> setWatermark(String text) {
-    this.watermark = text;
+    watermark = text;
     return this;
   }
 
@@ -186,11 +186,11 @@ public class PanelTextField<T> implements IGuiPanel {
   }
 
   public String getRawText() {
-    return this.text;
+    return text;
   }
 
   public T getValue() {
-    return this.filter.parseValue(getRawText());
+    return filter.parseValue(getRawText());
   }
 
   public String getSelectedText() {
@@ -206,7 +206,7 @@ public class PanelTextField<T> implements IGuiPanel {
     StringBuilder out = new StringBuilder();
     int l = Math.min(selectStart, selectEnd);
     int r = Math.max(selectStart, selectEnd);
-    int space = this.maxLength - text.length() - (l - r);
+    int space = maxLength - text.length() - (l - r);
 
     if (!text.isEmpty()) {
       out.append(text, 0, l);
@@ -232,13 +232,13 @@ public class PanelTextField<T> implements IGuiPanel {
 
     //if(filter.isValid(text))
     {
-      this.text = filter.filterText(out.toString());
+      text = filter.filterText(out.toString());
       updateScrollBounds();
       moveCursorBy(l - selectEnd + used);
 
       // Broadcast changes
       if (callback != null) {
-        callback.setValue(filter.parseValue(this.text));
+        callback.setValue(filter.parseValue(text));
       }
     }
   }
@@ -248,11 +248,11 @@ public class PanelTextField<T> implements IGuiPanel {
    * which case the selection is deleted instead.
    */
   public void deleteWords(int num) {
-    if (!this.text.isEmpty()) {
-      if (this.selectEnd != this.selectStart) {
-        this.writeText("");
+    if (!text.isEmpty()) {
+      if (selectEnd != selectStart) {
+        writeText("");
       } else {
-        this.deleteFromCursor(this.getNthWordFromCursor(num) - this.selectStart);
+        deleteFromCursor(getNthWordFromCursor(num) - selectStart);
       }
     }
   }
@@ -262,36 +262,36 @@ public class PanelTextField<T> implements IGuiPanel {
    * in which case the selection is deleted instead.
    */
   public void deleteFromCursor(int num) {
-    if (!this.text.isEmpty()) {
-      if (this.selectEnd != this.selectStart) {
-        this.writeText("");
+    if (!text.isEmpty()) {
+      if (selectEnd != selectStart) {
+        writeText("");
       } else {
         boolean flag = num < 0;
-        int i = flag ? this.selectStart + num : this.selectStart;
-        int j = flag ? this.selectStart : this.selectStart + num;
+        int i = flag ? selectStart + num : selectStart;
+        int j = flag ? selectStart : selectStart + num;
         String s = "";
 
         if (i >= 0) {
-          s = this.text.substring(0, i);
+          s = text.substring(0, i);
         }
 
-        if (j < this.text.length()) {
-          s = s + this.text.substring(j);
+        if (j < text.length()) {
+          s = s + text.substring(j);
         }
 
         //if(filter.isValid(s))
         {
-          this.text = filter.filterText(s);
+          text = filter.filterText(s);
 
           updateScrollBounds();
 
           if (flag) {
-            this.moveCursorBy(num);
+            moveCursorBy(num);
           }
 
           // Broadcast changes
           if (callback != null) {
-            callback.setValue(filter.parseValue(this.text));
+            callback.setValue(filter.parseValue(text));
           }
         }
       }
@@ -302,14 +302,14 @@ public class PanelTextField<T> implements IGuiPanel {
    * Gets the starting index of the word at the specified number of words away from the cursor position.
    */
   public int getNthWordFromCursor(int numWords) {
-    return this.getNthWordFromPos(numWords, this.selectStart);
+    return getNthWordFromPos(numWords, selectStart);
   }
 
   /**
    * Gets the starting index of the word at a distance of the specified number of words away from the given position.
    */
   public int getNthWordFromPos(int n, int pos) {
-    return this.getNthWordFromPosWS(n, pos, true);
+    return getNthWordFromPosWS(n, pos, true);
   }
 
   /**
@@ -322,22 +322,22 @@ public class PanelTextField<T> implements IGuiPanel {
 
     for (int k = 0; k < j; ++k) {
       if (!flag) {
-        int l = this.text.length();
-        i = this.text.indexOf(32, i);
+        int l = text.length();
+        i = text.indexOf(32, i);
 
         if (i == -1) {
           i = l;
         } else {
-          while (skipWs && i < l && this.text.charAt(i) == ' ') {
+          while (skipWs && i < l && text.charAt(i) == ' ') {
             ++i;
           }
         }
       } else {
-        while (skipWs && i > 0 && this.text.charAt(i - 1) == ' ') {
+        while (skipWs && i > 0 && text.charAt(i - 1) == ' ') {
           --i;
         }
 
-        while (i > 0 && this.text.charAt(i - 1) != ' ') {
+        while (i > 0 && text.charAt(i - 1) != ' ') {
           --i;
         }
       }
@@ -350,17 +350,17 @@ public class PanelTextField<T> implements IGuiPanel {
    * Moves the text cursor by a specified number of characters and clears the selection
    */
   public void moveCursorBy(int num) {
-    this.setCursorPosition(this.selectEnd + num);
+    setCursorPosition(selectEnd + num);
   }
 
   /**
    * Sets the current position of the cursor.
    */
   public void setCursorPosition(int pos) {
-    this.selectStart = pos;
-    int i = this.text.length();
-    this.selectStart = MathHelper.clamp(this.selectStart, 0, i);
-    this.setSelectionPos(this.selectStart);
+    selectStart = pos;
+    int i = text.length();
+    selectStart = MathHelper.clamp(selectStart, 0, i);
+    setSelectionPos(selectStart);
   }
 
   /**
@@ -368,26 +368,26 @@ public class PanelTextField<T> implements IGuiPanel {
    */
   @Override
   public boolean onKeyTyped(char typedChar, int keyCode) {
-    if (!this.isFocused) {
+    if (!isFocused) {
       return false;
     } else if (GuiScreen.isKeyComboCtrlA(keyCode)) {
-      this.setCursorPosition(text.length());
-      this.setSelectionPos(0);
+      setCursorPosition(text.length());
+      setSelectionPos(0);
       return true;
     } else if (GuiScreen.isKeyComboCtrlC(keyCode)) {
-      GuiScreen.setClipboardString(this.getSelectedText());
+      GuiScreen.setClipboardString(getSelectedText());
       return true;
     } else if (GuiScreen.isKeyComboCtrlV(keyCode)) {
-      if (this.isActive) {
-        this.writeText(GuiScreen.getClipboardString());
+      if (isActive) {
+        writeText(GuiScreen.getClipboardString());
       }
 
       return true;
     } else if (GuiScreen.isKeyComboCtrlX(keyCode)) {
-      GuiScreen.setClipboardString(this.getSelectedText());
+      GuiScreen.setClipboardString(getSelectedText());
 
-      if (this.isActive) {
-        this.writeText("");
+      if (isActive) {
+        writeText("");
       }
 
       return true;
@@ -396,11 +396,11 @@ public class PanelTextField<T> implements IGuiPanel {
         case 14: // Backspace
         {
           if (GuiScreen.isCtrlKeyDown()) {
-            if (this.isActive) {
-              this.deleteWords(-1);
+            if (isActive) {
+              deleteWords(-1);
             }
-          } else if (this.isActive) {
-            this.deleteFromCursor(-1);
+          } else if (isActive) {
+            deleteFromCursor(-1);
           }
 
           return true;
@@ -408,7 +408,7 @@ public class PanelTextField<T> implements IGuiPanel {
         case 28: // Enter
         {
           if (canWrap) {
-            this.writeText("\n");
+            writeText("\n");
           }
 
           return true;
@@ -416,9 +416,9 @@ public class PanelTextField<T> implements IGuiPanel {
         case 199: // Home
         {
           if (GuiScreen.isShiftKeyDown()) {
-            this.setSelectionPos(0);
+            setSelectionPos(0);
           } else {
-            this.setCursorPosition(0);
+            setCursorPosition(0);
           }
 
           return true;
@@ -427,14 +427,14 @@ public class PanelTextField<T> implements IGuiPanel {
         {
           if (GuiScreen.isShiftKeyDown()) {
             if (GuiScreen.isCtrlKeyDown()) {
-              this.setSelectionPos(this.getNthWordFromPos(-1, selectEnd));
+              setSelectionPos(getNthWordFromPos(-1, selectEnd));
             } else {
-              this.setSelectionPos(selectEnd - 1);
+              setSelectionPos(selectEnd - 1);
             }
           } else if (GuiScreen.isCtrlKeyDown()) {
-            this.setCursorPosition(this.getNthWordFromCursor(-1));
+            setCursorPosition(getNthWordFromCursor(-1));
           } else {
-            this.moveCursorBy(-1);
+            moveCursorBy(-1);
           }
 
           return true;
@@ -443,14 +443,14 @@ public class PanelTextField<T> implements IGuiPanel {
         {
           if (GuiScreen.isShiftKeyDown()) {
             if (GuiScreen.isCtrlKeyDown()) {
-              this.setSelectionPos(this.getNthWordFromPos(1, selectEnd));
+              setSelectionPos(getNthWordFromPos(1, selectEnd));
             } else {
-              this.setSelectionPos(selectEnd + 1);
+              setSelectionPos(selectEnd + 1);
             }
           } else if (GuiScreen.isCtrlKeyDown()) {
-            this.setCursorPosition(this.getNthWordFromCursor(1));
+            setCursorPosition(getNthWordFromCursor(1));
           } else {
-            this.moveCursorBy(1);
+            moveCursorBy(1);
           }
 
           return true;
@@ -458,9 +458,9 @@ public class PanelTextField<T> implements IGuiPanel {
         case 207: // End
         {
           if (GuiScreen.isShiftKeyDown()) {
-            this.setSelectionPos(this.text.length());
+            setSelectionPos(text.length());
           } else {
-            this.setCursorPosition(text.length());
+            setCursorPosition(text.length());
           }
 
           return true;
@@ -478,19 +478,19 @@ public class PanelTextField<T> implements IGuiPanel {
         case 211: // Delete
         {
           if (GuiScreen.isCtrlKeyDown()) {
-            if (this.isActive) {
-              this.deleteWords(1);
+            if (isActive) {
+              deleteWords(1);
             }
-          } else if (this.isActive) {
-            this.deleteFromCursor(1);
+          } else if (isActive) {
+            deleteFromCursor(1);
           }
 
           return true;
         }
         default: {
           if (ChatAllowedCharacters.isAllowedCharacter(typedChar)) {
-            if (this.isActive) {
-              this.writeText(Character.toString(typedChar));
+            if (isActive) {
+              writeText(Character.toString(typedChar));
             }
 
             return true;
@@ -507,7 +507,7 @@ public class PanelTextField<T> implements IGuiPanel {
    * selection). If the anchor is set beyond the bounds of the current text, it will be put back inside.
    */
   public void setSelectionPos(int position) {
-    int i = this.text.length();
+    int i = text.length();
 
     if (position > i) {
       position = i;
@@ -518,7 +518,7 @@ public class PanelTextField<T> implements IGuiPanel {
     }
 
     if (selectEnd != position) {
-      this.selectEnd = position;
+      selectEnd = position;
 
       FontRenderer font = Minecraft.getMinecraft().fontRenderer;
 
@@ -595,18 +595,16 @@ public class PanelTextField<T> implements IGuiPanel {
   }
 
   @Override
-  public void initPanel() {
-
-  }
+  public void initPanel() { }
 
   @Override
   public void setEnabled(boolean state) {
-    this.enabled = state;
+    enabled = state;
   }
 
   @Override
   public boolean isEnabled() {
-    return this.enabled;
+    return enabled;
   }
 
   @Override
@@ -624,8 +622,8 @@ public class PanelTextField<T> implements IGuiPanel {
       dragging = false;
     }
 
-    IGuiRect bounds = this.getTransform();
-    int state = !this.isActive() ? 0 : (isFocused ? 2 : 1);
+    IGuiRect bounds = getTransform();
+    int state = !isActive() ? 0 : (isFocused ? 2 : 1);
     Minecraft mc = Minecraft.getMinecraft();
     IGuiTexture t = texState[state];
     GlStateManager.pushMatrix();
@@ -666,8 +664,8 @@ public class PanelTextField<T> implements IGuiPanel {
   @Override
   public boolean onMouseClick(int mx, int my, int button) {
     if (transform.contains(mx, my)) {
-      if (!this.isFocused) {
-        this.isFocused = true;
+      if (!isFocused) {
+        isFocused = true;
         updateScrollBounds(); // Just in case
       }
 
@@ -682,9 +680,9 @@ public class PanelTextField<T> implements IGuiPanel {
       dragging = true;
 
       //return true;
-    } else if (this.isFocused && !lockFocus) {
-      this.isFocused = false;
-      this.text = filter.parseValue(this.text).toString();
+    } else if (isFocused && !lockFocus) {
+      isFocused = false;
+      text = filter.parseValue(text).toString();
       //setCursorPosition(0);
     }
 

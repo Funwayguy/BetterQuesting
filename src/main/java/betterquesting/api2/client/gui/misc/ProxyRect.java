@@ -7,11 +7,11 @@ public class ProxyRect implements IGuiRect {
   private IGuiRect ref;
 
   public ProxyRect(IGuiRect refRect) {
-    this.ref = refRect;
+    ref = refRect;
   }
 
   public void changeReference(IGuiRect refRect) {
-    this.ref = refRect;
+    ref = refRect;
   }
 
   @Override
@@ -46,7 +46,9 @@ public class ProxyRect implements IGuiRect {
 
   @Override
   public void setParent(IGuiRect rect) {
-    if (ref != null) { ref.setParent(rect); }
+    if (ref != null) {
+      ref.setParent(rect);
+    }
   }
 
   @Override

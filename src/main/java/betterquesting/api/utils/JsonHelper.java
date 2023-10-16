@@ -103,7 +103,9 @@ public class JsonHelper {
   }
 
   public static JsonObject ReadFromFile(File file) {
-    if (file == null || !file.exists()) { return new JsonObject(); }
+    if (file == null || !file.exists()) {
+      return new JsonObject();
+    }
 
     Future<JsonObject> task = BQThreadedIO.INSTANCE.enqueue(() -> {
       // NOTE: These are now split due to an edge case in the previous implementation where resource leaking can occur should the outer constructor fail
@@ -177,7 +179,9 @@ public class JsonHelper {
       }
 
       try {
-        if (file.exists()) { file.delete(); }
+        if (file.exists()) {
+          file.delete();
+        }
         tmp.renameTo(file);
       } catch (Exception e) {
         QuestingAPI.getLogger().error("An error occured while saving JSON to file (Temp copy):", e);
@@ -187,10 +191,14 @@ public class JsonHelper {
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public static void CopyPaste(File fileIn, File fileOut) {
-    if (!fileIn.exists()) { return; }
+    if (!fileIn.exists()) {
+      return;
+    }
 
     try {
-      if (fileOut.getParentFile() != null) { fileOut.getParentFile().mkdirs(); }
+      if (fileOut.getParentFile() != null) {
+        fileOut.getParentFile().mkdirs();
+      }
       Files.copy(fileIn.toPath(), fileOut.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (Exception e) {
       QuestingAPI.getLogger().log(Level.ERROR, "Failed copy paste", e);
@@ -232,7 +240,9 @@ public class JsonHelper {
    */
   public static BigItemStack JsonToItemStack(NBTTagCompound nbt) {
     Item preCheck = Item.getByNameOrId(nbt.hasKey("id", 99) ? "" + nbt.getShort("id") : nbt.getString("id"));
-    if (preCheck != null && preCheck != ItemPlaceholder.placeholder) { return new BigItemStack(nbt); }
+    if (preCheck != null && preCheck != ItemPlaceholder.placeholder) {
+      return new BigItemStack(nbt);
+    }
     return PlaceholderConverter.convertItem(preCheck, nbt.getString("id"), nbt.getInteger("Count"),
                                             nbt.getShort("Damage"), nbt.getString("OreDict"),
                                             !nbt.hasKey("tag", 10) ? null : nbt.getCompoundTag("tag"));
@@ -242,7 +252,9 @@ public class JsonHelper {
    * Use this for quests instead of converter NBT because this doesn't use ID numbers
    */
   public static NBTTagCompound ItemStackToJson(BigItemStack stack, NBTTagCompound nbt) {
-    if (stack != null) { stack.writeToNBT(nbt); }
+    if (stack != null) {
+      stack.writeToNBT(nbt);
+    }
     return nbt;
   }
 
@@ -256,10 +268,14 @@ public class JsonHelper {
   }
 
   public static NBTTagCompound FluidStackToJson(FluidStack stack, NBTTagCompound json) {
-    if (stack == null) { return json; }
+    if (stack == null) {
+      return json;
+    }
     json.setString("FluidName", FluidRegistry.getFluidName(stack));
     json.setInteger("Amount", stack.amount);
-    if (stack.tag != null) { json.setTag("Tag", stack.tag); }
+    if (stack.tag != null) {
+      json.setTag("Tag", stack.tag);
+    }
     return json;
   }
 
