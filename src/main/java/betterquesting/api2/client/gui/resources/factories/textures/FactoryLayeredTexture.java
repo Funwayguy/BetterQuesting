@@ -17,46 +17,44 @@ import net.minecraft.util.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FactoryLayeredTexture implements IFactoryData<IGuiTexture, JsonObject>
-{
-    public static final FactoryLayeredTexture INSTANCE = new FactoryLayeredTexture();
-    
-    private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_layered");
-    private static final IGuiTexture NULL_TX = new SimpleTexture(PresetTexture.TX_NULL, new GuiRectangle(0, 0, 16, 16)).maintainAspect(false);
-    
-    @Override
-    public LayeredTexture loadFromData(JsonObject data)
-    {
-        List<IGuiTexture> layers = new ArrayList<>();
-        
-        JsonArray jAry = JsonHelper.GetArray(data, "layers");
-        for(JsonElement je : jAry)
-        {
-            if(!je.isJsonObject()) continue;
-            JsonObject jo = je.getAsJsonObject();
-            
-            try
-            {
-                IGuiTexture tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getTexReg().createNew(new ResourceLocation(JsonHelper.GetString(jo, "textureType", "null")), jo);
-                layers.add(tFact);
-            } catch(Exception ignored)
-            {
-                layers.add(NULL_TX);
-            }
-        }
-        
-        return new LayeredTexture(layers.toArray(new IGuiTexture[0]));
+public class FactoryLayeredTexture implements IFactoryData<IGuiTexture, JsonObject> {
+  public static final FactoryLayeredTexture INSTANCE = new FactoryLayeredTexture();
+
+  private static final ResourceLocation RES_ID = new ResourceLocation("betterquesting", "texture_layered");
+  private static final IGuiTexture NULL_TX =
+      new SimpleTexture(PresetTexture.TX_NULL, new GuiRectangle(0, 0, 16, 16)).maintainAspect(false);
+
+  @Override
+  public LayeredTexture loadFromData(JsonObject data) {
+    List<IGuiTexture> layers = new ArrayList<>();
+
+    JsonArray jAry = JsonHelper.GetArray(data, "layers");
+    for (JsonElement je : jAry) {
+      if (!je.isJsonObject()) {
+        continue;
+      }
+      JsonObject jo = je.getAsJsonObject();
+
+      try {
+        IGuiTexture tFact = QuestingAPI.getAPI(ApiReference.RESOURCE_REG).getTexReg()
+                                       .createNew(new ResourceLocation(JsonHelper.GetString(jo, "textureType", "null")),
+                                                  jo);
+        layers.add(tFact);
+      } catch (Exception ignored) {
+        layers.add(NULL_TX);
+      }
     }
-    
-    @Override
-    public ResourceLocation getRegistryName()
-    {
-        return RES_ID;
-    }
-    
-    @Override
-    public LayeredTexture createNew()
-    {
-        return new LayeredTexture();
-    }
+
+    return new LayeredTexture(layers.toArray(new IGuiTexture[0]));
+  }
+
+  @Override
+  public ResourceLocation getRegistryName() {
+    return RES_ID;
+  }
+
+  @Override
+  public LayeredTexture createNew() {
+    return new LayeredTexture();
+  }
 }

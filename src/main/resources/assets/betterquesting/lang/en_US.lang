@@ -107,6 +107,7 @@ itemGroup.betterquesting=Better Questing
 fluid.betterquesting.placeholder=Placeholder
 
 item.betterquesting.placeholder.name=Item Placeholder
+item.betterquesting.extra_life.name=Extra Life
 item.betterquesting.extra_life.full.name=Extra Life
 item.betterquesting.extra_life.half.name=Half Heart
 item.betterquesting.extra_life.quarter.name=Quarter Heart

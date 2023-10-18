@@ -9,12 +9,12 @@ import java.io.FileFilter;
 /**
  * Used as a basis for quest importers
  */
-public interface IImporter
-{
-	String getUnlocalisedName();
-	String getUnlocalisedDescription();
-	
-	FileFilter getFileFilter();
-	
-	void loadFiles(IQuestDatabase questDB, IQuestLineDatabase lineDB, File[] files);
+public interface IImporter {
+  String getUnlocalisedName();
+
+  String getUnlocalisedDescription();
+
+  FileFilter getFileFilter();
+
+  void loadFiles(IQuestDatabase questDB, IQuestLineDatabase lineDB, File[] files);
 }
